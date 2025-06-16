@@ -1,5 +1,6 @@
 import type { Route } from "./+types/dashboard.route";
 import { Dashboard } from "../modules/dashboard/components/dashboard";
+import getDocuments from "~/core/documents/getDocuments";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -8,6 +9,21 @@ export function meta({ }: Route.MetaArgs) {
   ];
 }
 
-export default function DashboardRoute() {
-  return <Dashboard />;
+export async function loader({ params }: Route.LoaderArgs) {
+  const projects = await getDocuments({ collection: 'projects' });
+  return { projects };
+}
+
+export function HydrateFallback() {
+  return <div>Loading...</div>;
+}
+
+
+export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
+  const { projects } = loaderData;
+  return (
+    <Dashboard
+      projects={projects?.data}
+    />
+  );
 }
