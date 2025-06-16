@@ -3,17 +3,20 @@ import { Projects } from "~/modules/projects/components/projects";
 
 
 type DashboardProps = {
-  projects: []
+  projects: [],
+  onCreateNewProjectClicked: () => void
 };
 
 export function Dashboard({
-  projects
+  projects,
+  onCreateNewProjectClicked
 }: DashboardProps) {
-  console.log(projects);
   return (
     <main>
-      Dashboard
-      <Projects />
+      <Projects
+        projects={projects}
+        onCreateNewProjectClicked={onCreateNewProjectClicked}
+      />
     </main>
   );
 }
