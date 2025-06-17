@@ -5,10 +5,14 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useMatches,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -24,6 +28,11 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const data = useMatches();
+
+  // @ts-ignore
+  const projectName = data[1]?.data?.project?.data.name || "";
+
   return (
     <html lang="en">
       <head>
@@ -33,7 +42,48 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <SidebarProvider defaultOpen={false}>
+          <Sidebar variant="inset" >
+            <SidebarHeader />
+            <SidebarContent>
+              <SidebarGroup />
+              <SidebarGroup />
+            </SidebarContent>
+            <SidebarFooter />
+          </Sidebar>
+          <SidebarInset>
+            <main>
+              <div className="p-2 flex items-center">
+                <SidebarTrigger />
+                <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    <BreadcrumbItem className="hidden md:block">
+                      {(data.length === 2) && (
+                        <BreadcrumbLink href="/">
+                          Projects
+                        </BreadcrumbLink>
+                      ) || (
+                          <>
+                            Projects
+                          </>
+                        )}
+                    </BreadcrumbItem>
+                    {(data.length === 2) && (
+                      <>
+                        <BreadcrumbSeparator className="hidden md:block" />
+                        <BreadcrumbItem>
+                          <BreadcrumbPage>{projectName}</BreadcrumbPage>
+                        </BreadcrumbItem>
+                      </>
+                    )}
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+              {children}
+            </main>
+          </SidebarInset>
+        </SidebarProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

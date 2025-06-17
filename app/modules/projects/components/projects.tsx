@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table"
 import CreateProjectDialog from "./createProjectDialog";
 import map from 'lodash/map';
+import { Link } from "react-router";
 
 interface Project {
   _id: string;
@@ -61,7 +62,11 @@ export function Projects({
               {map(projects, (project) => {
                 return (
                   <TableRow key={project._id}>
-                    <TableCell className="font-medium">{project.name}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link to={`/projects/${project._id}`}>
+                        {project.name}
+                      </Link>
+                    </TableCell>
                     <TableCell>{project.createdAt}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm">

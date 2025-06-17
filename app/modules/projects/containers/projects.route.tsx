@@ -43,7 +43,7 @@ export function HydrateFallback() {
 }
 
 
-export default function DashboardRoute({ loaderData }: Route.ComponentProps) {
+export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const { projects } = loaderData;
   const submit = useSubmit();
 
