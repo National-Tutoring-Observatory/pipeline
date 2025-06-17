@@ -1,22 +1,9 @@
-import { Projects } from "~/modules/projects/components/projects";
+import { Outlet } from "react-router";
 
-
-
-type DashboardProps = {
-  projects: [],
-  onCreateNewProjectClicked: () => void
-};
-
-export function Dashboard({
-  projects,
-  onCreateNewProjectClicked
-}: DashboardProps) {
+export function Dashboard() {
   return (
     <main>
-      <Projects
-        projects={projects}
-        onCreateNewProjectClicked={onCreateNewProjectClicked}
-      />
+      <Outlet />
     </main>
   );
 }
