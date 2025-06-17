@@ -2,8 +2,8 @@ import { Outlet } from "react-router";
 
 export function Dashboard() {
   return (
-    <main>
+    <div>
       <Outlet />
-    </main>
+    </div>
   );
 }
