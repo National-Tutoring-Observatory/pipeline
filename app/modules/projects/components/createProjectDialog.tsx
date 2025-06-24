@@ -51,7 +51,9 @@ const CreateProjectDialog = ({
         </div>
         <DialogFooter className="justify-end">
           <DialogClose asChild>
-            <Button type="button" variant="secondary">
+            <Button type="button" variant="secondary" onClick={() => {
+              setName('');
+            }}>
               Cancel
             </Button>
           </DialogClose>
