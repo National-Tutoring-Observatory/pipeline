@@ -1,15 +1,11 @@
 
 import getDocument from "~/core/documents/getDocument";
 import type { Route } from "./+types/project.route";
-
-type Project = {
-  data: {
-    name: string
-  }
-};
+import type { Project as ProjectType } from "../projects.types";
+import Project from '../components/project';
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const project = await getDocument({ collection: 'projects', document: { _id: parseInt(params.id) } }) as Project;
+  const project = await getDocument({ collection: 'projects', document: { _id: parseInt(params.id) } }) as { data: ProjectType };
   return { project };
 }
 
@@ -22,8 +18,8 @@ export function HydrateFallback() {
 export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const { project } = loaderData;
   return (
-    <div className="max-w-5xl mx-auto p-8">
-      Rendering project {project.data.name}
-    </div>
+    <Project
+      project={project.data}
+    />
   );
 }

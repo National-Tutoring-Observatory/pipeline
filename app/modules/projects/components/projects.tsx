@@ -11,11 +11,7 @@ import CreateProjectDialog from "./createProjectDialog";
 import map from 'lodash/map';
 import { Link } from "react-router";
 
-interface Project {
-  _id: string;
-  name: string;
-  createdAt: string;
-}
+import type { Project } from "../projects.types";
 
 interface ProjectsProps {
   projects: Project[];
@@ -23,7 +19,7 @@ interface ProjectsProps {
   onDeleteProjectClicked: (projectId: string) => void;
 }
 
-export function Projects({
+export default function Projects({
   projects,
   onCreateNewProjectClicked,
   onDeleteProjectClicked
