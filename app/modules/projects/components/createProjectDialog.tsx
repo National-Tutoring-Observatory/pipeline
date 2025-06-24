@@ -1,4 +1,3 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,8 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircleIcon } from "lucide-react";
 import { useState } from "react";
+import ProjectNameAlert from "./projectNameAlert";
 
 const CreateProjectDialog = ({
   onCreateNewProjectClicked
@@ -24,6 +23,12 @@ const CreateProjectDialog = ({
   const onProjectNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
+
+  let isSubmitButtonDisabled = true;
+
+  if (name.trim().length >= 3) {
+    isSubmitButtonDisabled = false;
+  }
 
   return (
     <Dialog>
@@ -39,13 +44,10 @@ const CreateProjectDialog = ({
         </DialogHeader>
         <div className="grid gap-3">
           <Label htmlFor="name-1">Name</Label>
-          <Input id="name-1" name="name" defaultValue={name} onChange={onProjectNameChanged} />
-          {(name.length === 0) && (
-            <Alert variant="destructive">
-              <AlertCircleIcon />
-              <AlertTitle>Project name is required</AlertTitle>
-            </Alert>
-          )}
+          <Input id="name-1" name="name" defaultValue={name} autoComplete="off" onChange={onProjectNameChanged} />
+          <ProjectNameAlert
+            name={name}
+          />
         </div>
         <DialogFooter className="justify-end">
           <DialogClose asChild>
@@ -54,7 +56,10 @@ const CreateProjectDialog = ({
             </Button>
           </DialogClose>
           <DialogClose asChild>
-            <Button type="button" disabled={name.length === 0} onClick={() => onCreateNewProjectClicked(name)}>
+            <Button type="button" disabled={isSubmitButtonDisabled} onClick={() => {
+              onCreateNewProjectClicked(name);
+              setName('');
+            }}>
               Create project
             </Button>
           </DialogClose>
