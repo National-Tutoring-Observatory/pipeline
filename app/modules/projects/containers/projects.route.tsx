@@ -4,6 +4,7 @@ import { useSubmit } from "react-router";
 import type { Route } from "./+types/projects.route";
 import Projects from "../components/projects";
 import deleteDocument from "~/core/documents/deleteDocument";
+import { toast } from "sonner"
 
 type Projects = {
   data: [],
@@ -52,7 +53,9 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   }
 
   const onDeleteProjectClicked = (projectId: string) => {
-    submit({ intent: 'DELETE', projectId: projectId }, { method: 'DELETE' });
+    submit({ intent: 'DELETE', projectId: projectId }, { method: 'DELETE' }).then(() => {
+      toast.success('Deleted project');
+    });
   }
 
   return (
