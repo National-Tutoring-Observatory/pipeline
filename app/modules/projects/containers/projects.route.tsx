@@ -2,7 +2,7 @@ import getDocuments from "~/core/documents/getDocuments";
 import createDocument from "~/core/documents/createDocument";
 import { useSubmit } from "react-router";
 import type { Route } from "./+types/projects.route";
-import { Projects } from "../components/projects";
+import Projects from "../components/projects";
 import deleteDocument from "~/core/documents/deleteDocument";
 
 type Projects = {
