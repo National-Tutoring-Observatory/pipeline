@@ -8,10 +8,13 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import CreateProjectDialog from "./createProjectDialog";
+import DeleteProjectDialog from './deleteProjectDialog';
 import map from 'lodash/map';
 import { Link } from "react-router";
 
 import type { Project } from "../projects.types";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { EllipsisVertical } from "lucide-react";
 
 interface ProjectsProps {
   projects: Project[];
@@ -51,7 +54,7 @@ export default function Projects({
               <TableRow>
                 <TableHead className="w-[300px]">Name</TableHead>
                 <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-right"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -64,13 +67,31 @@ export default function Projects({
                       </Link>
                     </TableCell>
                     <TableCell>{project.createdAt}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
-                        View
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => onDeleteProjectClicked(project._id)}>
-                        Delete
-                      </Button>
+                    <TableCell className="text-right flex justify-end">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                            size="icon"
+                          >
+                            <EllipsisVertical />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-32">
+                          {/* <DropdownMenuItem>Edit</DropdownMenuItem>
+                          <DropdownMenuItem>Make a copy</DropdownMenuItem>
+                          <DropdownMenuItem>Favorite</DropdownMenuItem>
+                          <DropdownMenuSeparator /> */}
+                          <DropdownMenuItem asChild variant="destructive">
+                            <DeleteProjectDialog
+                              project={project}
+                              onDeleteProjectClicked={onDeleteProjectClicked}
+                            />
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );
