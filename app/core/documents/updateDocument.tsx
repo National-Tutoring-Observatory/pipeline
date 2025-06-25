@@ -1,30 +1,25 @@
 import fse from 'fs-extra';
 import findOrCreateDocuments from './findOrCreateDocuments';
-import getId from './getId';
+import find from 'lodash/find.js';
+import extend from 'lodash/extend.js';
 
 const COLLECTIONS = ['projects', 'runs'];
 
-export default async ({ collection, update }: { collection: string, update: { name: string } }) => {
+export default async ({ collection, document, update }: { collection: string, document: { _id: number }, update: {} }) => {
 
   try {
     await findOrCreateDocuments({ collection });
 
     const json = await fse.readJson(`./data/${collection}.json`);
 
-    const id = await getId();
+    let returnedDocument = find(json, { _id: document._id });
 
-    const newDocument = {
-      _id: id,
-      name: update.name,
-      createdAt: new Date()
-    }
-
-    json.push(newDocument);
+    extend(returnedDocument, update);
 
     await fse.writeJson(`./data/${collection}.json`, json);
 
     return {
-      data: newDocument
+      data: returnedDocument
     }
 
   } catch (error) {

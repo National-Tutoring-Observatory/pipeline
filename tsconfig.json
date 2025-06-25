@@ -39,6 +39,7 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "allowSyntheticDefaultImports": true
   }
 }

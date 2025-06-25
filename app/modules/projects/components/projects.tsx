@@ -7,25 +7,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import CreateProjectDialog from "./createProjectDialog";
-import DeleteProjectDialog from './deleteProjectDialog';
 import map from 'lodash/map';
 import { Link } from "react-router";
 
 import type { Project } from "../projects.types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
+import dayjs from 'dayjs'
 
 interface ProjectsProps {
   projects: Project[];
-  onCreateNewProjectClicked: (name: string) => void;
-  onDeleteProjectClicked: (projectId: string) => void;
+  onCreateProjectButtonClicked: () => void;
+  onEditProjectButtonClicked: (project: Project) => void;
+  onDeleteProjectButtonClicked: (project: Project) => void;
 }
 
 export default function Projects({
   projects,
-  onCreateNewProjectClicked,
-  onDeleteProjectClicked
+  onCreateProjectButtonClicked,
+  onEditProjectButtonClicked,
+  onDeleteProjectButtonClicked
 }: ProjectsProps) {
   return (
     <div className="max-w-5xl mx-auto p-8">
@@ -36,18 +37,14 @@ export default function Projects({
         <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
           No projects created
           <div className="mt-3">
-            <CreateProjectDialog
-              onCreateNewProjectClicked={onCreateNewProjectClicked}
-            />
+            <Button onClick={onCreateProjectButtonClicked}>Create project</Button>
           </div>
         </div>
       )}
       {(projects.length > 0) && (
         <div className="border rounded-md">
           <div className="flex justify-end border-b p-2">
-            <CreateProjectDialog
-              onCreateNewProjectClicked={onCreateNewProjectClicked}
-            />
+            <Button onClick={onCreateProjectButtonClicked}>Create project</Button>
           </div>
           <Table>
             <TableHeader>
@@ -66,7 +63,7 @@ export default function Projects({
                         {project.name}
                       </Link>
                     </TableCell>
-                    <TableCell>{project.createdAt}</TableCell>
+                    <TableCell>{dayjs(project.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                     <TableCell className="text-right flex justify-end">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -80,15 +77,14 @@ export default function Projects({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-32">
-                          {/* <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>Make a copy</DropdownMenuItem>
-                          <DropdownMenuItem>Favorite</DropdownMenuItem>
-                          <DropdownMenuSeparator /> */}
-                          <DropdownMenuItem asChild variant="destructive">
-                            <DeleteProjectDialog
-                              project={project}
-                              onDeleteProjectClicked={onDeleteProjectClicked}
-                            />
+                          <DropdownMenuItem onClick={() => onEditProjectButtonClicked(project)}>
+                            Edit
+                          </DropdownMenuItem>
+                          {/* <DropdownMenuItem>Make a copy</DropdownMenuItem>
+                          <DropdownMenuItem>Favorite</DropdownMenuItem> */}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem variant="destructive" onClick={() => onDeleteProjectButtonClicked(project)}>
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

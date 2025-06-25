@@ -5,6 +5,12 @@ import type { Route } from "./+types/projects.route";
 import Projects from "../components/projects";
 import deleteDocument from "~/core/documents/deleteDocument";
 import { toast } from "sonner"
+import addDialog from "~/core/dialogs/addDialog";
+import CreateProjectDialog from "../components/createProjectDialog";
+import EditProjectDialog from "../components/editProjectDialog";
+import DeleteProjectDialog from "../components/deleteProjectDialog";
+import type { Project } from "../projects.types";
+import updateDocument from "~/core/documents/updateDocument";
 
 type Projects = {
   data: [],
@@ -22,20 +28,21 @@ export async function action({
   const formData = await request.formData();
 
   const intent = formData.get('intent');
+  const name = formData.get("name");
+  const projectId = formData.get("projectId");
 
-  if (intent === 'CREATE') {
-    const name = formData.get("name");
-    if (typeof name !== "string") {
-      throw new Error("Project name is required and must be a string.");
-    }
-    const project = await createDocument({ collection: 'projects', document: { name } });
-    return project;
-  } else {
-    const projectIdValue = formData.get("projectId");
-    if (typeof projectIdValue !== "string" || isNaN(Number(projectIdValue))) {
-      throw new Error("Project ID is required and must be a valid number.");
-    }
-    return await deleteDocument({ collection: 'projects', document: { _id: Number(projectIdValue) } })
+  switch (intent) {
+    case 'CREATE':
+      if (typeof name !== "string") {
+        throw new Error("Project name is required and must be a string.");
+      }
+      return await createDocument({ collection: 'projects', update: { name } });
+    case 'UPDATE':
+      return await updateDocument({ collection: 'projects', document: { _id: Number(projectId) }, update: { name } });
+    case 'DELETE':
+      return await deleteDocument({ collection: 'projects', document: { _id: Number(projectId) } })
+    default:
+      return {};
   }
 }
 
@@ -48,8 +55,38 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const { projects } = loaderData;
   const submit = useSubmit();
 
+  const onCreateProjectButtonClicked = () => {
+    addDialog(
+      <CreateProjectDialog
+        onCreateNewProjectClicked={onCreateNewProjectClicked}
+      />
+    );
+  }
+
+  const onEditProjectButtonClicked = (project: Project) => {
+    addDialog(<EditProjectDialog
+      project={project}
+      onEditProjectClicked={onEditProjectClicked}
+    />);
+  }
+
+  const onDeleteProjectButtonClicked = (project: Project) => {
+    addDialog(
+      <DeleteProjectDialog
+        project={project}
+        onDeleteProjectClicked={onDeleteProjectClicked}
+      />
+    );
+  }
+
   const onCreateNewProjectClicked = (name: string) => {
     submit({ intent: 'CREATE', name }, { method: 'POST' });
+  }
+
+  const onEditProjectClicked = (project: Project) => {
+    submit({ intent: 'UPDATE', projectId: project._id, name: project.name }, { method: 'PUT' }).then(() => {
+      toast.success('Updated project');
+    });
   }
 
   const onDeleteProjectClicked = (projectId: string) => {
@@ -61,8 +98,9 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   return (
     <Projects
       projects={projects?.data}
-      onCreateNewProjectClicked={onCreateNewProjectClicked}
-      onDeleteProjectClicked={onDeleteProjectClicked}
+      onCreateProjectButtonClicked={onCreateProjectButtonClicked}
+      onEditProjectButtonClicked={onEditProjectButtonClicked}
+      onDeleteProjectButtonClicked={onDeleteProjectButtonClicked}
     />
   );
 }
