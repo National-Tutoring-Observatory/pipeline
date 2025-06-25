@@ -32,16 +32,16 @@ export default function UploadFiles({
           <div className="border rounded-md">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[300px]">Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="grid grid-cols-[500px_1fr_auto] items-center">
+                  <TableHead className="flex items-center">Name</TableHead>
+                  <TableHead className="flex items-center">Type</TableHead>
+                  <TableHead className="flex items-center"></TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="block h-[350px] overflow-y-auto">
                 {map(acceptedFiles, (acceptedFile) => {
                   return (
-                    <TableRow key={acceptedFile._id}>
+                    <TableRow key={acceptedFile._id} className="grid grid-cols-[500px_1fr_auto] items-center">
                       <TableCell className="font-medium">
                         {acceptedFile.name}
                       </TableCell>

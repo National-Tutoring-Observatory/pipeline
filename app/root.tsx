@@ -14,6 +14,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, Si
 import { Separator } from "@/components/ui/separator";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Toaster } from "sonner";
+import DialogContainer from "./core/dialogs/containers/dialog.container";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -86,6 +87,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </SidebarInset>
         </SidebarProvider>
         <Toaster />
+        <DialogContainer />
         <ScrollRestoration />
         <Scripts />
       </body>

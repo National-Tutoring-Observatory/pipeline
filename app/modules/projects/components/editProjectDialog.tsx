@@ -11,36 +11,38 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import ProjectNameAlert from "./projectNameAlert";
+import type { Project } from "../projects.types";
 
-const CreateProjectDialog = ({
-  onCreateNewProjectClicked
-}: { onCreateNewProjectClicked: (name: string) => void }) => {
+const EditProjectDialog = ({
+  project,
+  onEditProjectClicked
+}: { project: Project, onEditProjectClicked: (project: Project) => void }) => {
 
-  const [name, setName] = useState('');
+  const [updatedProject, setUpdatedProject] = useState(project);
 
   const onProjectNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
+    setUpdatedProject({ ...updatedProject, name: event.target.value });
   };
 
   let isSubmitButtonDisabled = true;
 
-  if (name.trim().length >= 3) {
+  if (updatedProject?.name.trim().length >= 3) {
     isSubmitButtonDisabled = false;
   }
 
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Create a new project</DialogTitle>
+        <DialogTitle>Edit project</DialogTitle>
         <DialogDescription>
-          Give your project a name. This can be changed at a later date but giving a description now will make it easier to find later.
+
         </DialogDescription>
       </DialogHeader>
       <div className="grid gap-3">
         <Label htmlFor="name-1">Name</Label>
-        <Input id="name-1" name="name" defaultValue={name} autoComplete="off" onChange={onProjectNameChanged} />
+        <Input id="name-1" name="name" defaultValue={updatedProject.name} autoComplete="off" onChange={onProjectNameChanged} />
         <ProjectNameAlert
-          name={name}
+          name={updatedProject?.name}
         />
       </div>
       <DialogFooter className="justify-end">
@@ -51,9 +53,9 @@ const CreateProjectDialog = ({
         </DialogClose>
         <DialogClose asChild>
           <Button type="button" disabled={isSubmitButtonDisabled} onClick={() => {
-            onCreateNewProjectClicked(name);
+            onEditProjectClicked(updatedProject);
           }}>
-            Create project
+            Save project
           </Button>
         </DialogClose>
       </DialogFooter>
@@ -61,4 +63,4 @@ const CreateProjectDialog = ({
   );
 };
 
-export default CreateProjectDialog;
+export default EditProjectDialog;
