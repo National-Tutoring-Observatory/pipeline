@@ -5,14 +5,14 @@ import extend from 'lodash/extend.js';
 
 const COLLECTIONS = ['projects', 'runs'];
 
-export default async ({ collection, document, update }: { collection: string, document: { _id: number }, update: {} }) => {
+export default async ({ collection, match, update }: { collection: string, match: { _id: number }, update: {} }) => {
 
   try {
     await findOrCreateDocuments({ collection });
 
     const json = await fse.readJson(`./data/${collection}.json`);
 
-    let returnedDocument = find(json, { _id: document._id });
+    let returnedDocument = find(json, match);
 
     extend(returnedDocument, update);
 

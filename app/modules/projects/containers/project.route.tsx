@@ -9,10 +9,12 @@ import { toast } from "sonner";
 import uploadFile from "~/core/uploads/uploadFile";
 import path from 'path';
 import createDocument from "~/core/documents/createDocument";
+import getDocuments from "~/core/documents/getDocuments";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const project = await getDocument({ collection: 'projects', document: { _id: parseInt(params.id) } }) as { data: ProjectType };
-  return { project };
+  const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.id) } }) as { data: ProjectType };
+  const files = await getDocuments({ collection: 'files', match: { project: parseInt(params.id) } });
+  return { project, filesCount: files.count };
 }
 
 export async function action({
@@ -32,20 +34,20 @@ export async function action({
       if (file instanceof File) {
         const name = path.basename(file.name);
         const document = await createDocument({
-          collection: 'files', update: {
+          collection: 'files',
+          update: {
             project: parseInt(entityId),
             fileType: file.type,
             name
           }
         }) as { data: any };
 
-        console.log(document);
         uploadFile({ file, outputDirectory: `./files/${entityId}/raw/${document.data._id}` });
       } else {
         console.warn('Expected a File, but got:', file);
       }
     }
-    return await updateDocument({ collection: 'projects', document: { _id: parseInt(entityId) }, update: { isUploadingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
+    return await updateDocument({ collection: 'projects', match: { _id: parseInt(entityId) }, update: { isUploadingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
 
   }
 }
@@ -57,13 +59,11 @@ export function HydrateFallback() {
 
 
 export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
-  const { project } = loaderData;
+  const { project, filesCount } = loaderData;
 
   const submit = useSubmit();
 
   const matches = useMatches();
-
-  console.log(matches);
 
   const onUploadFiles = async (acceptedFiles: any[]) => {
     const formData = new FormData();
@@ -90,6 +90,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   return (
     <Project
       project={project.data}
+      filesCount={filesCount}
       tabValue={matches[matches.length - 1].id}
       onUploadFiles={onUploadFiles}
     />

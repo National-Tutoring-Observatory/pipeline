@@ -7,9 +7,10 @@ import clsx from "clsx";
 
 export default function Project({
   project,
+  filesCount,
   tabValue,
   onUploadFiles
-}: { project: Project, tabValue: string, onUploadFiles: (acceptedFiles: any[]) => void }) {
+}: { project: Project, filesCount: number, tabValue: string, onUploadFiles: (acceptedFiles: any[]) => void }) {
 
   return (
     <div className="max-w-5xl mx-auto p-8">
@@ -25,9 +26,9 @@ export default function Project({
       )}
       {(project.hasSetupProject) && (
         <div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-20">
             <Link to={`/projects/${project._id}`} >
-              <Card className={clsx({
+              <Card className={clsx("transition-all", {
                 "border-accent-foreground": tabValue === 'RUNS'
               })}>
                 <CardHeader>
@@ -40,7 +41,7 @@ export default function Project({
               </Card>
             </Link>
             <Link to={`/projects/${project._id}/files`}>
-              <Card className={clsx({
+              <Card className={clsx("transition-all", {
                 "border-accent-foreground": tabValue === 'FILES'
               })}>
                 <CardHeader>
@@ -48,7 +49,7 @@ export default function Project({
                   <CardDescription>Files are your data files</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p>30 files</p>
+                  {`${filesCount} files`}
                 </CardContent>
               </Card>
             </Link>
