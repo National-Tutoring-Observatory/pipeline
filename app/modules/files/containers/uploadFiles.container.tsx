@@ -5,10 +5,15 @@ import { v4 as uuidv4 } from 'uuid';
 import remove from 'lodash/remove';
 import cloneDeep from 'lodash/cloneDeep';
 
-class UploadFilesContainer extends Component {
+interface UploadFilesContainerProps {
+  onUploadFiles: (acceptedFiles: any[]) => void;
+}
+
+class UploadFilesContainer extends Component<UploadFilesContainerProps> {
 
   state = {
     acceptedFiles: [],
+    isUploading: false,
   }
 
   onDrop = (acceptedFiles: any) => {
@@ -22,21 +27,28 @@ class UploadFilesContainer extends Component {
 
   onDeleteAcceptedFileClicked = (id: string) => {
     const clonedAcceptedFiles = cloneDeep(this.state.acceptedFiles);
+
     // @ts-ignore
     remove(clonedAcceptedFiles, { _id: id });
     this.setState({
       acceptedFiles: clonedAcceptedFiles
-    })
-    console.log(clonedAcceptedFiles);
+    });
 
+  }
+
+  onUploadFilesClicked = () => {
+    this.setState({ isUploading: true });
+    this.props.onUploadFiles(this.state.acceptedFiles);
   }
 
   render() {
     return (
       <UploadFiles
         acceptedFiles={this.state.acceptedFiles}
+        isUploading={this.state.isUploading}
         onDrop={this.onDrop}
         onDeleteAcceptedFileClicked={this.onDeleteAcceptedFileClicked}
+        onUploadFilesClicked={this.onUploadFilesClicked}
       />
     )
   }

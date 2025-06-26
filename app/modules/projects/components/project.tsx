@@ -4,7 +4,8 @@ import type { Project } from "../projects.types";
 export default function Project({
   project,
   onUploadFiles
-}: { project: Project, onUploadFiles: () => void }) {
+}: { project: Project, onUploadFiles: (acceptedFiles: any[]) => void }) {
+
   return (
     <div className="max-w-5xl mx-auto p-8">
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
