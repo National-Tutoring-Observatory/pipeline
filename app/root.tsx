@@ -61,7 +61,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Breadcrumb>
                   <BreadcrumbList>
                     <BreadcrumbItem className="hidden md:block">
-                      {(data.length === 2) && (
+                      {(data.length === 3) && (
                         <BreadcrumbLink href="/">
                           Projects
                         </BreadcrumbLink>
@@ -71,7 +71,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                           </>
                         )}
                     </BreadcrumbItem>
-                    {(data.length === 2) && (
+                    {(data.length === 3) && (
                       <>
                         <BreadcrumbSeparator className="hidden md:block" />
                         <BreadcrumbItem>

@@ -4,7 +4,7 @@ import type { Route } from "./+types/project.route";
 import type { Project as ProjectType } from "../projects.types";
 import Project from '../components/project';
 import updateDocument from "~/core/documents/updateDocument";
-import { useSubmit } from "react-router";
+import { useMatches, useNavigation, useParams, useSubmit } from "react-router";
 import { toast } from "sonner";
 import uploadFile from "~/core/uploads/uploadFile";
 import path from 'path';
@@ -61,6 +61,10 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
 
   const submit = useSubmit();
 
+  const matches = useMatches();
+
+  console.log(matches);
+
   const onUploadFiles = async (acceptedFiles: any[]) => {
     const formData = new FormData();
     formData.append('body', JSON.stringify({
@@ -86,6 +90,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   return (
     <Project
       project={project.data}
+      tabValue={matches[matches.length - 1].id}
       onUploadFiles={onUploadFiles}
     />
   );

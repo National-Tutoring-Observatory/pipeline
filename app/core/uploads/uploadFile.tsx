@@ -10,6 +10,11 @@ export default async function uploadFile({ file, outputDirectory }: { file: any,
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  await fse.writeFile(filePath, buffer);
+  return new Promise((resolve) => {
+    setTimeout(async () => {
+      await fse.writeFile(filePath, buffer);
+    }, 1000);
+  })
+
 
 }
