@@ -2,9 +2,7 @@ import fse from 'fs-extra';
 import findOrCreateDocuments from './findOrCreateDocuments';
 import getId from './getId';
 
-const COLLECTIONS = ['projects', 'runs'];
-
-export default async ({ collection, update }: { collection: string, update: { name: string } }) => {
+export default async ({ collection, update }: { collection: string, update: any }) => {
 
   try {
     await findOrCreateDocuments({ collection });
@@ -14,9 +12,9 @@ export default async ({ collection, update }: { collection: string, update: { na
     const id = await getId();
 
     const newDocument = {
+      ...update,
       _id: id,
-      name: update.name,
-      createdAt: new Date()
+      createdAt: new Date(),
     }
 
     json.push(newDocument);

@@ -25,22 +25,20 @@ export async function action({
   request,
 }: Route.ActionArgs) {
 
-  const formData = await request.formData();
+  const { intent, entityId, payload } = await request.json()
 
-  const intent = formData.get('intent');
-  const name = formData.get("name");
-  const projectId = formData.get("projectId");
+  const { name } = payload;
 
   switch (intent) {
-    case 'CREATE':
+    case 'CREATE_PROJECT':
       if (typeof name !== "string") {
         throw new Error("Project name is required and must be a string.");
       }
       return await createDocument({ collection: 'projects', update: { name } });
-    case 'UPDATE':
-      return await updateDocument({ collection: 'projects', document: { _id: Number(projectId) }, update: { name } });
-    case 'DELETE':
-      return await deleteDocument({ collection: 'projects', document: { _id: Number(projectId) } })
+    case 'UPDATE_PROJECT':
+      return await updateDocument({ collection: 'projects', document: { _id: Number(entityId) }, update: { name } });
+    case 'DELETE_PROJECT':
+      return await deleteDocument({ collection: 'projects', document: { _id: Number(entityId) } })
     default:
       return {};
   }
@@ -80,17 +78,17 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   }
 
   const onCreateNewProjectClicked = (name: string) => {
-    submit({ intent: 'CREATE', name }, { method: 'POST' });
+    submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name } }), { method: 'POST', encType: 'application/json' });
   }
 
   const onEditProjectClicked = (project: Project) => {
-    submit({ intent: 'UPDATE', projectId: project._id, name: project.name }, { method: 'PUT' }).then(() => {
+    submit(JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: project._id, payload: { name: project.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
       toast.success('Updated project');
     });
   }
 
   const onDeleteProjectClicked = (projectId: string) => {
-    submit({ intent: 'DELETE', projectId: projectId }, { method: 'DELETE' }).then(() => {
+    submit(JSON.stringify({ intent: 'DELETE_PROJECT', entityId: projectId }), { method: 'DELETE', encType: 'application/json' }).then(() => {
       toast.success('Deleted project');
     });
   }

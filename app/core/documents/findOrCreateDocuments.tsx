@@ -1,11 +1,12 @@
 import fse from 'fs-extra';
 import includes from 'lodash/includes.js';
 
-const COLLECTIONS = ['projects', 'runs', 'config'];
+const COLLECTIONS = ['projects', 'files', 'runs', 'config'];
 
 const DEFAULTS = {
   projects: [],
   run: [],
+  files: [],
   config: {
     id: 0
   }

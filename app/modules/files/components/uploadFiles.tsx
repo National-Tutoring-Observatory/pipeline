@@ -3,24 +3,39 @@ import { useDropzone } from 'react-dropzone';
 import map from 'lodash/map';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import clsx from 'clsx';
 
 export default function UploadFiles({
   acceptedFiles,
+  isUploading,
   onDrop,
-  onDeleteAcceptedFileClicked
+  onDeleteAcceptedFileClicked,
+  onUploadFilesClicked
 }: {
   acceptedFiles: { _id: string, name: string, type: string }[],
+  isUploading: boolean,
   onDrop: (acceptedFiles: any) => void,
-  onDeleteAcceptedFileClicked: (id: string) => void
+  onDeleteAcceptedFileClicked: (id: string) => void,
+  onUploadFilesClicked: () => void,
 }) {
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+  let uploadButtonText = `Upload ${acceptedFiles.length} files`;
+
+  if (isUploading) {
+    uploadButtonText = `Uploading ${acceptedFiles.length} files`;
+  }
+
+  const uploadClassName = clsx('border border-dashed border-black/20 p-8 rounded-md hover:bg-gray-50 dark:hover:bg-gray-50 text-center', {
+    'opacity-20': isUploading
+  })
 
   return (
     <div>
 
-      <div className='border border-dashed border-black/20 p-8 rounded-md hover:bg-gray-50 dark:hover:bg-gray-50 text-center' {...getRootProps()}>
-        <input {...getInputProps()} />
+      <div className={uploadClassName} {...getRootProps()}>
+        <input {...getInputProps()} disabled={isUploading} />
         {
           isDragActive ?
             <p>Drop the files here ...</p> :
@@ -58,7 +73,13 @@ export default function UploadFiles({
             </Table>
           </div>
           <div className="mt-2 flex justify-center">
-            <Button size="lg">Upload files</Button>
+            <Button
+              size="lg"
+              disabled={isUploading}
+              onClick={onUploadFilesClicked}
+            >
+              {uploadButtonText}
+            </Button>
           </div>
         </div>
       )}
