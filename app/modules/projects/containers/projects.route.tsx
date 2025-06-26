@@ -25,7 +25,7 @@ export async function action({
   request,
 }: Route.ActionArgs) {
 
-  const { intent, entityId, payload } = await request.json()
+  const { intent, entityId, payload = {} } = await request.json()
 
   const { name } = payload;
 
@@ -36,9 +36,9 @@ export async function action({
       }
       return await createDocument({ collection: 'projects', update: { name } });
     case 'UPDATE_PROJECT':
-      return await updateDocument({ collection: 'projects', document: { _id: Number(entityId) }, update: { name } });
+      return await updateDocument({ collection: 'projects', match: { _id: Number(entityId) }, update: { name } });
     case 'DELETE_PROJECT':
-      return await deleteDocument({ collection: 'projects', document: { _id: Number(entityId) } })
+      return await deleteDocument({ collection: 'projects', match: { _id: Number(entityId) } })
     default:
       return {};
   }
