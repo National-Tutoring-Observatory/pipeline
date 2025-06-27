@@ -6,18 +6,17 @@ import Project from '../components/project';
 import updateDocument from "~/core/documents/updateDocument";
 import { useMatches, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
-import uploadFile from "~/core/uploads/uploadFile";
-import path from 'path';
-import createDocument from "~/core/documents/createDocument";
 import getDocuments from "~/core/documents/getDocuments";
-import { emitter } from "~/core/events/emitter";
 import throttle from 'lodash/throttle';
 import { useState } from "react";
+import convertFileToSessions from "~/core/uploads/convertFileToSessions";
+import uploadFiles from "~/core/uploads/uploadFiles";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.id) } }) as { data: ProjectType };
   const files = await getDocuments({ collection: 'files', match: { project: parseInt(params.id) } }) as { count: number };
-  return { project, filesCount: files.count };
+  const sessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) } }) as { count: number };
+  return { project, filesCount: files.count, sessionsCount: sessions.count };
 }
 
 export async function action({
@@ -32,45 +31,19 @@ export async function action({
     // @ts-ignore
     const body = JSON.parse(formData.get('body'));
     const { entityId } = body;
-    const files = formData.getAll('files');
+    let files = formData.getAll('files');
 
-    const uploadFiles = async () => {
+    if (files.length === 1) {
 
-      let completedFiles = 0;
-
-      for (const file of files) {
-        if (file instanceof File) {
-          const name = path.basename(file.name);
-          const document = await createDocument({
-            collection: 'files',
-            update: {
-              project: parseInt(entityId),
-              fileType: file.type,
-              name,
-              hasUploaded: false
-            }
-          }) as { data: any };
-          console.log('before');
-          await uploadFile({ file, outputDirectory: `./files/${entityId}/raw/${document.data._id}` }).then(() => {
-            updateDocument({
-              collection: 'files', match: {
-                _id: parseInt(document.data._id)
-              }, update: {
-                hasUploaded: true
-              }
-            });
-            completedFiles++;
-            emitter.emit("UPLOAD_FILES", { projectId: parseInt(entityId), progress: Math.round((100 / files.length) * completedFiles), status: 'RUNNING' });
-          });
-          console.log('after');
-        } else {
-          console.warn('Expected a File, but got:', file);
+      if (files[0] instanceof File) {
+        if (files[0].type === 'application/jsonl') {
+          files = await convertFileToSessions({ file: files[0], entityId });
         }
       }
-      await updateDocument({ collection: 'projects', match: { _id: parseInt(entityId) }, update: { isUploadingFiles: false } }) as { data: ProjectType };
-      emitter.emit("UPLOAD_FILES", { projectId: parseInt(entityId), progress: 100, status: 'DONE' });
     }
-    uploadFiles();
+
+    uploadFiles({ files, entityId });
+
     return await updateDocument({ collection: 'projects', match: { _id: parseInt(entityId) }, update: { isUploadingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
 
   }
@@ -86,7 +59,7 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
-  const { project, filesCount } = loaderData;
+  const { project, filesCount, sessionsCount } = loaderData;
 
   const submit = useSubmit();
 
@@ -95,6 +68,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const { revalidate, state } = useRevalidator();
 
   const [uploadFilesProgress, setUploadFilesProgress] = useState(0);
+  const [convertSessionsProgress, setConvertSessionsProgress] = useState(0);
 
   const onUploadFiles = async (acceptedFiles: any[]) => {
     const formData = new FormData();
@@ -108,7 +82,8 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       })),
     }))
     for (const file of acceptedFiles) {
-      formData.append('files', file);
+      const blob = new Blob([file], { type: file.type });
+      formData.append('files', blob, file.name);
     }
     const eventSource = new EventSource("/events");
 
@@ -140,7 +115,9 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     <Project
       project={project.data}
       filesCount={filesCount}
+      sessionsCount={sessionsCount}
       tabValue={matches[matches.length - 1].id}
+      convertSessionsProgress={convertSessionsProgress}
       uploadFilesProgress={uploadFilesProgress}
       onUploadFiles={onUploadFiles}
     />

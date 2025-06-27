@@ -59,7 +59,7 @@ export default function Projects({
                 return (
                   <TableRow key={project._id}>
                     <TableCell className="font-medium">
-                      <Link to={`/projects/${project._id}`}>
+                      <Link to={`/projects/${project._id}`} className="block w-full">
                         {project.name}
                       </Link>
                     </TableCell>
