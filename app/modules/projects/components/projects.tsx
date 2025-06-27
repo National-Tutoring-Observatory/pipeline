@@ -58,11 +58,11 @@ export default function Projects({
               {map(projects, (project) => {
                 return (
                   <TableRow key={project._id}>
-                    <TableCell className="font-medium">
-                      <Link to={`/projects/${project._id}`}>
+                    <Link to={`/projects/${project._id}`} className="block w-full">
+                      <TableCell className="font-medium">
                         {project.name}
-                      </Link>
-                    </TableCell>
+                      </TableCell>
+                    </Link>
                     <TableCell>{dayjs(project.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                     <TableCell className="text-right flex justify-end">
                       <DropdownMenu>

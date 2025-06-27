@@ -1,6 +1,6 @@
 import getDocuments from "~/core/documents/getDocuments";
 import createDocument from "~/core/documents/createDocument";
-import { useSubmit } from "react-router";
+import { useActionData, useNavigate, useSubmit } from "react-router";
 import type { Route } from "./+types/projects.route";
 import Projects from "../components/projects";
 import deleteDocument from "~/core/documents/deleteDocument";
@@ -11,13 +11,14 @@ import EditProjectDialog from "../components/editProjectDialog";
 import DeleteProjectDialog from "../components/deleteProjectDialog";
 import type { Project } from "../projects.types";
 import updateDocument from "~/core/documents/updateDocument";
+import { useEffect } from "react";
 
 type Projects = {
   data: [],
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const projects = await getDocuments({ collection: 'projects' }) as Projects;
+  const projects = await getDocuments({ collection: 'projects', match: {} }) as Projects;
   return { projects };
 }
 
@@ -34,7 +35,11 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Project name is required and must be a string.");
       }
-      return await createDocument({ collection: 'projects', update: { name } });
+      const project = await createDocument({ collection: 'projects', update: { name } }) as { data: Project };
+      return {
+        intent: 'CREATE_PROJECT',
+        ...project
+      }
     case 'UPDATE_PROJECT':
       return await updateDocument({ collection: 'projects', match: { _id: Number(entityId) }, update: { name } });
     case 'DELETE_PROJECT':
@@ -52,6 +57,14 @@ export function HydrateFallback() {
 export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const { projects } = loaderData;
   const submit = useSubmit();
+  const actionData = useActionData();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (actionData?.intent === 'CREATE_PROJECT') {
+      navigate(`/projects/${actionData.data._id}`)
+    }
+  }, [actionData]);
 
   const onCreateProjectButtonClicked = () => {
     addDialog(
@@ -78,7 +91,9 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   }
 
   const onCreateNewProjectClicked = (name: string) => {
-    submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name } }), { method: 'POST', encType: 'application/json' });
+    submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name } }), { method: 'POST', encType: 'application/json' }).then((response) => {
+      console.log(response);
+    });
   }
 
   const onEditProjectClicked = (project: Project) => {

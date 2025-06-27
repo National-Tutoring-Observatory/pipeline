@@ -17,7 +17,8 @@ import { useState } from "react";
 export async function loader({ params }: Route.LoaderArgs) {
   const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.id) } }) as { data: ProjectType };
   const files = await getDocuments({ collection: 'files', match: { project: parseInt(params.id) } }) as { count: number };
-  return { project, filesCount: files.count };
+  const sessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) } }) as { count: number };
+  return { project, filesCount: files.count, sessionsCount: sessions.count };
 }
 
 export async function action({
@@ -51,7 +52,7 @@ export async function action({
             }
           }) as { data: any };
           console.log('before');
-          await uploadFile({ file, outputDirectory: `./files/${entityId}/raw/${document.data._id}` }).then(() => {
+          await uploadFile({ file, outputDirectory: `./storage/${entityId}/files/${document.data._id}` }).then(() => {
             updateDocument({
               collection: 'files', match: {
                 _id: parseInt(document.data._id)
@@ -86,7 +87,7 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
-  const { project, filesCount } = loaderData;
+  const { project, filesCount, sessionsCount } = loaderData;
 
   const submit = useSubmit();
 
@@ -140,6 +141,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     <Project
       project={project.data}
       filesCount={filesCount}
+      sessionsCount={sessionsCount}
       tabValue={matches[matches.length - 1].id}
       uploadFilesProgress={uploadFilesProgress}
       onUploadFiles={onUploadFiles}

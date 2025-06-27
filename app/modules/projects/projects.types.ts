@@ -3,5 +3,6 @@ export interface Project {
   name: string;
   createdAt: string;
   isUploadingFiles: boolean;
+  isConvertingFiles: boolean;
   hasSetupProject: boolean;
 }

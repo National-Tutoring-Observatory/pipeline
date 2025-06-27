@@ -2,8 +2,6 @@ import fse from 'fs-extra';
 import findOrCreateDocuments from './findOrCreateDocuments';
 import filter from 'lodash/filter';
 
-const COLLECTIONS = ['projects', 'runs'];
-
 export default async ({ collection, match }: { collection: string, match: {} }) => {
 
   try {
