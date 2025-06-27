@@ -14,4 +14,5 @@ export default [
       })
     ])
   ]),
+  route("events", "core/events/containers/events.route.tsx")
 ] satisfies RouteConfig;

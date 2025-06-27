@@ -1,6 +1,7 @@
 import getDocuments from "~/core/documents/getDocuments";
 import type { Route } from "./+types/project.route";
 import { useLoaderData } from "react-router";
+import ProjectFiles from "../components/projectFiles";
 
 type Files = {
   data: [],
@@ -11,11 +12,11 @@ export async function loader({ params }: Route.LoaderArgs) {
   return { files };
 }
 
-export default function ProjectRunsRoute() {
-  const data = useLoaderData();
+export default function ProjectFilesRoute() {
+  const { files } = useLoaderData();
   return (
-    <div className="pt-4">
-      Files list will display here
-    </div>
+    <ProjectFiles
+      files={files.data}
+    />
   )
 }

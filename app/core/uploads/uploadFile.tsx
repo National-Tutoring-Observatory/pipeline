@@ -1,7 +1,7 @@
 import path from 'path';
 import fse from 'fs-extra';
 
-export default async function uploadFile({ file, outputDirectory }: { file: any, outputDirectory: string }) {
+export default async function uploadFile({ file, outputDirectory }: { file: any, outputDirectory: string }): Promise<void> {
 
   await fse.ensureDir(outputDirectory);
 
@@ -13,7 +13,8 @@ export default async function uploadFile({ file, outputDirectory }: { file: any,
   return new Promise((resolve) => {
     setTimeout(async () => {
       await fse.writeFile(filePath, buffer);
-    }, 1000);
+      resolve();
+    }, 300);
   })
 
 
