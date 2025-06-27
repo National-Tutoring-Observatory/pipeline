@@ -4,13 +4,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, Outlet } from "react-router";
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import clsx from "clsx";
+import { Progress } from "@/components/ui/progress";
 
 export default function Project({
   project,
   filesCount,
   tabValue,
+  uploadFilesProgress,
   onUploadFiles
-}: { project: Project, filesCount: number, tabValue: string, onUploadFiles: (acceptedFiles: any[]) => void }) {
+}: { project: Project, filesCount: number, tabValue: string, uploadFilesProgress: number, onUploadFiles: (acceptedFiles: any[]) => void }) {
 
   return (
     <div className="max-w-5xl mx-auto p-8">
@@ -26,7 +28,7 @@ export default function Project({
       )}
       {(project.hasSetupProject) && (
         <div>
-          <div className="grid grid-cols-2 gap-20">
+          <div className="grid grid-cols-2 gap-8">
             <Link to={`/projects/${project._id}`} >
               <Card className={clsx("transition-all", {
                 "border-accent-foreground": tabValue === 'RUNS'
@@ -35,7 +37,7 @@ export default function Project({
                   <CardTitle>Runs</CardTitle>
                   <CardDescription>Runs are a way to annotate your data via Prompts</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="h-8">
                   <p>0 runs</p>
                 </CardContent>
               </Card>
@@ -48,8 +50,17 @@ export default function Project({
                   <CardTitle>Files</CardTitle>
                   <CardDescription>Files are your data files</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  {`${filesCount} files`}
+                <CardContent className="h-8">
+                  {(!project.isUploadingFiles) && (
+                    <div>
+                      {`${filesCount} files`}
+                    </div>
+                  )}
+                  {(project.isUploadingFiles) && (
+                    <div>
+                      <Progress value={uploadFilesProgress} />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </Link>
