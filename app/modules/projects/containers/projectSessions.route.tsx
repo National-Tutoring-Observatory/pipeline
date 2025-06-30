@@ -1,8 +1,8 @@
 import getDocuments from "~/core/documents/getDocuments";
-import type { Route } from "./+types/project.route";
 import { useLoaderData } from "react-router";
 import ProjectSessions from "../components/projectSessions";
 import type { Session } from "~/modules/sessions/sessions.types";
+import type { Route } from "./+types/projectSessions.route";
 
 type Sessions = {
   data: [Session],

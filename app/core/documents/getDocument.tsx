@@ -2,7 +2,7 @@ import fse from 'fs-extra';
 import findOrCreateDocuments from './findOrCreateDocuments';
 import find from 'lodash/find.js';
 
-export default async ({ collection, match }: { collection: string, match: { _id: number } }) => {
+export default async ({ collection, match }: { collection: string, match: any }) => {
 
   try {
     await findOrCreateDocuments({ collection });

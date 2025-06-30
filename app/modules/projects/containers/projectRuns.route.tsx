@@ -1,11 +1,11 @@
 import getDocuments from "~/core/documents/getDocuments";
-import type { Route } from "./+types/project.route";
 import { useLoaderData, useSubmit } from "react-router";
 import ProjectRuns from "../components/projectRuns";
 import addDialog from "~/core/dialogs/addDialog";
 import CreateRunDialog from '../components/createRunDialog';
 import type { Run } from "~/modules/runs/runs.types";
 import createDocument from "~/core/documents/createDocument";
+import type { Route } from "./+types/projectRuns.route";
 
 type Runs = {
   data: [],

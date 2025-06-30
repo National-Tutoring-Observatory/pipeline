@@ -14,8 +14,9 @@ export default [
       }),
       route("sessions", "modules/projects/containers/projectSessions.route.tsx", {
         id: "SESSIONS"
-      })
-    ])
+      }),
+    ]),
+    route(":projectId/runs/:runId", "modules/projects/containers/projectRun.route.tsx")
   ]),
   route("events", "core/events/containers/events.route.tsx")
 ] satisfies RouteConfig;
