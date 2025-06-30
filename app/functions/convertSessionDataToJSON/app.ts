@@ -3,12 +3,26 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
 import fse from 'fs-extra';
 import LLM from '../../core/llm/llm';
-import schema from "./schema.json" with { type: "json" };
-import orchestratorPrompt from './orchestrator.prompt.json' with {type: "json"};
-import systemPrompt from './system.prompt.json' with {type: "json"};
-import userPrompt from './user.prompt.json' with {type: "json"};
+import schema from "./schema.json";
+import orchestratorPrompt from './orchestrator.prompt.json';
+import systemPrompt from './system.prompt.json';
+import userPrompt from './user.prompt.json';
 
-export const handler = async (event) => {
+interface RequestBody {
+  inputFile: string;
+  outputFolder: string;
+}
+
+interface LambdaEvent {
+  body: RequestBody;
+}
+
+interface LambdaResponse {
+  statusCode: number;
+  body?: string;
+}
+
+export const handler = async (event: LambdaEvent): Promise<LambdaResponse> => {
   try {
     const { body } = event;
     const { inputFile, outputFolder } = body;
@@ -24,7 +38,7 @@ export const handler = async (event) => {
 
     llm.setOrchestratorMessage(orchestratorPrompt.prompt, { schema: JSON.stringify(schema) });
 
-    llm.addSystemMessage(systemPrompt.prompt);
+    llm.addSystemMessage(systemPrompt.prompt, {});
 
     llm.addUserMessage(userPrompt.prompt, { schema: JSON.stringify(schema), data });
 

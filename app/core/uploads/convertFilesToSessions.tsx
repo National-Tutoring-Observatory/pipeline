@@ -8,9 +8,9 @@ import updateDocument from "../documents/updateDocument";
 import type { Project } from "~/modules/projects/projects.types";
 import { emitter } from "../events/emitter";
 
-export default async function convertFilesToSessions({ entityId }) {
+export default async function convertFilesToSessions({ entityId }: { entityId: string }) {
 
-  const projectFiles = await getDocuments({ collection: 'files', match: { project: parseInt(entityId) } });
+  const projectFiles = await getDocuments({ collection: 'files', match: { project: parseInt(entityId) } }) as { data: Array<Project> };
 
   const inputDirectory = `./storage/${entityId}/files`;
 

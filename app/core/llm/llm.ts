@@ -1,22 +1,45 @@
 import './providers/openAI.js'
 import './providers/aiGateway.js'
-import getLLM from './helpers/getLLM.js';
+import getLLM from './helpers/getLLM';
 import each from 'lodash/each.js';
 
 const DEFAULTS = { quality: 'medium', stream: false, format: 'json', retries: 3 };
 
+interface Message {
+  role: 'system' | 'assistant' | 'user';
+  content: string;
+}
+
+interface OrchestratorMessage {
+  role: 'assistant';
+  content: string;
+}
+
+type Variables = Record<string, any>;
+
 class LLM {
+  options: Record<string, any>;
+  messages: Message[];
+  orchestratorMessage: any;
+  methods: any;
+  retries: number;
+  llm: any;
+
   constructor(options = {}) {
     this.options = { ...DEFAULTS, ...options };
     this.messages = [];
     this.orchestratorMessage;
-    const { methods } = getLLM(process.env.LLM_PROVIDER);
-    this.methods = methods;
+    const llm = getLLM(process.env.LLM_PROVIDER || '');
     this.retries = 0;
-    this.llm = methods.init();
+    if (llm && llm.methods) {
+      this.methods = llm.methods;
+      this.llm = llm.methods.init();
+    } else {
+      console.warn(`This LLM does not exist`);
+    }
   }
 
-  createChat = async () => {
+  createChat = async (): Promise<any> => {
     if (this.orchestratorMessage) {
 
       const response = await this.methods.createChat(this);
@@ -43,7 +66,7 @@ class LLM {
         if (this.retries < this.options.retries) {
           this.retries++;
           console.warn(`Retrying ${this.retries} out of ${this.options.retries}`);
-          this.addUserMessage(`This is not correct. Please try again with the following reason why this is not correct. Reasoning: ${scoreResponse.reasoning}`);
+          this.addUserMessage(`This is not correct. Please try again with the following reason why this is not correct. Reasoning: ${scoreResponse.reasoning}`, {});
           return await this.createChat();
         } else {
           throw { message: 'Too many retries' };
@@ -56,24 +79,24 @@ class LLM {
 
   };
 
-  replaceMessageWithVariables = (message, variables = {}) => {
+  replaceMessageWithVariables = (message: string, variables: Record<string, any> = {}): string => {
     each(variables, (variableValue, variableKey) => {
       message = message.replaceAll(`{{${variableKey}}}`, variableValue)
     });
     return message;
   }
 
-  setOrchestratorMessage = (message, variables) => {
+  setOrchestratorMessage = (message: string, variables: Variables): void => {
 
     message = this.replaceMessageWithVariables(message, variables);
 
     this.orchestratorMessage = {
       'role': 'assistant',
       'content': message.trim()
-    };
+    } as OrchestratorMessage;
   }
 
-  addSystemMessage = (message, variables) => {
+  addSystemMessage = (message: string, variables: Variables) => {
 
     message = this.replaceMessageWithVariables(message, variables);
 
@@ -83,7 +106,7 @@ class LLM {
     });
   };
 
-  addAssistantMessage = (message, variables) => {
+  addAssistantMessage = (message: string, variables: Variables) => {
 
     message = this.replaceMessageWithVariables(message, variables);
 
@@ -93,7 +116,7 @@ class LLM {
     });
   };
 
-  addUserMessage = (message, variables) => {
+  addUserMessage = (message: string, variables: Variables) => {
 
     message = this.replaceMessageWithVariables(message, variables);
 

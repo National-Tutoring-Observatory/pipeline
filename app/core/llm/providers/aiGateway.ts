@@ -1,5 +1,5 @@
 import { OpenAI } from 'openai';
-import registerLLM from "../helpers/registerLLM.js";
+import registerLLM from "../helpers/registerLLM";
 
 const AI_GATEWAY_PROVIDERS = {
   OPEN_AI: {
@@ -20,10 +20,10 @@ registerLLM('AI_GATEWAY', {
     });
     return openai;
   },
-  createChat: async ({ llm, options, messages }) => {
+  createChat: async ({ llm, options, messages }: { llm: any; options: any; messages: Array<{ role: string; content: string }> }) => {
 
     const { quality } = options;
-
+    // @ts-ignore
     let model = AI_GATEWAY_PROVIDERS[process.env.AI_GATEWAY_PROVIDER || 'GEMINI'][quality];
 
     const chatCompletion = await llm.chat.completions.create({
