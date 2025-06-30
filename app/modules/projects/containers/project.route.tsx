@@ -12,12 +12,15 @@ import { useState } from "react";
 import uploadFiles from "~/core/uploads/uploadFiles";
 import convertFileToFiles from "~/core/uploads/convertFileToFiles";
 import convertFilesToSessions from "~/core/uploads/convertFilesToSessions";
+import filter from 'lodash/filter';
+import type { Session } from "~/modules/sessions/sessions.types";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.id) } }) as { data: ProjectType };
   const files = await getDocuments({ collection: 'files', match: { project: parseInt(params.id) } }) as { count: number };
-  const sessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) } }) as { count: number };
-  return { project, filesCount: files.count, sessionsCount: sessions.count };
+  const sessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) } }) as { count: number, data: Session[] };
+  const convertedSessionsCount = filter(sessions.data, { hasConverted: true }).length;
+  return { project, filesCount: files.count, sessionsCount: sessions.count, convertedSessionsCount };
 }
 
 export async function action({
@@ -62,7 +65,7 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
-  const { project, filesCount, sessionsCount } = loaderData;
+  const { project, filesCount, sessionsCount, convertedSessionsCount } = loaderData;
 
   const submit = useSubmit();
 
@@ -102,6 +105,9 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
             setConvertFilesProgress(data.progress);
             break;
         }
+        if (data.status === 'STARTED') {
+          debounceRevalidate(revalidate);
+        }
         if (data.status === 'DONE') {
           debounceRevalidate(revalidate);
         }
@@ -126,6 +132,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       project={project.data}
       filesCount={filesCount}
       sessionsCount={sessionsCount}
+      convertedSessionsCount={convertedSessionsCount}
       tabValue={matches[matches.length - 1].id}
       convertFilesProgress={convertFilesProgress}
       uploadFilesProgress={uploadFilesProgress}
