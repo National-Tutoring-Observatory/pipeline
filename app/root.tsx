@@ -2,6 +2,7 @@ import {
   isRouteErrorResponse,
   Links,
   Meta,
+  NavLink,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -10,7 +11,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Toaster } from "sonner";
@@ -48,7 +49,31 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <Sidebar variant="inset" >
             <SidebarHeader />
             <SidebarContent>
-              <SidebarGroup />
+              <SidebarGroup>
+                <SidebarGroupLabel>Content</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <NavLink to={'/'}>
+                          {({ isActive }) => (
+                            <span className={isActive ? "underline" : ""}>Projects</span>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <NavLink to={'/prompts'}>
+                          {({ isActive }) => (
+                            <span className={isActive ? "underline" : ""}>Prompts</span>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
               <SidebarGroup />
             </SidebarContent>
             <SidebarFooter />

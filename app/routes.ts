@@ -18,5 +18,8 @@ export default [
     ]),
     route(":projectId/runs/:runId", "modules/projects/containers/projectRun.route.tsx")
   ]),
+  ...prefix("prompts", [
+    index("modules/prompts/containers/prompts.route.tsx")
+  ]),
   route("events", "core/events/containers/events.route.tsx")
 ] satisfies RouteConfig;
