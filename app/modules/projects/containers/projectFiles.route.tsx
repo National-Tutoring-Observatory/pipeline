@@ -2,9 +2,10 @@ import getDocuments from "~/core/documents/getDocuments";
 import type { Route } from "./+types/project.route";
 import { useLoaderData } from "react-router";
 import ProjectFiles from "../components/projectFiles";
+import type { File } from "~/modules/files/files.types";
 
 type Files = {
-  data: [],
+  data: [File],
 };
 
 export async function loader({ params }: Route.LoaderArgs) {

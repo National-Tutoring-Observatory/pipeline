@@ -67,14 +67,14 @@ export default function Project({
                   <div>
                     {`${sessionsCount} sessions`}
                     {!project.isConvertingFiles && (
-                      <div className="text-xs opacity-20">
+                      <div className="text-xs opacity-40">
                         {convertedSessionsCount} converted
                       </div>
                     )}
                   </div>
                   {(project.isConvertingFiles) && (
                     <div className="relative">
-                      <div className="text-xs opacity-20 absolute right-0 top-3">Converting</div>
+                      <div className="text-xs opacity-40 absolute right-0 top-3">Converting</div>
                       <Progress value={convertFilesProgress} />
                     </div>
                   )}
