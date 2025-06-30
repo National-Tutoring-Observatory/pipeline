@@ -1,8 +1,8 @@
 import getDocuments from "~/core/documents/getDocuments";
-import type { Route } from "./+types/project.route";
 import { useLoaderData } from "react-router";
 import ProjectFiles from "../components/projectFiles";
 import type { File } from "~/modules/files/files.types";
+import type { Route } from "./+types/projectFiles.route";
 
 type Files = {
   data: [File],

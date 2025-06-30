@@ -3,4 +3,5 @@ export interface Run {
   name: string;
   createdAt: string;
   project: string;
+  hasSetup: boolean;
 }
