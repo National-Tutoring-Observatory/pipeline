@@ -5,9 +5,9 @@ import dayjs from "dayjs";
 import map from 'lodash/map';
 import { EllipsisVertical } from "lucide-react";
 import { Link } from "react-router";
-import type { File } from "~/modules/files/files.types";
+import type { Session } from "~/modules/sessions/sessions.types";
 
-export default function ProjectFiles({ files }: { files: File[] }) {
+export default function ProjectFiles({ sessions }: { sessions: Session[] }) {
   return (
     <div className="mt-8">
       <div className="border rounded-md">
@@ -17,20 +17,22 @@ export default function ProjectFiles({ files }: { files: File[] }) {
               <TableHead className="w-[300px]">Name</TableHead>
               <TableHead>Created</TableHead>
               <TableHead>File type</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {map(files, (file) => {
+            {map(sessions, (session) => {
               return (
-                <TableRow key={file._id}>
+                <TableRow key={session._id}>
                   <TableCell className="font-medium">
-                    <Link to={`/projects/${file._id}`}>
-                      {file.name}
+                    <Link to={`/projects/${session._id}`}>
+                      {session.name}
                     </Link>
                   </TableCell>
-                  <TableCell>{dayjs(file.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
-                  <TableCell>{file.fileType}</TableCell>
+                  <TableCell>{dayjs(session.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
+                  <TableCell>{session.fileType}</TableCell>
+                  <TableCell>{session.hasConverted === true ? "Converted" : "Not converted"}</TableCell>
                   <TableCell className="text-right flex justify-end">
                     {/* <DropdownMenu>
                       <DropdownMenuTrigger asChild>

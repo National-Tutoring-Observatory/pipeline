@@ -11,6 +11,9 @@ export default [
       }),
       route("files", "modules/projects/containers/projectFiles.route.tsx", {
         id: "FILES"
+      }),
+      route("sessions", "modules/projects/containers/projectSessions.route.tsx", {
+        id: "SESSIONS"
       })
     ])
   ]),
