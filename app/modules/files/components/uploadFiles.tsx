@@ -28,7 +28,7 @@ export default function UploadFiles({
   }
 
   const uploadClassName = clsx('border border-dashed border-black/20 p-8 rounded-md hover:bg-gray-50 dark:hover:bg-gray-50 text-center', {
-    'opacity-20': isUploading
+    'opacity-40': isUploading
   })
 
   return (
