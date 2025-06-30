@@ -12,6 +12,7 @@ interface ProjectProps {
   tabValue: string,
   uploadFilesProgress: number,
   convertFilesProgress: number,
+  convertedSessionsCount: number,
   onUploadFiles: (acceptedFiles: any[]) => void
 }
 
@@ -22,6 +23,7 @@ export default function Project({
   tabValue,
   uploadFilesProgress,
   convertFilesProgress,
+  convertedSessionsCount,
   onUploadFiles
 }: ProjectProps) {
 
@@ -40,8 +42,8 @@ export default function Project({
       {(project.hasSetupProject) && (
         <div>
           <div className="grid grid-cols-3 gap-8">
-            <Link to={`/projects/${project._id}`} >
-              <Card className={clsx("transition-all", {
+            <Link to={`/projects/${project._id}`} className="h-full">
+              <Card className={clsx("transition-all h-full", {
                 "border-accent-foreground": tabValue === 'RUNS'
               })}>
                 <CardHeader>
@@ -53,8 +55,8 @@ export default function Project({
                 </CardContent>
               </Card>
             </Link>
-            <Link to={`/projects/${project._id}/sessions`}>
-              <Card className={clsx("transition-all", {
+            <Link to={`/projects/${project._id}/sessions`} className="h-full">
+              <Card className={clsx("transition-all h-full", {
                 "border-accent-foreground": tabValue === 'SESSIONS'
               })}>
                 <CardHeader>
@@ -62,21 +64,25 @@ export default function Project({
                   <CardDescription>Sessions are your files converted to our standard format</CardDescription>
                 </CardHeader>
                 <CardContent className="h-8">
-                  {(!project.isConvertingFiles) && (
-                    <div>
-                      {`${sessionsCount} sessions`}
-                    </div>
-                  )}
+                  <div>
+                    {`${sessionsCount} sessions`}
+                    {!project.isConvertingFiles && (
+                      <div className="text-xs opacity-20">
+                        {convertedSessionsCount} converted
+                      </div>
+                    )}
+                  </div>
                   {(project.isConvertingFiles) && (
-                    <div>
+                    <div className="relative">
+                      <div className="text-xs opacity-20 absolute right-0 top-3">Converting</div>
                       <Progress value={convertFilesProgress} />
                     </div>
                   )}
                 </CardContent>
               </Card>
             </Link>
-            <Link to={`/projects/${project._id}/files`}>
-              <Card className={clsx("transition-all", {
+            <Link to={`/projects/${project._id}/files`} className="h-full">
+              <Card className={clsx("transition-all h-full", {
                 "border-accent-foreground": tabValue === 'FILES'
               })}>
                 <CardHeader>
