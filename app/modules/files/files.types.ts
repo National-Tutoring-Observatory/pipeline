@@ -3,4 +3,5 @@ export interface File {
   name: string;
   createdAt: string;
   project: string;
+  fileType: string;
 }

@@ -5,4 +5,5 @@ export interface Session {
   project: string;
   file: string;
   hasConverted: boolean;
+  fileType: string;
 }
