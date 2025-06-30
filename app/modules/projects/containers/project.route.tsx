@@ -9,8 +9,9 @@ import { toast } from "sonner";
 import getDocuments from "~/core/documents/getDocuments";
 import throttle from 'lodash/throttle';
 import { useState } from "react";
-import convertFileToSessions from "~/core/uploads/convertFileToSessions";
 import uploadFiles from "~/core/uploads/uploadFiles";
+import convertFileToFiles from "~/core/uploads/convertFileToFiles";
+import convertFilesToSessions from "~/core/uploads/convertFilesToSessions";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.id) } }) as { data: ProjectType };
@@ -37,14 +38,16 @@ export async function action({
 
       if (files[0] instanceof File) {
         if (files[0].type === 'application/jsonl') {
-          files = await convertFileToSessions({ file: files[0], entityId });
+          files = await convertFileToFiles({ file: files[0], entityId });
         }
       }
     }
 
-    uploadFiles({ files, entityId });
+    uploadFiles({ files, entityId }).then(() => {
+      convertFilesToSessions({ entityId });
+    });
 
-    return await updateDocument({ collection: 'projects', match: { _id: parseInt(entityId) }, update: { isUploadingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
+    return await updateDocument({ collection: 'projects', match: { _id: parseInt(entityId) }, update: { isUploadingFiles: true, isConvertingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
 
   }
 }
@@ -68,7 +71,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const { revalidate, state } = useRevalidator();
 
   const [uploadFilesProgress, setUploadFilesProgress] = useState(0);
-  const [convertSessionsProgress, setConvertSessionsProgress] = useState(0);
+  const [convertFilesProgress, setConvertFilesProgress] = useState(0);
 
   const onUploadFiles = async (acceptedFiles: any[]) => {
     const formData = new FormData();
@@ -89,9 +92,16 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
+      console.log(data, event);
       if (data.projectId === project.data._id) {
-        setUploadFilesProgress(data.progress);
+        switch (data.event) {
+          case 'UPLOAD_FILES':
+            setUploadFilesProgress(data.progress);
+            break;
+          case 'CONVERT_FILES':
+            setConvertFilesProgress(data.progress);
+            break;
+        }
         if (data.status === 'DONE') {
           debounceRevalidate(revalidate);
         }
@@ -117,7 +127,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       filesCount={filesCount}
       sessionsCount={sessionsCount}
       tabValue={matches[matches.length - 1].id}
-      convertSessionsProgress={convertSessionsProgress}
+      convertFilesProgress={convertFilesProgress}
       uploadFilesProgress={uploadFilesProgress}
       onUploadFiles={onUploadFiles}
     />

@@ -8,15 +8,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
       console.log("SSE: Client connected");
 
       const handleUploadFiles = (message: any) => {
-        controller.enqueue(`data: ${JSON.stringify(message)}\n\n`);
+        controller.enqueue(`data: ${JSON.stringify({ ...message, event: 'UPLOAD_FILES' })}\n\n`);
+      };
+
+      const handleConvertFiles = (message: any) => {
+        controller.enqueue(`data: ${JSON.stringify({ ...message, event: 'CONVERT_FILES' })}\n\n`);
       };
 
       emitter.on("UPLOAD_FILES", handleUploadFiles);
+
+      emitter.on("CONVERT_FILES", handleConvertFiles);
 
       request.signal.addEventListener("abort", () => {
         console.log("SSE: Client disconnected");
         controller.close();
         emitter.off("UPLOAD_FILES", handleUploadFiles);
+        emitter.off("CONVERT_FILES", handleConvertFiles);
       });
 
     },

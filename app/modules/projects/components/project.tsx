@@ -11,7 +11,7 @@ interface ProjectProps {
   sessionsCount: number,
   tabValue: string,
   uploadFilesProgress: number,
-  convertSessionsProgress: number,
+  convertFilesProgress: number,
   onUploadFiles: (acceptedFiles: any[]) => void
 }
 
@@ -21,7 +21,7 @@ export default function Project({
   sessionsCount,
   tabValue,
   uploadFilesProgress,
-  convertSessionsProgress,
+  convertFilesProgress,
   onUploadFiles
 }: ProjectProps) {
 
@@ -69,7 +69,7 @@ export default function Project({
                   )}
                   {(project.isConvertingFiles) && (
                     <div>
-                      <Progress value={convertSessionsProgress} />
+                      <Progress value={convertFilesProgress} />
                     </div>
                   )}
                 </CardContent>

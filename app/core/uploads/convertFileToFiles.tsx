@@ -4,7 +4,7 @@ import removeFile from "./removeFile";
 import { handler as splitDataToSessions } from '../../functions/splitDataToSessions/app';
 import fs from 'fs';
 
-export default async function convertFileToSessions({ file, entityId, }: { file: File, entityId: string }): Promise<File[]> {
+export default async function convertFileToFiles({ file, entityId, }: { file: File, entityId: string }): Promise<File[]> {
   const splitFiles = [];
   const outputDirectory = `./storage/${entityId}/tmp`;
 
@@ -18,7 +18,7 @@ export default async function convertFileToSessions({ file, entityId, }: { file:
       inputFile: path.join(outputDirectory, fileName),
       outputFolder: `./storage/${entityId}/tmp`,
       outputFileKey: 'id',
-      sessionLimit: 10,
+      sessionLimit: 1,
       sessionSkip: 0
     }
   });

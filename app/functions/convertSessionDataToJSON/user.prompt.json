@@ -1,0 +1,3 @@
+{
+  "prompt": "Schema: {{schema}}\n\nPlease look at the following and merge into the schema: {{data}}\n# Where '_id' is unique.\n# Where 'role' can be TEACHER or a STUDENT_1, where 1 can be a number based upon the student speaking if there are multiple students.\n# Where 'content' is the utterance string of what the speaker has said\n# Where 'start_time' and 'end_time' are time stamps in the format of 00:00:00 (minutes, seconds, milliseconds) for the start and end of the utterance. Estimate these if they are not available based upon utterance length.\n# Where annotations is a blank array."
+}
