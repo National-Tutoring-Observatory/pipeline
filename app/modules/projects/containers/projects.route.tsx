@@ -91,9 +91,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   }
 
   const onCreateNewProjectClicked = (name: string) => {
-    submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name } }), { method: 'POST', encType: 'application/json' }).then((response) => {
-      console.log(response);
-    });
+    submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name } }), { method: 'POST', encType: 'application/json' });
   }
 
   const onEditProjectClicked = (project: Project) => {
