@@ -2,10 +2,24 @@ import { Card } from "@/components/ui/card";
 import dayjs from "dayjs";
 import { Link } from "react-router";
 import type { PromptVersion } from "../prompts.types";
+import clsx from "clsx";
 
-export default function PromptVersionItem({ name, version, prompt, createdAt }: PromptVersion) {
+type PromptVersionItemProps = {
+  name: string;
+  version: number;
+  prompt: number;
+  createdAt: string;
+  isSelected: boolean;
+};
+
+export default function PromptVersionItem({ name, version, prompt, createdAt, isSelected }: PromptVersionItemProps) {
+
+  const className = clsx("block border-b last:border-b-0 p-2", {
+    "bg-indigo-50": isSelected
+  })
+
   return (
-    <Link to={`/prompts/${prompt}/${version}`} className="block border-b last:border-b-0 p-2">
+    <Link to={`/prompts/${prompt}/${version}`} className={className}>
       <div>
         {`# ${version}`}
       </div>

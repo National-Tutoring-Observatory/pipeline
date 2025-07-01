@@ -21,9 +21,6 @@ export default [
   ...prefix("prompts", [
     index("modules/prompts/containers/prompts.route.tsx"),
     route(":id", "modules/prompts/containers/prompt.route.tsx", [
-      route("latest", "modules/prompts/containers/promptEditor.route.tsx", {
-        id: "LASTEST"
-      }),
       route(":version", "modules/prompts/containers/promptEditor.route.tsx", {
         id: "VERSION"
       }),

@@ -31,19 +31,19 @@ export async function action({
   const { name, annotationType } = payload;
 
   switch (intent) {
-    case 'CREATE_PROJECT':
+    case 'CREATE_PROMPT':
       if (typeof name !== "string") {
         throw new Error("Prompt name is required and must be a string.");
       }
       const prompt = await createDocument({ collection: 'prompts', update: { name, annotationType, latestVersion: 1 } }) as { data: Prompt };
       await createDocument({ collection: 'promptVersions', update: { name: 'initial', prompt: prompt.data._id, version: 1 } });
       return {
-        intent: 'CREATE_PROJECT',
+        intent: 'CREATE_PROMPT',
         ...prompt
       }
-    case 'UPDATE_PROJECT':
+    case 'UPDATE_PROMPT':
       return await updateDocument({ collection: 'prompts', match: { _id: Number(entityId) }, update: { name } });
-    case 'DELETE_PROJECT':
+    case 'DELETE_PROMPT':
       return await deleteDocument({ collection: 'prompts', match: { _id: Number(entityId) } })
     default:
       return {};
@@ -62,7 +62,7 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (actionData?.intent === 'CREATE_PROJECT') {
+    if (actionData?.intent === 'CREATE_PROMPT') {
       navigate(`/prompts/${actionData.data._id}/${actionData.data.latestVersion}`)
     }
   }, [actionData]);
@@ -92,17 +92,17 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
   }
 
   const onCreateNewPromptClicked = ({ name, annotationType }: { name: string, annotationType: string }) => {
-    submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name, annotationType } }), { method: 'POST', encType: 'application/json' });
+    submit(JSON.stringify({ intent: 'CREATE_PROMPT', payload: { name, annotationType } }), { method: 'POST', encType: 'application/json' });
   }
 
   const onEditPromptClicked = (prompt: Prompt) => {
-    submit(JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: prompt._id, payload: { name: prompt.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
+    submit(JSON.stringify({ intent: 'UPDATE_PROMPT', entityId: prompt._id, payload: { name: prompt.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
       toast.success('Updated prompt');
     });
   }
 
   const onDeletePromptClicked = (promptId: string) => {
-    submit(JSON.stringify({ intent: 'DELETE_PROJECT', entityId: promptId }), { method: 'DELETE', encType: 'application/json' }).then(() => {
+    submit(JSON.stringify({ intent: 'DELETE_PROMPT', entityId: promptId }), { method: 'DELETE', encType: 'application/json' }).then(() => {
       toast.success('Deleted prompt');
     });
   }

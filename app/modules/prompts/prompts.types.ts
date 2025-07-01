@@ -10,6 +10,6 @@ export interface PromptVersion {
   _id: string;
   name: string;
   createdAt: string;
-  prompt: string;
+  prompt: number;
   version: number;
 }
