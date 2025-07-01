@@ -36,6 +36,7 @@ export default function Prompt({
           </div>
           {map(promptVersions, (promptVersion) => {
             const isSelected = version === promptVersion.version;
+            const isLatest = prompt.latestVersion === promptVersion.version;
             return (
               <PromptVersionItem
                 key={promptVersion._id}
@@ -44,6 +45,7 @@ export default function Prompt({
                 version={promptVersion.version}
                 createdAt={promptVersion.createdAt}
                 isSelected={isSelected}
+                isLatest={isLatest}
               />
             );
           })}

@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { Link } from "react-router";
 import type { PromptVersion } from "../prompts.types";
 import clsx from "clsx";
+import { Badge } from "@/components/ui/badge";
 
 type PromptVersionItemProps = {
   name: string;
@@ -10,9 +11,10 @@ type PromptVersionItemProps = {
   prompt: number;
   createdAt: string;
   isSelected: boolean;
+  isLatest: boolean;
 };
 
-export default function PromptVersionItem({ name, version, prompt, createdAt, isSelected }: PromptVersionItemProps) {
+export default function PromptVersionItem({ name, version, prompt, createdAt, isSelected, isLatest }: PromptVersionItemProps) {
 
   const className = clsx("block border-b last:border-b-0 p-2", {
     "bg-indigo-50": isSelected
@@ -20,8 +22,11 @@ export default function PromptVersionItem({ name, version, prompt, createdAt, is
 
   return (
     <Link to={`/prompts/${prompt}/${version}`} className={className}>
-      <div>
-        {`# ${version}`}
+      <div className="mb-2">
+        <Badge variant="outline" className="bg-white">{`# ${version}`}</Badge>
+        {(isLatest) && (
+          <Badge variant="secondary" className="bg-indigo-100 ml-2">Latest</Badge>
+        )}
       </div>
       <div className="text-sm text-black/40">
         {name}
