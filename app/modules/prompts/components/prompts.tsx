@@ -60,14 +60,13 @@ export default function Prompts({
                 return (
                   <TableRow key={prompt._id}>
                     <TableCell className="font-medium">
-                      <Link to={`/prompts/${prompt._id}`} className="block w-full">
+                      <Link to={`/prompts/${prompt._id}/latest`} className="block w-full">
                         {prompt.name}
                       </Link>
                     </TableCell>
                     <TableCell className="font-medium">
-                      <Link to={`/prompts/${prompt._id}`} className="block w-full">
-                        {prompt.annotationType}
-                      </Link>
+
+                      {prompt.annotationType}
                     </TableCell>
                     <TableCell>{dayjs(prompt.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                     <TableCell className="text-right flex justify-end">
