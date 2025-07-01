@@ -1,6 +1,7 @@
 import { Outlet } from "react-router";
 import type { Prompt, PromptVersion } from "../prompts.types";
 import map from 'lodash/map';
+import PromptVersionItem from './promptVersionItem';
 
 export default function Prompt({
   prompt,
@@ -14,12 +15,18 @@ export default function Prompt({
       <div className="border rounded-md flex">
 
         <div className="w-1/4 h-full border-r">
-          Prompt versions
+          <div className="border-b p-2 text-sm">
+            Versions
+          </div>
           {map(promptVersions, (promptVersion) => {
             return (
-              <div key={promptVersion._id}>
-                Prompt version
-              </div>
+              <PromptVersionItem
+                key={promptVersion._id}
+                prompt={promptVersion.prompt}
+                name={promptVersion.name}
+                version={promptVersion.version}
+                createdAt={promptVersion.createdAt}
+              />
             );
           })}
         </div>
