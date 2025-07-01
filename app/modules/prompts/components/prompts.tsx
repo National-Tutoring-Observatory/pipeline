@@ -60,7 +60,7 @@ export default function Prompts({
                 return (
                   <TableRow key={prompt._id}>
                     <TableCell className="font-medium">
-                      <Link to={`/prompts/${prompt._id}/latest`} className="block w-full">
+                      <Link to={`/prompts/${prompt._id}/${prompt.latestVersion}`} className="block w-full">
                         {prompt.name}
                       </Link>
                     </TableCell>
