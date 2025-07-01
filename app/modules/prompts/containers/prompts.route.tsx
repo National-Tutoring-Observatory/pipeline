@@ -35,7 +35,8 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Prompt name is required and must be a string.");
       }
-      const prompt = await createDocument({ collection: 'prompts', update: { name, annotationType } }) as { data: Prompt };
+      const prompt = await createDocument({ collection: 'prompts', update: { name, annotationType, version: 1 } }) as { data: Prompt };
+      await createDocument({ collection: 'promptVersions', update: { name: 'initial', prompt: prompt.data._id, version: 1 } });
       return {
         intent: 'CREATE_PROJECT',
         ...prompt
@@ -62,7 +63,7 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
 
   useEffect(() => {
     if (actionData?.intent === 'CREATE_PROJECT') {
-      navigate(`/prompts/${actionData.data._id}`)
+      navigate(`/prompts/${actionData.data._id}/latest`)
     }
   }, [actionData]);
 
