@@ -12,4 +12,5 @@ export interface PromptVersion {
   createdAt: string;
   prompt: number;
   version: number;
+  userPrompt: string;
 }
