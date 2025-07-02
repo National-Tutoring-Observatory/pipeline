@@ -26,7 +26,7 @@ export async function action({
 
   switch (intent) {
     case 'CREATE_PROMPT_VERSION':
-      const promptVerions = await getDocuments({ collection: 'promptVersions', match: { prompt: Number(entityId) } }) as { count: number };
+      const promptVerions = await getDocuments({ collection: 'promptVersions', match: { prompt: Number(entityId) }, sort: {} }) as { count: number };
       const promptVersion = await createDocument({ collection: 'promptVersions', update: { name: 'initial', prompt: Number(entityId), version: promptVerions.count + 1 } }) as { data: PromptVersion }
       return {
         intent: 'CREATE_PROMPT_VERSION',
