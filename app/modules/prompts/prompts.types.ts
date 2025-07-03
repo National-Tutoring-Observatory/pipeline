@@ -13,4 +13,5 @@ export interface PromptVersion {
   prompt: number;
   version: number;
   userPrompt: string;
+  annotationSchema: []
 }

@@ -5,6 +5,7 @@ import type { Route } from "./+types/prompt.route";
 import type { Prompt as PromptType, PromptVersion } from "../prompts.types";
 import getDocuments from "~/core/documents/getDocuments";
 import createDocument from "~/core/documents/createDocument";
+import pick from 'lodash/pick';
 
 export async function loader({ params }: Route.LoaderArgs) {
   const prompt = await getDocument({ collection: 'prompts', match: { _id: parseInt(params.id) } }) as { data: PromptType };
@@ -22,12 +23,14 @@ export async function action({
 
   const { intent, entityId, payload = {} } = await request.json()
 
-  const { name, annotationType } = payload;
+  const { version } = payload;
 
   switch (intent) {
     case 'CREATE_PROMPT_VERSION':
+      const previousPromptVerion = await getDocument({ collection: 'promptVersions', match: { prompt: Number(entityId), version: Number(version) } }) as { data: PromptVersion };
+      const newPromptAttributes = pick(previousPromptVerion.data, ['userPrompt', 'name', 'annotationSchema']);
       const promptVerions = await getDocuments({ collection: 'promptVersions', match: { prompt: Number(entityId) }, sort: {} }) as { count: number };
-      const promptVersion = await createDocument({ collection: 'promptVersions', update: { name: 'initial', prompt: Number(entityId), version: promptVerions.count + 1 } }) as { data: PromptVersion }
+      const promptVersion = await createDocument({ collection: 'promptVersions', update: { ...newPromptAttributes, name: 'initial', prompt: Number(entityId), version: promptVerions.count + 1 } }) as { data: PromptVersion }
       return {
         intent: 'CREATE_PROMPT_VERSION',
         ...promptVersion
@@ -48,7 +51,7 @@ export default function PromptRoute() {
   const { prompt, promptVersions } = data;
 
   const onCreatePromptVersionClicked = () => {
-    submit(JSON.stringify({ intent: 'CREATE_PROMPT_VERSION', entityId: id, payload: {} }), { method: 'POST', encType: 'application/json' });
+    submit(JSON.stringify({ intent: 'CREATE_PROMPT_VERSION', entityId: id, payload: { version } }), { method: 'POST', encType: 'application/json' });
   }
 
   return (

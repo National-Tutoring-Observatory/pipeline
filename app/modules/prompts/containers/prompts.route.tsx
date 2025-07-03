@@ -18,7 +18,7 @@ type Prompts = {
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const prompts = await getDocuments({ collection: 'prompts', match: {} }) as Prompts;
+  const prompts = await getDocuments({ collection: 'prompts', match: {}, sort: {} }) as Prompts;
   return { prompts };
 }
 
@@ -36,7 +36,23 @@ export async function action({
         throw new Error("Prompt name is required and must be a string.");
       }
       const prompt = await createDocument({ collection: 'prompts', update: { name, annotationType, latestVersion: 1 } }) as { data: Prompt };
-      await createDocument({ collection: 'promptVersions', update: { name: 'initial', prompt: prompt.data._id, version: 1 } });
+      await createDocument({
+        collection: 'promptVersions', update: {
+          name: 'initial',
+          prompt: prompt.data._id, version: 1,
+          annotationSchema: [{
+            "isSystem": true,
+            "fieldKey": "_id",
+            "fieldType": "string",
+            "value": ""
+          }, {
+            "isSystem": true,
+            "fieldKey": "identifiedBy",
+            "fieldType": "string",
+            "value": "AI"
+          }]
+        }
+      });
       return {
         intent: 'CREATE_PROMPT',
         ...prompt
