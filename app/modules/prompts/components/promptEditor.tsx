@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Archive, Save, SaveOff, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { PromptVersion } from "../prompts.types";
+import AnnotationSchemaBuilder from "./annotationSchemaBuilder";
 
 export default function PromptEditor({
   promptVersion,
@@ -13,12 +14,13 @@ export default function PromptEditor({
 }: {
   promptVersion: PromptVersion,
   isLoading: boolean,
-  onSavePromptVersion: ({ name, userPrompt, _id }: { name: string; userPrompt: string; _id: string }) => void
+  onSavePromptVersion: ({ name, userPrompt, annotationSchema, _id }: { name: string, userPrompt: string, annotationSchema: any[], _id: string }) => void
 }) {
 
   const [hasChanges, setHasChanges] = useState(false);
   const [name, setName] = useState('');
   const [userPrompt, setUserPrompt] = useState('');
+  const [annotationSchema, setAnnotationSchema] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
 
   const onNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,9 +33,14 @@ export default function PromptEditor({
     setUserPrompt(event.target.value);
   }
 
+  const onAnnotationSchemaChanged = (annotationSchema: any) => {
+    setHasChanges(true);
+    setAnnotationSchema(annotationSchema);
+  }
+
   const onSavePromptVersionClicked = () => {
     setIsSaving(true);
-    onSavePromptVersion({ name, userPrompt, _id: promptVersion._id });
+    onSavePromptVersion({ name, userPrompt, _id: promptVersion._id, annotationSchema });
   }
 
   useEffect(() => {
@@ -41,10 +48,9 @@ export default function PromptEditor({
       setHasChanges(false);
       setName(promptVersion.name);
       setUserPrompt(promptVersion.userPrompt || '')
+      setAnnotationSchema(promptVersion.annotationSchema);
     }
   }, [promptVersion]);
-
-  console.log(userPrompt);
 
   return (
     <div>
@@ -86,7 +92,15 @@ export default function PromptEditor({
             onChange={onUserPromptChanged}
           />
         </div>
+        <div className="grid gap-3">
+          <Label htmlFor="prompt">Annotation schema</Label>
+          <AnnotationSchemaBuilder
+            annotationSchema={annotationSchema}
+            onAnnotationSchemaChanged={onAnnotationSchemaChanged}
+          />
+        </div>
       </div>
+
     </div>
   );
 }

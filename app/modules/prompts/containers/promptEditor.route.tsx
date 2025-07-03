@@ -19,14 +19,14 @@ export async function action({
 
   const { intent, entityId, payload = {} } = await request.json()
 
-  const { name, userPrompt } = payload;
+  const { name, userPrompt, annotationSchema } = payload;
 
   switch (intent) {
     case 'UPDATE_PROMPT_VERSION':
       const promptVersion = await updateDocument({
         collection: 'promptVersions',
         match: { _id: Number(entityId) },
-        update: { name, userPrompt }
+        update: { name, userPrompt, annotationSchema }
       }) as { data: PromptVersion }
       return {};
     default:
@@ -42,8 +42,8 @@ export default function PromptEditorRoute() {
 
   const { promptVersion } = data;
 
-  const onSavePromptVersion = ({ name, userPrompt, _id }: { name: string, userPrompt: string, _id: string }) => {
-    submit(JSON.stringify({ intent: 'UPDATE_PROMPT_VERSION', entityId: _id, payload: { name, userPrompt } }), { method: 'PUT', encType: 'application/json' });
+  const onSavePromptVersion = ({ name, userPrompt, annotationSchema, _id }: { name: string, userPrompt: string, annotationSchema: any[], _id: string }) => {
+    submit(JSON.stringify({ intent: 'UPDATE_PROMPT_VERSION', entityId: _id, payload: { name, userPrompt, annotationSchema } }), { method: 'PUT', encType: 'application/json' });
   }
 
   return (
