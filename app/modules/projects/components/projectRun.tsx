@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import type { Run } from "~/modules/runs/runs.types";
 import PromptSelectorContainer from '~/modules/prompts/containers/promptSelectorContainer';
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProjectRun({ run }: { run: Run }) {
   return (
@@ -15,20 +17,26 @@ export default function ProjectRun({ run }: { run: Run }) {
       )}
       {(!run.hasSetup) && (
         <div>
-          <div className="grid grid-cols-2">
-            <div>
-              <PromptSelectorContainer
-                annotationType={run.annotationType}
-              />
+          <div className="grid grid-cols-2 gap-6">
+            <div className="grid gap-3">
+              <div className="flex">
+                <Badge className="h-5 w-5 rounded-full mr-2" >1</Badge>
+                <Label>Select a prompt</Label>
+              </div>
+              <div>
+                <PromptSelectorContainer
+                  annotationType={run.annotationType}
+                />
+              </div>
             </div>
             <div>
               Model selector to go here
             </div>
+            <div>
+              Sessions selector to go here
+            </div>
           </div>
-          <div>
-            Sessions selector to go here
-          </div>
-          <div className="mt-2 flex justify-center">
+          <div className="mt-4 flex justify-center">
             <Button
               size="lg"
               disabled
