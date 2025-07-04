@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import type { Run } from "~/modules/runs/runs.types";
+import PromptSelectorContainer from '~/modules/prompts/containers/promptSelectorContainer';
 
 export default function ProjectRun({ run }: { run: Run }) {
   return (
@@ -16,7 +17,9 @@ export default function ProjectRun({ run }: { run: Run }) {
         <div>
           <div className="grid grid-cols-2">
             <div>
-              Prompts selector to go here
+              <PromptSelectorContainer
+                annotationType={run.annotationType}
+              />
             </div>
             <div>
               Model selector to go here

@@ -17,8 +17,8 @@ import type { Session } from "~/modules/sessions/sessions.types";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.id) } }) as { data: ProjectType };
-  const files = await getDocuments({ collection: 'files', match: { project: parseInt(params.id) } }) as { count: number };
-  const sessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) } }) as { count: number, data: Session[] };
+  const files = await getDocuments({ collection: 'files', match: { project: parseInt(params.id) }, sort: {} }) as { count: number };
+  const sessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Session[] };
   const convertedSessionsCount = filter(sessions.data, { hasConverted: true }).length;
   return { project, filesCount: files.count, sessionsCount: sessions.count, convertedSessionsCount };
 }
@@ -91,7 +91,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       const blob = new Blob([file], { type: file.type });
       formData.append('files', blob, file.name);
     }
-    const eventSource = new EventSource("/events");
+    const eventSource = new EventSource("/api/events");
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
