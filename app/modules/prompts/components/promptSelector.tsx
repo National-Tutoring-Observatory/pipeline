@@ -110,12 +110,12 @@ export default function PromptSelector({
                 className="w-[200px] justify-between"
               >
                 {(selectedPromptVersion && selectedPromptVersionItem) && (
-                  <>
+                  <div className="flex items-center">
                     {`#${selectedPromptVersionItem.version}`}
                     {(latestVersion && latestVersion === selectedPromptVersionItem.version) && (
                       <Badge variant="secondary" className="bg-indigo-100 ml-2">Latest</Badge>
                     )}
-                  </>
+                  </div>
                 ) || (
                     "Select version..."
                   )}
@@ -155,10 +155,15 @@ export default function PromptSelector({
                             selectedPromptVersion === `${promptVersion.version}` ? "opacity-100" : "opacity-0"
                           )}
                         />
-                        {`#${promptVersion.version} - ${promptVersion.name}`}
-                        {(latestVersion && latestVersion === promptVersion.version) && (
-                          <Badge variant="secondary" className="bg-indigo-100 ml-2">Latest</Badge>
-                        )}
+                        <div>
+                          {`#${promptVersion.version}`}
+                          {(latestVersion && latestVersion === promptVersion.version) && (
+                            <Badge variant="secondary" className="bg-indigo-100 ml-2">Latest</Badge>
+                          )}
+                          <div className="text-muted-foreground">
+                            {promptVersion.name}
+                          </div>
+                        </div>
                       </CommandItem>
                     ))}
                   </CommandGroup>
