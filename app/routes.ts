@@ -26,5 +26,6 @@ export default [
       }),
     ]),
   ]),
-  route("events", "core/events/containers/events.route.tsx")
+  route("api/events", "core/events/containers/events.route.tsx"),
+  route("api/promptsList", "modules/prompts/containers/promptsList.route.tsx")
 ] satisfies RouteConfig;

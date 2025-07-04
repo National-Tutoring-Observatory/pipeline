@@ -4,4 +4,5 @@ export interface Run {
   createdAt: string;
   project: string;
   hasSetup: boolean;
+  annotationType: string;
 }

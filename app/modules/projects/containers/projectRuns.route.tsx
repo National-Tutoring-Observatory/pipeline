@@ -12,7 +12,7 @@ type Runs = {
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const runs = await getDocuments({ collection: 'runs', match: { project: parseInt(params.id) }, }) as Runs;
+  const runs = await getDocuments({ collection: 'runs', match: { project: parseInt(params.id) }, sort: {} }) as Runs;
   return { runs };
 }
 
