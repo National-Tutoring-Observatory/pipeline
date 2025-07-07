@@ -28,5 +28,6 @@ export default [
   ]),
   route("api/events", "core/events/containers/events.route.tsx"),
   route("api/promptsList", "modules/prompts/containers/promptsList.route.tsx"),
-  route("api/promptVersionsList", "modules/prompts/containers/promptVersionsList.route.tsx")
+  route("api/promptVersionsList", "modules/prompts/containers/promptVersionsList.route.tsx"),
+  route("api/sessionsList", "modules/sessions/containers/sessionsList.route.tsx")
 ] satisfies RouteConfig;

@@ -4,6 +4,7 @@ import PromptSelectorContainer from '~/modules/prompts/containers/promptSelector
 import ModelSelectorContainer from '~/modules/prompts/containers/modelSelectorContainer';
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 
 export default function ProjectRun({ run }: { run: Run }) {
   return (
@@ -40,8 +41,14 @@ export default function ProjectRun({ run }: { run: Run }) {
                 />
               </div>
             </div>
+          </div>
+          <div className="grid gap-3 mt-8">
+            <div className="flex">
+              <Badge className="h-5 w-5 rounded-full mr-2" >3</Badge>
+              <Label>Select sessions</Label>
+            </div>
             <div>
-              Sessions selector to go here
+              <SessionSelectorContainer />
             </div>
           </div>
           <div className="mt-4 flex justify-center">
