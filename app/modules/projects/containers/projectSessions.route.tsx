@@ -9,7 +9,7 @@ type Sessions = {
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const sessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) }, }) as Sessions;
+  const sessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) }, sort: {} }) as Sessions;
   return { sessions };
 }
 
