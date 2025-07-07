@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import type { Run } from "~/modules/runs/runs.types";
 import PromptSelectorContainer from '~/modules/prompts/containers/promptSelectorContainer';
+import ModelSelectorContainer from '~/modules/prompts/containers/modelSelectorContainer';
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 
@@ -29,8 +30,15 @@ export default function ProjectRun({ run }: { run: Run }) {
                 />
               </div>
             </div>
-            <div>
-              Model selector to go here
+            <div className="grid gap-3">
+              <div className="flex">
+                <Badge className="h-5 w-5 rounded-full mr-2" >2</Badge>
+                <Label>Select a model</Label>
+              </div>
+              <div>
+                <ModelSelectorContainer
+                />
+              </div>
             </div>
             <div>
               Sessions selector to go here
