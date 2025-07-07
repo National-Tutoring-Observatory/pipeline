@@ -72,7 +72,7 @@ export default function PromptSelector({
                   <div>
                     No prompts found.
                   </div>
-                  <Button >Create</Button>
+                  {/* <Button >Create</Button> */}
                 </CommandEmpty>
               )}
               <CommandGroup>

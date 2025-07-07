@@ -15,3 +15,8 @@ export interface PromptVersion {
   userPrompt: string;
   annotationSchema: []
 }
+
+export interface Model {
+  provider: string;
+  name: string;
+}
