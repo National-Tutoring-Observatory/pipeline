@@ -1,8 +1,4 @@
-import path from "path";
-import uploadFile from "./uploadFile";
-import removeFile from "./removeFile";
 import { handler as convertSessionDataToJSON } from '../../functions/convertSessionDataToJSON/app';
-import fs from 'fs';
 import getDocuments from "../documents/getDocuments";
 import updateDocument from "../documents/updateDocument";
 import type { Project } from "~/modules/projects/projects.types";
@@ -13,7 +9,7 @@ import type { File } from "~/modules/files/files.types";
 
 export default async function convertFilesToSessions({ entityId }: { entityId: string }) {
 
-  const projectFiles = await getDocuments({ collection: 'files', match: { project: parseInt(entityId) } }) as { data: Array<File> };
+  const projectFiles = await getDocuments({ collection: 'files', match: { project: parseInt(entityId) }, sort: {} }) as { data: Array<File> };
 
   const inputDirectory = `./storage/${entityId}/files`;
 
@@ -34,7 +30,7 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
 
   emitter.emit("CONVERT_FILES", { projectId: parseInt(entityId), progress: 0, status: 'STARTED' });
 
-  const projectSessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(entityId) } }) as { data: Array<Session> };
+  const projectSessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(entityId) }, sort: {} }) as { data: Array<Session> };
 
   let completedFiles = 0;
 

@@ -19,8 +19,8 @@ export default function PromptSelector({
   isPromptVersionsOpen,
   onTogglePromptPopover,
   onTogglePromptVersionsPopover,
-  onSelectedPromptChanged,
-  onSelectedPromptVersionChanged
+  onSelectedPromptChange,
+  onSelectedPromptVersionChange
 }: {
   prompts: Prompt[],
   promptVersions: PromptVersion[],
@@ -33,8 +33,8 @@ export default function PromptSelector({
   isPromptVersionsOpen: boolean,
   onTogglePromptPopover: (isPromptsOpen: boolean) => void,
   onTogglePromptVersionsPopover: (isPromptVersionsOpen: boolean) => void,
-  onSelectedPromptChanged: (selectedPrompt: string) => void,
-  onSelectedPromptVersionChanged: (selectedPromptVersion: string) => void,
+  onSelectedPromptChange: (selectedPrompt: string) => void,
+  onSelectedPromptVersionChange: (selectedPromptVersion: string) => void,
 }) {
 
   let selectedPromptVersionItem = null;
@@ -81,7 +81,7 @@ export default function PromptSelector({
                     key={prompt._id}
                     value={prompt._id}
                     onSelect={(currentValue) => {
-                      onSelectedPromptChanged(prompt._id)
+                      onSelectedPromptChange(prompt._id)
                       onTogglePromptPopover(false)
                     }}
                   >
@@ -145,7 +145,7 @@ export default function PromptSelector({
                         key={promptVersion._id}
                         value={`${promptVersion.version}`}
                         onSelect={(currentValue) => {
-                          onSelectedPromptVersionChanged(`${promptVersion.version}`)
+                          onSelectedPromptVersionChange(`${promptVersion.version}`)
                           onTogglePromptVersionsPopover(false)
                         }}
                       >

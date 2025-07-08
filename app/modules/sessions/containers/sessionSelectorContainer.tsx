@@ -5,9 +5,13 @@ import map from 'lodash/map';
 import cloneDeep from 'lodash/cloneDeep';
 import pull from 'lodash/pull';
 
-export default function SessionSelectorContainer() {
-
-  const [selectedSessions, setSelectedSessions] = useState<string[]>([]);
+export default function SessionSelectorContainer({
+  selectedSessions,
+  onSelectedSessionsChanged
+}: {
+  selectedSessions: string[],
+  onSelectedSessionsChanged: (selectedSessions: string[]) => void
+}) {
 
   const sessionsFetcher = useFetcher();
 
@@ -15,9 +19,9 @@ export default function SessionSelectorContainer() {
 
   const onSelectAllToggled = (isChecked: boolean) => {
     if (isChecked) {
-      setSelectedSessions(map(sessionsFetcher.data?.sessions?.data, '_id'));
+      onSelectedSessionsChanged(map(sessionsFetcher.data?.sessions?.data, '_id'));
     } else {
-      setSelectedSessions([]);
+      onSelectedSessionsChanged([]);
     }
   }
 
@@ -25,10 +29,10 @@ export default function SessionSelectorContainer() {
     let clonedSelectedSessions = cloneDeep(selectedSessions);
     if (isChecked) {
       clonedSelectedSessions.push(sessionId);
-      setSelectedSessions(clonedSelectedSessions);
+      onSelectedSessionsChanged(clonedSelectedSessions);
     } else {
       pull(clonedSelectedSessions, sessionId);
-      setSelectedSessions(clonedSelectedSessions);
+      onSelectedSessionsChanged(clonedSelectedSessions);
     }
   }
 

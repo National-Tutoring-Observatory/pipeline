@@ -19,10 +19,8 @@ export default function AnnotationSchemaBuilder({
   }
 
   const onAnnotationFieldChanged = ({ itemIndex, field, value }: { itemIndex: number, field: string, value: boolean | string | number }) => {
-    console.log(value);
     const annotationSchemaCloned = cloneDeep(annotationSchema);
     if (field === 'fieldType') {
-      console.log('changing');
       if (value === 'string') {
         annotationSchemaCloned[itemIndex].value = '';
       } else if (value === 'number') {

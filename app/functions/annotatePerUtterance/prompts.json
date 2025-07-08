@@ -1,0 +1,186 @@
+[
+  {
+    "_id": "0",
+    "teacherMove": "REACT_TO_STUDENT_ERROR",
+    "prompt": "You are an experienced elementary math teacher. Your task is to read a conversation snippet of a tutoring session between a student and tutor, and determine what type of error the student makes in the conversation. We have a list of common errors that students make in math, which you can pick from. We also give you the option to write in your own error type if none of the options apply.\n\nError list:\n0. Student does not seem to understand or guessed the answer.\n1. Student misinterpreted the question.\n2. Student made a careless mistake.\n3. Student has the right idea, but is not quite there.\n4. Student's answer is not precise enough or the tutor is being too picky about the form of the student's answer.\n5. None of the above, but I have a different description (please specify in your reasoning).\n6. Not sure, but I'm going to try to diagnose the student.\n\nWhy do you think the student made this mistake? Pick an option number from the error list and provide the reason behind your choice.\n\nOutput your choices into the JSON structure where:\nstrategy = The error type from the list above. This should be a number.\nreasoning = The reason why you've chosen this error type.",
+    "annotationSchema": [
+      {
+        "_id": "0",
+        "type": "TEACHER_MOVE",
+        "reasoning": "",
+        "strategy": 0,
+        "identifiedBy": "AI"
+      }
+    ],
+    "examples": [
+      {
+        "_id": "0",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "_id": "1",
+    "teacherMove": "REACT_TO_STUDENT_ERROR",
+    "prompt": "You are an experienced elementary math teacher. Your task is to read a conversation snippet of a tutoring session between a student and tutor where a student makes a mistake. You should then determine what strategy you want to use to remediate the student's error, and state your intention in using that strategy. We have a list of common strategies and intentions that teachers use, which you can pick from. We also give you the option to write in your own strategy or intention if none of the options apply.\n\nStrategies:\n0. Explain a concept\n1. Ask a question\n2. Provide a hint\n3. Provide a strategy\n4. Provide a worked example\n5. Provide a minor correction\n6. Provide a similar problem\n7. Simplify the question\n8. Affirm the correct answer\n9. Encourage the student\n10. Other (please specify in your reasoning)\n\nIntentions:\n0. Motivate the student\n1. Get the student to elaborate their answer\n2. Correct the student's mistake\n3. Hint at the student's mistake\n4. Clarify a student's misunderstanding\n5. Help the student understand the lesson topic or solution strategy\n6. Diagnose the student's mistake\n7. Support the student in their thinking or problem-solving\n8. Explain the student's mistake (eg. what is wrong in their answer or why is it incorrect)\n9. Signal to the student that they have solved or not solved the problem\n10. Other (please specify in your reasoning)\n\nHow would you remediate the student's error and why? Pick the option number from the list of strategies and intentions and provide the reason behind your choices.\n\nOutput your choices into the JSON structure where:\nteacherMove = The Tutor Move from the list above.\nreasoning = The reason why you've chosen this Tutor Move.",
+    "annotationSchema": [
+      {
+        "_id": "0",
+        "type": "TEACHER_MOVE",
+        "teacherMove": "REACT_TO_STUDENT_ERROR",
+        "reasoning": "",
+        "strategy": 0,
+        "intention": 0,
+        "identifiedBy": "AI"
+      }
+    ],
+    "examples": [
+      {
+        "_id": "0",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "_id": "2",
+    "teacherMove": "REACT_TO_STUDENT_ERROR",
+    "prompt": "Please score the following tutor-student transcript on how effective the tutor is in reacting to a middle school student who has made an error in a virtual tutoring session. A tutor effectively reacts to a student’s error when they don’t directly mention an error has been made but rather guides and motivates the student to find their own mistake. Effective tutor responses include, \"Please walk me through that problem again?\" and \"Can you explain to me what you did here?\" Ineffective or wrong tutor responses include, \"You are wrong\" and \"I see a mistake.\n\nOutput your choices into the JSON structure where:\nreasoning = The reason why you've chosen this Tutor Move.",
+    "annotationSchema": [
+      {
+        "_id": "0",
+        "type": "TEACHER_MOVE",
+        "teacherMove": "REACT_TO_STUDENT_ERROR",
+        "reasoning": "",
+        "identifiedBy": "AI"
+      }
+    ],
+    "examples": [
+      {
+        "_id": "0",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "_id": "3",
+    "teacherMove": "TALK_MOVE",
+    "prompt": "Your job is to discover any Talk Moves in the conversation. A Talk Move is one of the following:\n# Keep Together - Keeping everyone together. Prompting students to be active listeners. Orienting students to each other.\n# Student Relate - Getting students to relate to another’s idea. Prompting students to react to what a classmate said.\n# Restating - Repeating all or part of what a student says word for word.\n# Accuracy - Pressing for accuracy. Prompting students to make a mathematical contribution or use mathematical language.\n# Revoicing - Repeating what a student says but adding on to it or changing the wording. Using at least one key mathematical word or key idea from what a student said.\n# Reasoning - Pressing for reasoning. Prompting students to explain or provide evidence, share their thinking behind a decision, or connect ideas or representations.\n\nOutput your choices into the JSON structure where:\nteacherMove = The Tutor Move from the list above.\nreasoning = The reason why you've chosen this Tutor Move.",
+    "annotationSchema": [
+      {
+        "_id": "0",
+        "type": "TEACHER_MOVE",
+        "teacherMove": "",
+        "reasoning": "",
+        "identifiedBy": "AI"
+      }
+    ],
+    "examples": [
+      {
+        "_id": "0",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "_id": "4",
+    "teacherMove": "DICTIONARY",
+    "prompt": "Your job is to discover any Tutor Moves in the conversation. A Tutor Move is one of the following:\n# PROMPTING_PRIOR_KNOWLEDGE - Teacher asks the student to recall or apply previously learned material.\n# CONTENT_EXPLANATION - Teacher provides a detailed explanation of a topic, rule, or procedure.\n# DEFINING_TERM - Teacher gives a clear definition of a concept or mathematical term.\n# USING_VISUAL_CUES - Teacher refers to or encourages attention to a visual representation to support understanding.\n# GIVING_HINT - Teacher provides a clue or partial suggestion to nudge the student toward a solution.\n# USING_HUMOR_TO_REINFORCE_CONCEPT - Teacher uses light humor or playful language to reinforce a concept.\n# GIVING_PRAISE - Teacher affirms student effort, progress, or correctness.\n# CHECKING_FOR_CLARITY - Teacher checks whether the student understands an explanation or instruction by questioning them.\n# STRATEGIC_REFRAMING - Teacher rewords a problem or prompt to make it easier to understand or approach.\n# EMOTIONAL_SUPPORT - Teacher offers reassurance, empathy, or encouragement to build student confidence.\n# PROMPTING_OBSERVATION - Teacher prompts the student to look more carefully at a diagram or written content or relate the concept with their surroundings.\n# PROMPTING_NEXT_STEP - Teacher nudges the student to take the next immediate logical step in a process.\n# REINFORCING_CONCEPT - Teacher restates or strengthens a concept to deepen understanding.\n# CONFIRMING_FINAL_ANSWER - Teacher acknowledges the student’s final answer as correct.\n# ADDRESSING_MISCONCEPTION - Teacher explicitly points out and corrects a misunderstanding that the student has.\n# MODELING_STRATEGY - Teacher demonstrates a specific approach or method for solving a problem.\n# PROMPTING_STUDENT_REASONING - Teacher asks the student to explain or justify their reasoning.\n# MODELING_PROBLEM_SOLVING - Teacher works through a problem step-by-step as a demonstration.\n# CONCEPTUAL_SUPPORT - Teacher helps the student grasp the underlying concept of a topic or problem.\n# PROBLEM_FRAMING - Teacher presents or frames a problem in a way that emphasizes key ideas.\n# EVALUATION - Teacher assesses the student’s answer or process with feedback.\n# POSITIVE_FEEDBACK - Teacher affirms student effort or correctness.\n# STRATEGY_SUGGESTION - Teacher recommends a method or approach for solving a problem.\n# SCAFFOLDING - Teacher breaks down the task and supports the student step-by-step.\n# ERROR_CORRECTION - Teacher points out an error and guides the student to the correct solution.\n# EXPLICIT_INSTRUCTION - Teacher provides direct, clear, and detailed teaching on a concept.\n# CONCEPTUAL_ELICITATION - Teacher asks questions to draw out the student’s conceptual understanding.\n# EXPLANATION_AFTER_ERROR - Teacher provides an explanation after an error is made to reinforce correct understanding.\n# INSTRUCTIONAL_PROMPT - Teacher instructs the student to input/follow the next step with directions within the learning sequence.\n# MULTIPLE_STRATEGIES - Teacher suggests more than one approach to solving a problem.\n# EXEMPLIFYING - Teacher uses examples to illustrate a concept.\n\nOutput your choices into the JSON structure where:\nteacherMove = The Tutor Move from the list above.\nreasoning = The reason why you've chosen this Tutor Move.",
+    "annotationSchema": [
+      {
+        "_id": "0",
+        "type": "TEACHER_MOVE",
+        "teacherMove": "",
+        "reasoning": "",
+        "identifiedBy": "AI"
+      }
+    ],
+    "examples": [
+      {
+        "_id": "0",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "_id": "5",
+    "teacherMove": "REACT_TO_STUDENT_ERROR",
+    "prompt": "You are an experienced elementary-school math tutor.  \nYour goal: given a short dialogue in which a student makes an error, select one remediation **Strategy** and one **Intention** (by numeric ID) and explain your choices.\n\n**Workflow**  \n1. **Read** the conversation snippet.  \n2. **Identify** the student's specific error or gap.  \n3. **Choose** exactly one Strategy and one Intention by their numeric IDs.  \n4. **Explain** in 1–2 sentences why you chose each, referencing how the tutor's reply addresses that error.\n\n---\n\n**Available Strategies**  \n0. Explain a concept  \n1. Ask a question  \n2. Provide a hint  \n3. Model a strategy  \n4. Show a worked example  \n5. Offer a minor correction  \n6. Give a similar problem  \n7. Simplify the question  \n8. Affirm correct reasoning  \n9. Encourage the student  \n10. Other (specify)\n\n**Available Intentions**  \n0. Motivate the student  \n1. Prompt deeper explanation  \n2. Correct the mistake directly  \n3. Hint at the misconception  \n4. Clarify misunderstanding  \n5. Teach the underlying concept or method  \n6. Diagnose the error source  \n7. Support student's reasoning  \n8. Explain why the answer is incorrect  \n9. Signal success or the need for revision  \n10. Other (specify)\n\n---\n\n**Key clarifications**  \n- **Praise + Correction**: If the tutor both affirms and pinpoints a mistake (e.g. \"Good job … but check your signs\"), select Strategy 5 (Offer a minor correction) and Intention 2 or 8.  \n- **False Affirmation**: If the tutor only affirms an incorrect or incomplete notion without correcting it, select Strategy 2 (Provide a hint) and Intention 3 (Hint at the misconception) to nudge the student toward reflection.  \n- **Prior-Knowledge Check**: If the tutor asks \"Have you heard of…?\" or similar, select Strategy 1 (Ask a question) and Intention 6 or 7.  \n- **Action Plan / Step-by-Step**: If the tutor lays out concrete steps for completing a task (e.g. \"Now insert those values into the blanks\"), select Strategy 3 (Model a strategy) and Intention 7 (Support student's reasoning) or 6 (Diagnose the error source).  \n- **Meta-Question**: If the exchange is about logistics or non-math content (e.g. \"contact the organization\"), select Strategy 10 (Other) and Intention 10, and note that the dialogue is off-topic.\n\nOutput your choices into the JSON structure where:\nstrategy = The Strategy ID from the list above.\nintention = The Intention ID from the list above.\nreasoning = The reason why you've chosen this Tutor Move.",
+    "annotationSchema": [
+      {
+        "_id": "0",
+        "type": "TEACHER_MOVE",
+        "teacherMove": "REACT_TO_STUDENT_ERROR",
+        "reasoning": "",
+        "strategy": 0,
+        "intention": 0,
+        "identifiedBy": "AI"
+      }
+    ],
+    "examples": [
+      {
+        "_id": "0",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "_id": "6",
+    "teacherMove": "DICTIONARY",
+    "prompt": "You are an expert elementary–school math tutor.  \nYour task: is to identify every Tutor Move made.\n\n**Workflow**  \n1. **Read** the dialogue.  \n2. **Map** each Tutor Move to an utterance from the *Allowed Moves* list below.  \n3. **Omit** any turns that are off-topic, administrative, or not directly about solving the math problem.\n\nAllowed Moves\n\t•\tADDRESSING_MISCONCEPTION\n\t•\tCHECKING_FOR_CLARITY\n\t•\tCONFIRMING_FINAL_ANSWER\n\t•\tCONTENT_EXPLANATION\n\t•\tDEFINING_TERM\n\t•\tEMOTIONAL_SUPPORT\n\t•\tERROR_CORRECTION\n\t•\tEVALUATION\n\t•\tEXEMPLIFYING\n\t•\tEXPLICIT_INSTRUCTION\n\t•\tGIVING_HINT\n\t•\tGIVING_PRAISE\n\t•\tINSTRUCTIONAL_PROMPT\n\t•\tMODELING_PROBLEM_SOLVING\n\t•\tMODELING_STRATEGY\n\t•\tMULTIPLE_STRATEGIES\n\t•\tPOSITIVE_FEEDBACK\n\t•\tPROBLEM_FRAMING\n\t•\tPROMPTING_NEXT_STEP\n\t•\tPROMPTING_OBSERVATION\n\t•\tPROMPTING_PRIOR_KNOWLEDGE\n\t•\tPROMPTING_STUDENT_REASONING\n\t•\tREINFORCING_CONCEPT\n\t•\tSCAFFOLDING\n\t•\tSTRATEGIC_REFRAMING\n\t•\tSTRATEGY_SUGGESTION\n\t•\tUSING_HUMOR_TO_REINFORCE_CONCEPT\n\t•\tUSING_VISUAL_CUES\n\n**Clarifications (follow these exactly):**  \n- Return **only** IDs from the Allowed Moves list—no synonyms or casing changes.  \n- **Omit** any tutor turn that is off-topic, administrative, or not about solving the math problem.  \n\n- **CHECKING_FOR_CLARITY**  \n  - Trigger: \"Is that clear?\", \"Any questions?\", \"Do you understand?\"  \n  - Do **not** use for content clarifications (\"What exactly do you mean by X?\").  \n\n- **ADDRESSING_MISCONCEPTION**  \n  - Trigger: Direct correction of a false belief or error (\"No—that's not the definition…\").  \n  - If immediately followed by an explanation of *why*, also tag **EXPLANATION_AFTER_ERROR**.  \n\n- **GIVING_PRAISE** vs. **POSITIVE_FEEDBACK** vs. **CONFIRMING_FINAL_ANSWER**  \n  - **GIVING_PRAISE**: Encourages effort or attitude (\"Good job!\", \"Nice perseverance!\").  \n  - **POSITIVE_FEEDBACK**: Validates a *method*, *step*, or *partial correctness* (\"Exactly!\", \"That approach is correct.\").  \n  - **CONFIRMING_FINAL_ANSWER**: Explicitly seals the *final* result (\"Yes—that's the final answer.\").  \n\n- **PROMPTING_OBSERVATION**  \n  - Trigger: Questions directing attention to a feature or element (\"What step would you do first?\", \"What do you notice about the diagram?\").  \n\n- **EMOTIONAL_SUPPORT**  \n  - Trigger: Reassurance or empathy to reduce anxiety (\"Don't be scared!\", \"I struggled with this too.\").  \n\n- **CONTENT_EXPLANATION** vs. **CONCEPTUAL_SUPPORT**  \n  - **CONTENT_EXPLANATION**: Detailed unpacking of a rule or procedure (e.g., exponent rules).  \n  - **CONCEPTUAL_SUPPORT**: Explanation of a general strategy or underlying concept (\"First simplify the absolute value.\").  \n\n- **ERROR_CORRECTION** vs. **EXPLANATION_AFTER_ERROR**  \n  - **ERROR_CORRECTION**: Tutor points out or corrects a mistake.  \n  - **EXPLANATION_AFTER_ERROR**: Immediately follows error correction with a rationale.  \n\n- **PROMPTING_STUDENT_REASONING**  \n  - Trigger: Questions asking the student to articulate *why* or *how* (\"Why did you choose that strategy?\", \"What will you get after you distribute?\").  \n\n- All other moves should be assigned by their plain-English status in the Allowed Moves list.  \n\nFew-Shot Examples\n1. ADDRESSING_MISCONCEPTION Tutor: \"No—that's not the definition of a straight line.\"  \n2. CHECKING_FOR_CLARITY Tutor: \"Any questions so far?\"\n3. CONFIRMING_FINAL_ANSWER Tutor: \"Yes—that's the final answer.\"  \n4. GIVING_PRAISE vs. POSITIVE_FEEDBACK Tutor: \"Good job sticking with it!\"  → [\"GIVING_PRAISE\"] Tutor: \"Exactly—that method works perfectly.\" → [\"POSITIVE_FEEDBACK\"]\n\nOutput your choices into the JSON structure where:\nteacherMove = The Tutor Move from the list above.\nreasoning = The reason why you've chosen this Tutor Move.",
+    "annotationSchema": [
+      {
+        "_id": "0",
+        "type": "TEACHER_MOVE",
+        "identifiedBy": "AI",
+        "reasoning": "",
+        "teacherMove": ""
+      }
+    ],
+    "examples": [
+      {
+        "_id": "0",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "_id": "7",
+    "teacherMove": "DICTIONARY",
+    "prompt": "You are an expert elementary–school math tutor.  \nYour task: is to identify every Tutor Move made.\n\n## Workflow  \n1. **Read** the dialogue.  \n2. **Map** each Tutor Move to an utterance from the *Allowed Moves* list below.  \n3. **Omit** any turns that are off-topic, administrative, or not directly about solving the math problem.\n\n## Allowed Moves\n• GIVING_PRAISE\n• GIVING_HINT\n• PROVIDING_EXPLANATION\n• EXEMPLIFYING\n• REVOICING\n• ERROR_CORRECTION\n• PROBING_STUDENT_THINKING\n• PROMPTING\n• USING_VISUAL_CUES\n• EMOTIONAL_SUPPORT\n• SCAFFOLDING\n\n## Clarifications (follow these exactly):\n- Return **only** IDs from the Allowed Moves list—no synonyms or casing changes.  \n- **Omit** any tutor turn that is off-topic, administrative, or not about solving the math problem.   \n- All other moves should be assigned by their plain-English status in the Allowed Moves list.\n\n## Move explanations\nGIVING_PRAISE: Teacher affirms student effort, progress, or correctness.\nGIVING_HINT: Teacher provides a clue or suggestion to nudge the student toward a solution.\nPROVIDING_EXPLANATION: Teacher delivers a clear explanation or factual information relevant to the problem.\nEXEMPLIFYING: Teacher uses examples to illustrate a concept.\nREVOICING: Teacher restates or paraphrases the student's response to clarify or emphasize meaning.\nERROR_CORRECTION: Teacher points out an error and provides an explanation for it to reinforce correct understanding.\nPROBING_STUDENT_THINKING: The teacher asks a follow-up question that seeks to uncover or explore the student's reasoning, logic, or understanding behind a statement or answer they've already given. This move invites the student to reflect, explain, or clarify their thought process.\nPROMPTING: The teacher encourages the student to participate, think, or respond—often after the student expresses confusion, hesitates, or hasn't yet offered an idea. The goal is to initiate engagement without requiring a deep explanation.\nUSING_VISUAL_CUES: Teacher refers to or encourages attention to a visual representation to support understanding.\nEMOTIONAL_SUPPORT: Teacher offers reassurance, empathy, or encouragement to build student confidence.\nSCAFFOLDING: Teacher breaks down the task and supports the student step-by-step.\n\n\n## Few-Shot Examples\n1. GIVING_PRAISE: \"Good job! That's right, and you figured it out almost all on your own\"\n2. GIVING_HINT: \"so half of 71 bucks should be BIG!\"\n3. PROVIDING_EXPLANATION: \"But you also have the 16 side. If this was a square or rectangle, you would just think that both sides are equal, but it isn't, at least not yet!\"\n4. EXEMPLIFYING: \"for example, if it said: \"The item is 45% off.\" , the answer would be different than if it say \"The item is 45% of its original price.\"\n5. REVOICING: \"oh right so what I meant is, when you say subtract 180 from 146, it means that you are doing 146-180. So what should actually be said is \"subtract 146 from 180\" because that means you are taking 146 away from 180 so it would be 180-146\"\n6. ERROR_CORRECTION: \"It should be 34. It cannot be 16 because 16+57+89 is not 180\"\n7. PROBING_STUDENT_THINKING: \"So do you see why 2 is actually an allowed value for x now?\"\n8. PROMPTING: \"Have you heard of the Pythagorean theorem?\"\n9. USING_VISUAL_CUES: \"The red circle shows the right angle\"\n10. EMOTIONAL_SUPPORT: \"don't worry take it slow\"\n11. SCAFFOLDING: \"Let's break out the problem bit by bit.\"\n\n## Output your choices into the JSON structure where:\nteacherMove = The Tutor Move from the list above.\nreasoning = The reason why you've chosen this Tutor Move.",
+    "annotationSchema": [
+      {
+        "_id": "0",
+        "type": "TEACHER_MOVE",
+        "identifiedBy": "AI",
+        "reasoning": "",
+        "teacherMove": ""
+      }
+    ],
+    "examples": [
+      {
+        "_id": "0",
+        "text": ""
+      }
+    ]
+  },
+  {
+    "_id": "8",
+    "teacherMove": "DICTIONARY",
+    "prompt": "You are an expert elementary–school math tutor.  \nYour task: is to identify every Tutor Move made.\n\n## Workflow  \n1. **Read** the dialogue.  \n2. **Map** each Tutor Move to an utterance from the *Allowed Moves* list below.  \n3. **Omit** any turns that are off-topic, administrative, or not directly about solving the math problem.\n\n## Allowed Moves\n**1. GIVING_PRAISE**\nExplanation: Teacher affirms student effort, progress, or correctness.\nExample: \"Good job! That's right, and you figured it out almost all on your own\"\n\n**2. GIVING_HINT**\nExplanation: Teacher provides a clue or suggestion to nudge the student toward a solution.\nExample: \"so half of 71 bucks should be BIG!\"\n\n**3. PROVIDING_EXPLANATION**\nExplanation: Teacher delivers a clear explanation or factual information relevant to the problem.\nExample: \"But you also have the 16 side. If this was a square or rectangle, you would just think that both sides are equal, but it isn't, at least not yet!\"\n\n**4. EXEMPLIFYING**\nExplanation: Teacher uses examples to illustrate a concept.\nExample: \"for example, if it said: \"The item is 45% off.\" , the answer would be different than if it say \"The item is 45% of its original price.\"\n\n**5. REVOICING**\nExplanation: Teacher restates or paraphrases the student's response to clarify or emphasize meaning.\nExample: \"oh right so what I meant is, when you say subtract 180 from 146, it means that you are doing 146-180. So what should actually be said is 'subtract 146 from 180' because that means you are taking 146 away from 180 so it would be 180-146\"\n\n**6. ERROR_CORRECTION**\nExplanation: Teacher points out an error and provides an explanation for it to reinforce correct understanding.\nExample: \"It should be 34. It cannot be 16 because 16+57+89 is not 180\"\n\n**7. PROBING_STUDENT_THINKING**\nExplanation: The teacher asks a follow-up question that seeks to uncover or explore the student's reasoning, logic, or understanding behind a statement or answer they've already given. This move invites the student to reflect, explain, or clarify their thought process.\nExample: \"So do you see why 2 is actually an allowed value for x now?\"\n\n**8. PROMPTING**\nExplanation: The teacher encourages the student to participate, think, or respond—often after the student expresses confusion, hesitates, or hasn't yet offered an idea. The goal is to initiate engagement without requiring a deep explanation.\nExample: \"Have you heard of the Pythagorean theorem?\"\n\n**9. USING_VISUAL_CUES**\nExplanation: Teacher refers to or encourages attention to a visual representation to support understanding.\nExample: \"The red circle shows the right angle\"\n\n**10. EMOTIONAL_SUPPORT**\nExplanation: Teacher offers reassurance, empathy, or encouragement to build student confidence.\nExample: \"don't worry take it slow\"\n\n**11. SCAFFOLDING**\nExplanation: Teacher breaks down the task and supports the student step-by-step.\nExample: \"Let's break out the problem bit by bit.\"\n\n## Clarifications (follow these exactly):\n- Return **only** IDs from the Allowed Moves list—no synonyms or casing changes.  \n- **Omit** any tutor turn that is off-topic, administrative, or not about solving the math problem.   \n- All other moves should be assigned by their plain-English status in the Allowed Moves list.\n\nOutput your choices into the JSON structure where:\nteacherMove = The Tutor Move from the list above.\nreasoning = The reason why you've chosen this Tutor Move.",
+    "annotationSchema": [
+      {
+        "_id": "0",
+        "type": "TEACHER_MOVE",
+        "identifiedBy": "AI",
+        "reasoning": "",
+        "teacherMove": ""
+      }
+    ],
+    "examples": [
+      {
+        "_id": "0",
+        "text": ""
+      }
+    ]
+  }
+]
