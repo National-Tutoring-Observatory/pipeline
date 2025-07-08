@@ -7,7 +7,7 @@ import systemPrompt from "./system.prompt.json";
 import prompts from "./prompts.json";
 import LLM from '~/core/llm/llm';
 
-export const handler = async (event) => {
+export const handler = async (event: { body: any }) => {
   try {
     const { body } = event;
     const { inputFile, outputFolder, prompt } = body;

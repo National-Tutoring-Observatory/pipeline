@@ -104,6 +104,7 @@ export default function PromptEditor({
             id="prompt"
             placeholder="Write your prompt here."
             value={userPrompt}
+            className="max-h-80"
             onChange={onUserPromptChanged}
           />
         </div>

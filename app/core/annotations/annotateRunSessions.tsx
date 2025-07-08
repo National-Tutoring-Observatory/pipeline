@@ -3,6 +3,7 @@ import getDocument from "../documents/getDocument";
 import updateDocument from "../documents/updateDocument";
 import { emitter } from "../events/emitter";
 import { handler as annotatePerUtterance } from '../../functions/annotatePerUtterance/app';
+import { handler as annotatePerSession } from '../../functions/annotatePerSession/app';
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { PromptVersion } from "~/modules/prompts/prompts.types";
 
@@ -56,14 +57,24 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
 
     emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING', step: `${completedSessions + 1}/${run.data.sessions.length}` });
 
+    if (run.data.annotationType === 'PER_UTTERANCE') {
 
-    await annotatePerUtterance({
-      body: {
-        inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-        outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
-        prompt: { prompt: promptVersion.data.userPrompt, annotationSchema }
-      }
-    });
+      await annotatePerUtterance({
+        body: {
+          inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
+          outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+          prompt: { prompt: promptVersion.data.userPrompt, annotationSchema }
+        }
+      });
+    } else {
+      await annotatePerSession({
+        body: {
+          inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
+          outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+          prompt: { prompt: promptVersion.data.userPrompt, annotationSchema }
+        }
+      })
+    }
 
     session.status = 'DONE';
     session.finishedAt = new Date();
