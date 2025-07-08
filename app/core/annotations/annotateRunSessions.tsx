@@ -28,7 +28,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
 
   const promptVersion = await getDocument({ collection: 'promptVersions', match: { prompt: Number(run.data.prompt), version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
 
-  emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: 0, status: 'STARTED' });
+  emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: 0, status: 'STARTED', step: `0/${run.data.sessions.length}` });
 
 
   let annotationFields: Record<string, any> = {};
@@ -38,8 +38,11 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
   }
   const annotationSchema = [annotationFields];
 
+  let completedSessions = 0;
+
   for (const session of run.data.sessions) {
     session.status = 'RUNNING';
+
     await updateDocument({
       collection: 'runs',
       match: { _id: Number(runId) },
@@ -47,6 +50,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
         sessions: run.data.sessions
       }
     });
+
+    emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING', step: `${completedSessions + 1}/${run.data.sessions.length}` });
 
     const sessionModel = await getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
 
@@ -66,6 +71,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
         sessions: run.data.sessions,
       }
     });
+    completedSessions++;
+    emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING' });
   }
 
   await updateDocument({
@@ -76,4 +83,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
       isComplete: true
     }
   });
+
+  emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: 100, status: 'DONE' });
+
 }

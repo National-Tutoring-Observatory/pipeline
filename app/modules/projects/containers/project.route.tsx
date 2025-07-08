@@ -95,7 +95,6 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data, event);
       if (data.projectId === project.data._id) {
         switch (data.event) {
           case 'UPLOAD_FILES':
