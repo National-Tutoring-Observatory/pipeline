@@ -58,8 +58,10 @@ export default function PromptSelectorContainer({
 
   let latestVersion = null;
   if (selectedPrompt) {
-    const selectedPromptItem = find(promptsFetcher.data.prompts.data, { _id: Number(selectedPrompt) });
-    latestVersion = selectedPromptItem.latestVersion;
+    const selectedPromptItem = find(promptsFetcher.data?.prompts?.data, { _id: Number(selectedPrompt) });
+    if (selectedPromptItem) {
+      latestVersion = selectedPromptItem.latestVersion;
+    }
   }
 
   return (

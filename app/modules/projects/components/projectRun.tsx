@@ -5,6 +5,7 @@ import ModelSelectorContainer from '~/modules/prompts/containers/modelSelectorCo
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
+import { Progress } from "@/components/ui/progress";
 
 export default function ProjectRun({
   run,
@@ -12,6 +13,8 @@ export default function ProjectRun({
   selectedPromptVersion,
   selectedModel,
   selectedSessions,
+  runSessionsProgress,
+  runSessionsStep,
   isRunButtonDisabled,
   onSelectedPromptChanged,
   onSelectedPromptVersionChanged,
@@ -24,6 +27,8 @@ export default function ProjectRun({
   selectedPromptVersion: string,
   selectedModel: string,
   selectedSessions: string[],
+  runSessionsProgress: number,
+  runSessionsStep: string,
   isRunButtonDisabled: boolean,
   onSelectedPromptChanged: (selectedPrompt: string) => void,
   onSelectedPromptVersionChanged: (selectedPromptVersion: string) => void,
@@ -36,9 +41,10 @@ export default function ProjectRun({
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
         {run.name}
       </h1>
-      {(run.hasSetup) && (
-        <div>
-          Has been setup and is running
+      {(run.hasSetup && run.isRunning) && (
+        <div className="relative">
+          <div className="text-xs opacity-40 absolute right-0 top-3">Annotating {runSessionsStep}</div>
+          <Progress value={runSessionsProgress} />
         </div>
       )}
       {(!run.hasSetup) && (

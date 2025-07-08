@@ -1,4 +1,4 @@
-import { useLoaderData, useSubmit } from "react-router";
+import { useLoaderData, useRevalidator, useSubmit } from "react-router";
 import ProjectRun from "../components/projectRun";
 import type { Run as RunType } from "~/modules/runs/runs.types";
 import getDocument from "~/core/documents/getDocument";
@@ -6,6 +6,7 @@ import type { Route } from "./+types/projectRun.route";
 import { useEffect, useState } from "react";
 import updateDocument from "~/core/documents/updateDocument";
 import annotateRunSessions from "~/core/annotations/annotateRunSessions";
+import throttle from 'lodash/throttle';
 
 type Run = {
   data: RunType,
@@ -66,6 +67,10 @@ export async function action({
   }
 }
 
+const debounceRevalidate = throttle((revalidate) => {
+  revalidate();
+}, 2000);
+
 export default function ProjectRunRoute() {
   const { run } = useLoaderData();
 
@@ -74,7 +79,10 @@ export default function ProjectRunRoute() {
   const [selectedModel, setSelectedModel] = useState('GEMINI');
   const [selectedSessions, setSelectedSessions] = useState<string[]>([]);
   const [isRunButtonDisabled, setIsRunButtonDisabled] = useState(true);
+  const [runSessionsProgress, setRunSessionsProgress] = useState(0);
+  const [runSessionsStep, setRunSessionsStep] = useState('');
   const submit = useSubmit();
+  const { revalidate, state } = useRevalidator();
 
   const onSelectedPromptChanged = (selectedPrompt: string) => {
     setSelectedPrompt(selectedPrompt);
@@ -109,6 +117,32 @@ export default function ProjectRunRoute() {
     }
   }, [selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions]);
 
+  useEffect(() => {
+    const eventSource = new EventSource("/api/events");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data);
+      if (data.runId === run.data._id) {
+        switch (data.event) {
+          case 'ANNOTATE_RUN_SESSION':
+            console.log('annotating run sessions');
+            setRunSessionsProgress(data.progress);
+            if (data.step) {
+              setRunSessionsStep(data.step);
+            }
+            break;
+        }
+        if (data.status === 'STARTED') {
+          debounceRevalidate(revalidate);
+        }
+        if (data.status === 'DONE') {
+          debounceRevalidate(revalidate);
+        }
+      }
+    };
+  }, [])
+
 
   return (
     <ProjectRun
@@ -117,6 +151,8 @@ export default function ProjectRunRoute() {
       selectedPromptVersion={selectedPromptVersion}
       selectedModel={selectedModel}
       selectedSessions={selectedSessions}
+      runSessionsProgress={runSessionsProgress}
+      runSessionsStep={runSessionsStep}
       isRunButtonDisabled={isRunButtonDisabled}
       onSelectedPromptChanged={onSelectedPromptChanged}
       onSelectedPromptVersionChanged={onSelectedPromptVersionChanged}

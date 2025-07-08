@@ -15,15 +15,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
         controller.enqueue(`data: ${JSON.stringify({ ...message, event: 'CONVERT_FILES' })}\n\n`);
       };
 
+      const handleAnnotateRunSession = (message: any) => {
+        controller.enqueue(`data: ${JSON.stringify({ ...message, event: 'ANNOTATE_RUN_SESSION' })}\n\n`);
+      }
+
       emitter.on("UPLOAD_FILES", handleUploadFiles);
 
       emitter.on("CONVERT_FILES", handleConvertFiles);
+
+      emitter.on('ANNOTATE_RUN_SESSION', handleAnnotateRunSession);
 
       request.signal.addEventListener("abort", () => {
         console.log("SSE: Client disconnected");
         controller.close();
         emitter.off("UPLOAD_FILES", handleUploadFiles);
         emitter.off("CONVERT_FILES", handleConvertFiles);
+        emitter.off("ANNOTATE_RUN_SESSION", handleAnnotateRunSession);
       });
 
     },
