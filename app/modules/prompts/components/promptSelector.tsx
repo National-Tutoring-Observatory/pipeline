@@ -12,7 +12,7 @@ export default function PromptSelector({
   promptVersions,
   selectedPrompt,
   selectedPromptVersion,
-  latestVersion,
+  productionVersion,
   isLoadingPrompts,
   isLoadingPromptVersions,
   isPromptsOpen,
@@ -26,7 +26,7 @@ export default function PromptSelector({
   promptVersions: PromptVersion[],
   selectedPrompt: string,
   selectedPromptVersion: string,
-  latestVersion: number,
+  productionVersion: number,
   isLoadingPrompts: boolean,
   isLoadingPromptVersions: boolean,
   isPromptsOpen: boolean,
@@ -112,8 +112,8 @@ export default function PromptSelector({
                 {(selectedPromptVersion && selectedPromptVersionItem) && (
                   <div className="flex items-center">
                     {`#${selectedPromptVersionItem.version}`}
-                    {(latestVersion && latestVersion === selectedPromptVersionItem.version) && (
-                      <Badge variant="secondary" className="bg-indigo-100 ml-2">Latest</Badge>
+                    {(productionVersion && productionVersion === selectedPromptVersionItem.version) && (
+                      <Badge variant="secondary" className="bg-indigo-100 ml-2">Production</Badge>
                     )}
                   </div>
                 ) || (
@@ -157,8 +157,8 @@ export default function PromptSelector({
                         />
                         <div>
                           {`#${promptVersion.version}`}
-                          {(latestVersion && latestVersion === promptVersion.version) && (
-                            <Badge variant="secondary" className="bg-indigo-100 ml-2">Latest</Badge>
+                          {(productionVersion && productionVersion === promptVersion.version) && (
+                            <Badge variant="secondary" className="bg-indigo-100 ml-2">Production</Badge>
                           )}
                           <div className="text-muted-foreground">
                             {promptVersion.name}
