@@ -41,7 +41,10 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
   let completedSessions = 0;
 
   for (const session of run.data.sessions) {
+    const sessionModel = await getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
+
     session.status = 'RUNNING';
+    session.startedAt = new Date();
 
     await updateDocument({
       collection: 'runs',
@@ -53,7 +56,6 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
 
     emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING', step: `${completedSessions + 1}/${run.data.sessions.length}` });
 
-    const sessionModel = await getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
 
     await annotatePerUtterance({
       body: {
@@ -61,9 +63,10 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
         outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
         prompt: { prompt: promptVersion.data.userPrompt, annotationSchema }
       }
-    })
+    });
 
     session.status = 'DONE';
+    session.finishedAt = new Date();
     await updateDocument({
       collection: 'runs',
       match: { _id: Number(runId) },
