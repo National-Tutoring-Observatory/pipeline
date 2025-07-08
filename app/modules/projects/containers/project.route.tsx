@@ -14,13 +14,15 @@ import convertFileToFiles from "~/core/uploads/convertFileToFiles";
 import convertFilesToSessions from "~/core/uploads/convertFilesToSessions";
 import filter from 'lodash/filter';
 import type { Session } from "~/modules/sessions/sessions.types";
+import type { Run } from "~/modules/runs/runs.types";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.id) } }) as { data: ProjectType };
   const files = await getDocuments({ collection: 'files', match: { project: parseInt(params.id) }, sort: {} }) as { count: number };
   const sessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Session[] };
   const convertedSessionsCount = filter(sessions.data, { hasConverted: true }).length;
-  return { project, filesCount: files.count, sessionsCount: sessions.count, convertedSessionsCount };
+  const runs = await getDocuments({ collection: 'runs', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Run[] };
+  return { project, filesCount: files.count, sessionsCount: sessions.count, convertedSessionsCount, runsCount: runs.count };
 }
 
 export async function action({
@@ -65,7 +67,7 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
-  const { project, filesCount, sessionsCount, convertedSessionsCount } = loaderData;
+  const { project, filesCount, sessionsCount, convertedSessionsCount, runsCount } = loaderData;
 
   const submit = useSubmit();
 
@@ -132,6 +134,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       filesCount={filesCount}
       sessionsCount={sessionsCount}
       convertedSessionsCount={convertedSessionsCount}
+      runsCount={runsCount}
       tabValue={matches[matches.length - 1].id}
       convertFilesProgress={convertFilesProgress}
       uploadFilesProgress={uploadFilesProgress}
