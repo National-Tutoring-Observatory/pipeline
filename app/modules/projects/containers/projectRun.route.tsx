@@ -35,7 +35,7 @@ export async function action({
         collection: 'runs',
         match: { _id: Number(params.runId), project: Number(params.projectId) }
       }) as { data: Run };
-      console.log(run);
+
       await updateDocument({
         collection: 'runs',
         match: { _id: Number(params.runId) },
