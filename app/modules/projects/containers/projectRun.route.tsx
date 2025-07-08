@@ -5,6 +5,7 @@ import getDocument from "~/core/documents/getDocument";
 import type { Route } from "./+types/projectRun.route";
 import { useEffect, useState } from "react";
 import updateDocument from "~/core/documents/updateDocument";
+import annotateRunSessions from "~/core/annotations/annotateRunSessions";
 
 type Run = {
   data: RunType,
@@ -34,20 +35,31 @@ export async function action({
       const run = await getDocument({
         collection: 'runs',
         match: { _id: Number(params.runId), project: Number(params.projectId) }
-      }) as { data: Run };
+      }) as Run;
+
+      const sessionsAsObjects = [];
+
+      for (const session of sessions) {
+        sessionsAsObjects.push({
+          sessionId: session,
+          status: 'NOT_STARTED'
+        });
+      }
 
       await updateDocument({
         collection: 'runs',
         match: { _id: Number(params.runId) },
         update: {
           hasSetup: true,
-          isRunning: true,
           prompt,
           promptVersion,
           model,
-          sessions
+          sessions: sessionsAsObjects
         }
-      }) as { data: Run };
+      }) as Run;
+
+      annotateRunSessions({ runId: run.data._id });
+
       return {}
     default:
       return {};

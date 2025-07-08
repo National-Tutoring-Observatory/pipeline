@@ -37,6 +37,8 @@ export async function action({
           name,
           annotationType,
           hasSetup: false,
+          isRunning: false,
+          isComplete: false
         }
       }) as { data: Run };
       return {

@@ -1,0 +1,79 @@
+import type { Run } from "~/modules/runs/runs.types";
+import getDocument from "../documents/getDocument";
+import updateDocument from "../documents/updateDocument";
+import { emitter } from "../events/emitter";
+import { handler as annotatePerUtterance } from '../../functions/annotatePerUtterance/app';
+import type { Session } from "~/modules/sessions/sessions.types";
+import type { PromptVersion } from "~/modules/prompts/prompts.types";
+
+type AnnotationSchemaItem = { fieldKey: string; value: any };
+
+export default async function annotateRunSessions({ runId }: { runId: string }) {
+
+  const run = await getDocument({ collection: 'runs', match: { _id: Number(runId) } }) as { data: Run };
+
+  if (run.data.isRunning) { return {} }
+
+  const inputDirectory = `./storage/${run.data.project}/preAnalysis`;
+
+  const outputDirectory = `./storage/${run.data.project}/runs/${run.data._id}`;
+
+  await updateDocument({
+    collection: 'runs',
+    match: { _id: Number(runId) },
+    update: {
+      isRunning: true,
+    }
+  });
+
+  const promptVersion = await getDocument({ collection: 'promptVersions', match: { prompt: Number(run.data.prompt), version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
+
+  emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: 0, status: 'STARTED' });
+
+
+  let annotationFields: Record<string, any> = {};
+
+  for (const annotationSchemaItem of promptVersion.data.annotationSchema as AnnotationSchemaItem[]) {
+    annotationFields[annotationSchemaItem.fieldKey] = annotationSchemaItem.value;
+  }
+  const annotationSchema = [annotationFields];
+
+  for (const session of run.data.sessions) {
+    session.status = 'RUNNING';
+    await updateDocument({
+      collection: 'runs',
+      match: { _id: Number(runId) },
+      update: {
+        sessions: run.data.sessions
+      }
+    });
+
+    const sessionModel = await getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
+
+    await annotatePerUtterance({
+      body: {
+        inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
+        outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+        prompt: { prompt: promptVersion.data.userPrompt, annotationSchema }
+      }
+    })
+
+    session.status = 'DONE';
+    await updateDocument({
+      collection: 'runs',
+      match: { _id: Number(runId) },
+      update: {
+        sessions: run.data.sessions,
+      }
+    });
+  }
+
+  await updateDocument({
+    collection: 'runs',
+    match: { _id: Number(runId) },
+    update: {
+      isRunning: false,
+      isComplete: true
+    }
+  });
+}

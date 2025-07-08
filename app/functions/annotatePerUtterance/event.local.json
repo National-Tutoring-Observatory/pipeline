@@ -1,0 +1,7 @@
+{
+  "body": {
+    "inputFile": "localData/preAnalysis/01801e36-4f2a-0ace-fe02-44dc77b9d5c3.json",
+    "outputFolder": "localData/analysis",
+    "promptId": "7"
+  }
+}
