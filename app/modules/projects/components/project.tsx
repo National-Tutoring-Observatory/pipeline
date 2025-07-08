@@ -9,6 +9,7 @@ interface ProjectProps {
   project: Project,
   filesCount: number,
   sessionsCount: number,
+  runsCount: number,
   tabValue: string,
   uploadFilesProgress: number,
   convertFilesProgress: number,
@@ -20,6 +21,7 @@ export default function Project({
   project,
   filesCount,
   sessionsCount,
+  runsCount,
   tabValue,
   uploadFilesProgress,
   convertFilesProgress,
@@ -99,7 +101,7 @@ export default function Project({
                   <CardDescription>Runs are a way to annotate your data via Prompts</CardDescription>
                 </CardHeader>
                 <CardContent className="h-8">
-                  <p>0 runs</p>
+                  <p>{runsCount} runs</p>
                 </CardContent>
               </Card>
             </Link>
