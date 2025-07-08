@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import updateDocument from "~/core/documents/updateDocument";
 import annotateRunSessions from "~/core/annotations/annotateRunSessions";
 import throttle from 'lodash/throttle';
+import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
+import type { Session } from "~/modules/sessions/sessions.types";
 
 type Run = {
   data: RunType,
@@ -14,7 +16,13 @@ type Run = {
 
 export async function loader({ params }: Route.LoaderArgs) {
   const run = await getDocument({ collection: 'runs', match: { _id: parseInt(params.runId), project: parseInt(params.projectId) }, }) as Run;
-  return { run };
+  let runPrompt;
+  let runPromptVersion;
+  if (run.data.hasSetup) {
+    runPrompt = await getDocument({ collection: 'prompts', match: { _id: Number(run.data.prompt) } }) as { data: Prompt };
+    runPromptVersion = await getDocument({ collection: 'promptVersions', match: { prompt: Number(run.data.prompt), version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
+  }
+  return { run, runPrompt, runPromptVersion };
 }
 
 
@@ -41,7 +49,10 @@ export async function action({
       const sessionsAsObjects = [];
 
       for (const session of sessions) {
+        const sessionModel = await getDocument({ collection: 'sessions', match: { _id: session } }) as { data: Session };
         sessionsAsObjects.push({
+          name: sessionModel.data.name,
+          fileType: sessionModel.data.fileType,
           sessionId: session,
           status: 'NOT_STARTED'
         });
@@ -72,7 +83,7 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRunRoute() {
-  const { run } = useLoaderData();
+  const { run, runPrompt, runPromptVersion } = useLoaderData();
 
   const [selectedPrompt, setSelectedPrompt] = useState('');
   const [selectedPromptVersion, setSelectedPromptVersion] = useState('');
@@ -122,22 +133,15 @@ export default function ProjectRunRoute() {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
       if (data.runId === run.data._id) {
         switch (data.event) {
           case 'ANNOTATE_RUN_SESSION':
-            console.log('annotating run sessions');
             setRunSessionsProgress(data.progress);
             if (data.step) {
               setRunSessionsStep(data.step);
             }
+            debounceRevalidate(revalidate);
             break;
-        }
-        if (data.status === 'STARTED') {
-          debounceRevalidate(revalidate);
-        }
-        if (data.status === 'DONE') {
-          debounceRevalidate(revalidate);
         }
       }
     };
@@ -147,6 +151,8 @@ export default function ProjectRunRoute() {
   return (
     <ProjectRun
       run={run.data}
+      runPrompt={runPrompt?.data}
+      runPromptVersion={runPromptVersion?.data}
       selectedPrompt={selectedPrompt}
       selectedPromptVersion={selectedPromptVersion}
       selectedModel={selectedModel}

@@ -9,6 +9,6 @@ export interface Run {
   prompt: number;
   promptVersion: number;
   model: string;
-  sessions: { sessionId: number, status: string }[]
+  sessions: { sessionId: number, status: string, name: string, fileType: string, startedAt: Date, finishedAt: Date }[]
   isComplete: boolean;
 }
