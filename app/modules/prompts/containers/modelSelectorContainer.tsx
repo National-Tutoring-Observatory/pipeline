@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import ModelSelector from '../components/modelSelector';
 
-export default function ModelSelectorContainer() {
+export default function ModelSelectorContainer({
+  selectedModel,
+  onSelectedModelChanged
+}: {
+  selectedModel: string,
+  onSelectedModelChanged: (selectedModel: string) => void,
+}) {
 
   const [isModelsOpen, setIsModelsOpen] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('GEMINI');
 
   const onToggleModelPopover = (isModelsOpen: boolean) => {
     setIsModelsOpen(isModelsOpen);
-  }
-
-  const onSelectedModelChanged = (selectedModel: string) => {
-    setSelectedModel(selectedModel);
   }
 
   return (

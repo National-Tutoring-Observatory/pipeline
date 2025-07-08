@@ -6,7 +6,31 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 
-export default function ProjectRun({ run }: { run: Run }) {
+export default function ProjectRun({
+  run,
+  selectedPrompt,
+  selectedPromptVersion,
+  selectedModel,
+  selectedSessions,
+  isRunButtonDisabled,
+  onSelectedPromptChanged,
+  onSelectedPromptVersionChanged,
+  onSelectedModelChanged,
+  onSelectedSessionsChanged,
+  onStartRunClicked,
+}: {
+  run: Run,
+  selectedPrompt: string,
+  selectedPromptVersion: string,
+  selectedModel: string,
+  selectedSessions: string[],
+  isRunButtonDisabled: boolean,
+  onSelectedPromptChanged: (selectedPrompt: string) => void,
+  onSelectedPromptVersionChanged: (selectedPromptVersion: string) => void,
+  onSelectedModelChanged: (selectedModel: string) => void,
+  onSelectedSessionsChanged: (selectedSessions: string[]) => void,
+  onStartRunClicked: () => void
+}) {
   return (
     <div className="max-w-5xl mx-auto p-8">
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
@@ -28,6 +52,10 @@ export default function ProjectRun({ run }: { run: Run }) {
               <div>
                 <PromptSelectorContainer
                   annotationType={run.annotationType}
+                  selectedPrompt={selectedPrompt}
+                  selectedPromptVersion={selectedPromptVersion}
+                  onSelectedPromptChanged={onSelectedPromptChanged}
+                  onSelectedPromptVersionChanged={onSelectedPromptVersionChanged}
                 />
               </div>
             </div>
@@ -38,6 +66,8 @@ export default function ProjectRun({ run }: { run: Run }) {
               </div>
               <div>
                 <ModelSelectorContainer
+                  selectedModel={selectedModel}
+                  onSelectedModelChanged={onSelectedModelChanged}
                 />
               </div>
             </div>
@@ -48,13 +78,17 @@ export default function ProjectRun({ run }: { run: Run }) {
               <Label>Select sessions</Label>
             </div>
             <div>
-              <SessionSelectorContainer />
+              <SessionSelectorContainer
+                selectedSessions={selectedSessions}
+                onSelectedSessionsChanged={onSelectedSessionsChanged}
+              />
             </div>
           </div>
           <div className="mt-4 flex justify-center">
             <Button
               size="lg"
-              disabled
+              disabled={isRunButtonDisabled}
+              onClick={onStartRunClicked}
             >
               Start run
             </Button>

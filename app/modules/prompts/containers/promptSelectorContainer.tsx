@@ -4,12 +4,22 @@ import { useFetcher } from 'react-router';
 import get from 'lodash/get';
 import find from 'lodash/find';
 
-export default function PromptSelectorContainer({ annotationType }: { annotationType: string }) {
+export default function PromptSelectorContainer({
+  annotationType,
+  selectedPrompt,
+  selectedPromptVersion,
+  onSelectedPromptChanged,
+  onSelectedPromptVersionChanged
+}: {
+  annotationType: string,
+  selectedPrompt: string,
+  selectedPromptVersion: string,
+  onSelectedPromptChanged: (selectedPrompt: string) => void,
+  onSelectedPromptVersionChanged: (selectedPromptVersion: string) => void
+}) {
 
   const [isPromptsOpen, setIsPromptsOpen] = useState(false);
   const [isPromptVersionsOpen, setIsPromptVersionsOpen] = useState(false);
-  const [selectedPrompt, setSelectedPrompt] = useState('');
-  const [selectedPromptVersion, setSelectedPromptVersion] = useState('');
 
   const promptsFetcher = useFetcher();
   const promptVersionsFetcher = useFetcher();
@@ -27,19 +37,19 @@ export default function PromptSelectorContainer({ annotationType }: { annotation
     setIsPromptVersionsOpen(isPromptsOpen);
   }
 
-  const onSelectedPromptChanged = (selectedPrompt: string) => {
-    setSelectedPrompt(selectedPrompt);
+  const onSelectedPromptChange = (selectedPrompt: string) => {
+    onSelectedPromptChanged(selectedPrompt);
     const params = new URLSearchParams();
     params.set('prompt', selectedPrompt)
     promptVersionsFetcher.load(`/api/promptVersionsList?${params.toString()}`);
     const selectedPromptItem = find(promptsFetcher.data.prompts.data, { _id: Number(selectedPrompt) });
     if (selectedPromptItem) {
-      setSelectedPromptVersion(`${selectedPromptItem.latestVersion}`);
+      onSelectedPromptVersionChanged(`${selectedPromptItem.latestVersion}`);
     }
   }
 
-  const onSelectedPromptVersionChanged = (selectedPromptVersion: string) => {
-    setSelectedPromptVersion(selectedPromptVersion)
+  const onSelectedPromptVersionChange = (selectedPromptVersion: string) => {
+    onSelectedPromptVersionChanged(selectedPromptVersion)
   }
 
   const prompts = get(promptsFetcher, 'data.prompts.data', []);
@@ -65,8 +75,8 @@ export default function PromptSelectorContainer({ annotationType }: { annotation
       isPromptVersionsOpen={isPromptVersionsOpen}
       onTogglePromptPopover={onTogglePromptPopover}
       onTogglePromptVersionsPopover={onTogglePromptVersionsPopover}
-      onSelectedPromptChanged={onSelectedPromptChanged}
-      onSelectedPromptVersionChanged={onSelectedPromptVersionChanged}
+      onSelectedPromptChange={onSelectedPromptChange}
+      onSelectedPromptVersionChange={onSelectedPromptVersionChange}
     />
   );
 }

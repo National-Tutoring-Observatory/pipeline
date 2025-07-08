@@ -42,16 +42,25 @@ export default function Project({
       {(project.hasSetupProject) && (
         <div>
           <div className="grid grid-cols-3 gap-8">
-            <Link to={`/projects/${project._id}`} className="h-full">
+            <Link to={`/projects/${project._id}/files`} className="h-full">
               <Card className={clsx("transition-all h-full", {
-                "border-accent-foreground": tabValue === 'RUNS'
+                "border-accent-foreground": tabValue === 'FILES'
               })}>
                 <CardHeader>
-                  <CardTitle>Runs</CardTitle>
-                  <CardDescription>Runs are a way to annotate your data via Prompts</CardDescription>
+                  <CardTitle>Files</CardTitle>
+                  <CardDescription>Files are your original data files</CardDescription>
                 </CardHeader>
                 <CardContent className="h-8">
-                  <p>0 runs</p>
+                  {(!project.isUploadingFiles) && (
+                    <div>
+                      {`${filesCount} files`}
+                    </div>
+                  )}
+                  {(project.isUploadingFiles) && (
+                    <div>
+                      <Progress value={uploadFilesProgress} />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </Link>
@@ -81,25 +90,16 @@ export default function Project({
                 </CardContent>
               </Card>
             </Link>
-            <Link to={`/projects/${project._id}/files`} className="h-full">
+            <Link to={`/projects/${project._id}`} className="h-full">
               <Card className={clsx("transition-all h-full", {
-                "border-accent-foreground": tabValue === 'FILES'
+                "border-accent-foreground": tabValue === 'RUNS'
               })}>
                 <CardHeader>
-                  <CardTitle>Files</CardTitle>
-                  <CardDescription>Files are your original data files</CardDescription>
+                  <CardTitle>Runs</CardTitle>
+                  <CardDescription>Runs are a way to annotate your data via Prompts</CardDescription>
                 </CardHeader>
                 <CardContent className="h-8">
-                  {(!project.isUploadingFiles) && (
-                    <div>
-                      {`${filesCount} files`}
-                    </div>
-                  )}
-                  {(project.isUploadingFiles) && (
-                    <div>
-                      <Progress value={uploadFilesProgress} />
-                    </div>
-                  )}
+                  <p>0 runs</p>
                 </CardContent>
               </Card>
             </Link>
