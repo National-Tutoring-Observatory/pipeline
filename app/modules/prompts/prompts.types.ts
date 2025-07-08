@@ -3,7 +3,7 @@ export interface Prompt {
   name: string;
   createdAt: string;
   annotationType: string;
-  latestVersion: number;
+  productionVersion: number;
 }
 
 export interface PromptVersion {

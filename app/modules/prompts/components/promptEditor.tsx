@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Archive, Save, SaveOff, Trash } from "lucide-react";
+import { Archive, BookCheck, Save, SaveOff, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { PromptVersion } from "../prompts.types";
 import AnnotationSchemaBuilder from "./annotationSchemaBuilder";
@@ -10,11 +10,15 @@ import AnnotationSchemaBuilder from "./annotationSchemaBuilder";
 export default function PromptEditor({
   promptVersion,
   isLoading,
-  onSavePromptVersion
+  isProduction,
+  onSavePromptVersion,
+  onMakePromptVersionProductionClicked
 }: {
   promptVersion: PromptVersion,
   isLoading: boolean,
-  onSavePromptVersion: ({ name, userPrompt, annotationSchema, _id }: { name: string, userPrompt: string, annotationSchema: any[], _id: string }) => void
+  isProduction: boolean,
+  onSavePromptVersion: ({ name, userPrompt, annotationSchema, _id }: { name: string, userPrompt: string, annotationSchema: any[], _id: string }) => void,
+  onMakePromptVersionProductionClicked: () => void,
 }) {
 
   const [hasChanges, setHasChanges] = useState(false);
@@ -59,6 +63,17 @@ export default function PromptEditor({
           <div>{`Version: ${promptVersion.name}`}</div>
         </div>
         <div className="space-x-4 flex items-center">
+          {(!isProduction) && (
+
+            <Button
+              size="icon"
+              variant="ghost"
+              className="size-4 cursor-pointer hover:text-indigo-600"
+              onClick={onMakePromptVersionProductionClicked}
+            >
+              <BookCheck />
+            </Button>
+          )}
           <Button
             size="icon"
             variant="ghost"

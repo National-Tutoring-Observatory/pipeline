@@ -11,10 +11,10 @@ type PromptVersionItemProps = {
   prompt: number;
   createdAt: string;
   isSelected: boolean;
-  isLatest: boolean;
+  isProduction: boolean;
 };
 
-export default function PromptVersionItem({ name, version, prompt, createdAt, isSelected, isLatest }: PromptVersionItemProps) {
+export default function PromptVersionItem({ name, version, prompt, createdAt, isSelected, isProduction }: PromptVersionItemProps) {
 
   const className = clsx("block border-b last:border-b-0 p-2", {
     "bg-indigo-50": isSelected
@@ -24,8 +24,8 @@ export default function PromptVersionItem({ name, version, prompt, createdAt, is
     <Link to={`/prompts/${prompt}/${version}`} className={className}>
       <div className="mb-2">
         <Badge variant="outline" className="bg-white">{`# ${version}`}</Badge>
-        {(isLatest) && (
-          <Badge variant="secondary" className="bg-indigo-100 ml-2">Latest</Badge>
+        {(isProduction) && (
+          <Badge variant="secondary" className="bg-indigo-100 ml-2">Production</Badge>
         )}
       </div>
       <div className="text-sm text-black/40">

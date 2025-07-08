@@ -44,7 +44,7 @@ export default function PromptSelectorContainer({
     promptVersionsFetcher.load(`/api/promptVersionsList?${params.toString()}`);
     const selectedPromptItem = find(promptsFetcher.data.prompts.data, { _id: Number(selectedPrompt) });
     if (selectedPromptItem) {
-      onSelectedPromptVersionChanged(`${selectedPromptItem.latestVersion}`);
+      onSelectedPromptVersionChanged(`${selectedPromptItem.productionVersion}`);
     }
   }
 
@@ -56,11 +56,11 @@ export default function PromptSelectorContainer({
 
   const promptVersions = get(promptVersionsFetcher, 'data.promptVersions.data', []);
 
-  let latestVersion = null;
+  let productionVersion = null;
   if (selectedPrompt) {
     const selectedPromptItem = find(promptsFetcher.data?.prompts?.data, { _id: Number(selectedPrompt) });
     if (selectedPromptItem) {
-      latestVersion = selectedPromptItem.latestVersion;
+      productionVersion = selectedPromptItem.productionVersion;
     }
   }
 
@@ -70,7 +70,7 @@ export default function PromptSelectorContainer({
       promptVersions={promptVersions}
       selectedPrompt={selectedPrompt}
       selectedPromptVersion={selectedPromptVersion}
-      latestVersion={latestVersion}
+      productionVersion={productionVersion}
       isLoadingPrompts={promptsFetcher.state === 'loading'}
       isLoadingPromptVersions={promptVersionsFetcher.state === 'loading'}
       isPromptsOpen={isPromptsOpen}
