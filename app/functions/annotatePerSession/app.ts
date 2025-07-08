@@ -3,14 +3,13 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
 import fse from 'fs-extra';
 import find from 'lodash/find.js';
-import systemPrompt from "./system.prompt.json" with { type: "json" };
-import prompts from "./prompts.json" with {type: "json"};
-import LLM from '../../shared/llm/llm.js';
+import systemPrompt from "./system.prompt.json";
+import LLM from '~/core/llm/llm';
 
-export const handler = async (event) => {
+export const handler = async (event: { body: any }) => {
   try {
     const { body } = event;
-    const { inputFile, outputFolder, promptId } = body;
+    const { inputFile, outputFolder, prompt } = body;
 
     if (!await fs.existsSync(inputFile)) throw { message: 'This input file does not exist' };
 
@@ -19,7 +18,6 @@ export const handler = async (event) => {
     const inputFileSplit = inputFile.split('/');
     const outputFileName = inputFileSplit[inputFileSplit.length - 1].replace('.json', '');
 
-    const prompt = find(prompts, { _id: promptId });
     const originalJSON = JSON.parse(data);
 
     const llm = new LLM({ quality: 'high' });
