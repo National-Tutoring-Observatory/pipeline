@@ -1,6 +1,6 @@
 import { useLoaderData, useRevalidator, useSubmit } from "react-router";
 import ProjectRun from "../components/projectRun";
-import type { Run as RunType } from "~/modules/runs/runs.types";
+import type { CreateRun, Run as RunType } from "~/modules/runs/runs.types";
 import getDocument from "~/core/documents/getDocument";
 import type { Route } from "./+types/projectRun.route";
 import { useEffect, useState } from "react";
@@ -85,35 +85,21 @@ const debounceRevalidate = throttle((revalidate) => {
 export default function ProjectRunRoute() {
   const { run, runPrompt, runPromptVersion } = useLoaderData();
 
-  const [selectedPrompt, setSelectedPrompt] = useState('');
-  const [selectedPromptVersion, setSelectedPromptVersion] = useState('');
-  const [selectedModel, setSelectedModel] = useState('GEMINI');
-  const [selectedSessions, setSelectedSessions] = useState<string[]>([]);
-  const [isRunButtonDisabled, setIsRunButtonDisabled] = useState(true);
   const [runSessionsProgress, setRunSessionsProgress] = useState(0);
   const [runSessionsStep, setRunSessionsStep] = useState('');
   const submit = useSubmit();
   const { revalidate, state } = useRevalidator();
 
-  const onSelectedPromptChanged = (selectedPrompt: string) => {
-    setSelectedPrompt(selectedPrompt);
-  }
-
-  const onSelectedPromptVersionChanged = (selectedPromptVersion: string) => {
-    setSelectedPromptVersion(selectedPromptVersion);
-  }
-
-  const onSelectedModelChanged = (selectedModel: string) => {
-    setSelectedModel(selectedModel);
-  }
-
-  const onSelectedSessionsChanged = (selectedSessions: string[]) => {
-    setSelectedSessions(selectedSessions);
-  }
-
-  const onStartRunClicked = () => {
+  const onStartRunClicked = ({
+    selectedAnnotationType,
+    selectedPrompt,
+    selectedPromptVersion,
+    selectedModel,
+    selectedSessions }: CreateRun) => {
     submit(JSON.stringify({
-      intent: 'START_RUN', payload: {
+      intent: 'START_RUN',
+      payload: {
+        annotationType: selectedAnnotationType,
         prompt: Number(selectedPrompt),
         promptVersion: Number(selectedPromptVersion),
         model: selectedModel,
@@ -121,12 +107,6 @@ export default function ProjectRunRoute() {
       }
     }), { method: 'POST', encType: 'application/json' });
   }
-
-  useEffect(() => {
-    if (selectedPrompt && selectedPromptVersion.length > 0 && selectedSessions.length > 0) {
-      setIsRunButtonDisabled(false);
-    }
-  }, [selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions]);
 
   useEffect(() => {
     const eventSource = new EventSource("/api/events");
@@ -145,6 +125,9 @@ export default function ProjectRunRoute() {
         }
       }
     };
+    return () => {
+      eventSource.close();
+    }
   }, [])
 
 
@@ -153,17 +136,8 @@ export default function ProjectRunRoute() {
       run={run.data}
       runPrompt={runPrompt?.data}
       runPromptVersion={runPromptVersion?.data}
-      selectedPrompt={selectedPrompt}
-      selectedPromptVersion={selectedPromptVersion}
-      selectedModel={selectedModel}
-      selectedSessions={selectedSessions}
       runSessionsProgress={runSessionsProgress}
       runSessionsStep={runSessionsStep}
-      isRunButtonDisabled={isRunButtonDisabled}
-      onSelectedPromptChanged={onSelectedPromptChanged}
-      onSelectedPromptVersionChanged={onSelectedPromptVersionChanged}
-      onSelectedModelChanged={onSelectedModelChanged}
-      onSelectedSessionsChanged={onSelectedSessionsChanged}
       onStartRunClicked={onStartRunClicked}
     />
   )

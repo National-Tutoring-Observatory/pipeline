@@ -10,7 +10,7 @@ export default function SessionSelector({
   selectedSessions,
   onSelectAllToggled,
   onSelectSessionToggled
-}: { sessions: [], selectedSessions: string[], onSelectAllToggled: (isChecked: boolean) => void, onSelectSessionToggled: ({ sessionId, isChecked }: { sessionId: string, isChecked: boolean }) => void }) {
+}: { sessions: [], selectedSessions: number[], onSelectAllToggled: (isChecked: boolean) => void, onSelectSessionToggled: ({ sessionId, isChecked }: { sessionId: number, isChecked: boolean }) => void }) {
   return (
     <div>
       <div className="border rounded-md h-80 overflow-y-auto">
@@ -32,8 +32,8 @@ export default function SessionSelector({
                 <TableRow key={session._id}>
                   <TableCell className="w-8">
                     <Checkbox
-                      checked={includes(selectedSessions, session._id)}
-                      onCheckedChange={(checked) => onSelectSessionToggled({ sessionId: session._id, isChecked: Boolean(checked) })}
+                      checked={includes(selectedSessions, Number(session._id))}
+                      onCheckedChange={(checked) => onSelectSessionToggled({ sessionId: Number(session._id), isChecked: Boolean(checked) })}
                     ></Checkbox>
                   </TableCell>
                   <TableCell className="font-medium">

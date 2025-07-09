@@ -10,8 +10,14 @@ import type { Run } from "~/modules/runs/runs.types";
 export default function ProjectRuns({
   runs,
   onCreateRunButtonClicked,
-  onEditRunButtonClicked
-}: { runs: Run[], onCreateRunButtonClicked: () => void, onEditRunButtonClicked: (run: Run) => void }) {
+  onEditRunButtonClicked,
+  onDuplicateRunButtonClicked
+}: {
+  runs: Run[],
+  onCreateRunButtonClicked: () => void,
+  onEditRunButtonClicked: (run: Run) => void,
+  onDuplicateRunButtonClicked: (run: Run) => void,
+}) {
   return (
     <div className="mt-8">
       {(runs.length === 0) && (
@@ -61,10 +67,9 @@ export default function ProjectRuns({
                           <DropdownMenuItem onClick={() => onEditRunButtonClicked(run)}>
                             Edit
                           </DropdownMenuItem>
-                          {/* <DropdownMenuSeparator />
-                          <DropdownMenuItem variant="destructive" onClick={() => onDeleteProjectButtonClicked(project)}>
-                            Delete
-                          </DropdownMenuItem> */}
+                          <DropdownMenuItem onClick={() => onDuplicateRunButtonClicked(run)}>
+                            Duplicate
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

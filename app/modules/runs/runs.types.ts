@@ -12,3 +12,11 @@ export interface Run {
   sessions: { sessionId: number, status: string, name: string, fileType: string, startedAt: Date, finishedAt: Date }[]
   isComplete: boolean;
 }
+
+export interface CreateRun {
+  selectedAnnotationType: string,
+  selectedPrompt: number | null,
+  selectedPromptVersion: number | null,
+  selectedModel: string,
+  selectedSessions: number[]
+}
