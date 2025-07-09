@@ -6,6 +6,9 @@ import CreateRunDialog from '../components/createRunDialog';
 import type { Run } from "~/modules/runs/runs.types";
 import createDocument from "~/core/documents/createDocument";
 import type { Route } from "./+types/projectRuns.route";
+import EditRunDialog from "../components/editRunDialog";
+import { toast } from "sonner";
+import updateDocument from "~/core/documents/updateDocument";
 
 type Runs = {
   data: [],
@@ -45,6 +48,20 @@ export async function action({
         intent: 'CREATE_RUN',
         ...run
       }
+    case 'UPDATE_RUN':
+      if (typeof name !== "string") {
+        throw new Error("Run name is required and must be a string.");
+      }
+      await updateDocument({
+        collection: 'runs',
+        match: {
+          _id: Number(entityId),
+        },
+        update: {
+          name
+        }
+      }) as { data: Run };
+      return {};
     default:
       return {};
   }
@@ -59,6 +76,19 @@ export default function ProjectRunsRoute() {
     submit(JSON.stringify({ intent: 'CREATE_RUN', payload: { name, annotationType } }), { method: 'POST', encType: 'application/json' });
   }
 
+  const onEditRunClicked = (run: Run) => {
+    submit(JSON.stringify({ intent: 'UPDATE_RUN', entityId: run._id, payload: { name: run.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
+      toast.success('Updated run');
+    });
+  }
+
+  const onEditRunButtonClicked = (run: Run) => {
+    addDialog(<EditRunDialog
+      run={run}
+      onEditRunClicked={onEditRunClicked}
+    />);
+  }
+
   const onCreateRunButtonClicked = () => {
     addDialog(
       <CreateRunDialog
@@ -71,6 +101,7 @@ export default function ProjectRunsRoute() {
     <ProjectRuns
       runs={runs.data}
       onCreateRunButtonClicked={onCreateRunButtonClicked}
+      onEditRunButtonClicked={onEditRunButtonClicked}
     />
   )
 }

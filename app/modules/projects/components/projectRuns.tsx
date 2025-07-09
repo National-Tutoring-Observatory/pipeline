@@ -9,8 +9,9 @@ import type { Run } from "~/modules/runs/runs.types";
 
 export default function ProjectRuns({
   runs,
-  onCreateRunButtonClicked
-}: { runs: Run[], onCreateRunButtonClicked: () => void }) {
+  onCreateRunButtonClicked,
+  onEditRunButtonClicked
+}: { runs: Run[], onCreateRunButtonClicked: () => void, onEditRunButtonClicked: (run: Run) => void }) {
   return (
     <div className="mt-8">
       {(runs.length === 0) && (
@@ -45,27 +46,27 @@ export default function ProjectRuns({
                     </TableCell>
                     <TableCell>{dayjs(run.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                     <TableCell className="text-right flex justify-end">
-                      {/* <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                          size="icon"
-                        >
-                          <EllipsisVertical />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-32">
-                        <DropdownMenuItem onClick={() => onEditProjectButtonClicked(project)}>
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem variant="destructive" onClick={() => onDeleteProjectButtonClicked(project)}>
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu> */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                            size="icon"
+                          >
+                            <EllipsisVertical />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-32">
+                          <DropdownMenuItem onClick={() => onEditRunButtonClicked(run)}>
+                            Edit
+                          </DropdownMenuItem>
+                          {/* <DropdownMenuSeparator />
+                          <DropdownMenuItem variant="destructive" onClick={() => onDeleteProjectButtonClicked(project)}>
+                            Delete
+                          </DropdownMenuItem> */}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );
