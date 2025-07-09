@@ -24,8 +24,8 @@ export default function PromptSelector({
 }: {
   prompts: Prompt[],
   promptVersions: PromptVersion[],
-  selectedPrompt: string,
-  selectedPromptVersion: string,
+  selectedPrompt: number | null,
+  selectedPromptVersion: number | null,
   productionVersion: number,
   isLoadingPrompts: boolean,
   isLoadingPromptVersions: boolean,
@@ -33,8 +33,8 @@ export default function PromptSelector({
   isPromptVersionsOpen: boolean,
   onTogglePromptPopover: (isPromptsOpen: boolean) => void,
   onTogglePromptVersionsPopover: (isPromptVersionsOpen: boolean) => void,
-  onSelectedPromptChange: (selectedPrompt: string) => void,
-  onSelectedPromptVersionChange: (selectedPromptVersion: string) => void,
+  onSelectedPromptChange: (selectedPrompt: number) => void,
+  onSelectedPromptVersionChange: (selectedPromptVersion: number) => void,
 }) {
 
   let selectedPromptVersionItem = null;
@@ -53,7 +53,7 @@ export default function PromptSelector({
             className="w-[200px] justify-between"
           >
             {selectedPrompt
-              ? prompts.find((prompt: Prompt) => prompt._id === selectedPrompt)?.name
+              ? prompts.find((prompt: Prompt) => Number(prompt._id) === Number(selectedPrompt))?.name
               : "Select prompt..."}
             <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -81,14 +81,14 @@ export default function PromptSelector({
                     key={prompt._id}
                     value={prompt._id}
                     onSelect={(currentValue) => {
-                      onSelectedPromptChange(prompt._id)
+                      onSelectedPromptChange(Number(prompt._id))
                       onTogglePromptPopover(false)
                     }}
                   >
                     <CheckIcon
                       className={clsx(
                         "mr-2 h-4 w-4",
-                        selectedPrompt === prompt._id ? "opacity-100" : "opacity-0"
+                        Number(selectedPrompt) === Number(prompt._id) ? "opacity-100" : "opacity-0"
                       )}
                     />
                     {prompt.name}
@@ -145,14 +145,14 @@ export default function PromptSelector({
                         key={promptVersion._id}
                         value={`${promptVersion.version}`}
                         onSelect={(currentValue) => {
-                          onSelectedPromptVersionChange(`${promptVersion.version}`)
+                          onSelectedPromptVersionChange(promptVersion.version)
                           onTogglePromptVersionsPopover(false)
                         }}
                       >
                         <CheckIcon
                           className={clsx(
                             "mr-2 h-4 w-4",
-                            selectedPromptVersion === `${promptVersion.version}` ? "opacity-100" : "opacity-0"
+                            selectedPromptVersion === promptVersion.version ? "opacity-100" : "opacity-0"
                           )}
                         />
                         <div>

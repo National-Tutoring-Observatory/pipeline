@@ -9,6 +9,8 @@ import type { Route } from "./+types/projectRuns.route";
 import EditRunDialog from "../components/editRunDialog";
 import { toast } from "sonner";
 import updateDocument from "~/core/documents/updateDocument";
+import DuplicateRunDialog from '../components/duplicateRunDialog';
+import getDocument from "~/core/documents/getDocument";
 
 type Runs = {
   data: [],
@@ -28,13 +30,17 @@ export async function action({
   const { intent, entityId, payload = {} } = await request.json();
 
   const { name, annotationType } = payload;
+  let run;
 
   switch (intent) {
-    case 'CREATE_RUN':
+    case 'CREATE_RUN': {
       if (typeof name !== "string") {
         throw new Error("Run name is required and must be a string.");
       }
-      const run = await createDocument({
+      if (typeof annotationType !== "string") {
+        throw new Error("Annotation type is required and must be a string.");
+      }
+      run = await createDocument({
         collection: 'runs', update: {
           project: Number(params.id),
           name,
@@ -48,7 +54,9 @@ export async function action({
         intent: 'CREATE_RUN',
         ...run
       }
-    case 'UPDATE_RUN':
+    }
+    case 'UPDATE_RUN': {
+
       if (typeof name !== "string") {
         throw new Error("Run name is required and must be a string.");
       }
@@ -62,8 +70,43 @@ export async function action({
         }
       }) as { data: Run };
       return {};
-    default:
+    }
+    case 'DUPLICATE_RUN': {
+
+      if (typeof name !== "string") {
+        throw new Error("Run name is required and must be a string.");
+      }
+      const existingRun = await getDocument({
+        collection: 'runs',
+        match: {
+          _id: Number(entityId),
+        }
+      }) as { data: Run };
+      const { project, annotationType, prompt, promptVersion, model, sessions } = existingRun.data;
+
+      run = await createDocument({
+        collection: 'runs',
+        update: {
+          project,
+          name: name,
+          annotationType,
+          prompt,
+          promptVersion,
+          model,
+          sessions,
+          hasSetup: false,
+          isRunning: false,
+          isComplete: false
+        }
+      }) as { data: Run };
+      return {
+        intent: 'DUPLICATE_RUN',
+        ...run
+      };
+    }
+    default: {
       return {};
+    }
   }
 }
 
@@ -82,6 +125,12 @@ export default function ProjectRunsRoute() {
     });
   }
 
+  const onDuplicateNewRunClicked = ({ name, runId }: { name: string, runId: string }) => {
+    submit(JSON.stringify({ intent: 'DUPLICATE_RUN', entityId: runId, payload: { name: name } }), { method: 'POST', encType: 'application/json' }).then(() => {
+      toast.success('Duplicated run');
+    });
+  }
+
   const onEditRunButtonClicked = (run: Run) => {
     addDialog(<EditRunDialog
       run={run}
@@ -97,11 +146,20 @@ export default function ProjectRunsRoute() {
     );
   }
 
+  const onDuplicateRunButtonClicked = (run: Run) => {
+    addDialog(<DuplicateRunDialog
+      run={run}
+      onDuplicateNewRunClicked={onDuplicateNewRunClicked}
+    />
+    );
+  }
+
   return (
     <ProjectRuns
       runs={runs.data}
       onCreateRunButtonClicked={onCreateRunButtonClicked}
       onEditRunButtonClicked={onEditRunButtonClicked}
+      onDuplicateRunButtonClicked={onDuplicateRunButtonClicked}
     />
   )
 }

@@ -111,6 +111,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
         }
         if (data.status === 'DONE') {
           debounceRevalidate(revalidate);
+          eventSource.close();
         }
       }
     };

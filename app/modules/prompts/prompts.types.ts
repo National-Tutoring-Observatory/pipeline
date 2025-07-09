@@ -20,3 +20,8 @@ export interface Model {
   provider: string;
   name: string;
 }
+
+export interface AnnotationType {
+  value: string;
+  name: string;
+}
