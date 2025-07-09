@@ -10,8 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import ProjectNameAlert from "./projectNameAlert";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RunNameAlert from "./runNameAlert";
 
 const CreateRunDialog = ({
@@ -21,7 +20,7 @@ const CreateRunDialog = ({
   const [name, setName] = useState('');
   const [annotationType, setAnnotationType] = useState('PER_UTTERANCE');
 
-  const onProjectNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onRunNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
 
@@ -41,7 +40,7 @@ const CreateRunDialog = ({
       </DialogHeader>
       <div className="grid gap-3">
         <Label htmlFor="name">Name</Label>
-        <Input id="name" name="name" defaultValue={name} autoComplete="off" onChange={onProjectNameChanged} />
+        <Input id="name" name="name" defaultValue={name} autoComplete="off" onChange={onRunNameChanged} />
         <RunNameAlert
           name={name}
         />
