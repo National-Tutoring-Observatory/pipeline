@@ -57,8 +57,8 @@ export default function PromptEditor({
   }, [promptVersion]);
 
   return (
-    <div>
-      <div className="border-b p-2 text-sm flex justify-between items-center">
+    <div className="border-l">
+      <div className="border-b  p-2 text-sm flex justify-between items-center">
         <div>
           <div>{`Version: ${promptVersion.name}`}</div>
         </div>

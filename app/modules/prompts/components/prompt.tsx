@@ -18,7 +18,7 @@ export default function Prompt({
       </h1>
       <div className="border rounded-md flex">
 
-        <div className="w-1/4 h-full border-r">
+        <div className="w-1/4 h-full">
           <div className="border-b p-2 text-sm flex justify-between items-center">
             <div>
               Versions

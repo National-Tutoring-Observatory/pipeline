@@ -16,12 +16,12 @@ type PromptVersionItemProps = {
 
 export default function PromptVersionItem({ name, version, prompt, createdAt, isSelected, isProduction }: PromptVersionItemProps) {
 
-  const className = clsx("block border-b last:border-b-0 p-2", {
+  const className = clsx("block border-b p-2", {
     "bg-indigo-50": isSelected
   })
 
   return (
-    <Link to={`/prompts/${prompt}/${version}`} className={className}>
+    <Link to={`/prompts/${prompt}/${version}`} replace className={className}>
       <div className="mb-2">
         <Badge variant="outline" className="bg-white">{`# ${version}`}</Badge>
         {(isProduction) && (
