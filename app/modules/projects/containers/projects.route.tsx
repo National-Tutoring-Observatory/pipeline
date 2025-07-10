@@ -12,13 +12,14 @@ import DeleteProjectDialog from "../components/deleteProjectDialog";
 import type { Project } from "../projects.types";
 import updateDocument from "~/core/documents/updateDocument";
 import { useEffect } from "react";
+import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 
 type Projects = {
   data: [],
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const projects = await getDocuments({ collection: 'projects', match: {} }) as Projects;
+  const projects = await getDocuments({ collection: 'projects', match: {}, sort: {} }) as Projects;
   return { projects };
 }
 
@@ -65,6 +66,10 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       navigate(`/projects/${actionData.data._id}`)
     }
   }, [actionData]);
+
+  useEffect(() => {
+    updateBreadcrumb([{ text: 'Projects' }])
+  }, []);
 
   const onCreateProjectButtonClicked = () => {
     addDialog(
