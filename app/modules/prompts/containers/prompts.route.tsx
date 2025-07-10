@@ -12,6 +12,7 @@ import updateDocument from "~/core/documents/updateDocument";
 import { useEffect } from "react";
 import EditPromptDialog from "../components/editPromptDialog";
 import DeletePromptDialog from "../components/deletePromptDialog";
+import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 
 type Prompts = {
   data: [],
@@ -82,6 +83,10 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
       navigate(`/prompts/${actionData.data._id}/${actionData.data.productionVersion}`)
     }
   }, [actionData]);
+
+  useEffect(() => {
+    updateBreadcrumb([{ text: 'Prompts' }])
+  }, []);
 
   const onCreatePromptButtonClicked = () => {
     addDialog(

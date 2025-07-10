@@ -44,7 +44,7 @@ export default function Project({
       {(project.hasSetupProject) && (
         <div>
           <div className="grid grid-cols-3 gap-8">
-            <Link to={`/projects/${project._id}/files`} className="h-full">
+            <Link to={`/projects/${project._id}/files`} replace className="h-full">
               <Card className={clsx("transition-all h-full", {
                 "border-accent-foreground": tabValue === 'FILES'
               })}>
@@ -66,7 +66,7 @@ export default function Project({
                 </CardContent>
               </Card>
             </Link>
-            <Link to={`/projects/${project._id}/sessions`} className="h-full">
+            <Link to={`/projects/${project._id}/sessions`} replace className="h-full">
               <Card className={clsx("transition-all h-full", {
                 "border-accent-foreground": tabValue === 'SESSIONS'
               })}>
@@ -92,7 +92,7 @@ export default function Project({
                 </CardContent>
               </Card>
             </Link>
-            <Link to={`/projects/${project._id}`} className="h-full">
+            <Link to={`/projects/${project._id}`} replace className="h-full">
               <Card className={clsx("transition-all h-full", {
                 "border-accent-foreground": tabValue === 'RUNS'
               })}>

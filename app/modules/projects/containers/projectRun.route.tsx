@@ -1,4 +1,4 @@
-import { useLoaderData, useRevalidator, useSubmit } from "react-router";
+import { useLoaderData, useRevalidator, useRouteLoaderData, useSubmit } from "react-router";
 import ProjectRun from "../components/projectRun";
 import type { CreateRun, Run as RunType } from "~/modules/runs/runs.types";
 import getDocument from "~/core/documents/getDocument";
@@ -9,12 +9,15 @@ import annotateRunSessions from "~/core/annotations/annotateRunSessions";
 import throttle from 'lodash/throttle';
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import type { Session } from "~/modules/sessions/sessions.types";
+import updateBreadcrumb from "~/core/app/updateBreadcrumb";
+import type { Project } from "../projects.types";
 
 type Run = {
   data: RunType,
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
+  const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.projectId), }, }) as Project;
   const run = await getDocument({ collection: 'runs', match: { _id: parseInt(params.runId), project: parseInt(params.projectId) }, }) as Run;
   let runPrompt;
   let runPromptVersion;
@@ -22,7 +25,7 @@ export async function loader({ params }: Route.LoaderArgs) {
     runPrompt = await getDocument({ collection: 'prompts', match: { _id: Number(run.data.prompt) } }) as { data: Prompt };
     runPromptVersion = await getDocument({ collection: 'promptVersions', match: { prompt: Number(run.data.prompt), version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
   }
-  return { run, runPrompt, runPromptVersion };
+  return { project, run, runPrompt, runPromptVersion };
 }
 
 
@@ -83,7 +86,7 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRunRoute() {
-  const { run, runPrompt, runPromptVersion } = useLoaderData();
+  const { project, run, runPrompt, runPromptVersion } = useLoaderData();
 
   const [runSessionsProgress, setRunSessionsProgress] = useState(0);
   const [runSessionsStep, setRunSessionsStep] = useState('');
@@ -128,7 +131,19 @@ export default function ProjectRunRoute() {
     return () => {
       eventSource.close();
     }
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    updateBreadcrumb([{
+      text: 'Projects', link: `/`
+    }, {
+      text: project.data.name, link: `/projects/${project.data._id}`
+    }, {
+      text: 'Runs'
+    }, {
+      text: run.data.name
+    }])
+  }, []);
 
 
   return (

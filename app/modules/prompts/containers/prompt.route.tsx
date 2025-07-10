@@ -6,6 +6,8 @@ import type { Prompt as PromptType, PromptVersion } from "../prompts.types";
 import getDocuments from "~/core/documents/getDocuments";
 import createDocument from "~/core/documents/createDocument";
 import pick from 'lodash/pick';
+import { useEffect } from "react";
+import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const prompt = await getDocument({ collection: 'prompts', match: { _id: parseInt(params.id) } }) as { data: PromptType };
@@ -53,6 +55,14 @@ export default function PromptRoute() {
   const onCreatePromptVersionClicked = () => {
     submit(JSON.stringify({ intent: 'CREATE_PROMPT_VERSION', entityId: id, payload: { version } }), { method: 'POST', encType: 'application/json' });
   }
+
+  useEffect(() => {
+    updateBreadcrumb([{
+      text: 'Prompts', link: '/prompts'
+    }, {
+      text: prompt.data.name
+    }]);
+  }, []);
 
   return (
     <Prompt
