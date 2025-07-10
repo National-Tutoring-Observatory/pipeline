@@ -8,13 +8,14 @@ import { useMatches, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
 import getDocuments from "~/core/documents/getDocuments";
 import throttle from 'lodash/throttle';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import uploadFiles from "~/core/uploads/uploadFiles";
 import convertFileToFiles from "~/core/uploads/convertFileToFiles";
 import convertFilesToSessions from "~/core/uploads/convertFilesToSessions";
 import filter from 'lodash/filter';
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { Run } from "~/modules/runs/runs.types";
+import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.id) } }) as { data: ProjectType };
@@ -128,6 +129,10 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       toast.success('Uploading files');
     });
   }
+
+  useEffect(() => {
+    updateBreadcrumb([{ text: 'Projects', link: `/` }, { text: project.data.name }])
+  }, []);
 
   return (
     <Project

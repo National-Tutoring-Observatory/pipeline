@@ -5,7 +5,7 @@ export default [
     index("modules/projects/containers/projects.route.tsx")
   ]),
   ...prefix("projects", [
-    route(":id", "modules/projects/containers/project.route.tsx", [
+    route(":id", "modules/projects/containers/project.route.tsx", { id: 'project' }, [
       index("modules/projects/containers/projectRuns.route.tsx", {
         id: "RUNS"
       }),
