@@ -15,6 +15,8 @@ import dayjs from "dayjs";
 import type { Session } from "~/modules/sessions/sessions.types";
 import map from 'lodash/map';
 import ProjectRunCreatorContainer from "../containers/projectRunCreator.container";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Download } from "lucide-react";
 
 export default function ProjectRun({
   run,
@@ -23,22 +25,46 @@ export default function ProjectRun({
   runSessionsProgress,
   runSessionsStep,
   onStartRunClicked,
+  onExportRunButtonClicked
 }: {
   run: Run,
   runPrompt: Prompt,
   runPromptVersion: PromptVersion,
   runSessionsProgress: number,
   runSessionsStep: string,
-  onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions }: CreateRun) => void
+  onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions }: CreateRun) => void,
+  onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void
 }) {
 
   return (
     <div className="max-w-5xl mx-auto p-8">
       <div className="mb-8 relative">
-
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
-          {run.name}
-        </h1>
+        <div className="flex justify-between">
+          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
+            {run.name}
+          </h1>
+          <div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="data-[state=open]:bg-muted text-muted-foreground flex"
+                >
+                  <Download />
+                  <span>Export</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'CSV' })}>
+                  As Table (.csv file)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'JSON' })}>
+                  JSON (.json file)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
         {(run.hasSetup && run.isRunning) && (
           <div className="relative">
             <div className="text-xs opacity-40 absolute right-0 top-3">Annotating {runSessionsStep}</div>
@@ -78,8 +104,9 @@ export default function ProjectRun({
               </div>
             </div>
           </div>
-          <div>
-            <div className="border rounded-md h-80 overflow-y-auto mt-4">
+          <div className="mt-8">
+            <div className="text-xs text-muted-foreground">Sessions</div>
+            <div className="border rounded-md h-80 overflow-y-auto mt-2">
               <Table>
                 <TableHeader>
                   <TableRow>

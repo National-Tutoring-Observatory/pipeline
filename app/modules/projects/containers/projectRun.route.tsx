@@ -111,6 +111,10 @@ export default function ProjectRunRoute() {
     }), { method: 'POST', encType: 'application/json' });
   }
 
+  const onExportRunButtonClicked = ({ exportType }: { exportType: string }) => {
+    console.log(exportType);
+  }
+
   useEffect(() => {
     const eventSource = new EventSource("/api/events");
 
@@ -154,6 +158,7 @@ export default function ProjectRunRoute() {
       runSessionsProgress={runSessionsProgress}
       runSessionsStep={runSessionsStep}
       onStartRunClicked={onStartRunClicked}
+      onExportRunButtonClicked={onExportRunButtonClicked}
     />
   )
 }
