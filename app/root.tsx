@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Toaster } from "sonner";
 import DialogContainer from "./core/dialogs/containers/dialog.container";
+import BreadcrumbsContainer from "./core/app/containers/breadcrumbs.container";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -83,29 +84,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <div className="p-2 flex items-center">
                 <SidebarTrigger />
                 <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
-                <Breadcrumb>
-                  <BreadcrumbList>
-                    <BreadcrumbItem className="hidden md:block">
-                      {(data.length === 3) && (
-                        <BreadcrumbLink href="/">
-                          Projects
-                        </BreadcrumbLink>
-                      ) || (
-                          <>
-                            Projects
-                          </>
-                        )}
-                    </BreadcrumbItem>
-                    {(data.length === 3) && (
-                      <>
-                        <BreadcrumbSeparator className="hidden md:block" />
-                        <BreadcrumbItem>
-                          <BreadcrumbPage>{projectName}</BreadcrumbPage>
-                        </BreadcrumbItem>
-                      </>
-                    )}
-                  </BreadcrumbList>
-                </Breadcrumb>
+                <BreadcrumbsContainer />
               </div>
               {children}
             </main>
