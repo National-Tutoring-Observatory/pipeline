@@ -38,6 +38,8 @@ export default function ProjectRuns({
               <TableRow>
                 <TableHead className="w-[300px]">Name</TableHead>
                 <TableHead>Created</TableHead>
+                <TableHead>Started</TableHead>
+                <TableHead>Finished</TableHead>
                 <TableHead className="text-right"></TableHead>
               </TableRow>
             </TableHeader>
@@ -50,7 +52,9 @@ export default function ProjectRuns({
                         {run.name}
                       </Link>
                     </TableCell>
-                    <TableCell>{dayjs(run.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
+                    <TableCell>{dayjs(run.createdAt).format('ddd, MM/D/YY - h:mma')}</TableCell>
+                    <TableCell>{run.startedAt ? dayjs(run.startedAt).format('ddd, MM/D/YY - h:mma') : '--'}</TableCell>
+                    <TableCell>{run.finishedAt ? dayjs(run.finishedAt).format('ddd, MM/D/YY - h:mma') : '--'}</TableCell>
                     <TableCell className="text-right flex justify-end">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

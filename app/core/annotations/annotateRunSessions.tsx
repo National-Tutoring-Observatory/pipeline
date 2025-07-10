@@ -24,6 +24,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
     match: { _id: Number(runId) },
     update: {
       isRunning: true,
+      startedAt: new Date()
     }
   });
 
@@ -94,7 +95,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
     match: { _id: Number(runId) },
     update: {
       isRunning: false,
-      isComplete: true
+      isComplete: true,
+      finishedAt: new Date()
     }
   });
 
