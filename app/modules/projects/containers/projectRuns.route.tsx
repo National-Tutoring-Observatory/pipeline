@@ -1,5 +1,5 @@
 import getDocuments from "~/core/documents/getDocuments";
-import { useLoaderData, useSubmit } from "react-router";
+import { useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
 import ProjectRuns from "../components/projectRuns";
 import addDialog from "~/core/dialogs/addDialog";
 import CreateRunDialog from '../components/createRunDialog';
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import updateDocument from "~/core/documents/updateDocument";
 import DuplicateRunDialog from '../components/duplicateRunDialog';
 import getDocument from "~/core/documents/getDocument";
+import { useEffect } from "react";
 
 type Runs = {
   data: [],
@@ -112,8 +113,15 @@ export async function action({
 
 export default function ProjectRunsRoute() {
   const { runs } = useLoaderData();
-
   const submit = useSubmit();
+  const actionData = useActionData();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (actionData?.intent === 'CREATE_RUN' || actionData?.intent === 'DUPLICATE_RUN') {
+      navigate(`/projects/${actionData.data.project}/runs/${actionData.data._id}`)
+    }
+  }, [actionData]);
 
   const onCreateNewRunClicked = ({ name, annotationType }: { name: string, annotationType: string }) => {
     submit(JSON.stringify({ intent: 'CREATE_RUN', payload: { name, annotationType } }), { method: 'POST', encType: 'application/json' });
