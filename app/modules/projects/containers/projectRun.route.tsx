@@ -40,7 +40,9 @@ export async function action({
     prompt,
     promptVersion,
     model,
-    sessions } = payload;
+    sessions,
+    exportType
+  } = payload;
 
   switch (intent) {
     case 'START_RUN':
@@ -76,6 +78,10 @@ export async function action({
       annotateRunSessions({ runId: run.data._id });
 
       return {}
+    case 'EXPORT_RUN': {
+      console.log('exporting', exportType);
+      return {};
+    }
     default:
       return {};
   }
@@ -112,7 +118,12 @@ export default function ProjectRunRoute() {
   }
 
   const onExportRunButtonClicked = ({ exportType }: { exportType: string }) => {
-    console.log(exportType);
+    submit(JSON.stringify({
+      intent: 'EXPORT_RUN',
+      payload: {
+        exportType
+      }
+    }), { method: 'POST', encType: 'application/json' });
   }
 
   useEffect(() => {

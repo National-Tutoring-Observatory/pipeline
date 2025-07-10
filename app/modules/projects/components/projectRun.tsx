@@ -1,10 +1,6 @@
 import { Button } from "@/components/ui/button";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
-import PromptSelectorContainer from '~/modules/prompts/containers/promptSelectorContainer';
-import ModelSelectorContainer from '~/modules/prompts/containers/modelSelectorContainer';
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 import { Progress } from "@/components/ui/progress";
 import providers from "~/modules/prompts/providers";
 import find from 'lodash/find';
@@ -12,10 +8,9 @@ import annotationTypes from "~/modules/prompts/annotationTypes";
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import dayjs from "dayjs";
-import type { Session } from "~/modules/sessions/sessions.types";
 import map from 'lodash/map';
 import ProjectRunCreatorContainer from "../containers/projectRunCreator.container";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
 
 export default function ProjectRun({
@@ -44,25 +39,27 @@ export default function ProjectRun({
             {run.name}
           </h1>
           <div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="data-[state=open]:bg-muted text-muted-foreground flex"
-                >
-                  <Download />
-                  <span>Export</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'CSV' })}>
-                  As Table (.csv file)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'JSON' })}>
-                  JSON (.json file)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {(run.isComplete) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="data-[state=open]:bg-muted text-muted-foreground flex"
+                  >
+                    <Download />
+                    <span>Export</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'CSV' })}>
+                    As Table (.csv file)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'JSON' })}>
+                    JSON (.json file)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
         {(run.hasSetup && run.isRunning) && (
