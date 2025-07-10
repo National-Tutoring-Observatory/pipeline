@@ -39,25 +39,27 @@ export default function ProjectRun({
             {run.name}
           </h1>
           <div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="data-[state=open]:bg-muted text-muted-foreground flex"
-                >
-                  <Download />
-                  <span>Export</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'CSV' })}>
-                  As Table (.csv file)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'JSON' })}>
-                  JSON (.json file)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {(run.isComplete) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="data-[state=open]:bg-muted text-muted-foreground flex"
+                  >
+                    <Download />
+                    <span>Export</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'CSV' })}>
+                    As Table (.csv file)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'JSON' })}>
+                    JSON (.json file)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
         {(run.hasSetup && run.isRunning) && (
