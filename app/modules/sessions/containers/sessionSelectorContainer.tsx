@@ -13,7 +13,7 @@ export default function SessionSelectorContainer({
   onSelectedSessionsChanged: (selectedSessions: number[]) => void
 }) {
 
-  const sessionsFetcher = useFetcher();
+  const sessionsFetcher = useFetcher({ key: 'sessionsList' });
 
   const params = useParams();
 
