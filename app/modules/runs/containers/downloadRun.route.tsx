@@ -1,0 +1,67 @@
+import getDocument from "~/core/documents/getDocument";
+import type { Run } from "../runs.types";
+import archiver from "archiver";
+import type { Route } from "./+types/downloadRun.route";
+import { PassThrough, Readable } from "node:stream";
+import fs from 'node:fs';
+
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const run = await getDocument({
+    collection: 'runs',
+    match: { _id: Number(params.runId), project: Number(params.projectId) }
+  }) as { data: Run };
+
+  const archive = archiver('zip', {
+    zlib: { level: 9 }
+  });
+
+  const outputDirectory = `./storage/${run.data.project}/runs/${run.data._id}/exports`;
+
+  const filesToArchive = [{
+    path: `${outputDirectory}/${run.data.project}-${run.data._id}-meta.csv`,
+    name: `${run.data.project}-${run.data._id}-meta.csv`,
+  }];
+
+  if (run.data.annotationType === 'PER_UTTERANCE') {
+    filesToArchive.push({
+      path: `${outputDirectory}/${run.data.project}-${run.data._id}-utterances.csv`,
+      name: `${run.data.project}-${run.data._id}-utterances.csv`,
+    })
+  } else {
+    filesToArchive.push({
+      path: `${outputDirectory}/${run.data.project}-${run.data._id}-sessions.csv`,
+      name: `${run.data.project}-${run.data._id}-sessions.csv`,
+    })
+  }
+
+  const passthroughStream = new PassThrough();
+
+  archive.pipe(passthroughStream);
+
+  for (const file of filesToArchive) {
+    try {
+      const fileStream = fs.createReadStream(file.path);
+      archive.append(fileStream, { name: file.name });
+    } catch (error) {
+      console.error(`Error adding file ${file.name} to archive:`, error);
+    }
+  }
+  archive.finalize();
+
+  archive.on('error', (err) => {
+    console.error('Archiver encountered an error:', err);
+  });
+
+  const webStream = Readable.toWeb(passthroughStream);
+
+  return new Response(webStream as ReadableStream<Uint8Array>, {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/zip',
+      'Content-Disposition': `attachment; filename="project-${run.data.project}-run-${run.data._id}.zip"`,
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    },
+  });
+}
