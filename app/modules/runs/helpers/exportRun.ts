@@ -37,12 +37,18 @@ export default async function exportRun({ runId, exportType }: { runId: number, 
     update.hasExportedJSONL = true;
   }
 
-  await updateDocument({
-    collection: 'runs',
-    match: { _id: runId },
-    update
-  });
 
-  emitter.emit("EXPORT_RUN", { runId: Number(runId), progress: 100, status: 'DONE' });
+  setTimeout(async () => {
+
+    await updateDocument({
+      collection: 'runs',
+      match: { _id: runId },
+      update
+    });
+
+
+    emitter.emit("EXPORT_RUN", { runId: Number(runId), progress: 100, status: 'DONE' });
+
+  }, 2000);
 
 }

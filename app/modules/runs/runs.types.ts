@@ -13,6 +13,7 @@ export interface Run {
   createdAt: string;
   startedAt: string;
   finishedAt: string;
+  isExporting: boolean;
   hasExportedCSV: boolean;
   hasExportedJSONL: boolean;
 }
