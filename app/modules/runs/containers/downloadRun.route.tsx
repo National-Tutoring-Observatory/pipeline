@@ -6,6 +6,15 @@ import { PassThrough, Readable } from "node:stream";
 import fs from 'node:fs';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
+
+  const url = new URL(request.url);
+
+  const searchParams = url.searchParams;
+
+  const exportType = searchParams.get("exportType");
+
+  console.log(exportType);
+
   const run = await getDocument({
     collection: 'runs',
     match: { _id: Number(params.runId), project: Number(params.projectId) }
@@ -17,22 +26,36 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const outputDirectory = `./storage/${run.data.project}/runs/${run.data._id}/exports`;
 
-  const filesToArchive = [{
-    path: `${outputDirectory}/${run.data.project}-${run.data._id}-meta.csv`,
-    name: `${run.data.project}-${run.data._id}-meta.csv`,
-  }];
+  let filesToArchive = [];
 
-  if (run.data.annotationType === 'PER_UTTERANCE') {
+  if (exportType === 'CSV') {
     filesToArchive.push({
-      path: `${outputDirectory}/${run.data.project}-${run.data._id}-utterances.csv`,
-      name: `${run.data.project}-${run.data._id}-utterances.csv`,
-    })
+      path: `${outputDirectory}/${run.data.project}-${run.data._id}-meta.csv`,
+      name: `${run.data.project}-${run.data._id}-meta.csv`,
+    });
+    if (run.data.annotationType === 'PER_UTTERANCE') {
+      filesToArchive.push({
+        path: `${outputDirectory}/${run.data.project}-${run.data._id}-utterances.csv`,
+        name: `${run.data.project}-${run.data._id}-utterances.csv`,
+      })
+    } else {
+      filesToArchive.push({
+        path: `${outputDirectory}/${run.data.project}-${run.data._id}-sessions.csv`,
+        name: `${run.data.project}-${run.data._id}-sessions.csv`,
+      })
+    }
   } else {
     filesToArchive.push({
-      path: `${outputDirectory}/${run.data.project}-${run.data._id}-sessions.csv`,
-      name: `${run.data.project}-${run.data._id}-sessions.csv`,
-    })
+      path: `${outputDirectory}/${run.data.project}-${run.data._id}-meta.jsonl`,
+      name: `${run.data.project}-${run.data._id}-meta.jsonl`,
+    });
+    filesToArchive.push({
+      path: `${outputDirectory}/${run.data.project}-${run.data._id}-sessions.jsonl`,
+      name: `${run.data.project}-${run.data._id}-sessions.jsonl`,
+    });
   }
+
+
 
   const passthroughStream = new PassThrough();
 

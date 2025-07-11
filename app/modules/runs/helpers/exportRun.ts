@@ -3,6 +3,7 @@ import type { Run } from "../runs.types";
 import updateDocument from "~/core/documents/updateDocument";
 import { emitter } from "~/core/events/emitter";
 import { handler as outputRunDataToCSV } from '../../../functions/outputRunDataToCSV/app';
+import { handler as outputRunDataToJSON } from '../../../functions/outputRunDataToJSON/app';
 
 export default async function exportRun({ runId, exportType }: { runId: number, exportType: string }) {
 
@@ -24,6 +25,8 @@ export default async function exportRun({ runId, exportType }: { runId: number, 
 
   if (exportType === 'CSV') {
     await outputRunDataToCSV({ body: { run: run.data, inputFolder: inputDirectory, outputFolder: outputDirectory } });
+  } else {
+    await outputRunDataToJSON({ body: { run: run.data, inputFolder: inputDirectory, outputFolder: outputDirectory } });
   }
 
   let update = { isExporting: false, hasExportedCSV: run.data.hasExportedCSV, hasExportedJSONL: run.data.hasExportedJSONL };
