@@ -13,6 +13,7 @@ import ProjectRunCreatorContainer from "../containers/projectRunCreator.containe
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
 import ProjectRunDownloads from "./projectRunDownloads";
+import { Link } from "react-router";
 
 export default function ProjectRun({
   run,
@@ -121,7 +122,9 @@ export default function ProjectRun({
                     return (
                       <TableRow key={session.sessionId}>
                         <TableCell className="font-medium">
-                          {session.name}
+                          <Link to={`/projects/${run.project}/runs/${run._id}/sessions/${session.sessionId}`}>
+                            {session.name}
+                          </Link>
                         </TableCell>
                         <TableCell>{dayjs(session.startedAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                         <TableCell>{dayjs(session.finishedAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
