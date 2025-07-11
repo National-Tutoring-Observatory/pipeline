@@ -143,6 +143,9 @@ export default function ProjectRunRoute() {
             }
             debounceRevalidate(revalidate);
             break;
+          case 'EXPORT_RUN':
+            debounceRevalidate(revalidate);
+            break;
         }
       }
     };

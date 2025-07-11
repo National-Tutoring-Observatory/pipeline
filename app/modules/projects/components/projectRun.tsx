@@ -40,15 +40,16 @@ export default function ProjectRun({
             {run.name}
           </h1>
           <div>
-            {(run.isComplete) && (
+            {(run.isComplete && (!run.hasExportedCSV || !run.hasExportedJSONL)) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
+                    disabled={run.isExporting}
                     className="data-[state=open]:bg-muted text-muted-foreground flex"
                   >
                     <Download />
-                    <span>Export</span>
+                    {run.isExporting ? <span>Exporting</span> : <span>Export</span>}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
