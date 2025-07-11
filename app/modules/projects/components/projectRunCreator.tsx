@@ -6,6 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 import AnnotationTypeSelectorContainer from "~/modules/prompts/containers/annoationTypeSelectorContainer";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ShuffleIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { PopoverClose } from "@radix-ui/react-popover";
 
 export default function ProjectRunCreator({
   selectedAnnotationType,
@@ -13,27 +17,36 @@ export default function ProjectRunCreator({
   selectedPromptVersion,
   selectedModel,
   selectedSessions,
+  randomSampleSize,
+  sessionsCount,
   isRunButtonDisabled,
   onSelectedAnnotationTypeChanged,
   onSelectedPromptChanged,
   onSelectedPromptVersionChanged,
   onSelectedModelChanged,
   onSelectedSessionsChanged,
-  onStartRunButtonClicked
+  onStartRunButtonClicked,
+  onRandomSampleSizeChanged,
+  onSelectRandomSampleSizeButtonClicked
 }: {
   selectedAnnotationType: string,
   selectedPrompt: number | null,
   selectedPromptVersion: number | null,
   selectedModel: string,
   selectedSessions: number[],
+  randomSampleSize: number,
+  sessionsCount: number,
   isRunButtonDisabled: boolean,
   onSelectedAnnotationTypeChanged: (selectedAnnotationType: string) => void,
   onSelectedPromptChanged: (selectedPrompt: number) => void,
   onSelectedPromptVersionChanged: (selectedPromptVersion: number) => void,
   onSelectedModelChanged: (selectedModel: string) => void,
   onSelectedSessionsChanged: (selectedSessions: number[]) => void,
-  onStartRunButtonClicked: () => void
+  onStartRunButtonClicked: () => void,
+  onRandomSampleSizeChanged: (randomSampleSize: number) => void
+  onSelectRandomSampleSizeButtonClicked: () => void
 }) {
+
   return (
     <div>
       <div className="grid grid-cols-4 gap-6">
@@ -78,9 +91,39 @@ export default function ProjectRunCreator({
         </div>
       </div>
       <div className="grid gap-3 mt-8">
-        <div className="flex">
-          <Badge className="h-5 w-5 rounded-full mr-2" >4</Badge>
-          <Label>Select sessions</Label>
+        <div className="flex items-center justify-between">
+          <div className="flex">
+            <Badge className="h-5 w-5 rounded-full mr-2" >4</Badge>
+            <Label>Select sessions</Label>
+          </div>
+          <div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  role="combobox"
+                  className=""
+                >
+                  <ShuffleIcon></ShuffleIcon>
+                  Randomise selection
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-4">
+                <div className="grid gap-3">
+                  <Label htmlFor="sample-size">Sample size</Label>
+                  <div>
+                    <Input id="sample-size" name="sample-size" type="number" max={`${sessionsCount}`} min={"1"} value={randomSampleSize} onChange={(event) => onRandomSampleSizeChanged(Number(event.target.value))} />
+                  </div>
+                  <PopoverClose asChild>
+                    <Button onClick={onSelectRandomSampleSizeButtonClicked}>
+                      Select
+                    </Button>
+                  </PopoverClose>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
         <div>
           <SessionSelectorContainer
