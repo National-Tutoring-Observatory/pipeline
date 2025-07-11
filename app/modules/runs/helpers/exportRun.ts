@@ -1,0 +1,49 @@
+import getDocument from "~/core/documents/getDocument";
+import type { Run } from "../runs.types";
+import updateDocument from "~/core/documents/updateDocument";
+import { emitter } from "~/core/events/emitter";
+import { handler as outputRunDataToCSV } from '../../../functions/outputRunDataToCSV/app';
+
+export default async function exportRun({ runId, exportType }: { runId: number, exportType: string }) {
+  console.log(runId);
+
+  const run = await getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
+
+  console.log(run);
+
+  const inputDirectory = `./storage/${run.data.project}/runs/${run.data._id}`;
+
+  const outputDirectory = `./storage/${run.data.project}/runs/${run.data._id}/exports`;
+
+  await updateDocument({
+    collection: 'runs',
+    match: { _id: runId },
+    update: {
+      isExporting: true
+    }
+  });
+
+  emitter.emit("EXPORT_RUN", { runId: Number(runId), progress: 0, status: 'STARTED' });
+
+  if (exportType === 'CSV') {
+    await outputRunDataToCSV({ body: { run: run.data, inputFolder: inputDirectory, outputFolder: outputDirectory } });
+  }
+
+  let update = { isExporting: false, hasExportedCSV: false, hasExportedJSONL: false };
+
+  if (exportType === 'CSV') {
+    update.hasExportedCSV = true;
+  }
+
+  await updateDocument({
+    collection: 'runs',
+    match: { _id: runId },
+    update: {
+      hasExportedCSV: true,
+      isExporting: false
+    }
+  });
+
+  emitter.emit("EXPORT_RUN", { runId: Number(runId), progress: 100, status: 'DONE' });
+
+}

@@ -32,7 +32,6 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
 
   emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: 0, status: 'STARTED', step: `0/${run.data.sessions.length}` });
 
-
   let annotationFields: Record<string, any> = {};
 
   for (const annotationSchemaItem of promptVersion.data.annotationSchema as AnnotationSchemaItem[]) {

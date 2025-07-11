@@ -34,7 +34,7 @@ export const handler = async (event: { body: any }) => {
 
     console.log(response);
 
-    originalJSON.annotation = response || {};
+    originalJSON.annotations = response || []
 
     await fse.outputJSON(`${outputFolder}/${outputFileName}.json`, originalJSON);
 
