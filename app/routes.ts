@@ -16,7 +16,8 @@ export default [
         id: "SESSIONS"
       }),
     ]),
-    route(":projectId/runs/:runId", "modules/projects/containers/projectRun.route.tsx")
+    route(":projectId/runs/:runId", "modules/projects/containers/projectRun.route.tsx"),
+    route(":projectId/runs/:runId/sessions/:sessionId", "modules/projects/containers/projectRunSessions.route.tsx")
   ]),
   ...prefix("prompts", [
     index("modules/prompts/containers/prompts.route.tsx"),

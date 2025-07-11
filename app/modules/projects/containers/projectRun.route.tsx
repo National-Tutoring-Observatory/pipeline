@@ -160,7 +160,7 @@ export default function ProjectRunRoute() {
     }, {
       text: project.data.name, link: `/projects/${project.data._id}`
     }, {
-      text: 'Runs'
+      text: 'Runs', link: `/projects/${project.data._id}`
     }, {
       text: run.data.name
     }])
