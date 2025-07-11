@@ -11,6 +11,7 @@ import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 import type { Project } from "../projects.types";
+import exportRun from "~/modules/runs/helpers/exportRun";
 
 type Run = {
   data: RunType,
@@ -79,7 +80,9 @@ export async function action({
 
       return {}
     case 'EXPORT_RUN': {
-      console.log('exporting', exportType);
+
+      exportRun({ runId: Number(params.runId), exportType });
+
       return {};
     }
     default:

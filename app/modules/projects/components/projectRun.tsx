@@ -55,7 +55,7 @@ export default function ProjectRun({
                     As Table (.csv file)
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'JSON' })}>
-                    JSON (.json file)
+                    JSONL (.jsonl file)
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
