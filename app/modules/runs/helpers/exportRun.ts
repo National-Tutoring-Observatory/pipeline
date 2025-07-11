@@ -30,6 +30,8 @@ export default async function exportRun({ runId, exportType }: { runId: number, 
 
   if (exportType === 'CSV') {
     update.hasExportedCSV = true;
+  } else {
+    update.hasExportedJSONL = true;
   }
 
   await updateDocument({
