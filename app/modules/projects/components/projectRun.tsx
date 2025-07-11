@@ -12,6 +12,7 @@ import map from 'lodash/map';
 import ProjectRunCreatorContainer from "../containers/projectRunCreator.container";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
+import ProjectRunDownloads from "./projectRunDownloads";
 
 export default function ProjectRun({
   run,
@@ -132,6 +133,7 @@ export default function ProjectRun({
               </Table>
             </div>
           </div>
+          <ProjectRunDownloads run={run} />
         </div>
       )}
     </div>

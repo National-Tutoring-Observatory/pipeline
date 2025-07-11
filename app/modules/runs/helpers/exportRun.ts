@@ -5,11 +5,8 @@ import { emitter } from "~/core/events/emitter";
 import { handler as outputRunDataToCSV } from '../../../functions/outputRunDataToCSV/app';
 
 export default async function exportRun({ runId, exportType }: { runId: number, exportType: string }) {
-  console.log(runId);
 
   const run = await getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
-
-  console.log(run);
 
   const inputDirectory = `./storage/${run.data.project}/runs/${run.data._id}`;
 
@@ -29,19 +26,18 @@ export default async function exportRun({ runId, exportType }: { runId: number, 
     await outputRunDataToCSV({ body: { run: run.data, inputFolder: inputDirectory, outputFolder: outputDirectory } });
   }
 
-  let update = { isExporting: false, hasExportedCSV: false, hasExportedJSONL: false };
+  let update = { isExporting: false, hasExportedCSV: run.data.hasExportedCSV, hasExportedJSONL: run.data.hasExportedJSONL };
 
   if (exportType === 'CSV') {
     update.hasExportedCSV = true;
+  } else {
+    update.hasExportedJSONL = true;
   }
 
   await updateDocument({
     collection: 'runs',
     match: { _id: runId },
-    update: {
-      hasExportedCSV: true,
-      isExporting: false
-    }
+    update
   });
 
   emitter.emit("EXPORT_RUN", { runId: Number(runId), progress: 100, status: 'DONE' });
