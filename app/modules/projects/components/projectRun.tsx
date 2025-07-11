@@ -21,7 +21,7 @@ export default function ProjectRun({
   runSessionsProgress,
   runSessionsStep,
   onStartRunClicked,
-  onExportRunButtonClicked
+  onExportRunButtonClicked,
 }: {
   run: Run,
   runPrompt: Prompt,
@@ -133,7 +133,9 @@ export default function ProjectRun({
               </Table>
             </div>
           </div>
-          <ProjectRunDownloads run={run} />
+          <ProjectRunDownloads
+            run={run}
+          />
         </div>
       )}
     </div>
