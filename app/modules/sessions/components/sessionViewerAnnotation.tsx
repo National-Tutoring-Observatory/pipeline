@@ -6,6 +6,14 @@ export default function SessionViewerAnnotation({ annotation }: { annotation: An
     <div className="p-4 bg-muted rounded-md">
       <div className="mb-2">
         <div className="text-xs text-muted-foreground">
+          Teacher move
+        </div>
+        <div>
+          {annotation.teacherMove}
+        </div>
+      </div>
+      <div className="mb-2">
+        <div className="text-xs text-muted-foreground">
           Score
         </div>
         <div>

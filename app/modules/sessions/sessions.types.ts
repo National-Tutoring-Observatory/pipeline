@@ -11,12 +11,12 @@ export interface Session {
 }
 
 export interface SessionFile {
-  transcript: [];
-  annotations: Utterance[]
+  transcript: Utterance[];
+  annotations: Annotation[]
 }
 
 export interface Utterance {
-  _id: string;
+  _id: number;
   role: string;
   content: string;
   start_time: string;
