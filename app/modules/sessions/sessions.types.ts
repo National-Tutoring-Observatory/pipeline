@@ -16,7 +16,7 @@ export interface SessionFile {
 }
 
 export interface Utterance {
-  _id: number;
+  _id: string;
   role: string;
   content: string;
   start_time: string;
