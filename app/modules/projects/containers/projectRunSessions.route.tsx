@@ -19,17 +19,17 @@ export async function loader({ params }: Route.LoaderArgs) {
     runPrompt = await getDocument({ collection: 'prompts', match: { _id: Number(run.data.prompt) } }) as { data: Prompt };
     runPromptVersion = await getDocument({ collection: 'promptVersions', match: { prompt: Number(run.data.prompt), version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
   }
-  const sessionObject = find(run.data.sessions, (session) => {
+  const session = find(run.data.sessions, (session) => {
     if (Number(session.sessionId) === Number(params.sessionId)) {
       return session;
     }
   }) as { name: string };
-  const session = await fse.readJSON(`./storage/${params.projectId}/runs/${params.runId}/${params.sessionId}/${sessionObject?.name}`);
-  return { project, run, sessionObject, session, runPrompt, runPromptVersion };
+  const sessionFile = await fse.readJSON(`./storage/${params.projectId}/runs/${params.runId}/${params.sessionId}/${session?.name}`);
+  return { project, run, session, sessionFile, runPrompt, runPromptVersion };
 }
 
 export default function ProjectRunSessionsRoute() {
-  const { project, run, session, sessionObject, runPrompt, runPromptVersion } = useLoaderData();
+  const { project, run, sessionFile, session, runPrompt, runPromptVersion } = useLoaderData();
   useEffect(() => {
     updateBreadcrumb([{
       text: 'Projects', link: `/`
@@ -46,8 +46,8 @@ export default function ProjectRunSessionsRoute() {
 
   return (
     <ProjectRunSessions
-      sessionObject={sessionObject}
       session={session}
+      sessionFile={sessionFile}
     />
   )
 }
