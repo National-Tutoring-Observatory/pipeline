@@ -10,7 +10,7 @@ export default function SessionViewerUtterance({
 }: {
   utterance: Utterance,
   isSelected: boolean,
-  onUtteranceClicked: (utteranceId: number) => void
+  onUtteranceClicked: (utteranceId: string) => void
 }) {
   return (
     <div key={utterance._id} className={clsx('flex mb-4', {
@@ -18,10 +18,12 @@ export default function SessionViewerUtterance({
       'justify-end': utterance.role !== 'TEACHER',
     })}>
       <div className="flex flex-col max-w-3/4">
-        <div className={clsx("bg-muted p-4 rounded-lg", {
-          "bg-purple-200": isSelected,
-          "bg-muted": !isSelected
-        })}>
+        <div
+          id={`session-viewer-utterance-${utterance._id}`}
+          className={clsx("bg-muted p-4 rounded-lg scroll-mt-4", {
+            "bg-purple-200": isSelected,
+            "bg-muted": !isSelected
+          })}>
           {utterance.content}
         </div>
         <div className="text-xs text-muted-foreground mt-1 flex items-center">

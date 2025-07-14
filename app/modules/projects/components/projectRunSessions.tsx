@@ -1,4 +1,4 @@
-import SessionViewerContainer from "~/modules/sessions/containers/sessionsViewerContainer";
+import SessionViewerContainer from "~/modules/sessions/containers/sessionViewerContainer";
 import type { Session, SessionFile } from "~/modules/sessions/sessions.types";
 
 export default function ProjectRunSessions({ sessionFile, session }: { sessionFile: SessionFile, session: Session }) {
