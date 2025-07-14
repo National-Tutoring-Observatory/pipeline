@@ -2,10 +2,12 @@ import { Button } from "@/components/ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import clsx from "clsx"
-import { CheckIcon, ChevronsUpDownIcon } from "lucide-react"
+import { CheckIcon, ChevronsUpDownIcon, ViewIcon } from "lucide-react"
 import type { Prompt, PromptVersion } from "../prompts.types"
 import { Badge } from "@/components/ui/badge"
 import find from 'lodash/find';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function PromptSelector({
   prompts,
@@ -173,7 +175,34 @@ export default function PromptSelector({
           </Popover>
         </div>
       )}
-    </div>
+      {(selectedPrompt && selectedPromptVersion && selectedPromptVersionItem) && (
+        <div className="ml-2">
+          <Sheet>
+            <SheetTrigger>
+              <Button size="icon" variant="secondary">
+                <ViewIcon />
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="overflow-y-auto !max-w-1/2">
+              <SheetHeader>
+                <SheetTitle>Selected prompt version</SheetTitle>
+                <SheetDescription>
+                  <div className="inline-flex items-center p-2 border rounded-t-md mb-[-1px]">
+                    {`#${selectedPromptVersionItem.version}`}
+                    {(productionVersion && productionVersion === selectedPromptVersionItem.version) && (
+                      <Badge variant="secondary" className="bg-indigo-100 ml-2">Production</Badge>
+                    )}
+                  </div>
+                  <Textarea disabled className="max-h-[calc(100vh-120px)] !opacity-100 !rounded-tl-none">
+                    {selectedPromptVersionItem?.userPrompt}
+                  </Textarea>
+                </SheetDescription>
+              </SheetHeader>
+            </SheetContent>
+          </Sheet>
+        </div>
+      )}
+    </div >
 
   )
 }
