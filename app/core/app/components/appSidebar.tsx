@@ -4,12 +4,6 @@ import { NavLink } from "react-router";
 export default function AppSidebar() {
 
   const {
-    state,
-    open,
-    setOpen,
-    openMobile,
-    setOpenMobile,
-    isMobile,
     toggleSidebar,
   } = useSidebar()
 
