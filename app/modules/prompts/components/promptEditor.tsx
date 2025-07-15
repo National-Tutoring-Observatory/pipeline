@@ -79,7 +79,7 @@ export default function PromptEditor({
               size="icon"
               variant="ghost"
               className="size-4 cursor-pointer hover:text-indigo-600"
-              disabled={hasChanges || isLoading}
+              disabled={!hasChanges || isLoading}
               onClick={onSavePromptVersionClicked}
             >
               <Save />

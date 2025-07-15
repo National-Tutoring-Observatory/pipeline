@@ -2,10 +2,10 @@ import getDocument from "~/core/documents/getDocument";
 import PromptEditor from "../components/promptEditor";
 import type { Route } from "./+types/promptEditor.route";
 import type { Prompt, PromptVersion } from "../prompts.types";
-import { useLoaderData, useNavigation, useSubmit } from "react-router";
+import { useLoaderData, useNavigation, useSubmit, type ShouldRevalidateFunctionArgs } from "react-router";
 import updateDocument from "~/core/documents/updateDocument";
 import addDialog from "~/core/dialogs/addDialog";
-import SavePromptVersionDialog from "../components/savePromptVersionDialog";
+import SavePromptVersionDialogContainer from "./savePromptVersionDialogContainer";
 
 export async function loader({ params }: Route.LoaderArgs) {
 
@@ -22,7 +22,7 @@ export async function action({
 
   const { intent, entityId, payload = {} } = await request.json()
 
-  const { name, userPrompt, annotationSchema, promptId } = payload;
+  const { name, userPrompt, annotationSchema } = payload;
 
   switch (intent) {
     case 'UPDATE_PROMPT_VERSION':
@@ -45,6 +45,16 @@ export async function action({
   }
 }
 
+export function shouldRevalidate({
+  formMethod,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  if (formMethod === 'POST') {
+    return false;
+  }
+  return defaultShouldRevalidate;
+}
+
 export default function PromptEditorRoute() {
 
   const data = useLoaderData();
@@ -54,9 +64,15 @@ export default function PromptEditorRoute() {
   const { prompt, promptVersion } = data;
 
   const onSavePromptVersion = ({ name, userPrompt, annotationSchema, _id }: { name: string, userPrompt: string, annotationSchema: any[], _id: string }) => {
-    addDialog(<SavePromptVersionDialog onSaveClicked={() => {
-      submit(JSON.stringify({ intent: 'UPDATE_PROMPT_VERSION', entityId: _id, payload: { name, userPrompt, annotationSchema } }), { method: 'PUT', encType: 'application/json' });
-    }} />)
+    addDialog(
+      <SavePromptVersionDialogContainer
+        userPrompt={userPrompt}
+        annotationSchema={annotationSchema}
+        onSaveClicked={() => {
+          submit(JSON.stringify({ intent: 'UPDATE_PROMPT_VERSION', entityId: _id, payload: { name, userPrompt, annotationSchema } }), { method: 'PUT', encType: 'application/json' });
+        }}
+      />
+    );
   }
 
   const onMakePromptVersionProductionClicked = () => {

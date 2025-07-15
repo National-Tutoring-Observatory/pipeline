@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   DialogContent,
@@ -7,17 +8,21 @@ import {
   DialogFooter,
   DialogClose
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import PromptNameAlert from "./promptNameAlert";
-import type { Prompt } from "../prompts.types";
+import { CircleAlert, CircleCheck, Loader, Loader2, LoaderCircle, LoaderPinwheel } from "lucide-react";
 
 const SavePromptVersionDialog = ({
+  reasoning,
+  isSubmitButtonDisabled,
+  isFetching,
+  isMatching,
   onSaveClicked
-}: { onSaveClicked: () => void }) => {
-
-  let isSubmitButtonDisabled = false;
+}: {
+  reasoning: string,
+  isSubmitButtonDisabled: boolean,
+  isFetching: boolean,
+  isMatching: boolean,
+  onSaveClicked: () => void
+}) => {
 
   return (
     <DialogContent>
@@ -27,6 +32,36 @@ const SavePromptVersionDialog = ({
           Are you sure you want to save this prompt version? Saving this version will stop edits from being made to this version. You can always create a new prompt version.
         </DialogDescription>
       </DialogHeader>
+      <div>
+
+        {(isFetching) && (
+          <Alert className="flex">
+            <LoaderPinwheel className="animate-spin" />
+            <AlertDescription>
+              Checking for prompt and schema alignment
+            </AlertDescription>
+          </Alert>
+        )}
+        {(!isFetching && isMatching) && (
+          <Alert>
+            <CircleCheck className="stroke-green-500" />
+            <AlertTitle>
+              Prompt and schema are aligned!
+            </AlertTitle>
+          </Alert>
+        )}
+        {(!isFetching && !isMatching) && (
+          <Alert>
+            <CircleAlert className="stroke-red-500" />
+            <AlertTitle>
+              Prompt and schema are not aligned!
+            </AlertTitle>
+            <AlertDescription>
+              {reasoning}
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
       <DialogFooter className="justify-end">
         <DialogClose asChild>
           <Button type="button" variant="secondary">
@@ -41,7 +76,7 @@ const SavePromptVersionDialog = ({
           </Button>
         </DialogClose>
       </DialogFooter>
-    </DialogContent>
+    </DialogContent >
   );
 };
 
