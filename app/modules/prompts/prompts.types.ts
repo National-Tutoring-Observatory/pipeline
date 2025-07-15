@@ -13,7 +13,9 @@ export interface PromptVersion {
   prompt: number;
   version: number;
   userPrompt: string;
-  annotationSchema: []
+  annotationSchema: [],
+  hasBeenSaved: boolean,
+  updatedAt: string,
 }
 
 export interface Model {
