@@ -186,17 +186,15 @@ export default function PromptSelector({
             <SheetContent className="overflow-y-auto !max-w-1/2">
               <SheetHeader>
                 <SheetTitle>Selected prompt version</SheetTitle>
-                <SheetDescription>
-                  <div className="inline-flex items-center p-2 border rounded-t-md mb-[-1px]">
-                    {`#${selectedPromptVersionItem.version}`}
-                    {(productionVersion && productionVersion === selectedPromptVersionItem.version) && (
-                      <Badge variant="secondary" className="bg-indigo-100 ml-2">Production</Badge>
-                    )}
-                  </div>
-                  <Textarea disabled className="max-h-[calc(100vh-120px)] !opacity-100 !rounded-tl-none">
-                    {selectedPromptVersionItem?.userPrompt}
-                  </Textarea>
-                </SheetDescription>
+                <div className="inline-flex items-center p-2 border rounded-t-md mb-[-1px]">
+                  {`#${selectedPromptVersionItem.version}`}
+                  {(productionVersion && productionVersion === selectedPromptVersionItem.version) && (
+                    <Badge variant="secondary" className="bg-indigo-100 ml-2">Production</Badge>
+                  )}
+                </div>
+                <Textarea disabled className="max-h-[calc(100vh-120px)] !opacity-100 !rounded-tl-none">
+                  {selectedPromptVersionItem?.userPrompt}
+                </Textarea>
               </SheetHeader>
             </SheetContent>
           </Sheet>
