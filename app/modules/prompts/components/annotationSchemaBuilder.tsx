@@ -8,8 +8,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 export default function AnnotationSchemaBuilder({
   annotationSchema,
+  hasBeenSaved,
   onAnnotationSchemaChanged
-}: { annotationSchema: any, onAnnotationSchemaChanged: (annotationSchema: any) => void }) {
+}: { annotationSchema: any, hasBeenSaved: boolean, onAnnotationSchemaChanged: (annotationSchema: any) => void }) {
 
   const onCreateNewSchemaField = () => {
     const annotationSchemaCloned = cloneDeep(annotationSchema);
@@ -46,7 +47,7 @@ export default function AnnotationSchemaBuilder({
               <div>
                 <Label className="text-xs mb-0.5">Key</Label>
                 <Input
-                  disabled={annotationField.isSystem}
+                  disabled={annotationField.isSystem || hasBeenSaved}
                   value={annotationField.fieldKey}
                   onChange={(event) => onAnnotationFieldChanged({ itemIndex: index, field: 'fieldKey', value: event?.target.value })}
                 />
@@ -54,7 +55,7 @@ export default function AnnotationSchemaBuilder({
               <div>
                 <Label className="text-xs mb-0.5">Type</Label>
                 <Select
-                  disabled={annotationField.isSystem}
+                  disabled={annotationField.isSystem || hasBeenSaved}
                   value={annotationField.fieldType}
                   onValueChange={(fieldType) => onAnnotationFieldChanged({ itemIndex: index, field: 'fieldType', value: fieldType })}
                 >
@@ -73,12 +74,13 @@ export default function AnnotationSchemaBuilder({
                 {(annotationField.fieldType === 'boolean') && (
                   <Checkbox
                     checked={annotationField.value}
+                    disabled={annotationField.isSystem || hasBeenSaved}
                     onCheckedChange={(checked) => onAnnotationFieldChanged({ itemIndex: index, field: 'value', value: checked })}
                   />
                 ) || (
                     <Input
                       value={annotationField.value}
-                      disabled={annotationField.isSystem}
+                      disabled={annotationField.isSystem || hasBeenSaved}
                       type={annotationField.fieldType === 'string' ? 'text' : 'number'}
                       onChange={(event) => onAnnotationFieldChanged({ itemIndex: index, field: 'value', value: event?.target.value })}
                     />

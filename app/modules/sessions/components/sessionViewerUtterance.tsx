@@ -20,9 +20,11 @@ export default function SessionViewerUtterance({
       <div className="flex flex-col max-w-3/4">
         <div
           id={`session-viewer-utterance-${utterance._id}`}
-          className={clsx("bg-muted p-4 rounded-lg scroll-mt-4", {
-            "bg-purple-200": isSelected,
-            "bg-muted": !isSelected
+          className={clsx("bg-muted p-4 rounded-4xl scroll-mt-4", {
+            "bg-purple-100 ": isSelected,
+            "bg-muted": !isSelected,
+            "rounded-bl-none": utterance.role === 'TEACHER',
+            "rounded-br-none": utterance.role !== 'TEACHER',
           })}>
           {utterance.content}
         </div>

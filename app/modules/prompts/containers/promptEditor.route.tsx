@@ -4,6 +4,8 @@ import type { Route } from "./+types/promptEditor.route";
 import type { Prompt, PromptVersion } from "../prompts.types";
 import { useLoaderData, useNavigation, useSubmit } from "react-router";
 import updateDocument from "~/core/documents/updateDocument";
+import addDialog from "~/core/dialogs/addDialog";
+import SavePromptVersionDialog from "../components/savePromptVersionDialog";
 
 export async function loader({ params }: Route.LoaderArgs) {
 
@@ -27,7 +29,7 @@ export async function action({
       await updateDocument({
         collection: 'promptVersions',
         match: { _id: Number(entityId) },
-        update: { name, userPrompt, annotationSchema }
+        update: { name, userPrompt, annotationSchema, hasBeenSaved: true, updatedAt: new Date(), }
       }) as { data: PromptVersion }
       return {};
     case 'MAKE_PROMPT_VERSION_PRODUCTION':
@@ -52,7 +54,9 @@ export default function PromptEditorRoute() {
   const { prompt, promptVersion } = data;
 
   const onSavePromptVersion = ({ name, userPrompt, annotationSchema, _id }: { name: string, userPrompt: string, annotationSchema: any[], _id: string }) => {
-    submit(JSON.stringify({ intent: 'UPDATE_PROMPT_VERSION', entityId: _id, payload: { name, userPrompt, annotationSchema } }), { method: 'PUT', encType: 'application/json' });
+    addDialog(<SavePromptVersionDialog onSaveClicked={() => {
+      submit(JSON.stringify({ intent: 'UPDATE_PROMPT_VERSION', entityId: _id, payload: { name, userPrompt, annotationSchema } }), { method: 'PUT', encType: 'application/json' });
+    }} />)
   }
 
   const onMakePromptVersionProductionClicked = () => {

@@ -63,7 +63,7 @@ export default function PromptEditor({
           <div>{`Version: ${promptVersion.name}`}</div>
         </div>
         <div className="space-x-4 flex items-center">
-          {(!isProduction) && (
+          {(!isProduction && promptVersion.hasBeenSaved) && (
 
             <Button
               size="icon"
@@ -74,15 +74,17 @@ export default function PromptEditor({
               <BookCheck />
             </Button>
           )}
-          <Button
-            size="icon"
-            variant="ghost"
-            className="size-4 cursor-pointer hover:text-indigo-600"
-            disabled={!hasChanges || isLoading}
-            onClick={onSavePromptVersionClicked}
-          >
-            {(hasChanges) && (<Save />) || (<SaveOff />)}
-          </Button>
+          {(!promptVersion.hasBeenSaved) && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className="size-4 cursor-pointer hover:text-indigo-600"
+              disabled={hasChanges || isLoading}
+              onClick={onSavePromptVersionClicked}
+            >
+              <Save />
+            </Button>
+          )}
           <Button
             size="icon"
             variant="ghost"
@@ -96,7 +98,7 @@ export default function PromptEditor({
       <div className="p-8 grid gap-8">
         <div className="grid gap-3">
           <Label htmlFor="name">Name</Label>
-          <Input id="name" name="name" value={name} autoComplete="off" onChange={onNameChanged} />
+          <Input id="name" name="name" value={name} disabled={promptVersion.hasBeenSaved} autoComplete="off" onChange={onNameChanged} />
         </div>
         <div className="grid gap-3">
           <Label htmlFor="prompt">Prompt</Label>
@@ -105,6 +107,7 @@ export default function PromptEditor({
             placeholder="Write your prompt here."
             value={userPrompt}
             className="max-h-80"
+            disabled={promptVersion.hasBeenSaved}
             onChange={onUserPromptChanged}
           />
         </div>
@@ -112,6 +115,7 @@ export default function PromptEditor({
           <Label htmlFor="prompt">Annotation schema</Label>
           <AnnotationSchemaBuilder
             annotationSchema={annotationSchema}
+            hasBeenSaved={promptVersion.hasBeenSaved}
             onAnnotationSchemaChanged={onAnnotationSchemaChanged}
           />
         </div>
