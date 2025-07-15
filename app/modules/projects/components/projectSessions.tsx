@@ -26,9 +26,7 @@ export default function ProjectFiles({ sessions }: { sessions: Session[] }) {
               return (
                 <TableRow key={session._id}>
                   <TableCell className="font-medium">
-                    <Link to={`/projects/${session._id}`}>
-                      {session.name}
-                    </Link>
+                    {session.name}
                   </TableCell>
                   <TableCell>{dayjs(session.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                   <TableCell>{session.fileType}</TableCell>

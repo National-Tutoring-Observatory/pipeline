@@ -25,9 +25,7 @@ export default function ProjectFiles({ files }: { files: File[] }) {
               return (
                 <TableRow key={file._id}>
                   <TableCell className="font-medium">
-                    <Link to={`/projects/${file._id}`}>
-                      {file.name}
-                    </Link>
+                    {file.name}
                   </TableCell>
                   <TableCell>{dayjs(file.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                   <TableCell>{file.fileType}</TableCell>
