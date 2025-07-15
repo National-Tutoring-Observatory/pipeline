@@ -10,11 +10,12 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Toaster } from "sonner";
 import DialogContainer from "./core/dialogs/containers/dialog.container";
 import BreadcrumbsContainer from "./core/app/containers/breadcrumbs.container";
+import AppSidebar from "./core/app/components/appSidebar";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -41,38 +42,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <SidebarProvider defaultOpen={false}>
-          <Sidebar variant="inset" >
-            <SidebarHeader />
-            <SidebarContent>
-              <SidebarGroup>
-                <SidebarGroupLabel>Content</SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton asChild>
-                        <NavLink to={'/'}>
-                          {({ isActive }) => (
-                            <span className={isActive ? "underline" : ""}>Projects</span>
-                          )}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton asChild>
-                        <NavLink to={'/prompts'}>
-                          {({ isActive }) => (
-                            <span className={isActive ? "underline" : ""}>Prompts</span>
-                          )}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-              <SidebarGroup />
-            </SidebarContent>
-            <SidebarFooter />
-          </Sidebar>
+          <AppSidebar />
           <SidebarInset>
             <main>
               <div className="p-2 flex items-center">
