@@ -1,4 +1,4 @@
-import { useLoaderData, useParams, useSubmit } from "react-router";
+import { useActionData, useLoaderData, useNavigate, useParams, useSubmit } from "react-router";
 import Prompt from '../components/prompt';
 import getDocument from "~/core/documents/getDocument";
 import type { Route } from "./+types/prompt.route";
@@ -45,6 +45,8 @@ export async function action({
 export default function PromptRoute() {
 
   const data = useLoaderData();
+  const actionData = useActionData();
+  const navigate = useNavigate();
 
   const { id, version } = useParams();
 
@@ -55,6 +57,12 @@ export default function PromptRoute() {
   const onCreatePromptVersionClicked = () => {
     submit(JSON.stringify({ intent: 'CREATE_PROMPT_VERSION', entityId: id, payload: { version } }), { method: 'POST', encType: 'application/json' });
   }
+
+  useEffect(() => {
+    if (actionData?.intent === 'CREATE_PROMPT_VERSION') {
+      navigate(`/prompts/${actionData.data.prompt}/${actionData.data.version}`)
+    }
+  }, [actionData]);
 
   useEffect(() => {
     updateBreadcrumb([{
