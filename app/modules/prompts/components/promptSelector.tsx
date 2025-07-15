@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import clsx from "clsx"
-import { CheckIcon, ChevronsUpDownIcon, ViewIcon } from "lucide-react"
+import { BookCheck, CheckIcon, ChevronsUpDownIcon, ViewIcon } from "lucide-react"
 import type { Prompt, PromptVersion } from "../prompts.types"
 import { Badge } from "@/components/ui/badge"
 import find from 'lodash/find';
@@ -115,7 +115,7 @@ export default function PromptSelector({
                   <div className="flex items-center">
                     {`#${selectedPromptVersionItem.version}`}
                     {(productionVersion && productionVersion === selectedPromptVersionItem.version) && (
-                      <Badge variant="secondary" className="bg-indigo-100 ml-2">Production</Badge>
+                      <Badge variant="secondary" className="bg-indigo-100 ml-2"><BookCheck className="size-3" />Production</Badge>
                     )}
                   </div>
                 ) || (
@@ -160,7 +160,7 @@ export default function PromptSelector({
                         <div>
                           {`#${promptVersion.version}`}
                           {(productionVersion && productionVersion === promptVersion.version) && (
-                            <Badge variant="secondary" className="bg-indigo-100 ml-2">Production</Badge>
+                            <Badge variant="secondary" className="bg-indigo-100 ml-2"><BookCheck className="size-3" />Production</Badge>
                           )}
                           <div className="text-muted-foreground">
                             {promptVersion.name}
@@ -189,7 +189,7 @@ export default function PromptSelector({
                 <div className="inline-flex items-center p-2 border rounded-t-md mb-[-1px]">
                   {`#${selectedPromptVersionItem.version}`}
                   {(productionVersion && productionVersion === selectedPromptVersionItem.version) && (
-                    <Badge variant="secondary" className="bg-indigo-100 ml-2">Production</Badge>
+                    <Badge variant="secondary" className="bg-indigo-100 ml-2"><BookCheck />Production</Badge>
                   )}
                 </div>
                 <Textarea disabled className="max-h-[calc(100vh-120px)] !opacity-100 !rounded-tl-none">

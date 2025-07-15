@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import type { PromptVersion } from "../prompts.types";
 import clsx from "clsx";
 import { Badge } from "@/components/ui/badge";
+import { BookCheck } from "lucide-react";
 
 type PromptVersionItemProps = {
   name: string;
@@ -25,7 +26,7 @@ export default function PromptVersionItem({ name, version, prompt, createdAt, is
       <div className="mb-2">
         <Badge variant="outline" className="bg-white">{`# ${version}`}</Badge>
         {(isProduction) && (
-          <Badge variant="secondary" className="bg-indigo-100 ml-2">Production</Badge>
+          <Badge variant="secondary" className="bg-indigo-100 ml-2"><BookCheck />Production</Badge>
         )}
       </div>
       <div className="text-sm text-black/40">
