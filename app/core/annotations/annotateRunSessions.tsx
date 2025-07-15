@@ -5,9 +5,7 @@ import { emitter } from "../events/emitter";
 import { handler as annotatePerUtterance } from '../../functions/annotatePerUtterance/app';
 import { handler as annotatePerSession } from '../../functions/annotatePerSession/app';
 import type { Session } from "~/modules/sessions/sessions.types";
-import type { PromptVersion } from "~/modules/prompts/prompts.types";
-
-type AnnotationSchemaItem = { fieldKey: string; value: any };
+import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
 
 export default async function annotateRunSessions({ runId }: { runId: string }) {
 

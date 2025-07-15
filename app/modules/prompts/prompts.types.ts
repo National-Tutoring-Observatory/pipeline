@@ -27,3 +27,9 @@ export interface AnnotationType {
   value: string;
   name: string;
 }
+
+export interface AnnotationSchemaItem {
+  fieldKey: string;
+  value: any;
+  isSystem: boolean;
+};
