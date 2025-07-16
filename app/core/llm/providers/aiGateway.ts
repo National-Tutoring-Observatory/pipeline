@@ -8,7 +8,7 @@ const AI_GATEWAY_PROVIDERS = {
   },
   GEMINI: {
     "medium": "google.gemini-2.0-flash-lite",
-    "high": "google.gemini-2.5-flash-preview"
+    "high": "google.gemini-2.5-flash"
   }
 }
 
