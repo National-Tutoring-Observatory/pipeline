@@ -38,6 +38,7 @@ export async function action({
   const { intent, entityId, payload = {} } = await request.json();
 
   const {
+    annotationType,
     prompt,
     promptVersion,
     model,
@@ -69,6 +70,7 @@ export async function action({
         match: { _id: Number(params.runId) },
         update: {
           hasSetup: true,
+          annotationType,
           prompt,
           promptVersion,
           model,

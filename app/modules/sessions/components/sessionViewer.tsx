@@ -54,6 +54,8 @@ export default function SessionViewer({
                 <SessionViewerAnnotation
                   key={annotation._id}
                   annotation={annotation}
+                  onDownVoteClicked={() => onDownVoteClicked(annotation._id)}
+                  onUpVoteClicked={() => onUpVoteClicked(annotation._id)}
                 />
               );
             })}

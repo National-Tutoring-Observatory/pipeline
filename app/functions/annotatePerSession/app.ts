@@ -5,6 +5,7 @@ import fse from 'fs-extra';
 import find from 'lodash/find.js';
 import systemPrompt from "./system.prompt.json";
 import LLM from '~/core/llm/llm';
+import map from 'lodash/map.js';
 
 export const handler = async (event: { body: any }) => {
 
@@ -32,7 +33,10 @@ export const handler = async (event: { body: any }) => {
 
   const response = await llm.createChat();
 
-  originalJSON.annotations = response || []
+  originalJSON.annotations = map(response || [], (annotation: any, index: number) => {
+    annotation._id = `${index}`;
+    return annotation;
+  })
 
   await fse.outputJSON(`${outputFolder}/${outputFileName}.json`, originalJSON);
 
