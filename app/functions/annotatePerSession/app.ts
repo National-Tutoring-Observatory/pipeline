@@ -7,48 +7,33 @@ import systemPrompt from "./system.prompt.json";
 import LLM from '~/core/llm/llm';
 
 export const handler = async (event: { body: any }) => {
-  try {
-    const { body } = event;
-    const { inputFile, outputFolder, prompt, model } = body;
 
-    if (!await fs.existsSync(inputFile)) throw { message: 'This input file does not exist' };
+  const { body } = event;
+  const { inputFile, outputFolder, prompt, model } = body;
 
-    const data = await fse.readFile(inputFile, { encoding: 'utf8' });
+  if (!await fs.existsSync(inputFile)) throw { message: 'This input file does not exist' };
 
-    const inputFileSplit = inputFile.split('/');
-    const outputFileName = inputFileSplit[inputFileSplit.length - 1].replace('.json', '');
+  const data = await fse.readFile(inputFile, { encoding: 'utf8' });
 
-    const originalJSON = JSON.parse(data);
+  const inputFileSplit = inputFile.split('/');
+  const outputFileName = inputFileSplit[inputFileSplit.length - 1].replace('.json', '');
 
-    const llm = new LLM({ quality: 'high', model });
+  const originalJSON = JSON.parse(data);
 
-    llm.addSystemMessage(systemPrompt.prompt, {
-      annotationSchema: JSON.stringify(prompt.annotationSchema)
-    });
+  const llm = new LLM({ quality: 'high', model });
 
-    llm.addUserMessage(`${prompt.prompt}\n\nConversation: {{conversation}}`, {
-      conversation: data
-    })
+  llm.addSystemMessage(systemPrompt.prompt, {
+    annotationSchema: JSON.stringify(prompt.annotationSchema)
+  });
 
-    const response = await llm.createChat();
+  llm.addUserMessage(`${prompt.prompt}\n\nConversation: {{conversation}}`, {
+    conversation: data
+  })
 
-    console.log(response);
+  const response = await llm.createChat();
 
-    originalJSON.annotations = response || []
+  originalJSON.annotations = response || []
 
-    await fse.outputJSON(`${outputFolder}/${outputFileName}.json`, originalJSON);
+  await fse.outputJSON(`${outputFolder}/${outputFileName}.json`, originalJSON);
 
-    return {
-      statusCode: 200,
-    };
-
-  } catch (err) {
-    console.log(err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        message: err
-      }),
-    };
-  }
 };

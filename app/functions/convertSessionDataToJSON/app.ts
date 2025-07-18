@@ -22,41 +22,27 @@ interface LambdaResponse {
   body?: string;
 }
 
-export const handler = async (event: LambdaEvent): Promise<LambdaResponse> => {
-  try {
-    const { body } = event;
-    const { inputFile, outputFolder } = body;
+export const handler = async (event: LambdaEvent) => {
+  const { body } = event;
+  const { inputFile, outputFolder } = body;
 
-    if (!await fs.existsSync(inputFile)) throw { message: 'This input file does not exist' };
+  if (!await fs.existsSync(inputFile)) throw { message: 'This input file does not exist' };
 
-    const data = await fse.readFile(inputFile, { encoding: 'utf8' });
+  const data = await fse.readFile(inputFile, { encoding: 'utf8' });
 
-    const inputFileSplit = inputFile.split('/');
-    const outputFileName = inputFileSplit[inputFileSplit.length - 1].replace('.json', '').replace('.vtt', '');
+  const inputFileSplit = inputFile.split('/');
+  const outputFileName = inputFileSplit[inputFileSplit.length - 1].replace('.json', '').replace('.vtt', '');
 
-    const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI' })
+  const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI' })
 
-    llm.setOrchestratorMessage(orchestratorPrompt.prompt, { schema: JSON.stringify(schema) });
+  llm.setOrchestratorMessage(orchestratorPrompt.prompt, { schema: JSON.stringify(schema) });
 
-    llm.addSystemMessage(systemPrompt.prompt, {});
+  llm.addSystemMessage(systemPrompt.prompt, {});
 
-    llm.addUserMessage(userPrompt.prompt, { schema: JSON.stringify(schema), data });
+  llm.addUserMessage(userPrompt.prompt, { schema: JSON.stringify(schema), data });
 
-    const response = await llm.createChat();
+  const response = await llm.createChat();
 
-    await fse.outputJSON(`${outputFolder}/${outputFileName}.json`, response);
+  await fse.outputJSON(`${outputFolder}/${outputFileName}.json`, response);
 
-    return {
-      statusCode: 200,
-    };
-
-  } catch (err) {
-    console.log(err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        message: err
-      }),
-    };
-  }
 };
