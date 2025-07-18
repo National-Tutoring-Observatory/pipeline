@@ -11,7 +11,9 @@ import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 import type { Project } from "../projects.types";
-// import exportCollection from "~/modules/collections/helpers/exportCollection";
+import getDocuments from "~/core/documents/getDocuments";
+import includes from 'lodash/includes';
+import type { Run } from "~/modules/runs/runs.types";
 
 type Collection = {
   data: CollectionType,
@@ -20,8 +22,16 @@ type Collection = {
 export async function loader({ params }: Route.LoaderArgs) {
   const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.projectId), }, }) as Project;
   const collection = await getDocument({ collection: 'collections', match: { _id: parseInt(params.collectionId), project: parseInt(params.projectId) }, }) as Collection;
+  const runs = await getDocuments({
+    collection: 'runs',
+    match: (item: Run) => {
+      if (includes(collection.data.runs, Number(item._id))) {
+        return true;
+      }
+    }, sort: {}
+  }) as Collection;
 
-  return { project, collection };
+  return { project, collection, runs };
 }
 
 
@@ -30,48 +40,29 @@ export async function action({
   params,
 }: Route.ActionArgs) {
 
-  const { intent, entityId, payload = {} } = await request.json();
+  const { intent, payload = {} } = await request.json();
 
   const {
-    prompt,
-    promptVersion,
-    model,
     sessions,
-    exportType
+    runs
   } = payload;
 
   switch (intent) {
-    case 'START_COLLECTION':
+    case 'SETUP_COLLECTION':
       const collection = await getDocument({
         collection: 'collections',
         match: { _id: Number(params.collectionId), project: Number(params.projectId) }
       }) as Collection;
-
-      const sessionsAsObjects = [];
-
-      for (const session of sessions) {
-        const sessionModel = await getDocument({ collection: 'sessions', match: { _id: session } }) as { data: Session };
-        sessionsAsObjects.push({
-          name: sessionModel.data.name,
-          fileType: sessionModel.data.fileType,
-          sessionId: session,
-          status: 'NOT_STARTED'
-        });
-      }
 
       await updateDocument({
         collection: 'collections',
         match: { _id: Number(params.collectionId) },
         update: {
           hasSetup: true,
-          prompt,
-          promptVersion,
-          model,
-          sessions: sessionsAsObjects
+          sessions,
+          runs
         }
       }) as Collection;
-
-      //annotateCollectionSessions({ collectionId: collection.data._id });
 
       return {}
     case 'EXPORT_COLLECTION': {
@@ -90,19 +81,17 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectCollectionRoute() {
-  const { project, collection } = useLoaderData();
+  const { project, collection, runs } = useLoaderData();
 
-  const [collectionSessionsProgress, setCollectionSessionsProgress] = useState(0);
-  const [collectionSessionsStep, setCollectionSessionsStep] = useState('');
   const submit = useSubmit();
-  const { revalidate, state } = useRevalidator();
+  const { revalidate } = useRevalidator();
 
-  const onStartCollectionClicked = ({
+  const onSetupCollection = ({
     selectedSessions,
     selectedRuns
   }: CreateCollection) => {
     submit(JSON.stringify({
-      intent: 'START_COLLECTION',
+      intent: 'SETUP_COLLECTION',
       payload: {
         sessions: selectedSessions,
         runs: selectedRuns,
@@ -117,6 +106,10 @@ export default function ProjectCollectionRoute() {
         exportType
       }
     }), { method: 'POST', encType: 'application/json' });
+  }
+
+  const onAddRunButtonClicked = () => {
+    console.log('adding run');
   }
 
   useEffect(() => {
@@ -149,12 +142,15 @@ export default function ProjectCollectionRoute() {
     }])
   }, []);
 
+  console.log(runs.data);
 
   return (
     <ProjectCollection
       collection={collection.data}
-      onStartCollectionClicked={onStartCollectionClicked}
+      runs={runs.data}
+      onSetupCollection={onSetupCollection}
       onExportCollectionButtonClicked={onExportCollectionButtonClicked}
+      onAddRunButtonClicked={onAddRunButtonClicked}
     />
   )
 }

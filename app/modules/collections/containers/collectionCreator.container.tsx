@@ -8,10 +8,8 @@ import pull from 'lodash/pull';
 import cloneDeep from 'lodash/cloneDeep';
 
 export default function CollectionCreatorContainer({
-  collection,
-  onStartCollectionClicked }: {
-    collection: Collection,
-    onStartCollectionClicked: ({ selectedSessions, selectedRuns }: CreateCollection) => void
+  onSetupCollection }: {
+    onSetupCollection: ({ selectedSessions, selectedRuns }: CreateCollection) => void
   }) {
 
   const [selectedBaseRun, setSelectedBaseRun] = useState(null as number | null);
@@ -39,11 +37,18 @@ export default function CollectionCreatorContainer({
     }
   }
 
+  const onSetupCollectionButtonClicked = () => {
+    console.log("setup")
+    onSetupCollection({ selectedSessions: selectedBaseRunSessions, selectedRuns: selectedRuns })
+  }
+
   useEffect(() => {
     const queryParams = new URLSearchParams();
     queryParams.set('project', params.projectId || "");
     runsFetcher.load(`/api/runsList?${queryParams.toString()}`);
   }, []);
+
+  const isSetupCollectionButtonDisabled = !selectedBaseRun;
 
   return (
     <CollectionCreator
@@ -51,8 +56,10 @@ export default function CollectionCreatorContainer({
       selectedBaseRun={selectedBaseRun}
       selectedBaseRunSessions={selectedBaseRunSessions}
       selectedRuns={selectedRuns}
+      isSetupCollectionButtonDisabled={isSetupCollectionButtonDisabled}
       onBaseRunClicked={onBaseRunClicked}
       onSelectRunToggled={onSelectRunToggled}
+      onSetupCollectionButtonClicked={onSetupCollectionButtonClicked}
     />
   );
 }
