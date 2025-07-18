@@ -2,7 +2,8 @@ export interface Collection {
   _id: string;
   name: string;
   project: string;
-  sessions: [sessionId: number]
+  sessions: [sessionId: number];
+  runs: [runId: number];
   createdAt: string;
   hasSetup: false;
   isExporting: boolean;
