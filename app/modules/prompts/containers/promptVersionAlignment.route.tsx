@@ -17,7 +17,7 @@ export async function action({
   }
   const annotationSchemaArray = [annotationFields];
 
-  const llm = new LLM({ quality: 'high' });
+  const llm = new LLM({ quality: 'high', model: 'GEMINI' });
 
   llm.addSystemMessage(`You are an expert at looking over LLM prompts and are able to determine whether the prompt matches the annotation schema provided by the user. 
     If they match, pass back a boolean true value. 

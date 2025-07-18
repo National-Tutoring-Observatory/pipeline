@@ -3,7 +3,7 @@ import './providers/aiGateway.js'
 import getLLM from './helpers/getLLM';
 import each from 'lodash/each.js';
 
-const DEFAULTS = { quality: 'medium', stream: false, format: 'json', retries: 3 };
+const DEFAULTS = { quality: 'medium', model: 'GEMINI', stream: false, format: 'json', retries: 3 };
 
 interface Message {
   role: 'system' | 'assistant' | 'user';

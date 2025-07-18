@@ -34,7 +34,7 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResponse> => {
     const inputFileSplit = inputFile.split('/');
     const outputFileName = inputFileSplit[inputFileSplit.length - 1].replace('.json', '').replace('.vtt', '');
 
-    const llm = new LLM({ quality: 'high', retries: 3 })
+    const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI' })
 
     llm.setOrchestratorMessage(orchestratorPrompt.prompt, { schema: JSON.stringify(schema) });
 

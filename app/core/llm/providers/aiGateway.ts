@@ -2,13 +2,17 @@ import { OpenAI } from 'openai';
 import registerLLM from "../helpers/registerLLM";
 
 const AI_GATEWAY_PROVIDERS = {
-  OPEN_AI: {
+  CHAT_GPT: {
     "medium": "openai.gpt-4.1-mini",
     "high": "openai.gpt-4.1"
   },
   GEMINI: {
     "medium": "google.gemini-2.0-flash-lite",
     "high": "google.gemini-2.5-flash"
+  },
+  CLAUDE: {
+    "medium": "anthropic/claude-3-haiku-20240307",
+    "high": "anthropic/claude-3-7-sonnet-20250219"
   }
 }
 
@@ -21,13 +25,12 @@ registerLLM('AI_GATEWAY', {
     return openai;
   },
   createChat: async ({ llm, options, messages }: { llm: any; options: any; messages: Array<{ role: string; content: string }> }) => {
-
-    const { quality } = options;
+    const { quality, model } = options;
     // @ts-ignore
-    let model = AI_GATEWAY_PROVIDERS[process.env.AI_GATEWAY_PROVIDER || 'GEMINI'][quality];
+    let modelName = AI_GATEWAY_PROVIDERS[model][quality];
 
     const chatCompletion = await llm.chat.completions.create({
-      model,
+      model: modelName,
       messages: messages,
       response_format: { type: "json_object" }
     });
