@@ -1,7 +1,15 @@
+import type { Run } from "~/modules/runs/runs.types";
 import SessionViewerContainer from "~/modules/sessions/containers/sessionViewerContainer";
 import type { Session, SessionFile } from "~/modules/sessions/sessions.types";
 
-export default function ProjectRunSessions({ sessionFile, session }: { sessionFile: SessionFile, session: Session }) {
+export default function ProjectRunSessions({
+  run,
+  sessionFile,
+  session }: {
+    run: Run,
+    sessionFile: SessionFile,
+    session: Session
+  }) {
   return (
     <div className="max-w-5xl mx-auto p-8">
       <div className="mb-8 relative">
@@ -12,6 +20,7 @@ export default function ProjectRunSessions({ sessionFile, session }: { sessionFi
         </div>
       </div>
       <SessionViewerContainer
+        run={run}
         session={session}
         sessionFile={sessionFile}
       />

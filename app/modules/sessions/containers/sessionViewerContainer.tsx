@@ -3,13 +3,16 @@ import SessionViewer from '../components/sessionViewer';
 import type { Session, SessionFile } from '../sessions.types';
 import find from 'lodash/find';
 import findIndex from 'lodash/findIndex';
-import { useLocation, useNavigate } from 'react-router';
+import { useFetcher, useLocation, useNavigate } from 'react-router';
+import type { Run } from '~/modules/runs/runs.types';
 
-export default function SessionViewerContainer({ session, sessionFile }: { session: Session, sessionFile: SessionFile }) {
+export default function SessionViewerContainer({ run, session, sessionFile }: { run: Run, session: Session, sessionFile: SessionFile }) {
 
   const { hash } = useLocation();
   const [selectedUtteranceId, setSelectedUtteranceId] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const fetcher = useFetcher();
 
   const navigateToUtterance = (utteranceId: string) => {
     navigate(`#session-viewer-utterance-${utteranceId}`);
@@ -52,6 +55,22 @@ export default function SessionViewerContainer({ session, sessionFile }: { sessi
     }
   }
 
+  const onDownVoteClicked = (annotationId: string) => {
+    fetcher.submit({ markedAs: 'DOWN_VOTED' }, {
+      action: `/api/annotations/${run._id}/${session.sessionId}/${annotationId}`,
+      method: "post",
+      encType: "application/json"
+    });
+  }
+
+  const onUpVoteClicked = (annotationId: string) => {
+    fetcher.submit({ markedAs: 'UP_VOTED' }, {
+      action: `/api/annotations/${run._id}/${session.sessionId}/${annotationId}`,
+      method: "post",
+      encType: "application/json"
+    });
+  }
+
   useEffect(() => {
     if (hash) {
       const utteranceId = hash.replace('#session-viewer-utterance-', '') || '0';
@@ -78,6 +97,8 @@ export default function SessionViewerContainer({ session, sessionFile }: { sessi
       onUtteranceClicked={onUtteranceClicked}
       onPreviousUtteranceClicked={onPreviousUtteranceClicked}
       onNextUtteranceClicked={onNextUtteranceClicked}
+      onDownVoteClicked={onDownVoteClicked}
+      onUpVoteClicked={onUpVoteClicked}
     />
   );
 }
