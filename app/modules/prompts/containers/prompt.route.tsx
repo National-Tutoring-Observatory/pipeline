@@ -30,9 +30,9 @@ export async function action({
   switch (intent) {
     case 'CREATE_PROMPT_VERSION':
       const previousPromptVerion = await getDocument({ collection: 'promptVersions', match: { prompt: Number(entityId), version: Number(version) } }) as { data: PromptVersion };
-      const newPromptAttributes = pick(previousPromptVerion.data, ['userPrompt', 'name', 'annotationSchema']);
+      const newPromptAttributes = pick(previousPromptVerion.data, ['userPrompt', 'annotationSchema']);
       const promptVerions = await getDocuments({ collection: 'promptVersions', match: { prompt: Number(entityId) }, sort: {} }) as { count: number };
-      const promptVersion = await createDocument({ collection: 'promptVersions', update: { ...newPromptAttributes, name: 'initial', prompt: Number(entityId), version: promptVerions.count + 1 } }) as { data: PromptVersion }
+      const promptVersion = await createDocument({ collection: 'promptVersions', update: { ...newPromptAttributes, name: `${previousPromptVerion.data.name.replace(/#\d+/g, '').trim()} #${promptVerions.count + 1}`, prompt: Number(entityId), version: promptVerions.count + 1 } }) as { data: PromptVersion }
       return {
         intent: 'CREATE_PROMPT_VERSION',
         ...promptVersion
