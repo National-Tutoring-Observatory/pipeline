@@ -18,12 +18,20 @@ export async function action({
 
   const sessionFile = await fse.readJSON(`./storage/${run.data.project}/runs/${params.runId}/${params.sessionId}/${session.data.name}`);
 
-  const currentUtterance = find(sessionFile.transcript, { _id: params.annotationId });
+  if (run.data.annotationType === 'PER_UTTERANCE') {
+    const currentUtterance = find(sessionFile.transcript, { _id: params.annotationId });
 
-  const currentAnnotation = find(currentUtterance.annotations, { _id: params.annotationId });
+    const currentAnnotation = find(currentUtterance.annotations, { _id: params.annotationId });
 
-  if (currentAnnotation) {
-    currentAnnotation.markedAs = markedAs;
+    if (currentAnnotation) {
+      currentAnnotation.markedAs = markedAs;
+    }
+  } else {
+    const currentAnnotation = find(sessionFile.annotations, { _id: params.annotationId });
+
+    if (currentAnnotation) {
+      currentAnnotation.markedAs = markedAs;
+    }
   }
 
   await fse.outputJSON(`./storage/${run.data.project}/runs/${params.runId}/${params.sessionId}/${session.data.name}`, sessionFile);
