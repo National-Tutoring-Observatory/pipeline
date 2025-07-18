@@ -40,6 +40,7 @@ export default function ProjectRunSessionsRoute() {
 
   return (
     <ProjectRunSessions
+      run={run.data}
       session={session}
       sessionFile={sessionFile}
     />

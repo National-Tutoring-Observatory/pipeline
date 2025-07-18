@@ -13,7 +13,9 @@ export default function SessionViewer({
   selectedUtteranceAnnotations,
   onUtteranceClicked,
   onPreviousUtteranceClicked,
-  onNextUtteranceClicked
+  onNextUtteranceClicked,
+  onDownVoteClicked,
+  onUpVoteClicked
 }: {
   session: Session,
   sessionFile: SessionFile,
@@ -22,6 +24,8 @@ export default function SessionViewer({
   onUtteranceClicked: (utteranceId: string) => void;
   onPreviousUtteranceClicked: () => void;
   onNextUtteranceClicked: () => void;
+  onDownVoteClicked: (annotationId: string) => void;
+  onUpVoteClicked: (annotationId: string) => void;
 }) {
   return (
     <div className="border h-[calc(100vh-200px)] flex rounded-md">
@@ -75,6 +79,8 @@ export default function SessionViewer({
                 <SessionViewerAnnotation
                   key={annotation._id}
                   annotation={annotation}
+                  onDownVoteClicked={() => onDownVoteClicked(annotation._id)}
+                  onUpVoteClicked={() => onUpVoteClicked(annotation._id)}
                 />
               );
             })}

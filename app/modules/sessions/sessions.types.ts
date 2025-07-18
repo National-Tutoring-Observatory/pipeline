@@ -5,6 +5,7 @@ export interface Session {
   project: string;
   file: string;
   hasConverted: boolean;
+  sessionId: string;
   fileType: string;
   startedAt: string;
   finishedAt: string;

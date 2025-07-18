@@ -178,7 +178,7 @@ export default function PromptSelector({
       {(selectedPrompt && selectedPromptVersion && selectedPromptVersionItem) && (
         <div className="ml-2">
           <Sheet>
-            <SheetTrigger>
+            <SheetTrigger asChild>
               <Button size="icon" variant="secondary">
                 <ViewIcon />
               </Button>
