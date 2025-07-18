@@ -7,7 +7,6 @@ registerLLM('OPEN_AI', {
     return openai;
   },
   createChat: async ({ llm, options, messages }) => {
-
     const { quality } = options;
 
     const chatCompletion = await llm.chat.completions.create({
