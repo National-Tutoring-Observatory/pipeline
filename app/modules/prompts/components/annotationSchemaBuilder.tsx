@@ -5,17 +5,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import map from 'lodash/map';
 import cloneDeep from 'lodash/cloneDeep';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Delete, Trash } from 'lucide-react';
 
 export default function AnnotationSchemaBuilder({
   annotationSchema,
   hasBeenSaved,
   onAnnotationSchemaChanged
-}: { annotationSchema: any, hasBeenSaved: boolean, onAnnotationSchemaChanged: (annotationSchema: any) => void }) {
+}: {
+  annotationSchema: any,
+  hasBeenSaved: boolean,
+  onAnnotationSchemaChanged: (annotationSchema: any) => void
+}) {
 
   const onCreateNewSchemaField = () => {
     const annotationSchemaCloned = cloneDeep(annotationSchema);
 
     annotationSchemaCloned.push({ isSystem: false, fieldType: 'string', fieldKey: 'field', value: '' });
+    onAnnotationSchemaChanged(annotationSchemaCloned);
+  }
+
+  const onDeleteAnnotationFieldClicked = (annotationIndex: number) => {
+    const annotationSchemaCloned = cloneDeep(annotationSchema);
+
+    annotationSchemaCloned.splice(annotationIndex, 1);
+
     onAnnotationSchemaChanged(annotationSchemaCloned);
   }
 
@@ -86,13 +99,28 @@ export default function AnnotationSchemaBuilder({
                     />
                   )}
               </div>
+              {(!annotationField.isSystem) && (
+                <div className="col-start-3 flex justify-end">
+                  <Button
+                    disabled={hasBeenSaved}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDeleteAnnotationFieldClicked(index)}
+                  >
+                    <Trash />
+                    Remove
+                  </Button>
+                </div>
+              )}
             </div>
           )
         })}
       </div>
       <div>
-        <Button onClick={onCreateNewSchemaField}>Create field</Button>
+        <Button
+          disabled={hasBeenSaved}
+          onClick={onCreateNewSchemaField}>Create field</Button>
       </div>
-    </div>
+    </div >
   )
 }
