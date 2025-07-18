@@ -39,6 +39,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
 
   let completedSessions = 0;
 
+  let hasErrored = false;
+
   for (const session of run.data.sessions) {
     const sessionModel = await getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
 
@@ -55,28 +57,35 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
 
     emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING', step: `${completedSessions + 1}/${run.data.sessions.length}` });
 
-    if (run.data.annotationType === 'PER_UTTERANCE') {
+    let status;
 
-      await annotatePerUtterance({
-        body: {
-          inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-          outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
-          prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-          model: run.data.model
-        }
-      });
-    } else {
-      await annotatePerSession({
-        body: {
-          inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-          outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
-          prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-          model: run.data.model
-        }
-      })
+    try {
+      if (run.data.annotationType === 'PER_UTTERANCE') {
+        await annotatePerUtterance({
+          body: {
+            inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
+            outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+            prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
+            model: run.data.model
+          }
+        });
+      } else {
+        await annotatePerSession({
+          body: {
+            inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
+            outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+            prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
+            model: run.data.model
+          }
+        })
+      }
+      status = 'DONE';
+    } catch (error) {
+      status = 'ERRORED';
+      hasErrored = true;
     }
 
-    session.status = 'DONE';
+    session.status = status;
     session.finishedAt = new Date();
     await updateDocument({
       collection: 'runs',
@@ -95,6 +104,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
     update: {
       isRunning: false,
       isComplete: true,
+      hasErrored,
       finishedAt: new Date()
     }
   });

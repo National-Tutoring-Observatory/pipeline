@@ -35,19 +35,29 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
   let completedFiles = 0;
 
   for (const projectFile of projectSessions.data) {
-    await convertSessionDataToJSON({
-      body: {
-        inputFile: `${inputDirectory}/${projectFile.file}/${projectFile.name}`,
-        outputFolder: `${outputDirectory}/${projectFile._id}`
-      }
-    });
+    let hasErrored;
+    let hasConverted;
+    try {
+      await convertSessionDataToJSON({
+        body: {
+          inputFile: `${inputDirectory}/${projectFile.file}/${projectFile.name}`,
+          outputFolder: `${outputDirectory}/${projectFile._id}`
+        }
+      });
+      hasErrored = false;
+      hasConverted = true;
+    } catch (error) {
+      hasErrored = true;
+      hasConverted = false;
+    }
     await updateDocument({
       collection: 'sessions',
       match: {
         _id: parseInt(projectFile._id)
       },
       update: {
-        hasConverted: true
+        hasConverted,
+        hasErrored
       }
     });
     completedFiles++;

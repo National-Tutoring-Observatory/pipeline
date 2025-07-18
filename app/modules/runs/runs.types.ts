@@ -10,6 +10,7 @@ export interface Run {
   hasSetup: boolean;
   isRunning: boolean;
   isComplete: boolean;
+  hasErrored: boolean;
   createdAt: string;
   startedAt: string;
   finishedAt: string;
