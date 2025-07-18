@@ -15,9 +15,13 @@ export default [
       route("sessions", "modules/projects/containers/projectSessions.route.tsx", {
         id: "SESSIONS"
       }),
+      route("collections", "modules/projects/containers/projectCollections.route.tsx", {
+        id: "COLLECTIONS"
+      }),
     ]),
     route(":projectId/runs/:runId", "modules/projects/containers/projectRun.route.tsx"),
-    route(":projectId/runs/:runId/sessions/:sessionId", "modules/projects/containers/projectRunSessions.route.tsx")
+    route(":projectId/runs/:runId/sessions/:sessionId", "modules/projects/containers/projectRunSessions.route.tsx"),
+    route(":projectId/collections/:collectionId", "modules/projects/containers/projectCollection.route.tsx")
   ]),
   ...prefix("prompts", [
     index("modules/prompts/containers/prompts.route.tsx"),
@@ -32,5 +36,6 @@ export default [
   route("api/promptVersionAlignment", "modules/prompts/containers/promptVersionAlignment.route.tsx"),
   route("api/promptVersionsList", "modules/prompts/containers/promptVersionsList.route.tsx"),
   route("api/sessionsList", "modules/sessions/containers/sessionsList.route.tsx"),
+  route("api/runsList", "modules/runs/containers/runsList.route.tsx"),
   route("api/downloads/:projectId/:runId", "modules/runs/containers/downloadRun.route.tsx")
 ] satisfies RouteConfig;

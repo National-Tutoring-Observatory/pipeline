@@ -16,6 +16,7 @@ import filter from 'lodash/filter';
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { Run } from "~/modules/runs/runs.types";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
+import type { Collection } from "~/modules/collections/collections.types";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.id) } }) as { data: ProjectType };
@@ -23,7 +24,8 @@ export async function loader({ params }: Route.LoaderArgs) {
   const sessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Session[] };
   const convertedSessionsCount = filter(sessions.data, { hasConverted: true }).length;
   const runs = await getDocuments({ collection: 'runs', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Run[] };
-  return { project, filesCount: files.count, sessionsCount: sessions.count, convertedSessionsCount, runsCount: runs.count };
+  const collections = await getDocuments({ collection: 'collections', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Collection[] };
+  return { project, filesCount: files.count, sessionsCount: sessions.count, convertedSessionsCount, runsCount: runs.count, collectionsCount: collections.count };
 }
 
 export async function action({
@@ -68,7 +70,7 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
-  const { project, filesCount, sessionsCount, convertedSessionsCount, runsCount } = loaderData;
+  const { project, filesCount, sessionsCount, convertedSessionsCount, runsCount, collectionsCount } = loaderData;
 
   const submit = useSubmit();
 
@@ -141,6 +143,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       sessionsCount={sessionsCount}
       convertedSessionsCount={convertedSessionsCount}
       runsCount={runsCount}
+      collectionsCount={collectionsCount}
       tabValue={matches[matches.length - 1].id}
       convertFilesProgress={convertFilesProgress}
       uploadFilesProgress={uploadFilesProgress}

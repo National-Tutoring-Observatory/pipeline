@@ -10,6 +10,7 @@ interface ProjectProps {
   filesCount: number,
   sessionsCount: number,
   runsCount: number,
+  collectionsCount: number,
   tabValue: string,
   uploadFilesProgress: number,
   convertFilesProgress: number,
@@ -22,6 +23,7 @@ export default function Project({
   filesCount,
   sessionsCount,
   runsCount,
+  collectionsCount,
   tabValue,
   uploadFilesProgress,
   convertFilesProgress,
@@ -43,7 +45,7 @@ export default function Project({
       )}
       {(project.hasSetupProject) && (
         <div>
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-4 gap-8">
             <Link to={`/projects/${project._id}/files`} replace className="h-full">
               <Card className={clsx("transition-all h-full", {
                 "border-accent-foreground": tabValue === 'FILES'
@@ -102,6 +104,19 @@ export default function Project({
                 </CardHeader>
                 <CardContent className="h-8">
                   <p>{runsCount} runs</p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to={`/projects/${project._id}/collections`} replace className="h-full">
+              <Card className={clsx("transition-all h-full", {
+                "border-accent-foreground": tabValue === 'COLLECTIONS'
+              })}>
+                <CardHeader>
+                  <CardTitle>Collections</CardTitle>
+                  <CardDescription>Collections are a grouping of runs to help you compare different run settings across the same dataset</CardDescription>
+                </CardHeader>
+                <CardContent className="h-8">
+                  <p>{collectionsCount} collections</p>
                 </CardContent>
               </Card>
             </Link>
