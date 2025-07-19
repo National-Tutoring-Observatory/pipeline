@@ -35,7 +35,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
   for (const annotationSchemaItem of promptVersion.data.annotationSchema as AnnotationSchemaItem[]) {
     annotationFields[annotationSchemaItem.fieldKey] = annotationSchemaItem.value;
   }
-  const annotationSchema = [annotationFields];
+  const annotationSchema = { "annotations": [annotationFields] };
 
   let completedSessions = 0;
 
