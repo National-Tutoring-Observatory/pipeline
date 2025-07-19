@@ -89,7 +89,7 @@ export default function CollectionCreator({
           disabled={isSetupCollectionButtonDisabled}
           onClick={onSetupCollectionButtonClicked}
         >
-          Start run
+          Build collection
         </Button>
       </div>
     </div>
