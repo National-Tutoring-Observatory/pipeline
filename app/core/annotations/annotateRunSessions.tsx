@@ -86,6 +86,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
       }
       status = 'DONE';
     } catch (error) {
+      console.warn(error);
       status = 'ERRORED';
       hasErrored = true;
     }

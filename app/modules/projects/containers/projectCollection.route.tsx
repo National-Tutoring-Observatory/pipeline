@@ -1,19 +1,17 @@
-import { useLoaderData, useRevalidator, useRouteLoaderData, useSubmit } from "react-router";
+import { useLoaderData, useRevalidator, useSubmit } from "react-router";
 import ProjectCollection from "../components/projectCollection";
 import type { CreateCollection, Collection as CollectionType } from "~/modules/collections/collections.types";
 import getDocument from "~/core/documents/getDocument";
 import type { Route } from "./+types/projectCollection.route";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import updateDocument from "~/core/documents/updateDocument";
-//import annotateCollectionSessions from "~/core/annotations/annotateCollectionSessions";
 import throttle from 'lodash/throttle';
-import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
-import type { Session } from "~/modules/sessions/sessions.types";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 import type { Project } from "../projects.types";
 import getDocuments from "~/core/documents/getDocuments";
 import includes from 'lodash/includes';
 import type { Run } from "~/modules/runs/runs.types";
+import exportCollection from "~/modules/collections/helpers/exportCollection";
 
 type Collection = {
   data: CollectionType,
@@ -44,7 +42,8 @@ export async function action({
 
   const {
     sessions,
-    runs
+    runs,
+    exportType
   } = payload;
 
   switch (intent) {
@@ -67,7 +66,7 @@ export async function action({
       return {}
     case 'EXPORT_COLLECTION': {
 
-      // exportCollection({ collectionId: Number(params.collectionId), exportType });
+      exportCollection({ collectionId: Number(params.collectionId), exportType });
 
       return {};
     }

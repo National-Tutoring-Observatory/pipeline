@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import clsx from 'clsx';
-import difference from 'lodash/difference';
+import xor from 'lodash/xor';
 import map from 'lodash/map';
 import includes from 'lodash/includes';
 import type { Run } from '~/modules/runs/runs.types';
@@ -62,7 +62,7 @@ export default function CollectionCreator({
               if (Number(run._id) === selectedBaseRun) return null;
               const runSessions = map(run.sessions, 'sessionId');
 
-              const test = difference(runSessions, selectedBaseRunSessions);
+              const test = xor(runSessions, selectedBaseRunSessions);
 
               if (test.length > 0) return null;
 
@@ -89,7 +89,7 @@ export default function CollectionCreator({
           disabled={isSetupCollectionButtonDisabled}
           onClick={onSetupCollectionButtonClicked}
         >
-          Start run
+          Build collection
         </Button>
       </div>
     </div>

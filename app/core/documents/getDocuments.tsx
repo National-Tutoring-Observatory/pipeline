@@ -4,7 +4,7 @@ import filter from 'lodash/filter';
 import each from 'lodash/each';
 import orderBy from 'lodash/orderBy';
 
-export default async ({ collection, match, sort = {} }: { collection: string, match: {}, sort: {} }) => {
+export default async ({ collection, match, sort = {} }: { collection: string, match: {} | any, sort: {} }) => {
 
   try {
     await findOrCreateDocuments({ collection });
