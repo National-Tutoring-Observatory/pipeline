@@ -96,6 +96,16 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       const blob = new Blob([file], { type: file.type });
       formData.append('files', blob, file.name);
     }
+
+    await submit(formData, {
+      method: 'POST',
+      encType: 'multipart/form-data',
+    }).then(() => {
+      toast.success('Uploading files');
+    });
+  }
+
+  useEffect(() => {
     const eventSource = new EventSource("/api/events");
 
     eventSource.onmessage = (event) => {
@@ -123,14 +133,10 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       console.log('error');
       eventSource.close();
     };
-
-    await submit(formData, {
-      method: 'POST',
-      encType: 'multipart/form-data',
-    }).then(() => {
-      toast.success('Uploading files');
-    });
-  }
+    return () => {
+      eventSource.close();
+    }
+  }, []);
 
   useEffect(() => {
     updateBreadcrumb([{ text: 'Projects', link: `/` }, { text: project.data.name }])
