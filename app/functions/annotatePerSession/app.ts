@@ -33,7 +33,7 @@ export const handler = async (event: { body: any }) => {
 
   const response = await llm.createChat();
 
-  originalJSON.annotations = map(response || [], (annotation: any, index: number) => {
+  originalJSON.annotations = map(response.annotations || [], (annotation: any, index: number) => {
     annotation._id = `${index}`;
     return annotation;
   })

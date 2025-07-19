@@ -23,6 +23,9 @@ export default function ModelSelectorContainer({
       }, {
         provider: 'CHAT_GPT',
         name: 'Chat GPT'
+      }, {
+        provider: 'CLAUDE',
+        name: 'Claude'
       }]}
       selectedModel={selectedModel}
       isModelsOpen={isModelsOpen}
