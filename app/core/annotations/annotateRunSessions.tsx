@@ -42,6 +42,11 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
   let hasErrored = false;
 
   for (const session of run.data.sessions) {
+    if (session.status === 'DONE') {
+      completedSessions++;
+      emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING' });
+      continue;
+    }
     const sessionModel = await getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
 
     session.status = 'RUNNING';

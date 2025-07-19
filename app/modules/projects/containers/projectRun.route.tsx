@@ -47,7 +47,8 @@ export async function action({
   } = payload;
 
   switch (intent) {
-    case 'START_RUN':
+    case 'START_RUN': {
+
       const run = await getDocument({
         collection: 'runs',
         match: { _id: Number(params.runId), project: Number(params.projectId) }
@@ -81,6 +82,15 @@ export async function action({
       annotateRunSessions({ runId: run.data._id });
 
       return {}
+    }
+    case 'RE_RUN': {
+      const run = await getDocument({
+        collection: 'runs',
+        match: { _id: Number(params.runId), project: Number(params.projectId) }
+      }) as Run;
+      annotateRunSessions({ runId: run.data._id });
+      return {};
+    }
     case 'EXPORT_RUN': {
 
       exportRun({ runId: Number(params.runId), exportType });
@@ -131,6 +141,13 @@ export default function ProjectRunRoute() {
     }), { method: 'POST', encType: 'application/json' });
   }
 
+  const onReRunClicked = () => {
+    submit(JSON.stringify({
+      intent: 'RE_RUN',
+      payload: {}
+    }), { method: 'POST', encType: 'application/json' });
+  }
+
   useEffect(() => {
     const eventSource = new EventSource("/api/events");
 
@@ -178,6 +195,7 @@ export default function ProjectRunRoute() {
       runSessionsStep={runSessionsStep}
       onStartRunClicked={onStartRunClicked}
       onExportRunButtonClicked={onExportRunButtonClicked}
+      onReRunClicked={onReRunClicked}
     />
   )
 }

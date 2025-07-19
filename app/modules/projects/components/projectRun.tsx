@@ -23,6 +23,7 @@ export default function ProjectRun({
   runSessionsStep,
   onStartRunClicked,
   onExportRunButtonClicked,
+  onReRunClicked
 }: {
   run: Run,
   runPrompt: Prompt,
@@ -31,6 +32,7 @@ export default function ProjectRun({
   runSessionsStep: string,
   onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions }: CreateRun) => void,
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void
+  onReRunClicked: () => void
 }) {
 
   return (
@@ -105,7 +107,12 @@ export default function ProjectRun({
             </div>
           </div>
           <div className="mt-8">
-            <div className="text-xs text-muted-foreground">Sessions</div>
+            <div className="flex justify-between items-end">
+              <div className="text-xs text-muted-foreground">Sessions</div>
+              {(run.hasErrored) && (
+                <Button onClick={onReRunClicked}>Re-run</Button>
+              )}
+            </div>
             <div className="border rounded-md h-80 overflow-y-auto mt-2">
               <Table>
                 <TableHeader>
@@ -122,9 +129,14 @@ export default function ProjectRun({
                     return (
                       <TableRow key={session.sessionId}>
                         <TableCell className="font-medium">
-                          <Link to={`/projects/${run.project}/runs/${run._id}/sessions/${session.sessionId}`}>
-                            {session.name}
-                          </Link>
+                          {(session.status === 'DONE') && (
+
+                            <Link to={`/projects/${run.project}/runs/${run._id}/sessions/${session.sessionId}`}>
+                              {session.name}
+                            </Link>
+                          ) || (
+                              session.name
+                            )}
                         </TableCell>
                         <TableCell>{dayjs(session.startedAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                         <TableCell>{dayjs(session.finishedAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
