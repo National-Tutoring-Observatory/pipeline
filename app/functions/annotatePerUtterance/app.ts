@@ -31,8 +31,6 @@ export const handler = async (event: { body: any }) => {
     conversation: data
   })
 
-  console.log(llm.getMessages());
-
   const response = await llm.createChat();
 
   const annotations = response.annotations || [];

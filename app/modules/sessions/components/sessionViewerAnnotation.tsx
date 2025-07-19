@@ -3,12 +3,12 @@ import type { Annotation, Utterance } from "../sessions.types";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
+import has from 'lodash/has';
 
 export default function SessionViewerAnnotation({
   annotation,
   onDownVoteClicked,
   onUpVoteClicked
-
 }: {
   annotation: Annotation & any,
   onDownVoteClicked: () => void,
@@ -16,22 +16,27 @@ export default function SessionViewerAnnotation({
 }) {
   return (
     <div className="p-4 bg-muted rounded-md">
-      <div className="mb-2">
-        <div className="text-xs text-muted-foreground">
-          Teacher move
+      {(has(annotation, 'teacherMove')) && (
+
+        <div className="mb-2">
+          <div className="text-xs text-muted-foreground">
+            Teacher move
+          </div>
+          <div>
+            {annotation.teacherMove}
+          </div>
         </div>
-        <div>
-          {annotation.teacherMove}
+      )}
+      {(has(annotation, 'score')) && (
+        <div className="mb-2">
+          <div className="text-xs text-muted-foreground">
+            Score
+          </div>
+          <div>
+            {annotation.score}
+          </div>
         </div>
-      </div>
-      <div className="mb-2">
-        <div className="text-xs text-muted-foreground">
-          Score
-        </div>
-        <div>
-          {annotation.score}
-        </div>
-      </div>
+      )}
       <div className="mb-2">
         <div className="text-xs text-muted-foreground">
           Reasoning

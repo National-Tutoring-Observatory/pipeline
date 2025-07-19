@@ -6,6 +6,7 @@ import { emitter } from "../events/emitter";
 import createDocument from "../documents/createDocument";
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { File } from "~/modules/files/files.types";
+import getDocument from '../documents/getDocument';
 
 export default async function convertFilesToSessions({ entityId }: { entityId: string }) {
 
@@ -22,7 +23,7 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
         project: projectFile.project,
         file: projectFile._id,
         fileType: 'application/json',
-        name: projectFile.name,
+        name: `${projectFile.name.replace(/\.[^.]+$/, '')}.json`,
         hasConverted: false
       }
     }) as { data: Session };
@@ -37,10 +38,11 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
   for (const projectFile of projectSessions.data) {
     let hasErrored;
     let hasConverted;
+    const file = await getDocument({ collection: 'files', match: { _id: projectFile.file } }) as { data: { name: string } };
     try {
       await convertSessionDataToJSON({
         body: {
-          inputFile: `${inputDirectory}/${projectFile.file}/${projectFile.name}`,
+          inputFile: `${inputDirectory}/${projectFile.file}/${file.data.name}`,
           outputFolder: `${outputDirectory}/${projectFile._id}`
         }
       });
