@@ -11,8 +11,8 @@ const AI_GATEWAY_PROVIDERS = {
     "high": "google.gemini-2.5-flash"
   },
   CLAUDE: {
-    "medium": "anthropic/claude-3-haiku-20240307",
-    "high": "anthropic/claude-3-7-sonnet-20250219"
+    "medium": "anthropic.claude-3.7-sonnet",
+    "high": "anthropic.claude-4-sonnet"
   }
 }
 
