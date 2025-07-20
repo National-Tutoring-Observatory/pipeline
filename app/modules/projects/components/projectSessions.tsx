@@ -7,7 +7,10 @@ import { EllipsisVertical } from "lucide-react";
 import { Link } from "react-router";
 import type { Session } from "~/modules/sessions/sessions.types";
 
-export default function ProjectFiles({ sessions }: { sessions: Session[] }) {
+export default function ProjectFiles({
+  sessions,
+  onSessionClicked
+}: { sessions: Session[], onSessionClicked: (session: Session) => void }) {
   return (
     <div className="mt-8">
       <div className="border rounded-md">
@@ -26,7 +29,14 @@ export default function ProjectFiles({ sessions }: { sessions: Session[] }) {
               return (
                 <TableRow key={session._id}>
                   <TableCell className="font-medium">
-                    {session.name}
+                    {(session.hasConverted) && (
+                      <span className=" cursor-pointer" onClick={() => onSessionClicked(session)}>
+                        {session.name}
+                      </span>
+
+                    ) || (
+                        session.name
+                      )}
                   </TableCell>
                   <TableCell>{dayjs(session.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                   <TableCell>{session.fileType}</TableCell>

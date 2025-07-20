@@ -15,7 +15,7 @@ export default function SessionViewerAnnotation({
   onUpVoteClicked: () => void
 }) {
   return (
-    <div className="p-4 bg-muted rounded-md">
+    <div className="p-4 bg-muted rounded-md mb-2">
       {(has(annotation, 'teacherMove')) && (
 
         <div className="mb-2">
@@ -24,6 +24,17 @@ export default function SessionViewerAnnotation({
           </div>
           <div>
             {annotation.teacherMove}
+          </div>
+        </div>
+      )}
+      {(has(annotation, 'tutorMove')) && (
+
+        <div className="mb-2">
+          <div className="text-xs text-muted-foreground">
+            Tutor move
+          </div>
+          <div>
+            {annotation.tutorMove}
           </div>
         </div>
       )}

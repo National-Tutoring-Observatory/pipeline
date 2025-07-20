@@ -62,7 +62,7 @@ export default function ProjectCollection({
       {(collection.hasSetup) && (
         <div className="mt-8">
           <div className="text-xs text-muted-foreground">Runs</div>
-          <div className="border rounded-md h-80 overflow-y-auto mt-2">
+          <div className="border rounded-md overflow-y-auto mt-2">
             <div className="flex justify-end border-b p-2">
               <Button onClick={onAddRunButtonClicked}>Add run</Button>
             </div>
