@@ -106,7 +106,7 @@ export default function ProjectRunCreator({
                   className=""
                 >
                   <ShuffleIcon></ShuffleIcon>
-                  Randomise selection
+                  RandomizR
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-4">

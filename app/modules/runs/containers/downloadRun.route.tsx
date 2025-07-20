@@ -81,7 +81,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     status: 200,
     headers: {
       'Content-Type': 'application/zip',
-      'Content-Disposition': `attachment; filename="project-${run.data.project}-run-${run.data._id}.zip"`,
+      'Content-Disposition': `attachment; filename="project-${run.data.project}-run-${run.data._id}-${run.data.name}.zip"`,
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0',
