@@ -10,7 +10,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ShuffleIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { PopoverClose } from "@radix-ui/react-popover";
-import ModelSettings from "../components/modelSettings";
 
 export default function ProjectRunCreator({
   selectedAnnotationType,
