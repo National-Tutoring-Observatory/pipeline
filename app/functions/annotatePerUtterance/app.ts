@@ -10,7 +10,7 @@ import LLM from '~/core/llm/llm';
 export const handler = async (event: { body: any }) => {
 
   const { body } = event;
-  const { inputFile, outputFolder, prompt, model } = body;
+  const { inputFile, outputFolder, prompt, model, llmSettings } = body;
 
   if (!await fs.existsSync(inputFile)) throw { message: 'This input file does not exist' };
 
@@ -21,7 +21,7 @@ export const handler = async (event: { body: any }) => {
 
   const originalJSON = JSON.parse(data);
 
-  const llm = new LLM({ quality: 'high', model });
+  const llm = new LLM({ quality: 'high', model, llmSettings });
 
   llm.addSystemMessage(systemPrompt.prompt, {
     annotationSchema: JSON.stringify(prompt.annotationSchema)

@@ -1,3 +1,5 @@
+import type { LLMSettings } from "~/core/llm/llm.types";
+
 export interface Run {
   _id: string;
   name: string;
@@ -6,6 +8,7 @@ export interface Run {
   prompt: number;
   promptVersion: number;
   model: string;
+  llmSettings?: LLMSettings;
   sessions: { sessionId: number, status: string, name: string, fileType: string, startedAt: Date, finishedAt: Date }[]
   hasSetup: boolean;
   isRunning: boolean;
@@ -24,5 +27,6 @@ export interface CreateRun {
   selectedPrompt: number | null,
   selectedPromptVersion: number | null,
   selectedModel: string,
-  selectedSessions: number[]
+  selectedSessions: number[],
+  llmSettings?: LLMSettings
 }

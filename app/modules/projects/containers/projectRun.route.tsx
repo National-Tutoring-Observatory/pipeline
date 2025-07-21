@@ -43,6 +43,7 @@ export async function action({
     promptVersion,
     model,
     sessions,
+    llmSettings,
     exportType
   } = payload;
 
@@ -75,6 +76,7 @@ export async function action({
           prompt,
           promptVersion,
           model,
+          llmSettings,
           sessions: sessionsAsObjects
         }
       }) as Run;
@@ -114,20 +116,16 @@ export default function ProjectRunRoute() {
   const submit = useSubmit();
   const { revalidate, state } = useRevalidator();
 
-  const onStartRunClicked = ({
-    selectedAnnotationType,
-    selectedPrompt,
-    selectedPromptVersion,
-    selectedModel,
-    selectedSessions }: CreateRun) => {
+  const onStartRunClicked = (createRun: CreateRun) => {
     submit(JSON.stringify({
       intent: 'START_RUN',
       payload: {
-        annotationType: selectedAnnotationType,
-        prompt: Number(selectedPrompt),
-        promptVersion: Number(selectedPromptVersion),
-        model: selectedModel,
-        sessions: selectedSessions
+        annotationType: createRun.selectedAnnotationType,
+        prompt: Number(createRun.selectedPrompt),
+        promptVersion: Number(createRun.selectedPromptVersion),
+        model: createRun.selectedModel,
+        sessions: createRun.selectedSessions,
+        llmSettings: createRun.llmSettings
       }
     }), { method: 'POST', encType: 'application/json' });
   }

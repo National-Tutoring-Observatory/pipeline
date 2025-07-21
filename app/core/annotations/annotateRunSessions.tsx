@@ -71,7 +71,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
             inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
             outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
             prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-            model: run.data.model
+            model: run.data.model,
+            llmSettings: run.data.llmSettings
           }
         });
       } else {
@@ -80,7 +81,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
             inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
             outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
             prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-            model: run.data.model
+            model: run.data.model,
+            llmSettings: run.data.llmSettings
           }
         })
       }

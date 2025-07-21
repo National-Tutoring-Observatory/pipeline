@@ -4,10 +4,37 @@ import map from 'lodash/map';
 import ProjectRunCreator from "../components/projectRunCreator";
 import { useFetcher } from "react-router";
 import sampleSize from "lodash/sampleSize";
+import type { LLMSettings } from "~/core/llm/llm.types";
+import { DEFAULT_LLM_SETTINGS } from "~/core/llm/llm.types";
+
+// Helper functions for localStorage persistence
+const getLLMSettingsFromStorage = (model: string): LLMSettings => {
+  if (typeof window === 'undefined') return DEFAULT_LLM_SETTINGS;
+  
+  try {
+    const saved = localStorage.getItem(`llm-settings-${model}`);
+    if (saved) {
+      return { ...DEFAULT_LLM_SETTINGS, ...JSON.parse(saved) };
+    }
+  } catch (error) {
+    console.warn('Failed to load LLM settings from localStorage:', error);
+  }
+  return DEFAULT_LLM_SETTINGS;
+};
+
+const saveLLMSettingsToStorage = (model: string, settings: LLMSettings) => {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    localStorage.setItem(`llm-settings-${model}`, JSON.stringify(settings));
+  } catch (error) {
+    console.warn('Failed to save LLM settings to localStorage:', error);
+  }
+};
 
 export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
   run: Run,
-  onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions }: CreateRun) => void
+  onStartRunClicked: (createRun: CreateRun) => void
 }) {
 
   const [selectedAnnotationType, setSelectedAnnotationType] = useState(run.annotationType);
@@ -17,6 +44,9 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
   const [selectedSessions, setSelectedSessions] = useState<number[]>(map(run.sessions, 'sessionId'));
   const [randomSampleSize, setRandomSampleSize] = useState(0);
   const [isRunButtonDisabled, setIsRunButtonDisabled] = useState(true);
+  const [llmSettings, setLlmSettings] = useState<LLMSettings>(() => 
+    getLLMSettingsFromStorage(run.model || 'GEMINI')
+  );
 
   const sessionsFetcher = useFetcher({ key: 'sessionsList' });
 
@@ -35,6 +65,9 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
   }
 
   const onSelectedModelChanged = (selectedModel: string) => {
+    // Load settings for the new model
+    const modelSettings = getLLMSettingsFromStorage(selectedModel);
+    setLlmSettings(modelSettings);
     setSelectedModel(selectedModel);
   }
 
@@ -51,13 +84,20 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
     setSelectedSessions(randomSessions);
   }
 
+  const onLLMSettingsChanged = (settings: LLMSettings) => {
+    // Save settings for the current model
+    saveLLMSettingsToStorage(selectedModel, settings);
+    setLlmSettings(settings);
+  }
+
   const onStartRunButtonClicked = () => {
     onStartRunClicked({
       selectedAnnotationType,
       selectedPrompt,
       selectedPromptVersion,
       selectedModel,
-      selectedSessions
+      selectedSessions,
+      llmSettings
     })
   }
 
@@ -82,6 +122,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
       selectedSessions={selectedSessions}
       randomSampleSize={randomSampleSize}
       sessionsCount={sessionsFetcher?.data?.sessions?.count || 0}
+      llmSettings={llmSettings}
       isRunButtonDisabled={isRunButtonDisabled}
       onSelectedAnnotationTypeChanged={onSelectedAnnotationTypeChanged}
       onSelectedPromptChanged={onSelectedPromptChanged}
@@ -91,6 +132,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
       onStartRunButtonClicked={onStartRunButtonClicked}
       onRandomSampleSizeChanged={onRandomSampleSizeChanged}
       onSelectRandomSampleSizeButtonClicked={onSelectRandomSampleSizeButtonClicked}
+      onLLMSettingsChanged={onLLMSettingsChanged}
     />
   )
 }

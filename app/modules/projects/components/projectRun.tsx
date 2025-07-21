@@ -30,7 +30,7 @@ export default function ProjectRun({
   runPromptVersion: PromptVersion,
   runSessionsProgress: number,
   runSessionsStep: string,
-  onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions }: CreateRun) => void,
+  onStartRunClicked: (createRun: CreateRun) => void,
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void
   onReRunClicked: () => void
 }) {
