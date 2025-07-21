@@ -10,6 +10,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ShuffleIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { PopoverClose } from "@radix-ui/react-popover";
+import LLMSettingsComponent from "~/modules/prompts/components/llmSettings";
+import type { LLMSettings } from "~/core/llm/llm.types";
+import { DEFAULT_LLM_SETTINGS } from "~/core/llm/llm.types";
 
 export default function ProjectRunCreator({
   selectedAnnotationType,
@@ -19,6 +22,7 @@ export default function ProjectRunCreator({
   selectedSessions,
   randomSampleSize,
   sessionsCount,
+  llmSettings = DEFAULT_LLM_SETTINGS,
   isRunButtonDisabled,
   onSelectedAnnotationTypeChanged,
   onSelectedPromptChanged,
@@ -27,7 +31,8 @@ export default function ProjectRunCreator({
   onSelectedSessionsChanged,
   onStartRunButtonClicked,
   onRandomSampleSizeChanged,
-  onSelectRandomSampleSizeButtonClicked
+  onSelectRandomSampleSizeButtonClicked,
+  onLLMSettingsChanged
 }: {
   selectedAnnotationType: string,
   selectedPrompt: number | null,
@@ -36,6 +41,7 @@ export default function ProjectRunCreator({
   selectedSessions: number[],
   randomSampleSize: number,
   sessionsCount: number,
+  llmSettings?: LLMSettings,
   isRunButtonDisabled: boolean,
   onSelectedAnnotationTypeChanged: (selectedAnnotationType: string) => void,
   onSelectedPromptChanged: (selectedPrompt: number) => void,
@@ -45,6 +51,7 @@ export default function ProjectRunCreator({
   onStartRunButtonClicked: () => void,
   onRandomSampleSizeChanged: (randomSampleSize: number) => void
   onSelectRandomSampleSizeButtonClicked: () => void
+  onLLMSettingsChanged: (settings: LLMSettings) => void
 }) {
 
   return (
@@ -78,9 +85,15 @@ export default function ProjectRunCreator({
           </div>
         </div>
         <div className="grid gap-3">
-          <div className="flex">
-            <Badge className="h-5 w-5 rounded-full mr-2" >3</Badge>
-            <Label>Select a model</Label>
+          <div className="flex items-center justify-between">
+            <div className="flex">
+              <Badge className="h-5 w-5 rounded-full mr-2" >3</Badge>
+              <Label>Select a model</Label>
+            </div>
+            <LLMSettingsComponent
+              settings={llmSettings}
+              onSettingsChanged={onLLMSettingsChanged}
+            />
           </div>
           <div>
             <ModelSelectorContainer
