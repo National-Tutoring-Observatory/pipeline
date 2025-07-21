@@ -1,7 +1,9 @@
-import './providers/openAI.js'
-import './providers/aiGateway.js'
+import './providers/openAI.ts'
+import './providers/aiGateway.ts'
 import getLLM from './helpers/getLLM';
 import each from 'lodash/each.js';
+import type { LLMSettings } from './llm.types';
+import { DEFAULT_LLM_SETTINGS } from './llm.types';
 
 const DEFAULTS = { quality: 'medium', model: 'GEMINI', stream: false, format: 'json', retries: 3 };
 
@@ -17,6 +19,15 @@ interface OrchestratorMessage {
 
 type Variables = Record<string, any>;
 
+interface LLMOptions {
+  quality?: string;
+  model?: string;
+  stream?: boolean;
+  format?: string;
+  retries?: number;
+  llmSettings?: LLMSettings;
+}
+
 class LLM {
   options: Record<string, any>;
   messages: Message[];
@@ -24,11 +35,13 @@ class LLM {
   methods: any;
   retries: number;
   llm: any;
+  llmSettings: LLMSettings;
 
-  constructor(options = {}) {
+  constructor(options: LLMOptions = {}) {
     this.options = { ...DEFAULTS, ...options };
     this.messages = [];
     this.orchestratorMessage;
+    this.llmSettings = options.llmSettings || DEFAULT_LLM_SETTINGS;
     const llm = getLLM(process.env.LLM_PROVIDER || '');
     this.retries = 0;
     if (llm && llm.methods) {
@@ -42,11 +55,15 @@ class LLM {
   createChat = async (): Promise<any> => {
     if (this.orchestratorMessage) {
 
-      const response = await this.methods.createChat(this);
+      const response = await this.methods.createChat({
+        ...this,
+        llmSettings: this.llmSettings
+      });
 
       const scoreResponse = await this.methods.createChat({
         llm: this.llm,
         options: { ...this.options, quality: 'high' },
+        llmSettings: this.llmSettings,
         messages: [this.orchestratorMessage, {
           "role": 'assistant',
           'content': `
@@ -74,7 +91,10 @@ class LLM {
       }
 
     } else {
-      return this.methods.createChat(this);
+      return this.methods.createChat({
+        ...this,
+        llmSettings: this.llmSettings
+      });
     }
 
   };
