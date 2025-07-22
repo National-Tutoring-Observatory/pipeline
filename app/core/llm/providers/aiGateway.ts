@@ -1,5 +1,7 @@
 import { OpenAI } from 'openai';
 import registerLLM from "../helpers/registerLLM";
+import type { LLMSettings } from "../llm.types";
+import { DEFAULT_LLM_SETTINGS } from "../llm.types";
 
 const AI_GATEWAY_PROVIDERS = {
   CHAT_GPT: {
@@ -24,7 +26,12 @@ registerLLM('AI_GATEWAY', {
     });
     return openai;
   },
-  createChat: async ({ llm, options, messages }: { llm: any; options: any; messages: Array<{ role: string; content: string }> }) => {
+  createChat: async ({ llm, options, messages, modelSettings = DEFAULT_LLM_SETTINGS }: { 
+    llm: any; 
+    options: any; 
+    messages: Array<{ role: string; content: string }>; 
+    modelSettings?: LLMSettings; 
+  }) => {
     const { quality, model } = options;
     // @ts-ignore
     let modelName = AI_GATEWAY_PROVIDERS[model][quality];
@@ -32,10 +39,19 @@ registerLLM('AI_GATEWAY', {
     const chatCompletion = await llm.chat.completions.create({
       model: modelName,
       messages: messages,
-      response_format: { type: "json_object" }
+      response_format: { type: modelSettings.responseFormat === 'json' ? "json_object" : "text" },
+      temperature: modelSettings.temperature,
+      max_tokens: modelSettings.maxTokens,
+      top_p: modelSettings.topP,
+      frequency_penalty: modelSettings.frequencyPenalty,
+      presence_penalty: modelSettings.presencePenalty,
+      stream: modelSettings.stream
     });
 
-    return JSON.parse(chatCompletion.choices[0].message.content);
-
+    if (modelSettings.responseFormat === 'json') {
+      return JSON.parse(chatCompletion.choices[0].message.content);
+    } else {
+      return chatCompletion.choices[0].message.content;
+    }
   }
 });

@@ -1,7 +1,10 @@
-import './providers/openAI.js'
-import './providers/aiGateway.js'
+import './providers/openAI'
+import './providers/aiGateway'
 import getLLM from './helpers/getLLM';
 import each from 'lodash/each.js';
+import type { LLMSettings, LLMOptions } from './llm.types';
+import { DEFAULT_LLM_SETTINGS } from './llm.types';
+
 
 const DEFAULTS = { quality: 'medium', model: 'GEMINI', stream: false, format: 'json', retries: 3 };
 
@@ -24,11 +27,13 @@ class LLM {
   methods: any;
   retries: number;
   llm: any;
+  modelSettings: LLMSettings;
 
-  constructor(options = {}) {
+  constructor(options: LLMOptions = {}) {
     this.options = { ...DEFAULTS, ...options };
     this.messages = [];
     this.orchestratorMessage;
+    this.modelSettings = options.modelSettings || DEFAULT_LLM_SETTINGS;
     const llm = getLLM(process.env.LLM_PROVIDER || '');
     this.retries = 0;
     if (llm && llm.methods) {
@@ -47,6 +52,7 @@ class LLM {
       const scoreResponse = await this.methods.createChat({
         llm: this.llm,
         options: { ...this.options, quality: 'high' },
+        modelSettings: this.modelSettings,
         messages: [this.orchestratorMessage, {
           "role": 'assistant',
           'content': `
@@ -74,7 +80,7 @@ class LLM {
       }
 
     } else {
-      return this.methods.createChat(this);
+     return this.methods.createChat(this);
     }
 
   };
