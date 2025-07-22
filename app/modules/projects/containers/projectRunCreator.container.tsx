@@ -44,7 +44,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
   const [selectedSessions, setSelectedSessions] = useState<number[]>(map(run.sessions, 'sessionId'));
   const [randomSampleSize, setRandomSampleSize] = useState(0);
   const [isRunButtonDisabled, setIsRunButtonDisabled] = useState(true);
-  const [llmSettings, setLlmSettings] = useState<LLMSettings>(() => 
+  const [modelSettings, setLlmSettings] = useState<LLMSettings>(() => 
     getLLMSettingsFromStorage(run.model || 'GEMINI')
   );
 
@@ -97,7 +97,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
       selectedPromptVersion,
       selectedModel,
       selectedSessions,
-      llmSettings
+      modelSettings
     })
   }
 
@@ -122,7 +122,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
       selectedSessions={selectedSessions}
       randomSampleSize={randomSampleSize}
       sessionsCount={sessionsFetcher?.data?.sessions?.count || 0}
-      llmSettings={llmSettings}
+      modelSettings={modelSettings}
       isRunButtonDisabled={isRunButtonDisabled}
       onSelectedAnnotationTypeChanged={onSelectedAnnotationTypeChanged}
       onSelectedPromptChanged={onSelectedPromptChanged}

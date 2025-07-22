@@ -8,27 +8,27 @@ registerLLM('OPEN_AI', {
     const openai = new OpenAI({ apiKey: process.env.OPEN_AI_KEY });
     return openai;
   },
-  createChat: async ({ llm, options, messages, llmSettings = DEFAULT_LLM_SETTINGS }: { 
+  createChat: async ({ llm, options, messages, modelSettings = DEFAULT_LLM_SETTINGS }: { 
     llm: any; 
     options: any; 
     messages: Array<{ role: string; content: string }>; 
-    llmSettings?: LLMSettings; 
+    modelSettings?: LLMSettings; 
   }) => {
     const { quality } = options;
 
     const chatCompletion = await llm.chat.completions.create({
       model: quality === 'medium' ? "gpt-3.5-turbo" : "gpt-4o",
       messages: messages,
-      response_format: { type: llmSettings.responseFormat === 'json' ? "json_object" : "text" },
-      temperature: llmSettings.temperature,
-      max_tokens: llmSettings.maxTokens,
-      top_p: llmSettings.topP,
-      frequency_penalty: llmSettings.frequencyPenalty,
-      presence_penalty: llmSettings.presencePenalty,
-      stream: llmSettings.stream
+      response_format: { type: modelSettings.responseFormat === 'json' ? "json_object" : "text" },
+      temperature: modelSettings.temperature,
+      max_tokens: modelSettings.maxTokens,
+      top_p: modelSettings.topP,
+      frequency_penalty: modelSettings.frequencyPenalty,
+      presence_penalty: modelSettings.presencePenalty,
+      stream: modelSettings.stream
     });
 
-    if (llmSettings.responseFormat === 'json') {
+    if (modelSettings.responseFormat === 'json') {
       return JSON.parse(chatCompletion.choices[0].message.content);
     } else {
       return chatCompletion.choices[0].message.content;

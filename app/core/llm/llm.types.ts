@@ -23,5 +23,5 @@ export interface LLMOptions {
   stream?: boolean;
   format?: string;
   retries?: number;
-  llmSettings?: LLMSettings;
+  modelSettings?: LLMSettings;
 };

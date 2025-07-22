@@ -8,7 +8,7 @@ export interface Run {
   prompt: number;
   promptVersion: number;
   model: string;
-  llmSettings?: LLMSettings;
+  modelSettings?: LLMSettings;
   sessions: { sessionId: number, status: string, name: string, fileType: string, startedAt: Date, finishedAt: Date }[]
   hasSetup: boolean;
   isRunning: boolean;
@@ -28,5 +28,5 @@ export interface CreateRun {
   selectedPromptVersion: number | null,
   selectedModel: string,
   selectedSessions: number[],
-  llmSettings?: LLMSettings
+  modelSettings?: LLMSettings
 }

@@ -72,7 +72,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
             outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
             prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
             model: run.data.model,
-            llmSettings: run.data.llmSettings
+            modelSettings: run.data.modelSettings
           }
         });
       } else {
@@ -82,7 +82,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
             outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
             prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
             model: run.data.model,
-            llmSettings: run.data.llmSettings
+            modelSettings: run.data.modelSettings
           }
         })
       }

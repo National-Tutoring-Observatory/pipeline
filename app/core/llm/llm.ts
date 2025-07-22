@@ -20,8 +20,6 @@ interface OrchestratorMessage {
 
 type Variables = Record<string, any>;
 
-
-
 class LLM {
   options: Record<string, any>;
   messages: Message[];
@@ -29,13 +27,13 @@ class LLM {
   methods: any;
   retries: number;
   llm: any;
-  llmSettings: LLMSettings;
+  modelSettings: LLMSettings;
 
   constructor(options: LLMOptions = {}) {
     this.options = { ...DEFAULTS, ...options };
     this.messages = [];
     this.orchestratorMessage;
-    this.llmSettings = options.llmSettings || DEFAULT_LLM_SETTINGS;
+    this.modelSettings = options.modelSettings || DEFAULT_LLM_SETTINGS;
     const llm = getLLM(process.env.LLM_PROVIDER || '');
     this.retries = 0;
     if (llm && llm.methods) {
@@ -49,15 +47,12 @@ class LLM {
   createChat = async (): Promise<any> => {
     if (this.orchestratorMessage) {
 
-      const response = await this.methods.createChat({
-        ...this,
-        llmSettings: this.llmSettings
-      });
+      const response = await this.methods.createChat(this);
 
       const scoreResponse = await this.methods.createChat({
         llm: this.llm,
         options: { ...this.options, quality: 'high' },
-        llmSettings: this.llmSettings,
+        modelSettings: this.modelSettings,
         messages: [this.orchestratorMessage, {
           "role": 'assistant',
           'content': `
@@ -85,10 +80,7 @@ class LLM {
       }
 
     } else {
-      return this.methods.createChat({
-        ...this,
-        llmSettings: this.llmSettings
-      });
+     return this.methods.createChat(this);
     }
 
   };

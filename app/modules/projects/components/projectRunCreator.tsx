@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ShuffleIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { PopoverClose } from "@radix-ui/react-popover";
-import LLMSettingsComponent from "~/modules/prompts/components/llmSettings";
+import LLMSettingsComponent from "~/modules/prompts/components/modelSettings";
 import type { LLMSettings } from "~/core/llm/llm.types";
 import { DEFAULT_LLM_SETTINGS } from "~/core/llm/llm.types";
 
@@ -22,7 +22,7 @@ export default function ProjectRunCreator({
   selectedSessions,
   randomSampleSize,
   sessionsCount,
-  llmSettings = DEFAULT_LLM_SETTINGS,
+  modelSettings = DEFAULT_LLM_SETTINGS,
   isRunButtonDisabled,
   onSelectedAnnotationTypeChanged,
   onSelectedPromptChanged,
@@ -41,7 +41,7 @@ export default function ProjectRunCreator({
   selectedSessions: number[],
   randomSampleSize: number,
   sessionsCount: number,
-  llmSettings?: LLMSettings,
+  modelSettings?: LLMSettings,
   isRunButtonDisabled: boolean,
   onSelectedAnnotationTypeChanged: (selectedAnnotationType: string) => void,
   onSelectedPromptChanged: (selectedPrompt: number) => void,
@@ -91,7 +91,7 @@ export default function ProjectRunCreator({
               <Label>Select a model</Label>
             </div>
             <LLMSettingsComponent
-              settings={llmSettings}
+              settings={modelSettings}
               onSettingsChanged={onLLMSettingsChanged}
             />
           </div>

@@ -43,7 +43,7 @@ export async function action({
     promptVersion,
     model,
     sessions,
-    llmSettings,
+    modelSettings,
     exportType
   } = payload;
 
@@ -76,7 +76,7 @@ export async function action({
           prompt,
           promptVersion,
           model,
-          llmSettings,
+          modelSettings,
           sessions: sessionsAsObjects
         }
       }) as Run;
@@ -125,7 +125,7 @@ export default function ProjectRunRoute() {
         promptVersion: Number(createRun.selectedPromptVersion),
         model: createRun.selectedModel,
         sessions: createRun.selectedSessions,
-        llmSettings: createRun.llmSettings
+        modelSettings: createRun.modelSettings
       }
     }), { method: 'POST', encType: 'application/json' });
   }
