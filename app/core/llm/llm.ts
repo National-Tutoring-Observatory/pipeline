@@ -2,8 +2,9 @@ import './providers/openAI'
 import './providers/aiGateway'
 import getLLM from './helpers/getLLM';
 import each from 'lodash/each.js';
-import type { LLMSettings } from './llm.types';
+import type { LLMSettings, LLMOptions } from './llm.types';
 import { DEFAULT_LLM_SETTINGS } from './llm.types';
+
 
 const DEFAULTS = { quality: 'medium', model: 'GEMINI', stream: false, format: 'json', retries: 3 };
 
@@ -19,14 +20,7 @@ interface OrchestratorMessage {
 
 type Variables = Record<string, any>;
 
-interface LLMOptions {
-  quality?: string;
-  model?: string;
-  stream?: boolean;
-  format?: string;
-  retries?: number;
-  llmSettings?: LLMSettings;
-}
+
 
 class LLM {
   options: Record<string, any>;

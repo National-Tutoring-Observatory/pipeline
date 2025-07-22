@@ -16,4 +16,12 @@ export const DEFAULT_LLM_SETTINGS: LLMSettings = {
   presencePenalty: 0,
   responseFormat: 'json',
   stream: false
+}
+export interface LLMOptions {
+  quality?: string;
+  model?: string;
+  stream?: boolean;
+  format?: string;
+  retries?: number;
+  llmSettings?: LLMSettings;
 };
