@@ -16,16 +16,14 @@ registerLLM('OPEN_AI', {
   }) => {
     const { quality } = options;
 
-    const chatCompletion = await llm.chat.completions.create({
+   const chatCompletion = await llm.chat.completions.create({
       model: quality === 'medium' ? "gpt-3.5-turbo" : "gpt-4o",
       messages: messages,
-      response_format: { type: modelSettings.responseFormat === 'json' ? "json_object" : "text" },
+      response_format: { type: "json_object" },
       temperature: modelSettings.temperature,
-      max_tokens: modelSettings.maxTokens,
       top_p: modelSettings.topP,
       frequency_penalty: modelSettings.frequencyPenalty,
       presence_penalty: modelSettings.presencePenalty,
-      stream: modelSettings.stream
     });
 
     if (modelSettings.responseFormat === 'json') {
