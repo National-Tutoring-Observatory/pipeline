@@ -1,5 +1,5 @@
-import './providers/openAI.ts'
-import './providers/aiGateway.ts'
+import './providers/openAI'
+import './providers/aiGateway'
 import getLLM from './helpers/getLLM';
 import each from 'lodash/each.js';
 import type { LLMSettings } from './llm.types';
