@@ -22,7 +22,7 @@ export default async function uploadFiles({ files, entityId }: { files: any, ent
         }
       }) as { data: any };
 
-      await uploadFile({ file, outputDirectory: `./storage/${entityId}/files/${document.data._id}` }).then(async () => {
+      await uploadFile({ file, uploadDirectory: `./storage/${entityId}/files/${document.data._id}` }).then(async () => {
         await updateDocument({
           collection: 'files',
           match: {
