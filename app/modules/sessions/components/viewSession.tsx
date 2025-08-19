@@ -3,6 +3,7 @@ import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHead
 import map from 'lodash/map';
 import SessionViewerUtterance from "./sessionViewerUtterance";
 import type { Session, Utterance } from "../sessions.types";
+import { LoaderPinwheel } from "lucide-react";
 
 export default function ViewSession({ session, transcript }: { session: Session, transcript: any }) {
   return (
@@ -12,6 +13,11 @@ export default function ViewSession({ session, transcript }: { session: Session,
         <DialogDescription></DialogDescription>
       </DialogHeader>
       <div>
+        {(!transcript) && (
+          <div className="flex justify-center">
+            <LoaderPinwheel className="animate-spin" />
+          </div>
+        )}
         <div className="flex flex-col p-4 h-full overflow-y-scroll scroll-smooth max-h-[calc(100vh-200px)]">
           {map(transcript, (utterance: Utterance) => {
             return (
