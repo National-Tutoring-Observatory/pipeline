@@ -6,7 +6,7 @@ import fs from 'fs';
 
 export default async function convertFileToFiles({ file, entityId, }: { file: File, entityId: string }): Promise<File[]> {
   const splitFiles = [];
-  const uploadDirectory = `./storage/${entityId}/tmp`;
+  const uploadDirectory = `storage/${entityId}/tmp`;
 
   await uploadFile({ file, uploadDirectory });
 
@@ -16,7 +16,7 @@ export default async function convertFileToFiles({ file, entityId, }: { file: Fi
     body: {
       contentType: 'JSONL',
       inputFile: path.join(uploadDirectory, fileName),
-      outputFolder: `./storage/${entityId}/tmp`,
+      outputFolder: `storage/${entityId}/tmp`,
       outputFileKey: 'id',
       sessionLimit: 1,
       sessionSkip: 0

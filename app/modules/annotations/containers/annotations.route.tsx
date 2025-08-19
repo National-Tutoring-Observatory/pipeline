@@ -16,7 +16,7 @@ export async function action({
 
   const session = await getDocument({ collection: 'sessions', match: { _id: Number(params.sessionId) } }) as { data: Session };
 
-  const sessionFile = await fse.readJSON(`./storage/${run.data.project}/runs/${params.runId}/${params.sessionId}/${session.data.name}`);
+  const sessionFile = await fse.readJSON(`storage/${run.data.project}/runs/${params.runId}/${params.sessionId}/${session.data.name}`);
 
   if (run.data.annotationType === 'PER_UTTERANCE') {
     const currentUtterance = find(sessionFile.transcript, { _id: params.annotationId });
@@ -34,6 +34,6 @@ export async function action({
     }
   }
 
-  await fse.outputJSON(`./storage/${run.data.project}/runs/${params.runId}/${params.sessionId}/${session.data.name}`, sessionFile);
+  await fse.outputJSON(`storage/${run.data.project}/runs/${params.runId}/${params.sessionId}/${session.data.name}`, sessionFile);
 
 }

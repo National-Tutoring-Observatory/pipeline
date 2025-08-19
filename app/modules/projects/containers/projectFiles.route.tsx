@@ -9,7 +9,7 @@ type Files = {
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const files = await getDocuments({ collection: 'files', match: { project: parseInt(params.id) }, }) as Files;
+  const files = await getDocuments({ collection: 'files', match: { project: parseInt(params.id) }, sort: {} }) as Files;
   return { files };
 }
 

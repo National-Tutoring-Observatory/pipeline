@@ -1,5 +1,6 @@
 export interface StorageAdapter {
   name: string;
-  upload: (params: { file: File, uploadPath: string, uploadDirectory: string }) => Promise<unknown>;
+  download: (params: { downloadPath: string }) => Promise<unknown>;
+  upload: (params: { file: any, uploadPath: string }) => Promise<unknown>;
   remove: () => void;
 }

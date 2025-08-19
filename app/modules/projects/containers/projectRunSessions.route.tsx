@@ -18,7 +18,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       return session;
     }
   }) as { name: string };
-  const sessionFile = await fse.readJSON(`./storage/${params.projectId}/runs/${params.runId}/${params.sessionId}/${session?.name}`);
+  const sessionFile = await fse.readJSON(`storage/${params.projectId}/runs/${params.runId}/${params.sessionId}/${session?.name}`);
   return { project, run, session, sessionFile };
 }
 
