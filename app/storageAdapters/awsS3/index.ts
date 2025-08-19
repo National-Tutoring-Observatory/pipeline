@@ -1,7 +1,7 @@
 import registerStorage from "~/core/storage/helpers/registerStorage";
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import getFileInfo from "~/core/storage/helpers/getFileInfo";
 import fse from "fs-extra";
 import path from "path";
 import { Readable } from "stream";
@@ -92,9 +92,29 @@ registerStorage({
 
   },
   remove: () => { console.log('removing'); },
-  request: (url, options) => {
-    return new Promise<void>((resolve) => {
-      resolve();
+  request: async (url, options) => {
+
+    const { AWS_REGION, AWS_KEY, AWS_SECRET, AWS_BUCKET } = process.env;
+    if (!AWS_REGION || !AWS_KEY || !AWS_SECRET || !AWS_BUCKET) {
+      throw new Error("Missing AWS configuration: AWS_REGION, AWS_KEY, or AWS_SECRET");
+    }
+    const s3Client = new S3Client({
+      region: AWS_REGION,
+      credentials: {
+        accessKeyId: AWS_KEY,
+        secretAccessKey: AWS_SECRET
+      }
     });
+
+    const params = {
+      Bucket: AWS_BUCKET,
+      Key: url
+    };
+
+    const command = new GetObjectCommand(params);
+    const requestUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    return requestUrl;
+
+
   }
 })

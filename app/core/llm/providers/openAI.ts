@@ -6,7 +6,7 @@ registerLLM('OPEN_AI', {
     const openai = new OpenAI({ apiKey: process.env.OPEN_AI_KEY });
     return openai;
   },
-  createChat: async ({ llm, options, messages }) => {
+  createChat: async ({ llm, options, messages }: { llm: any; options: any; messages: Array<{ role: string; content: string }> }) => {
     const { quality } = options;
 
     const chatCompletion = await llm.chat.completions.create({
