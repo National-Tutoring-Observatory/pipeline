@@ -13,8 +13,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const exportType = searchParams.get("exportType");
 
-  console.log(exportType);
-
   const run = await getDocument({
     collection: 'runs',
     match: { _id: Number(params.runId), project: Number(params.projectId) }
@@ -24,7 +22,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     zlib: { level: 9 }
   });
 
-  const outputDirectory = `./storage/${run.data.project}/runs/${run.data._id}/exports`;
+  const outputDirectory = `storage/${run.data.project}/runs/${run.data._id}/exports`;
 
   let filesToArchive = [];
 

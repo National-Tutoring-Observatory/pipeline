@@ -1,19 +1,26 @@
 import registerStorage from "~/core/storage/helpers/registerStorage";
 import fse from 'fs-extra';
+import path from 'path';
+import getFileInfo from "~/core/storage/helpers/getFileInfo";
 
 registerStorage({
   name: 'LOCAL',
-  upload: async ({ file, uploadPath, uploadDirectory }: { file: File, uploadPath: string, uploadDirectory: string }): Promise<void> => {
-    await fse.ensureDir(uploadDirectory);
+  download: async ({ downloadPath }) => {
+    try {
+      await fse.exists(downloadPath);
+      await fse.copy(downloadPath, path.join('tmp', downloadPath));
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  upload: async ({ file, uploadPath }: { file: any, uploadPath: string }): Promise<void> => {
+    try {
+      const { buffer } = file;
+      await fse.outputFile(uploadPath, buffer);
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-
-    return new Promise<void>((resolve) => {
-      setTimeout(async () => {
-        await fse.writeFile(uploadPath, buffer);
-        resolve();
-      }, 300);
-    })
+    } catch (error) {
+      console.log(error);
+    }
   },
   remove: () => { console.log('removing'); },
 })

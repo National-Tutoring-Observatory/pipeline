@@ -13,9 +13,9 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
 
   if (run.data.isRunning) { return {} }
 
-  const inputDirectory = `./storage/${run.data.project}/preAnalysis`;
+  const inputDirectory = `storage/${run.data.project}/preAnalysis`;
 
-  const outputDirectory = `./storage/${run.data.project}/runs/${run.data._id}`;
+  const outputDirectory = `storage/${run.data.project}/runs/${run.data._id}`;
 
   await updateDocument({
     collection: 'runs',

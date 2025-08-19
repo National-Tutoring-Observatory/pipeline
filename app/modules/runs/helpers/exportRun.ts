@@ -9,9 +9,9 @@ export default async function exportRun({ runId, exportType }: { runId: number, 
 
   const run = await getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
 
-  const inputDirectory = `./storage/${run.data.project}/runs/${run.data._id}`;
+  const inputDirectory = `storage/${run.data.project}/runs/${run.data._id}`;
 
-  const outputDirectory = `./storage/${run.data.project}/runs/${run.data._id}/exports`;
+  const outputDirectory = `storage/${run.data.project}/runs/${run.data._id}/exports`;
 
   await updateDocument({
     collection: 'runs',

@@ -21,9 +21,9 @@ export default async function exportCollection({ collectionId, exportType }: { c
     }, sort: {}
   }) as { data: Run[] };
 
-  const inputDirectory = `./storage/${collection.data.project}/runs`;
+  const inputDirectory = `storage/${collection.data.project}/runs`;
 
-  const outputDirectory = `./storage/${collection.data.project}/collections/${collection.data._id}/exports`;
+  const outputDirectory = `storage/${collection.data.project}/collections/${collection.data._id}/exports`;
 
   await updateDocument({
     collection: 'collections',

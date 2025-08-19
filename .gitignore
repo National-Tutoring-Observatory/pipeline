@@ -9,3 +9,6 @@
 
 # Adapters
 /app/core/storage/storage.ts
+
+# tmp
+/tmp

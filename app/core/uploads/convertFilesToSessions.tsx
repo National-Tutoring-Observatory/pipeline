@@ -12,9 +12,9 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
 
   const projectFiles = await getDocuments({ collection: 'files', match: { project: parseInt(entityId) }, sort: {} }) as { data: Array<File> };
 
-  const inputDirectory = `./storage/${entityId}/files`;
+  const inputDirectory = `storage/${entityId}/files`;
 
-  const outputDirectory = `./storage/${entityId}/preAnalysis`;
+  const outputDirectory = `storage/${entityId}/preAnalysis`;
 
   for (const projectFile of projectFiles.data) {
     await createDocument({

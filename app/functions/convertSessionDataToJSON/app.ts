@@ -1,4 +1,3 @@
-import fs from 'fs';
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
 import fse from 'fs-extra';
@@ -7,6 +6,8 @@ import schema from "./schema.json";
 import orchestratorPrompt from './orchestrator.prompt.json';
 import systemPrompt from './system.prompt.json';
 import userPrompt from './user.prompt.json';
+import getStorage from '~/core/storage/helpers/getStorage';
+import path from 'path';
 
 interface RequestBody {
   inputFile: string;
@@ -26,12 +27,17 @@ export const handler = async (event: LambdaEvent) => {
   const { body } = event;
   const { inputFile, outputFolder } = body;
 
-  if (!await fs.existsSync(inputFile)) throw { message: 'This input file does not exist' };
+  const storage = getStorage();
 
-  const data = await fse.readFile(inputFile, { encoding: 'utf8' });
+  if (!storage) {
+    throw new Error('Storage is undefined. Failed to initialize storage.');
+  }
 
-  const inputFileSplit = inputFile.split('/');
-  const outputFileName = inputFileSplit[inputFileSplit.length - 1].replace('.json', '').replace('.vtt', '');
+  await storage.download({ downloadPath: inputFile });
+
+  const data = await fse.readFile(path.join('tmp', inputFile));
+
+  const outputFileName = path.basename(inputFile).replace('.json', '').replace('.vtt', '');
 
   const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI' })
 
@@ -43,6 +49,10 @@ export const handler = async (event: LambdaEvent) => {
 
   const response = await llm.createChat();
 
-  await fse.outputJSON(`${outputFolder}/${outputFileName}.json`, response);
+  await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, response);
+
+  const buffer = await fse.readFile(`tmp/${outputFolder}/${outputFileName}.json`);
+
+  await storage.upload({ file: { buffer, size: buffer.length, type: 'application/json' }, uploadPath: `${outputFolder}/${outputFileName}.json` });
 
 };
