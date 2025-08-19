@@ -10,7 +10,12 @@ export default function ViewSessionContainer({ session }: { session: Session }) 
   useEffect(() => {
     const fetchSession = async () => {
 
-      const response = await fetch(`/storage/${session.project}/preAnalysis/${session._id}/${session.name}`);
+      const response = await fetch("/api/storage", {
+        method: "POST",
+        body: JSON.stringify({ intent: "REQUEST_STORAGE", payload: { url: `storage/${session.project}/preAnalysis/${session._id}/${session.name}` } }),
+        // …
+      });
+
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -18,7 +23,15 @@ export default function ViewSessionContainer({ session }: { session: Session }) 
 
       const jsonData = await response.json();
 
-      setTranscript(jsonData.transcript);
+      const sessionRequest = await fetch(jsonData.requestUrl);
+
+      if (!sessionRequest.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const sessionData = await sessionRequest.json();
+
+      setTranscript(sessionData.transcript);
 
     }
     fetchSession();
