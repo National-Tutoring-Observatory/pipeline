@@ -1,7 +1,6 @@
 import registerStorage from "~/core/storage/helpers/registerStorage";
 import fse from 'fs-extra';
 import path from 'path';
-import getFileInfo from "~/core/storage/helpers/getFileInfo";
 
 registerStorage({
   name: 'LOCAL',
@@ -23,4 +22,9 @@ registerStorage({
     }
   },
   remove: () => { console.log('removing'); },
+  request: (url, options) => {
+    return new Promise((resolve) => {
+      resolve(url);
+    });
+  }
 })

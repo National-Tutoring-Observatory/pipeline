@@ -38,5 +38,6 @@ export default [
   route("api/sessionsList", "modules/sessions/containers/sessionsList.route.tsx"),
   route("api/runsList", "modules/runs/containers/runsList.route.tsx"),
   route("api/downloads/:projectId/:runId", "modules/runs/containers/downloadRun.route.tsx"),
-  route("api/annotations/:runId/:sessionId/:annotationId", "modules/annotations/containers/annotations.route.tsx")
+  route("api/annotations/:runId/:sessionId/:annotationId", "modules/annotations/containers/annotations.route.tsx"),
+  route("api/storage", "core/storage/containers/storage.route.tsx")
 ] satisfies RouteConfig;

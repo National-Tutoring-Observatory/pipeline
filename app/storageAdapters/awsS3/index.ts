@@ -92,4 +92,9 @@ registerStorage({
 
   },
   remove: () => { console.log('removing'); },
+  request: (url, options) => {
+    return new Promise<void>((resolve) => {
+      resolve();
+    });
+  }
 })
