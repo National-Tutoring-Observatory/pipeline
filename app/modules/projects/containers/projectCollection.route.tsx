@@ -141,8 +141,6 @@ export default function ProjectCollectionRoute() {
     }])
   }, []);
 
-  console.log(runs.data);
-
   return (
     <ProjectCollection
       collection={collection.data}

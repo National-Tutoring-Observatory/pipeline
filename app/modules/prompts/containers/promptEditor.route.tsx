@@ -33,7 +33,6 @@ export async function action({
       }) as { data: PromptVersion }
       return {};
     case 'MAKE_PROMPT_VERSION_PRODUCTION':
-      console.log(params);
       await updateDocument({
         collection: 'prompts',
         match: { _id: Number(params.id) },
