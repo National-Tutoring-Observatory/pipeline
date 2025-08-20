@@ -10,6 +10,7 @@ export default function SessionViewerContainer({ run, session, sessionFile }: { 
 
   const { hash } = useLocation();
   const [selectedUtteranceId, setSelectedUtteranceId] = useState<string | null>(null);
+  const [isVoting, setIsVoting] = useState(false);
   const navigate = useNavigate();
 
   const fetcher = useFetcher();
@@ -79,6 +80,14 @@ export default function SessionViewerContainer({ run, session, sessionFile }: { 
     }
   }, []);
 
+  useEffect(() => {
+    if (fetcher.state === 'submitting') {
+      setIsVoting(true);
+    } else if (fetcher.state === 'idle') {
+      setIsVoting(false);
+    }
+  }, [fetcher]);
+
   let selectedUtteranceAnnotations = [];
 
   if (selectedUtteranceId) {
@@ -88,12 +97,15 @@ export default function SessionViewerContainer({ run, session, sessionFile }: { 
     }
   }
 
+  console.log(fetcher);
+
   return (
     <SessionViewer
       session={session}
       sessionFile={sessionFile}
       selectedUtteranceId={selectedUtteranceId}
       selectedUtteranceAnnotations={selectedUtteranceAnnotations}
+      isVoting={isVoting}
       onUtteranceClicked={onUtteranceClicked}
       onPreviousUtteranceClicked={onPreviousUtteranceClicked}
       onNextUtteranceClicked={onNextUtteranceClicked}
