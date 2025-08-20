@@ -11,6 +11,7 @@ export default function SessionViewer({
   sessionFile,
   selectedUtteranceId,
   selectedUtteranceAnnotations,
+  isVoting,
   onUtteranceClicked,
   onPreviousUtteranceClicked,
   onNextUtteranceClicked,
@@ -21,6 +22,7 @@ export default function SessionViewer({
   sessionFile: SessionFile,
   selectedUtteranceAnnotations: Annotation[],
   selectedUtteranceId: string | null,
+  isVoting: boolean,
   onUtteranceClicked: (utteranceId: string) => void;
   onPreviousUtteranceClicked: () => void;
   onNextUtteranceClicked: () => void;
@@ -54,6 +56,7 @@ export default function SessionViewer({
                 <SessionViewerAnnotation
                   key={annotation._id}
                   annotation={annotation}
+                  isVoting={isVoting}
                   onDownVoteClicked={() => onDownVoteClicked(annotation._id)}
                   onUpVoteClicked={() => onUpVoteClicked(annotation._id)}
                 />
@@ -81,6 +84,7 @@ export default function SessionViewer({
                 <SessionViewerAnnotation
                   key={annotation._id}
                   annotation={annotation}
+                  isVoting={isVoting}
                   onDownVoteClicked={() => onDownVoteClicked(annotation._id)}
                   onUpVoteClicked={() => onUpVoteClicked(annotation._id)}
                 />

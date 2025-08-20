@@ -7,10 +7,12 @@ import has from 'lodash/has';
 
 export default function SessionViewerAnnotation({
   annotation,
+  isVoting,
   onDownVoteClicked,
   onUpVoteClicked
 }: {
   annotation: Annotation & any,
+  isVoting: boolean,
   onDownVoteClicked: () => void,
   onUpVoteClicked: () => void
 }) {
@@ -63,10 +65,10 @@ export default function SessionViewerAnnotation({
           </Badge>
         </div>
         <div className="flex items-center gap-x-4">
-          <Button variant="outline" size="icon" onClick={onDownVoteClicked} className={clsx({ 'border-purple-700': annotation.markedAs === 'DOWN_VOTED' })}>
+          <Button variant="outline" size="icon" disabled={isVoting} onClick={onDownVoteClicked} className={clsx({ 'border-purple-700': annotation.markedAs === 'DOWN_VOTED' })}>
             <ThumbsDown size={10} className={clsx({ 'stroke-purple-700': annotation.markedAs === 'DOWN_VOTED' })} />
           </Button>
-          <Button variant="outline" size="icon" onClick={onUpVoteClicked} className={clsx({ 'border-purple-700': annotation.markedAs === 'UP_VOTED' })}>
+          <Button variant="outline" size="icon" disabled={isVoting} onClick={onUpVoteClicked} className={clsx({ 'border-purple-700': annotation.markedAs === 'UP_VOTED' })}>
             <ThumbsUp size={10} className={clsx({ 'stroke-purple-700': annotation.markedAs === 'UP_VOTED' })} />
           </Button>
         </div>
