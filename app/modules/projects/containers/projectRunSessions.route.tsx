@@ -9,6 +9,8 @@ import fse from 'fs-extra';
 import { useLoaderData } from "react-router";
 import { useEffect } from "react";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
+import getStorage from "~/core/storage/helpers/getStorage";
+import path from "path";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.projectId), }, }) as Project;
@@ -18,7 +20,18 @@ export async function loader({ params }: Route.LoaderArgs) {
       return session;
     }
   }) as { name: string };
-  const sessionFile = await fse.readJSON(`storage/${params.projectId}/runs/${params.runId}/${params.sessionId}/${session?.name}`);
+
+  const sessionPath = `storage/${params.projectId}/runs/${params.runId}/${params.sessionId}/${session?.name}`;
+
+  const storage = getStorage();
+
+  if (!storage) {
+    throw new Error('Storage is undefined. Failed to initialize storage.');
+  }
+
+  await storage.download({ downloadPath: sessionPath });
+
+  const sessionFile = await fse.readJSON(path.join('tmp', sessionPath));
   return { project, run, session, sessionFile };
 }
 
