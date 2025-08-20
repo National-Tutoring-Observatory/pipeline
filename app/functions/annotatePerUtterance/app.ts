@@ -4,22 +4,29 @@ dotenv.config({ path: '.env' });
 import fse from 'fs-extra';
 import find from 'lodash/find.js';
 import systemPrompt from "./system.prompt.json";
-import prompts from "./prompts.json";
 import LLM from '~/core/llm/llm';
+import getStorage from '~/core/storage/helpers/getStorage';
+import path from 'path';
 
 export const handler = async (event: { body: any }) => {
 
   const { body } = event;
   const { inputFile, outputFolder, prompt, model } = body;
 
-  if (!await fs.existsSync(inputFile)) throw { message: 'This input file does not exist' };
+  const storage = getStorage();
 
-  const data = await fse.readFile(inputFile, { encoding: 'utf8' });
+  if (!storage) {
+    throw new Error('Storage is undefined. Failed to initialize storage.');
+  }
+
+  await storage.download({ downloadPath: inputFile });
+
+  const data = await fse.readFile(path.join('tmp', inputFile));
 
   const inputFileSplit = inputFile.split('/');
   const outputFileName = inputFileSplit[inputFileSplit.length - 1].replace('.json', '');
 
-  const originalJSON = JSON.parse(data);
+  const originalJSON = JSON.parse(data.toString());
 
   const llm = new LLM({ quality: 'high', model });
 
@@ -40,6 +47,10 @@ export const handler = async (event: { body: any }) => {
     currentUtterance.annotations = [...currentUtterance.annotations, annotation];
   }
 
-  await fse.outputJSON(`${outputFolder}/${outputFileName}.json`, originalJSON);
+  await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, originalJSON);
+
+  const buffer = await fse.readFile(`tmp/${outputFolder}/${outputFileName}.json`);
+
+  await storage.upload({ file: { buffer, size: buffer.length, type: 'application/json' }, uploadPath: `${outputFolder}/${outputFileName}.json` });
 
 };
