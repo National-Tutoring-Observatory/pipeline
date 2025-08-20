@@ -1,4 +1,3 @@
-console.log('loaded on the server')
 import fs from 'fs';
 import fse from 'fs-extra';
 import path from 'path';

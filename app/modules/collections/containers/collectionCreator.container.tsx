@@ -38,7 +38,6 @@ export default function CollectionCreatorContainer({
   }
 
   const onSetupCollectionButtonClicked = () => {
-    console.log("setup")
     onSetupCollection({ selectedSessions: selectedBaseRunSessions, selectedRuns: selectedRuns })
   }
 
