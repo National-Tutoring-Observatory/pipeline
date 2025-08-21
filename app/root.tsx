@@ -41,13 +41,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <SidebarProvider defaultOpen={false}>
+        <SidebarProvider defaultOpen={true}>
           <AppSidebar />
           <SidebarInset>
             <main>
-              <div className="p-2 flex items-center">
-                <SidebarTrigger />
-                <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
+              <div className="p-2 px-6 flex items-center">
                 <BreadcrumbsContainer />
               </div>
               {children}
