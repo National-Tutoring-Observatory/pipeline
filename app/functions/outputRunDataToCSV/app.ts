@@ -6,6 +6,7 @@ import map from 'lodash/map.js';
 import each from 'lodash/each.js';
 import pick from 'lodash/pick.js';
 import type { Run } from '~/modules/runs/runs.types';
+import getStorage from '~/core/storage/helpers/getStorage';
 
 export const handler = async (event: { body: { run: Run, inputFolder: string, outputFolder: string } }) => {
   try {
@@ -16,8 +17,6 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
     const sessionsOutputFile = `${outputFolder}/${run.project}-${run._id}-sessions.csv`;
     const metaOutputFile = `${outputFolder}/${run.project}-${run._id}-meta.csv`;
 
-    await fse.ensureDir(`${outputFolder}`);
-
     let utteranceKeys = ['_id', 'sessionId', 'role', 'start_time', 'end_time', 'content'];
     let utteranceAnnotationKeysAsObject: { [key: string]: boolean } = {};
     let sessionAnnotationKeysAsObject: { [key: string]: boolean } = {};
@@ -25,9 +24,20 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
     let sessionsArray = [];
     let metaArray = [];
 
+    const storage = getStorage();
+
+    if (!storage) {
+      throw new Error('Storage is undefined. Failed to initialize storage.');
+    }
+
+
     for (const session of run.sessions) {
 
-      const json = await fse.readJSON(`${inputFolder}/${session.sessionId}/${session.name}`);
+      const sessionPath = `${inputFolder}/${session.sessionId}/${session.name}`;
+
+      await storage.download({ downloadPath: sessionPath });
+
+      const json = await fse.readJSON(path.join('tmp', sessionPath));
 
       const transcript = map(json.transcript, (utterance) => {
         utterance.sessionId = session.sessionId;
@@ -77,7 +87,12 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
         emptyFieldValue: ''
       });
 
-      await fse.outputFile(utterancesOutputFile, utterancesCsv);
+      await fse.outputFile(`tmp/${utterancesOutputFile}`, utterancesCsv);
+
+      const sessionsBuffer = await fse.readFile(`tmp/${utterancesOutputFile}`);
+
+      await storage.upload({ file: { buffer: sessionsBuffer, size: sessionsBuffer.length, type: 'application/json' }, uploadPath: utterancesOutputFile });
+
     }
 
     // OUTPUT SESSIONS
@@ -86,7 +101,12 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
         keys: Object.keys(sessionAnnotationKeysAsObject),
         emptyFieldValue: ''
       });
-      await fse.outputFile(sessionsOutputFile, sessionsCsv);
+
+      await fse.outputFile(`tmp/${sessionsOutputFile}`, sessionsCsv);
+
+      const sessionsBuffer = await fse.readFile(`tmp/${sessionsOutputFile}`);
+
+      await storage.upload({ file: { buffer: sessionsBuffer, size: sessionsBuffer.length, type: 'application/json' }, uploadPath: sessionsOutputFile });
     }
 
     // OUTPUT META
@@ -104,7 +124,11 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
       emptyFieldValue: ''
     });
 
-    await fse.outputFile(metaOutputFile, metaCsv);
+    await fse.outputFile(`tmp/${metaOutputFile}`, metaCsv);
+
+    const sessionsBuffer = await fse.readFile(`tmp/${metaOutputFile}`);
+
+    await storage.upload({ file: { buffer: sessionsBuffer, size: sessionsBuffer.length, type: 'application/json' }, uploadPath: metaOutputFile });
 
     return {
       statusCode: 200,
