@@ -4,6 +4,7 @@ import archiver from "archiver";
 import type { Route } from "./+types/downloadRun.route";
 import { PassThrough, Readable } from "node:stream";
 import fs from 'node:fs';
+import getStorage from "~/core/storage/helpers/getStorage";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
 
@@ -59,19 +60,41 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   archive.pipe(passthroughStream);
 
+  archive.on('error', (err) => {
+    console.error('Archiver encountered an error:', err);
+  });
+
+  const storage = getStorage();
+
+  if (!storage) {
+    throw new Error('Storage is undefined. Failed to initialize storage.');
+  }
+
   for (const file of filesToArchive) {
     try {
-      const fileStream = fs.createReadStream(file.path);
-      archive.append(fileStream, { name: file.name });
+      const requestUrl = await storage.request(file.path, {});
+      const response = await fetch(requestUrl as string);
+
+      // Check if the request was successful.
+      if (!response.ok) {
+        throw new Error(`Fetch Error: ${response.status} ${response.statusText}`);
+      }
+
+      if (response.body) {
+        // @ts-ignore
+        const stream = Readable.fromWeb(response.body);
+        archive.append(stream, { name: file.name });
+      } else {
+        throw new Error(`Response body is null for file ${file.name}`);
+      }
+      // const fileStream = fs.createReadStream(file.path);
+      // archive.append(fileStream, { name: file.name });
     } catch (error) {
       console.error(`Error adding file ${file.name} to archive:`, error);
     }
   }
-  archive.finalize();
 
-  archive.on('error', (err) => {
-    console.error('Archiver encountered an error:', err);
-  });
+  archive.finalize();
 
   const webStream = Readable.toWeb(passthroughStream);
 

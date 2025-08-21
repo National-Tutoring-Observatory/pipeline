@@ -97,8 +97,6 @@ export default function SessionViewerContainer({ run, session, sessionFile }: { 
     }
   }
 
-  console.log(fetcher);
-
   return (
     <SessionViewer
       session={session}

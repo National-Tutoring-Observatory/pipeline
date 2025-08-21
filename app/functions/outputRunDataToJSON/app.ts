@@ -1,11 +1,9 @@
-import fs from 'fs';
 import fse from 'fs-extra';
 import path from 'path';
-import { json2csv } from 'json-2-csv';
 import map from 'lodash/map.js';
-import each from 'lodash/each.js';
 import pick from 'lodash/pick.js';
 import type { Run } from '~/modules/runs/runs.types';
+import getStorage from '~/core/storage/helpers/getStorage';
 
 export const handler = async (event: { body: { run: Run, inputFolder: string, outputFolder: string } }) => {
   try {
@@ -15,14 +13,22 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
     const sessionsOutputFile = `${outputFolder}/${run.project}-${run._id}-sessions.jsonl`;
     const metaOutputFile = `${outputFolder}/${run.project}-${run._id}-meta.jsonl`;
 
-    await fse.ensureDir(`${outputFolder}`);
-
     let sessionsArray = [];
     let metaArray = [];
 
+    const storage = getStorage();
+
+    if (!storage) {
+      throw new Error('Storage is undefined. Failed to initialize storage.');
+    }
+
     for (const session of run.sessions) {
 
-      const json = await fse.readJSON(`${inputFolder}/${session.sessionId}/${session.name}`);
+      const sessionPath = `${inputFolder}/${session.sessionId}/${session.name}`;
+
+      await storage.download({ downloadPath: sessionPath });
+
+      const json = await fse.readJSON(path.join('tmp', sessionPath));
 
       sessionsArray.push(json);
 
@@ -32,7 +38,11 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
       return JSON.stringify(session)
     }).join('\n');
 
-    await fse.outputFile(sessionsOutputFile, sessionsAsJSONL);
+    await fse.outputJSON(`tmp/${sessionsOutputFile}`, sessionsAsJSONL);
+
+    const sessionsBuffer = await fse.readFile(`tmp/${sessionsOutputFile}`);
+
+    await storage.upload({ file: { buffer: sessionsBuffer, size: sessionsBuffer.length, type: 'application/json' }, uploadPath: sessionsOutputFile });
 
     // OUTPUT META
     let runObject = pick(run, ['project', '_id', 'name', 'annotationType', 'prompt', 'promptVersion', 'model']);
@@ -46,7 +56,11 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
       return JSON.stringify(meta)
     }).join('\n');
 
-    await fse.outputFile(metaOutputFile, metaAsJSONL);
+    await fse.outputJSON(`tmp/${metaOutputFile}`, metaAsJSONL);
+
+    const metaBuffer = await fse.readFile(`tmp/${metaOutputFile}`);
+
+    await storage.upload({ file: { buffer: metaBuffer, size: metaBuffer.length, type: 'application/json' }, uploadPath: metaOutputFile });
 
     return {
       statusCode: 200,
