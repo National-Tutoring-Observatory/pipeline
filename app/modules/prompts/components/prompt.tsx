@@ -12,7 +12,7 @@ export default function Prompt({
   onCreatePromptVersionClicked,
 }: { prompt: Prompt, promptVersions: PromptVersion[], version: number, onCreatePromptVersionClicked: () => void }) {
   return (
-    <div className="max-w-5xl mx-auto p-8">
+    <div className="max-w-6xl p-8">
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
         {prompt.name}
       </h1>

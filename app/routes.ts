@@ -35,6 +35,7 @@ export default [
     index("modules/teams/containers/teams.route.tsx"),
     route(":id", "modules/teams/containers/team.route.tsx"),
   ]),
+  route("api/projects", "modules/projects/containers/projects.route.tsx", { id: 'projects' }),
   route("api/events", "core/events/containers/events.route.tsx"),
   route("api/promptsList", "modules/prompts/containers/promptsList.route.tsx"),
   route("api/promptVersionAlignment", "modules/prompts/containers/promptVersionAlignment.route.tsx"),

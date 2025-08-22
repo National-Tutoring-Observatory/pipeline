@@ -1,4 +1,5 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { FolderKanban, SquareTerminal, Users } from "lucide-react";
 import { NavLink } from "react-router";
 
 export default function AppSidebar() {
@@ -15,7 +16,10 @@ export default function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <NavLink to={'/'}>
                     {({ isActive }) => (
-                      <span className={isActive ? "underline" : ""}>Projects</span>
+                      <>
+                        <FolderKanban />
+                        <span className={isActive ? "underline" : ""}>Projects</span>
+                      </>
                     )}
                   </NavLink>
                 </SidebarMenuButton>
@@ -24,7 +28,10 @@ export default function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <NavLink to={'/prompts'}>
                     {({ isActive }) => (
-                      <span className={isActive ? "underline" : ""}>Prompts</span>
+                      <>
+                        <SquareTerminal />
+                        <span className={isActive ? "underline" : ""}>Prompts</span>
+                      </>
                     )}
                   </NavLink>
                 </SidebarMenuButton>
@@ -40,7 +47,10 @@ export default function AppSidebar() {
                 <SidebarMenuButton asChild >
                   <NavLink to={'/teams'}>
                     {({ isActive }) => (
-                      <span className={isActive ? "underline" : ""}>Teams</span>
+                      <>
+                        <Users />
+                        <span className={isActive ? "underline" : ""}>Teams</span>
+                      </>
                     )}
                   </NavLink>
                 </SidebarMenuButton>

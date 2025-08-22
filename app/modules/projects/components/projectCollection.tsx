@@ -27,7 +27,7 @@ export default function ProjectCollection({
 }) {
 
   return (
-    <div className="max-w-5xl mx-auto p-8">
+    <div className="max-w-6xl p-8">
       <div className="mb-8 relative">
         <div className="flex justify-between">
           <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">

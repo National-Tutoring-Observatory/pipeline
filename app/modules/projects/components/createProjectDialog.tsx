@@ -13,8 +13,9 @@ import { useState } from "react";
 import ProjectNameAlert from "./projectNameAlert";
 
 const CreateProjectDialog = ({
+  hasTeamSelection,
   onCreateNewProjectClicked
-}: { onCreateNewProjectClicked: (name: string) => void }) => {
+}: { hasTeamSelection: boolean, onCreateNewProjectClicked: (name: string) => void }) => {
 
   const [name, setName] = useState('');
 
@@ -43,6 +44,15 @@ const CreateProjectDialog = ({
           name={name}
         />
       </div>
+      {(hasTeamSelection) && (
+        <div className="grid gap-3">
+          <Label htmlFor="name-1">Team</Label>
+          {/* <Input id="name-1" name="name" defaultValue={name} autoComplete="off" onChange={onProjectNameChanged} />
+          <ProjectNameAlert
+            name={name}
+          /> */}
+        </div>
+      )}
       <DialogFooter className="justify-end">
         <DialogClose asChild>
           <Button type="button" variant="secondary">
