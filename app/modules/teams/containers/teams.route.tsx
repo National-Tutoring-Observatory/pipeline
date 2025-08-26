@@ -32,18 +32,18 @@ export async function action({
   const { name } = payload;
 
   switch (intent) {
-    case 'CREATE_PROJECT':
+    case 'CREATE_TEAM':
       if (typeof name !== "string") {
         throw new Error("Team name is required and must be a string.");
       }
       const team = await createDocument({ collection: 'teams', update: { name } }) as { data: Team };
       return {
-        intent: 'CREATE_PROJECT',
+        intent: 'CREATE_TEAM',
         ...team
       }
-    case 'UPDATE_PROJECT':
+    case 'UPDATE_TEAM':
       return await updateDocument({ collection: 'teams', match: { _id: Number(entityId) }, update: { name } });
-    case 'DELETE_PROJECT':
+    case 'DELETE_TEAM':
       return await deleteDocument({ collection: 'teams', match: { _id: Number(entityId) } })
     default:
       return {};
@@ -62,7 +62,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (actionData?.intent === 'CREATE_PROJECT') {
+    if (actionData?.intent === 'CREATE_TEAM') {
       navigate(`/teams/${actionData.data._id}`)
     }
   }, [actionData]);
@@ -96,17 +96,17 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   }
 
   const onCreateNewTeamClicked = (name: string) => {
-    submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name } }), { method: 'POST', encType: 'application/json' });
+    submit(JSON.stringify({ intent: 'CREATE_TEAM', payload: { name } }), { method: 'POST', encType: 'application/json' });
   }
 
   const onEditTeamClicked = (team: Team) => {
-    submit(JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: team._id, payload: { name: team.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
+    submit(JSON.stringify({ intent: 'UPDATE_TEAM', entityId: team._id, payload: { name: team.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
       toast.success('Updated team');
     });
   }
 
   const onDeleteTeamClicked = (teamId: string) => {
-    submit(JSON.stringify({ intent: 'DELETE_PROJECT', entityId: teamId }), { method: 'DELETE', encType: 'application/json' }).then(() => {
+    submit(JSON.stringify({ intent: 'DELETE_TEAM', entityId: teamId }), { method: 'DELETE', encType: 'application/json' }).then(() => {
       toast.success('Deleted team');
     });
   }

@@ -2,22 +2,46 @@
 import getDocument from "~/core/documents/getDocument";
 import type { Team as TeamType } from "../teams.types";
 import Team from '../components/team';
-import throttle from 'lodash/throttle';
 import { useEffect } from "react";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 import type { Route } from "./+types/team.route";
+import getDocuments from "~/core/documents/getDocuments";
+import type { Project } from "~/modules/projects/projects.types";
+import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
+import addDialog from "~/core/dialogs/addDialog";
+import { useFetcher } from "react-router";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const team = await getDocument({ collection: 'teams', match: { _id: parseInt(params.id) } }) as { data: TeamType };
-  return { team };
+  const projects = await getDocuments({ collection: 'projects', match: { team: parseInt(team.data._id) }, sort: {} }) as { data: TeamType };
+  return { team, projects };
 }
 
 export function HydrateFallback() {
   return <div>Loading...</div>;
 }
 
-export default function TeamRoute({ loaderData }: { loaderData: { team: { data: TeamType } } }) {
-  const { team } = loaderData;
+export default function TeamRoute({ loaderData }: { loaderData: { team: { data: TeamType }, projects: { data: Project[] } } }) {
+  const { team, projects } = loaderData;
+
+  const fetcher = useFetcher();
+
+  const onCreateProjectButtonClicked = () => {
+    addDialog(
+      <CreateProjectDialog
+        hasTeamSelection={false}
+        onCreateNewProjectClicked={onCreateNewProjectClicked}
+      />
+    );
+  }
+
+  const onCreateNewProjectClicked = (name: string) => {
+    fetcher.submit({ intent: 'CREATE_PROJECT', payload: { name, team: parseInt(team.data._id) } }, {
+      action: "/api/projects",
+      method: "post",
+      encType: "application/json"
+    });
+  }
 
   useEffect(() => {
     updateBreadcrumb([{ text: 'Teams', link: `/teams` }, { text: team.data.name }])
@@ -26,6 +50,9 @@ export default function TeamRoute({ loaderData }: { loaderData: { team: { data: 
   return (
     <Team
       team={team.data}
+      projects={projects.data}
+      users={[]}
+      onCreateProjectButtonClicked={onCreateProjectButtonClicked}
     />
   );
 }

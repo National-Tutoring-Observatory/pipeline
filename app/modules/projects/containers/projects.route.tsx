@@ -29,14 +29,14 @@ export async function action({
 
   const { intent, entityId, payload = {} } = await request.json()
 
-  const { name } = payload;
+  const { name, team } = payload;
 
   switch (intent) {
     case 'CREATE_PROJECT':
       if (typeof name !== "string") {
         throw new Error("Project name is required and must be a string.");
       }
-      const project = await createDocument({ collection: 'projects', update: { name } }) as { data: Project };
+      const project = await createDocument({ collection: 'projects', update: { name, team } }) as { data: Project };
       return {
         intent: 'CREATE_PROJECT',
         ...project
@@ -74,6 +74,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const onCreateProjectButtonClicked = () => {
     addDialog(
       <CreateProjectDialog
+        hasTeamSelection={false}
         onCreateNewProjectClicked={onCreateNewProjectClicked}
       />
     );
