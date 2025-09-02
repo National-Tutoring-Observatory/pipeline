@@ -4,7 +4,7 @@ import archiver from "archiver";
 import type { Route } from "./+types/downloadRun.route";
 import { PassThrough, Readable } from "node:stream";
 import fs from 'node:fs';
-import getStorage from "~/core/storage/helpers/getStorage";
+import getStorageAdapter from "~/core/storage/helpers/getStorageAdapter";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
 
@@ -64,7 +64,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     console.error('Archiver encountered an error:', err);
   });
 
-  const storage = getStorage();
+  const storage = getStorageAdapter();
 
   if (!storage) {
     throw new Error('Storage is undefined. Failed to initialize storage.');

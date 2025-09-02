@@ -1,4 +1,4 @@
-import { StorageAdapters } from './registerStorage';
+import { StorageAdapters } from './registerStorageAdapter';
 import find from 'lodash/find';
 
 export default () => {

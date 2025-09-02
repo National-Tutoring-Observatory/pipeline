@@ -1,8 +1,8 @@
-import registerStorage from "~/core/storage/helpers/registerStorage";
+import registerStorageAdapter from "~/core/storage/helpers/registerStorageAdapter";
 import fse from 'fs-extra';
 import path from 'path';
 
-registerStorage({
+registerStorageAdapter({
   name: 'LOCAL',
   download: async ({ downloadPath }) => {
     try {

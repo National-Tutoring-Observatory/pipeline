@@ -5,7 +5,7 @@ import fse from 'fs-extra';
 import find from 'lodash/find.js';
 import systemPrompt from "./system.prompt.json";
 import LLM from '~/core/llm/llm';
-import getStorage from '~/core/storage/helpers/getStorage';
+import getStorageAdapter from '~/core/storage/helpers/getStorageAdapter';
 import path from 'path';
 
 export const handler = async (event: { body: any }) => {
@@ -13,7 +13,7 @@ export const handler = async (event: { body: any }) => {
   const { body } = event;
   const { inputFile, outputFolder, prompt, model } = body;
 
-  const storage = getStorage();
+  const storage = getStorageAdapter();
 
   if (!storage) {
     throw new Error('Storage is undefined. Failed to initialize storage.');
