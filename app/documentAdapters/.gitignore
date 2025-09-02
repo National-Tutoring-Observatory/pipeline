@@ -1,0 +1,7 @@
+# Ignore all files except local and .gitignore
+*
+!documentDB
+!documentDB/**
+!local
+!local/**
+!.gitignore
