@@ -3,7 +3,7 @@ import path from 'path';
 import map from 'lodash/map.js';
 import pick from 'lodash/pick.js';
 import type { Run } from '~/modules/runs/runs.types';
-import getStorage from '~/core/storage/helpers/getStorage';
+import getStorageAdapter from '~/core/storage/helpers/getStorageAdapter';
 
 export const handler = async (event: { body: { run: Run, inputFolder: string, outputFolder: string } }) => {
   try {
@@ -16,7 +16,7 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
     let sessionsArray = [];
     let metaArray = [];
 
-    const storage = getStorage();
+    const storage = getStorageAdapter();
 
     if (!storage) {
       throw new Error('Storage is undefined. Failed to initialize storage.');

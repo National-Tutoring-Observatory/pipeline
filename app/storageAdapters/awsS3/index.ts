@@ -1,4 +1,4 @@
-import registerStorage from "~/core/storage/helpers/registerStorage";
+import registerStorageAdapter from "~/core/storage/helpers/registerStorageAdapter";
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
@@ -6,7 +6,7 @@ import fse from "fs-extra";
 import path from "path";
 import { Readable } from "stream";
 
-registerStorage({
+registerStorageAdapter({
   name: 'AWS_S3',
   download: async ({ downloadPath }: { downloadPath: string }) => {
     const { AWS_REGION, AWS_KEY, AWS_SECRET, AWS_BUCKET } = process.env;

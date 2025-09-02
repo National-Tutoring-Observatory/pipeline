@@ -4,7 +4,7 @@ import type { Run } from "~/modules/runs/runs.types";
 import fse from 'fs-extra';
 import type { Session } from "~/modules/sessions/sessions.types";
 import find from 'lodash/find';
-import getStorage from "~/core/storage/helpers/getStorage";
+import getStorageAdapter from "~/core/storage/helpers/getStorageAdapter";
 import path from "path";
 
 export async function action({
@@ -20,7 +20,7 @@ export async function action({
 
   const sessionPath = `storage/${run.data.project}/runs/${params.runId}/${params.sessionId}/${session.data.name}`;
 
-  const storage = getStorage();
+  const storage = getStorageAdapter();
 
   if (!storage) {
     throw new Error('Storage is undefined. Failed to initialize storage.');

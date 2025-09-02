@@ -9,7 +9,7 @@ import fse from 'fs-extra';
 import { useLoaderData } from "react-router";
 import { useEffect } from "react";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
-import getStorage from "~/core/storage/helpers/getStorage";
+import getStorageAdapter from "~/core/storage/helpers/getStorageAdapter";
 import path from "path";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -23,7 +23,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 
   const sessionPath = `storage/${params.projectId}/runs/${params.runId}/${params.sessionId}/${session?.name}`;
 
-  const storage = getStorage();
+  const storage = getStorageAdapter();
 
   if (!storage) {
     throw new Error('Storage is undefined. Failed to initialize storage.');

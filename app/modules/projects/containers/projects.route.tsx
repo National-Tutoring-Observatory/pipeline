@@ -13,12 +13,15 @@ import type { Project } from "../projects.types";
 import updateDocument from "~/core/documents/updateDocument";
 import { useEffect } from "react";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 type Projects = {
   data: [],
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
+  const documents = getDocumentsAdapter();
+  console.log(documents);
   const projects = await getDocuments({ collection: 'projects', match: {}, sort: {} }) as Projects;
   return { projects };
 }

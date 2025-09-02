@@ -6,7 +6,7 @@ import schema from "./schema.json";
 import orchestratorPrompt from './orchestrator.prompt.json';
 import systemPrompt from './system.prompt.json';
 import userPrompt from './user.prompt.json';
-import getStorage from '~/core/storage/helpers/getStorage';
+import getStorageAdapter from '~/core/storage/helpers/getStorageAdapter';
 import path from 'path';
 
 interface RequestBody {
@@ -27,7 +27,7 @@ export const handler = async (event: LambdaEvent) => {
   const { body } = event;
   const { inputFile, outputFolder } = body;
 
-  const storage = getStorage();
+  const storage = getStorageAdapter();
 
   if (!storage) {
     throw new Error('Storage is undefined. Failed to initialize storage.');

@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import getStorage from "../helpers/getStorage";
+import getStorageAdapter from "../helpers/getStorageAdapter";
 
 export async function action({ request }: ActionFunctionArgs) {
 
@@ -7,7 +7,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (intent === 'REQUEST_STORAGE') {
     const { url } = payload;
-    const storage = getStorage();
+    const storage = getStorageAdapter();
     if (storage) {
       const requestUrl = await storage.request(url, {});
       return { requestUrl };
