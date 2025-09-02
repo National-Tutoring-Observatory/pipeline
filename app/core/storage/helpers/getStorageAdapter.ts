@@ -7,5 +7,5 @@ export default () => {
     console.warn("Storage is not registered so defaulting to local.");
     storage = find(StorageAdapters, { name: 'LOCAL' });
   }
-  return storage;
+  return storage!;
 }

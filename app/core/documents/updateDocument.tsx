@@ -3,8 +3,6 @@ import findOrCreateDocuments from './findOrCreateDocuments';
 import find from 'lodash/find.js';
 import extend from 'lodash/extend.js';
 
-const COLLECTIONS = ['projects', 'runs'];
-
 export default async ({ collection, match, update }: { collection: string, match: { _id: number }, update: {} }) => {
 
   try {

@@ -26,11 +26,6 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
 
     const storage = getStorageAdapter();
 
-    if (!storage) {
-      throw new Error('Storage is undefined. Failed to initialize storage.');
-    }
-
-
     for (const session of run.sessions) {
 
       const sessionPath = `${inputFolder}/${session.sessionId}/${session.name}`;

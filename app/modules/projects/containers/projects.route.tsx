@@ -1,4 +1,3 @@
-import getDocuments from "~/core/documents/getDocuments";
 import createDocument from "~/core/documents/createDocument";
 import { useActionData, useNavigate, useSubmit } from "react-router";
 import type { Route } from "./+types/projects.route";
@@ -16,13 +15,12 @@ import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 type Projects = {
-  data: [],
+  data: Project[],
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  console.log(documents);
-  const projects = await getDocuments({ collection: 'projects', match: {}, sort: {} }) as Projects;
+  const projects = await documents.getDocuments({ collection: 'projects', match: {}, sort: {} }) as Projects;
   return { projects };
 }
 

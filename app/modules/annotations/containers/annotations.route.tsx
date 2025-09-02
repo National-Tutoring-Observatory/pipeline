@@ -22,10 +22,6 @@ export async function action({
 
   const storage = getStorageAdapter();
 
-  if (!storage) {
-    throw new Error('Storage is undefined. Failed to initialize storage.');
-  }
-
   await storage.download({ downloadPath: sessionPath });
 
   const sessionFile = await fse.readJSON(path.join('tmp', sessionPath));

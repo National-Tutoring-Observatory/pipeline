@@ -66,10 +66,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const storage = getStorageAdapter();
 
-  if (!storage) {
-    throw new Error('Storage is undefined. Failed to initialize storage.');
-  }
-
   for (const file of filesToArchive) {
     try {
       const requestUrl = await storage.request(file.path, {});
