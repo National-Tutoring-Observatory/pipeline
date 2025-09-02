@@ -1,24 +1,22 @@
-import getDocuments from "~/core/documents/getDocuments";
 import { useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
 import ProjectCollections from "../components/projectCollections";
 import addDialog from "~/core/dialogs/addDialog";
 import type { Collection } from "~/modules/collections/collections.types";
-import createDocument from "~/core/documents/createDocument";
 import type { Route } from "./+types/projectCollections.route";
 import { toast } from "sonner";
-import updateDocument from "~/core/documents/updateDocument";
-import getDocument from "~/core/documents/getDocument";
 import { useEffect } from "react";
 import DuplicateCollectionDialog from "~/modules/collections/components/duplicateCollectionDialog";
 import CreateCollectionDialog from "~/modules/collections/components/createCollectionDialog";
 import EditCollectionDialog from "~/modules/collections/components/editCollectionDialog";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 type Collections = {
   data: [],
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const collections = await getDocuments({ collection: 'collections', match: { project: parseInt(params.id) }, sort: {} }) as Collections;
+  const documents = getDocumentsAdapter();
+  const collections = await documents.getDocuments({ collection: 'collections', match: { project: parseInt(params.id) }, sort: {} }) as Collections;
   return { collections };
 }
 
@@ -33,12 +31,14 @@ export async function action({
   const { name } = payload;
   let collection;
 
+  const documents = getDocumentsAdapter();
+
   switch (intent) {
     case 'CREATE_COLLECTION': {
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
-      collection = await createDocument({
+      collection = await documents.createDocument({
         collection: 'collections', update: {
           project: Number(params.id),
           name,
@@ -57,7 +57,7 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
-      await updateDocument({
+      await documents.updateDocument({
         collection: 'collections',
         match: {
           _id: Number(entityId),
@@ -73,7 +73,7 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
-      const existingCollection = await getDocument({
+      const existingCollection = await documents.getDocument({
         collection: 'collections',
         match: {
           _id: Number(entityId),
@@ -81,7 +81,7 @@ export async function action({
       }) as { data: Collection };
       const { project, sessions } = existingCollection.data;
 
-      collection = await createDocument({
+      collection = await documents.createDocument({
         collection: 'collections',
         update: {
           project,

@@ -1,19 +1,19 @@
 
-import getDocument from "~/core/documents/getDocument";
 import type { Team as TeamType } from "../teams.types";
 import Team from '../components/team';
 import { useEffect } from "react";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 import type { Route } from "./+types/team.route";
-import getDocuments from "~/core/documents/getDocuments";
 import type { Project } from "~/modules/projects/projects.types";
 import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
 import addDialog from "~/core/dialogs/addDialog";
 import { useFetcher } from "react-router";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const team = await getDocument({ collection: 'teams', match: { _id: parseInt(params.id) } }) as { data: TeamType };
-  const projects = await getDocuments({ collection: 'projects', match: { team: parseInt(team.data._id) }, sort: {} }) as { data: TeamType };
+  const documents = getDocumentsAdapter();
+  const team = await documents.getDocument({ collection: 'teams', match: { _id: parseInt(params.id) } }) as { data: TeamType };
+  const projects = await documents.getDocuments({ collection: 'projects', match: { team: parseInt(team.data._id) }, sort: {} }) as { data: TeamType };
   return { team, projects };
 }
 

@@ -8,10 +8,9 @@ export async function action({ request }: ActionFunctionArgs) {
   if (intent === 'REQUEST_STORAGE') {
     const { url } = payload;
     const storage = getStorageAdapter();
-    if (storage) {
-      const requestUrl = await storage.request(url, {});
-      return { requestUrl };
-    }
+
+    const requestUrl = await storage.request(url, {});
+    return { requestUrl };
   }
 
   return {};

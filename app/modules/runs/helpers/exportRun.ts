@@ -1,19 +1,20 @@
-import getDocument from "~/core/documents/getDocument";
 import type { Run } from "../runs.types";
-import updateDocument from "~/core/documents/updateDocument";
 import { emitter } from "~/core/events/emitter";
 import { handler as outputRunDataToCSV } from '../../../functions/outputRunDataToCSV/app';
 import { handler as outputRunDataToJSON } from '../../../functions/outputRunDataToJSON/app';
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export default async function exportRun({ runId, exportType }: { runId: number, exportType: string }) {
 
-  const run = await getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
+  const documents = getDocumentsAdapter();
+
+  const run = await documents.getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
 
   const inputDirectory = `storage/${run.data.project}/runs/${run.data._id}`;
 
   const outputDirectory = `storage/${run.data.project}/runs/${run.data._id}/exports`;
 
-  await updateDocument({
+  await documents.updateDocument({
     collection: 'runs',
     match: { _id: runId },
     update: {
@@ -40,7 +41,7 @@ export default async function exportRun({ runId, exportType }: { runId: number, 
 
   setTimeout(async () => {
 
-    await updateDocument({
+    await documents.updateDocument({
       collection: 'runs',
       match: { _id: runId },
       update

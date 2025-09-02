@@ -15,10 +15,6 @@ export const handler = async (event: { body: any }) => {
 
   const storage = getStorageAdapter();
 
-  if (!storage) {
-    throw new Error('Storage is undefined. Failed to initialize storage.');
-  }
-
   await storage.download({ downloadPath: inputFile });
 
   const data = await fse.readFile(path.join('tmp', inputFile));

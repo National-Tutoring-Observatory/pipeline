@@ -1,4 +1,3 @@
-import getDocument from "~/core/documents/getDocument";
 import type { Route } from "./+types/annotations.route";
 import type { Run } from "~/modules/runs/runs.types";
 import fse from 'fs-extra';
@@ -6,6 +5,7 @@ import type { Session } from "~/modules/sessions/sessions.types";
 import find from 'lodash/find';
 import getStorageAdapter from "~/core/storage/helpers/getStorageAdapter";
 import path from "path";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export async function action({
   request,
@@ -14,17 +14,15 @@ export async function action({
 
   const { markedAs } = await request.json();
 
-  const run = await getDocument({ collection: 'runs', match: { _id: Number(params.runId) } }) as { data: Run };
+  const documents = getDocumentsAdapter();
 
-  const session = await getDocument({ collection: 'sessions', match: { _id: Number(params.sessionId) } }) as { data: Session };
+  const run = await documents.getDocument({ collection: 'runs', match: { _id: Number(params.runId) } }) as { data: Run };
+
+  const session = await documents.getDocument({ collection: 'sessions', match: { _id: Number(params.sessionId) } }) as { data: Session };
 
   const sessionPath = `storage/${run.data.project}/runs/${params.runId}/${params.sessionId}/${session.data.name}`;
 
   const storage = getStorageAdapter();
-
-  if (!storage) {
-    throw new Error('Storage is undefined. Failed to initialize storage.');
-  }
 
   await storage.download({ downloadPath: sessionPath });
 

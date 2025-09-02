@@ -1,10 +1,10 @@
-import getDocument from "~/core/documents/getDocument";
 import type { Run } from "../runs.types";
 import archiver from "archiver";
 import type { Route } from "./+types/downloadRun.route";
 import { PassThrough, Readable } from "node:stream";
 import fs from 'node:fs';
 import getStorageAdapter from "~/core/storage/helpers/getStorageAdapter";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
 
@@ -14,7 +14,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const exportType = searchParams.get("exportType");
 
-  const run = await getDocument({
+  const documents = getDocumentsAdapter();
+
+  const run = await documents.getDocument({
     collection: 'runs',
     match: { _id: Number(params.runId), project: Number(params.projectId) }
   }) as { data: Run };
@@ -65,10 +67,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   });
 
   const storage = getStorageAdapter();
-
-  if (!storage) {
-    throw new Error('Storage is undefined. Failed to initialize storage.');
-  }
 
   for (const file of filesToArchive) {
     try {

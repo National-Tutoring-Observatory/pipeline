@@ -10,8 +10,6 @@ export default async function uploadFile({ file, uploadDirectory }: { file: any,
 
   const { buffer, contentType, size } = await getFileInfo(file);
 
-  if (storage) {
-    await storage.upload({ file: { buffer, contentType, size }, uploadPath });
-  }
+  await storage.upload({ file: { buffer, contentType, size }, uploadPath });
 
 }

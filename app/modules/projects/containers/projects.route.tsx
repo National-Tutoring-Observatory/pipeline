@@ -1,28 +1,23 @@
-import getDocuments from "~/core/documents/getDocuments";
-import createDocument from "~/core/documents/createDocument";
 import { useActionData, useNavigate, useSubmit } from "react-router";
 import type { Route } from "./+types/projects.route";
 import Projects from "../components/projects";
-import deleteDocument from "~/core/documents/deleteDocument";
 import { toast } from "sonner"
 import addDialog from "~/core/dialogs/addDialog";
 import CreateProjectDialog from "../components/createProjectDialog";
 import EditProjectDialog from "../components/editProjectDialog";
 import DeleteProjectDialog from "../components/deleteProjectDialog";
 import type { Project } from "../projects.types";
-import updateDocument from "~/core/documents/updateDocument";
 import { useEffect } from "react";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 type Projects = {
-  data: [],
+  data: Project[],
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  console.log(documents);
-  const projects = await getDocuments({ collection: 'projects', match: {}, sort: {} }) as Projects;
+  const projects = await documents.getDocuments({ collection: 'projects', match: {}, sort: {} }) as Projects;
   return { projects };
 }
 
@@ -34,20 +29,22 @@ export async function action({
 
   const { name, team } = payload;
 
+  const documents = getDocumentsAdapter();
+
   switch (intent) {
     case 'CREATE_PROJECT':
       if (typeof name !== "string") {
         throw new Error("Project name is required and must be a string.");
       }
-      const project = await createDocument({ collection: 'projects', update: { name, team } }) as { data: Project };
+      const project = await documents.createDocument({ collection: 'projects', update: { name, team } }) as { data: Project };
       return {
         intent: 'CREATE_PROJECT',
         ...project
       }
     case 'UPDATE_PROJECT':
-      return await updateDocument({ collection: 'projects', match: { _id: Number(entityId) }, update: { name } });
+      return await documents.updateDocument({ collection: 'projects', match: { _id: Number(entityId) }, update: { name } });
     case 'DELETE_PROJECT':
-      return await deleteDocument({ collection: 'projects', match: { _id: Number(entityId) } })
+      return await documents.deleteDocument({ collection: 'projects', match: { _id: Number(entityId) } })
     default:
       return {};
   }

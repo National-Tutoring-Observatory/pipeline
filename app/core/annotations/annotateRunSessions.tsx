@@ -1,15 +1,16 @@
 import type { Run } from "~/modules/runs/runs.types";
-import getDocument from "../documents/getDocument";
-import updateDocument from "../documents/updateDocument";
 import { emitter } from "../events/emitter";
 import { handler as annotatePerUtterance } from '../../functions/annotatePerUtterance/app';
 import { handler as annotatePerSession } from '../../functions/annotatePerSession/app';
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
+import getDocumentsAdapter from "../documents/helpers/getDocumentsAdapter";
 
 export default async function annotateRunSessions({ runId }: { runId: string }) {
 
-  const run = await getDocument({ collection: 'runs', match: { _id: Number(runId) } }) as { data: Run };
+  const documents = getDocumentsAdapter();
+
+  const run = await documents.getDocument({ collection: 'runs', match: { _id: Number(runId) } }) as { data: Run };
 
   if (run.data.isRunning) { return {} }
 
@@ -17,7 +18,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
 
   const outputDirectory = `storage/${run.data.project}/runs/${run.data._id}`;
 
-  await updateDocument({
+  await documents.updateDocument({
     collection: 'runs',
     match: { _id: Number(runId) },
     update: {
@@ -26,7 +27,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
     }
   });
 
-  const promptVersion = await getDocument({ collection: 'promptVersions', match: { prompt: Number(run.data.prompt), version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
+  const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: Number(run.data.prompt), version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
 
   emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: 0, status: 'STARTED', step: `0/${run.data.sessions.length}` });
 
@@ -47,12 +48,12 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
       emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING' });
       continue;
     }
-    const sessionModel = await getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
+    const sessionModel = await documents.getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
 
     session.status = 'RUNNING';
     session.startedAt = new Date();
 
-    await updateDocument({
+    await documents.updateDocument({
       collection: 'runs',
       match: { _id: Number(runId) },
       update: {
@@ -93,7 +94,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
 
     session.status = status;
     session.finishedAt = new Date();
-    await updateDocument({
+    await documents.updateDocument({
       collection: 'runs',
       match: { _id: Number(runId) },
       update: {
@@ -104,7 +105,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
     emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING' });
   }
 
-  await updateDocument({
+  await documents.updateDocument({
     collection: 'runs',
     match: { _id: Number(runId) },
     update: {

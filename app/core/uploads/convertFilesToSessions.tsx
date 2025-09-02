@@ -1,23 +1,22 @@
 import { handler as convertSessionDataToJSON } from '../../functions/convertSessionDataToJSON/app';
-import getDocuments from "../documents/getDocuments";
-import updateDocument from "../documents/updateDocument";
 import type { Project } from "~/modules/projects/projects.types";
 import { emitter } from "../events/emitter";
-import createDocument from "../documents/createDocument";
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { File } from "~/modules/files/files.types";
-import getDocument from '../documents/getDocument';
+import getDocumentsAdapter from '../documents/helpers/getDocumentsAdapter';
 
 export default async function convertFilesToSessions({ entityId }: { entityId: string }) {
 
-  const projectFiles = await getDocuments({ collection: 'files', match: { project: parseInt(entityId) }, sort: {} }) as { data: Array<File> };
+  const documents = getDocumentsAdapter();
+
+  const projectFiles = await documents.getDocuments({ collection: 'files', match: { project: parseInt(entityId) }, sort: {} }) as { data: Array<File> };
 
   const inputDirectory = `storage/${entityId}/files`;
 
   const outputDirectory = `storage/${entityId}/preAnalysis`;
 
   for (const projectFile of projectFiles.data) {
-    await createDocument({
+    await documents.createDocument({
       collection: 'sessions',
       update: {
         project: projectFile.project,
@@ -31,14 +30,14 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
 
   emitter.emit("CONVERT_FILES", { projectId: parseInt(entityId), progress: 0, status: 'STARTED' });
 
-  const projectSessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(entityId) }, sort: {} }) as { data: Array<Session> };
+  const projectSessions = await documents.getDocuments({ collection: 'sessions', match: { project: parseInt(entityId) }, sort: {} }) as { data: Array<Session> };
 
   let completedFiles = 0;
 
   for (const projectFile of projectSessions.data) {
     let hasErrored;
     let hasConverted;
-    const file = await getDocument({ collection: 'files', match: { _id: projectFile.file } }) as { data: { name: string } };
+    const file = await documents.getDocument({ collection: 'files', match: { _id: projectFile.file } }) as { data: { name: string } };
     try {
       await convertSessionDataToJSON({
         body: {
@@ -52,7 +51,7 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
       hasErrored = true;
       hasConverted = false;
     }
-    await updateDocument({
+    await documents.updateDocument({
       collection: 'sessions',
       match: {
         _id: parseInt(projectFile._id)
@@ -66,7 +65,7 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
     emitter.emit("CONVERT_FILES", { projectId: parseInt(entityId), progress: Math.round((100 / projectSessions.data.length) * completedFiles), status: 'RUNNING' });
   }
 
-  await updateDocument({ collection: 'projects', match: { _id: parseInt(entityId) }, update: { isConvertingFiles: false } }) as { data: Project };
+  await documents.updateDocument({ collection: 'projects', match: { _id: parseInt(entityId) }, update: { isConvertingFiles: false } }) as { data: Project };
   emitter.emit("CONVERT_FILES", { projectId: parseInt(entityId), progress: 100, status: 'DONE' });
 
 }

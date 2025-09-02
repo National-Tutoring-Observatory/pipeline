@@ -1,17 +1,16 @@
 import { useActionData, useLoaderData, useNavigate, useParams, useSubmit } from "react-router";
 import Prompt from '../components/prompt';
-import getDocument from "~/core/documents/getDocument";
 import type { Route } from "./+types/prompt.route";
 import type { Prompt as PromptType, PromptVersion } from "../prompts.types";
-import getDocuments from "~/core/documents/getDocuments";
-import createDocument from "~/core/documents/createDocument";
 import pick from 'lodash/pick';
 import { useEffect } from "react";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const prompt = await getDocument({ collection: 'prompts', match: { _id: parseInt(params.id) } }) as { data: PromptType };
-  const promptVersions = await getDocuments({
+  const documents = getDocumentsAdapter();
+  const prompt = await documents.getDocument({ collection: 'prompts', match: { _id: parseInt(params.id) } }) as { data: PromptType };
+  const promptVersions = await documents.getDocuments({
     collection: 'promptVersions',
     match: { prompt: parseInt(params.id) },
     sort: { version: -1 },
@@ -27,12 +26,14 @@ export async function action({
 
   const { version } = payload;
 
+  const documents = getDocumentsAdapter();
+
   switch (intent) {
     case 'CREATE_PROMPT_VERSION':
-      const previousPromptVerion = await getDocument({ collection: 'promptVersions', match: { prompt: Number(entityId), version: Number(version) } }) as { data: PromptVersion };
+      const previousPromptVerion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: Number(entityId), version: Number(version) } }) as { data: PromptVersion };
       const newPromptAttributes = pick(previousPromptVerion.data, ['userPrompt', 'annotationSchema']);
-      const promptVerions = await getDocuments({ collection: 'promptVersions', match: { prompt: Number(entityId) }, sort: {} }) as { count: number };
-      const promptVersion = await createDocument({ collection: 'promptVersions', update: { ...newPromptAttributes, name: `${previousPromptVerion.data.name.replace(/#\d+/g, '').trim()} #${promptVerions.count + 1}`, prompt: Number(entityId), version: promptVerions.count + 1 } }) as { data: PromptVersion }
+      const promptVerions = await documents.getDocuments({ collection: 'promptVersions', match: { prompt: Number(entityId) }, sort: {} }) as { count: number };
+      const promptVersion = await documents.createDocument({ collection: 'promptVersions', update: { ...newPromptAttributes, name: `${previousPromptVerion.data.name.replace(/#\d+/g, '').trim()} #${promptVerions.count + 1}`, prompt: Number(entityId), version: promptVerions.count + 1 } }) as { data: PromptVersion }
       return {
         intent: 'CREATE_PROMPT_VERSION',
         ...promptVersion

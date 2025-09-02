@@ -1,10 +1,8 @@
 import { useLoaderData, useRevalidator, useRouteLoaderData, useSubmit } from "react-router";
 import ProjectRun from "../components/projectRun";
 import type { CreateRun, Run as RunType } from "~/modules/runs/runs.types";
-import getDocument from "~/core/documents/getDocument";
 import type { Route } from "./+types/projectRun.route";
 import { useEffect, useState } from "react";
-import updateDocument from "~/core/documents/updateDocument";
 import annotateRunSessions from "~/core/annotations/annotateRunSessions";
 import throttle from 'lodash/throttle';
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
@@ -12,19 +10,21 @@ import type { Session } from "~/modules/sessions/sessions.types";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 import type { Project } from "../projects.types";
 import exportRun from "~/modules/runs/helpers/exportRun";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 type Run = {
   data: RunType,
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.projectId), }, }) as Project;
-  const run = await getDocument({ collection: 'runs', match: { _id: parseInt(params.runId), project: parseInt(params.projectId) }, }) as Run;
+  const documents = getDocumentsAdapter();
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: parseInt(params.projectId), }, }) as Project;
+  const run = await documents.getDocument({ collection: 'runs', match: { _id: parseInt(params.runId), project: parseInt(params.projectId) }, }) as Run;
   let runPrompt;
   let runPromptVersion;
   if (run.data.hasSetup) {
-    runPrompt = await getDocument({ collection: 'prompts', match: { _id: Number(run.data.prompt) } }) as { data: Prompt };
-    runPromptVersion = await getDocument({ collection: 'promptVersions', match: { prompt: Number(run.data.prompt), version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
+    runPrompt = await documents.getDocument({ collection: 'prompts', match: { _id: Number(run.data.prompt) } }) as { data: Prompt };
+    runPromptVersion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: Number(run.data.prompt), version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
   }
   return { project, run, runPrompt, runPromptVersion };
 }
@@ -46,10 +46,12 @@ export async function action({
     exportType
   } = payload;
 
+  const documents = getDocumentsAdapter();
+
   switch (intent) {
     case 'START_RUN': {
 
-      const run = await getDocument({
+      const run = await documents.getDocument({
         collection: 'runs',
         match: { _id: Number(params.runId), project: Number(params.projectId) }
       }) as Run;
@@ -57,7 +59,7 @@ export async function action({
       const sessionsAsObjects = [];
 
       for (const session of sessions) {
-        const sessionModel = await getDocument({ collection: 'sessions', match: { _id: session } }) as { data: Session };
+        const sessionModel = await documents.getDocument({ collection: 'sessions', match: { _id: session } }) as { data: Session };
         sessionsAsObjects.push({
           name: sessionModel.data.name,
           fileType: sessionModel.data.fileType,
@@ -66,7 +68,7 @@ export async function action({
         });
       }
 
-      await updateDocument({
+      await documents.updateDocument({
         collection: 'runs',
         match: { _id: Number(params.runId) },
         update: {
@@ -84,7 +86,7 @@ export async function action({
       return {}
     }
     case 'RE_RUN': {
-      const run = await getDocument({
+      const run = await documents.getDocument({
         collection: 'runs',
         match: { _id: Number(params.runId), project: Number(params.projectId) }
       }) as Run;

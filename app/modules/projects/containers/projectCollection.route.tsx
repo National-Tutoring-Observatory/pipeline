@@ -1,26 +1,25 @@
 import { useLoaderData, useRevalidator, useSubmit } from "react-router";
 import ProjectCollection from "../components/projectCollection";
 import type { CreateCollection, Collection as CollectionType } from "~/modules/collections/collections.types";
-import getDocument from "~/core/documents/getDocument";
 import type { Route } from "./+types/projectCollection.route";
 import { useEffect } from "react";
-import updateDocument from "~/core/documents/updateDocument";
 import throttle from 'lodash/throttle';
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 import type { Project } from "../projects.types";
-import getDocuments from "~/core/documents/getDocuments";
 import includes from 'lodash/includes';
 import type { Run } from "~/modules/runs/runs.types";
 import exportCollection from "~/modules/collections/helpers/exportCollection";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 type Collection = {
   data: CollectionType,
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.projectId), }, }) as Project;
-  const collection = await getDocument({ collection: 'collections', match: { _id: parseInt(params.collectionId), project: parseInt(params.projectId) }, }) as Collection;
-  const runs = await getDocuments({
+  const documents = getDocumentsAdapter();
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: parseInt(params.projectId), }, }) as Project;
+  const collection = await documents.getDocument({ collection: 'collections', match: { _id: parseInt(params.collectionId), project: parseInt(params.projectId) }, }) as Collection;
+  const runs = await documents.getDocuments({
     collection: 'runs',
     match: (item: Run) => {
       if (includes(collection.data.runs, Number(item._id))) {
@@ -46,14 +45,16 @@ export async function action({
     exportType
   } = payload;
 
+  const documents = getDocumentsAdapter();
+
   switch (intent) {
     case 'SETUP_COLLECTION':
-      const collection = await getDocument({
+      const collection = await documents.getDocument({
         collection: 'collections',
         match: { _id: Number(params.collectionId), project: Number(params.projectId) }
       }) as Collection;
 
-      await updateDocument({
+      await documents.updateDocument({
         collection: 'collections',
         match: { _id: Number(params.collectionId) },
         update: {

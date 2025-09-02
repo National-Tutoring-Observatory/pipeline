@@ -1,9 +1,7 @@
-import getDocument from "~/core/documents/getDocument";
 import ProjectRunSessions from "../components/projectRunSessions";
 import type { Route } from "./+types/projectRunSessions.route";
 import type { Project } from "../projects.types";
 import type { Run } from "~/modules/runs/runs.types";
-import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import find from 'lodash/find';
 import fse from 'fs-extra';
 import { useLoaderData } from "react-router";
@@ -11,10 +9,12 @@ import { useEffect } from "react";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 import getStorageAdapter from "~/core/storage/helpers/getStorageAdapter";
 import path from "path";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.projectId), }, }) as Project;
-  const run = await getDocument({ collection: 'runs', match: { _id: parseInt(params.runId), project: parseInt(params.projectId) }, }) as { data: Run };
+  const documents = getDocumentsAdapter();
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: parseInt(params.projectId), }, }) as Project;
+  const run = await documents.getDocument({ collection: 'runs', match: { _id: parseInt(params.runId), project: parseInt(params.projectId) }, }) as { data: Run };
   const session = find(run.data.sessions, (session) => {
     if (Number(session.sessionId) === Number(params.sessionId)) {
       return session;
@@ -24,10 +24,6 @@ export async function loader({ params }: Route.LoaderArgs) {
   const sessionPath = `storage/${params.projectId}/runs/${params.runId}/${params.sessionId}/${session?.name}`;
 
   const storage = getStorageAdapter();
-
-  if (!storage) {
-    throw new Error('Storage is undefined. Failed to initialize storage.');
-  }
 
   await storage.download({ downloadPath: sessionPath });
 

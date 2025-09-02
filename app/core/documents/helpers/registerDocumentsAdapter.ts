@@ -3,9 +3,9 @@ import find from 'lodash/find';
 
 export const DocumentAdapters: DocumentAdapter[] = [];
 
-export default ({ name }: DocumentAdapter) => {
+export default ({ name, getDocuments, createDocument, getDocument, updateDocument, deleteDocument }: DocumentAdapter) => {
   if (find(DocumentAdapters, { name })) {
     return console.warn(`"${name}" document adapter already exists. Try using a new name.`);
   }
-  DocumentAdapters.push({ name });
+  DocumentAdapters.push({ name, getDocuments, createDocument, getDocument, updateDocument, deleteDocument });
 }
