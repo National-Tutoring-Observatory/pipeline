@@ -8,6 +8,7 @@ import type { RenderToPipeableStreamOptions } from "react-dom/server";
 import { renderToPipeableStream } from "react-dom/server";
 
 import '../app/core/storage/storage';
+import '../app/core/documents/documents';
 
 export const streamTimeout = 5_000;
 
