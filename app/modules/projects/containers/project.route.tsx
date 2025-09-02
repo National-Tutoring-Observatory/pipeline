@@ -1,12 +1,9 @@
 
-import getDocument from "~/core/documents/getDocument";
 import type { Route } from "./+types/project.route";
 import type { Project as ProjectType } from "../projects.types";
 import Project from '../components/project';
-import updateDocument from "~/core/documents/updateDocument";
 import { useMatches, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
-import getDocuments from "~/core/documents/getDocuments";
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
 import uploadFiles from "~/core/uploads/uploadFiles";
@@ -17,14 +14,16 @@ import type { Session } from "~/modules/sessions/sessions.types";
 import type { Run } from "~/modules/runs/runs.types";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
 import type { Collection } from "~/modules/collections/collections.types";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const project = await getDocument({ collection: 'projects', match: { _id: parseInt(params.id) } }) as { data: ProjectType };
-  const files = await getDocuments({ collection: 'files', match: { project: parseInt(params.id) }, sort: {} }) as { count: number };
-  const sessions = await getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Session[] };
+  const documents = getDocumentsAdapter();
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: parseInt(params.id) } }) as { data: ProjectType };
+  const files = await documents.getDocuments({ collection: 'files', match: { project: parseInt(params.id) }, sort: {} }) as { count: number };
+  const sessions = await documents.getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Session[] };
   const convertedSessionsCount = filter(sessions.data, { hasConverted: true }).length;
-  const runs = await getDocuments({ collection: 'runs', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Run[] };
-  const collections = await getDocuments({ collection: 'collections', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Collection[] };
+  const runs = await documents.getDocuments({ collection: 'runs', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Run[] };
+  const collections = await documents.getDocuments({ collection: 'collections', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Collection[] };
   return { project, filesCount: files.count, sessionsCount: sessions.count, convertedSessionsCount, runsCount: runs.count, collectionsCount: collections.count };
 }
 
@@ -55,7 +54,9 @@ export async function action({
       convertFilesToSessions({ entityId });
     });
 
-    return await updateDocument({ collection: 'projects', match: { _id: parseInt(entityId) }, update: { isUploadingFiles: true, isConvertingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
+    const documents = getDocumentsAdapter();
+
+    return await documents.updateDocument({ collection: 'projects', match: { _id: parseInt(entityId) }, update: { isUploadingFiles: true, isConvertingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
 
   }
 }

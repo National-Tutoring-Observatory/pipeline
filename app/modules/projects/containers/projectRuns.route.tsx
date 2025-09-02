@@ -1,24 +1,22 @@
-import getDocuments from "~/core/documents/getDocuments";
 import { useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
 import ProjectRuns from "../components/projectRuns";
 import addDialog from "~/core/dialogs/addDialog";
 import CreateRunDialog from '../components/createRunDialog';
 import type { Run } from "~/modules/runs/runs.types";
-import createDocument from "~/core/documents/createDocument";
 import type { Route } from "./+types/projectRuns.route";
 import EditRunDialog from "../components/editRunDialog";
 import { toast } from "sonner";
-import updateDocument from "~/core/documents/updateDocument";
 import DuplicateRunDialog from '../components/duplicateRunDialog';
-import getDocument from "~/core/documents/getDocument";
 import { useEffect } from "react";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 type Runs = {
   data: [],
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const runs = await getDocuments({ collection: 'runs', match: { project: parseInt(params.id) }, sort: {} }) as Runs;
+  const documents = getDocumentsAdapter();
+  const runs = await documents.getDocuments({ collection: 'runs', match: { project: parseInt(params.id) }, sort: {} }) as Runs;
   return { runs };
 }
 
@@ -33,6 +31,8 @@ export async function action({
   const { name, annotationType } = payload;
   let run;
 
+  const documents = getDocumentsAdapter();
+
   switch (intent) {
     case 'CREATE_RUN': {
       if (typeof name !== "string") {
@@ -41,7 +41,7 @@ export async function action({
       if (typeof annotationType !== "string") {
         throw new Error("Annotation type is required and must be a string.");
       }
-      run = await createDocument({
+      run = await documents.createDocument({
         collection: 'runs', update: {
           project: Number(params.id),
           name,
@@ -61,7 +61,7 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Run name is required and must be a string.");
       }
-      await updateDocument({
+      await documents.updateDocument({
         collection: 'runs',
         match: {
           _id: Number(entityId),
@@ -77,7 +77,7 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Run name is required and must be a string.");
       }
-      const existingRun = await getDocument({
+      const existingRun = await documents.getDocument({
         collection: 'runs',
         match: {
           _id: Number(entityId),
@@ -85,7 +85,7 @@ export async function action({
       }) as { data: Run };
       const { project, annotationType, prompt, promptVersion, model, sessions } = existingRun.data;
 
-      run = await createDocument({
+      run = await documents.createDocument({
         collection: 'runs',
         update: {
           project,

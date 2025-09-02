@@ -1,16 +1,15 @@
-import getDocument from "~/core/documents/getDocument";
 import PromptEditor from "../components/promptEditor";
 import type { Route } from "./+types/promptEditor.route";
 import type { Prompt, PromptVersion } from "../prompts.types";
 import { useLoaderData, useNavigation, useSubmit, type ShouldRevalidateFunctionArgs } from "react-router";
-import updateDocument from "~/core/documents/updateDocument";
 import addDialog from "~/core/dialogs/addDialog";
 import SavePromptVersionDialogContainer from "./savePromptVersionDialogContainer";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
-
-  const prompt = await getDocument({ collection: 'prompts', match: { _id: parseInt(params.id) } }) as { data: Prompt };
-  const promptVersion = await getDocument({ collection: 'promptVersions', match: { version: parseInt(params.version), prompt: parseInt(params.id) } }) as { data: PromptVersion };
+  const documents = getDocumentsAdapter();
+  const prompt = await documents.getDocument({ collection: 'prompts', match: { _id: parseInt(params.id) } }) as { data: Prompt };
+  const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { version: parseInt(params.version), prompt: parseInt(params.id) } }) as { data: PromptVersion };
 
   return { prompt, promptVersion };
 }
@@ -24,16 +23,18 @@ export async function action({
 
   const { name, userPrompt, annotationSchema } = payload;
 
+  const documents = getDocumentsAdapter();
+
   switch (intent) {
     case 'UPDATE_PROMPT_VERSION':
-      await updateDocument({
+      await documents.updateDocument({
         collection: 'promptVersions',
         match: { _id: Number(entityId) },
         update: { name, userPrompt, annotationSchema, hasBeenSaved: true, updatedAt: new Date(), }
       }) as { data: PromptVersion }
       return {};
     case 'MAKE_PROMPT_VERSION_PRODUCTION':
-      await updateDocument({
+      await documents.updateDocument({
         collection: 'prompts',
         match: { _id: Number(params.id) },
         update: { productionVersion: Number(params.version) }

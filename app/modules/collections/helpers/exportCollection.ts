@@ -1,18 +1,18 @@
-import getDocument from "~/core/documents/getDocument";
 import type { Collection } from "../collections.types";
-import updateDocument from "~/core/documents/updateDocument";
 import { emitter } from "~/core/events/emitter";
 import { handler as outputCollectionDataToCSV } from '../../../functions/outputCollectionDataToCSV/app';
 import { handler as outputCollectionDataToJSON } from '../../../functions/outputCollectionDataToJSON/app';
 import includes from 'lodash/includes';
-import getDocuments from "~/core/documents/getDocuments";
 import type { Run } from "~/modules/runs/runs.types";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export default async function exportCollection({ collectionId, exportType }: { collectionId: number, exportType: string }) {
 
-  const collection = await getDocument({ collection: 'collections', match: { _id: collectionId } }) as { data: Collection };
+  const documents = getDocumentsAdapter();
 
-  const runs = await getDocuments({
+  const collection = await documents.getDocument({ collection: 'collections', match: { _id: collectionId } }) as { data: Collection };
+
+  const runs = await documents.getDocuments({
     collection: 'runs',
     match: (item: Run) => {
       if (includes(collection.data.runs, Number(item._id))) {
@@ -25,7 +25,7 @@ export default async function exportCollection({ collectionId, exportType }: { c
 
   const outputDirectory = `storage/${collection.data.project}/collections/${collection.data._id}/exports`;
 
-  await updateDocument({
+  await documents.updateDocument({
     collection: 'collections',
     match: { _id: collectionId },
     update: {
@@ -52,7 +52,7 @@ export default async function exportCollection({ collectionId, exportType }: { c
 
   setTimeout(async () => {
 
-    await updateDocument({
+    await documents.updateDocument({
       collection: 'collections',
       match: { _id: collectionId },
       update

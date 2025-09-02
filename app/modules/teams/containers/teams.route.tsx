@@ -1,25 +1,23 @@
-import getDocuments from "~/core/documents/getDocuments";
-import createDocument from "~/core/documents/createDocument";
 import { useActionData, useNavigate, useSubmit } from "react-router";
 import type { Route } from "./+types/teams.route";
 import Teams from "../components/teams";
-import deleteDocument from "~/core/documents/deleteDocument";
 import { toast } from "sonner"
 import addDialog from "~/core/dialogs/addDialog";
 import CreateTeamDialog from "../components/createTeamDialog";
 import EditTeamDialog from "../components/editTeamDialog";
 import DeleteTeamDialog from "../components/deleteTeamDialog";
 import type { Team } from "../teams.types";
-import updateDocument from "~/core/documents/updateDocument";
 import { useEffect } from "react";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 type Teams = {
   data: [],
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const teams = await getDocuments({ collection: 'teams', match: {}, sort: {} }) as Teams;
+  const documents = getDocumentsAdapter();
+  const teams = await documents.getDocuments({ collection: 'teams', match: {}, sort: {} }) as Teams;
   return { teams };
 }
 
@@ -31,20 +29,22 @@ export async function action({
 
   const { name } = payload;
 
+  const documents = getDocumentsAdapter();
+
   switch (intent) {
     case 'CREATE_TEAM':
       if (typeof name !== "string") {
         throw new Error("Team name is required and must be a string.");
       }
-      const team = await createDocument({ collection: 'teams', update: { name } }) as { data: Team };
+      const team = await documents.createDocument({ collection: 'teams', update: { name } }) as { data: Team };
       return {
         intent: 'CREATE_TEAM',
         ...team
       }
     case 'UPDATE_TEAM':
-      return await updateDocument({ collection: 'teams', match: { _id: Number(entityId) }, update: { name } });
+      return await documents.updateDocument({ collection: 'teams', match: { _id: Number(entityId) }, update: { name } });
     case 'DELETE_TEAM':
-      return await deleteDocument({ collection: 'teams', match: { _id: Number(entityId) } })
+      return await documents.deleteDocument({ collection: 'teams', match: { _id: Number(entityId) } })
     default:
       return {};
   }

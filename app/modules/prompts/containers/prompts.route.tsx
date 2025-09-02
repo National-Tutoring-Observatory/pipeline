@@ -1,25 +1,23 @@
-import getDocuments from "~/core/documents/getDocuments";
-import createDocument from "~/core/documents/createDocument";
 import { useActionData, useNavigate, useSubmit } from "react-router";
 import type { Route } from "./+types/prompts.route";
 import Prompts from "../components/prompts";
-import deleteDocument from "~/core/documents/deleteDocument";
 import { toast } from "sonner"
 import addDialog from "~/core/dialogs/addDialog";
 import CreatePromptDialog from "../components/createPromptDialog";
 import type { Prompt } from "../prompts.types";
-import updateDocument from "~/core/documents/updateDocument";
 import { useEffect } from "react";
 import EditPromptDialog from "../components/editPromptDialog";
 import DeletePromptDialog from "../components/deletePromptDialog";
 import updateBreadcrumb from "~/core/app/updateBreadcrumb";
+import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 type Prompts = {
   data: [],
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const prompts = await getDocuments({ collection: 'prompts', match: {}, sort: {} }) as Prompts;
+  const documents = getDocumentsAdapter();
+  const prompts = await documents.getDocuments({ collection: 'prompts', match: {}, sort: {} }) as Prompts;
   return { prompts };
 }
 
@@ -31,13 +29,15 @@ export async function action({
 
   const { name, annotationType } = payload;
 
+  const documents = getDocumentsAdapter();
+
   switch (intent) {
     case 'CREATE_PROMPT':
       if (typeof name !== "string") {
         throw new Error("Prompt name is required and must be a string.");
       }
-      const prompt = await createDocument({ collection: 'prompts', update: { name, annotationType, productionVersion: 1 } }) as { data: Prompt };
-      await createDocument({
+      const prompt = await documents.createDocument({ collection: 'prompts', update: { name, annotationType, productionVersion: 1 } }) as { data: Prompt };
+      await documents.createDocument({
         collection: 'promptVersions', update: {
           name: 'initial',
           prompt: prompt.data._id, version: 1,
@@ -59,9 +59,9 @@ export async function action({
         ...prompt
       }
     case 'UPDATE_PROMPT':
-      return await updateDocument({ collection: 'prompts', match: { _id: Number(entityId) }, update: { name } });
+      return await documents.updateDocument({ collection: 'prompts', match: { _id: Number(entityId) }, update: { name } });
     case 'DELETE_PROMPT':
-      return await deleteDocument({ collection: 'prompts', match: { _id: Number(entityId) } })
+      return await documents.deleteDocument({ collection: 'prompts', match: { _id: Number(entityId) } })
     default:
       return {};
   }
