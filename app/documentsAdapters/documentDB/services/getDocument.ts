@@ -1,7 +1,7 @@
 import getDatabaseConnection from '../helpers/getDatabaseConnection';
 import getModelFromCollection from '../helpers/getModelFromCollection';
 
-export default async ({ collection, match, sort = {} }: { collection: string, match: {} | any, sort: {} }) => {
+export default async ({ collection, match }: { collection: string; match: any; }) => {
 
   try {
 
@@ -10,13 +10,10 @@ export default async ({ collection, match, sort = {} }: { collection: string, ma
     const model = getModelFromCollection(collection);
     const Model = connection.models[model];
 
-    const data = await Model.find({});
+    const data = await Model.findById(match._id);
 
     return {
-      currentPage: 1,
-      totalPages: 1,
-      count: data.length,
-      data: JSON.parse(JSON.stringify(data))
+      data: data.toObject()
     }
 
   } catch (error) {

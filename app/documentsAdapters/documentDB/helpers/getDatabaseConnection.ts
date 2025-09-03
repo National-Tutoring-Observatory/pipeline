@@ -7,14 +7,6 @@ interface DatabaseConnection {
 
 let CONNECTION: DatabaseConnection | undefined;
 
-const projectSchema = new mongoose.Schema({
-  name: String,
-});
-
-if (!mongoose.models.Project) {
-  mongoose.model('Project', projectSchema);
-}
-
 export default async () => {
 
   const { DOCUMENT_DB_CONNECTION_STRING } = process.env;
