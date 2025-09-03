@@ -3,10 +3,10 @@ export interface Run {
   name: string;
   project: string;
   annotationType: string;
-  prompt: number;
+  prompt: string;
   promptVersion: number;
   model: string;
-  sessions: { sessionId: number, status: string, name: string, fileType: string, startedAt: Date, finishedAt: Date }[]
+  sessions: { sessionId: string, status: string, name: string, fileType: string, startedAt: Date, finishedAt: Date }[]
   hasSetup: boolean;
   isRunning: boolean;
   isComplete: boolean;
@@ -21,8 +21,8 @@ export interface Run {
 
 export interface CreateRun {
   selectedAnnotationType: string,
-  selectedPrompt: number | null,
+  selectedPrompt: string | null,
   selectedPromptVersion: number | null,
   selectedModel: string,
-  selectedSessions: number[]
+  selectedSessions: string[]
 }

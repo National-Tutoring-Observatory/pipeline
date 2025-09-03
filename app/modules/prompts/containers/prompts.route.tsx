@@ -59,9 +59,9 @@ export async function action({
         ...prompt
       }
     case 'UPDATE_PROMPT':
-      return await documents.updateDocument({ collection: 'prompts', match: { _id: Number(entityId) }, update: { name } });
+      return await documents.updateDocument({ collection: 'prompts', match: { _id: entityId }, update: { name } });
     case 'DELETE_PROMPT':
-      return await documents.deleteDocument({ collection: 'prompts', match: { _id: Number(entityId) } })
+      return await documents.deleteDocument({ collection: 'prompts', match: { _id: entityId } })
     default:
       return {};
   }

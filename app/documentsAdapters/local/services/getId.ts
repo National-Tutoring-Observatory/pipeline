@@ -1,18 +1,11 @@
 import fse from 'fs-extra';
 import findOrCreateDocuments from './findOrCreateDocuments';
+import mongoose from 'mongoose';
 
 export default async () => {
 
-  await findOrCreateDocuments({ collection: 'config' });
+  const id = new mongoose.Types.ObjectId();
 
-  const json = await fse.readJson(`./data/config.json`);
-
-  const currentId = json.id;
-
-  json.id = json.id + 1;
-
-  await fse.writeJson(`./data/config.json`, json);
-
-  return currentId;
+  return id.toString();
 
 }

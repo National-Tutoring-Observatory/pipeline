@@ -18,13 +18,13 @@ type Run = {
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: parseInt(params.projectId), }, }) as Project;
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: parseInt(params.runId), project: parseInt(params.projectId) }, }) as Run;
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.projectId, }, }) as Project;
+  const run = await documents.getDocument({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, }) as Run;
   let runPrompt;
   let runPromptVersion;
   if (run.data.hasSetup) {
-    runPrompt = await documents.getDocument({ collection: 'prompts', match: { _id: Number(run.data.prompt) } }) as { data: Prompt };
-    runPromptVersion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: Number(run.data.prompt), version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
+    runPrompt = await documents.getDocument({ collection: 'prompts', match: { _id: run.data.prompt } }) as { data: Prompt };
+    runPromptVersion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
   }
   return { project, run, runPrompt, runPromptVersion };
 }
@@ -53,7 +53,7 @@ export async function action({
 
       const run = await documents.getDocument({
         collection: 'runs',
-        match: { _id: Number(params.runId), project: Number(params.projectId) }
+        match: { _id: params.runId, project: params.projectId }
       }) as Run;
 
       const sessionsAsObjects = [];
@@ -70,7 +70,7 @@ export async function action({
 
       await documents.updateDocument({
         collection: 'runs',
-        match: { _id: Number(params.runId) },
+        match: { _id: params.runId },
         update: {
           hasSetup: true,
           annotationType,
@@ -88,14 +88,14 @@ export async function action({
     case 'RE_RUN': {
       const run = await documents.getDocument({
         collection: 'runs',
-        match: { _id: Number(params.runId), project: Number(params.projectId) }
+        match: { _id: params.runId, project: params.projectId }
       }) as Run;
       annotateRunSessions({ runId: run.data._id });
       return {};
     }
     case 'EXPORT_RUN': {
 
-      exportRun({ runId: Number(params.runId), exportType });
+      exportRun({ runId: params.runId, exportType });
 
       return {};
     }
@@ -126,7 +126,7 @@ export default function ProjectRunRoute() {
       intent: 'START_RUN',
       payload: {
         annotationType: selectedAnnotationType,
-        prompt: Number(selectedPrompt),
+        prompt: selectedPrompt,
         promptVersion: Number(selectedPromptVersion),
         model: selectedModel,
         sessions: selectedSessions

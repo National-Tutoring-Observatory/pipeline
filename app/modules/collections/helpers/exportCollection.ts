@@ -6,7 +6,7 @@ import includes from 'lodash/includes';
 import type { Run } from "~/modules/runs/runs.types";
 import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
-export default async function exportCollection({ collectionId, exportType }: { collectionId: number, exportType: string }) {
+export default async function exportCollection({ collectionId, exportType }: { collectionId: string, exportType: string }) {
 
   const documents = getDocumentsAdapter();
 
@@ -15,7 +15,7 @@ export default async function exportCollection({ collectionId, exportType }: { c
   const runs = await documents.getDocuments({
     collection: 'runs',
     match: (item: Run) => {
-      if (includes(collection.data.runs, Number(item._id))) {
+      if (includes(collection.data.runs, item._id)) {
         return true;
       }
     }, sort: {}
@@ -38,7 +38,7 @@ export default async function exportCollection({ collectionId, exportType }: { c
   if (exportType === 'CSV') {
     await outputCollectionDataToCSV({ body: { collection: collection.data, runs: runs.data, inputFolder: inputDirectory, outputFolder: outputDirectory } });
   } else {
-    await outputCollectionDataToJSON({ body: { collection: collection.data, runs: runs.data, inputFolder: inputDirectory, outputFolder: outputDirectory } });
+    //await outputCollectionDataToJSON({ body: { collection: collection.data, runs: runs.data, inputFolder: inputDirectory, outputFolder: outputDirectory } });
   }
 
   let update = { isExporting: false, hasExportedCSV: collection.data.hasExportedCSV, hasExportedJSONL: collection.data.hasExportedJSONL };

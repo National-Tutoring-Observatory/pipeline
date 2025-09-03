@@ -12,9 +12,9 @@ export default function PromptSelectorContainer({
   onSelectedPromptVersionChanged
 }: {
   annotationType: string,
-  selectedPrompt: number | null,
+  selectedPrompt: string | null,
   selectedPromptVersion: number | null,
-  onSelectedPromptChanged: (selectedPrompt: number) => void,
+  onSelectedPromptChanged: (selectedPrompt: string) => void,
   onSelectedPromptVersionChanged: (selectedPromptVersion: number) => void
 }) {
 
@@ -45,12 +45,12 @@ export default function PromptSelectorContainer({
     setIsPromptVersionsOpen(isPromptsOpen);
   }
 
-  const onSelectedPromptChange = (selectedPrompt: number) => {
+  const onSelectedPromptChange = (selectedPrompt: string) => {
     onSelectedPromptChanged(selectedPrompt);
     const params = new URLSearchParams();
-    params.set('prompt', String(selectedPrompt))
+    params.set('prompt', selectedPrompt)
     promptVersionsFetcher.load(`/api/promptVersionsList?${params.toString()}`);
-    const selectedPromptItem = find(promptsFetcher.data.prompts.data, { _id: Number(selectedPrompt) });
+    const selectedPromptItem = find(promptsFetcher.data.prompts.data, { _id: selectedPrompt });
     if (selectedPromptItem) {
       onSelectedPromptVersionChanged(selectedPromptItem.productionVersion);
     }
@@ -66,7 +66,7 @@ export default function PromptSelectorContainer({
 
   let productionVersion = null;
   if (selectedPrompt) {
-    const selectedPromptItem = find(promptsFetcher.data?.prompts?.data, { _id: Number(selectedPrompt) });
+    const selectedPromptItem = find(promptsFetcher.data?.prompts?.data, { _id: selectedPrompt });
     if (selectedPromptItem) {
       productionVersion = selectedPromptItem.productionVersion;
     }

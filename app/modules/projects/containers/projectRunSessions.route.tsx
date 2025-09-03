@@ -13,10 +13,10 @@ import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: parseInt(params.projectId), }, }) as Project;
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: parseInt(params.runId), project: parseInt(params.projectId) }, }) as { data: Run };
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.projectId, }, }) as Project;
+  const run = await documents.getDocument({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, }) as { data: Run };
   const session = find(run.data.sessions, (session) => {
-    if (Number(session.sessionId) === Number(params.sessionId)) {
+    if (session.sessionId === params.sessionId) {
       return session;
     }
   }) as { name: string };

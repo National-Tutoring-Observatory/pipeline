@@ -16,7 +16,7 @@ export default async function uploadFiles({ files, entityId }: { files: any, ent
       const document = await documents.createDocument({
         collection: 'files',
         update: {
-          project: parseInt(entityId),
+          project: entityId,
           fileType: file.type,
           name,
           hasUploaded: false
@@ -27,20 +27,20 @@ export default async function uploadFiles({ files, entityId }: { files: any, ent
         await documents.updateDocument({
           collection: 'files',
           match: {
-            _id: parseInt(document.data._id)
+            _id: document.data._id
           },
           update: {
             hasUploaded: true
           }
         });
         completedFiles++;
-        emitter.emit("UPLOAD_FILES", { projectId: parseInt(entityId), progress: Math.round((100 / files.length) * completedFiles), status: 'RUNNING' });
+        emitter.emit("UPLOAD_FILES", { projectId: entityId, progress: Math.round((100 / files.length) * completedFiles), status: 'RUNNING' });
       });
 
     } else {
       console.warn('Expected a File, but got:', file);
     }
   }
-  await documents.updateDocument({ collection: 'projects', match: { _id: parseInt(entityId) }, update: { isUploadingFiles: false } }) as { data: Project };
-  emitter.emit("UPLOAD_FILES", { projectId: parseInt(entityId), progress: 100, status: 'DONE' });
+  await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: false } }) as { data: Project };
+  emitter.emit("UPLOAD_FILES", { projectId: entityId, progress: 100, status: 'DONE' });
 }

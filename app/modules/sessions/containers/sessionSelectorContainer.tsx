@@ -9,8 +9,8 @@ export default function SessionSelectorContainer({
   selectedSessions,
   onSelectedSessionsChanged
 }: {
-  selectedSessions: number[],
-  onSelectedSessionsChanged: (selectedSessions: number[]) => void
+  selectedSessions: string[],
+  onSelectedSessionsChanged: (selectedSessions: string[]) => void
 }) {
 
   const sessionsFetcher = useFetcher({ key: 'sessionsList' });
@@ -25,7 +25,7 @@ export default function SessionSelectorContainer({
     }
   }
 
-  const onSelectSessionToggled = ({ sessionId, isChecked }: { sessionId: number, isChecked: boolean }) => {
+  const onSelectSessionToggled = ({ sessionId, isChecked }: { sessionId: string, isChecked: boolean }) => {
     let clonedSelectedSessions = cloneDeep(selectedSessions);
     if (isChecked) {
       clonedSelectedSessions.push(sessionId);

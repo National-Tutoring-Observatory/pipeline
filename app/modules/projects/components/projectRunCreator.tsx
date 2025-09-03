@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import type { CreateRun, Run } from "~/modules/runs/runs.types";
 import PromptSelectorContainer from '~/modules/prompts/containers/promptSelectorContainer';
 import ModelSelectorContainer from '~/modules/prompts/containers/modelSelectorContainer';
 import { Label } from "@/components/ui/label";
@@ -30,18 +29,18 @@ export default function ProjectRunCreator({
   onSelectRandomSampleSizeButtonClicked
 }: {
   selectedAnnotationType: string,
-  selectedPrompt: number | null,
+  selectedPrompt: string | null,
   selectedPromptVersion: number | null,
   selectedModel: string,
-  selectedSessions: number[],
+  selectedSessions: string[],
   randomSampleSize: number,
   sessionsCount: number,
   isRunButtonDisabled: boolean,
   onSelectedAnnotationTypeChanged: (selectedAnnotationType: string) => void,
-  onSelectedPromptChanged: (selectedPrompt: number) => void,
+  onSelectedPromptChanged: (selectedPrompt: string) => void,
   onSelectedPromptVersionChanged: (selectedPromptVersion: number) => void,
   onSelectedModelChanged: (selectedModel: string) => void,
-  onSelectedSessionsChanged: (selectedSessions: number[]) => void,
+  onSelectedSessionsChanged: (selectedSessions: string[]) => void,
   onStartRunButtonClicked: () => void,
   onRandomSampleSizeChanged: (randomSampleSize: number) => void
   onSelectRandomSampleSizeButtonClicked: () => void

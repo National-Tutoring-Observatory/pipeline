@@ -9,10 +9,10 @@ import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const prompt = await documents.getDocument({ collection: 'prompts', match: { _id: parseInt(params.id) } }) as { data: PromptType };
+  const prompt = await documents.getDocument({ collection: 'prompts', match: { _id: params.id } }) as { data: PromptType };
   const promptVersions = await documents.getDocuments({
     collection: 'promptVersions',
-    match: { prompt: parseInt(params.id) },
+    match: { prompt: params.id },
     sort: { version: -1 },
   }) as { data: PromptVersion[] };
   return { prompt, promptVersions };
@@ -30,10 +30,10 @@ export async function action({
 
   switch (intent) {
     case 'CREATE_PROMPT_VERSION':
-      const previousPromptVerion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: Number(entityId), version: Number(version) } }) as { data: PromptVersion };
+      const previousPromptVerion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: entityId, version: Number(version) } }) as { data: PromptVersion };
       const newPromptAttributes = pick(previousPromptVerion.data, ['userPrompt', 'annotationSchema']);
-      const promptVerions = await documents.getDocuments({ collection: 'promptVersions', match: { prompt: Number(entityId) }, sort: {} }) as { count: number };
-      const promptVersion = await documents.createDocument({ collection: 'promptVersions', update: { ...newPromptAttributes, name: `${previousPromptVerion.data.name.replace(/#\d+/g, '').trim()} #${promptVerions.count + 1}`, prompt: Number(entityId), version: promptVerions.count + 1 } }) as { data: PromptVersion }
+      const promptVerions = await documents.getDocuments({ collection: 'promptVersions', match: { prompt: entityId }, sort: {} }) as { count: number };
+      const promptVersion = await documents.createDocument({ collection: 'promptVersions', update: { ...newPromptAttributes, name: `${previousPromptVerion.data.name.replace(/#\d+/g, '').trim()} #${promptVerions.count + 1}`, prompt: entityId, version: promptVerions.count + 1 } }) as { data: PromptVersion }
       return {
         intent: 'CREATE_PROMPT_VERSION',
         ...promptVersion

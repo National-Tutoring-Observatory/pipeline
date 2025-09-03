@@ -10,6 +10,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const project = url.searchParams.get('project');
   const documents = getDocumentsAdapter();
-  const runs = await documents.getDocuments({ collection: 'runs', match: { project: Number(project) }, sort: {} }) as Runs;
+  const runs = await documents.getDocuments({ collection: 'runs', match: { project: project }, sort: {} }) as Runs;
   return { runs };
 }

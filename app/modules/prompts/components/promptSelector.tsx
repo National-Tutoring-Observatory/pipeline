@@ -6,7 +6,7 @@ import { BookCheck, CheckIcon, ChevronsUpDownIcon, ViewIcon } from "lucide-react
 import type { Prompt, PromptVersion } from "../prompts.types"
 import { Badge } from "@/components/ui/badge"
 import find from 'lodash/find';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
 
 export default function PromptSelector({
@@ -26,7 +26,7 @@ export default function PromptSelector({
 }: {
   prompts: Prompt[],
   promptVersions: PromptVersion[],
-  selectedPrompt: number | null,
+  selectedPrompt: string | null,
   selectedPromptVersion: number | null,
   productionVersion: number,
   isLoadingPrompts: boolean,
@@ -35,7 +35,7 @@ export default function PromptSelector({
   isPromptVersionsOpen: boolean,
   onTogglePromptPopover: (isPromptsOpen: boolean) => void,
   onTogglePromptVersionsPopover: (isPromptVersionsOpen: boolean) => void,
-  onSelectedPromptChange: (selectedPrompt: number) => void,
+  onSelectedPromptChange: (selectedPrompt: string) => void,
   onSelectedPromptVersionChange: (selectedPromptVersion: number) => void,
 }) {
 
@@ -55,7 +55,7 @@ export default function PromptSelector({
             className="w-[200px] justify-between"
           >
             {selectedPrompt
-              ? prompts.find((prompt: Prompt) => Number(prompt._id) === Number(selectedPrompt))?.name
+              ? prompts.find((prompt: Prompt) => prompt._id === selectedPrompt)?.name
               : "Select prompt..."}
             <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -83,14 +83,14 @@ export default function PromptSelector({
                     key={prompt._id}
                     value={prompt._id}
                     onSelect={(currentValue) => {
-                      onSelectedPromptChange(Number(prompt._id))
+                      onSelectedPromptChange(prompt._id)
                       onTogglePromptPopover(false)
                     }}
                   >
                     <CheckIcon
                       className={clsx(
                         "mr-2 h-4 w-4",
-                        Number(selectedPrompt) === Number(prompt._id) ? "opacity-100" : "opacity-0"
+                        selectedPrompt === prompt._id ? "opacity-100" : "opacity-0"
                       )}
                     />
                     {prompt.name}

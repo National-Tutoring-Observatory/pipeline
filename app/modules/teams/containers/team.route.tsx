@@ -12,8 +12,8 @@ import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const team = await documents.getDocument({ collection: 'teams', match: { _id: parseInt(params.id) } }) as { data: TeamType };
-  const projects = await documents.getDocuments({ collection: 'projects', match: { team: parseInt(team.data._id) }, sort: {} }) as { data: TeamType };
+  const team = await documents.getDocument({ collection: 'teams', match: { _id: params.id } }) as { data: TeamType };
+  const projects = await documents.getDocuments({ collection: 'projects', match: { team: team.data._id }, sort: {} }) as { data: TeamType };
   return { team, projects };
 }
 
@@ -36,7 +36,7 @@ export default function TeamRoute({ loaderData }: { loaderData: { team: { data: 
   }
 
   const onCreateNewProjectClicked = (name: string) => {
-    fetcher.submit({ intent: 'CREATE_PROJECT', payload: { name, team: parseInt(team.data._id) } }, {
+    fetcher.submit({ intent: 'CREATE_PROJECT', payload: { name, team: team.data._id } }, {
       action: "/api/projects",
       method: "post",
       encType: "application/json"

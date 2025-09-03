@@ -16,9 +16,9 @@ export async function action({
 
   const documents = getDocumentsAdapter();
 
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: Number(params.runId) } }) as { data: Run };
+  const run = await documents.getDocument({ collection: 'runs', match: { _id: params.runId } }) as { data: Run };
 
-  const session = await documents.getDocument({ collection: 'sessions', match: { _id: Number(params.sessionId) } }) as { data: Session };
+  const session = await documents.getDocument({ collection: 'sessions', match: { _id: params.sessionId } }) as { data: Session };
 
   const sessionPath = `storage/${run.data.project}/runs/${params.runId}/${params.sessionId}/${session.data.name}`;
 

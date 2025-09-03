@@ -9,7 +9,7 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
 
   const documents = getDocumentsAdapter();
 
-  const projectFiles = await documents.getDocuments({ collection: 'files', match: { project: parseInt(entityId) }, sort: {} }) as { data: Array<File> };
+  const projectFiles = await documents.getDocuments({ collection: 'files', match: { project: entityId }, sort: {} }) as { data: Array<File> };
 
   const inputDirectory = `storage/${entityId}/files`;
 
@@ -28,9 +28,9 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
     }) as { data: Session };
   }
 
-  emitter.emit("CONVERT_FILES", { projectId: parseInt(entityId), progress: 0, status: 'STARTED' });
+  emitter.emit("CONVERT_FILES", { projectId: entityId, progress: 0, status: 'STARTED' });
 
-  const projectSessions = await documents.getDocuments({ collection: 'sessions', match: { project: parseInt(entityId) }, sort: {} }) as { data: Array<Session> };
+  const projectSessions = await documents.getDocuments({ collection: 'sessions', match: { project: entityId }, sort: {} }) as { data: Array<Session> };
 
   let completedFiles = 0;
 
@@ -54,7 +54,7 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
     await documents.updateDocument({
       collection: 'sessions',
       match: {
-        _id: parseInt(projectFile._id)
+        _id: projectFile._id
       },
       update: {
         hasConverted,
@@ -62,10 +62,10 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
       }
     });
     completedFiles++;
-    emitter.emit("CONVERT_FILES", { projectId: parseInt(entityId), progress: Math.round((100 / projectSessions.data.length) * completedFiles), status: 'RUNNING' });
+    emitter.emit("CONVERT_FILES", { projectId: entityId, progress: Math.round((100 / projectSessions.data.length) * completedFiles), status: 'RUNNING' });
   }
 
-  await documents.updateDocument({ collection: 'projects', match: { _id: parseInt(entityId) }, update: { isConvertingFiles: false } }) as { data: Project };
-  emitter.emit("CONVERT_FILES", { projectId: parseInt(entityId), progress: 100, status: 'DONE' });
+  await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isConvertingFiles: false } }) as { data: Project };
+  emitter.emit("CONVERT_FILES", { projectId: entityId, progress: 100, status: 'DONE' });
 
 }

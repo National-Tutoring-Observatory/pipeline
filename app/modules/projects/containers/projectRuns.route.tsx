@@ -16,7 +16,7 @@ type Runs = {
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const runs = await documents.getDocuments({ collection: 'runs', match: { project: parseInt(params.id) }, sort: {} }) as Runs;
+  const runs = await documents.getDocuments({ collection: 'runs', match: { project: params.id }, sort: {} }) as Runs;
   return { runs };
 }
 
@@ -43,7 +43,7 @@ export async function action({
       }
       run = await documents.createDocument({
         collection: 'runs', update: {
-          project: Number(params.id),
+          project: params.id,
           name,
           annotationType,
           hasSetup: false,
@@ -64,7 +64,7 @@ export async function action({
       await documents.updateDocument({
         collection: 'runs',
         match: {
-          _id: Number(entityId),
+          _id: entityId,
         },
         update: {
           name
@@ -80,7 +80,7 @@ export async function action({
       const existingRun = await documents.getDocument({
         collection: 'runs',
         match: {
-          _id: Number(entityId),
+          _id: entityId,
         }
       }) as { data: Run };
       const { project, annotationType, prompt, promptVersion, model, sessions } = existingRun.data;

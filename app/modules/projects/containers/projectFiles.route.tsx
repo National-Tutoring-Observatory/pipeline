@@ -10,7 +10,7 @@ type Files = {
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const files = await documents.getDocuments({ collection: 'files', match: { project: parseInt(params.id) }, sort: {} }) as Files;
+  const files = await documents.getDocuments({ collection: 'files', match: { project: params.id }, sort: {} }) as Files;
   return { files };
 }
 

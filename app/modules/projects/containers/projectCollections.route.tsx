@@ -16,7 +16,7 @@ type Collections = {
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const collections = await documents.getDocuments({ collection: 'collections', match: { project: parseInt(params.id) }, sort: {} }) as Collections;
+  const collections = await documents.getDocuments({ collection: 'collections', match: { project: params.id }, sort: {} }) as Collections;
   return { collections };
 }
 
@@ -40,7 +40,7 @@ export async function action({
       }
       collection = await documents.createDocument({
         collection: 'collections', update: {
-          project: Number(params.id),
+          project: params.id,
           name,
           sessions: [],
           runs: [],
@@ -60,7 +60,7 @@ export async function action({
       await documents.updateDocument({
         collection: 'collections',
         match: {
-          _id: Number(entityId),
+          _id: entityId,
         },
         update: {
           name
@@ -76,7 +76,7 @@ export async function action({
       const existingCollection = await documents.getDocument({
         collection: 'collections',
         match: {
-          _id: Number(entityId),
+          _id: entityId,
         }
       }) as { data: Collection };
       const { project, sessions } = existingCollection.data;
