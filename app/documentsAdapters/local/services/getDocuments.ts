@@ -1,5 +1,5 @@
 import fse from 'fs-extra';
-import findOrCreateDocuments from './findOrCreateDocuments';
+import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import filter from 'lodash/filter';
 import each from 'lodash/each';
 import orderBy from 'lodash/orderBy';

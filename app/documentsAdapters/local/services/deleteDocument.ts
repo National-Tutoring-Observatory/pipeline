@@ -1,6 +1,6 @@
 import fse from 'fs-extra';
 import remove from 'lodash/remove.js';
-import findOrCreateDocuments from './findOrCreateDocuments';
+import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 
 export default async ({ collection, match }: { collection: string, match: { _id: string } }) => {
 
