@@ -42,9 +42,9 @@ export async function action({
         ...project
       }
     case 'UPDATE_PROJECT':
-      return await documents.updateDocument({ collection: 'projects', match: { _id: Number(entityId) }, update: { name } });
+      return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { name } });
     case 'DELETE_PROJECT':
-      return await documents.deleteDocument({ collection: 'projects', match: { _id: Number(entityId) } })
+      return await documents.deleteDocument({ collection: 'projects', match: { _id: entityId } })
     default:
       return {};
   }

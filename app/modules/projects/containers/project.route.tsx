@@ -18,12 +18,12 @@ import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: parseInt(params.id) } }) as { data: ProjectType };
-  const files = await documents.getDocuments({ collection: 'files', match: { project: parseInt(params.id) }, sort: {} }) as { count: number };
-  const sessions = await documents.getDocuments({ collection: 'sessions', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Session[] };
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.id } }) as { data: ProjectType };
+  const files = await documents.getDocuments({ collection: 'files', match: { project: params.id }, sort: {} }) as { count: number };
+  const sessions = await documents.getDocuments({ collection: 'sessions', match: { project: params.id }, sort: {} }) as { count: number, data: Session[] };
   const convertedSessionsCount = filter(sessions.data, { hasConverted: true }).length;
-  const runs = await documents.getDocuments({ collection: 'runs', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Run[] };
-  const collections = await documents.getDocuments({ collection: 'collections', match: { project: parseInt(params.id) }, sort: {} }) as { count: number, data: Collection[] };
+  const runs = await documents.getDocuments({ collection: 'runs', match: { project: params.id }, sort: {} }) as { count: number, data: Run[] };
+  const collections = await documents.getDocuments({ collection: 'collections', match: { project: params.id }, sort: {} }) as { count: number, data: Collection[] };
   return { project, filesCount: files.count, sessionsCount: sessions.count, convertedSessionsCount, runsCount: runs.count, collectionsCount: collections.count };
 }
 
@@ -56,7 +56,7 @@ export async function action({
 
     const documents = getDocumentsAdapter();
 
-    return await documents.updateDocument({ collection: 'projects', match: { _id: parseInt(entityId) }, update: { isUploadingFiles: true, isConvertingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
+    return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, isConvertingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
 
   }
 }

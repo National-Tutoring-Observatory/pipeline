@@ -11,10 +11,10 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
 }) {
 
   const [selectedAnnotationType, setSelectedAnnotationType] = useState(run.annotationType);
-  const [selectedPrompt, setSelectedPrompt] = useState(run.prompt as number | null);
+  const [selectedPrompt, setSelectedPrompt] = useState(run.prompt as string | null);
   const [selectedPromptVersion, setSelectedPromptVersion] = useState(run.promptVersion as number | null);
   const [selectedModel, setSelectedModel] = useState(run.model || 'GEMINI');
-  const [selectedSessions, setSelectedSessions] = useState<number[]>(map(run.sessions, 'sessionId'));
+  const [selectedSessions, setSelectedSessions] = useState<string[]>(map(run.sessions, 'sessionId'));
   const [randomSampleSize, setRandomSampleSize] = useState(0);
   const [isRunButtonDisabled, setIsRunButtonDisabled] = useState(true);
 
@@ -26,7 +26,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
     setSelectedAnnotationType(selectedAnnotationType);
   }
 
-  const onSelectedPromptChanged = (selectedPrompt: number) => {
+  const onSelectedPromptChanged = (selectedPrompt: string) => {
     setSelectedPrompt(selectedPrompt);
   }
 
@@ -38,7 +38,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
     setSelectedModel(selectedModel);
   }
 
-  const onSelectedSessionsChanged = (selectedSessions: number[]) => {
+  const onSelectedSessionsChanged = (selectedSessions: string[]) => {
     setSelectedSessions(selectedSessions);
   }
 

@@ -12,21 +12,21 @@ export default function CollectionCreatorContainer({
     onSetupCollection: ({ selectedSessions, selectedRuns }: CreateCollection) => void
   }) {
 
-  const [selectedBaseRun, setSelectedBaseRun] = useState(null as number | null);
-  const [selectedBaseRunSessions, setSelectedBaseRunSessions] = useState([] as number[]);
-  const [selectedRuns, setSelectedRuns] = useState([] as number[]);
+  const [selectedBaseRun, setSelectedBaseRun] = useState(null as string | null);
+  const [selectedBaseRunSessions, setSelectedBaseRunSessions] = useState([] as string[]);
+  const [selectedRuns, setSelectedRuns] = useState([] as string[]);
 
   const runsFetcher = useFetcher({ key: 'runsList' });
 
   const params = useParams();
 
   const onBaseRunClicked = (run: Run) => {
-    setSelectedBaseRun(Number(run._id));
+    setSelectedBaseRun(run._id);
     setSelectedBaseRunSessions(map(run.sessions, 'sessionId'));
-    setSelectedRuns([Number(run._id)]);
+    setSelectedRuns([run._id]);
   }
 
-  const onSelectRunToggled = ({ runId, isChecked }: { runId: number, isChecked: boolean }) => {
+  const onSelectRunToggled = ({ runId, isChecked }: { runId: string, isChecked: boolean }) => {
     let clonedSelectedSessions = cloneDeep(selectedRuns);
     if (isChecked) {
       clonedSelectedSessions.push(runId);

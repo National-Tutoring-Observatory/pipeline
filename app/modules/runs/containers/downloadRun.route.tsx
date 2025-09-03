@@ -18,7 +18,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const run = await documents.getDocument({
     collection: 'runs',
-    match: { _id: Number(params.runId), project: Number(params.projectId) }
+    match: { _id: params.runId, project: params.projectId }
   }) as { data: Run };
 
   const archive = archiver('zip', {

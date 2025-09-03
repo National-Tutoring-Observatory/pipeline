@@ -5,7 +5,7 @@ import extend from 'lodash/extend.js';
 
 const COLLECTIONS = ['projects', 'runs'];
 
-export default async ({ collection, match, update }: { collection: string, match: { _id: number }, update: {} }) => {
+export default async ({ collection, match, update }: { collection: string, match: { _id: string }, update: {} }) => {
 
   try {
     await findOrCreateDocuments({ collection });

@@ -18,12 +18,12 @@ export default function CollectionCreator({
   onSetupCollectionButtonClicked
 }: {
   runs: Run[],
-  selectedBaseRun: number | null,
-  selectedBaseRunSessions: number[],
-  selectedRuns: number[],
+  selectedBaseRun: string | null,
+  selectedBaseRunSessions: string[],
+  selectedRuns: string[],
   isSetupCollectionButtonDisabled: boolean,
   onBaseRunClicked: (run: Run) => void,
-  onSelectRunToggled: ({ runId, isChecked }: { runId: number, isChecked: boolean }) => void,
+  onSelectRunToggled: ({ runId, isChecked }: { runId: string, isChecked: boolean }) => void,
   onSetupCollectionButtonClicked: () => void
 }) {
   return (
@@ -39,7 +39,7 @@ export default function CollectionCreator({
             {map(runs, (run) => {
 
               const className = clsx("w-full rounded-none justify-start", {
-                "bg-purple-100 hover:bg-purple-100": selectedBaseRun === Number(run._id)
+                "bg-purple-100 hover:bg-purple-100": selectedBaseRun === run._id
               });
 
               return (
@@ -59,7 +59,7 @@ export default function CollectionCreator({
           <div>
 
             {map(runs, (run) => {
-              if (Number(run._id) === selectedBaseRun) return null;
+              if (run._id === selectedBaseRun) return null;
               const runSessions = map(run.sessions, 'sessionId');
 
               const test = xor(runSessions, selectedBaseRunSessions);
@@ -71,8 +71,8 @@ export default function CollectionCreator({
                   <Checkbox
                     id={`collection-creator-${run._id}`}
 
-                    checked={includes(selectedRuns, Number(run._id))}
-                    onCheckedChange={(checked) => onSelectRunToggled({ runId: Number(run._id), isChecked: Boolean(checked) })}
+                    checked={includes(selectedRuns, run._id)}
+                    onCheckedChange={(checked) => onSelectRunToggled({ runId: run._id, isChecked: Boolean(checked) })}
                   >
 
                   </Checkbox>

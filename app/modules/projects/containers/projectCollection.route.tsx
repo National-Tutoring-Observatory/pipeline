@@ -17,12 +17,12 @@ type Collection = {
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: parseInt(params.projectId), }, }) as Project;
-  const collection = await documents.getDocument({ collection: 'collections', match: { _id: parseInt(params.collectionId), project: parseInt(params.projectId) }, }) as Collection;
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.projectId, }, }) as Project;
+  const collection = await documents.getDocument({ collection: 'collections', match: { _id: params.collectionId, project: params.projectId }, }) as Collection;
   const runs = await documents.getDocuments({
     collection: 'runs',
     match: (item: Run) => {
-      if (includes(collection.data.runs, Number(item._id))) {
+      if (includes(collection.data.runs, item._id)) {
         return true;
       }
     }, sort: {}
@@ -51,12 +51,12 @@ export async function action({
     case 'SETUP_COLLECTION':
       const collection = await documents.getDocument({
         collection: 'collections',
-        match: { _id: Number(params.collectionId), project: Number(params.projectId) }
+        match: { _id: params.collectionId, project: params.projectId }
       }) as Collection;
 
       await documents.updateDocument({
         collection: 'collections',
-        match: { _id: Number(params.collectionId) },
+        match: { _id: params.collectionId },
         update: {
           hasSetup: true,
           sessions,
@@ -67,7 +67,7 @@ export async function action({
       return {}
     case 'EXPORT_COLLECTION': {
 
-      exportCollection({ collectionId: Number(params.collectionId), exportType });
+      exportCollection({ collectionId: params.collectionId, exportType });
 
       return {};
     }

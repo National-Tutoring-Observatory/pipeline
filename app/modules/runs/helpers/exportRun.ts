@@ -4,7 +4,7 @@ import { handler as outputRunDataToCSV } from '../../../functions/outputRunDataT
 import { handler as outputRunDataToJSON } from '../../../functions/outputRunDataToJSON/app';
 import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
-export default async function exportRun({ runId, exportType }: { runId: number, exportType: string }) {
+export default async function exportRun({ runId, exportType }: { runId: string, exportType: string }) {
 
   const documents = getDocumentsAdapter();
 
@@ -22,7 +22,7 @@ export default async function exportRun({ runId, exportType }: { runId: number, 
     }
   });
 
-  emitter.emit("EXPORT_RUN", { runId: Number(runId), progress: 0, status: 'STARTED' });
+  emitter.emit("EXPORT_RUN", { runId, progress: 0, status: 'STARTED' });
 
   if (exportType === 'CSV') {
     await outputRunDataToCSV({ body: { run: run.data, inputFolder: inputDirectory, outputFolder: outputDirectory } });
@@ -48,7 +48,7 @@ export default async function exportRun({ runId, exportType }: { runId: number, 
     });
 
 
-    emitter.emit("EXPORT_RUN", { runId: Number(runId), progress: 100, status: 'DONE' });
+    emitter.emit("EXPORT_RUN", { runId: runId, progress: 100, status: 'DONE' });
 
   }, 2000);
 

@@ -10,7 +10,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
 
   const documents = getDocumentsAdapter();
 
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: Number(runId) } }) as { data: Run };
+  const run = await documents.getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
 
   if (run.data.isRunning) { return {} }
 
@@ -20,16 +20,16 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
 
   await documents.updateDocument({
     collection: 'runs',
-    match: { _id: Number(runId) },
+    match: { _id: runId },
     update: {
       isRunning: true,
       startedAt: new Date()
     }
   });
 
-  const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: Number(run.data.prompt), version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
+  const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
 
-  emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: 0, status: 'STARTED', step: `0/${run.data.sessions.length}` });
+  emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: 0, status: 'STARTED', step: `0/${run.data.sessions.length}` });
 
   let annotationFields: Record<string, any> = {};
 
@@ -45,7 +45,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
   for (const session of run.data.sessions) {
     if (session.status === 'DONE') {
       completedSessions++;
-      emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING' });
+      emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING' });
       continue;
     }
     const sessionModel = await documents.getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
@@ -55,13 +55,13 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
 
     await documents.updateDocument({
       collection: 'runs',
-      match: { _id: Number(runId) },
+      match: { _id: runId },
       update: {
         sessions: run.data.sessions
       }
     });
 
-    emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING', step: `${completedSessions + 1}/${run.data.sessions.length}` });
+    emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING', step: `${completedSessions + 1}/${run.data.sessions.length}` });
 
     let status;
 
@@ -96,18 +96,18 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
     session.finishedAt = new Date();
     await documents.updateDocument({
       collection: 'runs',
-      match: { _id: Number(runId) },
+      match: { _id: runId },
       update: {
         sessions: run.data.sessions,
       }
     });
     completedSessions++;
-    emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING' });
+    emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING' });
   }
 
   await documents.updateDocument({
     collection: 'runs',
-    match: { _id: Number(runId) },
+    match: { _id: runId },
     update: {
       isRunning: false,
       isComplete: true,
@@ -116,6 +116,6 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
     }
   });
 
-  emitter.emit("ANNOTATE_RUN_SESSION", { runId: Number(runId), progress: 100, status: 'DONE' });
+  emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: 100, status: 'DONE' });
 
 }

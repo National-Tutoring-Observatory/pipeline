@@ -8,8 +8,8 @@ import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const prompt = await documents.getDocument({ collection: 'prompts', match: { _id: parseInt(params.id) } }) as { data: Prompt };
-  const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { version: parseInt(params.version), prompt: parseInt(params.id) } }) as { data: PromptVersion };
+  const prompt = await documents.getDocument({ collection: 'prompts', match: { _id: params.id } }) as { data: Prompt };
+  const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { version: Number(params.version), prompt: params.id } }) as { data: PromptVersion };
 
   return { prompt, promptVersion };
 }
@@ -29,14 +29,14 @@ export async function action({
     case 'UPDATE_PROMPT_VERSION':
       await documents.updateDocument({
         collection: 'promptVersions',
-        match: { _id: Number(entityId) },
+        match: { _id: entityId },
         update: { name, userPrompt, annotationSchema, hasBeenSaved: true, updatedAt: new Date(), }
       }) as { data: PromptVersion }
       return {};
     case 'MAKE_PROMPT_VERSION_PRODUCTION':
       await documents.updateDocument({
         collection: 'prompts',
-        match: { _id: Number(params.id) },
+        match: { _id: params.id },
         update: { productionVersion: Number(params.version) }
       }) as { data: Prompt }
       return {};
