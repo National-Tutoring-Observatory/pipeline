@@ -1,6 +1,6 @@
 import fse from 'fs-extra';
-import findOrCreateDocuments from './findOrCreateDocuments';
-import getId from './getId';
+import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
+import getId from '../helpers/getId';
 
 export default async ({ collection, update }: { collection: string, update: any }) => {
 

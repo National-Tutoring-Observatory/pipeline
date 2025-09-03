@@ -1,5 +1,5 @@
 import fse from 'fs-extra';
-import findOrCreateDocuments from './findOrCreateDocuments';
+import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import find from 'lodash/find.js';
 
 export default async ({ collection, match }: { collection: string, match: any }) => {
