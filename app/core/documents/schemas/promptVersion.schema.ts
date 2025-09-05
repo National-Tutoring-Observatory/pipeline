@@ -2,9 +2,11 @@ import mongoose from 'mongoose';
 
 export default new mongoose.Schema({
   name: { type: String },
-  isUploadingFiles: { type: Boolean, default: false },
-  isConvertingFiles: { type: Boolean, default: false },
-  hasSetupProject: { type: Boolean, default: false },
+  prompt: { type: mongoose.Types.ObjectId, ref: 'Prompt' },
+  version: { type: Number },
+  userPrompt: { type: String, default: '' },
+  annotationSchema: [],
+  hasBeenSaved: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   createdBy: { type: mongoose.Types.ObjectId, ref: 'User' },
   updatedAt: { type: Date },
