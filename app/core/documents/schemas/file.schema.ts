@@ -2,9 +2,8 @@ import mongoose from 'mongoose';
 
 export default new mongoose.Schema({
   name: { type: String },
-  isUploadingFiles: { type: Boolean, default: false },
-  isConvertingFiles: { type: Boolean, default: false },
-  hasSetupProject: { type: Boolean, default: false },
+  project: { type: mongoose.Types.ObjectId, ref: 'Project' },
+  fileType: { type: String },
   createdAt: { type: Date, default: Date.now },
   createdBy: { type: mongoose.Types.ObjectId, ref: 'User' },
   updatedAt: { type: Date },
