@@ -4,8 +4,6 @@ import find from 'lodash/find.js';
 import extend from 'lodash/extend.js';
 import validateDocument from '../helpers/validateDocument';
 
-const COLLECTIONS = ['projects', 'runs'];
-
 export default async ({ collection, match, update }: { collection: string, match: { _id: string }, update: {} }) => {
 
   try {
