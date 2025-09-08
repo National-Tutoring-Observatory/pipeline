@@ -1,6 +1,7 @@
 import fse from 'fs-extra';
 import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import getId from '../helpers/getId';
+import validateDocument from '../helpers/validateDocument';
 
 export default async ({ collection, update }: { collection: string, update: any }) => {
 
@@ -9,23 +10,18 @@ export default async ({ collection, update }: { collection: string, update: any 
 
     const json = await fse.readJson(`./data/${collection}.json`);
 
-    const id = await getId();
+    const document = await validateDocument({ collection, document: update });
 
-    const newDocument = {
-      ...update,
-      _id: id,
-      createdAt: new Date(),
-    }
-
-    json.push(newDocument);
+    json.push(document);
 
     await fse.writeJson(`./data/${collection}.json`, json);
 
     return {
-      data: newDocument
+      data: JSON.parse(JSON.stringify(document))
     }
 
   } catch (error) {
+    console.log(error);
     return error;
   }
 

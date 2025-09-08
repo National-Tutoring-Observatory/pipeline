@@ -2,6 +2,7 @@ import fse from 'fs-extra';
 import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import find from 'lodash/find.js';
 import extend from 'lodash/extend.js';
+import validateDocument from '../helpers/validateDocument';
 
 const COLLECTIONS = ['projects', 'runs'];
 
@@ -16,10 +17,12 @@ export default async ({ collection, match, update }: { collection: string, match
 
     extend(returnedDocument, update);
 
-    await fse.writeJson(`./data/${collection}.json`, json);
+    const document = await validateDocument({ collection, document: returnedDocument });
+
+    await fse.writeJson(`./data/${collection}.json`, document);
 
     return {
-      data: returnedDocument
+      data: JSON.parse(JSON.stringify(document))
     }
 
   } catch (error) {
