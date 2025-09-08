@@ -3,7 +3,8 @@ import type { Annotation, Utterance } from "../sessions.types";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
-import has from 'lodash/has';
+import SessionViewerAnnotationValue from './sessionViewerAnnotationValue';
+import map from 'lodash/map';
 
 export default function SessionViewerAnnotation({
   annotation,
@@ -18,46 +19,21 @@ export default function SessionViewerAnnotation({
 }) {
   return (
     <div className="p-4 bg-muted rounded-md mb-2">
-      {(has(annotation, 'teacherMove')) && (
+      {map(annotation, (annotationValue, annotationKey) => {
+        if (annotationKey === '_id' || annotationKey === 'identifiedBy') {
+          return null;
+        }
 
-        <div className="mb-2">
-          <div className="text-xs text-muted-foreground">
-            Teacher move
+        return (
+          <div className="mb-2" key={annotationKey} >
+            <div className="text-xs text-muted-foreground">
+              {annotationKey}
+            </div>
+            <SessionViewerAnnotationValue value={annotationValue} />
           </div>
-          <div>
-            {annotation.teacherMove}
-          </div>
-        </div>
-      )}
-      {(has(annotation, 'tutorMove')) && (
+        )
 
-        <div className="mb-2">
-          <div className="text-xs text-muted-foreground">
-            Tutor move
-          </div>
-          <div>
-            {annotation.tutorMove}
-          </div>
-        </div>
-      )}
-      {(has(annotation, 'score')) && (
-        <div className="mb-2">
-          <div className="text-xs text-muted-foreground">
-            Score
-          </div>
-          <div>
-            {annotation.score}
-          </div>
-        </div>
-      )}
-      <div className="mb-2">
-        <div className="text-xs text-muted-foreground">
-          Reasoning
-        </div>
-        <div>
-          {annotation.reasoning}
-        </div>
-      </div>
+      })}
       <div className="flex justify-between items-center">
         <div>
           <Badge>
