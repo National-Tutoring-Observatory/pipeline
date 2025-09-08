@@ -1,5 +1,5 @@
 import getDatabaseConnection from '../helpers/getDatabaseConnection';
-import getModelFromCollection from '../helpers/getModelFromCollection';
+import getModelFromCollection from '../../../core/documents/helpers/getModelFromCollection';
 
 export default async ({ collection, match }: { collection: string; match: any; }) => {
 
