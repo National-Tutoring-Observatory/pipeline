@@ -24,7 +24,7 @@ export default function ProjectCollections({
         <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
           No collections created
           <div className="mt-3">
-            <Button onClick={onCreateCollectionButtonClicked}>Create collection</Button>
+            <Button disabled onClick={onCreateCollectionButtonClicked}>Create collections is coming soon...</Button>
           </div>
         </div>
       )}

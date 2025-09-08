@@ -13,7 +13,7 @@ export default async ({ collection, match, update }: { collection: string, match
     const data = await Model.findByIdAndUpdate(match._id, update);
 
     return {
-      data: data.toObject()
+      data: JSON.parse(JSON.stringify(data))
     }
 
   } catch (error) {

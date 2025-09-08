@@ -10,12 +10,14 @@ export default async ({ collection, match, sort = {} }: { collection: string, ma
     const model = getModelFromCollection(collection);
     const Model = connection.models[model];
 
-    const data = await Model.find({});
+    const count = await Model.countDocuments(match);
+
+    const data = await Model.find(match).sort(sort);
 
     return {
       currentPage: 1,
       totalPages: 1,
-      count: data.length,
+      count,
       data: JSON.parse(JSON.stringify(data))
     }
 
