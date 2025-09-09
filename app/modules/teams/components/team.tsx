@@ -3,6 +3,7 @@ import type { Team } from "../teams.types";
 import type { User } from "~/modules/users/users.types";
 import map from 'lodash/map';
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router";
 
 interface TeamProps {
   team: Team,
@@ -45,14 +46,18 @@ export default function Team({
               <div className="mt-4 border border-black/10 rounded-md ">
                 {map(projects, (project) => {
                   return (
-                    <div
+                    <Link
                       key={project._id}
-                      className="border-b border-black/10 p-4 last:border-0"
-                    >{project.name}</div>
+                      to={`/projects/${project._id}`}
+                      className="block border-b border-black/10 p-4 last:border-0 hover:bg-gray-50"
+                    >
+                      {project.name}
+                    </Link>
                   )
                 })}
               </div>
-            )}
+            )
+            }
           </div>
         </div>
         <div className="opacity-0">
