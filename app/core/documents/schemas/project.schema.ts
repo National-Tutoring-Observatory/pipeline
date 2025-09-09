@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 export default new mongoose.Schema({
   name: { type: String },
+  team: { type: mongoose.Types.ObjectId, ref: 'Team' },
   isUploadingFiles: { type: Boolean, default: false },
   isConvertingFiles: { type: Boolean, default: false },
   hasSetupProject: { type: Boolean, default: false },

@@ -35,7 +35,7 @@ export default function TeamRoute({ loaderData }: { loaderData: { team: { data: 
     );
   }
 
-  const onCreateNewProjectClicked = (name: string) => {
+  const onCreateNewProjectClicked = ({ name }: { name: string }) => {
     fetcher.submit({ intent: 'CREATE_PROJECT', payload: { name, team: team.data._id } }, {
       action: "/api/projects",
       method: "post",
