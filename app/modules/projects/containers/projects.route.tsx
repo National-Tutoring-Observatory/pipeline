@@ -17,7 +17,7 @@ type Projects = {
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const projects = await documents.getDocuments({ collection: 'projects', match: {}, sort: {} }) as Projects;
+  const projects = await documents.getDocuments({ collection: 'projects', match: {}, sort: {}, populate: [{ path: 'team' }] }) as Projects;
   return { projects };
 }
 

@@ -50,18 +50,28 @@ export default function Projects({
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[300px]">Name</TableHead>
+                <TableHead>Team</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="text-right"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {map(projects, (project) => {
+                let teamName = '';
+                // @ts-ignore
+                if (project.team && project.team?.name) {
+                  // @ts-ignore
+                  teamName = project.team.name;
+                }
                 return (
                   <TableRow key={project._id}>
                     <TableCell className="font-medium">
                       <Link to={`/projects/${project._id}`} className="block w-full">
                         {project.name}
                       </Link>
+                    </TableCell>
+                    <TableCell>
+                      {teamName}
                     </TableCell>
                     <TableCell>{dayjs(project.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                     <TableCell className="text-right flex justify-end">
