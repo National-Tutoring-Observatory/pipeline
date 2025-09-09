@@ -1,7 +1,9 @@
 import getDatabaseConnection from '../helpers/getDatabaseConnection';
 import getModelFromCollection from '../../../core/documents/helpers/getModelFromCollection';
 
-export default async ({ collection, match, sort = {} }: { collection: string, match: {} | any, sort: {} }) => {
+import type { PopulateOptions } from 'mongoose';
+
+export default async ({ collection, match, sort = {}, populate = [] }: { collection: string, match: {} | any, sort: {}, populate: (string | PopulateOptions)[] }) => {
 
   try {
 
@@ -12,7 +14,7 @@ export default async ({ collection, match, sort = {} }: { collection: string, ma
 
     const count = await Model.countDocuments(match);
 
-    const data = await Model.find(match).sort(sort);
+    const data = await Model.find(match).sort(sort).populate(populate);
 
     return {
       currentPage: 1,
