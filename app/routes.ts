@@ -44,5 +44,6 @@ export default [
   route("api/runsList", "modules/runs/containers/runsList.route.tsx"),
   route("api/downloads/:projectId/:runId", "modules/runs/containers/downloadRun.route.tsx"),
   route("api/annotations/:runId/:sessionId/:annotationId", "modules/annotations/containers/annotations.route.tsx"),
-  route("api/storage", "core/storage/containers/storage.route.tsx")
+  route("api/storage", "core/storage/containers/storage.route.tsx"),
+  route("api/teams", "modules/teams/containers/teams.route.tsx", { id: 'teams' }),
 ] satisfies RouteConfig;

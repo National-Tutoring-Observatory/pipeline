@@ -74,7 +74,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const onCreateProjectButtonClicked = () => {
     addDialog(
       <CreateProjectDialog
-        hasTeamSelection={false}
+        hasTeamSelection={true}
         onCreateNewProjectClicked={onCreateNewProjectClicked}
       />
     );
@@ -96,8 +96,10 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     );
   }
 
-  const onCreateNewProjectClicked = (name: string) => {
-    submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name } }), { method: 'POST', encType: 'application/json' });
+  const onCreateNewProjectClicked = ({ name, team }: {
+    name: string, team: string | null
+  }) => {
+    submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name, team } }), { method: 'POST', encType: 'application/json' });
   }
 
   const onEditProjectClicked = (project: Project) => {

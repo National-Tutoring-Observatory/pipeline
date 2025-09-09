@@ -11,21 +11,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import ProjectNameAlert from "./projectNameAlert";
+import TeamsSelectorContainer from "~/modules/teams/containers/teamsSelector.container";
 
 const CreateProjectDialog = ({
   hasTeamSelection,
   onCreateNewProjectClicked
-}: { hasTeamSelection: boolean, onCreateNewProjectClicked: (name: string) => void }) => {
+}: {
+  hasTeamSelection: boolean,
+  onCreateNewProjectClicked: ({ name, team }: { name: string, team: string | null }) => void
+}) => {
 
   const [name, setName] = useState('');
+  const [team, setTeam] = useState<string | null>(null);
 
   const onProjectNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
 
+  const onTeamSelected = (selectedTeam: string) => {
+    setTeam(selectedTeam);
+  }
+
   let isSubmitButtonDisabled = true;
 
-  if (name.trim().length >= 3) {
+  if (name.trim().length >= 3 && team) {
     isSubmitButtonDisabled = false;
   }
 
@@ -47,10 +56,10 @@ const CreateProjectDialog = ({
       {(hasTeamSelection) && (
         <div className="grid gap-3">
           <Label htmlFor="name-1">Team</Label>
-          {/* <Input id="name-1" name="name" defaultValue={name} autoComplete="off" onChange={onProjectNameChanged} />
-          <ProjectNameAlert
-            name={name}
-          /> */}
+          <TeamsSelectorContainer
+            team={team}
+            onTeamSelected={onTeamSelected}
+          />
         </div>
       )}
       <DialogFooter className="justify-end">
@@ -61,7 +70,7 @@ const CreateProjectDialog = ({
         </DialogClose>
         <DialogClose asChild>
           <Button type="button" disabled={isSubmitButtonDisabled} onClick={() => {
-            onCreateNewProjectClicked(name);
+            onCreateNewProjectClicked({ name, team });
           }}>
             Create project
           </Button>
