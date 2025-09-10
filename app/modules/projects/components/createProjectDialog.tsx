@@ -34,8 +34,14 @@ const CreateProjectDialog = ({
 
   let isSubmitButtonDisabled = true;
 
-  if (name.trim().length >= 3 && team) {
-    isSubmitButtonDisabled = false;
+  if (name.trim().length >= 3) {
+    if (hasTeamSelection) {
+      if (team) {
+        isSubmitButtonDisabled = false;
+      }
+    } else {
+      isSubmitButtonDisabled = false;
+    }
   }
 
   return (

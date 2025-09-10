@@ -1,4 +1,4 @@
-const MODELS_BY_COLLECTION: { [key: string]: string } = {
+export const MODELS_BY_COLLECTION: { [key: string]: string } = {
   projects: 'Project',
   teams: 'Team',
   files: 'File',
