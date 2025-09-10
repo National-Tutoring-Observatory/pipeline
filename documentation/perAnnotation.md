@@ -1,10 +1,18 @@
-### Per annotation
+---
+title: "Per annotation"
+tags: ["per-annotation"]
+category: "Analysis"
+---
+
+# Per annotation
+
+## Overview
 
 **Per annotation** is an **Annotation Type** that instructs the LLM to analyze your tutoring data on a line-by-line basis. This is a fine-grained approach that is best for identifying specific actions or events that occur at a precise moment in a **Session**.
 
 When you choose this type, the LLM will read each individual line of a transcript and create a separate **Annotation** for it based on your **Prompt**'s instructions.
 
-#### How to use
+## How to use
 
 You select "Per annotation" when you set up a **Run**.
 

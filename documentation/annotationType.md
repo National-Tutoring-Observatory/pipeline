@@ -1,10 +1,18 @@
-### Annotation Type
+---
+title: "Annotation Type"
+tags: ["annotation-type"]
+category: "Analysis"
+---
+
+# Annotation Type
+
+## Overview
 
 The **Annotation Type** is a critical setting for every **Run**. It determines how the LLM analyzes your tutoring data, specifically whether it should look at the data in small chunks or as a whole. Your choice of annotation type will directly impact the granularity of the **Annotations** you receive.
 
 The two main types are **Per annotation** (line-by-line analysis) and **Per session** (whole session analysis). In the future, a "per segmentation" option will be added for even more granular control.
 
-#### How to use
+## How to use
 
 You select the annotation type when you set up a **Run**.
 
