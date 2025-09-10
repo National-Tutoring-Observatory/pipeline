@@ -1,9 +1,13 @@
-import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { FolderKanban, LifeBuoy, SquareTerminal, Users } from "lucide-react";
 import { NavLink } from "react-router";
 
 export default function AppSidebar() {
+
+  const onHelpAndSupportClicked = () => {
+    console.log('onHelpClicked');
+  }
 
   return (
     <Sidebar variant="inset" >
@@ -74,12 +78,23 @@ export default function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild size="sm">
-                  <Button variant="ghost" className="justify-start cursor-pointer">
-                    <LifeBuoy />
-                    <span>Help & Support</span>
-                  </Button>
-                </SidebarMenuButton>
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <SidebarMenuButton size="sm" className="cursor-pointer" onClick={onHelpAndSupportClicked}>
+                      <LifeBuoy />
+                      <span>Help & Support</span>
+                    </SidebarMenuButton>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="overflow-y-auto">
+                    <SheetHeader>
+                      <SheetTitle className="flex items-center">
+                        <LifeBuoy size={16} />
+                        <span className="ml-2">Help & Support</span>
+                      </SheetTitle>
+
+                    </SheetHeader>
+                  </SheetContent>
+                </Sheet>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
