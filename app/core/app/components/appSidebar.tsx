@@ -1,7 +1,8 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { FolderKanban, LifeBuoy, SquareTerminal, Users } from "lucide-react";
 import { NavLink } from "react-router";
+import SupportArticlesContianer from "~/modules/support/containers/supportArticles.container";
 
 export default function AppSidebar() {
 
@@ -86,13 +87,7 @@ export default function AppSidebar() {
                     </SidebarMenuButton>
                   </SheetTrigger>
                   <SheetContent side="left" className="overflow-y-auto">
-                    <SheetHeader>
-                      <SheetTitle className="flex items-center">
-                        <LifeBuoy size={16} />
-                        <span className="ml-2">Help & Support</span>
-                      </SheetTitle>
-
-                    </SheetHeader>
+                    <SupportArticlesContianer />
                   </SheetContent>
                 </Sheet>
               </SidebarMenuItem>
