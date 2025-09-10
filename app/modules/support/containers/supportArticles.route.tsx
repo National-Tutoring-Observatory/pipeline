@@ -14,7 +14,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     const markdownContent = fs.readFileSync(path.join('./documentation', document), 'utf-8');
     const data = matter(markdownContent);
 
-    if (Object.keys(data.data).length > 0) {
+    if (Object.keys(data.data).length > 0 && data.data.isPublished) {
 
       const ast = Markdoc.parse(data.content);
 
