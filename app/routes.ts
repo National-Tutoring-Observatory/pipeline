@@ -46,4 +46,5 @@ export default [
   route("api/annotations/:runId/:sessionId/:annotationId", "modules/annotations/containers/annotations.route.tsx"),
   route("api/storage", "core/storage/containers/storage.route.tsx"),
   route("api/teams", "modules/teams/containers/teams.route.tsx", { id: 'teams' }),
+  route("api/supportArticles", "modules/support/containers/supportArticles.route.tsx"),
 ] satisfies RouteConfig;
