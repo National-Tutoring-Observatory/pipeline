@@ -3,8 +3,8 @@ export interface DocumentAdapter {
   getDocuments: ({ collection, match, sort, populate }: {
     collection: string;
     match: {} | any;
-    sort: {};
-    populate: { path: string, select?: string }[] | null
+    sort?: {};
+    populate?: { path: string, select?: string }[] | null
   }) => Promise<unknown>;
   createDocument: ({ collection, update }: { collection: string; update: any; }) => Promise<unknown>;
   getDocument: ({ collection, match }: { collection: string; match: any; }) => Promise<unknown>;

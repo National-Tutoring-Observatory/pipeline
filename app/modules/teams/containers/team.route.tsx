@@ -13,7 +13,7 @@ import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const team = await documents.getDocument({ collection: 'teams', match: { _id: params.id } }) as { data: TeamType };
-  const projects = await documents.getDocuments({ collection: 'projects', match: { team: team.data._id }, sort: {} }) as { data: TeamType };
+  const projects = await documents.getDocuments({ collection: 'projects', match: { team: team.data._id } }) as { data: TeamType };
   return { team, projects };
 }
 
