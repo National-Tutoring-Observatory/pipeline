@@ -2,6 +2,7 @@
 title: "Per annotation"
 tags: ["per-annotation"]
 category: "Analysis"
+isPublished: true
 ---
 
 # Per annotation

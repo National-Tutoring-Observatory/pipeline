@@ -2,6 +2,7 @@
 title: "Annotations"
 tags: ["annotations"]
 category: "Analysis"
+isPublished: true
 ---
 
 # Annotations

@@ -2,6 +2,7 @@
 title: "Teams"
 tags: ["teams"]
 category: "Collaboration"
+isPublished: true
 ---
 
 # Teams

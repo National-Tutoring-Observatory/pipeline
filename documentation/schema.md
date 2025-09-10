@@ -2,6 +2,7 @@
 title: "Schema"
 tags: ["schema"]
 category: "Configuration"
+isPublished: true
 ---
 
 # Schema

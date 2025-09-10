@@ -2,6 +2,7 @@
 title: "Prompts"
 tags: ["prompts"]
 category: "Analysis"
+isPublished: true
 ---
 
 # Prompts

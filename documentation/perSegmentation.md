@@ -2,6 +2,7 @@
 title: "Per segmentation"
 tags: ["per-segmentation"]
 category: "Analysis"
+isPublished: false
 ---
 
 # Per segmentation
