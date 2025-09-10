@@ -2,6 +2,7 @@
 title: "Prompt versions"
 tags: ["prompt-versions"]
 category: "Analysis"
+isPublished: true
 ---
 
 # Prompt versions

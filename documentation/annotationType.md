@@ -2,6 +2,7 @@
 title: "Annotation Type"
 tags: ["annotation-type"]
 category: "Analysis"
+isPublished: true
 ---
 
 # Annotation Type

@@ -2,6 +2,7 @@
 title: "Files"
 tags: ["files"]
 category: "Data Management"
+isPublished: true
 ---
 
 # Files

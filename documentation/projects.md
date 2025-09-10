@@ -2,6 +2,7 @@
 title: "Projects"
 tags: ["projects"]
 category: "Projects"
+isPublished: true
 ---
 
 # Projects

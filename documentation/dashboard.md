@@ -2,6 +2,7 @@
 title: "Dashboard"
 tags: ["dashboard"]
 category: "Overview"
+isPublished: true
 ---
 
 # Dashboard

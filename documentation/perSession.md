@@ -2,6 +2,7 @@
 title: "Per session"
 tags: ["per-session"]
 category: "Analysis"
+isPublished: true
 ---
 
 # Per session
