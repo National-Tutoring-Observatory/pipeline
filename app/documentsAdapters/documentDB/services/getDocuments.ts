@@ -1,9 +1,7 @@
 import getDatabaseConnection from '../helpers/getDatabaseConnection';
 import getModelFromCollection from '../../../core/documents/helpers/getModelFromCollection';
 
-import type { PopulateOptions } from 'mongoose';
-
-export default async ({ collection, match, sort = {}, populate = [] }: { collection: string, match: {} | any, sort: {}, populate: (string | PopulateOptions)[] }) => {
+export default async ({ collection, match, sort = {}, populate = [] }: { collection: string, match: {} | any, sort: {}, populate: { path: string, select: string }[] }) => {
 
   try {
 
