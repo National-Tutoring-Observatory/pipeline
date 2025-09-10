@@ -1,3 +1,9 @@
+---
+title: "Projects"
+tags: ["projects"]
+category: "Projects"
+---
+
 # Projects
 
 ## Overview

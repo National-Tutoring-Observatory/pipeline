@@ -1,4 +1,12 @@
-### Schema
+---
+title: "Schema"
+tags: ["schema"]
+category: "Configuration"
+---
+
+# Schema
+
+## Overview
 
 The **Schema** defines the structure of your **Annotations**. It is a template that outlines the specific fields and information that the LLM should include in each annotation it creates.
 
@@ -8,7 +16,7 @@ In the NTO Pipeline, the schema is defined in two ways:
 
 By defining a schema, you ensure that the output of your analysis is consistent, structured, and easy to work with once exported.
 
-#### How to use
+## How to use
 
 You configure the schema as part of your **Prompt** creation process.
 

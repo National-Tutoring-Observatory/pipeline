@@ -1,8 +1,18 @@
+---
+title: "Teams"
+tags: ["teams"]
+category: "Collaboration"
+---
+
+# Teams
+
+## Overview
+
 **Teams** are groups of **Users** who collaborate on projects. Being a member of a team allows for seamless sharing of resources, including **Prompts** and **Runs**, with other team members. This is designed to facilitate collaboration on shared research goals and to ensure consistency across a group's work.
 
 Users can be a part of multiple teams, allowing for participation in various collaborative efforts.
 
-#### How to use
+## How to use
 
 Team management is handled through a dedicated settings section.
 

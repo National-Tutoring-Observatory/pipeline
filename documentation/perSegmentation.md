@@ -1,10 +1,18 @@
-### Per segmentation
+---
+title: "Per segmentation"
+tags: ["per-segmentation"]
+category: "Analysis"
+---
+
+# Per segmentation
+
+## Overview
 
 **Per segmentation** is a planned **Annotation Type** that will provide an additional, more granular level of analysis. It will instruct the LLM to analyze your tutoring data based on user-defined segments within a **Session**.
 
 This will be a step between **Per annotation** (line-by-line) and **Per session** (whole session), allowing for analysis on specific turns, topics, or sections of the transcript.
 
-#### How to use
+## How to use
 
 _Note: This feature is not yet implemented._
 

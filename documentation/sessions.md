@@ -1,8 +1,18 @@
+---
+title: "Sessions"
+tags: ["sessions"]
+category: "Data Management"
+---
+
+# Sessions
+
+## Overview
+
 A **Session** is the primary unit of tutoring data that the LLM analyzes. A single imported **File** may contain one or multiple sessions, depending on its structure. Each session represents a distinct tutoring interaction and can be selected individually for a **Run**.
 
 Sessions are the building blocks of your analysis, as they are the pieces of data that the **Prompt** is applied to.
 
-#### How to use
+## How to use
 
 Sessions are created automatically when you upload a **File**.
 
