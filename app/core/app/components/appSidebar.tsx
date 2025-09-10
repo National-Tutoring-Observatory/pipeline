@@ -1,5 +1,6 @@
+import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { FolderKanban, SquareTerminal, Users } from "lucide-react";
+import { FolderKanban, LifeBuoy, SquareTerminal, Users } from "lucide-react";
 import { NavLink } from "react-router";
 
 export default function AppSidebar() {
@@ -68,7 +69,22 @@ export default function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter className="p-0 pb-2">
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild size="sm">
+                  <Button variant="ghost" className="justify-start cursor-pointer">
+                    <LifeBuoy />
+                    <span>Help & Support</span>
+                  </Button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarFooter >
     </Sidebar>
   );
 }
