@@ -3,4 +3,5 @@ export interface SupportArticle {
   data: {
     title: string
   };
+  html: string
 }
