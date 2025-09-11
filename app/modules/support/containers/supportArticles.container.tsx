@@ -7,7 +7,16 @@ import get from 'lodash/get';
 export default function SupportArticlesContianer() {
 
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const fetcher = useFetcher();
+
+  const onSupportArticleClicked = (selectedDocumentId: string) => {
+    setSelectedDocumentId(selectedDocumentId);
+  }
+
+  const onBackToSupportArticlesClicked = () => {
+    setSelectedDocumentId(null);
+  }
 
   useEffect(() => {
     fetcher.load(`/api/supportArticles`);
@@ -27,6 +36,9 @@ export default function SupportArticlesContianer() {
     <SupportArticles
       isLoading={isLoading}
       supportArticles={supportArticles}
+      selectedDocumentId={selectedDocumentId}
+      onSupportArticleClicked={onSupportArticleClicked}
+      onBackToSupportArticlesClicked={onBackToSupportArticlesClicked}
     />
   );
 }
