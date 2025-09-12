@@ -3,14 +3,14 @@ import ProjectRun from "../components/projectRun";
 import type { CreateRun, Run as RunType } from "~/modules/runs/runs.types";
 import type { Route } from "./+types/projectRun.route";
 import { useEffect, useState } from "react";
-import annotateRunSessions from "~/core/annotations/annotateRunSessions";
 import throttle from 'lodash/throttle';
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import type { Session } from "~/modules/sessions/sessions.types";
-import updateBreadcrumb from "~/core/app/updateBreadcrumb";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import type { Project } from "../projects.types";
 import exportRun from "~/modules/runs/helpers/exportRun";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import annotateRunSessions from "~/functions/annotateRunSessions";
 
 type Run = {
   data: RunType,

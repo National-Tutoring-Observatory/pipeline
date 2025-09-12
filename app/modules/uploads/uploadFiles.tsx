@@ -1,8 +1,8 @@
 import path from "path";
 import uploadFile from "./uploadFile";
-import { emitter } from "../events/emitter";
+import { emitter } from "../../modules/events/emitter";
 import type { Project } from "~/modules/projects/projects.types";
-import getDocumentsAdapter from "../documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "../../modules/documents/helpers/getDocumentsAdapter";
 
 export default async function uploadFiles({ files, entityId }: { files: any, entityId: string }) {
 

@@ -1,6 +1,6 @@
 import { useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
 import ProjectCollections from "../components/projectCollections";
-import addDialog from "~/core/dialogs/addDialog";
+import addDialog from "~/modules/dialogs/addDialog";
 import type { Collection } from "~/modules/collections/collections.types";
 import type { Route } from "./+types/projectCollections.route";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import DuplicateCollectionDialog from "~/modules/collections/components/duplicateCollectionDialog";
 import CreateCollectionDialog from "~/modules/collections/components/createCollectionDialog";
 import EditCollectionDialog from "~/modules/collections/components/editCollectionDialog";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 type Collections = {
   data: [],

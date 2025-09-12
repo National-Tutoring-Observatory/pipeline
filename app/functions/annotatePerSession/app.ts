@@ -1,11 +1,10 @@
-import fs from 'fs';
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
 import fse from 'fs-extra';
 import systemPrompt from "./system.prompt.json";
-import LLM from '~/core/llm/llm';
+import LLM from '~/modules/llm/llm';
 import map from 'lodash/map.js';
-import getStorageAdapter from '~/core/storage/helpers/getStorageAdapter';
+import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
 import path from 'path';
 
 export const handler = async (event: { body: any }) => {

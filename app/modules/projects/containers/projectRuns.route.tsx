@@ -1,6 +1,6 @@
 import { useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
 import ProjectRuns from "../components/projectRuns";
-import addDialog from "~/core/dialogs/addDialog";
+import addDialog from "~/modules/dialogs/addDialog";
 import CreateRunDialog from '../components/createRunDialog';
 import type { Run } from "~/modules/runs/runs.types";
 import type { Route } from "./+types/projectRuns.route";
@@ -8,7 +8,7 @@ import EditRunDialog from "../components/editRunDialog";
 import { toast } from "sonner";
 import DuplicateRunDialog from '../components/duplicateRunDialog';
 import { useEffect } from "react";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 type Runs = {
   data: [],

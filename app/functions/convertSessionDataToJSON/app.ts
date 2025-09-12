@@ -1,12 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
 import fse from 'fs-extra';
-import LLM from '../../core/llm/llm';
+import LLM from '../../modules/llm/llm';
 import schema from "./schema.json";
 import orchestratorPrompt from './orchestrator.prompt.json';
 import systemPrompt from './system.prompt.json';
 import userPrompt from './user.prompt.json';
-import getStorageAdapter from '~/core/storage/helpers/getStorageAdapter';
+import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
 import path from 'path';
 
 interface RequestBody {

@@ -3,9 +3,9 @@ import type { Run } from "~/modules/runs/runs.types";
 import fse from 'fs-extra';
 import type { Session } from "~/modules/sessions/sessions.types";
 import find from 'lodash/find';
-import getStorageAdapter from "~/core/storage/helpers/getStorageAdapter";
+import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import path from "path";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 export async function action({
   request,

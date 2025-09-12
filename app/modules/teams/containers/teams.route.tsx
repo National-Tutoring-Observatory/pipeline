@@ -2,14 +2,14 @@ import { useActionData, useNavigate, useSubmit } from "react-router";
 import type { Route } from "./+types/teams.route";
 import Teams from "../components/teams";
 import { toast } from "sonner"
-import addDialog from "~/core/dialogs/addDialog";
+import addDialog from "~/modules/dialogs/addDialog";
 import CreateTeamDialog from "../components/createTeamDialog";
 import EditTeamDialog from "../components/editTeamDialog";
 import DeleteTeamDialog from "../components/deleteTeamDialog";
 import type { Team } from "../teams.types";
 import { useEffect } from "react";
-import updateBreadcrumb from "~/core/app/updateBreadcrumb";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 type Teams = {
   data: [],

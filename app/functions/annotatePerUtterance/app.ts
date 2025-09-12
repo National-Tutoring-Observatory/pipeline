@@ -4,8 +4,8 @@ dotenv.config({ path: '.env' });
 import fse from 'fs-extra';
 import find from 'lodash/find.js';
 import systemPrompt from "./system.prompt.json";
-import LLM from '~/core/llm/llm';
-import getStorageAdapter from '~/core/storage/helpers/getStorageAdapter';
+import LLM from '~/modules/llm/llm';
+import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
 import path from 'path';
 
 export const handler = async (event: { body: any }) => {

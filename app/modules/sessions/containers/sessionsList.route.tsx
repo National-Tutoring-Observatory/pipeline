@@ -1,6 +1,6 @@
 import type { Session } from "../sessions.types";
 import type { Route } from "./+types/sessionsList.route";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 type Sessions = {
   data: [Session],

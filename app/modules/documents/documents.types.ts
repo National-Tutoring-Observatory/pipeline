@@ -4,7 +4,7 @@ export interface DocumentAdapter {
     collection: string;
     match: {} | any;
     sort?: {};
-    populate?: { path: string, select?: string }[] | null
+    populate?: { path: string, select?: string }[]
   }) => Promise<unknown>;
   createDocument: ({ collection, update }: { collection: string; update: any; }) => Promise<unknown>;
   getDocument: ({ collection, match }: { collection: string; match: any; }) => Promise<unknown>;

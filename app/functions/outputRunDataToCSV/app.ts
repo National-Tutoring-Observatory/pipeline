@@ -6,7 +6,7 @@ import map from 'lodash/map.js';
 import each from 'lodash/each.js';
 import pick from 'lodash/pick.js';
 import type { Run } from '~/modules/runs/runs.types';
-import getStorageAdapter from '~/core/storage/helpers/getStorageAdapter';
+import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
 
 export const handler = async (event: { body: { run: Run, inputFolder: string, outputFolder: string } }) => {
   try {

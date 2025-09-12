@@ -2,9 +2,9 @@ import PromptEditor from "../components/promptEditor";
 import type { Route } from "./+types/promptEditor.route";
 import type { Prompt, PromptVersion } from "../prompts.types";
 import { useLoaderData, useNavigation, useSubmit, type ShouldRevalidateFunctionArgs } from "react-router";
-import addDialog from "~/core/dialogs/addDialog";
+import addDialog from "~/modules/dialogs/addDialog";
 import SavePromptVersionDialogContainer from "./savePromptVersionDialogContainer";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();

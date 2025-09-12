@@ -5,11 +5,21 @@ import each from 'lodash/each';
 import get from 'lodash/get';
 import orderBy from 'lodash/orderBy';
 import mongoose from 'mongoose';
-import getModelFromCollection from '~/core/documents/helpers/getModelFromCollection';
-import getCollectionFromModel from '~/core/documents/helpers/getCollectionFromModel';
+import getModelFromCollection from '~/modules/documents/helpers/getModelFromCollection';
+import getCollectionFromModel from '~/modules/documents/helpers/getCollectionFromModel';
 import getDocument from './getDocument';
 
-export default async ({ collection, match, sort = {}, populate = [] }: { collection: string, match: {} | any, sort: {}, populate: { path: string, select: string }[] }) => {
+export default async ({
+  collection,
+  match,
+  sort = {},
+  populate = []
+}: {
+  collection: string,
+  match: {} | any,
+  sort?: {};
+  populate?: { path: string; select?: string }[]
+}) => {
 
   try {
     await findOrCreateDocuments({ collection });

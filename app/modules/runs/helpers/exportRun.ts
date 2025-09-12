@@ -1,8 +1,8 @@
 import type { Run } from "../runs.types";
-import { emitter } from "~/core/events/emitter";
+import { emitter } from "~/modules/events/emitter";
 import { handler as outputRunDataToCSV } from '../../../functions/outputRunDataToCSV/app';
 import { handler as outputRunDataToJSON } from '../../../functions/outputRunDataToJSON/app';
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 export default async function exportRun({ runId, exportType }: { runId: string, exportType: string }) {
 

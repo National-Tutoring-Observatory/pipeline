@@ -1,10 +1,10 @@
 import type { Collection } from "../collections.types";
-import { emitter } from "~/core/events/emitter";
+import { emitter } from "~/modules/events/emitter";
 import { handler as outputCollectionDataToCSV } from '../../../functions/outputCollectionDataToCSV/app';
 import { handler as outputCollectionDataToJSON } from '../../../functions/outputCollectionDataToJSON/app';
 import includes from 'lodash/includes';
 import type { Run } from "~/modules/runs/runs.types";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 export default async function exportCollection({ collectionId, exportType }: { collectionId: string, exportType: string }) {
 
