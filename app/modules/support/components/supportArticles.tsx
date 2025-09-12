@@ -42,7 +42,7 @@ export default function SupportArticles({
           </SheetDescription>
         )}
       </SheetHeader>
-      <div className="p-4">
+      <div className="px-4">
 
         {(isLoading) && (
           <div className="flex justify-center p-4">
