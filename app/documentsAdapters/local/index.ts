@@ -1,4 +1,4 @@
-import registerDocumentsAdapter from "~/core/documents/helpers/registerDocumentsAdapter";
+import registerDocumentsAdapter from "~/modules/documents/helpers/registerDocumentsAdapter";
 import getDocuments from "./services/getDocuments";
 import createDocument from "./services/createDocument";
 import getDocument from "./services/getDocument";

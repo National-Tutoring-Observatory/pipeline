@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import getModelFromCollection from "~/core/documents/helpers/getModelFromCollection";
+import getModelFromCollection from "~/modules/documents/helpers/getModelFromCollection";
 
 export default async ({ collection, document }: { collection: string, document: any }) => {
   const modelKey = getModelFromCollection(collection);

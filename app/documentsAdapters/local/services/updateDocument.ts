@@ -17,7 +17,7 @@ export default async ({ collection, match, update }: { collection: string, match
 
     const document = await validateDocument({ collection, document: returnedDocument });
 
-    await fse.writeJson(`./data/${collection}.json`, document);
+    await fse.writeJson(`./data/${collection}.json`, json);
 
     return {
       data: JSON.parse(JSON.stringify(document))

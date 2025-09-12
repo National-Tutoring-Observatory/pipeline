@@ -2,13 +2,13 @@
 import type { Team as TeamType } from "../teams.types";
 import Team from '../components/team';
 import { useEffect } from "react";
-import updateBreadcrumb from "~/core/app/updateBreadcrumb";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import type { Route } from "./+types/team.route";
 import type { Project } from "~/modules/projects/projects.types";
 import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
-import addDialog from "~/core/dialogs/addDialog";
+import addDialog from "~/modules/dialogs/addDialog";
 import { useFetcher } from "react-router";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();

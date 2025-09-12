@@ -11,9 +11,9 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "sonner";
-import DialogContainer from "./core/dialogs/containers/dialog.container";
-import BreadcrumbsContainer from "./core/app/containers/breadcrumbs.container";
-import AppSidebar from "./core/app/components/appSidebar";
+import DialogContainer from "./modules/dialogs/containers/dialog.container";
+import BreadcrumbsContainer from "./modules/app/containers/breadcrumbs.container";
+import AppSidebar from "./modules/app/components/appSidebar";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },

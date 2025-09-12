@@ -4,8 +4,8 @@ import type { Route } from "./+types/prompt.route";
 import type { Prompt as PromptType, PromptVersion } from "../prompts.types";
 import pick from 'lodash/pick';
 import { useEffect } from "react";
-import updateBreadcrumb from "~/core/app/updateBreadcrumb";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();

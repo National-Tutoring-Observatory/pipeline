@@ -1,9 +1,9 @@
 import { handler as convertSessionDataToJSON } from '../../functions/convertSessionDataToJSON/app';
 import type { Project } from "~/modules/projects/projects.types";
-import { emitter } from "../events/emitter";
+import { emitter } from "../../modules/events/emitter";
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { File } from "~/modules/files/files.types";
-import getDocumentsAdapter from '../documents/helpers/getDocumentsAdapter';
+import getDocumentsAdapter from '../../modules/documents/helpers/getDocumentsAdapter';
 
 export default async function convertFilesToSessions({ entityId }: { entityId: string }) {
 

@@ -1,5 +1,5 @@
 import type { Route } from "./+types/promptVersionsList.route";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 type PromptVersions = {
   data: [],

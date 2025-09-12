@@ -24,7 +24,7 @@ const init = async () => {
     storageImportFile += `\n${importString}`;
   });
 
-  await fse.outputFile(`./app/core/storage/storage.ts`, storageImportFile);
+  await fse.outputFile(`./app/modules/storage/storage.ts`, storageImportFile);
 
 }
 

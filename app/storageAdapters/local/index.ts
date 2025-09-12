@@ -1,4 +1,4 @@
-import registerStorageAdapter from "~/core/storage/helpers/registerStorageAdapter";
+import registerStorageAdapter from "~/modules/storage/helpers/registerStorageAdapter";
 import fse from 'fs-extra';
 import path from 'path';
 
@@ -24,7 +24,7 @@ registerStorageAdapter({
   remove: () => { console.log('removing'); },
   request: (url, options) => {
     return new Promise((resolve) => {
-      resolve(url);
+      resolve(`/${url}`);
     });
   }
 })

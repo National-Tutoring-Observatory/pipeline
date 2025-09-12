@@ -2,14 +2,14 @@ import { useActionData, useNavigate, useSubmit } from "react-router";
 import type { Route } from "./+types/projects.route";
 import Projects from "../components/projects";
 import { toast } from "sonner"
-import addDialog from "~/core/dialogs/addDialog";
+import addDialog from "~/modules/dialogs/addDialog";
 import CreateProjectDialog from "../components/createProjectDialog";
 import EditProjectDialog from "../components/editProjectDialog";
 import DeleteProjectDialog from "../components/deleteProjectDialog";
 import type { Project } from "../projects.types";
 import { useEffect } from "react";
-import updateBreadcrumb from "~/core/app/updateBreadcrumb";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 type Projects = {
   data: Project[],

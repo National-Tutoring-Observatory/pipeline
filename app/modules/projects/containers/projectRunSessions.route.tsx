@@ -6,10 +6,10 @@ import find from 'lodash/find';
 import fse from 'fs-extra';
 import { useLoaderData } from "react-router";
 import { useEffect } from "react";
-import updateBreadcrumb from "~/core/app/updateBreadcrumb";
-import getStorageAdapter from "~/core/storage/helpers/getStorageAdapter";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import path from "path";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();

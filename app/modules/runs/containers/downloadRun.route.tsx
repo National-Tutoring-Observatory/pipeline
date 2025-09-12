@@ -3,8 +3,8 @@ import archiver from "archiver";
 import type { Route } from "./+types/downloadRun.route";
 import { PassThrough, Readable } from "node:stream";
 import fs from 'node:fs';
-import getStorageAdapter from "~/core/storage/helpers/getStorageAdapter";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
 

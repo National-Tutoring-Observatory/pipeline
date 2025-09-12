@@ -4,12 +4,12 @@ import type { CreateCollection, Collection as CollectionType } from "~/modules/c
 import type { Route } from "./+types/projectCollection.route";
 import { useEffect } from "react";
 import throttle from 'lodash/throttle';
-import updateBreadcrumb from "~/core/app/updateBreadcrumb";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import type { Project } from "../projects.types";
 import includes from 'lodash/includes';
 import type { Run } from "~/modules/runs/runs.types";
 import exportCollection from "~/modules/collections/helpers/exportCollection";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 type Collection = {
   data: CollectionType,

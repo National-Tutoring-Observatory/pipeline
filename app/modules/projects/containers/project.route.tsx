@@ -6,15 +6,15 @@ import { useMatches, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
-import uploadFiles from "~/core/uploads/uploadFiles";
-import convertFileToFiles from "~/core/uploads/convertFileToFiles";
-import convertFilesToSessions from "~/core/uploads/convertFilesToSessions";
+import uploadFiles from "~/modules/uploads/uploadFiles";
+import convertFileToFiles from "~/modules/uploads/convertFileToFiles";
+import convertFilesToSessions from "~/modules/uploads/convertFilesToSessions";
 import filter from 'lodash/filter';
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { Run } from "~/modules/runs/runs.types";
-import updateBreadcrumb from "~/core/app/updateBreadcrumb";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import type { Collection } from "~/modules/collections/collections.types";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -49,6 +49,8 @@ export async function action({
         }
       }
     }
+
+    console.log(entityId);
 
     uploadFiles({ files, entityId }).then(() => {
       convertFilesToSessions({ entityId });
@@ -85,7 +87,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const onUploadFiles = async (acceptedFiles: any[]) => {
     const formData = new FormData();
     formData.append('body', JSON.stringify({
-      intent: 'UPLOAD_PROJECT_FILES', // Note the plural
+      intent: 'UPLOAD_PROJECT_FILES',
       entityId: project.data._id,
       files: Array.from(acceptedFiles).map(file => ({
         name: file.name,

@@ -1,4 +1,4 @@
-import LLM from "~/core/llm/llm";
+import LLM from "~/modules/llm/llm";
 import type { AnnotationSchemaItem } from "../prompts.types";
 import type { Route } from "./+types/promptVersionAlignment.route";
 

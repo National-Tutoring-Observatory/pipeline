@@ -1,10 +1,10 @@
 import type { Run } from "~/modules/runs/runs.types";
-import { emitter } from "../events/emitter";
-import { handler as annotatePerUtterance } from '../../functions/annotatePerUtterance/app';
-import { handler as annotatePerSession } from '../../functions/annotatePerSession/app';
+import { emitter } from "~/modules/events/emitter";
+import { handler as annotatePerUtterance } from './annotatePerUtterance/app';
+import { handler as annotatePerSession } from './annotatePerSession/app';
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
-import getDocumentsAdapter from "../documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 export default async function annotateRunSessions({ runId }: { runId: string }) {
 

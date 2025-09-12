@@ -1,6 +1,6 @@
 import type { Route } from "./+types/runsList.route";
 import type { Run } from "../runs.types";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 type Runs = {
   data: Run[],

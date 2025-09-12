@@ -1,7 +1,16 @@
 import getDatabaseConnection from '../helpers/getDatabaseConnection';
-import getModelFromCollection from '../../../core/documents/helpers/getModelFromCollection';
+import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
 
-export default async ({ collection, match, sort = {}, populate = [] }: { collection: string, match: {} | any, sort: {}, populate: { path: string, select: string }[] }) => {
+export default async ({
+  collection,
+  match,
+  sort = {},
+  populate = [] }: {
+    collection: string,
+    match: {} | any,
+    sort?: {};
+    populate?: { path: string; select?: string }[]
+  }) => {
 
   try {
 

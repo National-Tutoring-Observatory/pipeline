@@ -2,9 +2,9 @@ import { useLoaderData } from "react-router";
 import ProjectSessions from "../components/projectSessions";
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { Route } from "./+types/projectSessions.route";
-import addDialog from "~/core/dialogs/addDialog";
+import addDialog from "~/modules/dialogs/addDialog";
 import ViewSessionContainer from "~/modules/sessions/containers/viewSessionContainer";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 type Sessions = {
   data: [Session],

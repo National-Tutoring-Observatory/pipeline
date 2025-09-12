@@ -2,14 +2,14 @@ import { useActionData, useNavigate, useSubmit } from "react-router";
 import type { Route } from "./+types/prompts.route";
 import Prompts from "../components/prompts";
 import { toast } from "sonner"
-import addDialog from "~/core/dialogs/addDialog";
+import addDialog from "~/modules/dialogs/addDialog";
 import CreatePromptDialog from "../components/createPromptDialog";
 import type { Prompt } from "../prompts.types";
 import { useEffect } from "react";
 import EditPromptDialog from "../components/editPromptDialog";
 import DeletePromptDialog from "../components/deletePromptDialog";
-import updateBreadcrumb from "~/core/app/updateBreadcrumb";
-import getDocumentsAdapter from "~/core/documents/helpers/getDocumentsAdapter";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
 type Prompts = {
   data: [],

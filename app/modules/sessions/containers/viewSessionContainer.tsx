@@ -16,12 +16,18 @@ export default function ViewSessionContainer({ session }: { session: Session }) 
         // …
       });
 
+      console.log(response);
+
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const jsonData = await response.json();
+
+      console.log(jsonData.requestUrl);
+
+
 
       const sessionRequest = await fetch(jsonData.requestUrl);
 
