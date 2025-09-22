@@ -14,6 +14,7 @@ import { Toaster } from "sonner";
 import DialogContainer from "./modules/dialogs/containers/dialog.container";
 import BreadcrumbsContainer from "./modules/app/containers/breadcrumbs.container";
 import AppSidebar from "./modules/app/components/appSidebar";
+import AuthenticationContainer from "./modules/authentication/containers/authentication.container";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -60,7 +61,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <AuthenticationContainer>
+      <Outlet />
+    </AuthenticationContainer>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
