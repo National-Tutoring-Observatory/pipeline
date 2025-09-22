@@ -9,6 +9,23 @@ import { renderToPipeableStream } from "react-dom/server";
 
 import './modules/storage/storage';
 import './modules/documents/documents';
+import getDocumentsAdapter from "./modules/documents/helpers/getDocumentsAdapter";
+import type { User } from "./modules/users/users.types";
+
+const checkSuperAdminExists = async () => {
+  const documents = getDocumentsAdapter()
+  const user = await documents.getDocument({ collection: 'users', match: { role: 'SUPER_ADMIN' } }) as { data: User | undefined };
+  if (!user.data) {
+    await documents.createDocument({
+      collection: 'users', update: {
+        role: 'SUPER_ADMIN',
+        username: 'local',
+      }
+    })
+  }
+}
+
+checkSuperAdminExists();
 
 export const streamTimeout = 5_000;
 
