@@ -40,17 +40,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <SidebarProvider defaultOpen={true}>
-          <AppSidebar />
-          <SidebarInset>
-            <main>
-              <div className="p-2 px-6 flex items-center">
-                <BreadcrumbsContainer />
-              </div>
-              {children}
-            </main>
-          </SidebarInset>
-        </SidebarProvider>
+        <AuthenticationContainer>
+          <SidebarProvider defaultOpen={true}>
+            <AppSidebar />
+            <SidebarInset>
+              <main>
+                <div className="p-2 px-6 flex items-center">
+                  <BreadcrumbsContainer />
+                </div>
+                {children}
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
+        </AuthenticationContainer>
         <Toaster />
         <DialogContainer />
         <ScrollRestoration />
@@ -61,11 +63,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return (
-    <AuthenticationContainer>
-      <Outlet />
-    </AuthenticationContainer>
-  );
+  return <Outlet />
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
