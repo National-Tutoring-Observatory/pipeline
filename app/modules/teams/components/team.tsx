@@ -75,7 +75,7 @@ export default function Team({
             )}
             {map(users, (user) => {
               return (
-                <div key={user._id}>{user.firstName}</div>
+                <div key={user._id}>{user.username}</div>
               )
             })}
           </div>
