@@ -47,4 +47,5 @@ export default [
   route("api/storage", "modules/storage/containers/storage.route.tsx"),
   route("api/teams", "modules/teams/containers/teams.route.tsx", { id: 'teams' }),
   route("api/supportArticles", "modules/support/containers/supportArticles.route.tsx"),
+  route("api/authentication", "modules/authentication/containers/authentication.route.tsx"),
 ] satisfies RouteConfig;
