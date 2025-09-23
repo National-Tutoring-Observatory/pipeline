@@ -2,6 +2,7 @@ import { LoaderPinwheel } from "lucide-react";
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import { useFetcher } from "react-router";
 import get from 'lodash/get';
+import LoginContainer from "./login.container";
 
 export const AuthenticationContext = createContext<{} | null>(null);
 
@@ -38,7 +39,7 @@ export default function AuthenticationContainer({ children }: { children: ReactN
 
   if (!authentication) {
     return (
-      <div>Login screen</div>
+      <LoginContainer />
     );
   }
 
