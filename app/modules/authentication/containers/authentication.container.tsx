@@ -1,5 +1,7 @@
 import { LoaderPinwheel } from "lucide-react";
 import { createContext, useEffect, useState, type ReactNode } from "react";
+import { useFetcher } from "react-router";
+import get from 'lodash/get';
 
 export const AuthenticationContext = createContext<{} | null>(null);
 
@@ -7,11 +9,24 @@ export default function AuthenticationContainer({ children }: { children: ReactN
 
   const [authentication, setAuthentication] = useState<{} | null>(null);
   const [isFetching, setIsFetching] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  const authenticationFetcher = useFetcher();
 
   useEffect(() => {
-    setIsFetching(false);
-    setAuthentication({});
+    setHasLoaded(true);
+    authenticationFetcher.load(`/api/authentication`);
   }, []);
+
+  useEffect(() => {
+    if (hasLoaded && authenticationFetcher.state === 'idle') {
+      setIsFetching(false);
+      const authentication = get(authenticationFetcher, 'data.authentication.data');
+      if (authentication) {
+        setAuthentication(authentication);
+      }
+    }
+  }, [authenticationFetcher.state]);
 
   if (isFetching) {
     return (
