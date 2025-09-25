@@ -3,6 +3,7 @@ import { createCookieSessionStorage } from "react-router";
 import { Authenticator } from "remix-auth";
 import githubStrategy from "./helpers/githubStrategy";
 import localStrategy from "./helpers/localStrategy";
+import orcidStrategy from "./helpers/orcidStrategy";
 
 const authenticator = new Authenticator<User>();
 
@@ -27,6 +28,11 @@ authenticator.use(
 authenticator.use(
   githubStrategy,
   "github"
+);
+
+authenticator.use(
+  orcidStrategy,
+  "orcid"
 );
 
 export { authenticator, sessionStorage };

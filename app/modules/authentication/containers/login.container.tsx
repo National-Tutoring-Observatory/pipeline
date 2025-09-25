@@ -6,6 +6,14 @@ export default function LoginContainer() {
 
   const fetcher = useFetcher();
 
+  const onLoginWithOrcidClicked = () => {
+    fetcher.submit({ provider: 'orcid' }, {
+      action: `/api/authentication`,
+      method: "post",
+      encType: "application/json"
+    })
+  }
+
   const onLoginWithGithubClicked = () => {
     fetcher.submit({ provider: 'github' }, {
       action: `/api/authentication`,
@@ -16,6 +24,7 @@ export default function LoginContainer() {
 
   return (
     <Login
+      onLoginWithOrcidClicked={onLoginWithOrcidClicked}
       onLoginWithGithubClicked={onLoginWithGithubClicked}
     />
   );

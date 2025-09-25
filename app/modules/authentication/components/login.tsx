@@ -2,8 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function Login({
+  onLoginWithOrcidClicked,
   onLoginWithGithubClicked
 }: {
+  onLoginWithOrcidClicked: () => void,
   onLoginWithGithubClicked: () => void
 }) {
   return (
@@ -15,7 +17,7 @@ export default function Login({
           </CardDescription>
         </CardHeader>
         <CardFooter className="flex-col gap-2">
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={onLoginWithOrcidClicked}>
             <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width="72px" height="72px" viewBox="0 0 72 72" version="1.1">
               <title>Orcid logo</title>
               <g id="Symbols" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
