@@ -6,7 +6,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   let user = session.get("user");
 
   if (!user) {
-    if (process.env.DOCUMENTS_ADAPTER === 'LOCAL') {
+    if (!process.env.DOCUMENTS_ADAPTER || process.env.DOCUMENTS_ADAPTER === 'LOCAL') {
       user = await authenticator.authenticate("local", request);
 
       let session = await sessionStorage.getSession(
