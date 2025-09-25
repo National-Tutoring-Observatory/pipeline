@@ -35,6 +35,12 @@ export async function action({ request }: Route.ActionArgs) {
 
   const data = await clonedRequest.json();
 
+  if (clonedRequest.method === 'DELETE') {
+    let session = await sessionStorage.getSession(clonedRequest.headers.get("cookie"));
+
+    return Response.json({}, { headers: { "Set-Cookie": await sessionStorage.destroySession(session) } });
+  }
+
   return await authenticator.authenticate(data.provider, request);
 
 }
