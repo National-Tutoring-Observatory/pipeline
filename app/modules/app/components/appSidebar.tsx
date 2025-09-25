@@ -3,8 +3,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, FolderKanban, LifeBuoy, LogOut, Sparkles, SquareTerminal, Users } from "lucide-react";
-import { useContext } from "react";
-import { NavLink } from "react-router";
+import { useContext, useEffect } from "react";
+import { NavLink, useFetcher } from "react-router";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import SupportArticlesContianer from "~/modules/support/containers/supportArticles.container";
 import type { User } from "~/modules/users/users.types";
@@ -13,7 +13,21 @@ export default function AppSidebar() {
 
   const user = useContext(AuthenticationContext) as User;
 
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (fetcher.state === 'loading') {
+      window.location.pathname = '/'
+    }
+  }, [fetcher.state]);
+
   const onLogoutClicked = () => {
+
+    fetcher.submit({}, {
+      action: `/api/authentication`,
+      method: "delete",
+      encType: "application/json"
+    })
 
   }
 
