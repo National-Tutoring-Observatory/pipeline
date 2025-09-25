@@ -31,9 +31,10 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
+  const clonedRequest = request.clone();
 
-  // console.log(json.provider);
-  // if (json.provider === 'github') {
-  return await authenticator.authenticate("github", request);
-  // }
+  const data = await clonedRequest.json();
+
+  return await authenticator.authenticate(data.provider, request);
+
 }

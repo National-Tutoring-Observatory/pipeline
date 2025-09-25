@@ -10,7 +10,7 @@ const githubStrategy = new GitHubStrategy<User>(
     //@ts-ignore
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
     //@ts-ignore
-    redirectURI: process.env.AUTH_CALLBACK_URL,
+    redirectURI: `${process.env.AUTH_CALLBACK_URL}/github`,
     scopes: ["user:email"],
   },
   async ({ tokens, request }) => {
