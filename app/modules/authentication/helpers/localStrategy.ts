@@ -26,7 +26,7 @@ class LOCAL<User> extends Strategy<User, LOCAL.VerifyOptions> {
 const localStrategy = new LOCAL(
   {},
   async () => {
-    if (process.env.DOCUMENTS_ADAPTER === 'LOCAL') {
+    if (!process.env.DOCUMENTS_ADAPTER || process.env.DOCUMENTS_ADAPTER === 'LOCAL') {
       const documents = getDocumentsAdapter();
       const user = await documents.getDocument({ collection: 'users', match: {} }) as { data: User | undefined };
       if (!user.data) {
