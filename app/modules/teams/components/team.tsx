@@ -11,7 +11,8 @@ interface TeamProps {
   projects: Project[]
   users: User[]
   authentication: User | null,
-  onCreateProjectButtonClicked: () => void;
+  onCreateProjectButtonClicked: () => void,
+  onAddUserToTeamClicked: () => void,
 }
 
 export default function Team({
@@ -19,7 +20,8 @@ export default function Team({
   projects,
   users = [],
   authentication,
-  onCreateProjectButtonClicked
+  onCreateProjectButtonClicked,
+  onAddUserToTeamClicked
 }: TeamProps) {
 
   return (
@@ -66,7 +68,7 @@ export default function Team({
           <div className="flex items-center justify-between">
             <h2>Users</h2>
             {(authentication?.role === 'SUPER_ADMIN') && (
-              <Button >
+              <Button onClick={onAddUserToTeamClicked}>
                 Add user
               </Button>
             )}
