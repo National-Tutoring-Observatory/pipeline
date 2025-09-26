@@ -57,7 +57,7 @@ export default function TeamRoute({ loaderData }: {
   const onAddUserToTeamClicked = () => {
     addDialog(
       <AddUserToTeamDialogContainer
-
+        teamId={team.data._id}
       />
     );
   }

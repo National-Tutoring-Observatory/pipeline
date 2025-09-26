@@ -49,4 +49,5 @@ export default [
   route("api/supportArticles", "modules/support/containers/supportArticles.route.tsx"),
   route("api/authentication", "modules/authentication/containers/authentication.route.tsx"),
   route("auth/callback/:provider", "modules/authentication/containers/authCallback.route.tsx"),
+  route("api/availableTeamUsers", "modules/users/containers/availableTeamUsers.route.tsx"),
 ] satisfies RouteConfig;

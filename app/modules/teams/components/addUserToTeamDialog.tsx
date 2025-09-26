@@ -1,12 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LoaderPinwheel } from "lucide-react";
+import type { User } from "~/modules/users/users.types";
+import map from 'lodash/map';
 
 export default function AddUserToTeamDialog({
+  users,
   isFetching,
   isSubmitButtonDisabled,
   onAddUsersClicked
 }: {
+  users: User[],
   isFetching: boolean,
   isSubmitButtonDisabled: boolean,
   onAddUsersClicked: () => void
@@ -25,6 +29,17 @@ export default function AddUserToTeamDialog({
           <div className="flex items-center justify-center">
 
             <LoaderPinwheel className="animate-spin" />
+          </div>
+        )}
+        {(!isFetching) && (
+          <div>
+            {map(users, (user) => {
+              return (
+                <div key={user._id}>
+                  {user.username}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
