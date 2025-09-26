@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import AddUserToTeamDialog from "../components/addUserToTeamDialog";
 
-export default function AddUserToTeamDialogContainer({ }: {
-
+export default function AddUserToTeamDialogContainer({ teamId }: {
+  teamId: string
 }) {
 
   const [isFetching, setIsFetching] = useState(true);
@@ -12,39 +12,31 @@ export default function AddUserToTeamDialogContainer({ }: {
   // const [reasoning, setReasoning] = useState('');
   // const hasInitialized = useRef(false);
 
-  // const fetcher = useFetcher();
+  const fetcher = useFetcher();
 
-  // useEffect(() => {
-  //   if (!hasInitialized.current) {
-  //     hasInitialized.current = true;
-  //     fetcher.submit({ userPrompt, annotationSchema }, {
-  //       action: '/api/promptVersionAlignment',
-  //       method: "post",
-  //       encType: "application/json"
-  //     });
-  //   }
-  // }, []);
+  useEffect(() => {
+    // const queryParams = new URLSearchParams();
+    //queryParams.set('project', params.projectId || "");
+    fetcher.load(`/api/availableTeamUsers?teamId=${teamId}`);
+  }, []);
 
-  // useEffect(() => {
-  //   if (fetcher.data) {
-  //     setIsMatching(fetcher.data.isMatching);
-  //     setIsFetching(false);
-  //     if (fetcher.data.isMatching) {
-  //       setIsSubmitButtonDisabled(false);
-  //     } else {
-  //       setReasoning(fetcher.data.reasoning);
-  //     }
-  //   }
-  // }, [fetcher.data])
+  useEffect(() => {
+    if (fetcher.data) {
+      setIsFetching(false);
+    }
+  }, [fetcher.data])
 
   const onAddUsersClicked = () => {
 
   }
 
+  console.log(fetcher);
+
   return (
     <AddUserToTeamDialog
       isFetching={isFetching}
       isSubmitButtonDisabled={isSubmitButtonDisabled}
+      users={fetcher.data?.data}
       // reasoning={reasoning}
       // isSubmitButtonDisabled={isSubmitButtonDisabled}
       // isFetching={isFetching}
