@@ -11,6 +11,7 @@ import { useFetcher } from "react-router";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import type { User } from "~/modules/users/users.types";
+import AddUserToTeamDialogContainer from './addUserToTeamDialog.container'
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -53,6 +54,14 @@ export default function TeamRoute({ loaderData }: {
     });
   }
 
+  const onAddUserToTeamClicked = () => {
+    addDialog(
+      <AddUserToTeamDialogContainer
+
+      />
+    );
+  }
+
   useEffect(() => {
     updateBreadcrumb([{ text: 'Teams', link: `/teams` }, { text: team.data.name }])
   }, []);
@@ -64,6 +73,7 @@ export default function TeamRoute({ loaderData }: {
       users={users.data}
       authentication={authentication}
       onCreateProjectButtonClicked={onCreateProjectButtonClicked}
+      onAddUserToTeamClicked={onAddUserToTeamClicked}
     />
   );
 }
