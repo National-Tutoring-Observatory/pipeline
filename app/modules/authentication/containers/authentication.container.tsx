@@ -3,12 +3,13 @@ import { createContext, useEffect, useState, type ReactNode } from "react";
 import { useFetcher } from "react-router";
 import get from 'lodash/get';
 import LoginContainer from "./login.container";
+import type { User } from "~/modules/users/users.types";
 
 export const AuthenticationContext = createContext<{} | null>(null);
 
 export default function AuthenticationContainer({ children }: { children: ReactNode }) {
 
-  const [authentication, setAuthentication] = useState<{} | null>(null);
+  const [authentication, setAuthentication] = useState<User | null>(null);
   const [isFetching, setIsFetching] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
 
