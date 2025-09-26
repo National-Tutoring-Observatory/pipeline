@@ -1,6 +1,5 @@
 import fse from 'fs-extra';
 import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
-import filter from 'lodash/filter';
 import each from 'lodash/each';
 import get from 'lodash/get';
 import orderBy from 'lodash/orderBy';
@@ -8,6 +7,7 @@ import mongoose from 'mongoose';
 import getModelFromCollection from '~/modules/documents/helpers/getModelFromCollection';
 import getCollectionFromModel from '~/modules/documents/helpers/getCollectionFromModel';
 import getDocument from './getDocument';
+import filterDocumentsByMatch from '../helpers/filterDocumentsByMatch';
 
 export default async ({
   collection,
@@ -26,7 +26,8 @@ export default async ({
 
     const json = await fse.readJson(`./data/${collection}.json`);
 
-    let data = filter(json, match);
+    let data = filterDocumentsByMatch(json, match);
+
     if (Object.keys(sort).length > 0) {
       const iteratees: string[] = [];
       const orders: Array<'asc' | 'desc'> = [];

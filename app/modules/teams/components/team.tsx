@@ -2,6 +2,7 @@ import type { Project } from "~/modules/projects/projects.types";
 import type { Team } from "../teams.types";
 import type { User } from "~/modules/users/users.types";
 import map from 'lodash/map';
+import find from 'lodash/find';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
 
@@ -9,6 +10,7 @@ interface TeamProps {
   team: Team,
   projects: Project[]
   users: User[]
+  authentication: User | null,
   onCreateProjectButtonClicked: () => void;
 }
 
@@ -16,6 +18,7 @@ export default function Team({
   team,
   projects,
   users = [],
+  authentication,
   onCreateProjectButtonClicked
 }: TeamProps) {
 
@@ -49,23 +52,24 @@ export default function Team({
                     <Link
                       key={project._id}
                       to={`/projects/${project._id}`}
-                      className="block border-b border-black/10 p-4 last:border-0 hover:bg-gray-50"
+                      className="block border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm"
                     >
                       {project.name}
                     </Link>
                   )
                 })}
               </div>
-            )
-            }
+            )}
           </div>
         </div>
-        <div className="opacity-0">
+        <div>
           <div className="flex items-center justify-between">
             <h2>Users</h2>
-            <Button >
-              Invite user
-            </Button>
+            {(authentication?.role === 'SUPER_ADMIN') && (
+              <Button >
+                Add user
+              </Button>
+            )}
           </div>
           <div>
             {(users.length === 0) && (
@@ -73,11 +77,30 @@ export default function Team({
                 No users are associated with this team
               </div>
             )}
-            {map(users, (user) => {
-              return (
-                <div key={user._id}>{user.username}</div>
-              )
-            })}
+            {(users.length > 0) && (
+              <div className="mt-4 border border-black/10 rounded-md ">
+                {map(users, (user) => {
+
+                  const usersTeam = find(user.teams, { team: team._id });
+                  const roleInTeam = usersTeam?.role;
+
+                  return (
+                    <Link
+                      key={user._id}
+                      to={`/projects/${user._id}`}
+                      className="flex border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm items-center justify-between"
+                    >
+                      <div>
+                        {user.username}
+                      </div>
+                      <div>
+                        {roleInTeam}
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
