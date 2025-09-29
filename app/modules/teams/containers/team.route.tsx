@@ -7,7 +7,7 @@ import type { Route } from "./+types/team.route";
 import type { Project } from "~/modules/projects/projects.types";
 import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
 import addDialog from "~/modules/dialogs/addDialog";
-import { useFetcher } from "react-router";
+import { useFetcher, useSubmit } from "react-router";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import type { User } from "~/modules/users/users.types";
@@ -19,6 +19,40 @@ export async function loader({ params }: Route.LoaderArgs) {
   const projects = await documents.getDocuments({ collection: 'projects', match: { team: team.data._id } }) as { data: TeamType };
   const users = await documents.getDocuments({ collection: 'users', match: { "teams.team": team.data._id } }) as { data: TeamType };
   return { team, projects, users };
+}
+
+export async function action({
+  request,
+  params,
+}: Route.ActionArgs) {
+
+  const { intent, payload = {} } = await request.json()
+
+  const { userIds } = payload;
+
+  const documents = getDocumentsAdapter();
+
+  switch (intent) {
+    case 'ADD_USERS_TO_TEAM':
+
+      for (const userId of userIds) {
+        const user = await documents.getDocument({ collection: 'users', match: { _id: userId } }) as { data: User };
+
+        if (user.data) {
+          if (!user.data.teams) {
+            user.data.teams = [];
+          }
+          user.data.teams.push({
+            team: params.id,
+            role: 'ADMIN'
+          });
+          await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { teams: user.data.teams } });
+        }
+      }
+      return {};
+    default:
+      return {};
+  }
 }
 
 export function HydrateFallback() {
@@ -35,6 +69,7 @@ export default function TeamRoute({ loaderData }: {
   const { team, projects, users } = loaderData;
 
   const fetcher = useFetcher();
+  const submit = useSubmit();
   const authentication = useContext(AuthenticationContext) as User | null;
 
   const onCreateProjectButtonClicked = () => {
@@ -54,10 +89,21 @@ export default function TeamRoute({ loaderData }: {
     });
   }
 
-  const onAddUserToTeamClicked = () => {
+  const onAddUsersClicked = (userIds: string[]) => {
+    console.log(userIds);
+    submit(JSON.stringify({ intent: 'ADD_USERS_TO_TEAM', payload: { userIds } }), { method: 'PUT', encType: 'application/json' });
+    // fetcher.submit({ intent: 'ADD_USER_TO_TEAM', payload: { userIds, team: team.data._id } }, {
+    //   action: `/api/teams/${team.data._id}`,
+    //   method: "put",
+    //   encType: "application/json"
+    // })
+  }
+
+  const onAddUserToTeamButtonClicked = () => {
     addDialog(
       <AddUserToTeamDialogContainer
         teamId={team.data._id}
+        onAddUsersClicked={onAddUsersClicked}
       />
     );
   }
@@ -73,7 +119,7 @@ export default function TeamRoute({ loaderData }: {
       users={users.data}
       authentication={authentication}
       onCreateProjectButtonClicked={onCreateProjectButtonClicked}
-      onAddUserToTeamClicked={onAddUserToTeamClicked}
+      onAddUserToTeamClicked={onAddUserToTeamButtonClicked}
     />
   );
 }
