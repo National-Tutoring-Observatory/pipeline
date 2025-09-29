@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import AddUserToTeamDialog from "../components/addUserToTeamDialog";
+import includes from 'lodash/includes';
+import remove from 'lodash/remove';
+import cloneDeep from "lodash/cloneDeep";
 
 export default function AddUserToTeamDialogContainer({ teamId }: {
   teamId: string
@@ -8,15 +11,11 @@ export default function AddUserToTeamDialogContainer({ teamId }: {
 
   const [isFetching, setIsFetching] = useState(true);
   const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true);
-  // const [isMatching, setIsMatching] = useState(false);
-  // const [reasoning, setReasoning] = useState('');
-  // const hasInitialized = useRef(false);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
   const fetcher = useFetcher();
 
   useEffect(() => {
-    // const queryParams = new URLSearchParams();
-    //queryParams.set('project', params.projectId || "");
     fetcher.load(`/api/availableTeamUsers?teamId=${teamId}`);
   }, []);
 
@@ -30,18 +29,26 @@ export default function AddUserToTeamDialogContainer({ teamId }: {
 
   }
 
-  console.log(fetcher);
+  const onSelectUserToggled = (userId: string) => {
+    let clonedSelectedUsers = cloneDeep(selectedUsers);
+    if (includes(clonedSelectedUsers, userId)) {
+      clonedSelectedUsers = remove(clonedSelectedUsers, userId);
+      setSelectedUsers(clonedSelectedUsers);
+    } else {
+      clonedSelectedUsers.push(userId);
+      setSelectedUsers(clonedSelectedUsers);
+    }
+    setIsSubmitButtonDisabled(clonedSelectedUsers.length === 0);
+  }
 
   return (
     <AddUserToTeamDialog
       isFetching={isFetching}
       isSubmitButtonDisabled={isSubmitButtonDisabled}
       users={fetcher.data?.data}
-      // reasoning={reasoning}
-      // isSubmitButtonDisabled={isSubmitButtonDisabled}
-      // isFetching={isFetching}
-      // isMatching={isMatching}
+      selectedUsers={selectedUsers}
       onAddUsersClicked={onAddUsersClicked}
+      onSelectUserToggled={onSelectUserToggled}
     />
   );
 }

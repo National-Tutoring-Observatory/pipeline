@@ -3,17 +3,24 @@ import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHead
 import { LoaderPinwheel } from "lucide-react";
 import type { User } from "~/modules/users/users.types";
 import map from 'lodash/map';
+import includes from 'lodash/includes';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export default function AddUserToTeamDialog({
   users,
+  selectedUsers,
   isFetching,
   isSubmitButtonDisabled,
-  onAddUsersClicked
+  onAddUsersClicked,
+  onSelectUserToggled
 }: {
   users: User[],
+  selectedUsers: string[],
   isFetching: boolean,
   isSubmitButtonDisabled: boolean,
-  onAddUsersClicked: () => void
+  onAddUsersClicked: () => void,
+  onSelectUserToggled: (userId: string) => void,
 }) {
   return (
     <DialogContent>
@@ -34,9 +41,11 @@ export default function AddUserToTeamDialog({
         {(!isFetching) && (
           <div>
             {map(users, (user) => {
+              const isChecked = !!includes(selectedUsers, user._id);
               return (
-                <div key={user._id}>
-                  {user.username}
+                <div key={user._id} className="flex items-center gap-3">
+                  <Checkbox id={user._id} checked={isChecked} onCheckedChange={() => onSelectUserToggled(user._id)} />
+                  <Label htmlFor={user._id}>{user.username}</Label>
                 </div>
               );
             })}
