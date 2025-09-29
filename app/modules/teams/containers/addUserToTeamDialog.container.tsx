@@ -5,8 +5,12 @@ import includes from 'lodash/includes';
 import remove from 'lodash/remove';
 import cloneDeep from "lodash/cloneDeep";
 
-export default function AddUserToTeamDialogContainer({ teamId }: {
-  teamId: string
+export default function AddUserToTeamDialogContainer({
+  teamId,
+  onAddUsersClicked
+}: {
+  teamId: string,
+  onAddUsersClicked: (userIds: string[]) => void,
 }) {
 
   const [isFetching, setIsFetching] = useState(true);
@@ -24,10 +28,6 @@ export default function AddUserToTeamDialogContainer({ teamId }: {
       setIsFetching(false);
     }
   }, [fetcher.data])
-
-  const onAddUsersClicked = () => {
-
-  }
 
   const onSelectUserToggled = (userId: string) => {
     let clonedSelectedUsers = cloneDeep(selectedUsers);
@@ -47,7 +47,7 @@ export default function AddUserToTeamDialogContainer({ teamId }: {
       isSubmitButtonDisabled={isSubmitButtonDisabled}
       users={fetcher.data?.data}
       selectedUsers={selectedUsers}
-      onAddUsersClicked={onAddUsersClicked}
+      onAddUsersClicked={() => onAddUsersClicked(selectedUsers)}
       onSelectUserToggled={onSelectUserToggled}
     />
   );
