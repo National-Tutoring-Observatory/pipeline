@@ -1,0 +1,70 @@
+name: Build and Push to ECR (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to push (default: commit SHA)"
+        required: false
+      docker_context:
+        description: "Docker build context"
+        required: false
+        default: "."
+      ecr_repository:
+        description: "ECR repo name"
+        required: false
+        default: "nto-pipeline"
+      aws_region:
+        description: "AWS region"
+        required: false
+        default: "us-east-1"
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ${{ inputs.aws_region || 'us-east-1' }}
+  ECR_REPOSITORY: ${{ inputs.ecr_repository || 'nto-pipeline' }}
+  IMAGE_TAG: ${{ inputs.image_tag || github.sha }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ecr-${{ inputs.ecr_repository || 'nto-pipeline' }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build image
+        run: |
+          docker build -t $ECR_REPOSITORY:${IMAGE_TAG} "${{ inputs.docker_context || '.' }}"
+
+      - name: Tag & push
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
+          docker tag $ECR_REPOSITORY:${IMAGE_TAG} $ECR_URI:${IMAGE_TAG}
+          docker tag $ECR_REPOSITORY:${IMAGE_TAG} $ECR_URI:latest
+          docker push $ECR_URI:${IMAGE_TAG}
+          docker push $ECR_URI:latest
+
+      - name: Show pushed image URIs
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
+          echo "Pushed:"
+          echo " - $ECR_URI:${IMAGE_TAG}"
+          echo " - $ECR_URI:latest"
