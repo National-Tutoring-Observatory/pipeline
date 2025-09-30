@@ -2,7 +2,7 @@
 import type { Route } from "./+types/project.route";
 import type { Project as ProjectType } from "../projects.types";
 import Project from '../components/project';
-import { useMatches, useRevalidator, useSubmit } from "react-router";
+import { redirect, useMatches, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
@@ -15,10 +15,17 @@ import type { Run } from "~/modules/runs/runs.types";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import type { Collection } from "~/modules/collections/collections.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import getAuthenticationTeams from "~/modules/authentication/helpers/getAuthenticationTeams";
+import map from 'lodash/map';
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.id } }) as { data: ProjectType };
+  const authenticationTeams = await getAuthenticationTeams({ request });
+  const teamIds = map(authenticationTeams, 'team');
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.id, team: { $in: teamIds } } }) as { data: ProjectType };
+  if (!project.data) {
+    return redirect('/');
+  }
   const files = await documents.getDocuments({ collection: 'files', match: { project: params.id }, sort: {} }) as { count: number };
   const sessions = await documents.getDocuments({ collection: 'sessions', match: { project: params.id }, sort: {} }) as { count: number, data: Session[] };
   const convertedSessionsCount = filter(sessions.data, { hasConverted: true }).length;

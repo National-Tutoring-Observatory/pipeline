@@ -1,6 +1,8 @@
 import fse from 'fs-extra';
 import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import find from 'lodash/find.js';
+import filterDocumentsByMatch from '../helpers/filterDocumentsByMatch';
+import findDocumentByMatch from '../helpers/findDocumentByMatch';
 
 export default async ({ collection, match }: { collection: string, match: any }) => {
 
@@ -9,10 +11,10 @@ export default async ({ collection, match }: { collection: string, match: any })
 
     const json = await fse.readJson(`./data/${collection}.json`);
 
-    const returnedDocument = find(json, match);
+    let data = findDocumentByMatch(json, match);
 
     return {
-      data: returnedDocument
+      data
     }
 
   } catch (error) {
