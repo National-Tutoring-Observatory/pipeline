@@ -4,16 +4,23 @@ import type { Project } from "../projects.types";
 import type { Run } from "~/modules/runs/runs.types";
 import find from 'lodash/find';
 import fse from 'fs-extra';
-import { useLoaderData } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import { useEffect } from "react";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import path from "path";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import map from 'lodash/map';
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.projectId, }, }) as Project;
+  const authenticationTeams = await getSessionUserTeams({ request });
+  const teamIds = map(authenticationTeams, 'team');
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } } }) as { data: Project };
+  if (!project.data) {
+    return redirect('/');
+  }
   const run = await documents.getDocument({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, }) as { data: Run };
   const session = find(run.data.sessions, (session) => {
     if (session.sessionId === params.sessionId) {
