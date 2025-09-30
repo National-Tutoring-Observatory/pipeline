@@ -5,6 +5,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import has from 'lodash/has';
 import isObject from 'lodash/isObject';
+import includes from 'lodash/includes';
 
 interface Match {
   [key: string]: any;
@@ -19,32 +20,38 @@ export default (
   match: Match
 ): Document[] => {
 
+
   return filter(collection, (item: Document) => {
     return every(match, (condition, key) => {
-      // --- Simple path (e.g., "_id") ---
+
       if (!key.includes('.')) {
         const itemValue = get(item, key);
-        // NEW: Check for the $ne operator
         if (isObject(condition) && has(condition, '$ne')) {
           return itemValue !== condition.$ne;
         }
-        return itemValue === condition; // Default to equality
+        if (has(condition, '$in')) {
+          return isArray(condition.$in) && includes(condition.$in, itemValue);
+        }
+        return itemValue === condition;
       }
 
-      // --- Nested path (e.g., "teams.team") ---
       const [arrayPath, nestedKey] = key.split('.');
       const nestedArray = get(item, arrayPath);
 
       if (!isArray(nestedArray)) return false;
 
-      // NEW: Check for the $ne operator
       if (isObject(condition) && has(condition, '$ne')) {
-        // Return true if NONE of the nested items match the forbidden value.
-        // !_.some(...) is equivalent to _.none(...)
         return !some(nestedArray, { [nestedKey]: condition.$ne });
       }
 
-      // Default to equality: return true if SOME nested item matches.
+      if (has(condition, '$in')) {
+        const inArray = condition.$in;
+        if (!isArray(inArray)) return false;
+        return some(nestedArray, (nestedItem) => {
+          return includes(inArray, get(nestedItem, nestedKey));
+        });
+      }
+
       return some(nestedArray, { [nestedKey]: condition });
     });
   });
