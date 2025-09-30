@@ -5,13 +5,16 @@ import map from 'lodash/map';
 import find from 'lodash/find';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
+import type { Prompt } from "~/modules/prompts/prompts.types";
 
 interface TeamProps {
   team: Team,
-  projects: Project[]
+  projects: Project[],
+  prompts: Prompt[],
   users: User[]
   authentication: User | null,
   onCreateProjectButtonClicked: () => void,
+  onCreatePromptButtonClicked: () => void,
   onAddUserToTeamClicked: () => void,
 }
 
@@ -19,8 +22,10 @@ export default function Team({
   team,
   projects,
   users = [],
+  prompts,
   authentication,
   onCreateProjectButtonClicked,
+  onCreatePromptButtonClicked,
   onAddUserToTeamClicked
 }: TeamProps) {
 
@@ -57,6 +62,40 @@ export default function Team({
                       className="block border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm"
                     >
                       {project.name}
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center justify-between">
+            <h2>Prompts</h2>
+            <Button
+              onClick={() => {
+                onCreatePromptButtonClicked()
+              }}
+            >
+              Create prompt
+            </Button>
+          </div>
+          <div>
+            {(prompts.length === 0) && (
+              <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
+                No prompts are associated with this team
+              </div>
+            )}
+            {(prompts.length > 0) && (
+              <div className="mt-4 border border-black/10 rounded-md ">
+                {map(prompts, (prompt) => {
+                  return (
+                    <Link
+                      key={prompt._id}
+                      to={`/prompts/${prompt._id}/${prompt.productionVersion}`}
+                      className="block border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm"
+                    >
+                      {prompt.name}
                     </Link>
                   )
                 })}

@@ -11,23 +11,34 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import PromptNameAlert from "./promptNameAlert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import TeamsSelectorContainer from "~/modules/teams/containers/teamsSelector.container";
 
 const CreatePromptDialog = ({
+  hasTeamSelection,
   onCreateNewPromptClicked
-}: { onCreateNewPromptClicked: ({ name, annotationType }: { name: string, annotationType: string }) => void }) => {
+}: { hasTeamSelection: boolean, onCreateNewPromptClicked: ({ name, team }: { name: string, team: string | null }) => void }) => {
 
   const [name, setName] = useState('');
-  const [annotationType, setAnnotationType] = useState('PER_UTTERANCE');
+  const [team, setTeam] = useState<string | null>(null);
 
   const onPromptNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
 
+  const onTeamSelected = (selectedTeam: string) => {
+    setTeam(selectedTeam);
+  }
+
   let isSubmitButtonDisabled = true;
 
   if (name.trim().length >= 3) {
-    isSubmitButtonDisabled = false;
+    if (hasTeamSelection) {
+      if (team) {
+        isSubmitButtonDisabled = false;
+      }
+    } else {
+      isSubmitButtonDisabled = false;
+    }
   }
 
   return (
@@ -44,21 +55,15 @@ const CreatePromptDialog = ({
         <PromptNameAlert
           name={name}
         />
-        <Label htmlFor="annotation-type">Annotation type</Label>
-        <Select
-          value={annotationType}
-          onValueChange={(annotationType) => {
-            setAnnotationType(annotationType);
-          }}
-        >
-          <SelectTrigger id="annotation-type" className="w-[180px]">
-            <SelectValue placeholder="Select an annotation type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="PER_UTTERANCE">Per utterance</SelectItem>
-            <SelectItem value="PER_SESSION">Per session</SelectItem>
-          </SelectContent>
-        </Select>
+        {(hasTeamSelection) && (
+          <div className="grid gap-3">
+            <Label htmlFor="name-1">Team</Label>
+            <TeamsSelectorContainer
+              team={team}
+              onTeamSelected={onTeamSelected}
+            />
+          </div>
+        )}
       </div>
       <DialogFooter className="justify-end">
         <DialogClose asChild>
@@ -68,7 +73,7 @@ const CreatePromptDialog = ({
         </DialogClose>
         <DialogClose asChild>
           <Button type="button" disabled={isSubmitButtonDisabled} onClick={() => {
-            onCreateNewPromptClicked({ name, annotationType });
+            onCreateNewPromptClicked({ name, team });
           }}>
             Create prompt
           </Button>
