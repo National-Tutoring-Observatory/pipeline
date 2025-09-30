@@ -9,23 +9,13 @@ import userPrompt from './user.prompt.json';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
 import path from 'path';
 
-interface RequestBody {
-  inputFile: string;
-  outputFolder: string;
-}
-
 interface LambdaEvent {
-  body: RequestBody;
-}
-
-interface LambdaResponse {
-  statusCode: number;
-  body?: string;
+  body: any;
 }
 
 export const handler = async (event: LambdaEvent) => {
   const { body } = event;
-  const { inputFile, outputFolder } = body;
+  const { inputFile, outputFolder, team } = body;
 
   const storage = getStorageAdapter();
 
@@ -35,7 +25,7 @@ export const handler = async (event: LambdaEvent) => {
 
   const outputFileName = path.basename(inputFile).replace('.json', '').replace('.vtt', '');
 
-  const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI' })
+  const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI', user: team })
 
   llm.setOrchestratorMessage(orchestratorPrompt.prompt, { schema: JSON.stringify(schema) });
 

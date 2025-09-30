@@ -68,6 +68,7 @@ export default function PromptEditorRoute() {
       <SavePromptVersionDialogContainer
         userPrompt={userPrompt}
         annotationSchema={annotationSchema}
+        team={prompt.data.team}
         onSaveClicked={() => {
           submit(JSON.stringify({ intent: 'UPDATE_PROMPT_VERSION', entityId: _id, payload: { name, userPrompt, annotationSchema } }), { method: 'PUT', encType: 'application/json' });
         }}

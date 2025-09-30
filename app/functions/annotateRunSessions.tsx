@@ -5,12 +5,14 @@ import { handler as annotatePerSession } from './annotatePerSession/app';
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import type { Project } from "~/modules/projects/projects.types";
 
 export default async function annotateRunSessions({ runId }: { runId: string }) {
 
   const documents = getDocumentsAdapter();
 
   const run = await documents.getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: run.data.project } }) as { data: Project };
 
   if (run.data.isRunning) { return {} }
 
@@ -72,7 +74,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
             inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
             outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
             prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-            model: run.data.model
+            model: run.data.model,
+            team: project.data.team
           }
         });
       } else {
@@ -81,7 +84,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
             inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
             outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
             prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-            model: run.data.model
+            model: run.data.model,
+            team: project.data.team
           }
         })
       }
