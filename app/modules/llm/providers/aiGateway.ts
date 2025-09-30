@@ -25,11 +25,13 @@ registerLLM('AI_GATEWAY', {
     return openai;
   },
   createChat: async ({ llm, options, messages }: { llm: any; options: any; messages: Array<{ role: string; content: string }> }) => {
-    const { quality, model } = options;
+    const { quality, model, user } = options;
+
     // @ts-ignore
     let modelName = AI_GATEWAY_PROVIDERS[model][quality];
 
     const chatCompletion = await llm.chat.completions.create({
+      user,
       model: modelName,
       messages: messages,
       response_format: { type: "json_object" }

@@ -10,7 +10,7 @@ import path from 'path';
 export const handler = async (event: { body: any }) => {
 
   const { body } = event;
-  const { inputFile, outputFolder, prompt, model } = body;
+  const { inputFile, outputFolder, prompt, model, team } = body;
 
   const storage = getStorageAdapter();
 
@@ -23,7 +23,7 @@ export const handler = async (event: { body: any }) => {
 
   const originalJSON = JSON.parse(data.toString());
 
-  const llm = new LLM({ quality: 'high', model });
+  const llm = new LLM({ quality: 'high', model, user: team });
 
   llm.addSystemMessage(systemPrompt.prompt, {
     annotationSchema: JSON.stringify(prompt.annotationSchema)

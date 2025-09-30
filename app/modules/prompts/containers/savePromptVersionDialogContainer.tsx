@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import SavePromptVersionDialog from "../components/savePromptVersionDialog";
 import { useFetcher } from "react-router";
 
-export default function SavePromptVersionDialogContainer({ userPrompt, annotationSchema, onSaveClicked }: {
+export default function SavePromptVersionDialogContainer({ userPrompt, annotationSchema, team, onSaveClicked }: {
   userPrompt: string,
   annotationSchema: any,
+  team: string,
   onSaveClicked: () => void
 }) {
 
@@ -19,7 +20,7 @@ export default function SavePromptVersionDialogContainer({ userPrompt, annotatio
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
-      fetcher.submit({ userPrompt, annotationSchema }, {
+      fetcher.submit({ userPrompt, annotationSchema, team }, {
         action: '/api/promptVersionAlignment',
         method: "post",
         encType: "application/json"

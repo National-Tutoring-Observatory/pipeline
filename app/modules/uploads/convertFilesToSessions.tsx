@@ -11,6 +11,8 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
 
   const projectFiles = await documents.getDocuments({ collection: 'files', match: { project: entityId }, sort: {} }) as { data: Array<File> };
 
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: entityId } }) as { data: Project };
+
   const inputDirectory = `storage/${entityId}/files`;
 
   const outputDirectory = `storage/${entityId}/preAnalysis`;
@@ -42,7 +44,8 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
       await convertSessionDataToJSON({
         body: {
           inputFile: `${inputDirectory}/${projectFile.file}/${file.data.name}`,
-          outputFolder: `${outputDirectory}/${projectFile._id}`
+          outputFolder: `${outputDirectory}/${projectFile._id}`,
+          team: project.data.team
         }
       });
       hasErrored = false;
