@@ -1,4 +1,4 @@
-import { useActionData, useLoaderData, useNavigate, useParams, useSubmit } from "react-router";
+import { redirect, useActionData, useLoaderData, useNavigate, useParams, useSubmit } from "react-router";
 import Prompt from '../components/prompt';
 import type { Route } from "./+types/prompt.route";
 import type { Prompt as PromptType, PromptVersion } from "../prompts.types";
@@ -6,10 +6,17 @@ import pick from 'lodash/pick';
 import { useEffect } from "react";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import getAuthenticationTeams from "~/modules/authentication/helpers/getAuthenticationTeams";
+import map from 'lodash/map';
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const prompt = await documents.getDocument({ collection: 'prompts', match: { _id: params.id } }) as { data: PromptType };
+  const authenticationTeams = await getAuthenticationTeams({ request });
+  const teamIds = map(authenticationTeams, 'team');
+  const prompt = await documents.getDocument({ collection: 'prompts', match: { _id: params.id, team: { $in: teamIds } } }) as { data: PromptType };
+  if (!prompt.data) {
+    return redirect('/prompts');
+  }
   const promptVersions = await documents.getDocuments({
     collection: 'promptVersions',
     match: { prompt: params.id },
