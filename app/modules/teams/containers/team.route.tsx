@@ -14,6 +14,8 @@ import type { User } from "~/modules/users/users.types";
 import AddUserToTeamDialogContainer from './addUserToTeamDialog.container'
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import find from 'lodash/find';
+import type { Prompt } from "~/modules/prompts/prompts.types";
+import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -36,9 +38,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const team = await documents.getDocument({ collection: 'teams', match: { _id: params.id } }) as { data: TeamType };
 
 
-  const projects = await documents.getDocuments({ collection: 'projects', match: { team: team.data._id } }) as { data: TeamType };
+  const projects = await documents.getDocuments({ collection: 'projects', match: { team: team.data._id } }) as { data: Project };
+  const prompts = await documents.getDocuments({ collection: 'prompts', match: { team: team.data._id } }) as { data: Prompt };
   const users = await documents.getDocuments({ collection: 'users', match: { "teams.team": team.data._id } }) as { data: TeamType };
-  return { team, projects, users };
+  return { team, projects, prompts, users };
 }
 
 export async function action({
@@ -83,10 +86,11 @@ export default function TeamRoute({ loaderData }: {
   loaderData: {
     team: { data: TeamType },
     projects: { data: Project[] },
-    users: { data: User[] }
+    users: { data: User[] },
+    prompts: { data: Prompt[] }
   }
 }) {
-  const { team, projects, users } = loaderData;
+  const { team, projects, prompts, users } = loaderData;
 
   const fetcher = useFetcher();
   const submit = useSubmit();
@@ -104,6 +108,23 @@ export default function TeamRoute({ loaderData }: {
   const onCreateNewProjectClicked = ({ name }: { name: string }) => {
     fetcher.submit({ intent: 'CREATE_PROJECT', payload: { name, team: team.data._id } }, {
       action: "/api/projects",
+      method: "post",
+      encType: "application/json"
+    });
+  }
+
+  const onCreatePromptButtonClicked = () => {
+    addDialog(
+      <CreatePromptDialog
+        hasTeamSelection={false}
+        onCreateNewPromptClicked={onCreateNewPromptClicked}
+      />
+    );
+  }
+
+  const onCreateNewPromptClicked = ({ name }: { name: string }) => {
+    fetcher.submit({ intent: 'CREATE_PROMPT', payload: { name, team: team.data._id } }, {
+      action: "/api/prompts",
       method: "post",
       encType: "application/json"
     });
@@ -136,9 +157,11 @@ export default function TeamRoute({ loaderData }: {
     <Team
       team={team.data}
       projects={projects.data}
+      prompts={prompts.data}
       users={users.data}
       authentication={authentication}
       onCreateProjectButtonClicked={onCreateProjectButtonClicked}
+      onCreatePromptButtonClicked={onCreatePromptButtonClicked}
       onAddUserToTeamClicked={onAddUserToTeamButtonClicked}
     />
   );

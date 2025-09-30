@@ -31,7 +31,7 @@ export async function action({
 
   const { intent, entityId, payload = {} } = await request.json()
 
-  const { name, annotationType } = payload;
+  const { name, team } = payload;
 
   const documents = getDocumentsAdapter();
 
@@ -40,9 +40,11 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Prompt name is required and must be a string.");
       }
-      const prompt = await documents.createDocument({ collection: 'prompts', update: { name, annotationType, productionVersion: 1 } }) as { data: Prompt };
+
+      const prompt = await documents.createDocument({ collection: 'prompts', update: { name, team, productionVersion: 1 } }) as { data: Prompt };
       await documents.createDocument({
-        collection: 'promptVersions', update: {
+        collection: 'promptVersions',
+        update: {
           name: 'initial',
           prompt: prompt.data._id, version: 1,
           annotationSchema: [{
@@ -95,6 +97,7 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
   const onCreatePromptButtonClicked = () => {
     addDialog(
       <CreatePromptDialog
+        hasTeamSelection={true}
         onCreateNewPromptClicked={onCreateNewPromptClicked}
       />
     );
@@ -116,8 +119,8 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
     );
   }
 
-  const onCreateNewPromptClicked = ({ name, annotationType }: { name: string, annotationType: string }) => {
-    submit(JSON.stringify({ intent: 'CREATE_PROMPT', payload: { name, annotationType } }), { method: 'POST', encType: 'application/json' });
+  const onCreateNewPromptClicked = ({ name, team }: { name: string, team: string | null }) => {
+    submit(JSON.stringify({ intent: 'CREATE_PROMPT', payload: { name, team } }), { method: 'POST', encType: 'application/json' });
   }
 
   const onEditPromptClicked = (prompt: Prompt) => {
