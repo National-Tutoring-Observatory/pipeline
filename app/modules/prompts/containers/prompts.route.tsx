@@ -10,7 +10,7 @@ import EditPromptDialog from "../components/editPromptDialog";
 import DeletePromptDialog from "../components/deletePromptDialog";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import getAuthenticationTeams from "~/modules/authentication/helpers/getAuthenticationTeams";
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import map from 'lodash/map';
 
 type Prompts = {
@@ -19,7 +19,7 @@ type Prompts = {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const authenticationTeams = await getAuthenticationTeams({ request });
+  const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
   const prompts = await documents.getDocuments({ collection: 'prompts', match: { team: { $in: teamIds } }, sort: {} }) as Prompts;
   return { prompts };

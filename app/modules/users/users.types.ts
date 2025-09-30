@@ -8,7 +8,9 @@ export interface User {
   username: string;
   role: string;
   orcidId: string;
+  hasOrcidSSO: boolean;
   githubId: number;
+  hasGithubSSO: boolean;
   teams: UserTeam[]
   createdAt: string;
   updatedAt: string;

@@ -15,12 +15,12 @@ import type { Run } from "~/modules/runs/runs.types";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import type { Collection } from "~/modules/collections/collections.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import getAuthenticationTeams from "~/modules/authentication/helpers/getAuthenticationTeams";
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import map from 'lodash/map';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const authenticationTeams = await getAuthenticationTeams({ request });
+  const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
   const project = await documents.getDocument({ collection: 'projects', match: { _id: params.id, team: { $in: teamIds } } }) as { data: ProjectType };
   if (!project.data) {

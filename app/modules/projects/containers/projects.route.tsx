@@ -11,7 +11,7 @@ import { useEffect } from "react";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import map from 'lodash/map';
-import getAuthenticationTeams from "~/modules/authentication/helpers/getAuthenticationTeams";
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 
 type Projects = {
   data: Project[],
@@ -19,7 +19,7 @@ type Projects = {
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const authenticationTeams = await getAuthenticationTeams({ request });
+  const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
   const projects = await documents.getDocuments({ collection: 'projects', match: { team: { $in: teamIds } }, sort: {}, populate: [{ path: 'team' }] }) as Projects;
