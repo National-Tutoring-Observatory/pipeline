@@ -19,15 +19,20 @@ type Teams = {
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
+
   let match = {};
+
   const userSession = await getSessionUser({ request });
+
   if (userSession.role === 'SUPER_ADMIN') {
     match = {};
   } else {
-    const teamIds = map(userSession.teams, "_id");
-    match = { team: { $in: teamIds } }
+    const teamIds = map(userSession.teams, "team");
+    match = { _id: { $in: teamIds } }
   }
+
   const teams = await documents.getDocuments({ collection: 'teams', match, sort: {} }) as Teams;
+
   return { teams };
 }
 

@@ -7,15 +7,35 @@ import type { Route } from "./+types/team.route";
 import type { Project } from "~/modules/projects/projects.types";
 import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
 import addDialog from "~/modules/dialogs/addDialog";
-import { useFetcher, useSubmit } from "react-router";
+import { redirect, useFetcher, useSubmit } from "react-router";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import type { User } from "~/modules/users/users.types";
 import AddUserToTeamDialogContainer from './addUserToTeamDialog.container'
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import find from 'lodash/find';
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
+
+  let match = {};
+
+  const userSession = await getSessionUser({ request });
+
+  if (userSession.role !== 'SUPER_ADMIN') {
+    const hasTeamMatch = find(userSession.teams, (team) => {
+      if (team.team === params.id && team.role === 'ADMIN') {
+        return team;
+      }
+    })
+    if (!hasTeamMatch) {
+      return redirect('/');
+    }
+  }
+
   const team = await documents.getDocument({ collection: 'teams', match: { _id: params.id } }) as { data: TeamType };
+
+
   const projects = await documents.getDocuments({ collection: 'projects', match: { team: team.data._id } }) as { data: TeamType };
   const users = await documents.getDocuments({ collection: 'users', match: { "teams.team": team.data._id } }) as { data: TeamType };
   return { team, projects, users };
