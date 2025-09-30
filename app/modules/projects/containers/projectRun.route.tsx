@@ -1,4 +1,4 @@
-import { useLoaderData, useRevalidator, useRouteLoaderData, useSubmit } from "react-router";
+import { redirect, useLoaderData, useRevalidator, useRouteLoaderData, useSubmit } from "react-router";
 import ProjectRun from "../components/projectRun";
 import type { CreateRun, Run as RunType } from "~/modules/runs/runs.types";
 import type { Route } from "./+types/projectRun.route";
@@ -11,14 +11,21 @@ import type { Project } from "../projects.types";
 import exportRun from "~/modules/runs/helpers/exportRun";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import annotateRunSessions from "~/functions/annotateRunSessions";
+import map from 'lodash/map';
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 
 type Run = {
   data: RunType,
 };
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.projectId, }, }) as Project;
+  const authenticationTeams = await getSessionUserTeams({ request });
+  const teamIds = map(authenticationTeams, 'team');
+  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } } }) as { data: Project };
+  if (!project.data) {
+    return redirect('/');
+  }
   const run = await documents.getDocument({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, }) as Run;
   let runPrompt;
   let runPromptVersion;
