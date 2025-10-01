@@ -16,6 +16,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import find from 'lodash/find';
 import type { Prompt } from "~/modules/prompts/prompts.types";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
+import InviteUserToTeamDialogContainer from "./InviteUserToTeamDialogContainer";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -133,11 +134,6 @@ export default function TeamRoute({ loaderData }: {
   const onAddUsersClicked = (userIds: string[]) => {
     console.log(userIds);
     submit(JSON.stringify({ intent: 'ADD_USERS_TO_TEAM', payload: { userIds } }), { method: 'PUT', encType: 'application/json' });
-    // fetcher.submit({ intent: 'ADD_USER_TO_TEAM', payload: { userIds, team: team.data._id } }, {
-    //   action: `/api/teams/${team.data._id}`,
-    //   method: "put",
-    //   encType: "application/json"
-    // })
   }
 
   const onAddUserToTeamButtonClicked = () => {
@@ -145,6 +141,14 @@ export default function TeamRoute({ loaderData }: {
       <AddUserToTeamDialogContainer
         teamId={team.data._id}
         onAddUsersClicked={onAddUsersClicked}
+      />
+    );
+  }
+
+  const onInviteUserToTeamButtonClicked = () => {
+    addDialog(
+      <InviteUserToTeamDialogContainer
+        teamId={team.data._id}
       />
     );
   }
@@ -163,6 +167,7 @@ export default function TeamRoute({ loaderData }: {
       onCreateProjectButtonClicked={onCreateProjectButtonClicked}
       onCreatePromptButtonClicked={onCreatePromptButtonClicked}
       onAddUserToTeamClicked={onAddUserToTeamButtonClicked}
+      onInviteUserToTeamClicked={onInviteUserToTeamButtonClicked}
     />
   );
 }
