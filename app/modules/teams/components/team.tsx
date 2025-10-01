@@ -16,6 +16,7 @@ interface TeamProps {
   onCreateProjectButtonClicked: () => void,
   onCreatePromptButtonClicked: () => void,
   onAddUserToTeamClicked: () => void,
+  onInviteUserToTeamClicked: () => void,
 }
 
 export default function Team({
@@ -26,7 +27,8 @@ export default function Team({
   authentication,
   onCreateProjectButtonClicked,
   onCreatePromptButtonClicked,
-  onAddUserToTeamClicked
+  onAddUserToTeamClicked,
+  onInviteUserToTeamClicked
 }: TeamProps) {
 
   return (
@@ -106,11 +108,17 @@ export default function Team({
         <div>
           <div className="flex items-center justify-between">
             <h2>Users</h2>
-            {(authentication?.role === 'SUPER_ADMIN') && (
-              <Button onClick={onAddUserToTeamClicked}>
-                Add user
+            <div>
+
+              {(authentication?.role === 'SUPER_ADMIN') && (
+                <Button variant="secondary" onClick={onAddUserToTeamClicked}>
+                  Add existing user
+                </Button>
+              )}
+              <Button onClick={onInviteUserToTeamClicked} className="ml-2">
+                Invite new user
               </Button>
-            )}
+            </div>
           </div>
           <div>
             {(users.length === 0) && (
