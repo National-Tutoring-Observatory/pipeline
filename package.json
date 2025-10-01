@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node ./app/adapters.js && react-router build",
+    "build": "node react-router build",
     "dev": "node ./app/adapters.js && react-router dev",
     "start": "node ./app/adapters.js && react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
