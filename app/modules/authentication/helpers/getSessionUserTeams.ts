@@ -1,7 +1,7 @@
-import { sessionStorage } from "../authentication.server";
+import type { User } from "~/modules/users/users.types";
 import getSessionUser from "./getSessionUser";
 
 export default async ({ request }: { request: Request }) => {
-  const sessionUser = await getSessionUser({ request })
+  const sessionUser = await getSessionUser({ request }) as User
   return sessionUser.teams;
 }

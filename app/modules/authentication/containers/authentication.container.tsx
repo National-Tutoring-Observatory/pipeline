@@ -1,6 +1,6 @@
 import { LoaderPinwheel } from "lucide-react";
 import { createContext, useEffect, useState, type ReactNode } from "react";
-import { useFetcher } from "react-router";
+import { Outlet, useFetcher, useLocation, useMatch, useMatches } from "react-router";
 import get from 'lodash/get';
 import LoginContainer from "./login.container";
 import type { User } from "~/modules/users/users.types";
@@ -14,6 +14,7 @@ export default function AuthenticationContainer({ children }: { children: ReactN
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const authenticationFetcher = useFetcher();
+  const isInviteRoute = useMatch("/invite/:id");
 
   useEffect(() => {
     setHasLoaded(true);
@@ -29,6 +30,12 @@ export default function AuthenticationContainer({ children }: { children: ReactN
       }
     }
   }, [authenticationFetcher.state]);
+
+  if (isInviteRoute) {
+    return (
+      <Outlet />
+    );
+  }
 
   if (isFetching) {
     return (

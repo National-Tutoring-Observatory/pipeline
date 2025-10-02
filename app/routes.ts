@@ -35,6 +35,9 @@ export default [
     index("modules/teams/containers/teams.route.tsx"),
     route(":id", "modules/teams/containers/team.route.tsx"),
   ]),
+  ...prefix("invite", [
+    route(":id", "modules/teams/containers/invite.route.tsx", { id: "invite" }),
+  ]),
   route("api/projects", "modules/projects/containers/projects.route.tsx", { id: 'projects' }),
   route("api/prompts", "modules/prompts/containers/prompts.route.tsx", { id: 'prompts' }),
   route("api/events", "modules/events/containers/events.route.tsx"),
