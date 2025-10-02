@@ -25,7 +25,9 @@ const checkSuperAdminExists = async () => {
   }
 }
 
-checkSuperAdminExists();
+setTimeout(() => {
+  checkSuperAdminExists();
+}, 0)
 
 export const streamTimeout = 5_000;
 
