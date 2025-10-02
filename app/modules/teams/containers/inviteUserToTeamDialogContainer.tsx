@@ -12,12 +12,27 @@ export default function InviteUserToTeamDialogContainer({
   teamId: string,
 }) {
 
+  const [role, setRole] = useState('ADMIN');
+
+  const [isGeneratingInviteLink, setIsGeneratingInviteLink] = useState(false);
+
+  let inviteLink: string = '';
+
+  const onRoleChanged = (role: string) => {
+    setRole(role);
+  }
+
   const onGenerateInviteLinkClicked = () => {
     console.log('onGenerateInviteLinkClicked');
+    setIsGeneratingInviteLink(true);
   }
 
   return (
     <InviteUserToTeamDialog
+      role={role}
+      inviteLink={inviteLink}
+      isGeneratingInviteLink={isGeneratingInviteLink}
+      onRoleChanged={onRoleChanged}
       onGenerateInviteLinkClicked={onGenerateInviteLinkClicked}
     />
   );
