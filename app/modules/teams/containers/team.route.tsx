@@ -16,7 +16,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import find from 'lodash/find';
 import type { Prompt } from "~/modules/prompts/prompts.types";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
-import InviteUserToTeamDialogContainer from "./InviteUserToTeamDialogContainer";
+import InviteUserToTeamDialogContainer from "./inviteUserToTeamDialogContainer";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
