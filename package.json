@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node react-router build",
+    "build": "node ./app/adapters.js && react-router build",
     "dev": "node ./app/adapters.js && react-router dev",
-    "start": "node ./app/adapters.js && react-router-serve ./build/server/index.js",
+    "start": "node react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
