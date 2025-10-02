@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2Icon, LoaderPinwheel } from "lucide-react";
+import { CopyCheckIcon, CopyIcon, Loader2Icon, LoaderPinwheel } from "lucide-react";
 import type { User } from "~/modules/users/users.types";
 import map from 'lodash/map';
 import includes from 'lodash/includes';
@@ -13,15 +13,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function InviteUserToTeamDialog({
   role,
   inviteLink,
+  hasCopiedInviteLink,
   isGeneratingInviteLink,
   onRoleChanged,
-  onGenerateInviteLinkClicked
+  onGenerateInviteLinkClicked,
+  onCopyInviteClicked
 }: {
   role: string,
   inviteLink: string,
+  hasCopiedInviteLink: boolean,
   isGeneratingInviteLink: boolean,
   onRoleChanged: (role: string) => void,
   onGenerateInviteLinkClicked: () => void
+  onCopyInviteClicked: () => void
 }) {
   const roles = getRoles();
   return (
@@ -30,9 +34,10 @@ export default function InviteUserToTeamDialog({
         <DialogTitle>Invite a new user to a team</DialogTitle>
         <DialogDescription>
           {(!isGeneratingInviteLink) && (
-            <div>
+
+            <span>
               Clicking "Generate invite" will give you a one-time invite link to send to a user you would like to become a team member. <br /><br />More roles will be added soon.
-            </div>
+            </span>
           )}
         </DialogDescription>
       </DialogHeader>
@@ -64,10 +69,24 @@ export default function InviteUserToTeamDialog({
         {(isGeneratingInviteLink) && (
           <div>
             {(inviteLink) && (
-              <div>
-                <div>
+              <div className="relative">
+                <div className="text-sm bg-gray-100 rounded-2xl p-2">
                   {inviteLink}
                 </div>
+                <Button variant="ghost" className="absolute top-0 right-1" disabled={hasCopiedInviteLink} onClick={onCopyInviteClicked}>
+                  {(hasCopiedInviteLink) && (
+                    <CopyCheckIcon />
+                  )}
+
+                  {(!hasCopiedInviteLink) && (
+                    <CopyIcon />
+                  )}
+                </Button>
+                {(hasCopiedInviteLink) && (
+                  <div className="text-xs absolute -bottom-6 right-4 text-green-500">
+                    Invite link copied!
+                  </div>
+                )}
               </div>
             )}
             {(!inviteLink) && (
@@ -84,17 +103,14 @@ export default function InviteUserToTeamDialog({
             </Button>
           </DialogClose>
         )}
-        <Button type="button" disabled={isGeneratingInviteLink} onClick={onGenerateInviteLinkClicked}>
-          {(isGeneratingInviteLink) && (
-            <Loader2Icon className="animate-spin" />
-          )}
-          Generate invite
-        </Button>
-        {/* <DialogClose asChild>
-          <Button type="button" onClick={onGenerateInviteLinkClicked}>
+        {(!inviteLink) && (
+          <Button type="button" disabled={isGeneratingInviteLink} onClick={onGenerateInviteLinkClicked}>
+            {(isGeneratingInviteLink) && (
+              <Loader2Icon className="animate-spin" />
+            )}
             Generate invite
           </Button>
-        </DialogClose> */}
+        )}
       </DialogFooter>
     </DialogContent >
   );

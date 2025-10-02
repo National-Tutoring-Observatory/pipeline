@@ -188,8 +188,6 @@ export class OrcidStrategy<User> extends Strategy<
 
       const data = (await response.json()) as any;
 
-      console.log(data);
-
       return {
         accessToken: data.access_token,
         refreshToken: data.refresh_token,
@@ -253,7 +251,6 @@ const orcidStrategy = new OrcidStrategy<User>(
     sandbox: process.env.NODE_ENV === "development",
   },
   async ({ profile }) => {
-    console.log(profile);
     const documents = getDocumentsAdapter();
 
     const user = await documents.getDocument({ collection: 'users', match: { orcidId: profile.id, hasOrcidSSO: true } }) as { data: User };

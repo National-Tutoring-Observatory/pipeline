@@ -9,5 +9,4 @@ export default ({ name, getDocuments, createDocument, getDocument, updateDocumen
     remove(DocumentAdapters, { name });
   }
   DocumentAdapters.push({ name, getDocuments, createDocument, getDocument, updateDocument, deleteDocument });
-  console.log(DocumentAdapters);
 }

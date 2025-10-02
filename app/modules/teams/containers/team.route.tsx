@@ -132,7 +132,6 @@ export default function TeamRoute({ loaderData }: {
   }
 
   const onAddUsersClicked = (userIds: string[]) => {
-    console.log(userIds);
     submit(JSON.stringify({ intent: 'ADD_USERS_TO_TEAM', payload: { userIds } }), { method: 'PUT', encType: 'application/json' });
   }
 

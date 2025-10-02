@@ -70,7 +70,6 @@ export default function SupportArticles({
           <div>
             {map(supportArticles, (supportArticle: SupportArticle) => {
               if (supportArticle.documentId === selectedDocumentId) {
-                console.log(supportArticle);
                 return (
                   <div className="[&_h1]:scroll-m-20 [&_h1]:text-4xl [&_h1]:font-extrabold [&_h1]:tracking-tight [&_h1]:text-balance [&_h1]:mb-4">
                     <div className="[&_h2]:scroll-m-20 [&_h2]:border-b [&_h2]:pb-2 [&_h2]:text-3xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:first:mt-0 [&_h2]:mb-2">

@@ -1,9 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useFetcher } from "react-router";
-import AddUserToTeamDialog from "../components/addUserToTeamDialog";
-import includes from 'lodash/includes';
-import remove from 'lodash/remove';
-import cloneDeep from "lodash/cloneDeep";
+
 import InviteUserToTeamDialog from "../components/inviteUserToTeamDialog";
 
 export default function InviteUserToTeamDialogContainer({
@@ -13,8 +10,9 @@ export default function InviteUserToTeamDialogContainer({
 }) {
 
   const [role, setRole] = useState('ADMIN');
-
+  const [hasCopiedInviteLink, setHasCopiedInviteLink] = useState(false);
   const [isGeneratingInviteLink, setIsGeneratingInviteLink] = useState(false);
+  const fetcher = useFetcher();
 
   let inviteLink: string = '';
 
@@ -23,17 +21,38 @@ export default function InviteUserToTeamDialogContainer({
   }
 
   const onGenerateInviteLinkClicked = () => {
-    console.log('onGenerateInviteLinkClicked');
     setIsGeneratingInviteLink(true);
+    fetcher.submit(JSON.stringify({
+      intent: 'GENERATE_INVITE_LINK',
+      payload: {
+        teamId,
+        role
+      }
+    }), {
+      action: '/api/teams/generateInviteToTeam',
+      method: 'POST',
+      encType: 'application/json'
+    });
+  }
+
+  const onCopyInviteClicked = () => {
+    navigator.clipboard.writeText(inviteLink);
+    setHasCopiedInviteLink(true);
+  }
+
+  if (fetcher.data && fetcher.data.data && fetcher.data.data.inviteId) {
+    inviteLink = `${window.location.origin}/invite/${fetcher.data.data.inviteId}`;
   }
 
   return (
     <InviteUserToTeamDialog
       role={role}
       inviteLink={inviteLink}
+      hasCopiedInviteLink={hasCopiedInviteLink}
       isGeneratingInviteLink={isGeneratingInviteLink}
       onRoleChanged={onRoleChanged}
       onGenerateInviteLinkClicked={onGenerateInviteLinkClicked}
+      onCopyInviteClicked={onCopyInviteClicked}
     />
   );
 }
