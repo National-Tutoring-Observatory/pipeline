@@ -57,8 +57,6 @@ export async function action({
       }
     }
 
-    console.log(entityId);
-
     uploadFiles({ files, entityId }).then(() => {
       convertFilesToSessions({ entityId });
     });

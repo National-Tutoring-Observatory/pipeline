@@ -51,4 +51,5 @@ export default [
   route("api/authentication", "modules/authentication/containers/authentication.route.tsx"),
   route("auth/callback/:provider", "modules/authentication/containers/authCallback.route.tsx"),
   route("api/availableTeamUsers", "modules/users/containers/availableTeamUsers.route.tsx"),
+  route("api/teams/generateInviteToTeam", "modules/teams/containers/generateInviteToTeam.route.tsx"),
 ] satisfies RouteConfig;

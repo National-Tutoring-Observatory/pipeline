@@ -13,10 +13,8 @@ export default function ViewSessionContainer({ session }: { session: Session }) 
       const response = await fetch("/api/storage", {
         method: "POST",
         body: JSON.stringify({ intent: "REQUEST_STORAGE", payload: { url: `storage/${session.project}/preAnalysis/${session._id}/${session.name}` } }),
-        // …
       });
 
-      console.log(response);
 
 
       if (!response.ok) {
@@ -24,10 +22,6 @@ export default function ViewSessionContainer({ session }: { session: Session }) 
       }
 
       const jsonData = await response.json();
-
-      console.log(jsonData.requestUrl);
-
-
 
       const sessionRequest = await fetch(jsonData.requestUrl);
 
