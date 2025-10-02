@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node ./app/adapters.js && react-router build",
     "dev": "node ./app/adapters.js && react-router dev",
-    "start": "node react-router-serve ./build/server/index.js",
+    "start": "PORT=5173 react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
