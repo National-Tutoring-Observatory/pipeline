@@ -45,6 +45,9 @@ export default async () => {
       connectTimeoutMS: 10000,
     });
     CONNECTION = connection;
+    mongoose.connection.on('error', err => {
+      console.error('Mongoose connection error:', err);
+    });
     console.log('Database:connected');
   }
 
