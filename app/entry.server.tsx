@@ -15,6 +15,7 @@ import type { User } from "./modules/users/users.types";
 const checkSuperAdminExists = async () => {
   const documents = getDocumentsAdapter()
   const user = await documents.getDocument({ collection: 'users', match: { role: 'SUPER_ADMIN' } }) as { data: User | undefined };
+  console.log(user.data);
   if (!user.data) {
     await documents.createDocument({
       collection: 'users',
