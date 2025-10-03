@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import path from 'path';
+import fs from 'fs-extra';
 
 interface DatabaseConnection {
   connection: mongoose.Connection;
@@ -30,6 +31,9 @@ export default async () => {
 
   console.log(process.cwd());
   console.log(path.join(process.cwd(), 'global-bundle.pem'));
+
+  const files = await fs.readdir(process.cwd());
+  console.log(files);
 
   const connectionString = `mongodb://${encodeURIComponent(DOCUMENT_DB_USERNAME)}:${encodeURIComponent(DOCUMENT_DB_PASSWORD)}@${DOCUMENT_DB_CONNECTION_STRING}`;
 
