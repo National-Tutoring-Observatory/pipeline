@@ -18,8 +18,8 @@ FROM node:20-alpine
 COPY ./package.json package-lock.json /app/
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
-COPY ./documentation /app/documentation
-COPY ./global-bundle.pem /app/
+COPY ./documentation /app/build/server/documentation
+COPY ./global-bundle.pem /app/build/server
 WORKDIR /app
 EXPOSE 5173
 CMD ["npm", "run", "start"]
