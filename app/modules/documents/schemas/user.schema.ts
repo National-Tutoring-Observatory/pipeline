@@ -9,6 +9,8 @@ export default new mongoose.Schema({
   }],
   isRegistered: { type: Boolean, default: false },
   inviteId: { type: String },
+  githubId: { type: Number },
+  hasGithubSSO: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   createdBy: { type: mongoose.Types.ObjectId, ref: 'User' },
   updatedAt: { type: Date },
