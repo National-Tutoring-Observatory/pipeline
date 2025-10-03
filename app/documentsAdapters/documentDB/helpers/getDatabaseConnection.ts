@@ -37,6 +37,8 @@ export default async () => {
 
   const connectionString = `mongodb://${encodeURIComponent(DOCUMENT_DB_USERNAME)}:${encodeURIComponent(DOCUMENT_DB_PASSWORD)}@${DOCUMENT_DB_CONNECTION_STRING}`;
 
+  console.log(connectionString);
+
   if (!CONNECTION) {
     console.log('Database:connecting');
     const connection = await mongoose.connect(connectionString as string, {
