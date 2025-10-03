@@ -29,15 +29,7 @@ export default async () => {
     throw new Error('DOCUMENT_DB_PASSWORD is undefined.');
   }
 
-  console.log(process.cwd());
-  console.log(path.join(process.cwd(), 'global-bundle.pem'));
-
-  const files = await fs.readdir(process.cwd());
-  console.log(files);
-
   const connectionString = `mongodb://${encodeURIComponent(DOCUMENT_DB_USERNAME)}:${encodeURIComponent(DOCUMENT_DB_PASSWORD)}@${DOCUMENT_DB_CONNECTION_STRING}`;
-
-  console.log(connectionString);
 
   if (!CONNECTION) {
     console.log('Database:connecting');

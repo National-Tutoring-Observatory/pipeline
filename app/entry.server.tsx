@@ -17,7 +17,8 @@ const checkSuperAdminExists = async () => {
   const user = await documents.getDocument({ collection: 'users', match: { role: 'SUPER_ADMIN' } }) as { data: User | undefined };
   if (!user.data) {
     await documents.createDocument({
-      collection: 'users', update: {
+      collection: 'users',
+      update: {
         role: 'SUPER_ADMIN',
         username: 'local',
       }
