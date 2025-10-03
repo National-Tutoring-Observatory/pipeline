@@ -27,9 +27,7 @@ export default async () => {
     throw new Error('DOCUMENT_DB_PASSWORD is undefined.');
   }
 
-  const connectionString = DOCUMENT_DB_CONNECTION_STRING
-    .replace('{{username}}', encodeURIComponent(DOCUMENT_DB_USERNAME))
-    .replace('{{password}}', encodeURIComponent(DOCUMENT_DB_PASSWORD));
+  const connectionString = `mongodb://${encodeURIComponent(DOCUMENT_DB_USERNAME)}:${encodeURIComponent(DOCUMENT_DB_PASSWORD)}@${DOCUMENT_DB_CONNECTION_STRING}`;
 
   if (!CONNECTION) {
     console.log('Database:connecting');
