@@ -14,9 +14,6 @@ import type { User } from "./modules/users/users.types";
 
 const checkSuperAdminExists = async () => {
   const documents = getDocumentsAdapter()
-  await documents.deleteDocument({ collection: 'users', match: { _id: '68dfe50f5d14b2f26ec79e18' } });
-  await documents.deleteDocument({ collection: 'users', match: { _id: '68dfe81f2f60b64d2dc10d25' } });
-  await documents.deleteDocument({ collection: 'users', match: { _id: '68dfe8b4e4f4bca44d5a81bd' } });
   console.log(process.env);
   const users = await documents.getDocuments({ collection: 'users', match: { role: 'SUPER_ADMIN' } }) as { data: User | undefined };
   console.log(users.data);
