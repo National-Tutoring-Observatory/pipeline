@@ -27,6 +27,8 @@ export default async () => {
     throw new Error('DOCUMENT_DB_PASSWORD is undefined.');
   }
 
+  console.log(import.meta.dirname);
+
   const connectionString = `mongodb://${encodeURIComponent(DOCUMENT_DB_USERNAME)}:${encodeURIComponent(DOCUMENT_DB_PASSWORD)}@${DOCUMENT_DB_CONNECTION_STRING}`;
 
   if (!CONNECTION) {
