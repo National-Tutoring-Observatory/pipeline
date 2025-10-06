@@ -14,12 +14,25 @@ import type { User } from "./modules/users/users.types";
 
 const checkSuperAdminExists = async () => {
   const documents = getDocumentsAdapter()
-  const user = await documents.getDocument({ collection: 'users', match: { role: 'SUPER_ADMIN' } }) as { data: User | undefined };
+  const user = await documents.getDocument({
+    collection: 'users',
+    match: { role: 'SUPER_ADMIN', githubId: parseInt(process.env.SUPER_ADMIN_GITHUB_ID as string) }
+  }) as { data: User | undefined };
+  console.log('user', user.data);
+  const users = await documents.getDocuments({
+    collection: 'users',
+    match: { role: 'SUPER_ADMIN' }
+  })
+  console.log('users', users.data);
   if (!user.data) {
     await documents.createDocument({
-      collection: 'users', update: {
+      collection: 'users',
+      update: {
         role: 'SUPER_ADMIN',
         username: 'local',
+        githubId: process.env.SUPER_ADMIN_GITHUB_ID,
+        hasGithubSSO: process.env.SUPER_ADMIN_GITHUB_ID ? true : false,
+        isRegistered: true
       }
     })
   }

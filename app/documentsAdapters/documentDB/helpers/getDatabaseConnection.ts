@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import path from 'path';
+import fs from 'fs-extra';
 
 interface DatabaseConnection {
   connection: mongoose.Connection;
@@ -27,18 +29,19 @@ export default async () => {
     throw new Error('DOCUMENT_DB_PASSWORD is undefined.');
   }
 
-  const connectionString = DOCUMENT_DB_CONNECTION_STRING
-    .replace('{{username}}', encodeURIComponent(DOCUMENT_DB_USERNAME))
-    .replace('{{password}}', encodeURIComponent(DOCUMENT_DB_PASSWORD));
+  const connectionString = `mongodb://${encodeURIComponent(DOCUMENT_DB_USERNAME)}:${encodeURIComponent(DOCUMENT_DB_PASSWORD)}@${DOCUMENT_DB_CONNECTION_STRING}`;
 
   if (!CONNECTION) {
     console.log('Database:connecting');
     const connection = await mongoose.connect(connectionString as string, {
       tls: true,
-      tlsCAFile: "./global-bundle.pem",
+      tlsCAFile: path.join(process.cwd(), 'global-bundle.pem'),
       connectTimeoutMS: 10000,
     });
     CONNECTION = connection;
+    mongoose.connection.on('error', err => {
+      console.error('Mongoose connection error:', err);
+    });
     console.log('Database:connected');
   }
 
