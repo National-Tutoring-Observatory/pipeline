@@ -25,9 +25,13 @@ const githubStrategy = new GitHubStrategy<User>(
 
     let githubUser = await response.json();
 
+    console.log(githubUser);
+
     const documents = getDocumentsAdapter();
 
     const user = await documents.getDocument({ collection: 'users', match: { githubId: githubUser.id, hasGithubSSO: true } }) as { data: User };
+
+    console.log(user.data);
 
     if (!user.data) {
       throw redirect("/?error=UNREGISTERED");
