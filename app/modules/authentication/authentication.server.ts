@@ -7,8 +7,6 @@ import orcidStrategy from "./helpers/orcidStrategy";
 
 const authenticator = new Authenticator<User>();
 
-console.log(process.env.NODE_ENV);
-
 const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: "__session",
