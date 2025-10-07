@@ -1,7 +1,7 @@
 import { redirect } from "react-router";
 import { GitHubStrategy } from "remix-auth-github";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { User } from "~/modules/users/users.types";
+import type { User, UserTeam } from "~/modules/users/users.types";
 import find from 'lodash/find';
 import { sessionStorage } from "../authentication.server";
 
@@ -69,8 +69,16 @@ const githubStrategy = new GitHubStrategy<User>(
       }
     } else if (isInvitedUser) {
       // If user already exists, check teams and add if that team does not exist on the user.
+      const invitedUser = await documents.getDocument({ collection: 'users', match: { inviteId } }) as { data: User };
+      const invitedUserTeam = invitedUser.data.teams[0] as UserTeam
+      const currentUserTeams = user.data.teams;
+      const isPartOfInvitedTeam = find(currentUserTeams, { team: invitedUserTeam.team });
+      if (!isPartOfInvitedTeam) {
+        currentUserTeams.push(invitedUserTeam);
+        update.teams = currentUserTeams;
+      }
       // Remove old invited user.
-      console.log('update current user to take on teams and delete current user');
+      await documents.deleteDocument({ collection: 'users', match: { _id: invitedUser.data._id } });
     }
 
     let email = find(emails, (email) => {

@@ -52,7 +52,7 @@ export async function action({ request }: Route.ActionArgs) {
     if (!invitedUser.data) {
       return Response.json({ ok: false, error: "Invalid invite" }, { status: 404 })
     }
-    session.set("inviteId", data.inviteId);
+    session.flash("inviteId", data.inviteId);
   }
   try {
     await authenticator.authenticate(data.provider, request);
