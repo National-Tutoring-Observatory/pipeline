@@ -1,5 +1,7 @@
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { authenticator, sessionStorage } from "../authentication.server";
 import type { Route } from "./+types/authentication.route";
+import type { User } from "~/modules/users/users.types";
 
 export async function loader({ request }: Route.LoaderArgs) {
   let session = await sessionStorage.getSession(request.headers.get("cookie"));
@@ -39,6 +41,16 @@ export async function action({ request }: Route.ActionArgs) {
     let session = await sessionStorage.getSession(clonedRequest.headers.get("cookie"));
 
     return Response.json({}, { headers: { "Set-Cookie": await sessionStorage.destroySession(session) } });
+  }
+
+  const referrerSplit = clonedRequest.headers.get('Referer')?.split('/') || [];
+
+  if (referrerSplit[referrerSplit.length - 1] === data.inviteId && referrerSplit[referrerSplit.length - 2] === 'invite') {
+    const documents = getDocumentsAdapter();
+    const invitedUser = await documents.getDocument({ collection: 'users', match: { inviteId: data.inviteId, isRegistered: false } }) as { data: User };
+    if (!invitedUser.data) {
+      return Response.json({ ok: false, error: "Invalid invite" }, { status: 404 })
+    }
   }
 
   return await authenticator.authenticate(data.provider, request);
