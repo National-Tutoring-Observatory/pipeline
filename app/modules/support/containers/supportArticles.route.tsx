@@ -8,10 +8,10 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const supportArticles = [] as any;
 
-  const documentsInDirectory = fs.readdirSync('./documentation').filter(file => path.extname(file) === '.md');
+  const documentsInDirectory = fs.readdirSync(path.join(process.cwd(), 'documentation')).filter(file => path.extname(file) === '.md');
 
   for (const document of documentsInDirectory) {
-    const markdownContent = fs.readFileSync(path.join('./documentation', document), 'utf-8');
+    const markdownContent = fs.readFileSync(path.join(process.cwd(), 'documentation', document), 'utf-8');
     const data = matter(markdownContent);
 
     if (Object.keys(data.data).length > 0 && data.data.isPublished) {
