@@ -12,6 +12,7 @@ export default new mongoose.Schema({
   inviteId: { type: String },
   githubId: { type: Number },
   hasGithubSSO: { type: Boolean, default: false },
+  registeredAt: { type: Date },
   createdAt: { type: Date, default: Date.now },
   createdBy: { type: mongoose.Types.ObjectId, ref: 'User' },
   updatedAt: { type: Date },

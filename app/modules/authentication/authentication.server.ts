@@ -15,7 +15,7 @@ const sessionStorage = createCookieSessionStorage({
     sameSite: "lax",
     // @ts-ignore
     secrets: [process.env.SESSION_SECRET],
-    secure: false //process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production",
   },
 });
 
