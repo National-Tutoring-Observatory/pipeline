@@ -41,6 +41,7 @@ export async function action({
           role: "USER",
           isRegistered: false,
           inviteId,
+          invitedAt: new Date(),
           teams: [{
             team: teamId,
             role

@@ -8,10 +8,11 @@ export default new mongoose.Schema({
     team: { type: mongoose.Types.ObjectId, ref: 'Team' },
     role: { type: String, enum: ['ADMIN'] }
   }],
-  isRegistered: { type: Boolean, default: false },
   inviteId: { type: String },
+  isRegistered: { type: Boolean, default: false },
   githubId: { type: Number },
   hasGithubSSO: { type: Boolean, default: false },
+  invitedAt: { type: Date },
   registeredAt: { type: Date },
   createdAt: { type: Date, default: Date.now },
   createdBy: { type: mongoose.Types.ObjectId, ref: 'User' },

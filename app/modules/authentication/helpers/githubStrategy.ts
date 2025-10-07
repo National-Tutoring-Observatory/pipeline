@@ -4,6 +4,7 @@ import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter
 import type { User, UserTeam } from "~/modules/users/users.types";
 import find from 'lodash/find';
 import { sessionStorage } from "../authentication.server";
+import dayjs from "dayjs";
 
 const githubStrategy = new GitHubStrategy<User>(
   {
@@ -55,7 +56,12 @@ const githubStrategy = new GitHubStrategy<User>(
       // if no user but is invite, update the invitedUser
       if (isInvitedUser) {
         user = await documents.getDocument({ collection: 'users', match: { inviteId } }) as { data: User };
+
+
         if (user.data) {
+          if (dayjs().isAfter(dayjs(user.data.invitedAt).add(48, 'hours'))) {
+            throw redirect("/?error=EXPIRED_INVITE");
+          }
           update.inviteId = null;
           update.isRegistered = true;
           update.registeredAt = new Date();
@@ -70,6 +76,11 @@ const githubStrategy = new GitHubStrategy<User>(
     } else if (isInvitedUser) {
       // If user already exists, check teams and add if that team does not exist on the user.
       const invitedUser = await documents.getDocument({ collection: 'users', match: { inviteId } }) as { data: User };
+
+      if (dayjs().isAfter(dayjs(invitedUser.data.invitedAt).add(48, 'hours'))) {
+        throw redirect("/?error=EXPIRED_INVITE");
+      }
+
       const invitedUserTeam = invitedUser.data.teams[0] as UserTeam
       const currentUserTeams = user.data.teams;
       const isPartOfInvitedTeam = find(currentUserTeams, { team: invitedUserTeam.team });
