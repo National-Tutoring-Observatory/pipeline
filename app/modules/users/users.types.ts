@@ -14,4 +14,6 @@ export interface User {
   teams: UserTeam[]
   createdAt: string;
   updatedAt: string;
+  inviteId: string;
+  invitedAt: Date
 }

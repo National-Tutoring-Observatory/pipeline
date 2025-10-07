@@ -10,7 +10,7 @@ export default async ({ collection, match, update }: { collection: string, match
     const model = getModelFromCollection(collection);
     const Model = connection.models[model];
 
-    const data = await Model.findByIdAndUpdate(match._id, update);
+    const data = await Model.findByIdAndUpdate(match._id, update, { new: true });
 
     return {
       data: JSON.parse(JSON.stringify(data))
