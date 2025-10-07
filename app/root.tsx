@@ -17,6 +17,7 @@ import AppSidebar from "./modules/app/components/appSidebar";
 import AuthenticationContainer from "./modules/authentication/containers/authentication.container";
 
 export const links: Route.LinksFunction = () => [
+  { rel: "icon", href: '/public/assets/nto-favicon.png', type: "image/png" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
