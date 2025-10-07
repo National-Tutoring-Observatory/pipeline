@@ -10,9 +10,16 @@ export default function Invite({
 }) {
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-linear-to-bl from-violet-300 to-fuchsia-300">
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-md">
+        <div className="" style={{ maxWidth: '260px' }}>
+          <img src="/assets/nto-logo-horizontal.webp" />
+        </div>
         <CardHeader>
-          <CardTitle>National Tutoring Observatory</CardTitle>
+          <CardTitle className="mb-2">
+            <h1 className="text-2xl">
+              National Tutoring Observatory
+            </h1>
+          </CardTitle>
           <CardDescription>
             You've been invited to the National Tutoring Observatory annotation tool.
             <br />
