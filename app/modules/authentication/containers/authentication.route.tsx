@@ -44,6 +44,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   const referrerSplit = clonedRequest.headers.get('Referer')?.split('/') || [];
+  let session = await sessionStorage.getSession(clonedRequest.headers.get("cookie"));
 
   if (referrerSplit[referrerSplit.length - 1] === data.inviteId && referrerSplit[referrerSplit.length - 2] === 'invite') {
     const documents = getDocumentsAdapter();
@@ -51,8 +52,16 @@ export async function action({ request }: Route.ActionArgs) {
     if (!invitedUser.data) {
       return Response.json({ ok: false, error: "Invalid invite" }, { status: 404 })
     }
+    session.set("inviteId", data.inviteId);
   }
-
-  return await authenticator.authenticate(data.provider, request);
+  try {
+    await authenticator.authenticate(data.provider, request);
+  } catch (error) {
+    if (error instanceof Response) {
+      error.headers.append("Set-Cookie", await sessionStorage.commitSession(session));
+      throw error;
+    }
+    throw error;
+  }
 
 }

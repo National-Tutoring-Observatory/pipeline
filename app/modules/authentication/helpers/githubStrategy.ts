@@ -3,6 +3,7 @@ import { GitHubStrategy } from "remix-auth-github";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
 import find from 'lodash/find';
+import { sessionStorage } from "../authentication.server";
 
 const githubStrategy = new GitHubStrategy<User>(
   {
@@ -37,14 +38,39 @@ const githubStrategy = new GitHubStrategy<User>(
 
     let emails = await emailsResponse.json();
 
-    console.log(githubUser);
+    let session = await sessionStorage.getSession(request.headers.get("cookie"));
+
+    const inviteId = session.get("inviteId");
+
+    const isInvitedUser = !!inviteId;
 
     const documents = getDocumentsAdapter();
 
     let user = await documents.getDocument({ collection: 'users', match: { githubId: githubUser.id, hasGithubSSO: true } }) as { data: User };
 
+    let update: any = {};
+
     if (!user.data) {
-      throw redirect("/?error=UNREGISTERED");
+
+      // if no user but is invite, update the invitedUser
+      if (isInvitedUser) {
+        user = await documents.getDocument({ collection: 'users', match: { inviteId } }) as { data: User };
+        if (user.data) {
+          update.inviteId = null;
+          update.isRegistered = true;
+          update.registeredAt = new Date();
+          update.githubId = githubUser.id;
+          update.hasGithubSSO = true;
+        } else {
+          throw redirect("/?error=UNREGISTERED");
+        }
+      } else {
+        throw redirect("/?error=UNREGISTERED");
+      }
+    } else if (isInvitedUser) {
+      // If user already exists, check teams and add if that team does not exist on the user.
+      // Remove old invited user.
+      console.log('update current user to take on teams and delete current user');
     }
 
     let email = find(emails, (email) => {
@@ -61,13 +87,13 @@ const githubStrategy = new GitHubStrategy<User>(
       }
     }
 
+    update.username = githubUser.name || githubUser.login;
+    update.email = email.email;
+
     user = await documents.updateDocument({
       collection: 'users',
       match: { _id: user.data._id },
-      update: {
-        username: githubUser.name,
-        email: email.email,
-      }
+      update
     }) as { data: User };
 
     return user.data;
