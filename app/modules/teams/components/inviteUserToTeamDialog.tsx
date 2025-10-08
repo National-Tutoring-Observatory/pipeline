@@ -9,23 +9,28 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import getRoles from "../helpers/getRoles";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 
 export default function InviteUserToTeamDialog({
   role,
+  username,
   inviteLink,
   hasCopiedInviteLink,
   isGeneratingInviteLink,
   onRoleChanged,
   onGenerateInviteLinkClicked,
-  onCopyInviteClicked
+  onCopyInviteClicked,
+  onUsernameChanged
 }: {
   role: string,
+  username: string,
   inviteLink: string,
   hasCopiedInviteLink: boolean,
   isGeneratingInviteLink: boolean,
   onRoleChanged: (role: string) => void,
   onGenerateInviteLinkClicked: () => void
-  onCopyInviteClicked: () => void
+  onCopyInviteClicked: () => void,
+  onUsernameChanged: (username: string) => void,
 }) {
   const roles = getRoles();
   return (
@@ -36,14 +41,18 @@ export default function InviteUserToTeamDialog({
           {(!isGeneratingInviteLink) && (
 
             <span>
-              Clicking "Generate invite" will give you a one-time invite link to send to a user you would like to become a team member. <br /><br />More roles will be added soon.
+              Clicking "Generate invite" will give you a one-time invite link to send to a user you would like to become a team member.
+              <br /><br />
+              Adding a username will help you identify who you have sent this invite link to.
+              <br /><br />
+              More roles will be added soon.
             </span>
           )}
         </DialogDescription>
       </DialogHeader>
       <div>
         {(!isGeneratingInviteLink) && (
-          <div>
+          <div className="flex flex-col gap-2">
             <Label className="text-xs mb-0.5">Select your users role in this team</Label>
             <Select
               value={role}
@@ -64,6 +73,8 @@ export default function InviteUserToTeamDialog({
                 })}
               </SelectContent>
             </Select>
+            <Label className="text-xs mb-0.5">Username</Label>
+            <Input id="username" name="username" defaultValue={username} autoComplete="off" onChange={(event) => onUsernameChanged(event.target.value)} />
           </div>
         )}
         {(isGeneratingInviteLink) && (
