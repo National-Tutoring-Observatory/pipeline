@@ -17,8 +17,8 @@ export default function Login({
   onLoginWithGithubClicked: () => void
 }) {
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-linear-to-bl from-violet-300 to-fuchsia-300">
-      <Card className="w-full max-w-md">
+    <div className="w-screen h-screen flex items-center justify-center" style={{ backgroundColor: '#f7f7f7' }}>
+      <Card className="w-full max-w-md text-center">
         <div className="mx-auto" style={{ maxWidth: '120px' }}>
           <img src="/assets/nto-logo-icon.png" />
         </div>
