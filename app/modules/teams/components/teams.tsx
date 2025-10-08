@@ -14,9 +14,11 @@ import type { Team } from "../teams.types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
 import dayjs from 'dayjs'
+import type { User } from "~/modules/users/users.types";
 
 interface TeamsProps {
   teams: Team[];
+  authentication: User | null,
   onCreateTeamButtonClicked: () => void;
   onEditTeamButtonClicked: (team: Team) => void;
   onDeleteTeamButtonClicked: (team: Team) => void;
@@ -24,6 +26,7 @@ interface TeamsProps {
 
 export default function Teams({
   teams,
+  authentication,
   onCreateTeamButtonClicked,
   onEditTeamButtonClicked,
   onDeleteTeamButtonClicked
@@ -37,14 +40,18 @@ export default function Teams({
         <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
           No teams created
           <div className="mt-3">
-            <Button onClick={onCreateTeamButtonClicked}>Create team</Button>
+            {(authentication?.role === 'SUPER_ADMIN') && (
+              <Button onClick={onCreateTeamButtonClicked}>Create team</Button>
+            )}
           </div>
         </div>
       )}
       {(teams.length > 0) && (
         <div className="border rounded-md">
           <div className="flex justify-end border-b p-2">
-            <Button onClick={onCreateTeamButtonClicked}>Create team</Button>
+            {(authentication?.role === 'SUPER_ADMIN') && (
+              <Button onClick={onCreateTeamButtonClicked}>Create team</Button>
+            )}
           </div>
           <Table>
             <TableHeader>
