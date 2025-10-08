@@ -7,11 +7,13 @@ import CreateTeamDialog from "../components/createTeamDialog";
 import EditTeamDialog from "../components/editTeamDialog";
 import DeleteTeamDialog from "../components/deleteTeamDialog";
 import type { Team } from "../teams.types";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import map from 'lodash/map';
+import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
+import type { User } from "~/modules/users/users.types";
 
 type Teams = {
   data: [],
@@ -22,7 +24,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   let match = {};
 
-  const userSession = await getSessionUser({ request });
+  const userSession = await getSessionUser({ request }) as User;
 
   if (userSession.role === 'SUPER_ADMIN') {
     match = {};
@@ -75,6 +77,8 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   const submit = useSubmit();
   const actionData = useActionData();
   const navigate = useNavigate();
+
+  const authentication = useContext(AuthenticationContext) as User | null;
 
   useEffect(() => {
     if (actionData?.intent === 'CREATE_TEAM') {
@@ -129,6 +133,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   return (
     <Teams
       teams={teams?.data}
+      authentication={authentication}
       onCreateTeamButtonClicked={onCreateTeamButtonClicked}
       onEditTeamButtonClicked={onEditTeamButtonClicked}
       onDeleteTeamButtonClicked={onDeleteTeamButtonClicked}

@@ -23,7 +23,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   let match = {};
 
-  const userSession = await getSessionUser({ request });
+  const userSession = await getSessionUser({ request }) as User;
 
   if (userSession.role !== 'SUPER_ADMIN') {
     const hasTeamMatch = find(userSession.teams, (team) => {
