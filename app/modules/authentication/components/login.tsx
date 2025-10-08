@@ -12,8 +12,8 @@ export default function Login({
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-linear-to-bl from-violet-300 to-fuchsia-300">
       <Card className="w-full max-w-md">
-        <div className="" style={{ maxWidth: '260px' }}>
-          <img src="/assets/nto-logo-horizontal.webp" />
+        <div className="mx-auto" style={{ maxWidth: '120px' }}>
+          <img src="/assets/nto-logo-icon.png" />
         </div>
         <CardHeader>
           <CardTitle className="mb-2">
