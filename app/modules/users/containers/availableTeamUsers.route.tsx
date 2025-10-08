@@ -11,7 +11,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   const documents = getDocumentsAdapter();
-  const users = await documents.getDocuments({ collection: 'users', match: { "teams.team": { "$ne": teamId } } });
+  const users = await documents.getDocuments({
+    collection: 'users', match: {
+      "teams.team": { "$ne": teamId },
+      "isRegistered": true
+    }
+  });
 
   return users;
 
