@@ -12,7 +12,7 @@ export async function action({
 
   const { intent, entityId, payload = {} } = await request.json()
 
-  const { teamId, role } = payload;
+  const { teamId, role, username } = payload;
 
   if (intent === 'GENERATE_INVITE_LINK') {
 
@@ -39,6 +39,7 @@ export async function action({
         collection: 'users',
         update: {
           role: "USER",
+          username,
           isRegistered: false,
           inviteId,
           invitedAt: new Date(),

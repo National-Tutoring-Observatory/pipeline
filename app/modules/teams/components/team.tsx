@@ -135,25 +135,32 @@ export default function Team({
                     name
                   } = getUserRoleInTeam({ user, team });
 
+                  let username = user.username;
+
+                  if (!user.isRegistered) {
+                    if (user.username) {
+                      username = `${user.username} - Invited user`;
+                    } else {
+                      username = 'Invited user';
+                    }
+                  }
+
                   return (
                     <div
                       key={user._id}
                       className="flex border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm items-center justify-between"
                     >
-                      {(user.isRegistered) && (
+                      <div>
                         <div>
-                          {user.username}
+                          {username}
                         </div>
-                      ) || (
-                          <div>
-                            <div>
-                              Invited user
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {`${window.location.origin}/invite/${user.inviteId}`}
-                            </div>
+                        {(!user.isRegistered) && (
+
+                          <div className="text-xs text-muted-foreground">
+                            {`${window.location.origin}/invite/${user.inviteId}`}
                           </div>
                         )}
+                      </div>
                       <div>
                         {name}
                       </div>

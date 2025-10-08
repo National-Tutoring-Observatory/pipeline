@@ -10,6 +10,7 @@ export default function InviteUserToTeamDialogContainer({
 }) {
 
   const [role, setRole] = useState('ADMIN');
+  const [username, setUsername] = useState('');
   const [hasCopiedInviteLink, setHasCopiedInviteLink] = useState(false);
   const [isGeneratingInviteLink, setIsGeneratingInviteLink] = useState(false);
   const fetcher = useFetcher();
@@ -20,13 +21,18 @@ export default function InviteUserToTeamDialogContainer({
     setRole(role);
   }
 
+  const onUsernameChanged = (username: string) => {
+    setUsername(username);
+  }
+
   const onGenerateInviteLinkClicked = () => {
     setIsGeneratingInviteLink(true);
     fetcher.submit(JSON.stringify({
       intent: 'GENERATE_INVITE_LINK',
       payload: {
         teamId,
-        role
+        role,
+        username
       }
     }), {
       action: '/api/teams/generateInviteToTeam',
@@ -47,12 +53,14 @@ export default function InviteUserToTeamDialogContainer({
   return (
     <InviteUserToTeamDialog
       role={role}
+      username={username}
       inviteLink={inviteLink}
       hasCopiedInviteLink={hasCopiedInviteLink}
       isGeneratingInviteLink={isGeneratingInviteLink}
       onRoleChanged={onRoleChanged}
       onGenerateInviteLinkClicked={onGenerateInviteLinkClicked}
       onCopyInviteClicked={onCopyInviteClicked}
+      onUsernameChanged={onUsernameChanged}
     />
   );
 }
