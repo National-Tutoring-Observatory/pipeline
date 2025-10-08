@@ -33,7 +33,7 @@ export default function Login({
             <br /><br />
             <b>In the beta phase, only users invited by the NTO will be able to log in and join a team.</b>
             {(hasError) && (
-              <Alert variant="destructive" className="mt-2">
+              <Alert variant="destructive" className="mt-2 text-left">
                 <AlertCircle />
                 <AlertTitle>{errorTitle}</AlertTitle>
                 {(errorDescription) && (
