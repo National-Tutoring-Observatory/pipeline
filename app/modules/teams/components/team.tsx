@@ -6,6 +6,7 @@ import find from 'lodash/find';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
 import type { Prompt } from "~/modules/prompts/prompts.types";
+import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
 
 interface TeamProps {
   team: Team,
@@ -130,22 +131,33 @@ export default function Team({
               <div className="mt-4 border border-black/10 rounded-md ">
                 {map(users, (user) => {
 
-                  const usersTeam = find(user.teams, { team: team._id });
-                  const roleInTeam = usersTeam?.role;
+                  const {
+                    name
+                  } = getUserRoleInTeam({ user, team });
 
                   return (
-                    <Link
+                    <div
                       key={user._id}
-                      to={`/projects/${user._id}`}
                       className="flex border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm items-center justify-between"
                     >
+                      {(user.isRegistered) && (
+                        <div>
+                          {user.username}
+                        </div>
+                      ) || (
+                          <div>
+                            <div>
+                              Invited user
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {`${window.location.origin}/invite/${user.inviteId}`}
+                            </div>
+                          </div>
+                        )}
                       <div>
-                        {user.username}
+                        {name}
                       </div>
-                      <div>
-                        {roleInTeam}
-                      </div>
-                    </Link>
+                    </div>
                   )
                 })}
               </div>

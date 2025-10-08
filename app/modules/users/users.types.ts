@@ -15,5 +15,7 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   inviteId: string;
-  invitedAt: Date
+  invitedAt: Date,
+  isRegistered: boolean,
+  registeredAt: Date
 }

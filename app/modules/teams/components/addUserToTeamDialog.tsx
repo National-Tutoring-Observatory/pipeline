@@ -34,7 +34,6 @@ export default function AddUserToTeamDialog({
 
         {(isFetching) && (
           <div className="flex items-center justify-center">
-
             <LoaderPinwheel className="animate-spin" />
           </div>
         )}
@@ -43,7 +42,7 @@ export default function AddUserToTeamDialog({
             {map(users, (user) => {
               const isChecked = !!includes(selectedUsers, user._id);
               return (
-                <div key={user._id} className="flex items-center gap-3">
+                <div key={user._id} className="flex items-center gap-3 mb-2">
                   <Checkbox id={user._id} checked={isChecked} onCheckedChange={() => onSelectUserToggled(user._id)} />
                   <Label htmlFor={user._id}>{user.username}</Label>
                 </div>
