@@ -50,7 +50,7 @@ export default function InviteUserToTeamDialog({
               onValueChange={onRoleChanged}
             >
               <SelectTrigger id="annotation-type" className="w-[180px]">
-                <SelectValue placeholder="Select an annotation type" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {map(roles, (role) => {
@@ -70,10 +70,10 @@ export default function InviteUserToTeamDialog({
           <div>
             {(inviteLink) && (
               <div className="relative">
-                <div className="text-sm bg-gray-100 rounded-2xl p-2">
+                <div className="text-sm bg-gray-100 rounded-2xl p-2 break-all pr-10">
                   {inviteLink}
                 </div>
-                <Button variant="ghost" className="absolute top-0 right-1" disabled={hasCopiedInviteLink} onClick={onCopyInviteClicked}>
+                <Button variant="ghost" className="absolute top-0 z-10 right-1 cursor-pointer" disabled={hasCopiedInviteLink} onClick={onCopyInviteClicked}>
                   {(hasCopiedInviteLink) && (
                     <CopyCheckIcon />
                   )}
