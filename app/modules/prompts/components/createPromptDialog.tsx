@@ -12,13 +12,26 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import PromptNameAlert from "./promptNameAlert";
 import TeamsSelectorContainer from "~/modules/teams/containers/teamsSelector.container";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const CreatePromptDialog = ({
   hasTeamSelection,
   onCreateNewPromptClicked
-}: { hasTeamSelection: boolean, onCreateNewPromptClicked: ({ name, team }: { name: string, team: string | null }) => void }) => {
+}: {
+  hasTeamSelection: boolean,
+  onCreateNewPromptClicked: ({
+    name,
+    annotationType,
+    team
+  }: {
+    name: string,
+    annotationType: string,
+    team: string | null
+  }) => void
+}) => {
 
   const [name, setName] = useState('');
+  const [annotationType, setAnnotationType] = useState('PER_UTTERANCE');
   const [team, setTeam] = useState<string | null>(null);
 
   const onPromptNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +68,21 @@ const CreatePromptDialog = ({
         <PromptNameAlert
           name={name}
         />
+        <Label htmlFor="annotation-type">Annotation type</Label>
+        <Select
+          value={annotationType}
+          onValueChange={(annotationType) => {
+            setAnnotationType(annotationType);
+          }}
+        >
+          <SelectTrigger id="annotation-type" className="w-[180px]">
+            <SelectValue placeholder="Select an annotation type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="PER_UTTERANCE">Per utterance</SelectItem>
+            <SelectItem value="PER_SESSION">Per session</SelectItem>
+          </SelectContent>
+        </Select>
         {(hasTeamSelection) && (
           <div className="grid gap-3">
             <Label htmlFor="name-1">Team</Label>
@@ -73,7 +101,7 @@ const CreatePromptDialog = ({
         </DialogClose>
         <DialogClose asChild>
           <Button type="button" disabled={isSubmitButtonDisabled} onClick={() => {
-            onCreateNewPromptClicked({ name, team });
+            onCreateNewPromptClicked({ name, team, annotationType });
           }}>
             Create prompt
           </Button>
