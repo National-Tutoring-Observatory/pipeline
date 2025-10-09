@@ -64,35 +64,26 @@ export default function PromptEditor({
         </div>
         <div className="space-x-4 flex items-center">
           {(!isProduction && promptVersion.hasBeenSaved) && (
-
             <Button
-              size="icon"
               variant="ghost"
-              className="size-4 cursor-pointer hover:text-indigo-600"
+              className="cursor-pointer hover:text-indigo-600"
               onClick={onMakePromptVersionProductionClicked}
             >
               <BookCheck />
+              Make production version
             </Button>
           )}
           {(!promptVersion.hasBeenSaved) && (
             <Button
-              size="icon"
               variant="ghost"
-              className="size-4 cursor-pointer hover:text-indigo-600"
+              className="cursor-pointer hover:text-indigo-600"
               disabled={!hasChanges || isLoading}
               onClick={onSavePromptVersionClicked}
             >
               <Save />
+              Save prompt version
             </Button>
           )}
-          <Button
-            size="icon"
-            variant="ghost"
-            className="size-4 cursor-pointer hover:text-indigo-600"
-            title="Archive version"
-            disabled={isLoading}>
-            <Archive />
-          </Button>
         </div>
       </div>
       <div className="p-8 grid gap-8">

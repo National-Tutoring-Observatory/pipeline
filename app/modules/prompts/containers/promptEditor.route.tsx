@@ -47,9 +47,10 @@ export async function action({
 
 export function shouldRevalidate({
   formMethod,
+  formAction,
   defaultShouldRevalidate,
 }: ShouldRevalidateFunctionArgs) {
-  if (formMethod === 'POST') {
+  if (formMethod === 'POST' && formAction === '/api/promptVersionAlignment') {
     return false;
   }
   return defaultShouldRevalidate;
