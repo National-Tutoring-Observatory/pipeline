@@ -73,7 +73,7 @@ export default function InviteUserToTeamDialog({
                 })}
               </SelectContent>
             </Select>
-            <Label className="text-xs mb-0.5">Username</Label>
+            <Label className="text-xs mb-0.5">Who is this for</Label>
             <Input id="username" name="username" defaultValue={username} autoComplete="off" onChange={(event) => onUsernameChanged(event.target.value)} />
           </div>
         )}
