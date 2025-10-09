@@ -31,7 +31,7 @@ export async function action({
 
   const { intent, entityId, payload = {} } = await request.json()
 
-  const { name, team } = payload;
+  const { name, annotationType, team } = payload;
 
   const documents = getDocumentsAdapter();
 
@@ -41,7 +41,7 @@ export async function action({
         throw new Error("Prompt name is required and must be a string.");
       }
 
-      const prompt = await documents.createDocument({ collection: 'prompts', update: { name, team, productionVersion: 1 } }) as { data: Prompt };
+      const prompt = await documents.createDocument({ collection: 'prompts', update: { name, annotationType, team, productionVersion: 1 } }) as { data: Prompt };
       await documents.createDocument({
         collection: 'promptVersions',
         update: {
@@ -119,8 +119,8 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
     );
   }
 
-  const onCreateNewPromptClicked = ({ name, team }: { name: string, team: string | null }) => {
-    submit(JSON.stringify({ intent: 'CREATE_PROMPT', payload: { name, team } }), { method: 'POST', encType: 'application/json' });
+  const onCreateNewPromptClicked = ({ name, annotationType, team }: { name: string, annotationType: string, team: string | null }) => {
+    submit(JSON.stringify({ intent: 'CREATE_PROMPT', payload: { name, annotationType, team } }), { method: 'POST', encType: 'application/json' });
   }
 
   const onEditPromptClicked = (prompt: Prompt) => {

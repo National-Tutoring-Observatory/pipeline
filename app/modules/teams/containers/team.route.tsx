@@ -123,8 +123,8 @@ export default function TeamRoute({ loaderData }: {
     );
   }
 
-  const onCreateNewPromptClicked = ({ name }: { name: string }) => {
-    fetcher.submit({ intent: 'CREATE_PROMPT', payload: { name, team: team.data._id } }, {
+  const onCreateNewPromptClicked = ({ name, annotationType, }: { name: string, annotationType: string, }) => {
+    fetcher.submit({ intent: 'CREATE_PROMPT', payload: { name, annotationType, team: team.data._id } }, {
       action: "/api/prompts",
       method: "post",
       encType: "application/json"
