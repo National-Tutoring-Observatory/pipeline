@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparator, ItemTitle } from "@/components/ui/item";
 import React from "react";
-import { Outlet } from "react-router";
+import { Link, Outlet } from "react-router";
 import map from 'lodash/map';
 import type { FeatureFlag } from "../featureFlags.types";
 import { ChevronRight, PlusIcon } from "lucide-react";
@@ -30,11 +30,12 @@ export default function FeatureFlags({
                 <Item>
                   <ItemContent className="gap-1">
                     <ItemTitle>{featureFlag.name}</ItemTitle>
-                    {/* <ItemDescription>{person.email}</ItemDescription> */}
                   </ItemContent>
                   <ItemActions>
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                      <ChevronRight className="size-4" />
+                    <Button variant="ghost" size="icon" className="rounded-full" asChild>
+                      <Link to={`/featureFlags/${featureFlag._id}`}>
+                        <ChevronRight className="size-4" />
+                      </Link>
                     </Button>
                   </ItemActions>
                 </Item>
@@ -43,7 +44,7 @@ export default function FeatureFlags({
             ))}
           </ItemGroup>
           <Separator orientation="vertical" className="h-full absolute left-1/3" />
-          <div>
+          <div className="w-2/3">
             <Outlet />
           </div>
         </div>
