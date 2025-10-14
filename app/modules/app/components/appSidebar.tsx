@@ -2,9 +2,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, FolderKanban, LifeBuoy, LogOut, Sparkles, SquareTerminal, Users } from "lucide-react";
+import { BadgeCheck, Bell, ChartNoAxesGantt, ChevronsUpDown, CreditCard, Flag, FolderKanban, LifeBuoy, LogOut, Rocket, Sparkles, SquareTerminal, Users } from "lucide-react";
 import { useContext, useEffect } from "react";
 import { NavLink, useFetcher } from "react-router";
+import Role from "~/modules/authentication/components/role";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import SupportArticlesContianer from "~/modules/support/containers/supportArticles.container";
 import type { User } from "~/modules/users/users.types";
@@ -82,6 +83,34 @@ export default function AppSidebar() {
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <Role roles={['SUPER_ADMIN']}>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild >
+                    <NavLink to={'/featureFlags'}>
+                      {({ isActive }) => (
+                        <>
+                          <Flag />
+                          <span className={isActive ? "underline" : ""}>Feature flags</span>
+                        </>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </Role>
+              <Role roles={['SUPER_ADMIN']}>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild >
+                    <NavLink to={'/queues'}>
+                      {({ isActive }) => (
+                        <>
+                          <ChartNoAxesGantt />
+                          <span className={isActive ? "underline" : ""}>Queues</span>
+                        </>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </Role>
               {/* <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <NavLink to={'/users'}>
