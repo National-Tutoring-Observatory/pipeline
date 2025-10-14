@@ -38,6 +38,11 @@ export default [
   ...prefix("invite", [
     route(":id", "modules/teams/containers/invite.route.tsx", { id: "invite" }),
   ]),
+  ...prefix("featureFlags", [
+    route("/", "modules/featureFlags/containers/featureFlags.route.tsx", [
+      route(":id", "modules/featureFlags/containers/featureFlag.route.tsx"),
+    ]),
+  ]),
   route("api/projects", "modules/projects/containers/projects.route.tsx", { id: 'projects' }),
   route("api/prompts", "modules/prompts/containers/prompts.route.tsx", { id: 'prompts' }),
   route("api/events", "modules/events/containers/events.route.tsx"),
