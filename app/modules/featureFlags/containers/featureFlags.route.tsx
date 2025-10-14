@@ -56,7 +56,8 @@ export function HydrateFallback() {
   return <div>Loading...</div>;
 }
 
-export default function FeatureFlagsRoute() {
+export default function FeatureFlagsRoute({ loaderData }: Route.ComponentProps) {
+  const { featureFlags } = loaderData;
   const submit = useSubmit();
   const actionData = useActionData();
   const navigate = useNavigate();
@@ -87,6 +88,7 @@ export default function FeatureFlagsRoute() {
 
   return (
     <FeatureFlags
+      featureFlags={featureFlags?.data}
       onCreateFeatureFlagButtonClicked={onCreateFeatureFlagButtonClicked}
     />
   );
