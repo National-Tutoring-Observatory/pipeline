@@ -1,9 +1,17 @@
 import { Button } from "@/components/ui/button";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparator, ItemTitle } from "@/components/ui/item";
+import React from "react";
 import { Outlet } from "react-router";
+import map from 'lodash/map';
+import type { FeatureFlag } from "../featureFlags.types";
+import { ChevronRight, PlusIcon } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 export default function FeatureFlags({
+  featureFlags,
   onCreateFeatureFlagButtonClicked
 }: {
+  featureFlags: FeatureFlag[],
   onCreateFeatureFlagButtonClicked: () => void
 }) {
   return (
@@ -12,16 +20,32 @@ export default function FeatureFlags({
         Feature flags
       </h1>
       <div>
-        <div>
-          <div className="flex justify-end border-b p-2">
-            <Button onClick={onCreateFeatureFlagButtonClicked}>Create feature flag</Button>
+        <div className="flex justify-end p-2">
+          <Button onClick={onCreateFeatureFlagButtonClicked}>Create feature flag</Button>
+        </div>
+        <div className="border rounded-lg flex relative">
+          <ItemGroup className="w-1/3">
+            {map(featureFlags, (featureFlag, index) => (
+              <React.Fragment key={featureFlag._id}>
+                <Item>
+                  <ItemContent className="gap-1">
+                    <ItemTitle>{featureFlag.name}</ItemTitle>
+                    {/* <ItemDescription>{person.email}</ItemDescription> */}
+                  </ItemContent>
+                  <ItemActions>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <ChevronRight className="size-4" />
+                    </Button>
+                  </ItemActions>
+                </Item>
+                {index !== featureFlags.length - 1 && <ItemSeparator />}
+              </React.Fragment>
+            ))}
+          </ItemGroup>
+          <Separator orientation="vertical" className="h-full absolute left-1/3" />
+          <div>
+            <Outlet />
           </div>
-        </div>
-        <div>
-
-        </div>
-        <div>
-          <Outlet />
         </div>
       </div>
     </div>
