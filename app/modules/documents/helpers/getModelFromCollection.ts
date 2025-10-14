@@ -7,7 +7,8 @@ export const MODELS_BY_COLLECTION: { [key: string]: string } = {
   prompts: 'Prompt',
   promptVersions: 'PromptVersion',
   runs: 'Run',
-  sessions: 'Session'
+  sessions: 'Session',
+  featureFlags: 'FeatureFlag'
 }
 
 export default (collection: string) => {

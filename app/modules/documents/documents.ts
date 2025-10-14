@@ -12,6 +12,7 @@ import fileSchema from './schemas/file.schema';
 import sessionSchema from './schemas/session.schema';
 import runSchema from './schemas/run.schema';
 import collectionSchema from './schemas/collection.schema';
+import featureFlagSchema from './schemas/featureFlag.schema';
 
 const registerModels = () => {
   if (!mongoose.models.Project) {
@@ -40,6 +41,9 @@ const registerModels = () => {
   }
   if (!mongoose.models.Collection) {
     mongoose.model('Collection', collectionSchema);
+  }
+  if (!mongoose.models.FeatureFlag) {
+    mongoose.model('FeatureFlag', featureFlagSchema);
   }
 }
 
