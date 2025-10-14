@@ -8,6 +8,7 @@ export default new mongoose.Schema({
     team: { type: mongoose.Types.ObjectId, ref: 'Team' },
     role: { type: String, enum: ['ADMIN'] }
   }],
+  featureFlags: [{ type: mongoose.Types.ObjectId }],
   inviteId: { type: String },
   isRegistered: { type: Boolean, default: false },
   githubId: { type: Number },

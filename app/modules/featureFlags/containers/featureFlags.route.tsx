@@ -18,12 +18,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const authentication = await getSessionUser({ request }) as User;
   if (authentication.role !== 'SUPER_ADMIN') {
-    throw redirect('/');
+    return redirect('/');
   }
-
-  console.log('taka');
   const featureFlags = await documents.getDocuments({ collection: 'featureFlags', match: {}, sort: {} }) as FeatureFlags;
-  console.log('after taka', featureFlags);
   return { featureFlags };
 }
 

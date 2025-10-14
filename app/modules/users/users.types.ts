@@ -12,6 +12,7 @@ export interface User {
   githubId: number;
   hasGithubSSO: boolean;
   teams: UserTeam[]
+  featureFlags: string[],
   createdAt: string;
   updatedAt: string;
   inviteId: string;
