@@ -61,4 +61,5 @@ export default [
   route("api/availableTeamUsers", "modules/users/containers/availableTeamUsers.route.tsx"),
   route("api/teams/generateInviteToTeam", "modules/teams/containers/generateInviteToTeam.route.tsx"),
   route("api/availableFeatureFlagUsers", "modules/users/containers/availableFeatureFlagUsers.route.tsx"),
+  route("api", "modules/app/containers/api.route.tsx"),
 ] satisfies RouteConfig;
