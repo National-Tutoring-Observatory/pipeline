@@ -17,11 +17,10 @@ import find from 'lodash/find';
 import type { Prompt } from "~/modules/prompts/prompts.types";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
 import InviteUserToTeamDialogContainer from "./inviteUserToTeamDialogContainer";
+import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-
-  let match = {};
 
   const userSession = await getSessionUser({ request }) as User;
 
@@ -156,6 +155,20 @@ export default function TeamRoute({ loaderData }: {
     updateBreadcrumb([{ text: 'Teams', link: `/teams` }, { text: team.data.name }])
   }, []);
 
+  let canCreateProjects = false;
+  let canCreatePrompts = false;
+
+  if (authentication) {
+    const {
+      role
+    } = getUserRoleInTeam({ user: authentication, team: team.data });
+    if (role) {
+      canCreateProjects = true;
+      canCreatePrompts = true;
+    }
+  }
+
+
   return (
     <Team
       team={team.data}
@@ -163,6 +176,8 @@ export default function TeamRoute({ loaderData }: {
       prompts={prompts.data}
       users={users.data}
       authentication={authentication}
+      canCreateProjects={canCreateProjects}
+      canCreatePrompts={canCreatePrompts}
       onCreateProjectButtonClicked={onCreateProjectButtonClicked}
       onCreatePromptButtonClicked={onCreatePromptButtonClicked}
       onAddUserToTeamClicked={onAddUserToTeamButtonClicked}

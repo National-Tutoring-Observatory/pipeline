@@ -55,6 +55,7 @@ export default [
   route("api/annotations/:runId/:sessionId/:annotationId", "modules/annotations/containers/annotations.route.tsx"),
   route("api/storage", "modules/storage/containers/storage.route.tsx"),
   route("api/teams", "modules/teams/containers/teams.route.tsx", { id: 'teams' }),
+  route("api/availableTeams", "modules/teams/containers/availableTeams.route.tsx", { id: 'availableTeams' }),
   route("api/supportArticles", "modules/support/containers/supportArticles.route.tsx"),
   route("api/authentication", "modules/authentication/containers/authentication.route.tsx"),
   route("auth/callback/:provider", "modules/authentication/containers/authCallback.route.tsx"),

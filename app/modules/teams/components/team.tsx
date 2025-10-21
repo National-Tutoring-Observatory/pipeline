@@ -14,6 +14,8 @@ interface TeamProps {
   prompts: Prompt[],
   users: User[]
   authentication: User | null,
+  canCreateProjects: boolean,
+  canCreatePrompts: boolean,
   onCreateProjectButtonClicked: () => void,
   onCreatePromptButtonClicked: () => void,
   onAddUserToTeamClicked: () => void,
@@ -26,6 +28,8 @@ export default function Team({
   users = [],
   prompts,
   authentication,
+  canCreateProjects,
+  canCreatePrompts,
   onCreateProjectButtonClicked,
   onCreatePromptButtonClicked,
   onAddUserToTeamClicked,
@@ -41,13 +45,15 @@ export default function Team({
         <div>
           <div className="flex items-center justify-between">
             <h2>Projects</h2>
-            <Button
-              onClick={() => {
-                onCreateProjectButtonClicked()
-              }}
-            >
-              Create project
-            </Button>
+            {(canCreateProjects) && (
+              <Button
+                onClick={() => {
+                  onCreateProjectButtonClicked()
+                }}
+              >
+                Create project
+              </Button>
+            )}
           </div>
           <div>
             {(projects.length === 0) && (
@@ -56,17 +62,28 @@ export default function Team({
               </div>
             )}
             {(projects.length > 0) && (
-              <div className="mt-4 border border-black/10 rounded-md ">
+              <div className="mt-4 border border-black/10 rounded-md overflow-hidden">
                 {map(projects, (project) => {
-                  return (
-                    <Link
-                      key={project._id}
-                      to={`/projects/${project._id}`}
-                      className="block border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm"
-                    >
-                      {project.name}
-                    </Link>
-                  )
+                  if (canCreateProjects) {
+                    return (
+                      <Link
+                        key={project._id}
+                        to={`/projects/${project._id}`}
+                        className="block border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm"
+                      >
+                        {project.name}
+                      </Link>
+                    )
+                  } else {
+                    return (
+                      <div
+                        key={project._id}
+                        className="block border-b border-black/10 p-4 last:border-0 text-sm"
+                      >
+                        {project.name}
+                      </div>
+                    )
+                  }
                 })}
               </div>
             )}
@@ -75,13 +92,15 @@ export default function Team({
         <div>
           <div className="flex items-center justify-between">
             <h2>Prompts</h2>
-            <Button
-              onClick={() => {
-                onCreatePromptButtonClicked()
-              }}
-            >
-              Create prompt
-            </Button>
+            {(canCreatePrompts) && (
+              <Button
+                onClick={() => {
+                  onCreatePromptButtonClicked()
+                }}
+              >
+                Create prompt
+              </Button>
+            )}
           </div>
           <div>
             {(prompts.length === 0) && (
@@ -92,15 +111,26 @@ export default function Team({
             {(prompts.length > 0) && (
               <div className="mt-4 border border-black/10 rounded-md ">
                 {map(prompts, (prompt) => {
-                  return (
-                    <Link
-                      key={prompt._id}
-                      to={`/prompts/${prompt._id}/${prompt.productionVersion}`}
-                      className="block border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm"
-                    >
-                      {prompt.name}
-                    </Link>
-                  )
+                  if (canCreatePrompts) {
+                    return (
+                      <Link
+                        key={prompt._id}
+                        to={`/prompts/${prompt._id}/${prompt.productionVersion}`}
+                        className="block border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm"
+                      >
+                        {prompt.name}
+                      </Link>
+                    )
+                  } else {
+                    return (
+                      <div
+                        key={prompt._id}
+                        className="block border-b border-black/10 p-4 last:border-0 text-sm"
+                      >
+                        {prompt.name}
+                      </div>
+                    )
+                  }
                 })}
               </div>
             )}

@@ -14,7 +14,7 @@ export default function TeamsSelectorContainer({ team, onTeamSelected }: { team:
   }
 
   useEffect(() => {
-    teamsFetcher.load(`/api/teams`);
+    teamsFetcher.load(`/api/availableTeams`);
   }, []);
 
   const teams = get(teamsFetcher, 'data.teams.data', []);

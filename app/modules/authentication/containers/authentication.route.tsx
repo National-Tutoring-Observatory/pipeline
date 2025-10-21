@@ -2,10 +2,10 @@ import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter
 import { authenticator, sessionStorage } from "../authentication.server";
 import type { Route } from "./+types/authentication.route";
 import type { User } from "~/modules/users/users.types";
+import getSessionUser from "../helpers/getSessionUser";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  let session = await sessionStorage.getSession(request.headers.get("cookie"));
-  let user = session.get("user");
+  let user = await getSessionUser({ request });
 
   if (!user) {
     if (!process.env.DOCUMENTS_ADAPTER || process.env.DOCUMENTS_ADAPTER === 'LOCAL') {
