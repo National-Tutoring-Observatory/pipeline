@@ -1,4 +1,4 @@
-name: Build and Push to ECR (manual)
+name: Deploy to Production (ECR + ECS)
 
 on:
   workflow_dispatch:
