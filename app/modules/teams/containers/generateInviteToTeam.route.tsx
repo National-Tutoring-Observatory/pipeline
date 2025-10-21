@@ -19,6 +19,10 @@ export async function action({
     const user = await getSessionUser({ request }) as User;
     let hasPermissionsToGenerateInvite = false;
 
+    if (!user) {
+      return {};
+    }
+
     if (user.role === 'SUPER_ADMIN') {
       hasPermissionsToGenerateInvite = true;
     } else {

@@ -24,6 +24,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const userSession = await getSessionUser({ request }) as User;
 
+  if (!userSession) {
+    return redirect('/');
+  }
+
   if (userSession.role !== 'SUPER_ADMIN') {
     const hasTeamMatch = find(userSession.teams, (team) => {
       if (team.team === params.id && team.role === 'ADMIN') {

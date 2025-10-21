@@ -1,4 +1,4 @@
-import { useActionData, useNavigate, useSubmit } from "react-router";
+import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
 import type { Route } from "./+types/teams.route";
 import Teams from "../components/teams";
 import { toast } from "sonner"
@@ -25,6 +25,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   let match = {};
 
   const userSession = await getSessionUser({ request }) as User;
+
+  if (!userSession) {
+    return redirect('/');
+  }
 
   if (userSession.role === 'SUPER_ADMIN') {
     match = {};

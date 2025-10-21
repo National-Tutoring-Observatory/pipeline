@@ -18,6 +18,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const userSession = await getSessionUser({ request }) as User;
 
+  if (!userSession) {
+    return redirect('/');
+  }
+
   if (userSession.role !== 'SUPER_ADMIN') {
     return redirect('/');
   }
@@ -41,6 +45,10 @@ export async function action({
   const documents = getDocumentsAdapter();
 
   const sessionUser = await getSessionUser({ request }) as User;
+
+  if (!sessionUser) {
+    return {};
+  }
 
   if (sessionUser.role !== 'SUPER_ADMIN') return {};
 

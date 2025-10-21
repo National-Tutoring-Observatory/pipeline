@@ -7,7 +7,7 @@ export default async ({ request }: { request: Request }) => {
     request.headers.get("cookie")
   );
   const user = session.get("user");
-  if (!user) return {};
+  if (!user) return null;
   const documents = getDocumentsAdapter();
   const sessionUser = await documents.getDocument({ collection: 'users', match: { _id: user._id } }) as { data: User };
   return sessionUser.data;

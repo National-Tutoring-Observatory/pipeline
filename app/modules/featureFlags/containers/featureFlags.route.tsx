@@ -17,6 +17,9 @@ type FeatureFlags = {
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const authentication = await getSessionUser({ request }) as User;
+  if (!authentication) {
+    return redirect('/');
+  }
   if (authentication.role !== 'SUPER_ADMIN') {
     return redirect('/');
   }
