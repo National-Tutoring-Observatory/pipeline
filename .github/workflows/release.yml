@@ -64,28 +64,28 @@ jobs:
             exit 1
           fi
 
-#      - name: Configure AWS credentials (OIDC)
-#        uses: aws-actions/configure-aws-credentials@v4
-#        with:
-#          aws-region: ${{ env.AWS_REGION }}
-#          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-#
-#      - name: Login to Amazon ECR
-#        uses: aws-actions/amazon-ecr-login@v2
-#
-#      - name: Build & push image
-#        env:
-#          VERSION: ${{ steps.ver.outputs.version }}
-#        run: |
-#          set -euo pipefail
-#          docker build -t $ECR_REPOSITORY:$VERSION .
-#          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-#          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
-#          docker tag $ECR_REPOSITORY:$VERSION $ECR_URI:$VERSION
-#          docker push $ECR_URI:$VERSION
-#          echo "ECR_URI=$ECR_URI" >> "$GITHUB_ENV"
-#          echo "Built and pushed $ECR_URI:$VERSION"
-#
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & push image
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          docker build -t $ECR_REPOSITORY:$VERSION .
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
+          docker tag $ECR_REPOSITORY:$VERSION $ECR_URI:$VERSION
+          docker push $ECR_URI:$VERSION
+          echo "ECR_URI=$ECR_URI" >> "$GITHUB_ENV"
+          echo "Built and pushed $ECR_URI:$VERSION"
+
 #      - name: Deploy tag by updating ECS task definition
 #        env:
 #          VERSION: ${{ steps.ver.outputs.version }}
