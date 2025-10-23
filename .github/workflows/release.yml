@@ -28,8 +28,6 @@ permissions:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: nto-pipeline
-  # Required repo variables (Actions → Variables):
-  #   AWS_ROLE_ARN, ECS_CLUSTER, ECS_SERVICE, ECS_CONTAINER_NAME
 
 jobs:
   deploy:
@@ -66,72 +64,72 @@ jobs:
             exit 1
           fi
 
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build & push image
-        env:
-          VERSION: ${{ steps.ver.outputs.version }}
-        run: |
-          set -euo pipefail
-          docker build -t $ECR_REPOSITORY:$VERSION .
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
-          docker tag $ECR_REPOSITORY:$VERSION $ECR_URI:$VERSION
-          docker push $ECR_URI:$VERSION
-          echo "ECR_URI=$ECR_URI" >> "$GITHUB_ENV"
-          echo "Built and pushed $ECR_URI:$VERSION"
-
-      - name: Deploy tag by updating ECS task definition
-        env:
-          VERSION: ${{ steps.ver.outputs.version }}
-        run: |
-          set -euo pipefail
-          cluster="${{ vars.ECS_CLUSTER }}"
-          service="${{ vars.ECS_SERVICE }}"
-          container="${{ vars.ECS_CONTAINER_NAME }}"
-
-          if [ -z "$cluster" ] || [ -z "$service" ] || [ -z "$container" ]; then
-            echo "Set repo variables ECS_CLUSTER, ECS_SERVICE, and ECS_CONTAINER_NAME."
-            exit 1
-          fi
-
-          # 1) Current task definition ARN used by the service
-          TD_ARN=$(aws ecs describe-services \
-            --cluster "$cluster" --services "$service" \
-            --query "services[0].taskDefinition" --output text)
-
-          # 2) Fetch full task definition JSON
-          aws ecs describe-task-definition \
-            --task-definition "$TD_ARN" \
-            --query "taskDefinition" > td.json
-
-          # 3) Update the image for the target container to the exact tag
-          NEW_IMAGE="$ECR_URI:$VERSION"
-          jq --arg cname "$container" --arg img "$NEW_IMAGE" '
-            .containerDefinitions |= map(if .name == $cname then .image = $img else . end)
-            | {
-                family, taskRoleArn, executionRoleArn, networkMode,
-                containerDefinitions, volumes, placementConstraints,
-                requiresCompatibilities, cpu, memory, runtimePlatform, ephemeralStorage
-              }
-          ' td.json > td-register.json
-
-          # 4) Register new task definition revision
-          NEW_TD_ARN=$(aws ecs register-task-definition \
-            --cli-input-json file://td-register.json \
-            --query "taskDefinition.taskDefinitionArn" --output text)
-
-          # 5) Update the service to the new revision (triggers rollout)
-          aws ecs update-service \
-            --cluster "$cluster" \
-            --service "$service" \
-            --task-definition "$NEW_TD_ARN"
-
-          echo "✅ Deployed $NEW_IMAGE via $NEW_TD_ARN"
+#      - name: Configure AWS credentials (OIDC)
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          aws-region: ${{ env.AWS_REGION }}
+#          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+#
+#      - name: Login to Amazon ECR
+#        uses: aws-actions/amazon-ecr-login@v2
+#
+#      - name: Build & push image
+#        env:
+#          VERSION: ${{ steps.ver.outputs.version }}
+#        run: |
+#          set -euo pipefail
+#          docker build -t $ECR_REPOSITORY:$VERSION .
+#          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+#          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
+#          docker tag $ECR_REPOSITORY:$VERSION $ECR_URI:$VERSION
+#          docker push $ECR_URI:$VERSION
+#          echo "ECR_URI=$ECR_URI" >> "$GITHUB_ENV"
+#          echo "Built and pushed $ECR_URI:$VERSION"
+#
+#      - name: Deploy tag by updating ECS task definition
+#        env:
+#          VERSION: ${{ steps.ver.outputs.version }}
+#        run: |
+#          set -euo pipefail
+#          cluster="${{ vars.ECS_CLUSTER }}"
+#          service="${{ vars.ECS_SERVICE }}"
+#          container="${{ vars.ECS_CONTAINER_NAME }}"
+#
+#          if [ -z "$cluster" ] || [ -z "$service" ] || [ -z "$container" ]; then
+#            echo "Set repo variables ECS_CLUSTER, ECS_SERVICE, and ECS_CONTAINER_NAME."
+#            exit 1
+#          fi
+#
+#          # 1) Current task definition ARN used by the service
+#          TD_ARN=$(aws ecs describe-services \
+#            --cluster "$cluster" --services "$service" \
+#            --query "services[0].taskDefinition" --output text)
+#
+#          # 2) Fetch full task definition JSON
+#          aws ecs describe-task-definition \
+#            --task-definition "$TD_ARN" \
+#            --query "taskDefinition" > td.json
+#
+#          # 3) Update the image for the target container to the exact tag
+#          NEW_IMAGE="$ECR_URI:$VERSION"
+#          jq --arg cname "$container" --arg img "$NEW_IMAGE" '
+#            .containerDefinitions |= map(if .name == $cname then .image = $img else . end)
+#            | {
+#                family, taskRoleArn, executionRoleArn, networkMode,
+#                containerDefinitions, volumes, placementConstraints,
+#                requiresCompatibilities, cpu, memory, runtimePlatform, ephemeralStorage
+#              }
+#          ' td.json > td-register.json
+#
+#          # 4) Register new task definition revision
+#          NEW_TD_ARN=$(aws ecs register-task-definition \
+#            --cli-input-json file://td-register.json \
+#            --query "taskDefinition.taskDefinitionArn" --output text)
+#
+#          # 5) Update the service to the new revision (triggers rollout)
+#          aws ecs update-service \
+#            --cluster "$cluster" \
+#            --service "$service" \
+#            --task-definition "$NEW_TD_ARN"
+#
+#          echo "✅ Deployed $NEW_IMAGE via $NEW_TD_ARN"
