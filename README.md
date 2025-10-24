@@ -12,6 +12,12 @@ yarn
 
 ### Development
 
+You'll need to set up your .env file.
+
+``` bash
+cp .env.example .env
+```
+
 Start the development server with HMR:
 
 ```bash
