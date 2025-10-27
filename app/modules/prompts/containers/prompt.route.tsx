@@ -7,7 +7,10 @@ import { useEffect } from "react";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import map from 'lodash/map';
+import validatePromptOwnership from "../helpers/validatePromptOwnership";
+import type { User } from "~/modules/users/users.types";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -32,6 +35,14 @@ export async function action({
   const { intent, entityId, payload = {} } = await request.json()
 
   const { version } = payload;
+
+  const user = await getSessionUser({ request }) as User;
+
+  if (!user) {
+    return redirect('/');
+  }
+
+  await validatePromptOwnership({ user, promptId: entityId });
 
   const documents = getDocumentsAdapter();
 

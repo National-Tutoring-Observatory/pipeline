@@ -1,4 +1,4 @@
-import { useActionData, useNavigate, useSubmit } from "react-router";
+import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
 import type { Route } from "./+types/prompts.route";
 import Prompts from "../components/prompts";
 import { toast } from "sonner"
@@ -10,8 +10,12 @@ import EditPromptDialog from "../components/editPromptDialog";
 import DeletePromptDialog from "../components/deletePromptDialog";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import map from 'lodash/map';
+import validateTeamMembership from "~/modules/teams/helpers/validateTeamMembership";
+import validatePromptOwnership from "../helpers/validatePromptOwnership";
+import type { User } from "~/modules/users/users.types";
 
 type Prompts = {
   data: [],
@@ -33,6 +37,12 @@ export async function action({
 
   const { name, annotationType, team } = payload;
 
+  const user = await getSessionUser({ request }) as User;
+
+  if (!user) {
+    return redirect('/');
+  }
+
   const documents = getDocumentsAdapter();
 
   switch (intent) {
@@ -40,6 +50,8 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Prompt name is required and must be a string.");
       }
+
+      validateTeamMembership({ user, teamId: team });
 
       const prompt = await documents.createDocument({ collection: 'prompts', update: { name, annotationType, team, productionVersion: 1 } }) as { data: Prompt };
       await documents.createDocument({
@@ -65,8 +77,10 @@ export async function action({
         ...prompt
       }
     case 'UPDATE_PROMPT':
+      await validatePromptOwnership({ user, promptId: entityId });
       return await documents.updateDocument({ collection: 'prompts', match: { _id: entityId }, update: { name } });
     case 'DELETE_PROMPT':
+      await validatePromptOwnership({ user, promptId: entityId });
       return await documents.deleteDocument({ collection: 'prompts', match: { _id: entityId } })
     default:
       return {};

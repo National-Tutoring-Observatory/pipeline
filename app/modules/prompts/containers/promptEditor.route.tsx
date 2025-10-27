@@ -1,10 +1,13 @@
 import PromptEditor from "../components/promptEditor";
 import type { Route } from "./+types/promptEditor.route";
 import type { Prompt, PromptVersion } from "../prompts.types";
-import { useLoaderData, useNavigation, useSubmit, type ShouldRevalidateFunctionArgs } from "react-router";
+import type { User } from "~/modules/users/users.types";
+import { redirect, useLoaderData, useNavigation, useSubmit, type ShouldRevalidateFunctionArgs } from "react-router";
 import addDialog from "~/modules/dialogs/addDialog";
 import SavePromptVersionDialogContainer from "./savePromptVersionDialogContainer";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import validatePromptOwnership from "../helpers/validatePromptOwnership";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -24,6 +27,11 @@ export async function action({
   const { name, userPrompt, annotationSchema } = payload;
 
   const documents = getDocumentsAdapter();
+
+  const user = await getSessionUser({ request }) as User;
+  if (!user) {
+    return redirect('/');
+  }
 
   switch (intent) {
     case 'UPDATE_PROMPT_VERSION':
