@@ -6,8 +6,10 @@ import type { Session } from "~/modules/sessions/sessions.types";
 import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { Project } from "~/modules/projects/projects.types";
+import getQueue from "~/modules/queues/helpers/getQueue";
+import hasFeatureFlag from "~/modules/featureFlags/helpers/hasFeatureFlag";
 
-export default async function annotateRunSessions({ runId }: { runId: string }) {
+export default async function annotateRunSessions({ runId }: { runId: string }, context: { request: Request }) {
 
   const documents = getDocumentsAdapter();
 
@@ -68,26 +70,69 @@ export default async function annotateRunSessions({ runId }: { runId: string }) 
     let status;
 
     try {
+      const hasWorkers = await hasFeatureFlag('HAS_WORKERS', context);
       if (run.data.annotationType === 'PER_UTTERANCE') {
-        await annotatePerUtterance({
-          body: {
+        if (hasWorkers) {
+          const queue = getQueue('tasks');
+          const job = await queue.add('ANNOTATE_PER_SESSION', {
             inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
             outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
             prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
             model: run.data.model,
             team: project.data.team
-          }
-        });
+          }, {
+            removeOnComplete: {
+              age: 72 * 3600, // keep up to 1 hour
+              count: 2000, // keep up to 2000 jobs
+            },
+            removeOnFail: {
+              age: 72 * 3600,
+              count: 2000,
+            },
+          });
+        } else {
+
+          await annotatePerUtterance({
+            body: {
+              inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
+              outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+              prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
+              model: run.data.model,
+              team: project.data.team
+            }
+          });
+        }
       } else {
-        await annotatePerSession({
-          body: {
+        if (hasWorkers) {
+
+          const queue = getQueue('tasks');
+          const job = await queue.add('ANNOTATE_PER_SESSION', {
             inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
             outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
             prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
             model: run.data.model,
             team: project.data.team
-          }
-        })
+          }, {
+            removeOnComplete: {
+              age: 72 * 3600, // keep up to 1 hour
+              count: 2000, // keep up to 2000 jobs
+            },
+            removeOnFail: {
+              age: 72 * 3600,
+              count: 2000,
+            },
+          });
+        } else {
+          await annotatePerSession({
+            body: {
+              inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
+              outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+              prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
+              model: run.data.model,
+              team: project.data.team
+            }
+          })
+        }
       }
       status = 'DONE';
     } catch (error) {
