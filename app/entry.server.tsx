@@ -38,25 +38,8 @@ const checkSuperAdminExists = async () => {
 }
 
 const setupQueues = async () => {
-
   if (process.env.REDIS_URL) {
     createQueue('tasks');
-
-    // Fake job
-    // setTimeout(async () => {
-    //   const queue = getQueue('tasks');
-    //   const job = await queue.add('ANNOTATE_PER_SESSION', { taka: 'maka' }, {
-    //     removeOnComplete: {
-    //       age: 72 * 3600, // keep up to 1 hour
-    //       count: 2000, // keep up to 2000 jobs
-    //     },
-    //     removeOnFail: {
-    //       age: 72 * 3600,
-    //       count: 2000,
-    //     },
-    //   });
-
-    // }, 1000);
   }
 }
 

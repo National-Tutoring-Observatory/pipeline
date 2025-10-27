@@ -1,5 +1,6 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter"
 import type { Route } from "./+types/availableTeamUsers.route";
+import type { FeatureFlag } from "~/modules/featureFlags/featureFlags.types";
 
 export async function loader({ request }: Route.LoaderArgs) {
 
@@ -11,10 +12,13 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   const documents = getDocumentsAdapter();
+
+  const featureFlag = await documents.getDocument({ collection: 'featureFlags', match: { _id: featureFlagId } }) as { data: FeatureFlag };
+
   const users = await documents.getDocuments({
     collection: 'users',
     match: {
-      "featureFlags": { "$ne": featureFlagId },
+      "featureFlags": { "$ne": featureFlag.data.name },
       "isRegistered": true
     }
   });

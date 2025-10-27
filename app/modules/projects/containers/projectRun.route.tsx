@@ -88,7 +88,7 @@ export async function action({
         }
       }) as Run;
 
-      annotateRunSessions({ runId: run.data._id });
+      annotateRunSessions({ runId: run.data._id }, { request });
 
       return {}
     }
@@ -97,7 +97,7 @@ export async function action({
         collection: 'runs',
         match: { _id: params.runId, project: params.projectId }
       }) as Run;
-      annotateRunSessions({ runId: run.data._id });
+      annotateRunSessions({ runId: run.data._id }, { request });
       return {};
     }
     case 'EXPORT_RUN': {
