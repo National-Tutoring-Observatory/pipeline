@@ -1,6 +1,10 @@
 export default async (job) => {
   try {
     switch (job.name) {
+      case 'ANNOTATE_PER_UTTERANCE': {
+        console.log('Annotating per utterance');
+        break;
+      }
       case 'ANNOTATE_PER_SESSION': {
         console.log('Annotating per session');
         break;
