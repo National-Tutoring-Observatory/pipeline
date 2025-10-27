@@ -11,8 +11,8 @@ import './modules/storage/storage';
 import './modules/documents/documents';
 import getDocumentsAdapter from "./modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "./modules/users/users.types";
-import { Queue } from 'bullmq';
-import Redis from 'ioredis';
+import createQueue from "./modules/queues/helpers/createQueue";
+import getQueue from "./modules/queues/helpers/getQueue";
 
 const checkSuperAdminExists = async () => {
   const documents = getDocumentsAdapter();
@@ -40,15 +40,23 @@ const checkSuperAdminExists = async () => {
 const setupQueues = async () => {
 
   if (process.env.REDIS_URL) {
+    createQueue('tasks');
 
-    const redis = new Redis(process.env.REDIS_URL, {
-      maxRetriesPerRequest: null
-    });
+    // Fake job
+    // setTimeout(async () => {
+    //   const queue = getQueue('tasks');
+    //   const job = await queue.add('ANNOTATE_PER_SESSION', { taka: 'maka' }, {
+    //     removeOnComplete: {
+    //       age: 72 * 3600, // keep up to 1 hour
+    //       count: 2000, // keep up to 2000 jobs
+    //     },
+    //     removeOnFail: {
+    //       age: 72 * 3600,
+    //       count: 2000,
+    //     },
+    //   });
 
-    new Queue('tasks', {
-      connection: redis
-    });
-
+    // }, 1000);
   }
 }
 

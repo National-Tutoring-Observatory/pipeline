@@ -1,0 +1,12 @@
+{
+  "name": "pipeline-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "workers": "node ./index.js"
+  },
+  "dependencies": {
+    "bullmq": "^5.61.2"
+  },
+  "devDependencies": {}
+}
