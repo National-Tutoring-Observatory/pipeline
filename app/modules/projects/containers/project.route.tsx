@@ -16,7 +16,9 @@ import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import type { Collection } from "~/modules/collections/collections.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import map from 'lodash/map';
+import validateProjectOwnership from "../helpers/validateProjectOwnership";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -56,6 +58,10 @@ export async function action({
         }
       }
     }
+
+    const user = await getSessionUser({ request }) as User;
+
+    await validateProjectOwnership({ user, projectId: entityId });
 
     uploadFiles({ files, entityId }).then(() => {
       convertFilesToSessions({ entityId });
