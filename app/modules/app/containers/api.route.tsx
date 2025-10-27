@@ -42,7 +42,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     missingParameters = missingParameters.concat(checkParamsExist([
       'DOCUMENT_DB_CONNECTION_STRING',
       'DOCUMENT_DB_USERNAME',
-      'DOCUMENT_DB_PASSWORD'
+      'DOCUMENT_DB_PASSWORD',
+      'REDIS_URL'
     ]));
   }
   missingParameters = missingParameters.concat(checkParamsExist([

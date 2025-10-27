@@ -11,6 +11,8 @@ import './modules/storage/storage';
 import './modules/documents/documents';
 import getDocumentsAdapter from "./modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "./modules/users/users.types";
+import { Queue } from 'bullmq';
+import Redis from 'ioredis';
 
 const checkSuperAdminExists = async () => {
   const documents = getDocumentsAdapter();
@@ -35,9 +37,25 @@ const checkSuperAdminExists = async () => {
   }
 }
 
+const setupQueues = async () => {
+
+  if (process.env.REDIS_URL) {
+
+    const redis = new Redis(process.env.REDIS_URL, {
+      maxRetriesPerRequest: null
+    });
+
+    new Queue('tasks', {
+      connection: redis
+    });
+
+  }
+}
+
 setTimeout(() => {
   checkSuperAdminExists();
-}, 0)
+  setupQueues();
+}, 0);
 
 export const streamTimeout = 5_000;
 
