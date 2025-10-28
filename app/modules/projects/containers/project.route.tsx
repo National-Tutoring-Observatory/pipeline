@@ -19,6 +19,7 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import map from 'lodash/map';
 import validateProjectOwnership from "../helpers/validateProjectOwnership";
+import type { User } from "~/modules/users/users.types";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();

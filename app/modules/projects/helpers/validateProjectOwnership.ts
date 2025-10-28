@@ -15,7 +15,7 @@ export default async function({
   const project = await documents.getDocument({
     collection: 'projects',
     match: { _id: projectId },
-  }) as { data: Project | null };
+  }) as { data: { team: string } | null };
 
   if (!project.data) {
     throw new Error("The project does not exist.");

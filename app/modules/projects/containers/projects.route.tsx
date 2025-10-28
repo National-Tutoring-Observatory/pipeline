@@ -1,4 +1,4 @@
-import { useActionData, useNavigate, useSubmit } from "react-router";
+import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
 import type { Route } from "./+types/projects.route";
 import Projects from "../components/projects";
 import { toast } from "sonner"
@@ -15,6 +15,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import validateTeamMembership from "~/modules/teams/helpers/validateTeamMembership";
 import validateProjectOwnership from "../helpers/validateProjectOwnership";
+import type { User } from "~/modules/users/users.types";
 
 type Projects = {
   data: Project[],
