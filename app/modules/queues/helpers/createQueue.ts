@@ -1,7 +1,5 @@
 import { Queue } from "bullmq";
 import Redis from 'ioredis';
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import createTask from "./createTask";
 import LocalQueue from "./localQueue";
 
 export const QUEUES: Record<string, Queue | any> = {};
