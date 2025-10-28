@@ -13,6 +13,7 @@ import sessionSchema from './schemas/session.schema';
 import runSchema from './schemas/run.schema';
 import collectionSchema from './schemas/collection.schema';
 import featureFlagSchema from './schemas/featureFlag.schema';
+import queueSchema from './schemas/queue.schema';
 
 const registerModels = () => {
   if (!mongoose.models.Project) {
@@ -44,6 +45,9 @@ const registerModels = () => {
   }
   if (!mongoose.models.FeatureFlag) {
     mongoose.model('FeatureFlag', featureFlagSchema);
+  }
+  if (!mongoose.models.Queue) {
+    mongoose.model('Queue', queueSchema);
   }
 }
 

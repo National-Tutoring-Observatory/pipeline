@@ -8,7 +8,8 @@ export const MODELS_BY_COLLECTION: { [key: string]: string } = {
   promptVersions: 'PromptVersion',
   runs: 'Run',
   sessions: 'Session',
-  featureFlags: 'FeatureFlag'
+  featureFlags: 'FeatureFlag',
+  queues: 'Queue'
 }
 
 export default (collection: string) => {
