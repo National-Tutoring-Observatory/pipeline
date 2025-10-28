@@ -1,21 +1,33 @@
 import { Queue } from "bullmq";
 import Redis from 'ioredis';
 
-export const QUEUES: Record<string, Queue> = {};
+export const QUEUES: Record<string, Queue | any> = {};
 
-let redis: any;
+export let redis: any;
 
-if (process.env.REDIS_URL) {
+const isRedisQueue = (process.env.REDIS_URL && process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB');
+
+if (isRedisQueue && process.env.REDIS_URL) {
   redis = new Redis(process.env.REDIS_URL, {
     maxRetriesPerRequest: null
   });
 }
 
 export default (name: string) => {
-  if (redis) {
-    const queue = new Queue(name, {
-      connection: redis
-    });
-    QUEUES[name] = queue;
+  if (isRedisQueue) {
+    if (redis) {
+      const queue = new Queue(name, {
+        connection: redis
+      });
+      QUEUES[name] = queue;
+    } else {
+      console.warn('Error with redis not being available');
+    }
+  } else {
+    QUEUES[name] = {
+      add: async () => {
+
+      }
+    };
   }
 }
