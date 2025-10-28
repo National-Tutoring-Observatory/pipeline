@@ -6,7 +6,9 @@
     "workers": "node ./index.js"
   },
   "dependencies": {
-    "bullmq": "^5.61.2"
+    "bullmq": "^5.61.2",
+    "fs-extra": "^11.3.2",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {}
 }
