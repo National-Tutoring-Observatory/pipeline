@@ -1,5 +1,8 @@
 import { Queue } from "bullmq";
 import Redis from 'ioredis';
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import createTask from "./createTask";
+import LocalQueue from "./localQueue";
 
 export const QUEUES: Record<string, Queue | any> = {};
 
@@ -24,10 +27,6 @@ export default (name: string) => {
       console.warn('Error with redis not being available');
     }
   } else {
-    QUEUES[name] = {
-      add: async () => {
-
-      }
-    };
+    QUEUES[name] = new LocalQueue(name);
   }
 }
