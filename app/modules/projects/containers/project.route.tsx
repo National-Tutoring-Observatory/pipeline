@@ -61,6 +61,10 @@ export async function action({
 
     const user = await getSessionUser({ request }) as User;
 
+    if (!user) {
+      return redirect('/');
+    }
+
     await validateProjectOwnership({ user, projectId: entityId });
 
     uploadFiles({ files, entityId }).then(() => {
