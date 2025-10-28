@@ -33,6 +33,14 @@ export async function action({
     return redirect('/');
   }
 
+  const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { _id: entityId } }) as { data: { prompt: string } };
+
+  if (!promptVersion.data) {
+    throw new Error('Prompt version not found');
+  }
+
+  await validatePromptOwnership({ user, promptId: promptVersion.data.prompt });
+
   switch (intent) {
     case 'UPDATE_PROMPT_VERSION':
       await documents.updateDocument({
@@ -44,7 +52,7 @@ export async function action({
     case 'MAKE_PROMPT_VERSION_PRODUCTION':
       await documents.updateDocument({
         collection: 'prompts',
-        match: { _id: params.id },
+        match: { _id: promptVersion.data.prompt },
         update: { productionVersion: Number(params.version) }
       }) as { data: Prompt }
       return {};
@@ -72,21 +80,21 @@ export default function PromptEditorRoute() {
 
   const { prompt, promptVersion } = data;
 
-  const onSavePromptVersion = ({ name, userPrompt, annotationSchema, _id }: { name: string, userPrompt: string, annotationSchema: any[], _id: string }) => {
+  const onSavePromptVersion = ({ name, userPrompt, annotationSchema }: { name: string, userPrompt: string, annotationSchema: any[] }) => {
     addDialog(
       <SavePromptVersionDialogContainer
         userPrompt={userPrompt}
         annotationSchema={annotationSchema}
         team={prompt.data.team}
         onSaveClicked={() => {
-          submit(JSON.stringify({ intent: 'UPDATE_PROMPT_VERSION', entityId: _id, payload: { name, userPrompt, annotationSchema } }), { method: 'PUT', encType: 'application/json' });
+          submit(JSON.stringify({ intent: 'UPDATE_PROMPT_VERSION', entityId: promptVersion.data._id, payload: { name, userPrompt, annotationSchema } }), { method: 'PUT', encType: 'application/json' });
         }}
       />
     );
   }
 
-  const onMakePromptVersionProductionClicked = () => {
-    submit(JSON.stringify({ intent: 'MAKE_PROMPT_VERSION_PRODUCTION', payload: {} }), { method: 'POST', encType: 'application/json' });
+  const onMakePromptVersionProduction = () => {
+    submit(JSON.stringify({ intent: 'MAKE_PROMPT_VERSION_PRODUCTION', entityId: promptVersion.data._id, payload: {} }), { method: 'POST', encType: 'application/json' });
   }
 
   return (
@@ -95,7 +103,7 @@ export default function PromptEditorRoute() {
       isLoading={navigation.state === 'loading'}
       onSavePromptVersion={onSavePromptVersion}
       isProduction={prompt.data.productionVersion === promptVersion.data.version}
-      onMakePromptVersionProductionClicked={onMakePromptVersionProductionClicked}
+      onMakePromptVersionProduction={onMakePromptVersionProduction}
     />
   )
 }
