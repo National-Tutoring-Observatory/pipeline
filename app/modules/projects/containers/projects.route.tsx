@@ -11,7 +11,10 @@ import { useEffect } from "react";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import map from 'lodash/map';
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import validateTeamMembership from "~/modules/teams/helpers/validateTeamMembership";
+import validateProjectOwnership from "../helpers/validateProjectOwnership";
 
 type Projects = {
   data: Project[],
@@ -30,9 +33,15 @@ export async function action({
   request,
 }: Route.ActionArgs) {
 
-  const { intent, entityId, payload = {} } = await request.json()
+  const { intent, entityId, payload = {} } = await request.json();
 
   const { name, team } = payload;
+
+  const user = await getSessionUser({ request }) as User;
+
+  if (!user) {
+    return redirect('/');
+  }
 
   const documents = getDocumentsAdapter();
 
@@ -41,15 +50,42 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Project name is required and must be a string.");
       }
-      const project = await documents.createDocument({ collection: 'projects', update: { name, team } }) as { data: Project };
+
+      validateTeamMembership({ user, teamId: team });
+
+      const project = await documents.createDocument({
+        collection: 'projects',
+        update: { name, team },
+      }) as { data: Project };
+
       return {
         intent: 'CREATE_PROJECT',
-        ...project
-      }
+        ...project,
+      };
+
     case 'UPDATE_PROJECT':
-      return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { name } });
+      await validateProjectOwnership({
+        user,
+        projectId: entityId,
+      });
+
+      return await documents.updateDocument({
+        collection: 'projects',
+        match: { _id: entityId },
+        update: { name },
+      });
+
     case 'DELETE_PROJECT':
-      return await documents.deleteDocument({ collection: 'projects', match: { _id: entityId } })
+      await validateProjectOwnership({
+        user,
+        projectId: entityId,
+      });
+
+      return await documents.deleteDocument({
+        collection: 'projects',
+        match: { _id: entityId },
+      });
+
     default:
       return {};
   }
