@@ -5,6 +5,11 @@ export default new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     default: () => new mongoose.Types.ObjectId()
   },
+  state: {
+    type: String,
+    enum: ['wait', 'active', 'completed', 'failed', 'delayed', 'waiting-children'],
+    default: 'wait'
+  },
   queue: { type: String, enum: ['tasks', 'cron'] },
   name: { type: String },
   data: {},

@@ -6,7 +6,11 @@ const processJob = async (job) => {
   // Faked process of job
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      resolve();
+      if (job.attemptsMade === 2) {
+        resolve();
+      } else {
+        reject();
+      }
     }, 5000);
   });
 }
@@ -17,6 +21,12 @@ export default class LocalWorker {
   file;
   isProcessing = false;
   interval;
+  events = {
+    "active": [],
+    "completed": [],
+    "failed": [],
+    "error": []
+  }
 
   constructor(name, file) {
     this.name = name;
@@ -35,7 +45,7 @@ export default class LocalWorker {
         const queue = await fse.readJson(path.join(process.cwd(), `../data/queues.json`));
 
         const jobs = filter(queue, (job) => {
-          if (job.queue === this.name && job.attemptsMade < 3) {
+          if (job.queue === this.name && job.attemptsMade < 3 && job.state === 'wait') {
             return job;
           }
         });
@@ -48,13 +58,17 @@ export default class LocalWorker {
           try {
 
             currentJob.processedOn = new Date();
+            currentJob.state = 'active';
             await fse.writeJson(path.join(process.cwd(), `../data/queues.json`), queue);
+            this.emit('active', currentJob);
 
             await processJob(jobs[0]);
 
             currentJob.finishedOn = new Date();
             currentJob.attemptsMade = jobs[0].attemptsMade + 1;
+            currentJob.state = 'completed';
             await fse.writeJson(path.join(process.cwd(), `../data/queues.json`), queue);
+            this.emit('completed', currentJob);
 
           } catch (error) {
 
@@ -65,8 +79,13 @@ export default class LocalWorker {
               currentJob.failedReason = error.message;
               currentJob.stacktrace = error.stack;
             }
-
+            if (currentJob.attemptsMade >= 3) {
+              currentJob.state = 'failed';
+            } else {
+              currentJob.state = 'wait';
+            }
             await fse.writeJson(path.join(process.cwd(), `../data/queues.json`), queue);
+            this.emit('failed', currentJob, error);
 
           }
 
@@ -74,15 +93,24 @@ export default class LocalWorker {
 
         }
       } catch (error) {
-        console.log(error);
+        this.emit('error', error);
       }
 
     }, 3000);
   }
 
   on = (event, callback) => {
-    // TODO: Create a listening function
-    console.log('On event', event);
+    if (this.events[event]) {
+      this.events[event].push(callback);
+    }
+  }
+
+  emit = (event, job, error) => {
+    if (this.events[event] && this.events[event].length > 0) {
+      for (const callback of this.events[event]) {
+        callback(job, error);
+      }
+    }
   }
 
   close = () => {
