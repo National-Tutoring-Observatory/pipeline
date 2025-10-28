@@ -12,7 +12,6 @@ import './modules/documents/documents';
 import getDocumentsAdapter from "./modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "./modules/users/users.types";
 import createQueue from "./modules/queues/helpers/createQueue";
-import getQueue from "./modules/queues/helpers/getQueue";
 
 const checkSuperAdminExists = async () => {
   const documents = getDocumentsAdapter();
