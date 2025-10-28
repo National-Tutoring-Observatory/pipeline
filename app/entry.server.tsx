@@ -37,9 +37,7 @@ const checkSuperAdminExists = async () => {
 }
 
 const setupQueues = async () => {
-  if (process.env.REDIS_URL) {
-    createQueue('tasks');
-  }
+  createQueue('tasks');
 }
 
 setTimeout(() => {
