@@ -1,5 +1,6 @@
 import type { Route } from ".react-router/types/app/+types/root"
 import mongoose from 'mongoose';
+import { redis } from "~/modules/queues/helpers/createQueue";
 
 const checkParamsExist = (paramKeys: string[]) => {
   let missingParams = [];
@@ -55,6 +56,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   ]));
 
   let dbStatus = 'DISCONNECTED';
+  let cacheStatus = 'DISCONNECTED';
 
   const isDocumentDB = process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB';
 
@@ -64,10 +66,21 @@ export async function loader({ request }: Route.LoaderArgs) {
     dbStatus = 'CONNECTED';
   }
 
+  const isRedisQueue = (process.env.REDIS_URL && isDocumentDB);
+
+  if (isRedisQueue) {
+    cacheStatus = 'DISCONNECTED';
+    if (redis && redis.status === 'ready') {
+      cacheStatus = 'CONNECTED';
+    }
+  } else {
+    cacheStatus = 'CONNECTED';
+  }
+
   return {
     status: 200,
-    message: 'HEALTHY',
     dbStatus,
+    cacheStatus,
     missingParameters
   }
 
