@@ -18,6 +18,7 @@ import type { Prompt } from "~/modules/prompts/prompts.types";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
 import InviteUserToTeamDialogContainer from "./inviteUserToTeamDialogContainer";
 import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
+import { isTeamAdmin, validateTeamAdmin } from "../helpers/validateTeamAdmin";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -28,15 +29,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  if (userSession.role !== 'SUPER_ADMIN') {
-    const hasTeamMatch = find(userSession.teams, (team) => {
-      if (team.team === params.id && team.role === 'ADMIN') {
-        return team;
-      }
-    })
-    if (!hasTeamMatch) {
-      return redirect('/');
-    }
+  if (!isTeamAdmin({ user: userSession, teamId: params.id })) {
+    return redirect('/');
   }
 
   const team = await documents.getDocument({ collection: 'teams', match: { _id: params.id } }) as { data: TeamType };
@@ -56,6 +50,14 @@ export async function action({
   const { intent, payload = {} } = await request.json()
 
   const { userIds } = payload;
+
+  const user = await getSessionUser({ request }) as User;
+
+  if (!user) {
+    return redirect('/');
+  }
+
+  validateTeamAdmin({ user, teamId: params.id });
 
   const documents = getDocumentsAdapter();
 
