@@ -4,19 +4,6 @@ import filter from 'lodash/filter.js';
 import remove from 'lodash/remove.js';
 import dayjs from 'dayjs';
 
-const processJob = async (job) => {
-  // Faked process of job
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (job.attemptsMade === 2) {
-        resolve();
-      } else {
-        reject();
-      }
-    }, 5000);
-  });
-}
-
 export default class LocalWorker {
 
   name;
@@ -70,7 +57,7 @@ export default class LocalWorker {
           await fse.writeJson(path.join(process.cwd(), `../data/queues.json`), queues);
           this.emit('active', currentJob);
 
-          await processJob(jobs[0]);
+          await this.processJob(jobs[0]);
 
           currentJob.finishedOn = new Date();
           currentJob.attemptsMade = jobs[0].attemptsMade + 1;
@@ -103,6 +90,11 @@ export default class LocalWorker {
     } catch (error) {
       this.emit('error', error);
     }
+  }
+
+  processJob = async (job) => {
+    const processFile = await import(this.file);
+    return await processFile.default(job);
   }
 
   cleanupJobs = async () => {
