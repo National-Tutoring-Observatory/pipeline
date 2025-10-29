@@ -60,12 +60,27 @@ export default async ({ name }, file) => {
 
   }
 
-  process.on("SIGINT", async () => {
+  async function shutdown() {
+
+    const workers = [];
+
     for (const name in WORKERS) {
       if (WORKERS[name]) {
-        WORKERS[name].close();
+        workers.push(WORKERS[name].close());
       }
     }
-  });
+
+    await Promise.all(workers);
+
+    if (redis) {
+      await redis.disconnect();
+    }
+
+    process.exit(0);
+
+  };
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 
 };
