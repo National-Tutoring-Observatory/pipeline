@@ -14,6 +14,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import map from 'lodash/map';
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import type { User } from "~/modules/users/users.types";
+import { validateTeamAdmin } from "../helpers/validateTeamAdmin";
 
 type Teams = {
   data: [],
@@ -50,10 +51,19 @@ export async function action({
 
   const { name } = payload;
 
+  const user = await getSessionUser({ request }) as User;
+
+  if (!user) {
+    return redirect('/');
+  }
+
   const documents = getDocumentsAdapter();
 
   switch (intent) {
     case 'CREATE_TEAM':
+      if (user.role !== 'SUPER_ADMIN') {
+        throw new Error("Insufficient permissions. Only super admins can create teams.");
+      }
       if (typeof name !== "string") {
         throw new Error("Team name is required and must be a string.");
       }
@@ -63,8 +73,12 @@ export async function action({
         ...team
       }
     case 'UPDATE_TEAM':
+      validateTeamAdmin({ user, teamId: entityId });
       return await documents.updateDocument({ collection: 'teams', match: { _id: entityId }, update: { name } });
     case 'DELETE_TEAM':
+      if (user.role !== 'SUPER_ADMIN') {
+        throw new Error("Insufficient permissions. Only super admins can delete teams.");
+      }
       return await documents.deleteDocument({ collection: 'teams', match: { _id: entityId } })
     default:
       return {};
