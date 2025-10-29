@@ -5,8 +5,18 @@ import { PassThrough, Readable } from "node:stream";
 import fs from 'node:fs';
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import validateProjectOwnership from "~/modules/projects/helpers/validateProjectOwnership";
+import { redirect } from "react-router";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
+
+  const user = await getSessionUser({ request });
+  if (!user) {
+    return redirect('/');
+  }
+
+  await validateProjectOwnership({ user, projectId: params.projectId });
 
   const url = new URL(request.url);
 
@@ -20,6 +30,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     collection: 'runs',
     match: { _id: params.runId, project: params.projectId }
   }) as { data: Run };
+
+  if (!run.data) {
+    throw new Error("Run not found.");
+  }
 
   const archive = archiver('zip', {
     zlib: { level: 9 }

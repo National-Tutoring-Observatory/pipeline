@@ -1,9 +1,12 @@
+import type { Project } from "~/modules/projects/projects.types";
+import type { File } from "~/modules/files/files.types";
+
 export interface Session {
   _id: string;
   name: string;
   createdAt: string;
-  project: string;
-  file: string;
+  project: Project | string;
+  file: File | string;
   hasConverted: boolean;
   sessionId: string;
   fileType: string;

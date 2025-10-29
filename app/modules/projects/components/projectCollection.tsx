@@ -89,7 +89,7 @@ export default function ProjectCollection({
                       <TableCell>{find(annotationTypes, { value: run.annotationType })?.name}</TableCell>
                       <TableCell>
                         <div>
-                          {run.prompt}
+                          {run.prompt as string}
                         </div>
                         <div>
                           <Badge >
