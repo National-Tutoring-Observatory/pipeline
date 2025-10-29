@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import dayjs from "dayjs";
 import { Link } from "react-router";
-import type { PromptVersion } from "../prompts.types";
+import type { Prompt, PromptVersion } from "../prompts.types";
 import clsx from "clsx";
 import { Badge } from "@/components/ui/badge";
 import { BookCheck } from "lucide-react";
@@ -9,7 +9,7 @@ import { BookCheck } from "lucide-react";
 type PromptVersionItemProps = {
   name: string;
   version: number;
-  prompt: number;
+  prompt: Prompt | string;
   createdAt: string;
   isSelected: boolean;
   isProduction: boolean;

@@ -12,13 +12,13 @@ export default function PromptEditor({
   isLoading,
   isProduction,
   onSavePromptVersion,
-  onMakePromptVersionProductionClicked
+  onMakePromptVersionProduction
 }: {
   promptVersion: PromptVersion,
   isLoading: boolean,
   isProduction: boolean,
-  onSavePromptVersion: ({ name, userPrompt, annotationSchema, _id }: { name: string, userPrompt: string, annotationSchema: any[], _id: string }) => void,
-  onMakePromptVersionProductionClicked: () => void,
+  onSavePromptVersion: ({ name, userPrompt, annotationSchema }: { name: string, userPrompt: string, annotationSchema: any[] }) => void,
+  onMakePromptVersionProduction: () => void,
 }) {
 
   const [hasChanges, setHasChanges] = useState(false);
@@ -44,7 +44,11 @@ export default function PromptEditor({
 
   const onSavePromptVersionClicked = () => {
     setIsSaving(true);
-    onSavePromptVersion({ name, userPrompt, _id: promptVersion._id, annotationSchema });
+    onSavePromptVersion({ name, userPrompt, annotationSchema });
+  }
+
+  const onMakePromptVersionProductionClicked = () => {
+    onMakePromptVersionProduction();
   }
 
   useEffect(() => {
