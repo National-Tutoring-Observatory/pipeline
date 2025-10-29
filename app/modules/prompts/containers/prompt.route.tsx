@@ -1,16 +1,16 @@
-import { redirect, useActionData, useLoaderData, useNavigate, useParams, useSubmit } from "react-router";
-import Prompt from '../components/prompt';
-import type { Route } from "./+types/prompt.route";
-import type { Prompt as PromptType, PromptVersion } from "../prompts.types";
+import map from 'lodash/map';
 import pick from 'lodash/pick';
 import { useEffect } from "react";
+import { redirect, useActionData, useLoaderData, useNavigate, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import map from 'lodash/map';
-import validatePromptOwnership from "../helpers/validatePromptOwnership";
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
+import Prompt from '../components/prompt';
+import { validatePromptOwnership } from "../helpers/promptOwnership";
+import type { Prompt as PromptType, PromptVersion } from "../prompts.types";
+import type { Route } from "./+types/prompt.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();

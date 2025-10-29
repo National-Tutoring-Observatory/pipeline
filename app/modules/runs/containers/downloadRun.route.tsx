@@ -1,30 +1,34 @@
-import type { Run } from "../runs.types";
 import archiver from "archiver";
-import type { Route } from "./+types/downloadRun.route";
+import map from 'lodash/map';
 import { PassThrough, Readable } from "node:stream";
-import fs from 'node:fs';
-import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import validateProjectOwnership from "~/modules/projects/helpers/validateProjectOwnership";
 import { redirect } from "react-router";
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
+import type { Run } from "../runs.types";
+import type { Route } from "./+types/downloadRun.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
 
-  const user = await getSessionUser({ request });
-  if (!user) {
+  const documents = getDocumentsAdapter();
+  const authenticationTeams = await getSessionUserTeams({ request });
+  const teamIds = map(authenticationTeams, 'team');
+
+  // First verify the project exists and user has access
+  const project = await documents.getDocument({
+    collection: 'projects',
+    match: { _id: params.projectId, team: { $in: teamIds } }
+  }) as { data: any };
+
+  if (!project.data) {
     return redirect('/');
   }
-
-  await validateProjectOwnership({ user, projectId: params.projectId });
 
   const url = new URL(request.url);
 
   const searchParams = url.searchParams;
 
   const exportType = searchParams.get("exportType");
-
-  const documents = getDocumentsAdapter();
 
   const run = await documents.getDocument({
     collection: 'runs',

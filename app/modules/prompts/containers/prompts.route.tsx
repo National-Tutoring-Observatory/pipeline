@@ -1,21 +1,21 @@
-import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
-import type { Route } from "./+types/prompts.route";
-import Prompts from "../components/prompts";
-import { toast } from "sonner"
-import addDialog from "~/modules/dialogs/addDialog";
-import CreatePromptDialog from "../components/createPromptDialog";
-import type { Prompt } from "../prompts.types";
+import map from 'lodash/map';
 import { useEffect } from "react";
-import EditPromptDialog from "../components/editPromptDialog";
-import DeletePromptDialog from "../components/deletePromptDialog";
+import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
+import { toast } from "sonner";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import map from 'lodash/map';
-import validateTeamMembership from "~/modules/teams/helpers/validateTeamMembership";
-import validatePromptOwnership from "../helpers/validatePromptOwnership";
+import addDialog from "~/modules/dialogs/addDialog";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
 import type { User } from "~/modules/users/users.types";
+import CreatePromptDialog from "../components/createPromptDialog";
+import DeletePromptDialog from "../components/deletePromptDialog";
+import EditPromptDialog from "../components/editPromptDialog";
+import Prompts from "../components/prompts";
+import { validatePromptOwnership } from "../helpers/promptOwnership";
+import type { Prompt } from "../prompts.types";
+import type { Route } from "./+types/prompts.route";
 
 type Prompts = {
   data: [],
@@ -51,7 +51,7 @@ export async function action({
         throw new Error("Prompt name is required and must be a string.");
       }
 
-      validateTeamMembership({ user, teamId: team });
+      await validateTeamMembership({ user, teamId: team });
 
       const prompt = await documents.createDocument({ collection: 'prompts', update: { name, annotationType, team, productionVersion: 1 } }) as { data: Prompt };
       await documents.createDocument({

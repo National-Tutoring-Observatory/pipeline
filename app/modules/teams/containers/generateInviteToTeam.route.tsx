@@ -1,9 +1,9 @@
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { Route } from "./+types/generateInviteToTeam.route";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import type { User } from "~/modules/users/users.types";
 import crypto from 'crypto';
-import { validateTeamAdmin } from "../helpers/validateTeamAdmin";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import type { User } from "~/modules/users/users.types";
+import { validateTeamAdmin } from "../helpers/teamAdmin";
+import type { Route } from "./+types/generateInviteToTeam.route";
 
 export async function action({
   request,
@@ -22,7 +22,7 @@ export async function action({
       return {};
     }
 
-    validateTeamAdmin({ user, teamId: payload.teamId });
+    await validateTeamAdmin({ user, teamId: payload.teamId });
 
     const documents = getDocumentsAdapter();
 

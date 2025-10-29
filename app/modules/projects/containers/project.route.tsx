@@ -1,25 +1,25 @@
 
-import type { Route } from "./+types/project.route";
-import type { Project as ProjectType } from "../projects.types";
-import Project from '../components/project';
-import { redirect, useMatches, useRevalidator, useSubmit } from "react-router";
-import { toast } from "sonner";
+import filter from 'lodash/filter';
+import map from 'lodash/map';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
-import uploadFiles from "~/modules/uploads/uploadFiles";
-import convertFileToFiles from "~/modules/uploads/convertFileToFiles";
-import convertFilesToSessions from "~/modules/uploads/convertFilesToSessions";
-import filter from 'lodash/filter';
-import type { Session } from "~/modules/sessions/sessions.types";
-import type { Run } from "~/modules/runs/runs.types";
+import { redirect, useMatches, useRevalidator, useSubmit } from "react-router";
+import { toast } from "sonner";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import type { Collection } from "~/modules/collections/collections.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import map from 'lodash/map';
-import validateProjectOwnership from "../helpers/validateProjectOwnership";
+import type { Run } from "~/modules/runs/runs.types";
+import type { Session } from "~/modules/sessions/sessions.types";
+import convertFileToFiles from "~/modules/uploads/convertFileToFiles";
+import convertFilesToSessions from "~/modules/uploads/convertFilesToSessions";
+import uploadFiles from "~/modules/uploads/uploadFiles";
 import type { User } from "~/modules/users/users.types";
+import Project from '../components/project';
+import { validateProjectOwnership } from "../helpers/projectOwnership";
+import type { Project as ProjectType } from "../projects.types";
+import type { Route } from "./+types/project.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
