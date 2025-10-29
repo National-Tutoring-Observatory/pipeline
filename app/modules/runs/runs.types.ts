@@ -1,9 +1,12 @@
+import type { Project } from "~/modules/projects/projects.types";
+import type { Prompt } from "~/modules/prompts/prompts.types";
+
 export interface Run {
   _id: string;
   name: string;
-  project: string;
+  project: Project | string;
   annotationType: string;
-  prompt: string;
+  prompt: Prompt | string;
   promptVersion: number;
   model: string;
   sessions: { sessionId: string, status: string, name: string, fileType: string, startedAt: Date, finishedAt: Date }[]

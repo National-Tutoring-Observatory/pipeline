@@ -1,4 +1,4 @@
-import { useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
+import { redirect, useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
 import ProjectRuns from "../components/projectRuns";
 import addDialog from "~/modules/dialogs/addDialog";
 import CreateRunDialog from '../components/createRunDialog';
@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import DuplicateRunDialog from '../components/duplicateRunDialog';
 import { useEffect } from "react";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import validateProjectOwnership from "~/modules/projects/helpers/validateProjectOwnership";
 
 type Runs = {
   data: [],
@@ -21,12 +23,32 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 
+async function getExistingRun(documents: any, runId: string): Promise<Run> {
+  const existingRun = await documents.getDocument({
+    collection: 'runs',
+    match: {
+      _id: runId,
+    }
+  }) as { data: Run };
+
+  if (!existingRun.data) {
+    throw new Error("Run not found.");
+  }
+
+  return existingRun.data;
+}
+
 export async function action({
   request,
   params,
 }: Route.ActionArgs) {
 
   const { intent, entityId, payload = {} } = await request.json();
+
+  const user = await getSessionUser({ request });
+  if (!user) {
+    return redirect('/');
+  }
 
   const { name, annotationType } = payload;
   let run;
@@ -41,6 +63,7 @@ export async function action({
       if (typeof annotationType !== "string") {
         throw new Error("Annotation type is required and must be a string.");
       }
+      await validateProjectOwnership({ user, projectId: params.id });
       run = await documents.createDocument({
         collection: 'runs', update: {
           project: params.id,
@@ -57,10 +80,14 @@ export async function action({
       }
     }
     case 'UPDATE_RUN': {
-
       if (typeof name !== "string") {
         throw new Error("Run name is required and must be a string.");
       }
+
+      const existingRun = await getExistingRun(documents, entityId);
+      const projectId = existingRun.project as string;
+      await validateProjectOwnership({ user, projectId });
+
       await documents.updateDocument({
         collection: 'runs',
         match: {
@@ -77,13 +104,11 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Run name is required and must be a string.");
       }
-      const existingRun = await documents.getDocument({
-        collection: 'runs',
-        match: {
-          _id: entityId,
-        }
-      }) as { data: Run };
-      const { project, annotationType, prompt, promptVersion, model, sessions } = existingRun.data;
+      const existingRun = await getExistingRun(documents, entityId);
+      const projectId = existingRun.project as string;
+      await validateProjectOwnership({ user, projectId });
+
+      const { project, annotationType, prompt, promptVersion, model, sessions } = existingRun;
 
       run = await documents.createDocument({
         collection: 'runs',

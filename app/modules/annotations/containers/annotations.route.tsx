@@ -6,6 +6,9 @@ import find from 'lodash/find';
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import path from "path";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import validateProjectOwnership from "~/modules/projects/helpers/validateProjectOwnership";
+import { redirect } from "react-router";
 
 export async function action({
   request,
@@ -14,11 +17,27 @@ export async function action({
 
   const { markedAs } = await request.json();
 
+  const user = await getSessionUser({ request });
+  if (!user) {
+    return redirect('/');
+  }
+
   const documents = getDocumentsAdapter();
 
   const run = await documents.getDocument({ collection: 'runs', match: { _id: params.runId } }) as { data: Run };
 
-  const session = await documents.getDocument({ collection: 'sessions', match: { _id: params.sessionId } }) as { data: Session };
+  if (!run.data) {
+    throw new Error("Run not found.");
+  }
+
+  const projectId = run.data.project as string;
+  await validateProjectOwnership({ user, projectId });
+
+  const session = await documents.getDocument({ collection: 'sessions', match: { _id: params.sessionId, project: projectId } }) as { data: Session };
+
+  if (!session.data) {
+    throw new Error("Session not found or does not belong to this project.");
+  }
 
   const sessionPath = `storage/${run.data.project}/runs/${params.runId}/${params.sessionId}/${session.data.name}`;
 
