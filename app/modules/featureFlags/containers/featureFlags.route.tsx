@@ -1,14 +1,15 @@
-import React, { Component, useEffect } from 'react';
-import { Outlet, redirect, useActionData, useNavigate, useSubmit } from 'react-router';
+import { useEffect } from 'react';
+import { redirect, useActionData, useNavigate, useSubmit } from 'react-router';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
-import FeatureFlags from '../components/featureFlags';
-import addDialog from '~/modules/dialogs/addDialog';
-import CreateFeatureFlagDialog from '../components/createFeatureFlagDialog';
-import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
+import { isSuperAdmin, validateSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
+import addDialog from '~/modules/dialogs/addDialog';
+import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 import type { User } from '~/modules/users/users.types';
-import type { Route } from './+types/featureFlags.route';
+import CreateFeatureFlagDialog from '../components/createFeatureFlagDialog';
+import FeatureFlags from '../components/featureFlags';
 import type { FeatureFlag } from '../featureFlags.types';
+import type { Route } from './+types/featureFlags.route';
 
 type FeatureFlags = {
   data: FeatureFlag[]
@@ -16,11 +17,8 @@ type FeatureFlags = {
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const authentication = await getSessionUser({ request }) as User;
-  if (!authentication) {
-    return redirect('/');
-  }
-  if (authentication.role !== 'SUPER_ADMIN') {
+  const user = await getSessionUser({ request }) as User;
+  if (!isSuperAdmin(user)) {
     return redirect('/');
   }
   const featureFlags = await documents.getDocuments({ collection: 'featureFlags', match: {}, sort: {} }) as FeatureFlags;
@@ -30,6 +28,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export async function action({
   request,
 }: Route.ActionArgs) {
+
+  const user = await getSessionUser({ request }) as User;
+  validateSuperAdmin(user);
 
   const { intent, entityId, payload = {} } = await request.json()
 
