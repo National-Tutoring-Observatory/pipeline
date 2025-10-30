@@ -15,8 +15,6 @@ export default function ViewSessionContainer({ session }: { session: Session }) 
         body: JSON.stringify({ intent: "REQUEST_STORAGE", payload: { url: `storage/${session.project}/preAnalysis/${session._id}/${session.name}` } }),
       });
 
-
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
