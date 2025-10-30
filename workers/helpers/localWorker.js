@@ -1,8 +1,8 @@
+import dayjs from 'dayjs';
 import fse from 'fs-extra';
-import path from 'path';
 import filter from 'lodash/filter.js';
 import remove from 'lodash/remove.js';
-import dayjs from 'dayjs';
+import path from 'path';
 
 export default class LocalWorker {
 
@@ -20,6 +20,7 @@ export default class LocalWorker {
   constructor(name, file) {
     this.name = name;
     this.file = file;
+    this.setupQueue();
     this.init();
   }
 
@@ -30,6 +31,13 @@ export default class LocalWorker {
     }, 3000);
   }
 
+  setupQueue = () => {
+    const queuesPath = path.join(process.cwd(), `../data/queues.json`);
+    if (!fse.pathExistsSync(queuesPath)) {
+      fse.writeJsonSync(queuesPath, []);
+    }
+  }
+
   processJobs = async () => {
     try {
 
@@ -37,7 +45,8 @@ export default class LocalWorker {
         return;
       }
 
-      const queues = await fse.readJson(path.join(process.cwd(), `../data/queues.json`));
+      const queuesPath = path.join(process.cwd(), `../data/queues.json`);
+      const queues = await fse.readJson(queuesPath);
 
       const jobs = filter(queues, (job) => {
         if (job.queue === this.name && job.attemptsMade < 3 && job.state === 'wait') {
@@ -54,7 +63,7 @@ export default class LocalWorker {
 
           currentJob.processedOn = new Date();
           currentJob.state = 'active';
-          await fse.writeJson(path.join(process.cwd(), `../data/queues.json`), queues);
+          await fse.writeJson(queuesPath, queues);
           this.emit('active', currentJob);
 
           await this.processJob(jobs[0]);
@@ -62,7 +71,7 @@ export default class LocalWorker {
           currentJob.finishedOn = new Date();
           currentJob.attemptsMade = jobs[0].attemptsMade + 1;
           currentJob.state = 'completed';
-          await fse.writeJson(path.join(process.cwd(), `../data/queues.json`), queues);
+          await fse.writeJson(queuesPath, queues);
           this.emit('completed', currentJob);
 
         } catch (error) {
@@ -79,7 +88,7 @@ export default class LocalWorker {
           } else {
             currentJob.state = 'wait';
           }
-          await fse.writeJson(path.join(process.cwd(), `../data/queues.json`), queues);
+          await fse.writeJson(queuesPath, queues);
           this.emit('failed', currentJob, error);
 
         }
@@ -100,7 +109,8 @@ export default class LocalWorker {
   cleanupJobs = async () => {
     try {
 
-      const queues = await fse.readJson(path.join(process.cwd(), `../data/queues.json`));
+      const queuesPath = path.join(process.cwd(), `../data/queues.json`);
+      const queues = await fse.readJson(queuesPath);
 
       // Removes queue items that are older than 30 days
       remove(queues, (queue) => {
@@ -109,7 +119,7 @@ export default class LocalWorker {
         }
       });
 
-      await fse.writeJson(path.join(process.cwd(), `../data/queues.json`), queues);
+      await fse.writeJson(queuesPath, queues);
 
     } catch (error) {
       console.warn('Error during cleanupJobs', error);
