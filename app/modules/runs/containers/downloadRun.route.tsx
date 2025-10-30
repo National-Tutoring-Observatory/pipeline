@@ -14,7 +14,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
-  // First verify the project exists and user has access
   const project = await documents.getDocument({
     collection: 'projects',
     match: { _id: params.projectId, team: { $in: teamIds } }
