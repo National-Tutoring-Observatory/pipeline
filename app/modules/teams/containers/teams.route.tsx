@@ -1,20 +1,20 @@
-import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
-import type { Route } from "./+types/teams.route";
-import Teams from "../components/teams";
-import { toast } from "sonner"
-import addDialog from "~/modules/dialogs/addDialog";
-import CreateTeamDialog from "../components/createTeamDialog";
-import EditTeamDialog from "../components/editTeamDialog";
-import DeleteTeamDialog from "../components/deleteTeamDialog";
-import type { Team } from "../teams.types";
-import { useContext, useEffect } from "react";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import map from 'lodash/map';
+import { useContext, useEffect } from "react";
+import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
+import { toast } from "sonner";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import addDialog from "~/modules/dialogs/addDialog";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
-import { validateTeamAdmin } from "../helpers/validateTeamAdmin";
+import CreateTeamDialog from "../components/createTeamDialog";
+import DeleteTeamDialog from "../components/deleteTeamDialog";
+import EditTeamDialog from "../components/editTeamDialog";
+import Teams from "../components/teams";
+import { validateTeamAdmin } from "../helpers/teamAdmin";
+import type { Team } from "../teams.types";
+import type { Route } from "./+types/teams.route";
 
 type Teams = {
   data: [],
@@ -73,7 +73,7 @@ export async function action({
         ...team
       }
     case 'UPDATE_TEAM':
-      validateTeamAdmin({ user, teamId: entityId });
+      await validateTeamAdmin({ user, teamId: entityId });
       return await documents.updateDocument({ collection: 'teams', match: { _id: entityId }, update: { name } });
     case 'DELETE_TEAM':
       if (user.role !== 'SUPER_ADMIN') {
