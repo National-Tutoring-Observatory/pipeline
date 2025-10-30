@@ -21,7 +21,16 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const documents = getDocumentsAdapter();
   const prompt = await documents.getDocument({ collection: 'prompts', match: { _id: params.id } }) as { data: Prompt };
+
+  if (!prompt.data) {
+    return redirect('/');
+  }
+
   const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { version: Number(params.version), prompt: params.id } }) as { data: PromptVersion };
+
+  if (!promptVersion.data) {
+    return redirect('/');
+  }
 
   return { prompt, promptVersion };
 }
