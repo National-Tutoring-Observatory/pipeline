@@ -1,28 +1,22 @@
-import React, { Component, useEffect } from 'react';
-import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
-import FeatureFlag from '../components/featureFlag';
-import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
-import type { Route } from './+types/featureFlag.route';
-import { redirect, useSubmit } from 'react-router';
-import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import type { User } from '~/modules/users/users.types';
-import type { FeatureFlag as FeatureFlagType } from '../featureFlags.types';
-import addDialog from '~/modules/dialogs/addDialog';
-import AddUsersToFeatureFlagDialogContainer from './addUsersToFeatureFlagDialog.container';
 import pull from 'lodash/pull';
+import { useEffect } from 'react';
+import { redirect, useSubmit } from 'react-router';
+import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
+import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
+import { isSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
+import addDialog from '~/modules/dialogs/addDialog';
+import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
+import type { User } from '~/modules/users/users.types';
+import FeatureFlag from '../components/featureFlag';
+import type { FeatureFlag as FeatureFlagType } from '../featureFlags.types';
+import type { Route } from './+types/featureFlag.route';
+import AddUsersToFeatureFlagDialogContainer from './addUsersToFeatureFlagDialog.container';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
 
-  let match = {};
-
-  const userSession = await getSessionUser({ request }) as User;
-
-  if (!userSession) {
-    return redirect('/');
-  }
-
-  if (userSession.role !== 'SUPER_ADMIN') {
+  const user = await getSessionUser({ request }) as User;
+  if (!isSuperAdmin(user)) {
     return redirect('/');
   }
 
@@ -38,19 +32,16 @@ export async function action({
   params,
 }: Route.ActionArgs) {
 
-  const { intent, payload = {} } = await request.json()
+  const user = await getSessionUser({ request }) as User;
+  if (!isSuperAdmin(user)) {
+    return {};
+  }
+
+  const { intent, payload = {} } = await request.json();
 
   const { userIds, userId } = payload;
 
   const documents = getDocumentsAdapter();
-
-  const sessionUser = await getSessionUser({ request }) as User;
-
-  if (!sessionUser) {
-    return {};
-  }
-
-  if (sessionUser.role !== 'SUPER_ADMIN') return {};
 
   switch (intent) {
     case 'ADD_USERS_TO_FEATURE_FLAG':
@@ -125,4 +116,4 @@ export default function FeatureFlagRoute({ loaderData }: {
       onRemoveUserFromFeatureFlagClicked={onRemoveUserFromFeatureFlagClicked}
     />
   );
-} 
+}
