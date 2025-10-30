@@ -1,11 +1,11 @@
-import filter from 'lodash/filter';
 import every from 'lodash/every';
-import some from 'lodash/some';
+import filter from 'lodash/filter';
 import get from 'lodash/get';
-import isArray from 'lodash/isArray';
 import has from 'lodash/has';
-import isObject from 'lodash/isObject';
 import includes from 'lodash/includes';
+import isArray from 'lodash/isArray';
+import isObject from 'lodash/isObject';
+import some from 'lodash/some';
 
 interface Match {
   [key: string]: any;
@@ -30,7 +30,15 @@ export default (
           return itemValue !== condition.$ne;
         }
         if (has(condition, '$in')) {
-          return isArray(condition.$in) && includes(condition.$in, itemValue);
+          if (!isArray(condition.$in)) return false;
+
+          // If itemValue is an array, check if any element in itemValue is in condition.$in
+          if (isArray(itemValue)) {
+            return some(itemValue, (val) => includes(condition.$in, val));
+          }
+
+          // If itemValue is scalar, check if itemValue is in condition.$in
+          return includes(condition.$in, itemValue);
         }
         return itemValue === condition;
       }
