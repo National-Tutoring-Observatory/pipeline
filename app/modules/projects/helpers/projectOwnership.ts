@@ -1,5 +1,5 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import { isTeamMember, validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
+import { isTeamMember } from "~/modules/teams/helpers/teamMembership";
 import type { User } from "~/modules/users/users.types";
 
 export async function isProjectOwner({
@@ -30,16 +30,7 @@ export async function validateProjectOwnership({
   user: User;
   projectId: string;
 }) {
-  const documents = getDocumentsAdapter();
-
-  const project = await documents.getDocument({
-    collection: 'projects',
-    match: { _id: projectId },
-  }) as { data: { team: string } | null };
-
-  if (!project.data) {
-    throw new Error("The project does not exist.");
+  if (!(await isProjectOwner({ user, projectId }))) {
+    throw new Error("You do not have permission to access this project.");
   }
-
-  await validateTeamMembership({ user: user, teamId: project.data.team });
 }

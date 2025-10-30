@@ -1,5 +1,5 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import { isTeamMember, validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
+import { isTeamMember } from "~/modules/teams/helpers/teamMembership";
 import type { User } from "~/modules/users/users.types";
 
 export async function isPromptOwner({
@@ -30,16 +30,7 @@ export async function validatePromptOwnership({
   user: User;
   promptId: string;
 }) {
-  const documents = getDocumentsAdapter();
-
-  const prompt = await documents.getDocument({
-    collection: 'prompts',
-    match: { _id: promptId },
-  }) as { data: { team: string } | null };
-
-  if (!prompt.data) {
-    throw new Error("The prompt does not exist.");
+  if (!(await isPromptOwner({ user, promptId }))) {
+    throw new Error("You do not have permission to access this prompt.");
   }
-
-  await validateTeamMembership({ user: user, teamId: prompt.data.team })
 }
