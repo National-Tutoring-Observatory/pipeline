@@ -2,11 +2,6 @@ import map from 'lodash/map';
 import type { User } from '~/modules/users/users.types';
 
 export async function isTeamMember({ user, teamId }: { user: User, teamId: string }): Promise<boolean> {
-  // SUPER_ADMIN can access any team
-  if (user.role === 'SUPER_ADMIN') {
-    return true;
-  }
-
   const userTeamIds = map(user.teams, 'team');
   return userTeamIds.includes(teamId);
 }
