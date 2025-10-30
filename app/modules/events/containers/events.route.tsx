@@ -1,7 +1,13 @@
-import type { LoaderFunctionArgs } from "react-router";
+import { redirect, type LoaderFunctionArgs } from "react-router";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { emitter } from "../emitter";
 
 export async function loader({ request }: LoaderFunctionArgs) {
+
+  const user = await getSessionUser({ request });
+  if (!user) {
+    return redirect('/');
+  }
 
   const stream = new ReadableStream({
     start(controller) {
