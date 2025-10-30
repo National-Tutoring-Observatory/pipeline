@@ -43,6 +43,9 @@ export default [
       route(":id", "modules/featureFlags/containers/featureFlag.route.tsx"),
     ]),
   ]),
+  ...prefix("queues", [
+    index("modules/queues/containers/queues.route.tsx"),
+  ]),
   route("api", "modules/app/containers/api.route.tsx"),
   route("api/annotations/:runId/:sessionId/:annotationId", "modules/annotations/containers/annotations.route.tsx"),
   route("api/authentication", "modules/authentication/containers/authentication.route.tsx"),
