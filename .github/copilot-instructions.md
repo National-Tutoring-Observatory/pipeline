@@ -95,7 +95,51 @@ Before committing, always:
 2. ✅ Run `yarn build` - must complete successfully
 3. ✅ If modifying storage/document adapters, ensure `app/adapters.js` runs correctly
 
-## Project Architecture
+## Architecture Overview
+
+### Adapter Pattern for Storage & Database
+
+The application uses a **plugin-based adapter pattern** to support multiple storage and database backends without changing business logic:
+
+**Storage Adapters** (`app/storageAdapters/`):
+- Handle file storage operations (upload, download, remove, request)
+- Two implementations: `local/` (filesystem) and `awsS3/` (AWS S3)
+- Each adapter registers itself via `registerStorageAdapter()` with a common interface
+- Selected at runtime via `STORAGE_ADAPTER` env variable
+- Interface: `{ name, download, upload, remove, request }`
+
+**Document Adapters** (`app/documentsAdapters/`):
+- Handle database operations (CRUD for collections)
+- Two implementations: `local/` (in-memory) and `documentDB/` (MongoDB/DocumentDB)
+- Each adapter registers itself via `registerDocumentsAdapter()` with a common interface
+- Selected at runtime via `DOCUMENTS_ADAPTER` env variable
+- Interface: `{ name, getDocuments, createDocument, getDocument, updateDocument, deleteDocument }`
+
+**How it works**:
+1. On startup, `app/adapters.js` scans `storageAdapters/` and generates `app/modules/storage/storage.ts`
+2. This file imports all adapter implementations, causing them to self-register
+3. Application code calls `getStorageAdapter()` or `getDocumentsAdapter()` to get the active adapter
+4. Adapters are selected based on env variables, making backend switching seamless
+
+### React Router Error Handling Pattern
+
+The codebase follows a **consistent error handling convention** for React Router loaders and actions:
+
+**Loaders** (data fetching):
+- Use `redirect()` for authentication/authorization failures
+- Return redirect responses to guide users to appropriate pages
+- Example: `if (!user) return redirect('/')`
+
+**Actions** (mutations):
+- Use `throw new Error()` for validation and business logic failures
+- Throw errors for missing/invalid data, unauthorized access
+- Errors are caught by React Router's error boundary
+- Example: `if (!name) throw new Error("Name is required")`
+
+**Why this pattern?**
+- Loaders redirect on auth failures (user should be redirected somewhere)
+- Actions throw on validation failures (user should see error in context)
+- Consistent across all routes for predictable behavior
 
 ### Directory Structure
 
@@ -115,10 +159,10 @@ Before committing, always:
     /dashboard/                 # Main dashboard
     /support/                   # Support articles
     /featureFlags/              # Feature flag system
-    /storage/                   # Storage abstraction
+    /storage/                   # Storage abstraction layer
     /dialogs/                   # Dialog management
     /app/                       # App shell & sidebar
-    /documents/                 # Document DB abstraction
+    /documents/                 # Document DB abstraction layer
     /events/                    # Event handling
     /queues/                    # BullMQ queue management
     /uploads/                   # Upload utilities
@@ -127,10 +171,10 @@ Before committing, always:
     /components/ui/             # 25+ UI components
     /hooks/                     # Custom React hooks
     /lib/                       # UI utilities
-  /storageAdapters/             # Storage implementations
+  /storageAdapters/             # Storage implementations (plugin pattern)
     /local/                     # Local filesystem storage
     /awsS3/                     # AWS S3 storage
-  /documentsAdapters/           # Database implementations
+  /documentsAdapters/           # Database implementations (plugin pattern)
     /local/                     # Local in-memory DB
     /documentDB/                # AWS DocumentDB (MongoDB)
   adapters.js                   # IMPORTANT: Generates storage imports
@@ -220,25 +264,45 @@ REDIS_URL='redis://localhost:6379'
 - AI Gateway credentials (if using AI_GATEWAY)
 - OpenAI key (if using OPENAI provider)
 
-## Common Issues & Solutions
+## Troubleshooting: Root Causes
 
-### Issue: Type errors during build
-**Solution**: Run `yarn typecheck` first to see detailed errors. The build warnings about unused imports are expected and safe to ignore.
+When encountering issues, focus on understanding and fixing the root cause rather than working around problems:
 
-### Issue: Storage imports not found
-**Solution**: Ensure `node ./app/adapters.js` runs successfully. Check that storage adapter directories have `index.ts` files.
+### Type errors during build
+**Root cause**: TypeScript compilation errors in your code or missing type definitions
+**Diagnosis**: Run `yarn typecheck` to see detailed error messages with file locations
+**Fix**: Address the type errors in the indicated files. Don't ignore type errors.
+**Note**: Build warnings about unused imports (useCallback, icons) are expected and safe to ignore - these are not errors.
 
-### Issue: Build fails with module not found
-**Solution**: 
-1. Delete `node_modules/` and `.react-router/`
-2. Run `yarn install --frozen-lockfile`
-3. Run `yarn typecheck` then `yarn build`
+### Storage imports not found
+**Root cause**: The `app/adapters.js` script failed or didn't run, so `app/modules/storage/storage.ts` wasn't generated
+**Diagnosis**: Check if `app/modules/storage/storage.ts` exists and contains imports
+**Fix**: 
+1. Manually run `node ./app/adapters.js` to see any errors
+2. Verify storage adapter directories have proper `index.ts` files
+3. Check that adapters call `registerStorageAdapter()` correctly
+**Prevention**: Both `yarn build` and `yarn dev` run this automatically
 
-### Issue: Workers failing to start
-**Solution**: Workers have separate dependencies. Run `cd workers && yarn install` first.
+### Module not found errors
+**Root cause**: Stale or corrupted dependencies, or mismatched lock file
+**Diagnosis**: Check if `node_modules/` or `.react-router/` have stale generated code
+**Fix**: 
+1. Delete `node_modules/`, `.react-router/`, and optionally `build/`
+2. Run `yarn install --frozen-lockfile` (matches CI exactly)
+3. Run `yarn typecheck` to verify types, then `yarn build`
+**Prevention**: Always use `--frozen-lockfile` to match the lock file
 
-### Issue: Port 5173 already in use
-**Solution**: Kill existing process or set PORT env var: `PORT=3000 yarn dev`
+### Workers failing to start
+**Root cause**: Workers have a separate `package.json` and their dependencies weren't installed
+**Diagnosis**: Check if `workers/node_modules/` exists
+**Fix**: Run `cd workers && yarn install` to install worker dependencies
+**Note**: Workers are a separate package to keep their dependencies isolated
+
+### Port 5173 already in use
+**Root cause**: Another dev server or process is already using the port
+**Diagnosis**: Run `lsof -i :5173` (Unix) or `netstat -ano | findstr :5173` (Windows)
+**Fix**: Kill the existing process or set a different port: `PORT=3000 yarn dev`
+**Alternative**: Configure a different default port in your environment
 
 ## Path Aliases
 
