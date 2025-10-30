@@ -1,7 +1,7 @@
 import fse from 'fs-extra';
 import includes from 'lodash/includes.js';
 
-const COLLECTIONS = ['teams', 'users', 'prompts', 'promptVersions', 'projects', 'files', 'sessions', 'runs', 'collections', 'queues'];
+const COLLECTIONS = ['teams', 'users', 'prompts', 'promptVersions', 'projects', 'files', 'sessions', 'runs', 'collections', 'queues', 'featureFlags'];
 
 const DEFAULTS = {
   teams: [],
@@ -13,7 +13,8 @@ const DEFAULTS = {
   collections: [],
   files: [],
   sessions: [],
-  queues: []
+  queues: [],
+  featureFlags: []
 }
 
 export default async ({ collection }: { collection: string }) => {
