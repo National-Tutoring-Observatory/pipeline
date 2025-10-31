@@ -1,8 +1,8 @@
-import { redirect, useParams } from "react-router";
+import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin, validateSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
 import type { User } from "~/modules/users/users.types";
-import { QueueControls, QueueStateTabs, QueueTypeTabs } from "../components";
+import { QueueControls, QueueStateTabs } from "../components";
 import type { Route } from "./+types/queue.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -48,14 +48,15 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function QueueRoute() {
   const params = useParams();
+  const data = useLoaderData();
   const queueType = params.type as string;
 
   const states = [
-    { key: 'active', label: 'Active', count: queueType === 'tasks' ? 2 : 0 },
-    { key: 'waiting', label: 'Waiting', count: 0 },
-    { key: 'completed', label: 'Completed', count: 0 },
-    { key: 'failed', label: 'Failed', count: 0 },
-    { key: 'delayed', label: 'Delayed', count: 0 }
+    { key: 'active', label: 'Active', count: data.stateCounts.active },
+    { key: 'waiting', label: 'Waiting', count: data.stateCounts.waiting },
+    { key: 'completed', label: 'Completed', count: data.stateCounts.completed },
+    { key: 'failed', label: 'Failed', count: data.stateCounts.failed },
+    { key: 'delayed', label: 'Delayed', count: data.stateCounts.delayed }
   ];
 
   const handlePauseResume = () => {
@@ -63,12 +64,8 @@ export default function QueueRoute() {
   };
 
   return (
-    <div className="p-6">
+    <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-4">Queue Management</h1>
-
-        <QueueTypeTabs taskCount={16} cronCount={2} />
-
         <QueueControls
           queueType={queueType}
           onPauseResume={handlePauseResume}
@@ -80,9 +77,7 @@ export default function QueueRoute() {
         />
       </div>
 
-      <div className="text-center py-8 text-gray-500">
-        Select a state to view jobs
-      </div>
+      <Outlet />
     </div>
   );
 }

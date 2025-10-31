@@ -65,8 +65,11 @@ export default [
   route("auth/callback/:provider", "modules/authentication/containers/authCallback.route.tsx"),
   ...prefix("queues", [
     index("modules/queues/containers/queues.route.tsx"),
-    route(":type", "modules/queues/containers/queue.route.tsx"),
-    route(":type/:state", "modules/queues/containers/queueJobs.route.tsx"),
+    layout("modules/queues/containers/queuesLayout.route.tsx", [
+      route(":type", "modules/queues/containers/queue.route.tsx", [
+        route(":state", "modules/queues/containers/queueJobs.route.tsx"),
+      ]),
+    ]),
   ]),
 
 ] satisfies RouteConfig;
