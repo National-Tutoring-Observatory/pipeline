@@ -1,8 +1,9 @@
-import { redirect, useLoaderData, useParams } from "react-router";
+import { useState } from "react";
+import { redirect, useLoaderData, useParams, useSubmit } from "react-router";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
 import type { User } from "~/modules/users/users.types";
-import { JobsList } from "../components";
+import { JobDetailsDialog, JobsList } from "../components";
 import getQueue from "../helpers/getQueue";
 import type { Job } from "../queues.types";
 import type { Route } from "./+types/queueJobs.route";
@@ -86,11 +87,51 @@ export default function QueueJobsRoute() {
   const data = useLoaderData<typeof loader>();
   const params = useParams();
   const state = params.state as string;
+  const submit = useSubmit();
+
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleJobClick = (job: Job) => {
+    setSelectedJob(job);
+    setIsDialogOpen(true);
+  };
+
+  const handleDeleteJob = (job: Job) => {
+    if (confirm(`Are you sure you want to delete job "${job.name}" from the queue?`)) {
+      submit(JSON.stringify({ intent: 'DELETE_JOB', entityId: job._id }), {
+        method: 'DELETE',
+        encType: 'application/json'
+      });
+    }
+  };
+
+  const handleDeleteFromDialog = (job: Job) => {
+    handleDeleteJob(job);
+    setIsDialogOpen(false);
+    setSelectedJob(null);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedJob(null);
+  };
 
   return (
-    <JobsList
-      jobs={data.jobs}
-      state={state}
-    />
+    <>
+      <JobsList
+        jobs={data.jobs}
+        state={state}
+        onJobClick={handleJobClick}
+        onDeleteJob={handleDeleteJob}
+      />
+
+      <JobDetailsDialog
+        job={selectedJob}
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        onDelete={handleDeleteFromDialog}
+      />
+    </>
   );
 }
