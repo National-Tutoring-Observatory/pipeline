@@ -3,6 +3,7 @@ import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin, validateSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
 import type { User } from "~/modules/users/users.types";
 import { QueueControls, QueueStateTabs } from "../components";
+import getQueue from "../helpers/getQueue";
 import type { Route } from "./+types/queue.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -11,17 +12,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const queueType = params.type;
+  const queueType = params.type as string;
+  const queue = getQueue(queueType);
+
+  const jobCounts = await queue.getJobCounts();
 
   return {
     queueType,
-    stateCounts: {
-      active: queueType === 'tasks' ? 2 : 0,
-      waiting: 0,
-      completed: 0,
-      failed: 0,
-      delayed: 0
-    }
+    jobCounts
   };
 }
 
@@ -52,11 +50,11 @@ export default function QueueRoute() {
   const queueType = params.type as string;
 
   const states = [
-    { key: 'active', label: 'Active', count: data.stateCounts.active },
-    { key: 'waiting', label: 'Waiting', count: data.stateCounts.waiting },
-    { key: 'completed', label: 'Completed', count: data.stateCounts.completed },
-    { key: 'failed', label: 'Failed', count: data.stateCounts.failed },
-    { key: 'delayed', label: 'Delayed', count: data.stateCounts.delayed }
+    { key: 'active', label: 'Active', count: data.jobCounts.active },
+    { key: 'wait', label: 'Waiting', count: data.jobCounts.wait },
+    { key: 'completed', label: 'Completed', count: data.jobCounts.completed },
+    { key: 'failed', label: 'Failed', count: data.jobCounts.failed },
+    { key: 'delayed', label: 'Delayed', count: data.jobCounts.delayed }
   ];
 
   const handlePauseResume = () => {
