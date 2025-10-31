@@ -9,11 +9,11 @@ export default async ({ collection, match }: { collection: string, match: { _id:
 
     const json = await fse.readJson(`./data/${collection}.json`);
 
-    remove(json, match);
+    const removedDocuments = remove(json, match);
 
     await fse.writeJson(`./data/${collection}.json`, json);
 
-    return {}
+    return removedDocuments.length > 0;
 
   } catch (error) {
     return error;
