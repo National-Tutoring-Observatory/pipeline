@@ -27,6 +27,10 @@ export default class LocalQueue {
       console.log('queue.getFailed', getFailed);
       const getDelayed = await this.getDelayed();
       console.log('queue.getDelayed', getDelayed);
+      const getJob = await this.getJob("69022d2acf4d87c30ae4ad5c");
+      console.log('queue.getJob', getJob);
+      const remove = await this.remove("690282d367f8be03945dacff");
+      console.log('queue.remove', remove);
     }, 1000);
   }
 
@@ -122,6 +126,39 @@ export default class LocalQueue {
     });
 
     return jobs.data;
+  }
+
+  getJob = async (jobId: string) => {
+    const documents = getDocumentsAdapter();;
+
+    const job = await documents.getDocument({
+      collection: 'jobs',
+      match: {
+        _id: jobId,
+        queue: this.name
+      }
+    }) as { data: Job };
+
+    return job.data;
+  }
+
+  remove = async (jobId: string) => {
+
+    let hasRemoved = false;
+
+    const job = await this.getJob(jobId);
+
+    if (job && job.state !== 'active') {
+      const documents = getDocumentsAdapter();
+      hasRemoved = await documents.deleteDocument({
+        collection: 'jobs',
+        match: {
+          _id: jobId
+        }
+      }) as boolean;
+    }
+
+    return hasRemoved ? 1 : 0;
   }
 
 }
