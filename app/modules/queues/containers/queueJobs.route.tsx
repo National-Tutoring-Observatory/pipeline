@@ -2,7 +2,7 @@ import { redirect, useLoaderData, useParams } from "react-router";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin, validateSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
 import type { User } from "~/modules/users/users.types";
-import { JobsList, QueueControls, QueueStateTabs, QueueTypeTabs } from "../components";
+import { JobsList } from "../components";
 import type { Route } from "./+types/queueJobs.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -64,22 +64,8 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function QueueJobsRoute() {
   const params = useParams();
-  const data = useLoaderData();
-  const queueType = params.type as string;
+  const data = useLoaderData<typeof loader>();
   const state = params.state as string;
-
-  const states = [
-    { key: 'active', label: 'Active', count: queueType === 'tasks' ? 2 : 0 },
-    { key: 'waiting', label: 'Waiting', count: 0 },
-    { key: 'completed', label: 'Completed', count: 0 },
-    { key: 'failed', label: 'Failed', count: 0 },
-    { key: 'delayed', label: 'Delayed', count: 0 }
-  ];
-
-  const handlePauseResume = () => {
-    // TODO: Implement pause/resume functionality
-    console.log('Pause/Resume clicked for', queueType);
-  };
 
   const handleDeleteJob = (job: any) => {
     // TODO: Implement actual job deletion from queue
@@ -88,29 +74,10 @@ export default function QueueJobsRoute() {
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-4">Queue Management</h1>
-
-        <QueueTypeTabs taskCount={16} cronCount={2} />
-
-        <QueueControls
-          queueType={queueType}
-          onPauseResume={handlePauseResume}
-        />
-
-        <QueueStateTabs
-          queueType={queueType}
-          states={states}
-          currentState={state}
-        />
-      </div>
-
-      <JobsList
-        jobs={data.jobs}
-        state={state}
-        onDeleteJob={handleDeleteJob}
-      />
-    </div>
+    <JobsList
+      jobs={data.jobs}
+      state={state}
+      onDeleteJob={handleDeleteJob}
+    />
   );
 }
