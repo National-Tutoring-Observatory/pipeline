@@ -43,6 +43,45 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   };
 }
 
+export async function action({ request, params }: Route.ActionArgs) {
+  const user = await getSessionUser({ request }) as User;
+  if (!isSuperAdmin(user)) {
+    return redirect('/');
+  }
+
+  const { intent, entityId } = await request.json();
+  const { type } = params;
+
+  switch (intent) {
+    case 'DELETE_JOB':
+      try {
+        const queue = getQueue(type as string);
+
+        if (!queue) {
+          throw new Error(`Queue "${type}" not found`);
+        }
+
+        const job = await queue.getJob(entityId);
+
+        if (!job) {
+          throw new Error(`Job with ID "${entityId}" not found`);
+        }
+
+        await job.remove();
+
+        return {
+          intent: 'DELETE_JOB',
+          success: true
+        };
+      } catch (error) {
+        console.error('Error removing job:', error);
+        throw new Error(error instanceof Error ? error.message : 'Unknown error occurred');
+      }
+    default:
+      throw new Error(`Unknown intent: ${intent}`);
+  }
+}
+
 export default function QueueJobsRoute() {
   const data = useLoaderData<typeof loader>();
   const params = useParams();

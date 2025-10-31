@@ -11,6 +11,7 @@ import {
 import dayjs from 'dayjs';
 import { EllipsisVertical } from "lucide-react";
 import { useState } from "react";
+import { useSubmit } from "react-router";
 import type { Job } from "../queues.types";
 import JobDetailsDialog from "./JobDetailsDialog";
 
@@ -24,6 +25,7 @@ interface JobsListProps {
 export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsListProps) {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const submit = useSubmit();
 
   const handleJobClick = (job: Job) => {
     if (onJobClick) {
@@ -41,7 +43,10 @@ export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsL
     } else {
       // Default behavior
       if (confirm(`Are you sure you want to delete job "${job.name}" from the queue?`)) {
-        alert('Job deletion functionality not implemented yet');
+        submit(JSON.stringify({ intent: 'DELETE_JOB', entityId: job._id }), {
+          method: 'DELETE',
+          encType: 'application/json'
+        });
       }
     }
   };
