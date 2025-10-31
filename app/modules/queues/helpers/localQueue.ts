@@ -17,6 +17,8 @@ export default class LocalQueue {
       console.log('queue.count', count);
       const getJobCounts = await this.getJobCounts();
       console.log('queue.getJobCounts', getJobCounts);
+      const getActive = await this.getActive();
+      console.log('queue.getActive', getActive);
     }, 1000);
   }
 
@@ -38,30 +40,48 @@ export default class LocalQueue {
 
   }
 
-  count = async () => {
+  private getJobs = async (match: any) => {
     const documents = getDocumentsAdapter();
 
-    const jobs = await documents.getDocuments({
-      collection: 'jobs',
-      match: {
-        queue: this.name,
-        state: { $in: ['wait', 'delayed'] }
-      }
-    }) as { data: Job[] };
+    match.queue = this.name;
 
-    return jobs.data.length;
+    return await documents.getDocuments({
+      collection: 'jobs',
+      match
+    }) as { data: Job[], count: number };
+  }
+
+  count = async () => {
+
+    const jobs = await this.getJobs({
+      state: { $in: ['wait', 'delayed'] }
+    });
+
+    return jobs.count;
   }
 
   getJobCounts = async () => {
-    const documents = getDocumentsAdapter();
 
-    const jobs = await documents.getDocuments({
-      collection: 'jobs',
-      match: {
-        queue: this.name,
-      }
-    }) as { data: Job[] };
+    const jobs = await this.getJobs({});
 
-    return countBy(jobs.data, 'state');
+    let initialCount = {
+      "wait": 0,
+      "active": 0,
+      "completed": 0,
+      "failed": 0,
+      "delayed": 0,
+      'waiting-children': 0
+    }
+
+    return { ...initialCount, ...countBy(jobs.data, 'state') };
   }
+
+  getActive = async () => {
+    const jobs = await this.getJobs({
+      state: 'active'
+    });
+
+    return jobs.data;
+  }
+
 }
