@@ -19,6 +19,14 @@ export default class LocalQueue {
       console.log('queue.getJobCounts', getJobCounts);
       const getActive = await this.getActive();
       console.log('queue.getActive', getActive);
+      const getWaiting = await this.getWaiting();
+      console.log('queue.getWaiting', getWaiting);
+      const getCompleted = await this.getCompleted();
+      console.log('queue.getCompleted', getCompleted);
+      const getFailed = await this.getFailed();
+      console.log('queue.getFailed', getFailed);
+      const getDelayed = await this.getDelayed();
+      console.log('queue.getDelayed', getDelayed);
     }, 1000);
   }
 
@@ -79,6 +87,38 @@ export default class LocalQueue {
   getActive = async () => {
     const jobs = await this.getJobs({
       state: 'active'
+    });
+
+    return jobs.data;
+  }
+
+  getWaiting = async () => {
+    const jobs = await this.getJobs({
+      state: 'wait'
+    });
+
+    return jobs.data;
+  }
+
+  getCompleted = async () => {
+    const jobs = await this.getJobs({
+      state: 'completed'
+    });
+
+    return jobs.data;
+  }
+
+  getFailed = async () => {
+    const jobs = await this.getJobs({
+      state: 'failed'
+    });
+
+    return jobs.data;
+  }
+
+  getDelayed = async () => {
+    const jobs = await this.getJobs({
+      state: 'delayed'
     });
 
     return jobs.data;
