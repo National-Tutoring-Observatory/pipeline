@@ -64,7 +64,6 @@ export default class LocalQueue {
   }
 
   count = async () => {
-
     const jobs = await this.getJobs({
       state: { $in: ['wait', 'delayed'] }
     });

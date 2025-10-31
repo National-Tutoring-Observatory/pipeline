@@ -3,6 +3,7 @@ import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
 import type { User } from "~/modules/users/users.types";
 import { QueueTypeTabs } from "../components";
+import getQueue from "../helpers/getQueue";
 import type { Route } from "./+types/queuesLayout.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -11,9 +12,11 @@ export async function loader({ request }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  // Get queue counts - TODO: Replace with actual queue data
-  const taskCount = 16;
-  const cronCount = 2;
+  const tasksQueue = getQueue('tasks');
+  const cronQueue = getQueue('cron');
+
+  const taskCount = await tasksQueue.count();
+  const cronCount = await cronQueue.count();
 
   return {
     taskCount,

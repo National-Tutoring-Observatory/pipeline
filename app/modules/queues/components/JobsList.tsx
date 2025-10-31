@@ -11,14 +11,8 @@ import {
 import dayjs from 'dayjs';
 import { EllipsisVertical } from "lucide-react";
 import { useState } from "react";
+import type { Job } from "../queues.types";
 import JobDetailsDialog from "./JobDetailsDialog";
-
-interface Job {
-  id: string;
-  name: string;
-  createdAt?: string;
-  status?: string;
-}
 
 interface JobsListProps {
   jobs: Job[];
@@ -81,15 +75,17 @@ export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsL
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[300px]">Job Name</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead className="w-[250px]">Job Name</TableHead>
             <TableHead>Created</TableHead>
+            <TableHead>Processed</TableHead>
+            <TableHead>Finished</TableHead>
+            <TableHead>Attempts</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {jobs.map((job) => (
-            <TableRow key={job.id}>
+            <TableRow key={job._id}>
               <TableCell className="font-medium">
                 <button
                   onClick={() => handleJobClick(job)}
@@ -99,13 +95,25 @@ export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsL
                 </button>
               </TableCell>
               <TableCell>
-                <span className="capitalize">{job.status || state}</span>
+                {job.timestamp
+                  ? dayjs(job.timestamp).format('MMM D, h:mm A')
+                  : '-'
+                }
               </TableCell>
               <TableCell>
-                {job.createdAt
-                  ? dayjs(job.createdAt).format('ddd, MMM D, YYYY - h:mm A')
-                  : 'Unknown'
+                {job.processedOn
+                  ? dayjs(job.processedOn).format('MMM D, h:mm A')
+                  : '-'
                 }
+              </TableCell>
+              <TableCell>
+                {job.finishedOn
+                  ? dayjs(job.finishedOn).format('MMM D, h:mm A')
+                  : '-'
+                }
+              </TableCell>
+              <TableCell>
+                {job.attemptsMade || 0}
               </TableCell>
               <TableCell className="text-right flex justify-end">
                 <DropdownMenu>
