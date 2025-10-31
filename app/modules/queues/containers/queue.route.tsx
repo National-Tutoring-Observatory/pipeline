@@ -1,4 +1,4 @@
-import { Outlet, redirect, useLoaderData, useParams } from "react-router";
+import { Outlet, redirect, useFetcher, useLoaderData, useParams } from "react-router";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin, validateSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
 import type { User } from "~/modules/users/users.types";
@@ -16,10 +16,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const queue = getQueue(queueType);
 
   const jobCounts = await queue.getJobCounts();
+  const isPaused = await queue.isPaused();
 
   return {
     queueType,
-    jobCounts
+    jobCounts,
+    isPaused
   };
 }
 
@@ -27,16 +29,21 @@ export async function action({ request, params }: Route.ActionArgs) {
   const user = await getSessionUser({ request }) as User;
   validateSuperAdmin(user);
 
-  const { intent, queueType } = await request.json();
+  const { intent } = await request.json();
+  const { type: queueType } = params;
+  const queue = getQueue(queueType as string);
 
-  // TODO: Implement actual queue operations
+  if (!queue) {
+    throw new Error(`Queue ${queueType} not found`);
+  }
+
   switch (intent) {
-    case 'pauseQueue':
-      console.log(`Pausing ${queueType} queue`);
+    case 'PAUSE_QUEUE':
+      await queue.pause();
       return { success: true, message: `${queueType} queue paused` };
 
-    case 'resumeQueue':
-      console.log(`Resuming ${queueType} queue`);
+    case 'RESUME_QUEUE':
+      await queue.resume();
       return { success: true, message: `${queueType} queue resumed` };
 
     default:
@@ -46,7 +53,8 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function QueueRoute() {
   const params = useParams();
-  const data = useLoaderData();
+  const data = useLoaderData<typeof loader>();
+  const fetcher = useFetcher();
   const queueType = params.type as string;
 
   const states = [
@@ -58,7 +66,14 @@ export default function QueueRoute() {
   ];
 
   const handlePauseResume = () => {
-    console.log('Pause/Resume clicked for', queueType);
+    const intent = data.isPaused ? 'RESUME_QUEUE' : 'PAUSE_QUEUE';
+    fetcher.submit(
+      { intent },
+      {
+        method: 'POST',
+        encType: 'application/json'
+      }
+    );
   };
 
   return (
@@ -67,6 +82,7 @@ export default function QueueRoute() {
         <QueueControls
           queueType={queueType}
           onPauseResume={handlePauseResume}
+          isPaused={data.isPaused}
         />
 
         <QueueStateTabs

@@ -1,10 +1,13 @@
+import fse from "fs-extra";
 import countBy from "lodash/countBy";
+import path from "path";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { Job } from "../queues.types";
 
 export default class LocalQueue {
 
   name;
+  private _isPaused = false;
 
   constructor(name: string) {
     this.name = name;
@@ -158,6 +161,22 @@ export default class LocalQueue {
     }
 
     return hasRemoved ? 1 : 0;
+  }
+
+  pause = async (): Promise<void> => {
+    this._isPaused = true;
+    const pauseFilePath = path.join(process.cwd(), `data/queue-${this.name}-paused`);
+    await fse.writeFile(pauseFilePath, '');
+  }
+
+  resume = async (): Promise<void> => {
+    this._isPaused = false;
+    const pauseFilePath = path.join(process.cwd(), `data/queue-${this.name}-paused`);
+    await fse.remove(pauseFilePath);
+  }
+
+  isPaused = async (): Promise<boolean> => {
+    return this._isPaused;
   }
 
 }

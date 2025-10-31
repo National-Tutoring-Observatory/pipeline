@@ -19,7 +19,7 @@ export default function QueueControls({ queueType, onPauseResume, isPaused = fal
         onClick={onPauseResume}
         className="min-w-[120px]"
       >
-        {isPaused ? 'Resume' : 'Pause/Resume'}
+        {isPaused ? 'Resume Queue' : 'Pause Queue'}
       </Button>
     </div>
   );
