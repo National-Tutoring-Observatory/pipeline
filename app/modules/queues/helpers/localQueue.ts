@@ -131,7 +131,7 @@ export default class LocalQueue {
   }
 
   getJob = async (jobId: string) => {
-    const documents = getDocumentsAdapter();;
+    const documents = getDocumentsAdapter();
 
     const job = await documents.getDocument({
       collection: 'jobs',
@@ -141,24 +141,51 @@ export default class LocalQueue {
       }
     }) as { data: Job };
 
-    return job.data;
+    if (!job?.data) {
+      return null;
+    }
+
+    // Return job data with a remove method that has access to this queue's remove method via closure
+    return {
+      ...job.data,
+      remove: async () => {
+        const result = await this.remove(jobId);
+        if (result === 0) {
+          throw new Error(`Failed to remove job ${jobId}`);
+        }
+        return result;
+      }
+    };
   }
 
   remove = async (jobId: string) => {
+    const documents = getDocumentsAdapter();
 
-    let hasRemoved = false;
+    // Get job data directly to avoid circular dependency
+    const jobData = await documents.getDocument({
+      collection: 'jobs',
+      match: {
+        _id: jobId,
+        queue: this.name
+      }
+    }) as { data: Job };
 
-    const job = await this.getJob(jobId);
-
-    if (job && job.state !== 'active') {
-      const documents = getDocumentsAdapter();
-      hasRemoved = await documents.deleteDocument({
-        collection: 'jobs',
-        match: {
-          _id: jobId
-        }
-      }) as boolean;
+    if (!jobData?.data) {
+      return 0; // Job not found
     }
+
+    // Check if job is active - active jobs cannot be removed
+    if (jobData.data.state === 'active') {
+      return 0; // Cannot remove active job
+    }
+
+    // Remove the job
+    const hasRemoved = await documents.deleteDocument({
+      collection: 'jobs',
+      match: {
+        _id: jobId
+      }
+    }) as boolean;
 
     return hasRemoved ? 1 : 0;
   }
