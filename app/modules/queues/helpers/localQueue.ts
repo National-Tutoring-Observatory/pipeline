@@ -51,7 +51,8 @@ export default class LocalQueue {
       }
     }) as { data: Job };
 
-    return { ...jobObject.data };
+    // Return job data with BullMQ-compatible methods
+    return this.addJobMethods(jobObject.data);
 
   }
 
@@ -145,17 +146,8 @@ export default class LocalQueue {
       return null;
     }
 
-    // Return job data with a remove method that has access to this queue's remove method via closure
-    return {
-      ...job.data,
-      remove: async () => {
-        const result = await this.remove(jobId);
-        if (result === 0) {
-          throw new Error(`Failed to remove job ${jobId}`);
-        }
-        return result;
-      }
-    };
+    // Return job data with BullMQ-compatible methods
+    return this.addJobMethods(job.data);
   }
 
   remove = async (jobId: string) => {
@@ -206,4 +198,38 @@ export default class LocalQueue {
     return this._isPaused;
   }
 
+  private addJobMethods = (jobData: Job) => {
+    const documents = getDocumentsAdapter();
+
+    return {
+      ...jobData,
+      remove: async () => {
+        const result = await this.remove(jobData._id);
+        if (result === 0) {
+          throw new Error(`Failed to remove job ${jobData._id}`);
+        }
+        return result;
+      },
+      updateData: async (data: any) => {
+        const updatedJob = await documents.updateDocument({
+          collection: 'jobs',
+          match: { _id: jobData._id },
+          update: { data }
+        });
+        return updatedJob;
+      },
+      updateProgress: async (progress: any) => {
+        const updatedJob = await documents.updateDocument({
+          collection: 'jobs',
+          match: { _id: jobData._id },
+          update: { progress }
+        });
+        return updatedJob;
+      },
+      getState: async () => {
+        const currentJob = await this.getJob(jobData._id);
+        return currentJob?.state || 'unknown';
+      }
+    };
+  }
 }
