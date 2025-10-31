@@ -63,5 +63,10 @@ export default [
   route("api/teams", "modules/teams/containers/teams.route.tsx", { id: 'teams' }),
   route("api/teams/generateInviteToTeam", "modules/teams/containers/generateInviteToTeam.route.tsx"),
   route("auth/callback/:provider", "modules/authentication/containers/authCallback.route.tsx"),
+  ...prefix("queues", [
+    index("modules/queues/containers/queues.route.tsx"),
+    route(":type", "modules/queues/containers/queue.route.tsx"),
+    route(":type/:state", "modules/queues/containers/queueJobs.route.tsx"),
+  ]),
 
 ] satisfies RouteConfig;
