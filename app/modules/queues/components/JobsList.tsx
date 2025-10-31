@@ -10,57 +10,16 @@ import {
 } from "@/components/ui/table";
 import dayjs from 'dayjs';
 import { EllipsisVertical } from "lucide-react";
-import { useState } from "react";
-import { useSubmit } from "react-router";
 import type { Job } from "../queues.types";
-import JobDetailsDialog from "./JobDetailsDialog";
 
 interface JobsListProps {
   jobs: Job[];
   state: string;
-  onJobClick?: (job: Job) => void;
-  onDeleteJob?: (job: Job) => void;
+  onJobClick: (job: Job) => void;
+  onDeleteJob: (job: Job) => void;
 }
 
 export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsListProps) {
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const submit = useSubmit();
-
-  const handleJobClick = (job: Job) => {
-    if (onJobClick) {
-      onJobClick(job);
-    } else {
-      // Default behavior - show dialog
-      setSelectedJob(job);
-      setIsDialogOpen(true);
-    }
-  };
-
-  const handleDeleteJob = (job: Job) => {
-    if (onDeleteJob) {
-      onDeleteJob(job);
-    } else {
-      // Default behavior
-      if (confirm(`Are you sure you want to delete job "${job.name}" from the queue?`)) {
-        submit(JSON.stringify({ intent: 'DELETE_JOB', entityId: job._id }), {
-          method: 'DELETE',
-          encType: 'application/json'
-        });
-      }
-    }
-  };
-
-  const handleDeleteFromDialog = (job: Job) => {
-    handleDeleteJob(job);
-    setIsDialogOpen(false);
-    setSelectedJob(null);
-  };
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setSelectedJob(null);
-  };
 
   if (jobs.length === 0) {
     return (
@@ -93,7 +52,7 @@ export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsL
             <TableRow key={job._id}>
               <TableCell className="font-medium">
                 <button
-                  onClick={() => handleJobClick(job)}
+                  onClick={() => onJobClick(job)}
                   className="text-left w-full hover:underline"
                 >
                   {job.name}
@@ -133,13 +92,13 @@ export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsL
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-40">
-                    <DropdownMenuItem onClick={() => handleJobClick(job)}>
+                    <DropdownMenuItem onClick={() => onJobClick(job)}>
                       View Details
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       variant="destructive"
-                      onClick={() => handleDeleteJob(job)}
+                      onClick={() => onDeleteJob(job)}
                     >
                       Delete Job
                     </DropdownMenuItem>
@@ -150,13 +109,6 @@ export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsL
           ))}
         </TableBody>
       </Table>
-
-      <JobDetailsDialog
-        job={selectedJob}
-        isOpen={isDialogOpen}
-        onClose={handleCloseDialog}
-        onDelete={handleDeleteFromDialog}
-      />
     </div>
   );
 }
