@@ -13,7 +13,7 @@ export default class LocalQueue {
     const documents = getDocumentsAdapter();
 
     const taskObject = await documents.createDocument({
-      collection: 'queues',
+      collection: 'jobs',
       update: {
         queue: this.name,
         name: task,
