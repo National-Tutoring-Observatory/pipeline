@@ -27,6 +27,8 @@ export default class LocalQueue {
       console.log('queue.getFailed', getFailed);
       const getDelayed = await this.getDelayed();
       console.log('queue.getDelayed', getDelayed);
+      const getJob = await this.getJob("69022d2acf4d87c30ae4ad5c");
+      console.log('queue.getJob', getJob);
     }, 1000);
   }
 
@@ -122,6 +124,20 @@ export default class LocalQueue {
     });
 
     return jobs.data;
+  }
+
+  getJob = async (jobId: string) => {
+    const documents = getDocumentsAdapter();;
+
+    const job = await documents.getDocument({
+      collection: 'jobs',
+      match: {
+        _id: jobId,
+        queue: this.name
+      }
+    }) as { data: Job };
+
+    return job.data;
   }
 
 }
