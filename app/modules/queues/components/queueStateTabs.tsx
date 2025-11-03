@@ -30,7 +30,7 @@ export default function QueueStateTabs({ queueType, states, currentState }: Queu
   };
 
   return (
-    <div className="mb-6">
+    <div>
       <ToggleGroup
         type="single"
         value={currentValue}

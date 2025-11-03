@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Pause, Play } from "lucide-react";
 
 interface QueueControlsProps {
   queueType?: string;
@@ -8,19 +9,22 @@ interface QueueControlsProps {
 
 export default function QueueControls({ queueType, onPauseResume, isPaused = false }: QueueControlsProps) {
   return (
-    <div className="flex items-center justify-between mb-4">
-      <div className="text-sm text-muted-foreground">
-        {queueType && (
-          <span className="capitalize">{queueType} Queue Controls</span>
-        )}
-      </div>
-      <Button
-        variant="outline"
-        onClick={onPauseResume}
-        className="min-w-[120px]"
-      >
-        {isPaused ? 'Resume Queue' : 'Pause Queue'}
-      </Button>
-    </div>
+    <Button
+      variant="outline"
+      onClick={onPauseResume}
+      className="min-w-[120px] flex items-center gap-2"
+    >
+      {isPaused ? (
+        <>
+          <Play className="h-4 w-4" />
+          Resume Queue
+        </>
+      ) : (
+        <>
+          <Pause className="h-4 w-4" />
+          Pause Queue
+        </>
+      )}
+    </Button>
   );
 }

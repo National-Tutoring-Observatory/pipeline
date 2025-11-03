@@ -80,18 +80,19 @@ export default function QueueRoute() {
   return (
     <div>
       <div className="mb-6">
-        <QueueControls
-          queueType={queueType}
-          onPauseResume={handlePauseResume}
-          isPaused={data.isPaused}
-        />
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <QueueStateTabs
+            queueType={queueType}
+            states={states}
+          />
 
-        <QueueStateTabs
-          queueType={queueType}
-          states={states}
-        />
+          <QueueControls
+            queueType={queueType}
+            onPauseResume={handlePauseResume}
+            isPaused={data.isPaused}
+          />
+        </div>
       </div>
-
       <Outlet />
     </div>
   );
