@@ -1,4 +1,7 @@
+import capitalize from "lodash/capitalize";
+import { useEffect } from "react";
 import { redirect, useLoaderData, useParams, useSubmit } from "react-router";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
 import addDialog from '~/modules/dialogs/addDialog';
@@ -88,8 +91,17 @@ export async function action({ request, params }: Route.ActionArgs) {
 export default function QueueJobsRoute() {
   const data = useLoaderData<typeof loader>();
   const params = useParams();
+  const queueType = params.type as string;
   const state = params.state as string;
   const submit = useSubmit();
+
+  useEffect(() => {
+    updateBreadcrumb([
+      { text: 'Queues', link: '/queues' },
+      { text: `${capitalize(queueType)} Queue`, link: `/queues/${queueType}` },
+      { text: `${capitalize(state)} Jobs` }
+    ]);
+  }, [queueType, state]);
 
   const handleJobClick = (job: Job) => {
     addDialog(

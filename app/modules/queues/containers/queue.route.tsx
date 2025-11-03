@@ -60,7 +60,7 @@ export default function QueueRoute() {
 
   const states = [
     { key: 'active', label: 'Active', count: data.jobCounts.active },
-    { key: 'wait', label: 'Waiting', count: data.jobCounts.wait },
+    { key: 'wait', label: 'Wait', count: data.jobCounts.wait },
     { key: 'completed', label: 'Completed', count: data.jobCounts.completed },
     { key: 'failed', label: 'Failed', count: data.jobCounts.failed },
     { key: 'delayed', label: 'Delayed', count: data.jobCounts.delayed }
