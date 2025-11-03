@@ -1,9 +1,10 @@
+import get from 'lodash/get';
 import { LoaderPinwheel } from "lucide-react";
 import { createContext, useEffect, useState, type ReactNode } from "react";
-import { Outlet, useFetcher, useLocation, useMatch, useMatches } from "react-router";
-import get from 'lodash/get';
-import LoginContainer from "./login.container";
+import { Outlet, useFetcher, useMatch } from "react-router";
+import { connectSockets } from "~/modules/sockets/sockets";
 import type { User } from "~/modules/users/users.types";
+import LoginContainer from "./login.container";
 
 export const AuthenticationContext = createContext<{} | null>(null);
 
@@ -27,6 +28,7 @@ export default function AuthenticationContainer({ children }: { children: ReactN
       const authentication = get(authenticationFetcher, 'data.authentication.data');
       if (authentication) {
         setAuthentication(authentication);
+        connectSockets();
       }
     }
   }, [authenticationFetcher.state]);

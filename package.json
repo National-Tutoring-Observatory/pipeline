@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "node ./app/adapters.js && react-router build",
-    "dev": "node ./app/adapters.js && cross-env NODE_ENV=development node server.js",
-    "start": "PORT=5173 node server.js",
+    "dev": "node ./app/adapters.js && cross-env NODE_ENV=development node ./app/server.js",
+    "start": "PORT=5173 node ./app/server.js",
     "workers": "cd workers && yarn workers",
     "typecheck": "react-router typegen && tsc"
   },
@@ -29,6 +29,7 @@
     "@react-router/express": "^7.9.5",
     "@react-router/node": "^7.5.3",
     "@react-router/serve": "^7.5.3",
+    "@socket.io/redis-adapter": "^8.3.0",
     "archiver": "^7.0.1",
     "bullmq": "^5.61.2",
     "class-variance-authority": "^0.7.1",
@@ -53,6 +54,8 @@
     "react-router": "^7.6.2",
     "remix-auth": "^4.2.0",
     "remix-auth-github": "^3.0.2",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.1",
     "uuid": "^11.1.0"

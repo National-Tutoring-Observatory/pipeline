@@ -1,7 +1,9 @@
 import compression from "compression";
 import dotenv from 'dotenv';
 import express from "express";
+import http from 'http';
 import morgan from "morgan";
+import { setupSockets } from "./sockets.js";
 dotenv.config({ path: '.env' })
 
 // Short-circuit the type-checking of the built output.
@@ -10,6 +12,10 @@ const DEVELOPMENT = process.env.NODE_ENV === "development";
 const PORT = Number.parseInt(process.env.PORT || "5173");
 
 const app = express();
+
+const server = http.createServer(app);
+
+setupSockets({ server });
 
 app.use(compression());
 app.disable("x-powered-by");
@@ -44,6 +50,6 @@ if (DEVELOPMENT) {
   app.use(await import(BUILD_PATH).then((mod) => mod.app));
 }
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

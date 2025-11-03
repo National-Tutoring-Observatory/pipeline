@@ -1,10 +1,11 @@
+import dayjs from "dayjs";
+import find from 'lodash/find';
 import { redirect } from "react-router";
 import { GitHubStrategy } from "remix-auth-github";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User, UserTeam } from "~/modules/users/users.types";
-import find from 'lodash/find';
-import { sessionStorage } from "../authentication.server";
-import dayjs from "dayjs";
+// @ts-ignore
+import sessionStorage from '../../../sessionStorage.js';
 
 const githubStrategy = new GitHubStrategy<User>(
   {

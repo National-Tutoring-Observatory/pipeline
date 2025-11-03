@@ -1,23 +1,10 @@
-import type { User } from "~/modules/users/users.types";
-import { createCookieSessionStorage } from "react-router";
 import { Authenticator } from "remix-auth";
+import type { User } from "~/modules/users/users.types";
 import githubStrategy from "./helpers/githubStrategy";
 import localStrategy from "./helpers/localStrategy";
 import orcidStrategy from "./helpers/orcidStrategy";
 
 const authenticator = new Authenticator<User>();
-
-const sessionStorage = createCookieSessionStorage({
-  cookie: {
-    name: "__session",
-    httpOnly: true,
-    path: "/",
-    sameSite: "lax",
-    // @ts-ignore
-    secrets: [process.env.SESSION_SECRET],
-    secure: process.env.NODE_ENV === "production",
-  },
-});
 
 authenticator.use(
   localStrategy,
@@ -34,4 +21,4 @@ authenticator.use(
   "orcid"
 );
 
-export { authenticator, sessionStorage };
+export { authenticator };

@@ -10,13 +10,14 @@ declare module "react-router" {
 
 export const app = express();
 
-app.use(
-  createRequestHandler({
+app.use((req, res, next) => {
+  if (req.path.startsWith('/socket.io/')) {
+    return next();
+  }
+  return createRequestHandler({
     build: () => import("virtual:react-router/server-build"),
     getLoadContext() {
-      return {
-
-      };
+      return {};
     },
-  }),
-);
+  })(req, res, next);
+});
