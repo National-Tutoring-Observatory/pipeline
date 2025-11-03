@@ -30,7 +30,9 @@ export default function QueuesLayoutRoute() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-4">Queue Management</h1>
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
+          Queues
+        </h1>
         <QueueTypeTabs taskCount={data.taskCount} cronCount={data.cronCount} />
       </div>
 
