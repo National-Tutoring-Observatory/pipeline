@@ -2,7 +2,8 @@ import { Outlet, redirect, useFetcher, useLoaderData, useParams } from "react-ro
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin, validateSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
 import type { User } from "~/modules/users/users.types";
-import { QueueControls, QueueStateTabs } from "../components";
+import QueueControls from "../components/queueControls";
+import QueueStateTabs from "../components/queueStateTabs";
 import getQueue from "../helpers/getQueue";
 import type { Route } from "./+types/queue.route";
 

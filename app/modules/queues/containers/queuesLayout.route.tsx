@@ -2,7 +2,7 @@ import { Outlet, redirect, useLoaderData } from "react-router";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
 import type { User } from "~/modules/users/users.types";
-import { QueueTypeTabs } from "../components";
+import QueueTypeTabs from "../components/queueTypeTabs";
 import getQueue from "../helpers/getQueue";
 import type { Route } from "./+types/queuesLayout.route";
 
