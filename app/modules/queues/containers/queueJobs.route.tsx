@@ -3,6 +3,7 @@ import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
 import addDialog from '~/modules/dialogs/addDialog';
 import type { User } from "~/modules/users/users.types";
+import DeleteJobDialog from "../components/deleteJobDialog";
 import JobDetailsDialog from "../components/jobDetailsDialog";
 import JobsList from "../components/jobsList";
 import getQueue from "../helpers/getQueue";
@@ -94,26 +95,33 @@ export default function QueueJobsRoute() {
     addDialog(
       <JobDetailsDialog
         job={job}
-        onDelete={handleDeleteJob}
+        onDelete={handleRemoveJob}
       />
     );
   };
 
-  const handleDeleteJob = (job: Job) => {
-    if (confirm(`Are you sure you want to delete job "${job.name}" from the queue?`)) {
-      submit(JSON.stringify({ intent: 'DELETE_JOB', entityId: job._id }), {
-        method: 'DELETE',
-        encType: 'application/json'
-      });
-    }
+  const handleRemoveJob = (job: Job) => {
+    addDialog(
+      <DeleteJobDialog
+        job={job}
+        onRemoveJobClicked={onRemoveJobClicked}
+      />
+    );
+  };
+
+  const onRemoveJobClicked = (jobId: string) => {
+    submit(JSON.stringify({ intent: 'DELETE_JOB', entityId: jobId }), {
+      method: 'DELETE',
+      encType: 'application/json'
+    });
   };
 
   return (
     <JobsList
       jobs={data.jobs}
       state={state}
-      onJobClick={handleJobClick}
-      onDeleteJob={handleDeleteJob}
+      onDisplayJobClick={handleJobClick}
+      onRemoveJobClick={handleRemoveJob}
     />
   );
 }

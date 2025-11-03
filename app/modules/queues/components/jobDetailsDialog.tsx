@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -147,11 +148,16 @@ export default function JobDetailsDialog({ job, onDelete }: JobDetailsDialogProp
         <div className="flex items-center justify-between w-full">
           <div>
             <p className="text-sm font-medium text-destructive">Danger Zone</p>
-            <p className="text-xs text-muted-foreground">Remove this job from the queue</p>
+            <p className="text-xs text-muted-foreground">Delete this job from the queue</p>
           </div>
-          <Button variant="destructive" onClick={handleDelete}>
-            Remove Job
-          </Button>
+          <div className="flex gap-2">
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete Job
+            </Button>
+          </div>
         </div>
       </DialogFooter>
     </DialogContent>

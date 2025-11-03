@@ -15,11 +15,11 @@ import type { Job } from "../queues.types";
 interface JobsListProps {
   jobs: Job[];
   state: string;
-  onJobClick: (job: Job) => void;
-  onDeleteJob: (job: Job) => void;
+  onDisplayJobClick: (job: Job) => void;
+  onRemoveJobClick: (job: Job) => void;
 }
 
-export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsListProps) {
+export default function JobsList({ jobs, state, onDisplayJobClick, onRemoveJobClick }: JobsListProps) {
 
   if (jobs.length === 0) {
     return (
@@ -52,7 +52,7 @@ export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsL
             <TableRow key={job._id}>
               <TableCell className="font-medium">
                 <button
-                  onClick={() => onJobClick(job)}
+                  onClick={() => onDisplayJobClick(job)}
                   className="text-left w-full hover:underline"
                 >
                   {job.name}
@@ -92,15 +92,15 @@ export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsL
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-40">
-                    <DropdownMenuItem onClick={() => onJobClick(job)}>
+                    <DropdownMenuItem onClick={() => onDisplayJobClick(job)}>
                       View Details
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       variant="destructive"
-                      onClick={() => onDeleteJob(job)}
+                      onClick={() => onRemoveJobClick(job)}
                     >
-                      Delete Job
+                      Remove
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
