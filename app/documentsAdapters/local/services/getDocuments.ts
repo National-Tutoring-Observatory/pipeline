@@ -77,7 +77,7 @@ export default async ({
     }
 
     return {
-      currentPage: Math.floor(skip / (limit || 1)) + 1,
+      currentPage: limit ? Math.floor(skip / limit) + 1 : 1,
       totalPages: limit ? Math.ceil(totalCount / limit) : 1,
       count: totalCount,
       data
