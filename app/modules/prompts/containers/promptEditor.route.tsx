@@ -1,18 +1,36 @@
-import PromptEditor from "../components/promptEditor";
-import type { Route } from "./+types/promptEditor.route";
-import type { Prompt, PromptVersion } from "../prompts.types";
-import type { User } from "~/modules/users/users.types";
 import { redirect, useLoaderData, useNavigation, useSubmit, type ShouldRevalidateFunctionArgs } from "react-router";
-import addDialog from "~/modules/dialogs/addDialog";
-import SavePromptVersionDialogContainer from "./savePromptVersionDialogContainer";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import validatePromptOwnership from "../helpers/validatePromptOwnership";
+import addDialog from "~/modules/dialogs/addDialog";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import type { User } from "~/modules/users/users.types";
+import PromptEditor from "../components/promptEditor";
+import { isPromptOwner, validatePromptOwnership } from "../helpers/promptOwnership";
+import type { Prompt, PromptVersion } from "../prompts.types";
+import type { Route } from "./+types/promptEditor.route";
+import SavePromptVersionDialogContainer from "./savePromptVersionDialogContainer";
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const user = await getSessionUser({ request }) as User;
+  if (!user) {
+    return redirect('/');
+  }
+
+  if (!(await isPromptOwner({ user, promptId: params.id }))) {
+    return redirect('/');
+  }
+
   const documents = getDocumentsAdapter();
   const prompt = await documents.getDocument({ collection: 'prompts', match: { _id: params.id } }) as { data: Prompt };
+
+  if (!prompt.data) {
+    return redirect('/');
+  }
+
   const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { version: Number(params.version), prompt: params.id } }) as { data: PromptVersion };
+
+  if (!promptVersion.data) {
+    return redirect('/');
+  }
 
   return { prompt, promptVersion };
 }

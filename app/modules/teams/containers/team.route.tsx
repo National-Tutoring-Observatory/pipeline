@@ -1,24 +1,23 @@
 
-import type { Team as TeamType } from "../teams.types";
-import Team from '../components/team';
 import { useContext, useEffect } from "react";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import type { Route } from "./+types/team.route";
-import type { Project } from "~/modules/projects/projects.types";
-import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
-import addDialog from "~/modules/dialogs/addDialog";
 import { redirect, useFetcher, useSubmit } from "react-router";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
-import type { User } from "~/modules/users/users.types";
-import AddUserToTeamDialogContainer from './addUserToTeamDialog.container'
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import find from 'lodash/find';
-import type { Prompt } from "~/modules/prompts/prompts.types";
+import addDialog from "~/modules/dialogs/addDialog";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
+import type { Project } from "~/modules/projects/projects.types";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
-import InviteUserToTeamDialogContainer from "./inviteUserToTeamDialogContainer";
+import type { Prompt } from "~/modules/prompts/prompts.types";
+import type { User } from "~/modules/users/users.types";
+import Team from '../components/team';
 import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
-import { isTeamAdmin, validateTeamAdmin } from "../helpers/validateTeamAdmin";
+import { isTeamAdmin, validateTeamAdmin } from "../helpers/teamAdmin";
+import type { Team as TeamType } from "../teams.types";
+import type { Route } from "./+types/team.route";
+import AddUserToTeamDialogContainer from './addUserToTeamDialog.container';
+import InviteUserToTeamDialogContainer from "./inviteUserToTeamDialogContainer";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -29,7 +28,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  if (!isTeamAdmin({ user: userSession, teamId: params.id })) {
+  if (!(await isTeamAdmin({ user: userSession, teamId: params.id }))) {
     return redirect('/');
   }
 
@@ -57,7 +56,7 @@ export async function action({
     return redirect('/');
   }
 
-  validateTeamAdmin({ user, teamId: params.id });
+  await validateTeamAdmin({ user, teamId: params.id });
 
   const documents = getDocumentsAdapter();
 

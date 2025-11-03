@@ -1,10 +1,6 @@
 import mongoose from 'mongoose';
 
 export default new mongoose.Schema({
-  id: {
-    type: mongoose.Schema.Types.ObjectId,
-    default: () => new mongoose.Types.ObjectId()
-  },
   state: {
     type: String,
     enum: ['wait', 'active', 'completed', 'failed', 'delayed', 'waiting-children'],

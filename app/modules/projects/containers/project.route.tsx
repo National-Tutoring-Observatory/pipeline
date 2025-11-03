@@ -12,13 +12,13 @@ import type { Collection } from "~/modules/collections/collections.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
-import { getSockets } from "~/modules/sockets/sockets";
+import { getSockets } from '~/modules/sockets/sockets';
 import convertFileToFiles from "~/modules/uploads/convertFileToFiles";
 import convertFilesToSessions from "~/modules/uploads/convertFilesToSessions";
 import uploadFiles from "~/modules/uploads/uploadFiles";
 import type { User } from "~/modules/users/users.types";
 import Project from '../components/project';
-import validateProjectOwnership from "../helpers/validateProjectOwnership";
+import { validateProjectOwnership } from "../helpers/projectOwnership";
 import type { Project as ProjectType } from "../projects.types";
 import type { Route } from "./+types/project.route";
 

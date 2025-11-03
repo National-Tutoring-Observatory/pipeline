@@ -1,21 +1,21 @@
-import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
-import type { Route } from "./+types/projects.route";
-import Projects from "../components/projects";
-import { toast } from "sonner"
-import addDialog from "~/modules/dialogs/addDialog";
-import CreateProjectDialog from "../components/createProjectDialog";
-import EditProjectDialog from "../components/editProjectDialog";
-import DeleteProjectDialog from "../components/deleteProjectDialog";
-import type { Project } from "../projects.types";
-import { useEffect } from "react";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import map from 'lodash/map';
+import { useEffect } from "react";
+import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
+import { toast } from "sonner";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import validateTeamMembership from "~/modules/teams/helpers/validateTeamMembership";
-import validateProjectOwnership from "../helpers/validateProjectOwnership";
+import addDialog from "~/modules/dialogs/addDialog";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
 import type { User } from "~/modules/users/users.types";
+import CreateProjectDialog from "../components/createProjectDialog";
+import DeleteProjectDialog from "../components/deleteProjectDialog";
+import EditProjectDialog from "../components/editProjectDialog";
+import Projects from "../components/projects";
+import { validateProjectOwnership } from "../helpers/projectOwnership";
+import type { Project } from "../projects.types";
+import type { Route } from "./+types/projects.route";
 
 type Projects = {
   data: Project[],
@@ -52,7 +52,7 @@ export async function action({
         throw new Error("Project name is required and must be a string.");
       }
 
-      validateTeamMembership({ user, teamId: team });
+      await validateTeamMembership({ user, teamId: team });
 
       const project = await documents.createDocument({
         collection: 'projects',

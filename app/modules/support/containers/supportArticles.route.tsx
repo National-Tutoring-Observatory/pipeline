@@ -1,10 +1,17 @@
-import type { Route } from "./+types/supportArticles.route";
-import fs from 'fs';
-import path from 'path';
 import Markdoc from '@markdoc/markdoc';
+import fs from 'fs';
 import matter from 'gray-matter';
+import path from 'path';
+import { redirect } from "react-router";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import type { User } from "~/modules/users/users.types";
+import type { Route } from "./+types/supportArticles.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
+  const user = await getSessionUser({ request }) as User;
+  if (!user) {
+    return redirect('/');
+  }
 
   const supportArticles = [] as any;
 

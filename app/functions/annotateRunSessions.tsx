@@ -1,13 +1,13 @@
-import type { Run } from "~/modules/runs/runs.types";
-import { emitter } from "~/modules/events/emitter";
-import { handler as annotatePerUtterance } from './annotatePerUtterance/app';
-import { handler as annotatePerSession } from './annotatePerSession/app';
-import type { Session } from "~/modules/sessions/sessions.types";
-import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { Project } from "~/modules/projects/projects.types";
+import { emitter } from "~/modules/events/emitter";
 import hasFeatureFlag from "~/modules/featureFlags/helpers/hasFeatureFlag";
-import createTask from "~/modules/queues/helpers/createTask";
+import type { Project } from "~/modules/projects/projects.types";
+import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
+import createTaskJob from "~/modules/queues/helpers/createTaskJob";
+import type { Run } from "~/modules/runs/runs.types";
+import type { Session } from "~/modules/sessions/sessions.types";
+import { handler as annotatePerSession } from './annotatePerSession/app';
+import { handler as annotatePerUtterance } from './annotatePerUtterance/app';
 
 export default async function annotateRunSessions({ runId }: { runId: string }, context: { request: Request }) {
 
@@ -73,7 +73,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
       const hasWorkers = await hasFeatureFlag('HAS_WORKERS', context);
       if (run.data.annotationType === 'PER_UTTERANCE') {
         if (hasWorkers) {
-          await createTask({
+          await createTaskJob({
             task: 'ANNOTATE_PER_UTTERANCE',
             job: {
               inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
@@ -96,7 +96,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
         }
       } else {
         if (hasWorkers) {
-          await createTask({
+          await createTaskJob({
             task: 'ANNOTATE_PER_SESSION',
             job: {
               inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,

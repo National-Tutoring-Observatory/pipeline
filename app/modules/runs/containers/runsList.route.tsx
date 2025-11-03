@@ -1,9 +1,9 @@
-import type { Route } from "./+types/runsList.route";
-import type { Run } from "../runs.types";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import map from 'lodash/map';
 import { redirect } from "react-router";
-import validateProjectOwnership from "~/modules/projects/helpers/validateProjectOwnership";
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import type { Run } from "../runs.types";
+import type { Route } from "./+types/runsList.route";
 
 
 type Runs = {
@@ -18,14 +18,20 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     throw new Error("Project parameter is required.");
   }
 
-  const user = await getSessionUser({ request });
-  if (!user) {
+  const documents = getDocumentsAdapter();
+  const authenticationTeams = await getSessionUserTeams({ request });
+  const teamIds = map(authenticationTeams, 'team');
+
+  // First verify the project exists and user has access
+  const project = await documents.getDocument({
+    collection: 'projects',
+    match: { _id: projectId, team: { $in: teamIds } }
+  }) as { data: any };
+
+  if (!project.data) {
     return redirect('/');
   }
 
-  await validateProjectOwnership({ user, projectId });
-
-  const documents = getDocumentsAdapter();
   const runs = await documents.getDocuments({ collection: 'runs', match: { project: projectId }, sort: {} }) as Runs;
   return { runs };
 }

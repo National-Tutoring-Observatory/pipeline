@@ -38,6 +38,7 @@ const checkSuperAdminExists = async () => {
 
 const setupQueues = async () => {
   createQueue('tasks');
+  createQueue('cron');
 }
 
 setTimeout(() => {

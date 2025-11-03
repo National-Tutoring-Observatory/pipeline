@@ -65,19 +65,6 @@ jobs:
             exit 1
           fi
 
-      - name: Debug OIDC claims
-        run: |
-          set -euo pipefail
-          resp="$(curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com")"
-          token="$(echo "$resp" | jq -r .value)"
-          python - <<'PY' "$token"
-          import sys, json, base64
-          t=sys.argv[1]
-          p=t.split('.')[1] + "==="
-          print(json.dumps(json.loads(base64.urlsafe_b64decode(p[:len(p)-len(p)%4]).decode()), indent=2))
-          PY
-      
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -100,50 +87,61 @@ jobs:
           echo "ECR_URI=$ECR_URI" >> "$GITHUB_ENV"
           echo "Built and pushed $ECR_URI:$VERSION"
 
-#      - name: Deploy tag by updating ECS task definition
-#        env:
-#          VERSION: ${{ steps.ver.outputs.version }}
-#        run: |
-#          set -euo pipefail
-#          cluster="${{ vars.ECS_CLUSTER }}"
-#          service="${{ vars.ECS_SERVICE }}"
-#          container="${{ vars.ECS_CONTAINER_NAME }}"
-#
-#          if [ -z "$cluster" ] || [ -z "$service" ] || [ -z "$container" ]; then
-#            echo "Set repo variables ECS_CLUSTER, ECS_SERVICE, and ECS_CONTAINER_NAME."
-#            exit 1
-#          fi
-#
-#          # 1) Current task definition ARN used by the service
-#          TD_ARN=$(aws ecs describe-services \
-#            --cluster "$cluster" --services "$service" \
-#            --query "services[0].taskDefinition" --output text)
-#
-#          # 2) Fetch full task definition JSON
-#          aws ecs describe-task-definition \
-#            --task-definition "$TD_ARN" \
-#            --query "taskDefinition" > td.json
-#
-#          # 3) Update the image for the target container to the exact tag
-#          NEW_IMAGE="$ECR_URI:$VERSION"
-#          jq --arg cname "$container" --arg img "$NEW_IMAGE" '
-#            .containerDefinitions |= map(if .name == $cname then .image = $img else . end)
-#            | {
-#                family, taskRoleArn, executionRoleArn, networkMode,
-#                containerDefinitions, volumes, placementConstraints,
-#                requiresCompatibilities, cpu, memory, runtimePlatform, ephemeralStorage
-#              }
-#          ' td.json > td-register.json
-#
-#          # 4) Register new task definition revision
-#          NEW_TD_ARN=$(aws ecs register-task-definition \
-#            --cli-input-json file://td-register.json \
-#            --query "taskDefinition.taskDefinitionArn" --output text)
-#
-#          # 5) Update the service to the new revision (triggers rollout)
-#          aws ecs update-service \
-#            --cluster "$cluster" \
-#            --service "$service" \
-#            --task-definition "$NEW_TD_ARN"
-#
-#          echo "✅ Deployed $NEW_IMAGE via $NEW_TD_ARN"
+      - name: Deploy tag by updating ECS task definition
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -Eeuo pipefail
+
+          cluster="${{ vars.ECS_CLUSTER }}"
+          service="${{ vars.ECS_SERVICE }}"
+          container="${{ vars.ECS_CONTAINER_NAME }}"
+          repo="${{ env.ECR_REPOSITORY }}"
+          region="${{ env.AWS_REGION }}"
+          
+          [ -n "$cluster" ] && [ -n "$service" ] && [ -n "$container" ] || { echo "Set ECS_CLUSTER/ECS_SERVICE/ECS_CONTAINER_NAME"; exit 1; }
+          
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="${ECR_URI:-$ACCOUNT_ID.dkr.ecr.$region.amazonaws.com/$repo}"
+          NEW_IMAGE="$ECR_URI:${{ steps.ver.outputs.version }}"
+          
+          # 0) Preflight: image exists
+          aws ecr describe-images --repository-name "$repo" --image-ids imageTag="${{ steps.ver.outputs.version }}" >/dev/null \
+            || { echo "❌ ECR tag not found: $NEW_IMAGE"; exit 1; }
+          
+          # 1) Current TD
+          OLD_TD_ARN=$(aws ecs describe-services --cluster "$cluster" --services "$service" --query "services[0].taskDefinition" --output text)
+          [ "$OLD_TD_ARN" != "None" ] && [ -n "$OLD_TD_ARN" ] || { echo "❌ Could not resolve current TD"; exit 1; }
+          
+          aws ecs describe-task-definition --task-definition "$OLD_TD_ARN" --query "taskDefinition" > td.json
+          
+          # Ensure target container exists
+          jq -e --arg cname "$container" '.containerDefinitions | any(.name == $cname)' td.json >/dev/null \
+            || { echo "❌ Container '$container' not found in TD. Present: $(jq -r '.containerDefinitions[].name' td.json | xargs)"; exit 1; }
+          
+          # 2) Edit ONLY the image, keep everything else; drop AWS-managed fields
+          jq --arg cname "$container" --arg img "$NEW_IMAGE" '
+            .containerDefinitions |= map(if .name == $cname then .image = $img else . end)
+            | del(.revision, .status, .taskDefinitionArn, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)
+          ' td.json > td-register.json
+          
+          # 3) Register new TD
+          NEW_TD_ARN=$(aws ecs register-task-definition --cli-input-json file://td-register.json --query "taskDefinition.taskDefinitionArn" --output text) || exit 1
+          
+          rollback() {
+            echo "↩️ Rolling back to $OLD_TD_ARN ..."
+            aws ecs update-service --cluster "$cluster" --service "$service" --task-definition "$OLD_TD_ARN" >/dev/null || true
+            aws ecs wait services-stable --cluster "$cluster" --services "$service" || true
+          }
+          trap 'echo "❌ Deploy failed"; rollback' ERR
+          
+          # 4) Update service
+          aws ecs update-service --cluster "$cluster" --service "$service" --task-definition "$NEW_TD_ARN" >/dev/null
+          
+          # 5) Wait for stability (respect service config / circuit breaker)
+          aws ecs wait services-stable --cluster "$cluster" --services "$service"
+          
+          PRIMARY_TD=$(aws ecs describe-services --cluster "$cluster" --services "$service" --query "services[0].taskDefinition" --output text)
+          [ "$PRIMARY_TD" = "$NEW_TD_ARN" ] || { echo "❌ Service stabilized on $PRIMARY_TD, expected $NEW_TD_ARN"; exit 1; }
+          
+          echo "🎉 Deployed $NEW_IMAGE via $NEW_TD_ARN"
