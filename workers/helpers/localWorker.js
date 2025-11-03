@@ -45,11 +45,8 @@ export default class LocalWorker {
         return;
       }
 
-      // Check if queue is paused - if pause file exists, queue is paused
-      const pauseFilePath = path.join(process.cwd(), `../data/queue-${this.name}-paused`);
-
-      if (fse.pathExistsSync(pauseFilePath)) {
-        return; // Skip processing if queue is paused
+      if (this.#isPaused()) {
+        return;
       }
 
       const jobsPath = path.join(process.cwd(), `../data/jobs.json`);
@@ -149,5 +146,10 @@ export default class LocalWorker {
 
   close = () => {
     clearInterval(this.interval);
+  }
+
+  #isPaused = () => {
+    const pauseFilePath = path.join(process.cwd(), `../data/queue-${this.name}.lock`);
+    return fse.pathExistsSync(pauseFilePath);
   }
 }

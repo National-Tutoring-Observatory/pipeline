@@ -187,18 +187,24 @@ export default class LocalQueue {
 
   pause = async (): Promise<void> => {
     this._isPaused = true;
-    const pauseFilePath = path.join(process.cwd(), `data/queue-${this.name}-paused`);
-    await fse.writeFile(pauseFilePath, '');
+    await fse.writeFile(this.getPauseFilePath(), '');
   }
 
   resume = async (): Promise<void> => {
     this._isPaused = false;
-    const pauseFilePath = path.join(process.cwd(), `data/queue-${this.name}-paused`);
-    await fse.remove(pauseFilePath);
+    await fse.remove(this.getPauseFilePath());
   }
 
   isPaused = async (): Promise<boolean> => {
+    const fileExists = await fse.pathExists(this.getPauseFilePath());
+
+    this._isPaused = fileExists;
+
     return this._isPaused;
+  }
+
+  private getPauseFilePath = (): string => {
+    return path.join(process.cwd(), `data/queue-${this.name}.lock`);
   }
 
   private addBullMQCompatibility = (jobData: Job): Job & {
