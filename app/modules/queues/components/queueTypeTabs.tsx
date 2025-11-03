@@ -1,5 +1,5 @@
-import clsx from "clsx";
-import { Link, useLocation } from "react-router";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useLocation, useNavigate } from "react-router";
 
 interface QueueTypeTabsProps {
   taskCount: number;
@@ -8,58 +8,47 @@ interface QueueTypeTabsProps {
 
 export default function QueueTypeTabs({ taskCount, cronCount }: QueueTypeTabsProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
 
-  const isTasksActive = currentPath.includes('/tasks');
-  const isCronActive = currentPath.includes('/cron');
+  const currentValue = currentPath.includes('/tasks') ? 'tasks' : 'cron';
+
+  const handleValueChange = (value: string) => {
+    if (value) {
+      navigate(`/queues/${value}/active`);
+    }
+  };
 
   return (
-    <div className="flex gap-2 mb-6">
-      <Link
-        to="/queues/tasks/active"
-        className={clsx(
-          "px-4 py-3 rounded-lg border transition-all cursor-pointer hover:shadow-sm",
-          "flex items-center justify-between min-w-[160px]",
-          {
-            "border-accent-foreground bg-accent/10": isTasksActive,
-            "border-border hover:border-accent-foreground/50": !isTasksActive
-          }
-        )}
+    <div className="mb-6">
+      <ToggleGroup
+        type="single"
+        value={currentValue}
+        onValueChange={handleValueChange}
+        className="justify-start"
+        aria-label="Queue type selection"
       >
-        <span className="font-medium">Tasks</span>
-        <span className={clsx(
-          "px-2 py-1 rounded-full text-xs font-bold",
-          {
-            "bg-accent text-accent-foreground": isTasksActive,
-            "bg-muted text-muted-foreground": !isTasksActive
-          }
-        )}>
-          {taskCount}
-        </span>
-      </Link>
-
-      <Link
-        to="/queues/cron/active"
-        className={clsx(
-          "px-4 py-3 rounded-lg border transition-all cursor-pointer hover:shadow-sm",
-          "flex items-center justify-between min-w-[160px]",
-          {
-            "border-accent-foreground bg-accent/10": isCronActive,
-            "border-border hover:border-accent-foreground/50": !isCronActive
-          }
-        )}
-      >
-        <span className="font-medium">Cron</span>
-        <span className={clsx(
-          "px-2 py-1 rounded-full text-xs font-bold",
-          {
-            "bg-accent text-accent-foreground": isCronActive,
-            "bg-muted text-muted-foreground": !isCronActive
-          }
-        )}>
-          {cronCount}
-        </span>
-      </Link>
+        <ToggleGroupItem
+          value="tasks"
+          className="flex items-center justify-between min-w-[160px] px-4 py-3 h-auto border border-border rounded-l-lg border-r-0 transition-all cursor-pointer hover:shadow-sm hover:border-accent-foreground/50 hover:border-r data-[state=on]:bg-accent/10 data-[state=on]:border-accent-foreground data-[state=on]:border-r"
+          aria-label={`Tasks queue (${taskCount} jobs)`}
+        >
+          <span className="font-medium">Tasks</span>
+          <span className="px-2 py-1 rounded-full text-xs font-bold bg-muted text-muted-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground" aria-hidden="true">
+            {taskCount}
+          </span>
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          value="cron"
+          className="flex items-center justify-between min-w-[160px] px-4 py-3 h-auto border border-border rounded-r-lg transition-all cursor-pointer hover:shadow-sm hover:border-accent-foreground/50 data-[state=on]:bg-accent/10 data-[state=on]:border-accent-foreground"
+          aria-label={`Cron queue (${cronCount} jobs)`}
+        >
+          <span className="font-medium">Cron</span>
+          <span className="px-2 py-1 rounded-full text-xs font-bold bg-muted text-muted-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground" aria-hidden="true">
+            {cronCount}
+          </span>
+        </ToggleGroupItem>
+      </ToggleGroup>
     </div>
   );
 }
