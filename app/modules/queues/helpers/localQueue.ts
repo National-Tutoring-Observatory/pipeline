@@ -210,6 +210,7 @@ export default class LocalQueue {
 
     return {
       ...jobData,
+      id: jobData._id,
       remove: async () => {
         const result = await this.remove(jobData._id);
         if (result === 0) {

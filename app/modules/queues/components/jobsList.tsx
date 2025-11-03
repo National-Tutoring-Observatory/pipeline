@@ -49,7 +49,7 @@ export default function JobsList({ jobs, state, onDisplayJobClick, onRemoveJobCl
         </TableHeader>
         <TableBody>
           {jobs.map((job) => (
-            <TableRow key={job._id}>
+            <TableRow key={job.id}>
               <TableCell className="font-medium">
                 <button
                   onClick={() => onDisplayJobClick(job)}

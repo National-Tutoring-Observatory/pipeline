@@ -67,13 +67,7 @@ export async function action({ request, params }: Route.ActionArgs) {
           throw new Error(`Queue "${type}" not found`);
         }
 
-        const job = await queue.getJob(entityId);
-
-        if (!job) {
-          throw new Error(`Job with ID "${entityId}" not found`);
-        }
-
-        await job.remove();
+        await queue.remove(entityId);
 
         return {
           intent: 'DELETE_JOB',

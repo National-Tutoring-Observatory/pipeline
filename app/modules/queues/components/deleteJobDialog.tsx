@@ -16,7 +16,7 @@ interface DeleteJobDialogProps {
 
 export default function DeleteJobDialog({ job, onRemoveJobClicked }: DeleteJobDialogProps) {
     const handleDelete = () => {
-        onRemoveJobClicked(job._id);
+        onRemoveJobClicked(job.id);
     };
 
     return (
@@ -36,7 +36,7 @@ export default function DeleteJobDialog({ job, onRemoveJobClicked }: DeleteJobDi
 
                 <div className="space-y-2">
                     <label className="text-sm font-medium">Job ID</label>
-                    <p className="text-sm text-muted-foreground font-mono">{job._id}</p>
+                    <p className="text-sm text-muted-foreground font-mono">{job.id}</p>
                 </div>
 
                 <div className="space-y-2">
