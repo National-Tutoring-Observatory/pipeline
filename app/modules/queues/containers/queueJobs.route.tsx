@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { redirect, useLoaderData, useParams, useSubmit } from "react-router";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
+import addDialog from '~/modules/dialogs/addDialog';
 import type { User } from "~/modules/users/users.types";
 import JobDetailsDialog from "../components/jobDetailsDialog";
 import JobsList from "../components/jobsList";
@@ -90,12 +90,13 @@ export default function QueueJobsRoute() {
   const state = params.state as string;
   const submit = useSubmit();
 
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   const handleJobClick = (job: Job) => {
-    setSelectedJob(job);
-    setIsDialogOpen(true);
+    addDialog(
+      <JobDetailsDialog
+        job={job}
+        onDelete={handleDeleteJob}
+      />
+    );
   };
 
   const handleDeleteJob = (job: Job) => {
@@ -107,32 +108,12 @@ export default function QueueJobsRoute() {
     }
   };
 
-  const handleDeleteFromDialog = (job: Job) => {
-    handleDeleteJob(job);
-    setIsDialogOpen(false);
-    setSelectedJob(null);
-  };
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setSelectedJob(null);
-  };
-
   return (
-    <>
-      <JobsList
-        jobs={data.jobs}
-        state={state}
-        onJobClick={handleJobClick}
-        onDeleteJob={handleDeleteJob}
-      />
-
-      <JobDetailsDialog
-        job={selectedJob}
-        isOpen={isDialogOpen}
-        onClose={handleCloseDialog}
-        onDelete={handleDeleteFromDialog}
-      />
-    </>
+    <JobsList
+      jobs={data.jobs}
+      state={state}
+      onJobClick={handleJobClick}
+      onDeleteJob={handleDeleteJob}
+    />
   );
 }

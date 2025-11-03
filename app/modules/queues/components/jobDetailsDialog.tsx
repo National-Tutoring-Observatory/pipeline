@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -13,31 +12,27 @@ import type { Job } from "../queues.types";
 
 interface JobDetailsDialogProps {
   job: Job | null;
-  isOpen: boolean;
-  onClose: () => void;
   onDelete: (job: Job) => void;
 }
 
-export default function JobDetailsDialog({ job, isOpen, onClose, onDelete }: JobDetailsDialogProps) {
+export default function JobDetailsDialog({ job, onDelete }: JobDetailsDialogProps) {
   if (!job) return null;
 
   const handleDelete = () => {
     onDelete(job);
-    onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle>Job Details</DialogTitle>
-          <DialogDescription>
-            View and manage queue job information
-          </DialogDescription>
-        </DialogHeader>
+    <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
+      <DialogHeader className="flex-shrink-0">
+        <DialogTitle>Job Details</DialogTitle>
+        <DialogDescription>
+          View and manage queue job information
+        </DialogDescription>
+      </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto min-h-0 px-1">
-          <div className="space-y-4 pb-4 px-3">
+      <div className="flex-1 overflow-y-auto min-h-0 px-1">
+        <div className="space-y-4 pb-4 px-3">
           <div className="space-y-2">
             <label className="text-sm font-medium">Job Name</label>
             <p className="text-sm text-muted-foreground">{job.name}</p>
@@ -146,16 +141,15 @@ export default function JobDetailsDialog({ job, isOpen, onClose, onDelete }: Job
                 Remove Job
               </Button>
             </div>
-            </div>
           </div>
         </div>
+      </div>
 
-        <DialogFooter className="flex-shrink-0 border-t pt-4">
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      <DialogFooter className="flex-shrink-0 border-t pt-4">
+        <Button variant="destructive" onClick={handleDelete}>
+          Delete Job
+        </Button>
+      </DialogFooter>
+    </DialogContent>
   );
 }
