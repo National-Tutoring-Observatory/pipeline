@@ -55,14 +55,16 @@ export default class LocalQueue {
 
   }
 
-  private getJobs = async (match: any) => {
+  private getJobs = async (match: any, skip?: number, limit?: number) => {
     const documents = getDocumentsAdapter();
 
     match.queue = this.name;
 
     const result = await documents.getDocuments({
       collection: 'jobs',
-      match
+      match,
+      ...(skip !== undefined && { skip }),
+      ...(limit !== undefined && { limit })
     }) as { data: Job[], count: number };
 
     return {
@@ -95,44 +97,84 @@ export default class LocalQueue {
     return { ...initialCount, ...countBy(jobs.data, 'state') };
   }
 
-  getActive = async () => {
+  getActive = async (skip = 0, limit?: number) => {
+    const jobs = await this.getJobs({
+      state: 'active'
+    }, skip, limit);
+
+    return jobs.data;
+  }
+
+  getActiveCount = async () => {
     const jobs = await this.getJobs({
       state: 'active'
     });
 
+    return jobs.count;
+  }
+
+  getWaiting = async (skip = 0, limit?: number) => {
+    const jobs = await this.getJobs({
+      state: 'wait'
+    }, skip, limit);
+
     return jobs.data;
   }
 
-  getWaiting = async () => {
+  getWaitingCount = async () => {
     const jobs = await this.getJobs({
       state: 'wait'
     });
 
+    return jobs.count;
+  }
+
+  getCompleted = async (skip = 0, limit?: number) => {
+    const jobs = await this.getJobs({
+      state: 'completed'
+    }, skip, limit);
+
     return jobs.data;
   }
 
-  getCompleted = async () => {
+  getCompletedCount = async () => {
     const jobs = await this.getJobs({
       state: 'completed'
     });
 
+    return jobs.count;
+  }
+
+  getFailed = async (skip = 0, limit?: number) => {
+    const jobs = await this.getJobs({
+      state: 'failed'
+    }, skip, limit);
+
     return jobs.data;
   }
 
-  getFailed = async () => {
+  getFailedCount = async () => {
     const jobs = await this.getJobs({
       state: 'failed'
     });
 
+    return jobs.count;
+  }
+
+  getDelayed = async (skip = 0, limit?: number) => {
+    const jobs = await this.getJobs({
+      state: 'delayed'
+    }, skip, limit);
+
     return jobs.data;
   }
 
-  getDelayed = async () => {
+  getDelayedCount = async () => {
     const jobs = await this.getJobs({
       state: 'delayed'
     });
 
-    return jobs.data;
+    return jobs.count;
   }
 
   getJob = async (jobId: string) => {

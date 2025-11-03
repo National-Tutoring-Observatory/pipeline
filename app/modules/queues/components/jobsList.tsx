@@ -1,6 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   Table,
   TableBody,
   TableCell,
@@ -23,9 +31,22 @@ interface JobsListProps {
   state: string;
   onDisplayJobClick: (job: Job) => void;
   onRemoveJobClick: (job: Job) => void;
+  totalJobs: number;
+  currentPage: number;
+  pageSize: number;
+  onPageChange?: (page: number) => void;
 }
 
-export default function JobsList({ jobs, state, onDisplayJobClick, onRemoveJobClick }: JobsListProps) {
+export default function JobsList({
+  jobs,
+  state,
+  onDisplayJobClick,
+  onRemoveJobClick,
+  totalJobs,
+  currentPage,
+  pageSize,
+  onPageChange
+}: JobsListProps) {
   const [sortField, setSortField] = useState<SortField>('timestamp');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
@@ -47,6 +68,10 @@ export default function JobsList({ jobs, state, onDisplayJobClick, onRemoveJobCl
       [sortDirection]
     );
   }, [jobs, sortField, sortDirection]);
+
+  // Calculate pagination - use props when available, fallback to client-side
+  const actualTotalJobs = totalJobs ?? sortedJobs.length;
+  const totalPages = Math.ceil(actualTotalJobs / pageSize);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -71,116 +96,163 @@ export default function JobsList({ jobs, state, onDisplayJobClick, onRemoveJobCl
   }
 
   return (
-    <div className="border rounded-md">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <SortableTableHead
-              field="name"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={handleSort}
-              className="w-[250px]"
-            >
-              Job Name
-            </SortableTableHead>
-            <SortableTableHead
-              field="timestamp"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={handleSort}
-            >
-              Created
-            </SortableTableHead>
-            <SortableTableHead
-              field="processedOn"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={handleSort}
-            >
-              Processed
-            </SortableTableHead>
-            <SortableTableHead
-              field="finishedOn"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={handleSort}
-            >
-              Finished
-            </SortableTableHead>
-            <SortableTableHead
-              field="attemptsMade"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={handleSort}
-            >
-              Attempts
-            </SortableTableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedJobs.map((job) => (
-            <TableRow key={job.id}>
-              <TableCell className="font-medium">
-                <button
-                  onClick={() => onDisplayJobClick(job)}
-                  className="text-left w-full hover:underline"
-                >
-                  {job.name}
-                </button>
-              </TableCell>
-              <TableCell>
-                {job.timestamp
-                  ? dayjs(job.timestamp).format('MMM D, h:mm A')
-                  : '-'
-                }
-              </TableCell>
-              <TableCell>
-                {job.processedOn
-                  ? dayjs(job.processedOn).format('MMM D, h:mm A')
-                  : '-'
-                }
-              </TableCell>
-              <TableCell>
-                {job.finishedOn
-                  ? dayjs(job.finishedOn).format('MMM D, h:mm A')
-                  : '-'
-                }
-              </TableCell>
-              <TableCell>
-                {job.attemptsMade || 0}
-              </TableCell>
-              <TableCell className="text-right flex justify-end">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                      size="icon"
-                    >
-                      <EllipsisVertical />
-                      <span className="sr-only">Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-40">
-                    <DropdownMenuItem onClick={() => onDisplayJobClick(job)}>
-                      View Details
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onClick={() => onRemoveJobClick(job)}
-                    >
-                      Remove
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+    <>
+      <div className="border rounded-md">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <SortableTableHead
+                field="name"
+                currentSortField={sortField}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+                className="w-[250px]"
+              >
+                Job Name
+              </SortableTableHead>
+              <SortableTableHead
+                field="timestamp"
+                currentSortField={sortField}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Created
+              </SortableTableHead>
+              <SortableTableHead
+                field="processedOn"
+                currentSortField={sortField}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Processed
+              </SortableTableHead>
+              <SortableTableHead
+                field="finishedOn"
+                currentSortField={sortField}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Finished
+              </SortableTableHead>
+              <SortableTableHead
+                field="attemptsMade"
+                currentSortField={sortField}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Attempts
+              </SortableTableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {sortedJobs.map((job) => (
+              <TableRow key={job.id}>
+                <TableCell className="font-medium">
+                  <button
+                    onClick={() => onDisplayJobClick(job)}
+                    className="text-left w-full hover:underline"
+                  >
+                    {job.name}
+                  </button>
+                </TableCell>
+                <TableCell>
+                  {job.timestamp
+                    ? dayjs(job.timestamp).format('MMM D, h:mm A')
+                    : '-'
+                  }
+                </TableCell>
+                <TableCell>
+                  {job.processedOn
+                    ? dayjs(job.processedOn).format('MMM D, h:mm A')
+                    : '-'
+                  }
+                </TableCell>
+                <TableCell>
+                  {job.finishedOn
+                    ? dayjs(job.finishedOn).format('MMM D, h:mm A')
+                    : '-'
+                  }
+                </TableCell>
+                <TableCell>
+                  {job.attemptsMade || 0}
+                </TableCell>
+                <TableCell className="text-right flex justify-end">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                        size="icon"
+                      >
+                        <EllipsisVertical />
+                        <span className="sr-only">Open menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40">
+                      <DropdownMenuItem onClick={() => onDisplayJobClick(job)}>
+                        View Details
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => onRemoveJobClick(job)}
+                      >
+                        Remove
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="mt-4 flex justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage > 1 && onPageChange) onPageChange(currentPage - 1);
+                  }}
+                  className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (onPageChange) onPageChange(page);
+                    }}
+                    isActive={currentPage === page}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage < totalPages && onPageChange) onPageChange(currentPage + 1);
+                  }}
+                  className={currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
+    </>
   );
 }

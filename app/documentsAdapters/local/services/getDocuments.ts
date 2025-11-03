@@ -1,24 +1,28 @@
 import fse from 'fs-extra';
-import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import each from 'lodash/each';
 import get from 'lodash/get';
 import orderBy from 'lodash/orderBy';
 import mongoose from 'mongoose';
-import getModelFromCollection from '~/modules/documents/helpers/getModelFromCollection';
 import getCollectionFromModel from '~/modules/documents/helpers/getCollectionFromModel';
-import getDocument from './getDocument';
+import getModelFromCollection from '~/modules/documents/helpers/getModelFromCollection';
 import filterDocumentsByMatch from '../helpers/filterDocumentsByMatch';
+import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
+import getDocument from './getDocument';
 
 export default async ({
   collection,
   match,
   sort = {},
-  populate = []
+  populate = [],
+  skip = 0,
+  limit
 }: {
   collection: string,
   match: {} | any,
   sort?: {};
-  populate?: { path: string; select?: string }[]
+  populate?: { path: string; select?: string }[];
+  skip?: number;
+  limit?: number;
 }) => {
 
   try {
@@ -65,10 +69,17 @@ export default async ({
       }
     }
 
+    const totalCount = data.length;
+
+    // Apply pagination if limit is specified
+    if (limit !== undefined) {
+      data = data.slice(skip, skip + limit);
+    }
+
     return {
-      currentPage: 1,
-      totalPages: 1,
-      count: data.length,
+      currentPage: Math.floor(skip / (limit || 1)) + 1,
+      totalPages: limit ? Math.ceil(totalCount / limit) : 1,
+      count: totalCount,
       data
     }
 
