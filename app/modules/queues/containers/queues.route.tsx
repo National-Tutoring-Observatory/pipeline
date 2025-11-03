@@ -9,7 +9,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     if (!isSuperAdmin(user)) {
         return redirect('/');
     }
-    return redirect("/queues/tasks/wait");
+    return redirect("/queues/tasks/active");
 }
 
 export default function QueuesRoute() {
