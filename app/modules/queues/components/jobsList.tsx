@@ -34,7 +34,7 @@ interface JobsListProps {
   totalJobs: number;
   currentPage: number;
   pageSize: number;
-  onPageChange?: (page: number) => void;
+  onPageChange: (page: number) => void;
 }
 
 export default function JobsList({
@@ -69,9 +69,7 @@ export default function JobsList({
     );
   }, [jobs, sortField, sortDirection]);
 
-  // Calculate pagination - use props when available, fallback to client-side
-  const actualTotalJobs = totalJobs ?? sortedJobs.length;
-  const totalPages = Math.ceil(actualTotalJobs / pageSize);
+  const totalPages = Math.ceil(totalJobs / pageSize);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -80,6 +78,27 @@ export default function JobsList({
       setSortField(field as SortField);
       setSortDirection('desc');
     }
+  };
+
+  const getVisiblePages = (totalPages: number, currentPage: number) => {
+    const maxVisible = 7;
+    if (totalPages <= maxVisible) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const half = Math.floor(maxVisible / 2);
+    let start = Math.max(1, currentPage - half);
+    let end = Math.min(totalPages, start + maxVisible - 1);
+
+    if (end - start < maxVisible - 1) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    const pages = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
   };
 
   if (jobs.length === 0) {
@@ -218,19 +237,19 @@ export default function JobsList({
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
-                    if (currentPage > 1 && onPageChange) onPageChange(currentPage - 1);
+                    if (currentPage > 1) onPageChange(currentPage - 1);
                   }}
                   className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
                 />
               </PaginationItem>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              {getVisiblePages(totalPages, currentPage).map((page) => (
                 <PaginationItem key={page}>
                   <PaginationLink
                     href="#"
                     onClick={(e) => {
                       e.preventDefault();
-                      if (onPageChange) onPageChange(page);
+                      onPageChange(page);
                     }}
                     isActive={currentPage === page}
                   >
@@ -244,7 +263,7 @@ export default function JobsList({
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
-                    if (currentPage < totalPages && onPageChange) onPageChange(currentPage + 1);
+                    if (currentPage < totalPages) onPageChange(currentPage + 1);
                   }}
                   className={currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}
                 />
