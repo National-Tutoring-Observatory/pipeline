@@ -83,12 +83,12 @@ export default class LocalWorker {
 
         } catch (error) {
 
-          currentJob.finishedOn = new Date();
+          currentJob.finishedOn = Date.now();
           currentJob.attemptsMade = jobs[0].attemptsMade + 1;
 
           if (error) {
             currentJob.failedReason = error.message;
-            currentJob.stacktrace = error.stack;
+            currentJob.stacktrace = error.stack ? error.stack.split('\n') : [];
           }
           if (currentJob.attemptsMade >= 3) {
             currentJob.state = 'failed';

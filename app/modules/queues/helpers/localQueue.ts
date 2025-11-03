@@ -51,8 +51,7 @@ export default class LocalQueue {
       }
     }) as { data: Job };
 
-    // Return job data with BullMQ-compatible methods
-    return this.addJobMethods(jobObject.data);
+    return this.addBullMQCompatibility(jobObject.data);
 
   }
 
@@ -61,10 +60,15 @@ export default class LocalQueue {
 
     match.queue = this.name;
 
-    return await documents.getDocuments({
+    const result = await documents.getDocuments({
       collection: 'jobs',
       match
     }) as { data: Job[], count: number };
+
+    return {
+      ...result,
+      data: result.data.map(jobData => this.addBullMQCompatibility(jobData))
+    };
   }
 
   count = async () => {
@@ -146,8 +150,7 @@ export default class LocalQueue {
       return null;
     }
 
-    // Return job data with BullMQ-compatible methods
-    return this.addJobMethods(job.data);
+    return this.addBullMQCompatibility(job.data);
   }
 
   remove = async (jobId: string) => {
@@ -198,7 +201,11 @@ export default class LocalQueue {
     return this._isPaused;
   }
 
-  private addJobMethods = (jobData: Job) => {
+  private addBullMQCompatibility = (jobData: Job): Job & {
+    remove: () => Promise<number>;
+    updateData: (data: any) => Promise<any>;
+    getState: () => Promise<string>;
+  } => {
     const documents = getDocumentsAdapter();
 
     return {
@@ -215,14 +222,6 @@ export default class LocalQueue {
           collection: 'jobs',
           match: { _id: jobData._id },
           update: { data }
-        });
-        return updatedJob;
-      },
-      updateProgress: async (progress: any) => {
-        const updatedJob = await documents.updateDocument({
-          collection: 'jobs',
-          match: { _id: jobData._id },
-          update: { progress }
         });
         return updatedJob;
       },
