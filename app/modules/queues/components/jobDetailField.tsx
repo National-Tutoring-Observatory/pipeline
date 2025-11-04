@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 interface JobDetailFieldProps {
@@ -16,12 +17,12 @@ export default function JobDetailField({
     valueClassName
 }: JobDetailFieldProps) {
     return (
-        <div className={`space-y-2 ${className || ''}`}>
-            <label className="text-sm font-medium">{label}</label>
+        <div className={cn("space-y-2", className)}>
+            <div className="text-sm font-medium text-foreground">{label}</div>
             {children || (
-                <p className={`text-sm text-muted-foreground ${valueClassName || ''}`}>
+                <div className={cn("text-sm text-muted-foreground", valueClassName)}>
                     {value}
-                </p>
+                </div>
             )}
         </div>
     );

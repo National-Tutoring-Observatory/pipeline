@@ -8,10 +8,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Pre } from "@/components/ui/pre";
 import dayjs from 'dayjs';
 import type { Job } from "../queues.types";
-import JobCodeBlock from "./JobCodeBlock";
-import JobDetailField from "./JobDetailField";
+import JobDetailField from "./jobDetailField";
 
 interface JobDetailsDialogProps {
   job: Job | null;
@@ -85,34 +85,34 @@ export default function JobDetailsDialog({ job, onDelete }: JobDetailsDialogProp
             value={job.attemptsMade || 0}
           />
 
-          <JobCodeBlock
-            label="Return Value"
-            value={job.returnvalue}
-            fallback="No return value yet"
-          />
+          <JobDetailField label="Return Value">
+            <Pre>
+              {job.returnvalue ? JSON.stringify(job.returnvalue, null, 2) : 'No return value yet'}
+            </Pre>
+          </JobDetailField>
 
-          <JobCodeBlock
-            label="Job Data"
-            value={job.data}
-            fallback="No job data"
-          />
+          <JobDetailField label="Job Data">
+            <Pre>
+              {job.data ? JSON.stringify(job.data, null, 2) : 'No job data'}
+            </Pre>
+          </JobDetailField>
 
-          <JobCodeBlock
-            label="Job Options"
-            value={job.opts}
-            fallback="No job options"
-          />
+          <JobDetailField label="Job Options">
+            <Pre>
+              {job.opts ? JSON.stringify(job.opts, null, 2) : 'No job options'}
+            </Pre>
+          </JobDetailField>
 
           <JobDetailField
             label="Failed Reason"
             value={job.failedReason || 'No failure reason'}
           />
 
-          <JobCodeBlock
-            label="Stack Trace"
-            value={job.stacktrace?.join('\n')}
-            fallback="No stack trace"
-          />
+          <JobDetailField label="Stack Trace">
+            <Pre>
+              {job.stacktrace?.join('\n') || 'No stack trace'}
+            </Pre>
+          </JobDetailField>
         </div>
       </div>
 
