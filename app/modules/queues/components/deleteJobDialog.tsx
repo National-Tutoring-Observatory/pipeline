@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Job } from "../queues.types";
-import JobDetailField from "./JobDetailField";
+import JobDetailField from "./jobDetailField";
 
 interface DeleteJobDialogProps {
   job: Job;
