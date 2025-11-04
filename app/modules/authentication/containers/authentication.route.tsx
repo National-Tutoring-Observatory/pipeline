@@ -23,14 +23,14 @@ export async function loader({ request }: Route.LoaderArgs) {
         "Set-Cookie": await sessionStorage.commitSession(session),
       });
 
-      return Response.json({ authentication: { data: user } }, { headers });
+      return Response.json({ authentication: { data: user }, isAppRunningLocally: process.env.DOCUMENTS_ADAPTER === 'LOCAL' }, { headers });
     }
     return {
       authentication: {}
     }
   }
 
-  return { authentication: { data: user } };
+  return { authentication: { data: user }, isAppRunningLocally: process.env.DOCUMENTS_ADAPTER === 'LOCAL' };
 
 }
 

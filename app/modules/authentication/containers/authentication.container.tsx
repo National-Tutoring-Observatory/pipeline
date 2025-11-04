@@ -25,10 +25,14 @@ export default function AuthenticationContainer({ children }: { children: ReactN
   useEffect(() => {
     if (hasLoaded && authenticationFetcher.state === 'idle') {
       setIsFetching(false);
+      console.log(authenticationFetcher.data);
       const authentication = get(authenticationFetcher, 'data.authentication.data');
+      const isAppRunningLocally = get(authenticationFetcher, 'data.isAppRunningLocally', false);
       if (authentication) {
         setAuthentication(authentication);
-        connectSockets();
+        if (!isAppRunningLocally) {
+          connectSockets();
+        }
       }
     }
   }, [authenticationFetcher.state]);
