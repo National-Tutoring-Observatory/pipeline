@@ -12,6 +12,49 @@ This is the **NTO (National Tutoring Observatory) Pipeline**, a React-based web 
 **Node version**: 20.x (as per Dockerfile and CI)
 **UI Framework**: Tailwind CSS 4 with shadcn/ui components (Radix UI)
 
+## Problem-Solving Approach
+
+**CRITICAL**: Always think before coding. Understand the problem fully before implementing solutions.
+
+### Before Writing Code
+1. **Analyze the request** - Break down what the user is actually asking for
+2. **Ask clarifying questions** - If anything is unclear or ambiguous
+3. **Understand the context** - Check existing code patterns and architecture
+4. **Plan your approach** - Think through the solution before implementing
+5. **Consider edge cases** - What could go wrong or be misunderstood?
+
+### When to Ask Questions
+- **Unclear requirements** - "Which specific component should handle this?"
+- **Multiple approaches** - "Would you prefer to modify the existing component or create a new one?"
+- **Scope ambiguity** - "Should this apply to all forms or just this specific one?"
+- **Technical decisions** - "Should I use the existing API pattern or create a new endpoint?"
+- **Missing context** - "What should happen when the user doesn't have permission?"
+
+### Examples of Good Clarification
+```
+// ❌ Jumping straight to code
+User: "Add a delete button"
+Assistant: *immediately writes delete button code*
+
+// ✅ Understanding first
+User: "Add a delete button"
+Assistant: "I'd like to clarify a few things:
+- Which component/page should have the delete button?
+- What should it delete (user, project, session)?
+- Should there be a confirmation dialog?
+- What permissions are needed?
+Let me check the existing patterns..."
+```
+
+### Problem-Solving Workflow
+1. **Read and understand** the full request
+2. **Examine existing code** to understand patterns and find similar implementations
+3. **Ask questions** if anything is unclear
+4. **Look for reusable components** or established patterns before creating new ones
+5. **Explain your approach** before implementing
+6. **Write code** that follows project conventions
+7. **Test and verify** the solution works
+
 ## Build & Validation Commands
 
 ### Prerequisites
@@ -41,7 +84,7 @@ Always run before testing production behavior:
 yarn build
 ```
 **Time**: ~8-10 seconds
-**What it does**: 
+**What it does**:
 1. Runs `node ./app/adapters.js` to generate storage adapter imports
 2. Runs `react-router build` to create production build in `./build/`
 **Expected warnings**: You'll see warnings about unused imports (useCallback, icons, etc.) - these are safe to ignore
@@ -141,64 +184,15 @@ The codebase follows a **consistent error handling convention** for React Router
 - Actions throw on validation failures (user should see error in context)
 - Consistent across all routes for predictable behavior
 
-### Directory Structure
+### Key Directory Structure
 
-```
-/app/                           # Main application code
-  /modules/                     # Feature modules (23 modules)
-    /projects/                  # Project management
-    /prompts/                   # Prompt editor & versions
-    /sessions/                  # Session viewer & annotations
-    /annotations/               # Annotation handling
-    /teams/                     # Team & user management
-    /files/                     # File upload/management
-    /runs/                      # Run execution & downloads
-    /collections/               # Collection management
-    /llm/                       # LLM provider integration
-    /authentication/            # GitHub OAuth authentication
-    /dashboard/                 # Main dashboard
-    /support/                   # Support articles
-    /featureFlags/              # Feature flag system
-    /storage/                   # Storage abstraction layer
-    /dialogs/                   # Dialog management
-    /app/                       # App shell & sidebar
-    /documents/                 # Document DB abstraction layer
-    /events/                    # Event handling
-    /queues/                    # BullMQ queue management
-    /uploads/                   # Upload utilities
-    /users/                     # User management
-  /uikit/                       # Reusable UI components (shadcn/ui)
-    /components/ui/             # 25+ UI components
-    /hooks/                     # Custom React hooks
-    /lib/                       # UI utilities
-  /storageAdapters/             # Storage implementations (plugin pattern)
-    /local/                     # Local filesystem storage
-    /awsS3/                     # AWS S3 storage
-  /documentsAdapters/           # Database implementations (plugin pattern)
-    /local/                     # Local in-memory DB
-    /documentDB/                # AWS DocumentDB (MongoDB)
-  adapters.js                   # IMPORTANT: Generates storage imports
-  routes.ts                     # React Router v7 route config
-  root.tsx                      # Root layout component
-  app.css                       # Global styles (Tailwind)
-  entry.client.tsx              # Client entry point
-  entry.server.tsx              # Server entry point
-  functions/                    # Utility functions
-
-/workers/                       # Background job workers (separate package)
-  /runners/                     # Worker runner implementations
-  /helpers/                     # Worker utilities
-  index.js                      # Worker entry point
-  package.json                  # Separate dependencies
-
-/documentation/                 # User-facing documentation (19 .md files)
-  Welcome.md                    # Overview & how-to-use
-  projects.md, prompts.md, etc. # Feature documentation
-
-/public/assets/                 # Static assets (favicon, etc.)
-/data/                          # Local data storage (gitignored)
-/storage/                       # Local file storage (gitignored)
-```
+- **`/app/modules/`** - Feature modules (projects, prompts, sessions, etc.)
+- **`/app/uikit/`** - Reusable UI components (shadcn/ui)
+- **`/app/storageAdapters/`** - Storage implementations (local filesystem, AWS S3)
+- **`/app/documentsAdapters/`** - Database implementations (local in-memory, MongoDB/DocumentDB)
+- **`/app/adapters.js`** - **CRITICAL**: Auto-generates storage imports
+- **`/workers/`** - Background job workers (separate package)
+- **`/documentation/`** - Feature documentation and domain concepts
 
 ### Key Configuration Files
 
@@ -277,7 +271,7 @@ When encountering issues, focus on understanding and fixing the root cause rathe
 ### Storage imports not found
 **Root cause**: The `app/adapters.js` script failed or didn't run, so `app/modules/storage/storage.ts` wasn't generated
 **Diagnosis**: Check if `app/modules/storage/storage.ts` exists and contains imports
-**Fix**: 
+**Fix**:
 1. Manually run `node ./app/adapters.js` to see any errors
 2. Verify storage adapter directories have proper `index.ts` files
 3. Check that adapters call `registerStorageAdapter()` correctly
@@ -286,7 +280,7 @@ When encountering issues, focus on understanding and fixing the root cause rathe
 ### Module not found errors
 **Root cause**: Stale or corrupted dependencies, or mismatched lock file
 **Diagnosis**: Check if `node_modules/` or `.react-router/` have stale generated code
-**Fix**: 
+**Fix**:
 1. Delete `node_modules/`, `.react-router/`, and optionally `build/`
 2. Run `yarn install --frozen-lockfile` (matches CI exactly)
 3. Run `yarn typecheck` to verify types, then `yarn build`
@@ -333,15 +327,235 @@ import { getProjects } from '~/modules/projects/queries'
 - **BullMQ 5**: Background job queue (requires Redis)
 - **AWS SDK v3**: S3 storage integration
 - **OpenAI SDK**: LLM integration
-- **Tailwind CSS 4**: Styling
-- **Radix UI**: Component primitives
+- **Tailwind CSS 4**: Styling with CSS variables
+- **Radix UI**: Accessible headless component primitives
+- **shadcn/ui**: Pre-built UI components (New York style)
+- **Lucide React**: Icon library
+- **next-themes**: Theme management (dark/light mode)
+- **Sonner**: Toast notifications
+- **Motion**: Modern animation library
+- **clsx + tailwind-merge**: Conditional className utilities
+- **class-variance-authority**: Component variant management
+- **cmdk**: Command palette/search UI
+- **react-dropzone**: File upload handling
 - **dayjs**: Date handling
 - **archiver**: ZIP file creation
+- **Socket.io**: Real-time communication
 
 ### Development
 - **TypeScript 5.8**: Type checking
 - **Vite 6**: Build tool & dev server
 - **@react-router/dev**: React Router tooling
+
+## UI Component Development
+
+### Component Library Stack
+- **Radix UI**: Headless, accessible component primitives (Root + Indicator pattern)
+- **shadcn/ui**: Pre-built components in `app/uikit/components/ui/`
+- **Tailwind CSS 4**: Utility-first styling with CSS variables for theming
+- **Lucide React**: Icon library (configured in `components.json`)
+- **next-themes**: Dark/light mode support
+- **Sonner**: Toast notifications
+- **Motion**: Modern animations (Framer Motion successor)
+
+### Component Patterns
+- **Use compound components**: Radix components follow `Primitive.Root` + `Primitive.Trigger/Content/Indicator` patterns
+- **Styling utility**: Use `cn()` function from `@/lib/utils` (combines `clsx` + `tailwind-merge`)
+- **Variant management**: Use `class-variance-authority` for component variants
+- **Icon usage**: Import from `lucide-react`, configured as default in shadcn setup
+
+### UI Development Guidelines
+```typescript
+// ✅ Correct shadcn/Radix pattern
+import * as DialogPrimitive from "@radix-ui/react-dialog"
+import { cn } from "@/lib/utils"
+
+const Dialog = ({ className, ...props }) => (
+  <DialogPrimitive.Root>
+    <DialogPrimitive.Content className={cn("default-styles", className)} {...props}>
+      {children}
+    </DialogPrimitive.Content>
+  </DialogPrimitive.Root>
+)
+
+// ✅ Use theme-aware styling
+className="bg-background text-foreground border-border"
+
+// ✅ Icon usage
+import { ChevronDown } from "lucide-react"
+```
+
+### Accessibility Notes
+- Radix UI provides ARIA attributes, keyboard navigation, and screen reader support automatically
+- Always test components with keyboard navigation and screen readers
+- Use semantic HTML structure within Radix primitives
+
+## File Naming Conventions
+
+**CRITICAL**: All filenames must be in lowercase form consistently throughout the project.
+
+### Naming Rules
+- **Files**: Use camelCase: `userProfile.tsx`, `dataLoader.ts`
+- **Directories**: Use lowercase: `components/`, `modules/`, `storageAdapters/`
+- **React Components**: Files should be camelCase, but export PascalCase: `jobDialog.tsx` exports `JobDialog`
+- **Utilities/Functions**: Use camelCase: `utils.ts`, `helpers.ts`, `queries.ts`
+
+### Examples
+```typescript
+// ✅ Correct filename: jobDialog.tsx
+export const JobDialog = () => { ... }
+
+// ✅ Correct filename: userProfileCard.tsx
+export const UserProfileCard = () => { ... }
+
+// ✅ Correct filename: apiHelpers.ts
+export const fetchUserData = () => { ... }
+
+// ❌ Avoid: JobDialog.tsx, UserProfileCard.tsx, job-dialog.tsx, api-helpers.ts
+```
+
+### Why camelCase?
+- **Consistency**: Matches existing codebase patterns
+- **JavaScript convention**: Aligns with JavaScript/TypeScript variable naming
+- **Git-friendly**: Avoids case-related merge conflicts
+- **Import clarity**: Clear distinction between filenames and exported symbols
+
+## Code Formatting Standards
+
+**CRITICAL**: Follow these formatting rules consistently across all files.
+
+### Indentation & Spacing
+- **Use 2 spaces** for indentation (no tabs)
+- **No trailing whitespace** on any lines
+- **Single newline** at end of every file
+- **Remove empty lines** at the end of files (except the final newline)
+- **Consistent spacing** around operators and brackets
+
+### Auto-formatting Workflow
+**Always save files to apply formatting rules**:
+1. Write your code
+2. **Save the file** (Cmd/Ctrl + S) - this triggers auto-formatting
+3. Verify formatting is applied (indentation, trailing spaces cleaned, etc.)
+4. Commit only after formatting is applied
+
+### Formatting Rules Applied on Save
+- **2-space indentation** enforced
+- **Trailing whitespace** removal
+- **Empty line cleanup** (removes extra blank lines)
+- **Final newline** addition
+- **Import organization** (if configured)
+- **Consistent quotes** and semicolons
+
+### Example
+```typescript
+// ✅ Correct formatting (2 spaces, no trailing whitespace, final newline)
+import { cn } from "@/lib/utils"
+
+export const JobDialog = ({ className, ...props }) => {
+  return (
+    <div className={cn("default-styles", className)}>
+      <h1>Job Dialog</h1>
+    </div>
+  )
+}
+// ← Final newline here
+```
+
+## Commenting Guidelines
+
+**CRITICAL**: Only add comments when they explain complex logic or non-obvious behavior.
+
+### When to Comment
+- **Complex algorithms** or business logic that isn't immediately clear
+- **Non-obvious workarounds** or browser-specific fixes
+- **Important context** that prevents future bugs or confusion
+- **API integration quirks** or external service limitations
+
+### When NOT to Comment
+- **Self-explanatory code** - good variable/function names are better
+- **Obvious operations** - don't explain what the code clearly does
+- **Redundant descriptions** - avoid restating the code in English
+
+### Examples
+```typescript
+// ❌ Unnecessary comments
+// Set the user name
+const userName = user.name
+
+// Create a button component
+const Button = ({ children }) => <button>{children}</button>
+
+// ✅ Useful comments
+// Workaround: Safari requires explicit height for flex containers
+// See: https://bugs.webkit.org/show_bug.cgi?id=137730
+className="h-full flex"
+
+// Rate limit: OpenAI allows 3 requests/minute for this endpoint
+await delay(20000) // 20s between requests
+
+// ✅ Better: Extract complex calculations to descriptive variables
+const translateValue = 100 - (value || 0)
+style={{ transform: `translateX(-${translateValue}%)` }}
+
+// ❌ Avoid: Inline complex calculations that need comments
+style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+```
+
+### Best Practices
+- **Explain WHY, not WHAT** - focus on reasoning and context
+- **Keep comments concise** - avoid lengthy explanations
+- **Extract complex calculations** - use descriptive variables instead of inline math
+- **Update comments** when code changes to prevent misleading information
+- **Use meaningful variable/function names** instead of comments when possible
+
+## Security & Data Protection
+
+**CRITICAL**: This application handles sensitive tutoring transcripts and research data. Always consider security implications.
+
+### Authentication & Authorization
+- **Always check user authentication** before implementing features that require login
+- **Verify permissions** - Check if user has access to specific projects/teams/data
+- **Follow existing auth patterns** - Use established React Router error handling (see above)
+- **Handle auth failures gracefully** - Use `redirect()` in loaders, `throw new Error()` in actions
+
+### Data Sensitivity
+- **Tutoring transcripts are confidential** - Handle with appropriate care
+- **User data protection** - Don't log sensitive information
+- **File access control** - Ensure users can only access their authorized files
+- **API security** - Validate all inputs and sanitize outputs
+
+### Environment Variables
+- **Never commit secrets** - Use `.env` for sensitive configuration
+- **Validate required env vars** - Check for missing critical environment variables
+- **Use secure defaults** - Fail securely when configuration is missing
+- **Rotate credentials** - Be prepared for credential rotation in production
+
+### Examples
+```typescript
+// ✅ Check permissions beyond basic auth
+export async function loader({ request }) {
+  const user = await getUser(request)
+  if (!user) return redirect('/') // Follow React Router pattern
+
+  // Additional permission checks
+  const project = await getProject(params.projectId)
+  if (!canAccessProject(user, project)) {
+    throw new Error("Access denied")
+  }
+}
+
+// ✅ Validate and sanitize all inputs
+export async function action({ request }) {
+  const user = await getUser(request)
+  if (!user) throw new Error("Authentication required") // Follow React Router pattern
+
+  const formData = await request.formData()
+  const name = formData.get("name")?.toString().trim()
+  if (!name || name.length > 100) {
+    throw new Error("Invalid name")
+  }
+}
+```
 
 ## Best Practices
 
@@ -354,6 +568,12 @@ import { getProjects } from '~/modules/projects/queries'
 7. **Respect gitignore**: Don't commit `.env`, `build/`, `data/`, `storage/`, or `.react-router/`
 8. **Node version**: Use Node 20.x to match Docker and production environment
 9. **Module structure**: Each module typically has `components/`, `containers/`, and sometimes `queries/`, `mutations/`
+10. **Examine existing patterns**: Always check similar implementations before creating new components or features
+11. **UI consistency**: Use existing shadcn/ui components before creating custom ones
+12. **Theme support**: Always use CSS variables for colors to support dark/light modes
+13. **File naming**: Always use camelCase filenames for consistency
+14. **Code formatting**: Always use 2 spaces for indentation and save files to apply auto-formatting
+15. **Comments**: Only add comments for complex logic or non-obvious behavior - avoid obvious explanations
 
 ## Quick Reference
 
@@ -371,13 +591,6 @@ cp .env.example .env
 yarn install --frozen-lockfile
 yarn dev
 ```
-
-**Add storage adapter**:
-1. Create directory in `app/storageAdapters/yourAdapter/`
-2. Add `index.ts` with adapter implementation
-3. Run `yarn build` (adapters.js auto-generates imports)
-4. Update `STORAGE_ADAPTER` in `.env`
-
 ---
 
 **Trust these instructions**. Only search for additional information if these instructions are incomplete or you encounter unexpected behavior not covered here.
