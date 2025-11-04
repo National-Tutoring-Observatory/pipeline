@@ -60,16 +60,24 @@ export default class LocalQueue {
 
     match.queue = this.name;
 
-    const result = await documents.getDocuments({
+    const queryParams: any = {
       collection: 'jobs',
-      match,
-      ...(skip !== undefined && { skip }),
-      ...(limit !== undefined && { limit })
-    }) as { data: Job[], count: number };
+      match
+    };
+
+    if (skip !== undefined) {
+      queryParams.skip = skip;
+    }
+
+    if (limit !== undefined) {
+      queryParams.limit = limit;
+    }
+
+    const result = await documents.getDocuments(queryParams) as { data: Job[], count: number };
 
     return {
-      ...result,
-      data: result.data.map(jobData => this.addBullMQCompatibility(jobData))
+      data: result.data.map(jobData => this.addBullMQCompatibility(jobData)),
+      count: result.count
     };
   }
 
