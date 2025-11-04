@@ -1,9 +1,14 @@
-import { useState } from "react";
+import capitalize from "lodash/capitalize";
+import { useEffect } from "react";
 import { redirect, useLoaderData, useParams, useSubmit } from "react-router";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
+import addDialog from '~/modules/dialogs/addDialog';
 import type { User } from "~/modules/users/users.types";
-import { JobDetailsDialog, JobsList } from "../components";
+import DeleteJobDialog from "../components/deleteJobDialog";
+import JobDetailsDialog from "../components/jobDetailsDialog";
+import JobsList from "../components/jobsList";
 import getQueue from "../helpers/getQueue";
 import type { Job } from "../queues.types";
 import type { Route } from "./+types/queueJobs.route";
@@ -62,13 +67,7 @@ export async function action({ request, params }: Route.ActionArgs) {
           throw new Error(`Queue "${type}" not found`);
         }
 
-        const job = await queue.getJob(entityId);
-
-        if (!job) {
-          throw new Error(`Job with ID "${entityId}" not found`);
-        }
-
-        await job.remove();
+        await queue.remove(entityId);
 
         return {
           intent: 'DELETE_JOB',
@@ -86,52 +85,49 @@ export async function action({ request, params }: Route.ActionArgs) {
 export default function QueueJobsRoute() {
   const data = useLoaderData<typeof loader>();
   const params = useParams();
+  const queueType = params.type as string;
   const state = params.state as string;
   const submit = useSubmit();
 
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  useEffect(() => {
+    updateBreadcrumb([
+      { text: 'Queues', link: '/queues' },
+      { text: `${capitalize(queueType)} Queue`, link: `/queues/${queueType}` },
+      { text: `${capitalize(state)} Jobs` }
+    ]);
+  }, [queueType, state]);
 
   const handleJobClick = (job: Job) => {
-    setSelectedJob(job);
-    setIsDialogOpen(true);
+    addDialog(
+      <JobDetailsDialog
+        job={job}
+        onDelete={handleRemoveJob}
+      />
+    );
   };
 
-  const handleDeleteJob = (job: Job) => {
-    if (confirm(`Are you sure you want to delete job "${job.name}" from the queue?`)) {
-      submit(JSON.stringify({ intent: 'DELETE_JOB', entityId: job._id }), {
-        method: 'DELETE',
-        encType: 'application/json'
-      });
-    }
+  const handleRemoveJob = (job: Job) => {
+    addDialog(
+      <DeleteJobDialog
+        job={job}
+        onRemoveJobClicked={onRemoveJobClicked}
+      />
+    );
   };
 
-  const handleDeleteFromDialog = (job: Job) => {
-    handleDeleteJob(job);
-    setIsDialogOpen(false);
-    setSelectedJob(null);
-  };
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setSelectedJob(null);
+  const onRemoveJobClicked = (jobId: string) => {
+    submit(JSON.stringify({ intent: 'DELETE_JOB', entityId: jobId }), {
+      method: 'DELETE',
+      encType: 'application/json'
+    });
   };
 
   return (
-    <>
-      <JobsList
-        jobs={data.jobs}
-        state={state}
-        onJobClick={handleJobClick}
-        onDeleteJob={handleDeleteJob}
-      />
-
-      <JobDetailsDialog
-        job={selectedJob}
-        isOpen={isDialogOpen}
-        onClose={handleCloseDialog}
-        onDelete={handleDeleteFromDialog}
-      />
-    </>
+    <JobsList
+      jobs={data.jobs}
+      state={state}
+      onDisplayJobClick={handleJobClick}
+      onRemoveJobClick={handleRemoveJob}
+    />
   );
 }

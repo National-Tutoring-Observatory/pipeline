@@ -100,7 +100,7 @@ export default function AppSidebar() {
               <Role roles={['SUPER_ADMIN']}>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild >
-                    <NavLink to={'/queues'}>
+                    <NavLink to={'/queues/tasks/active'}>
                       {({ isActive }) => (
                         <>
                           <ChartNoAxesGantt />

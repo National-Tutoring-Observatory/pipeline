@@ -2,7 +2,8 @@ import { Outlet, redirect, useFetcher, useLoaderData, useParams } from "react-ro
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin, validateSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
 import type { User } from "~/modules/users/users.types";
-import { QueueControls, QueueStateTabs } from "../components";
+import QueueControls from "../components/queueControls";
+import QueueStateTabs from "../components/queueStateTabs";
 import getQueue from "../helpers/getQueue";
 import type { Route } from "./+types/queue.route";
 
@@ -59,7 +60,7 @@ export default function QueueRoute() {
 
   const states = [
     { key: 'active', label: 'Active', count: data.jobCounts.active },
-    { key: 'wait', label: 'Waiting', count: data.jobCounts.wait },
+    { key: 'wait', label: 'Wait', count: data.jobCounts.wait },
     { key: 'completed', label: 'Completed', count: data.jobCounts.completed },
     { key: 'failed', label: 'Failed', count: data.jobCounts.failed },
     { key: 'delayed', label: 'Delayed', count: data.jobCounts.delayed }
@@ -79,18 +80,19 @@ export default function QueueRoute() {
   return (
     <div>
       <div className="mb-6">
-        <QueueControls
-          queueType={queueType}
-          onPauseResume={handlePauseResume}
-          isPaused={data.isPaused}
-        />
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <QueueStateTabs
+            queueType={queueType}
+            states={states}
+          />
 
-        <QueueStateTabs
-          queueType={queueType}
-          states={states}
-        />
+          <QueueControls
+            queueType={queueType}
+            onPauseResume={handlePauseResume}
+            isPaused={data.isPaused}
+          />
+        </div>
       </div>
-
       <Outlet />
     </div>
   );

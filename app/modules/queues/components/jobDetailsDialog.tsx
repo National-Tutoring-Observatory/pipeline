@@ -1,0 +1,129 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import dayjs from 'dayjs';
+import type { Job } from "../queues.types";
+import JobCodeBlock from "./JobCodeBlock";
+import JobDetailField from "./JobDetailField";
+
+interface JobDetailsDialogProps {
+  job: Job | null;
+  onDelete: (job: Job) => void;
+}
+
+export default function JobDetailsDialog({ job, onDelete }: JobDetailsDialogProps) {
+  if (!job) return null;
+
+  const handleDelete = () => {
+    onDelete(job);
+  };
+
+  return (
+    <DialogContent className="max-h-[80vh] flex flex-col">
+      <DialogHeader>
+        <DialogTitle>Job Details</DialogTitle>
+        <DialogDescription>
+          View and manage queue job information
+        </DialogDescription>
+      </DialogHeader>
+
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="space-y-4 pb-4">
+          <JobDetailField label="Job Name" value={job.name} />
+
+          <JobDetailField
+            label="Job ID"
+            value={job.id}
+            valueClassName="font-mono"
+          />
+
+          <JobDetailField
+            label="Queue"
+            value={job.queue}
+            valueClassName="capitalize"
+          />
+
+          <JobDetailField label="State">
+            <Badge variant="outline" className="capitalize">
+              {job.state}
+            </Badge>
+          </JobDetailField>
+
+          <JobDetailField
+            label="Created"
+            value={job.timestamp
+              ? dayjs(job.timestamp).format('ddd, MMM D, YYYY - h:mm A')
+              : 'Unknown'
+            }
+          />
+
+          <JobDetailField
+            label="Processed On"
+            value={job.processedOn
+              ? dayjs(job.processedOn).format('ddd, MMM D, YYYY - h:mm A')
+              : 'Not processed yet'
+            }
+          />
+
+          <JobDetailField
+            label="Finished On"
+            value={job.finishedOn
+              ? dayjs(job.finishedOn).format('ddd, MMM D, YYYY - h:mm A')
+              : 'Not finished yet'
+            }
+          />
+
+          <JobDetailField
+            label="Attempts Made"
+            value={job.attemptsMade || 0}
+          />
+
+          <JobCodeBlock
+            label="Return Value"
+            value={job.returnvalue}
+            fallback="No return value yet"
+          />
+
+          <JobCodeBlock
+            label="Job Data"
+            value={job.data}
+            fallback="No job data"
+          />
+
+          <JobCodeBlock
+            label="Job Options"
+            value={job.opts}
+            fallback="No job options"
+          />
+
+          <JobDetailField
+            label="Failed Reason"
+            value={job.failedReason || 'No failure reason'}
+          />
+
+          <JobCodeBlock
+            label="Stack Trace"
+            value={job.stacktrace?.join('\n')}
+            fallback="No stack trace"
+          />
+        </div>
+      </div>
+
+      <DialogFooter className="flex-shrink-0 border-t pt-4">
+        <DialogClose asChild>
+          <Button variant="outline">Close</Button>
+        </DialogClose>
+        <Button variant="destructive" onClick={handleDelete}>
+          Remove Job
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  );
+}

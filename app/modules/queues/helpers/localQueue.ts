@@ -51,8 +51,7 @@ export default class LocalQueue {
       }
     }) as { data: Job };
 
-    // Return job data with BullMQ-compatible methods
-    return this.addJobMethods(jobObject.data);
+    return this.addBullMQCompatibility(jobObject.data);
 
   }
 
@@ -61,10 +60,15 @@ export default class LocalQueue {
 
     match.queue = this.name;
 
-    return await documents.getDocuments({
+    const result = await documents.getDocuments({
       collection: 'jobs',
       match
     }) as { data: Job[], count: number };
+
+    return {
+      ...result,
+      data: result.data.map(jobData => this.addBullMQCompatibility(jobData))
+    };
   }
 
   count = async () => {
@@ -146,8 +150,7 @@ export default class LocalQueue {
       return null;
     }
 
-    // Return job data with BullMQ-compatible methods
-    return this.addJobMethods(job.data);
+    return this.addBullMQCompatibility(job.data);
   }
 
   remove = async (jobId: string) => {
@@ -184,25 +187,36 @@ export default class LocalQueue {
 
   pause = async (): Promise<void> => {
     this._isPaused = true;
-    const pauseFilePath = path.join(process.cwd(), `data/queue-${this.name}-paused`);
-    await fse.writeFile(pauseFilePath, '');
+    await fse.writeFile(this.getPauseFilePath(), '');
   }
 
   resume = async (): Promise<void> => {
     this._isPaused = false;
-    const pauseFilePath = path.join(process.cwd(), `data/queue-${this.name}-paused`);
-    await fse.remove(pauseFilePath);
+    await fse.remove(this.getPauseFilePath());
   }
 
   isPaused = async (): Promise<boolean> => {
+    const fileExists = await fse.pathExists(this.getPauseFilePath());
+
+    this._isPaused = fileExists;
+
     return this._isPaused;
   }
 
-  private addJobMethods = (jobData: Job) => {
+  private getPauseFilePath = (): string => {
+    return path.join(process.cwd(), `data/queue-${this.name}.lock`);
+  }
+
+  private addBullMQCompatibility = (jobData: Job): Job & {
+    remove: () => Promise<number>;
+    updateData: (data: any) => Promise<any>;
+    getState: () => Promise<string>;
+  } => {
     const documents = getDocumentsAdapter();
 
     return {
       ...jobData,
+      id: jobData._id,
       remove: async () => {
         const result = await this.remove(jobData._id);
         if (result === 0) {
@@ -215,14 +229,6 @@ export default class LocalQueue {
           collection: 'jobs',
           match: { _id: jobData._id },
           update: { data }
-        });
-        return updatedJob;
-      },
-      updateProgress: async (progress: any) => {
-        const updatedJob = await documents.updateDocument({
-          collection: 'jobs',
-          match: { _id: jobData._id },
-          update: { progress }
         });
         return updatedJob;
       },

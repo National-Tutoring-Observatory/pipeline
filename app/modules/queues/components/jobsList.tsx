@@ -9,17 +9,53 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import dayjs from 'dayjs';
+import orderBy from "lodash/orderBy";
 import { EllipsisVertical } from "lucide-react";
+import { useMemo, useState } from "react";
 import type { Job } from "../queues.types";
+import SortableTableHead from "./sortableTableHead";
+
+type SortField = 'name' | 'timestamp' | 'processedOn' | 'finishedOn' | 'attemptsMade';
+type SortDirection = 'asc' | 'desc';
 
 interface JobsListProps {
   jobs: Job[];
   state: string;
-  onJobClick: (job: Job) => void;
-  onDeleteJob: (job: Job) => void;
+  onDisplayJobClick: (job: Job) => void;
+  onRemoveJobClick: (job: Job) => void;
 }
 
-export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsListProps) {
+export default function JobsList({ jobs, state, onDisplayJobClick, onRemoveJobClick }: JobsListProps) {
+  const [sortField, setSortField] = useState<SortField>('timestamp');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  const sortedJobs = useMemo(() => {
+    const jobsWithSortValues = jobs.map(job => ({
+      ...job,
+      _sortValues: {
+        name: job.name,
+        timestamp: job.timestamp ? dayjs(job.timestamp).valueOf() : null,
+        processedOn: job.processedOn ? dayjs(job.processedOn).valueOf() : null,
+        finishedOn: job.finishedOn ? dayjs(job.finishedOn).valueOf() : null,
+        attemptsMade: job.attemptsMade || 0,
+      }
+    }));
+
+    return orderBy(
+      jobsWithSortValues,
+      [`_sortValues.${sortField}`],
+      [sortDirection]
+    );
+  }, [jobs, sortField, sortDirection]);
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field as SortField);
+      setSortDirection('desc');
+    }
+  };
 
   if (jobs.length === 0) {
     return (
@@ -39,20 +75,56 @@ export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsL
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[250px]">Job Name</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead>Processed</TableHead>
-            <TableHead>Finished</TableHead>
-            <TableHead>Attempts</TableHead>
+            <SortableTableHead
+              field="name"
+              currentSortField={sortField}
+              currentSortDirection={sortDirection}
+              onSort={handleSort}
+              className="w-[250px]"
+            >
+              Job Name
+            </SortableTableHead>
+            <SortableTableHead
+              field="timestamp"
+              currentSortField={sortField}
+              currentSortDirection={sortDirection}
+              onSort={handleSort}
+            >
+              Created
+            </SortableTableHead>
+            <SortableTableHead
+              field="processedOn"
+              currentSortField={sortField}
+              currentSortDirection={sortDirection}
+              onSort={handleSort}
+            >
+              Processed
+            </SortableTableHead>
+            <SortableTableHead
+              field="finishedOn"
+              currentSortField={sortField}
+              currentSortDirection={sortDirection}
+              onSort={handleSort}
+            >
+              Finished
+            </SortableTableHead>
+            <SortableTableHead
+              field="attemptsMade"
+              currentSortField={sortField}
+              currentSortDirection={sortDirection}
+              onSort={handleSort}
+            >
+              Attempts
+            </SortableTableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {jobs.map((job) => (
-            <TableRow key={job._id}>
+          {sortedJobs.map((job) => (
+            <TableRow key={job.id}>
               <TableCell className="font-medium">
                 <button
-                  onClick={() => onJobClick(job)}
+                  onClick={() => onDisplayJobClick(job)}
                   className="text-left w-full hover:underline"
                 >
                   {job.name}
@@ -92,15 +164,15 @@ export default function JobsList({ jobs, state, onJobClick, onDeleteJob }: JobsL
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-40">
-                    <DropdownMenuItem onClick={() => onJobClick(job)}>
+                    <DropdownMenuItem onClick={() => onDisplayJobClick(job)}>
                       View Details
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       variant="destructive"
-                      onClick={() => onDeleteJob(job)}
+                      onClick={() => onRemoveJobClick(job)}
                     >
-                      Delete Job
+                      Remove
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

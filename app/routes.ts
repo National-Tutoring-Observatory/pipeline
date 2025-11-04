@@ -67,6 +67,7 @@ export default [
     index("modules/queues/containers/queues.route.tsx"),
     layout("modules/queues/containers/queuesLayout.route.tsx", [
       route(":type", "modules/queues/containers/queue.route.tsx", [
+        index("modules/queues/containers/queueIndex.route.tsx"),
         route(":state", "modules/queues/containers/queueJobs.route.tsx"),
       ]),
     ]),
