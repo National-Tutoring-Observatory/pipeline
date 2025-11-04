@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Job } from "../queues.types";
+import JobDetailField from "./JobDetailField";
 
 interface DeleteJobDialogProps {
   job: Job;
@@ -28,22 +29,19 @@ export default function DeleteJobDialog({ job, onRemoveJobClicked }: DeleteJobDi
         </DialogDescription>
       </DialogHeader>
 
-      <div className="py-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Job Name</label>
-          <p className="text-sm text-muted-foreground">{job.name}</p>
-        </div>
+      <JobDetailField label="Job Name" value={job.name} />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Job ID</label>
-          <p className="text-sm text-muted-foreground font-mono">{job.id}</p>
-        </div>
+      <JobDetailField
+        label="Job ID"
+        value={job.id}
+        valueClassName="font-mono"
+      />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">State</label>
-          <p className="text-sm text-muted-foreground capitalize">{job.state}</p>
-        </div>
-      </div>
+      <JobDetailField
+        label="State"
+        value={job.state}
+        valueClassName="capitalize"
+      />
 
       <DialogFooter className="justify-end">
         <DialogClose asChild>
