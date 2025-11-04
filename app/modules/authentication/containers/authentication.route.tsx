@@ -1,7 +1,7 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
 // @ts-ignore
-import sessionStorage from '../../../sessionStorage.js';
+import sessionStorage from '../../../../sessionStorage.js';
 import { authenticator } from "../authentication.server";
 import getSessionUser from "../helpers/getSessionUser";
 import type { Route } from "./+types/authentication.route";

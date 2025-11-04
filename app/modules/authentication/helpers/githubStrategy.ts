@@ -5,7 +5,7 @@ import { GitHubStrategy } from "remix-auth-github";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User, UserTeam } from "~/modules/users/users.types";
 // @ts-ignore
-import sessionStorage from '../../../sessionStorage.js';
+import sessionStorage from '../../../../sessionStorage.js';
 
 const githubStrategy = new GitHubStrategy<User>(
   {

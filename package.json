@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "node ./app/adapters.js && react-router build",
-    "dev": "node ./app/adapters.js && cross-env NODE_ENV=development node ./app/server.js",
-    "start": "PORT=5173 node ./app/server.js",
+    "dev": "node ./app/adapters.js && cross-env NODE_ENV=development node ./server.js",
+    "start": "PORT=5173 node ./server.js",
     "workers": "cd workers && yarn workers",
     "typecheck": "react-router typegen && tsc"
   },
