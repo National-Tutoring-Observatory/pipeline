@@ -13,46 +13,46 @@ export function setupSockets({ server }) {
     redis = new Redis(process.env.REDIS_URL, {
       maxRetriesPerRequest: null
     });
-  }
+    const io = new Server(server);
 
-  const io = new Server(server);
+    const pubClient = redis.duplicate();
+    const subClient = redis.duplicate();
 
-  const pubClient = redis.duplicate();
-  const subClient = redis.duplicate();
+    io.adapter(createAdapter(pubClient, subClient));
 
-  io.adapter(createAdapter(pubClient, subClient));
+    io.use(async (socket, next) => {
+      const cookieHeader = socket.handshake.headers.cookie;
 
-  io.use(async (socket, next) => {
-    const cookieHeader = socket.handshake.headers.cookie;
-
-    if (!cookieHeader) {
-      return next(new Error('Authentication error: No cookie provided'));
-    }
-
-    try {
-      const session = await sessionStorage.getSession(cookieHeader);
-
-      const user = session.get('user');
-
-      if (!user) {
-        return next(new Error('Authentication error: Invalid session'));
+      if (!cookieHeader) {
+        return next(new Error('Authentication error: No cookie provided'));
       }
 
-      socket.user = user;
-      next();
+      try {
+        const session = await sessionStorage.getSession(cookieHeader);
 
-    } catch (error) {
-      return next(new Error('Authentication error: Session could not be parsed'));
-    }
-  });
+        const user = session.get('user');
 
-  io.on('connection', (socket) => {
-    console.log(`Client connected: ${socket.id}, User: ${socket.user.username}`);
+        if (!user) {
+          return next(new Error('Authentication error: Invalid session'));
+        }
 
-    socket.on('disconnect', () => {
-      console.log(`Client disconnected: ${socket.id}`);
+        socket.user = user;
+        next();
+
+      } catch (error) {
+        return next(new Error('Authentication error: Session could not be parsed'));
+      }
     });
-  });
+
+    io.on('connection', (socket) => {
+      console.log(`Client connected: ${socket.id}, User: ${socket.user.username}`);
+
+      socket.on('disconnect', () => {
+        console.log(`Client disconnected: ${socket.id}`);
+      });
+    });
+  }
+
 
 
 }
