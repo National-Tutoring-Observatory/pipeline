@@ -11,30 +11,6 @@ export default class LocalQueue {
 
   constructor(name: string) {
     this.name = name;
-    this.debug();
-  }
-
-  debug = () => {
-    setTimeout(async () => {
-      const count = await this.count();
-      console.log('queue.count', count);
-      const getJobCounts = await this.getJobCounts();
-      console.log('queue.getJobCounts', getJobCounts);
-      const getActive = await this.getActive();
-      console.log('queue.getActive', getActive);
-      const getWaiting = await this.getWaiting();
-      console.log('queue.getWaiting', getWaiting);
-      const getCompleted = await this.getCompleted();
-      console.log('queue.getCompleted', getCompleted);
-      const getFailed = await this.getFailed();
-      console.log('queue.getFailed', getFailed);
-      const getDelayed = await this.getDelayed();
-      console.log('queue.getDelayed', getDelayed);
-      const getJob = await this.getJob("69022d2acf4d87c30ae4ad5c");
-      console.log('queue.getJob', getJob);
-      const remove = await this.remove("690282d367f8be03945dacff");
-      console.log('queue.remove', remove);
-    }, 1000);
   }
 
   add = async (name: string, job: any, options: any) => {
