@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import dayjs from 'dayjs';
 import type { Job } from "../queues.types";
+import JobCodeBlock from "./JobCodeBlock";
+import JobDetailField from "./JobDetailField";
 
 interface JobDetailsDialogProps {
   job: Job | null;
@@ -34,131 +36,93 @@ export default function JobDetailsDialog({ job, onDelete }: JobDetailsDialogProp
 
       <div className="flex-1 overflow-y-auto min-h-0">
         <div className="space-y-4 pb-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Job Name</label>
-            <p className="text-sm text-muted-foreground">{job.name}</p>
-          </div>
+          <JobDetailField label="Job Name" value={job.name} />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Job ID</label>
-            <p className="text-sm text-muted-foreground font-mono">{job.id}</p>
-          </div>
+          <JobDetailField
+            label="Job ID"
+            value={job.id}
+            valueClassName="font-mono"
+          />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Queue</label>
-            <p className="text-sm text-muted-foreground capitalize">{job.queue}</p>
-          </div>
+          <JobDetailField
+            label="Queue"
+            value={job.queue}
+            valueClassName="capitalize"
+          />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">State</label>
-            <div>
-              <Badge variant="outline" className="capitalize">
-                {job.state}
-              </Badge>
-            </div>
-          </div>
+          <JobDetailField label="State">
+            <Badge variant="outline" className="capitalize">
+              {job.state}
+            </Badge>
+          </JobDetailField>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Created</label>
-            <p className="text-sm text-muted-foreground">
-              {job.timestamp
-                ? dayjs(job.timestamp).format('ddd, MMM D, YYYY - h:mm A')
-                : 'Unknown'
-              }
-            </p>
-          </div>
+          <JobDetailField
+            label="Created"
+            value={job.timestamp
+              ? dayjs(job.timestamp).format('ddd, MMM D, YYYY - h:mm A')
+              : 'Unknown'
+            }
+          />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Processed On</label>
-            <p className="text-sm text-muted-foreground">
-              {job.processedOn
-                ? dayjs(job.processedOn).format('ddd, MMM D, YYYY - h:mm A')
-                : 'Not processed yet'
-              }
-            </p>
-          </div>
+          <JobDetailField
+            label="Processed On"
+            value={job.processedOn
+              ? dayjs(job.processedOn).format('ddd, MMM D, YYYY - h:mm A')
+              : 'Not processed yet'
+            }
+          />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Finished On</label>
-            <p className="text-sm text-muted-foreground">
-              {job.finishedOn
-                ? dayjs(job.finishedOn).format('ddd, MMM D, YYYY - h:mm A')
-                : 'Not finished yet'
-              }
-            </p>
-          </div>
+          <JobDetailField
+            label="Finished On"
+            value={job.finishedOn
+              ? dayjs(job.finishedOn).format('ddd, MMM D, YYYY - h:mm A')
+              : 'Not finished yet'
+            }
+          />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Attempts Made</label>
-            <p className="text-sm text-muted-foreground">{job.attemptsMade || 0}</p>
-          </div>
+          <JobDetailField
+            label="Attempts Made"
+            value={job.attemptsMade || 0}
+          />
 
+          <JobCodeBlock
+            label="Return Value"
+            value={job.returnvalue}
+            fallback="No return value yet"
+          />
 
+          <JobCodeBlock
+            label="Job Data"
+            value={job.data}
+            fallback="No job data"
+          />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Failed Reason</label>
-            <p className="text-sm text-muted-foreground">
-              {job.failedReason || 'No failure reason'}
-            </p>
-          </div>
+          <JobCodeBlock
+            label="Job Options"
+            value={job.opts}
+            fallback="No job options"
+          />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Stack Trace</label>
-            <div className="border rounded bg-muted max-h-32 overflow-auto mt-2">
-              <pre className="text-xs text-muted-foreground p-3 whitespace-pre-wrap break-words">
-                {job.stacktrace && job.stacktrace.length > 0
-                  ? job.stacktrace.join('\n')
-                  : 'No stack trace'
-                }
-              </pre>
-            </div>
-          </div>
+          <JobDetailField
+            label="Failed Reason"
+            value={job.failedReason || 'No failure reason'}
+          />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Return Value</label>
-            <div className="border rounded bg-muted max-h-32 overflow-auto mx-2 mt-2">
-              <pre className="text-xs text-muted-foreground p-3 whitespace-pre-wrap break-words">
-                {job.returnvalue ? JSON.stringify(job.returnvalue, null, 2) : 'No return value yet'}
-              </pre>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Job Data</label>
-            <div className="border rounded bg-muted max-h-32 overflow-auto mt-2">
-              <pre className="text-xs text-muted-foreground p-3 whitespace-pre-wrap break-words">
-                {job.data ? JSON.stringify(job.data, null, 2) : 'No job data'}
-              </pre>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Job Options</label>
-            <div className="border rounded bg-muted max-h-32 overflow-auto mt-2">
-              <pre className="text-xs text-muted-foreground p-3 whitespace-pre-wrap break-words">
-                {job.opts ? JSON.stringify(job.opts, null, 2) : 'No job options'}
-              </pre>
-            </div>
-          </div>
-
+          <JobCodeBlock
+            label="Stack Trace"
+            value={job.stacktrace?.join('\n')}
+            fallback="No stack trace"
+          />
         </div>
       </div>
 
       <DialogFooter className="flex-shrink-0 border-t pt-4">
-        <div className="flex items-center justify-between w-full">
-          <div>
-            <p className="text-sm font-medium text-destructive">Danger Zone</p>
-            <p className="text-xs text-muted-foreground">Delete this job from the queue</p>
-          </div>
-          <div className="flex gap-2">
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete Job
-            </Button>
-          </div>
-        </div>
+        <DialogClose asChild>
+          <Button variant="outline">Close</Button>
+        </DialogClose>
+        <Button variant="destructive" onClick={handleDelete}>
+          Remove Job
+        </Button>
       </DialogFooter>
     </DialogContent>
   );
