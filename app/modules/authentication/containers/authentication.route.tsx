@@ -1,8 +1,10 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import { authenticator, sessionStorage } from "../authentication.server";
-import type { Route } from "./+types/authentication.route";
 import type { User } from "~/modules/users/users.types";
+// @ts-ignore
+import sessionStorage from '../../../sessionStorage.js';
+import { authenticator } from "../authentication.server";
 import getSessionUser from "../helpers/getSessionUser";
+import type { Route } from "./+types/authentication.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
   let user = await getSessionUser({ request });
@@ -21,14 +23,14 @@ export async function loader({ request }: Route.LoaderArgs) {
         "Set-Cookie": await sessionStorage.commitSession(session),
       });
 
-      return Response.json({ authentication: { data: user } }, { headers });
+      return Response.json({ authentication: { data: user }, isAppRunningLocally: process.env.DOCUMENTS_ADAPTER === 'LOCAL' }, { headers });
     }
     return {
       authentication: {}
     }
   }
 
-  return { authentication: { data: user } };
+  return { authentication: { data: user }, isAppRunningLocally: process.env.DOCUMENTS_ADAPTER === 'LOCAL' };
 
 }
 

@@ -1,6 +1,8 @@
 import { redirect } from "react-router";
+// @ts-ignore
+import sessionStorage from '../../../sessionStorage.js';
+import { authenticator } from "../authentication.server";
 import type { Route } from "./+types/authCallback.route";
-import { authenticator, sessionStorage } from "../authentication.server";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
 
