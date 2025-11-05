@@ -4,15 +4,16 @@
   "type": "module",
   "workspaces": [
     "workers",
-    "local-mode"
+    "localMode"
   ],
   "scripts": {
     "build": "node ./app/adapters.js && react-router build",
     "dev": "node ./app/adapters.js && cross-env NODE_ENV=development tsx watch ./server.ts",
     "start": "PORT=5173 tsx ./server.ts",
     "workers": "yarn workspace pipeline-worker dev",
-    "redis": "yarn workspace local-mode redis",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "redis": "yarn workspace localMode redis",
+    "localmode": "./localMode/bin/start-all.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",

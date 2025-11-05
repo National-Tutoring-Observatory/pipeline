@@ -1,7 +1,7 @@
 .DS_Store
 /node_modules/
 /workers/node_modules/
-/local-mode/node_modules/
+/localMode/node_modules/
 
 # React Router
 /.react-router/
