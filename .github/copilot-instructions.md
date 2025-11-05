@@ -46,6 +46,12 @@ Assistant: "I'd like to clarify a few things:
 Let me check the existing patterns..."
 ```
 
+### When to proceed with coding
+
+- Once you have a clear understanding of the requirements and context
+- After confirming any ambiguities with the user
+- Start development and apply the changes to the codebase
+
 ### Problem-Solving Workflow
 1. **Read and understand** the full request
 2. **Examine existing code** to understand patterns and find similar implementations
