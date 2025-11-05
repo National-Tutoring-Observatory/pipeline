@@ -3,7 +3,12 @@ import dotenv from 'dotenv';
 import express from "express";
 import http from 'http';
 import morgan from "morgan";
-import { setupSockets } from "./sockets.js";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import type { User } from "~/modules/users/users.types";
+import { setupSockets } from "./sockets";
+// These imports are needed to handle the inline import. These are not duplicates
+import './app/modules/documents/documents';
+import './app/modules/storage/storage';
 dotenv.config({ path: '.env' })
 
 // Short-circuit the type-checking of the built output.
@@ -50,6 +55,30 @@ if (DEVELOPMENT) {
   app.use(await import(BUILD_PATH).then((mod) => mod.app));
 }
 
+const checkSuperAdminExists = async () => {
+  const documents = getDocumentsAdapter();
+
+  const user = await documents.getDocument({
+    collection: 'users',
+    match: { role: 'SUPER_ADMIN', githubId: parseInt(process.env.SUPER_ADMIN_GITHUB_ID as string) }
+  }) as { data: User | undefined };
+
+  if (!user.data) {
+    await documents.createDocument({
+      collection: 'users',
+      update: {
+        role: 'SUPER_ADMIN',
+        username: 'local',
+        githubId: process.env.SUPER_ADMIN_GITHUB_ID,
+        hasGithubSSO: process.env.SUPER_ADMIN_GITHUB_ID ? true : false,
+        isRegistered: true,
+        registeredAt: new Date()
+      }
+    })
+  }
+}
+
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  checkSuperAdminExists();
 });

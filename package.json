@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "node ./app/adapters.js && react-router build",
-    "dev": "node ./app/adapters.js && cross-env NODE_ENV=development node ./server.js",
-    "start": "PORT=5173 node ./server.js",
+    "dev": "node ./app/adapters.js && cross-env NODE_ENV=development node --import=tsx ./server.js",
+    "start": "PORT=5173 node --import=tsx ./server.js",
     "workers": "cd workers && yarn workers",
     "typecheck": "react-router typegen && tsc"
   },
@@ -60,15 +60,18 @@
     "socket.io-client": "^4.8.1",
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.1",
+    "tsx": "^4.20.6",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@react-router/dev": "^7.5.3",
     "@tailwindcss/vite": "^4.1.4",
     "@types/archiver": "^6.0.3",
+    "@types/compression": "^1.8.1",
     "@types/express": "^5.0.5",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.17",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
