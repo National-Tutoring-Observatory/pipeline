@@ -1,5 +1,9 @@
+import getSockets from "../helpers/getSockets.js";
+
 export default async (job) => {
   try {
+    const sockets = await getSockets()
+    console.log(sockets);
     switch (job.name) {
       case 'ANNOTATE_PER_UTTERANCE': {
         console.log('Annotating per utterance');

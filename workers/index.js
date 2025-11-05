@@ -1,5 +1,5 @@
-import createWorker from './helpers/createWorker.js';
 import path from 'path';
+import createWorker from './helpers/createWorker.js';
 const root = path.resolve(`./`);
 global.root = root;
 
