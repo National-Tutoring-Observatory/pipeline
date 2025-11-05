@@ -14,6 +14,9 @@ app.use((req, res, next) => {
   if (req.path.startsWith('/socket.io/')) {
     return next();
   }
+  if (req.path.startsWith('/api/sockets')) {
+    return next();
+  }
   return createRequestHandler({
     build: () => import("virtual:react-router/server-build"),
     getLoadContext() {

@@ -20,7 +20,7 @@ const app = express();
 
 const server = http.createServer(app);
 
-setupSockets({ server });
+setupSockets({ server, app });
 
 app.use(compression());
 app.disable("x-powered-by");

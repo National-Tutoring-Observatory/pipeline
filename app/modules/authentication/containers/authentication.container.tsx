@@ -29,9 +29,7 @@ export default function AuthenticationContainer({ children }: { children: ReactN
       const isAppRunningLocally = get(authenticationFetcher, 'data.isAppRunningLocally', false);
       if (authentication) {
         setAuthentication(authentication);
-        if (!isAppRunningLocally) {
-          connectSockets();
-        }
+        connectSockets(isAppRunningLocally);
       }
     }
   }, [authenticationFetcher.state]);
