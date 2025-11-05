@@ -1,8 +1,8 @@
-import { Component, useEffect, useState } from 'react';
-import PromptSelector from '../components/promptSelector';
-import { useFetcher } from 'react-router';
-import get from 'lodash/get';
 import find from 'lodash/find';
+import get from 'lodash/get';
+import { useEffect, useState } from 'react';
+import { useFetcher } from 'react-router';
+import PromptSelector from '../components/promptSelector';
 
 export default function PromptSelectorContainer({
   annotationType,
@@ -35,11 +35,15 @@ export default function PromptSelectorContainer({
 
   useEffect(() => {
     const params = new URLSearchParams();
-    params.set('annotationType', annotationType)
-    params.set('prompt', String(selectedPrompt))
+    params.set('annotationType', annotationType);
+
     promptsFetcher.load(`/api/promptsList?${params.toString()}`);
-    promptVersionsFetcher.load(`/api/promptVersionsList?${params.toString()}`);
-  }, []);
+
+    if (selectedPrompt) {
+      params.set('prompt', selectedPrompt);
+      promptVersionsFetcher.load(`/api/promptVersionsList?${params.toString()}`);
+    }
+  }, [selectedPrompt]);
 
   const onTogglePromptVersionsPopover = (isPromptsOpen: boolean) => {
     setIsPromptVersionsOpen(isPromptsOpen);
