@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import { Server } from 'socket.io';
 import sessionStorage from './sessionStorage.js';
 
-export function setupSockets({ server }) {
+export function setupSockets({ server }: { server: any }) {
 
   let redis;
 
@@ -35,7 +35,7 @@ export function setupSockets({ server }) {
         if (!user) {
           return next(new Error('Authentication error: Invalid session'));
         }
-
+        // @ts-ignore
         socket.user = user;
         next();
 
@@ -45,6 +45,7 @@ export function setupSockets({ server }) {
     });
 
     io.on('connection', (socket) => {
+      // @ts-ignore
       console.log(`Client connected: ${socket.id}, User: ${socket.user.username}`);
 
       socket.on('disconnect', () => {
