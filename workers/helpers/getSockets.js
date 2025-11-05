@@ -8,7 +8,7 @@ export default async () => {
 
   const pubClient = createClient({
     socket: {
-      tls: true
+      tls: process.env.REDIS_URL?.startsWith('rediss://')
     },
     pingInterval: 4 * 60 * 1000,
     url: process.env.REDIS_URL
