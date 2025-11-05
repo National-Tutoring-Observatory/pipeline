@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import path from 'path';
-import fs from 'fs-extra';
 
 interface DatabaseConnection {
   connection: mongoose.Connection;
@@ -14,7 +13,8 @@ export default async () => {
   const {
     DOCUMENT_DB_CONNECTION_STRING,
     DOCUMENT_DB_USERNAME,
-    DOCUMENT_DB_PASSWORD
+    DOCUMENT_DB_PASSWORD,
+    DOCUMENT_DB_LOCAL
   } = process.env;
 
   if (!DOCUMENT_DB_CONNECTION_STRING) {
@@ -33,11 +33,22 @@ export default async () => {
 
   if (!CONNECTION) {
     console.log('Database:connecting');
-    const connection = await mongoose.connect(connectionString as string, {
-      tls: true,
-      tlsCAFile: path.join(process.cwd(), 'global-bundle.pem'),
+
+    const connectionOptions: any = {
       connectTimeoutMS: 10000,
-    });
+    };
+
+    // Add TLS options only for remote connections (AWS DocumentDB)
+    const isLocalConnection = DOCUMENT_DB_LOCAL === 'true' ||
+      DOCUMENT_DB_CONNECTION_STRING.includes('localhost') ||
+      DOCUMENT_DB_CONNECTION_STRING.includes('127.0.0.1');
+
+    if (!isLocalConnection) {
+      connectionOptions.tls = true;
+      connectionOptions.tlsCAFile = path.join(process.cwd(), 'global-bundle.pem');
+    }
+
+    const connection = await mongoose.connect(connectionString, connectionOptions);
     CONNECTION = connection;
     mongoose.connection.on('error', err => {
       console.error('Mongoose connection error:', err);
