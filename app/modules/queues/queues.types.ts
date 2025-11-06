@@ -2,7 +2,7 @@ export interface Job {
   // Custom properties
   _id: string,
   id: string,
-  state: 'wait' | 'active' | 'completed' | 'failed' | 'delayed' | 'waiting-children',
+  state: 'active' | 'completed' | 'delayed' | 'failed' | 'paused' | 'prioritized' | 'waiting' | 'waiting-children',
   queue: 'tasks' | 'cron',
 
   // Core properties
