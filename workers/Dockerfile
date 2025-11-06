@@ -1,5 +1,5 @@
 FROM node:25-alpine
-COPY ./workers /app/
+COPY ./workers /app
 COPY ./global-bundle.pem /app/
 WORKDIR /app
 RUN npm ci --omit=dev
