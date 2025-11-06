@@ -95,6 +95,7 @@ yarn dev
 ```
 **Port**: http://localhost:5173
 **What it does**: Runs adapters.js first, then starts dev server with HMR
+**Note**: For full functionality (workers, Socket.IO), also run `yarn redis` in a separate terminal
 
 ### Production Server
 ```bash
@@ -103,16 +104,21 @@ yarn start
 **Port**: 5173 (configurable via PORT env var)
 **Prerequisites**: Must run `yarn build` first
 
+### Redis (For Background Jobs & Socket Communication)
+```bash
+yarn redis
+```
+**What it does**: Starts redis-memory-server for local development (if REDIS_URL not set)
+**When needed**: Required for workers, Socket.IO, and BullMQ functionality
+**Production**: Set REDIS_URL environment variable instead
+
 ### Workers (Background Jobs)
 ```bash
 yarn workers
 ```
-or
-```bash
-cd workers && yarn workers
-```
 **What it does**: Starts BullMQ workers for background task processing
-**Prerequisites**: Workers have their own `package.json` and need separate `yarn install`
+**Prerequisites**: Redis must be running (use `yarn redis` or set REDIS_URL)
+**Note**: Workers are now a yarn workspace, so `yarn install` at the root handles all dependencies
 
 ## CI/CD Validation
 
@@ -191,7 +197,7 @@ The codebase follows a **consistent error handling convention** for React Router
 - **`/app/storageAdapters/`** - Storage implementations (local filesystem, AWS S3)
 - **`/app/documentsAdapters/`** - Database implementations (local in-memory, MongoDB/DocumentDB)
 - **`/app/adapters.js`** - **CRITICAL**: Auto-generates storage imports
-- **`/workers/`** - Background job workers (separate package)
+- **`/workers/`** - Background job workers (yarn workspace)
 - **`/documentation/`** - Feature documentation and domain concepts
 
 ### Key Configuration Files
@@ -249,8 +255,9 @@ SUPER_ADMIN_GITHUB_ID='...'
 # Auth callback
 AUTH_CALLBACK_URL='http://localhost:5173/auth/callback'
 
-# Redis (for BullMQ workers)
-REDIS_URL='redis://localhost:6379'
+# Redis configuration (choose one)
+# REDIS_LOCAL='true'                  # Use local Redis (development)
+# REDIS_URL='redis://localhost:6379' # External Redis URL (production)
 ```
 
 ### Optional Environment Variables
@@ -287,10 +294,10 @@ When encountering issues, focus on understanding and fixing the root cause rathe
 **Prevention**: Always use `--frozen-lockfile` to match the lock file
 
 ### Workers failing to start
-**Root cause**: Workers have a separate `package.json` and their dependencies weren't installed
-**Diagnosis**: Check if `workers/node_modules/` exists
-**Fix**: Run `cd workers && yarn install` to install worker dependencies
-**Note**: Workers are a separate package to keep their dependencies isolated
+**Root cause**: Missing dependencies or Redis configuration
+**Diagnosis**: Check if root `yarn install` was run and Redis is available
+**Fix**: Run `yarn install` at the root (handles all workspaces) and ensure Redis is running
+**Note**: Workers are a yarn workspace managed by the root package.json
 
 ### Port 5173 already in use
 **Root cause**: Another dev server or process is already using the port
