@@ -18,6 +18,11 @@ export function setupSockets({ server, app }: { server: any, app: any }) {
     const pubClient = redis.duplicate();
     const subClient = redis.duplicate();
 
+    app.use((req: any, res: any, next: any) => {
+      req.io = io; // Attach the main 'io' server instance to every HTTP request
+      next();
+    });
+
     io.adapter(createAdapter(pubClient, subClient));
 
     io.use(async (socket, next) => {
@@ -53,11 +58,17 @@ export function setupSockets({ server, app }: { server: any, app: any }) {
       });
     });
   } else {
+
+    let socket: any = {};
+
+    app.use((req: any, res: any, next: any) => {
+      req.io = socket; // Attach the main 'io' server instance to every HTTP request
+      next();
+    });
     // @ts-ignore
     app.use(async (req, res, next) => {
       //console.log(req, res);
       if (req.path.startsWith('/api/sockets')) {
-        let socket = {};
         const cookieHeader = req.headers.cookie;
 
         if (!cookieHeader) {
@@ -74,12 +85,19 @@ export function setupSockets({ server, app }: { server: any, app: any }) {
           }
           // @ts-ignore
           socket.user = user;
+
           res.setHeader('Content-Type', 'text/event-stream');
           res.setHeader('Cache-Control', 'no-cache');
           res.setHeader('Connection', 'keep-alive');
           res.flushHeaders();
-          const connectionMessage = { "event": "connected" };
+          const connectionMessage = { "type": "connected" };
           res.write(`data: ${JSON.stringify(connectionMessage)}\n\n`);
+
+          socket.emit = (event: string, data: any) => {
+            const message = { "type": "message", event, data };
+            res.write(`data: ${JSON.stringify(message)}\n\n`);
+          }
+          req.io = socket;
 
           return;
 

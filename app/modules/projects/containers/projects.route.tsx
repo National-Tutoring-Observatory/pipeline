@@ -7,6 +7,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { getSockets } from '~/modules/sockets/sockets';
 import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
 import type { User } from "~/modules/users/users.types";
 import CreateProjectDialog from "../components/createProjectDialog";
@@ -21,12 +22,17 @@ type Projects = {
   data: Project[],
 };
 
-export async function loader({ request, params }: Route.LoaderArgs) {
+export async function loader({ request, params, context }: Route.LoaderArgs & { context: any }) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
   const projects = await documents.getDocuments({ collection: 'projects', match: { team: { $in: teamIds } }, sort: {}, populate: [{ path: 'team' }] }) as Projects;
+
+  setTimeout(() => {
+    context.io.emit('PROJECTS:REFRESH', { message: 'pong' });
+  }, 3000);
+
   return { projects };
 }
 
@@ -111,6 +117,13 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
 
   useEffect(() => {
     updateBreadcrumb([{ text: 'Projects' }])
+    const connectSockets = async () => {
+      const sockets: any = await getSockets();
+      sockets.on('PROJECTS:REFRESH', (data: any) => {
+        console.log('Sockets event triggered', data);
+      })
+    }
+    connectSockets();
   }, []);
 
   const onCreateProjectButtonClicked = () => {
