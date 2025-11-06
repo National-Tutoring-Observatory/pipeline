@@ -8,9 +8,9 @@
   ],
   "scripts": {
     "build": "node ./app/adapters.js && react-router build",
-    "dev": "node ./app/adapters.js && cross-env NODE_ENV=development node --import=tsx ./server.ts",
-    "start": "PORT=5173 node --import=tsx ./server.ts",
-    "workers": "yarn workspace pipeline-worker workers",
+    "dev": "node ./app/adapters.js && cross-env NODE_ENV=development tsx watch ./server.ts",
+    "start": "PORT=5173 tsx ./server.ts",
+    "workers": "yarn workspace pipeline-worker dev",
     "redis": "yarn workspace local-mode redis",
     "typecheck": "react-router typegen && tsc"
   },

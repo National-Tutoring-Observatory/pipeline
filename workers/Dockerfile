@@ -6,4 +6,4 @@ COPY ./global-bundle.pem ./
 RUN yarn install --frozen-lockfile --production
 COPY ./workers ./workers/
 EXPOSE 4000
-CMD ["yarn", "workers"]
+CMD ["yarn", "start"]
