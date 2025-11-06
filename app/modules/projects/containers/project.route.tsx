@@ -12,7 +12,6 @@ import type { Collection } from "~/modules/collections/collections.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
-import { getSockets } from '~/modules/sockets/sockets';
 import convertFileToFiles from "~/modules/uploads/convertFileToFiles";
 import convertFilesToSessions from "~/modules/uploads/convertFilesToSessions";
 import uploadFiles from "~/modules/uploads/uploadFiles";
@@ -126,12 +125,6 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   }
 
   useEffect(() => {
-
-    const setupSockets = async () => {
-      const sockets = await getSockets();
-    }
-
-    setupSockets();
 
     const eventSource = new EventSource("/api/events");
 

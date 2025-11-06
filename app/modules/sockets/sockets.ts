@@ -1,5 +1,5 @@
-import { io, Socket } from "socket.io-client";
-let SOCKETS: any | Socket = null;
+import { io } from "socket.io-client";
+let SOCKETS: any = null;
 
 export async function getSockets() {
   const promise = new Promise((resolve) => {
@@ -20,7 +20,14 @@ export async function getSockets() {
 export function connectSockets(isAppRunningLocally: boolean) {
 
   if (isAppRunningLocally) {
-    let socket = {};
+
+    let socket: any = {
+      on: (event: string, callback: (data: any) => void) => {
+        socket.listeners[event] = socket.listeners[event] || []
+        socket.listeners[event].push(callback);
+      },
+      listeners: {}
+    };
     const eventSource = new EventSource("/api/sockets");
 
     eventSource.onopen = () => {
@@ -29,8 +36,14 @@ export function connectSockets(isAppRunningLocally: boolean) {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.event === 'connected') return;
-      console.log(data);
+      if (data.type === 'connected') return;
+      if (data.type === 'message') {
+        if (socket.listeners[data.event]) {
+          for (const listener of socket.listeners[data.event]) {
+            listener(data.data);
+          }
+        }
+      }
     };
 
     SOCKETS = socket;

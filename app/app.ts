@@ -19,8 +19,10 @@ app.use((req, res, next) => {
   }
   return createRequestHandler({
     build: () => import("virtual:react-router/server-build"),
-    getLoadContext() {
-      return {};
+    getLoadContext(req: any) {
+      return {
+        io: req.io
+      };
     },
   })(req, res, next);
 });
