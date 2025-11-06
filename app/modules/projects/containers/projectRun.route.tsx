@@ -6,11 +6,13 @@ import annotateRunSessions from "~/functions/annotateRunSessions";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import hasFeatureFlag from '~/modules/featureFlags/helpers/hasFeatureFlag';
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import exportRun from "~/modules/runs/helpers/exportRun";
 import type { CreateRun, Run as RunType } from "~/modules/runs/runs.types";
 import ProjectRun from "../components/projectRun";
 import type { Project } from "../projects.types";
+import createRunAnnotations from '../services/createRunAnnotations.server';
 import startRun from '../services/startRun.server';
 import type { Route } from "./+types/projectRun.route";
 
@@ -69,9 +71,15 @@ export async function action({
         prompt,
         promptVersion,
         model
-      }, { context });
+      }, { request, context });
 
-      annotateRunSessions({ runId: run.data._id }, { request });
+      const hasWorkers = await hasFeatureFlag('HAS_WORKERS', { request });
+
+      if (hasWorkers) {
+        createRunAnnotations({ runId: run.data._id }, { request });
+      } else {
+        annotateRunSessions({ runId: run.data._id }, { request });
+      }
 
       return {}
     }

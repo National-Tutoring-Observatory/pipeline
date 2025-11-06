@@ -1,15 +1,15 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '../.env' })
 
-import { Worker, MetricsTime } from 'bullmq';
+import { Job, MetricsTime, Worker } from 'bullmq';
 import Redis from 'ioredis';
-import LocalWorker from './localWorker.js';
+import LocalWorker from './localWorker';
 
-export let redis;
+export let redis: Redis;
 
 const isRedisQueue = (process.env.REDIS_URL && process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB');
 
-export const WORKERS = {};
+export const WORKERS: any = {};
 
 if (isRedisQueue && process.env.REDIS_URL) {
   redis = new Redis(process.env.REDIS_URL, {
@@ -17,7 +17,7 @@ if (isRedisQueue && process.env.REDIS_URL) {
   });
 }
 
-export default async ({ name }, file) => {
+export default async ({ name }: { name: string }, file: string) => {
 
   let worker;
 
@@ -40,19 +40,20 @@ export default async ({ name }, file) => {
 
   if (worker) {
 
-    worker.on('active', (job) => {
+    worker.on('active', (job: Job) => {
       console.log('Job started', job.name);
     });
 
-    worker.on('completed', (job) => {
+    worker.on('completed', (job: Job) => {
       console.log('Job completed', job.name);
     });
-
-    worker.on('failed', (job, error) => {
+    // @ts-ignore
+    worker.on('failed', (job: Job, error: Error) => {
       console.log('Job failed', job.name, error);
     });
 
-    worker.on('error', err => {
+    // @ts-ignore
+    worker.on('error', (err: Error) => {
       console.error(err);
     });
 

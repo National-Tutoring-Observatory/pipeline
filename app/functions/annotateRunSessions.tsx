@@ -1,9 +1,7 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { emitter } from "~/modules/events/emitter";
-import hasFeatureFlag from "~/modules/featureFlags/helpers/hasFeatureFlag";
 import type { Project } from "~/modules/projects/projects.types";
 import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
-import createTaskJob from "~/modules/queues/helpers/createTaskJob";
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import { handler as annotatePerSession } from './annotatePerSession/app';
@@ -70,53 +68,26 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
     let status;
 
     try {
-      const hasWorkers = await hasFeatureFlag('HAS_WORKERS', context);
       if (run.data.annotationType === 'PER_UTTERANCE') {
-        if (hasWorkers) {
-          await createTaskJob({
-            task: 'ANNOTATE_PER_UTTERANCE',
-            job: {
-              inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-              outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
-              prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-              model: run.data.model,
-              team: project.data.team
-            }
-          });
-        } else {
-          await annotatePerUtterance({
-            body: {
-              inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-              outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
-              prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-              model: run.data.model,
-              team: project.data.team
-            }
-          });
-        }
+        await annotatePerUtterance({
+          body: {
+            inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
+            outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+            prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
+            model: run.data.model,
+            team: project.data.team
+          }
+        });
       } else {
-        if (hasWorkers) {
-          await createTaskJob({
-            task: 'ANNOTATE_PER_SESSION',
-            job: {
-              inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-              outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
-              prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-              model: run.data.model,
-              team: project.data.team
-            }
-          });
-        } else {
-          await annotatePerSession({
-            body: {
-              inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-              outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
-              prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-              model: run.data.model,
-              team: project.data.team
-            }
-          })
-        }
+        await annotatePerSession({
+          body: {
+            inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
+            outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+            prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
+            model: run.data.model,
+            team: project.data.team
+          }
+        })
       }
       status = 'DONE';
     } catch (error) {

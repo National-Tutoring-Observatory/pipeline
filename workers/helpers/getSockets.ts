@@ -1,4 +1,4 @@
-let SOCKETS;
+let SOCKETS: Emitter;
 import { Emitter } from '@socket.io/redis-emitter';
 import { createClient } from 'redis';
 
@@ -8,7 +8,7 @@ export default async () => {
 
   const pubClient = createClient({
     socket: {
-      tls: process.env.REDIS_URL?.startsWith('rediss://')
+      tls: process.env.REDIS_URL?.startsWith('rediss://') || undefined
     },
     pingInterval: 4 * 60 * 1000,
     url: process.env.REDIS_URL
