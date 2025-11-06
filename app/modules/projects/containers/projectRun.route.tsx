@@ -1,18 +1,18 @@
-import { redirect, useLoaderData, useRevalidator, useRouteLoaderData, useSubmit } from "react-router";
-import ProjectRun from "../components/projectRun";
-import type { CreateRun, Run as RunType } from "~/modules/runs/runs.types";
-import type { Route } from "./+types/projectRun.route";
-import { useEffect, useState } from "react";
-import throttle from 'lodash/throttle';
-import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
-import type { Session } from "~/modules/sessions/sessions.types";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import type { Project } from "../projects.types";
-import exportRun from "~/modules/runs/helpers/exportRun";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import annotateRunSessions from "~/functions/annotateRunSessions";
 import map from 'lodash/map';
+import throttle from 'lodash/throttle';
+import { useEffect, useState } from "react";
+import { redirect, useLoaderData, useRevalidator, useSubmit } from "react-router";
+import annotateRunSessions from "~/functions/annotateRunSessions";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
+import exportRun from "~/modules/runs/helpers/exportRun";
+import type { CreateRun, Run as RunType } from "~/modules/runs/runs.types";
+import ProjectRun from "../components/projectRun";
+import type { Project } from "../projects.types";
+import startRun from '../services/startRun.server';
+import type { Route } from "./+types/projectRun.route";
 
 type Run = {
   data: RunType,
@@ -40,6 +40,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export async function action({
   request,
   params,
+  context
 }: Route.ActionArgs) {
 
   const { intent, entityId, payload = {} } = await request.json();
@@ -58,35 +59,17 @@ export async function action({
   switch (intent) {
     case 'START_RUN': {
 
-      const run = await documents.getDocument({
-        collection: 'runs',
-        match: { _id: params.runId, project: params.projectId }
-      }) as Run;
+      const { runId, projectId } = params;
 
-      const sessionsAsObjects = [];
-
-      for (const session of sessions) {
-        const sessionModel = await documents.getDocument({ collection: 'sessions', match: { _id: session } }) as { data: Session };
-        sessionsAsObjects.push({
-          name: sessionModel.data.name,
-          fileType: sessionModel.data.fileType,
-          sessionId: session,
-          status: 'NOT_STARTED'
-        });
-      }
-
-      await documents.updateDocument({
-        collection: 'runs',
-        match: { _id: params.runId },
-        update: {
-          hasSetup: true,
-          annotationType,
-          prompt,
-          promptVersion,
-          model,
-          sessions: sessionsAsObjects
-        }
-      }) as Run;
+      const run = await startRun({
+        runId,
+        projectId,
+        sessions,
+        annotationType,
+        prompt,
+        promptVersion,
+        model
+      }, { context });
 
       annotateRunSessions({ runId: run.data._id }, { request });
 
