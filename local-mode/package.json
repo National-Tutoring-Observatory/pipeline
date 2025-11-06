@@ -1,0 +1,11 @@
+{
+  "name": "local-mode",
+  "private": true,
+  "scripts": {
+    "redis": "node redis.js"
+  },
+  "dependencies": {
+    "redis-memory-server": "^0.14.0"
+  },
+  "version": "1.0.0"
+}

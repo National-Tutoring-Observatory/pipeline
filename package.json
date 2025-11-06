@@ -3,13 +3,15 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "workers"
+    "workers",
+    "local-mode"
   ],
   "scripts": {
     "build": "node ./app/adapters.js && react-router build",
     "dev": "node ./app/adapters.js && cross-env NODE_ENV=development node --import=tsx ./server.ts",
     "start": "PORT=5173 node --import=tsx ./server.ts",
     "workers": "yarn workspace pipeline-worker workers",
+    "redis": "yarn workspace local-mode redis",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
