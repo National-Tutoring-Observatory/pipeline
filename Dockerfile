@@ -15,13 +15,10 @@ WORKDIR /app
 RUN npm run build
 
 FROM node:25-alpine
-COPY ./package.json package-lock.json /app/
+COPY ./package.json package-lock.json tsconfig.json server.ts sessionStorage.ts sockets.ts global-bundle.pem /app/
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
-COPY ./server.ts /app/
-COPY ./sessionStorage.ts /app/
-COPY ./sockets.ts /app/
-COPY ./global-bundle.pem /app/
+COPY ./app /app/app
 COPY ./documentation /app/documentation
 COPY ./public /app/public
 WORKDIR /app
