@@ -29,3 +29,13 @@ export interface CreateRun {
   selectedModel: string,
   selectedSessions: string[]
 }
+
+export interface StartRunProps {
+  runId: string
+  projectId: string,
+  sessions: string[],
+  annotationType: 'PER_UTTERANCE' | 'PER_SESSION',
+  prompt: string
+  promptVersion: number,
+  model: string
+}
