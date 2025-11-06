@@ -1,18 +1,19 @@
 import { createAdapter } from '@socket.io/redis-adapter';
-import Redis from 'ioredis';
 import { Server } from 'socket.io';
+import { getRedisInstance } from './app/helpers/getRedisInstance.js';
 import sessionStorage from './sessionStorage.js';
 
 export function setupSockets({ server, app }: { server: any, app: any }) {
 
   let redis;
 
-  const isRedisQueue = (process.env.REDIS_URL && process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB');
+  const isRedisQueue = (process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB');
 
-  if (isRedisQueue && process.env.REDIS_URL) {
-    redis = new Redis(process.env.REDIS_URL, {
-      maxRetriesPerRequest: null
-    });
+  if (isRedisQueue) {
+    redis = getRedisInstance();
+  }
+
+  if (redis) {
     const io = new Server(server);
 
     const pubClient = redis.duplicate();
