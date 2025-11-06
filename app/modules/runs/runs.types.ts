@@ -9,7 +9,7 @@ export interface Run {
   prompt: Prompt | string;
   promptVersion: number;
   model: string;
-  sessions: { sessionId: string, status: string, name: string, fileType: string, startedAt: Date, finishedAt: Date }[]
+  sessions: RunSession[]
   hasSetup: boolean;
   isRunning: boolean;
   isComplete: boolean;
@@ -21,6 +21,8 @@ export interface Run {
   hasExportedCSV: boolean;
   hasExportedJSONL: boolean;
 }
+
+export interface RunSession { sessionId: string, status: string, name: string, fileType: string, startedAt: Date, finishedAt: Date }
 
 export interface CreateRun {
   selectedAnnotationType: string,

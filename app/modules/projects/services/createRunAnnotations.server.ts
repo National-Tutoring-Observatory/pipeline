@@ -47,10 +47,12 @@ export default async function createRunAnnotations({ runId }: { runId: string },
     childrenJobs.push({
       name: annotationJobName,
       data: {
+        runId: run.data._id,
+        sessionId: session.sessionId,
         inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
         outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
         prompt: { prompt: userPrompt, annotationSchema },
-        run: run.data.model,
+        model: run.data.model,
         team: project.data.team,
         currentSessionIndex
       }
