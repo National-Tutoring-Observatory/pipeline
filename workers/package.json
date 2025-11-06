@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch ./index.ts",
+    "dev": "tsx watch --include './**/*.ts' ./index.ts",
     "start": "tsx ./index.ts"
   },
   "dependencies": {
