@@ -1,7 +1,9 @@
 FROM node:25-alpine
-COPY ./workers /app
-COPY ./global-bundle.pem /app/
 WORKDIR /app
+COPY package.json yarn.lock ./
+COPY workers/package.json ./workers/
+COPY ./global-bundle.pem ./
 RUN yarn install --frozen-lockfile --production
+COPY ./workers ./workers/
 EXPOSE 4000
 CMD ["yarn", "workers"]

@@ -1,5 +1,6 @@
 {
   "name": "pipeline-worker",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -7,10 +8,6 @@
   },
   "dependencies": {
     "@socket.io/redis-emitter": "^5.1.0",
-    "bullmq": "^5.61.2",
-    "dayjs": "^1.11.18",
-    "fs-extra": "^11.3.2",
-    "lodash": "^4.17.21",
     "redis": "^5.9.0"
   },
   "devDependencies": {}
