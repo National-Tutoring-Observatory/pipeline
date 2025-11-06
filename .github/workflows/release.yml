@@ -102,7 +102,7 @@ jobs:
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
 
           echo "📦 Building worker image from workers/Dockerfile ..."
-          docker build -t $ECR_REPOSITORY:$VERSION-worker -f workers/Dockerfile workers
+          docker build -t $ECR_REPOSITORY:$VERSION-worker -f workers/Dockerfile .
           docker tag $ECR_REPOSITORY:$VERSION-worker $ECR_URI:$VERSION-worker
           docker push $ECR_URI:$VERSION-worker
           echo "✅ Built and pushed $ECR_URI:$VERSION-worker"
