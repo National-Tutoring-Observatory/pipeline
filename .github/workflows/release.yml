@@ -73,8 +73,11 @@ jobs:
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build & push image
+        #
+      # ──────────────────────────────────────────────────────────────
+      # Build + push web image (from Dockerfile)
+      # ──────────────────────────────────────────────────────────────
+      - name: Build & push web image
         env:
           VERSION: ${{ steps.ver.outputs.version }}
         run: |
@@ -86,6 +89,23 @@ jobs:
           docker push $ECR_URI:$VERSION
           echo "ECR_URI=$ECR_URI" >> "$GITHUB_ENV"
           echo "Built and pushed $ECR_URI:$VERSION"
+
+      # ──────────────────────────────────────────────────────────────
+      # Build + push worker image (from workers/Dockerfile)
+      # ──────────────────────────────────────────────────────────────
+      - name: Build & push worker image
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
+
+          echo "📦 Building worker image from workers/Dockerfile ..."
+          docker build -t $ECR_REPOSITORY:$VERSION-worker -f workers/Dockerfile workers
+          docker tag $ECR_REPOSITORY:$VERSION-worker $ECR_URI:$VERSION-worker
+          docker push $ECR_URI:$VERSION-worker
+          echo "✅ Built and pushed $ECR_URI:$VERSION-worker"
 
       - name: Deploy tag by updating ECS task definition
         env:
