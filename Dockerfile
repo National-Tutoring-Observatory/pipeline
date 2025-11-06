@@ -18,6 +18,7 @@ FROM node:25-alpine
 COPY ./package.json package-lock.json tsconfig.json server.ts sessionStorage.ts sockets.ts global-bundle.pem /app/
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
+RUN node ./app/adapters.js
 COPY ./app /app/app
 COPY ./documentation /app/documentation
 COPY ./public /app/public
