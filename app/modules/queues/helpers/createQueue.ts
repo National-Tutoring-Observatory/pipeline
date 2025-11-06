@@ -1,5 +1,5 @@
 import { FlowProducer, Queue } from "bullmq";
-import Redis from 'ioredis';
+import { getRedisInstance } from "~/helpers/getRedisInstance";
 import LocalQueue from "./localQueue";
 
 export const QUEUES: Record<string, Queue | any> = {};
@@ -7,25 +7,19 @@ export const QUEUES: Record<string, Queue | any> = {};
 export let redis: any;
 export let flowProducer: FlowProducer;
 
-const isRedisQueue = (process.env.REDIS_URL && process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB');
+const isRedisQueue = (process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB');
 
-if (isRedisQueue && process.env.REDIS_URL) {
-  redis = new Redis(process.env.REDIS_URL, {
-    maxRetriesPerRequest: null
-  });
+if (isRedisQueue) {
+  redis = getRedisInstance({ maxRetriesPerRequest: null });
   flowProducer = new FlowProducer({ connection: redis });
 }
 
 export default (name: string) => {
   if (isRedisQueue) {
-    if (redis) {
-      const queue = new Queue(name, {
-        connection: redis
-      });
-      QUEUES[name] = queue;
-    } else {
-      console.warn('Error with redis not being available');
-    }
+    const queue = new Queue(name, {
+      connection: redis
+    });
+    QUEUES[name] = queue;
   } else {
     QUEUES[name] = new LocalQueue(name);
   }

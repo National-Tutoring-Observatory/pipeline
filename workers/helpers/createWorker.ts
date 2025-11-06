@@ -3,18 +3,17 @@ dotenv.config({ path: '../.env' })
 
 import { Job, MetricsTime, Worker } from 'bullmq';
 import Redis from 'ioredis';
+import { getRedisInstance } from './getRedisInstance';
 import LocalWorker from './localWorker';
 
 export let redis: Redis;
 
-const isRedisQueue = (process.env.REDIS_URL && process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB');
+const isRedisQueue = (process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB');
 
 export const WORKERS: any = {};
 
-if (isRedisQueue && process.env.REDIS_URL) {
-  redis = new Redis(process.env.REDIS_URL, {
-    maxRetriesPerRequest: null
-  });
+if (isRedisQueue) {
+  redis = getRedisInstance({ maxRetriesPerRequest: null });
 }
 
 export default async ({ name }: { name: string }, file: string) => {
@@ -22,18 +21,14 @@ export default async ({ name }: { name: string }, file: string) => {
   let worker;
 
   if (isRedisQueue) {
-    if (redis) {
-      worker = new Worker(name, file, {
-        connection: redis,
-        concurrency: 1,
-        metrics: {
-          maxDataPoints: MetricsTime.ONE_WEEK * 2,
-        },
-        useWorkerThreads: false
-      });
-    } else {
-      console.warn('Error with redis not being available');
-    }
+    worker = new Worker(name, file, {
+      connection: redis,
+      concurrency: 1,
+      metrics: {
+        maxDataPoints: MetricsTime.ONE_WEEK * 2,
+      },
+      useWorkerThreads: false
+    });
   } else {
     worker = new LocalWorker(name, file);
   }
