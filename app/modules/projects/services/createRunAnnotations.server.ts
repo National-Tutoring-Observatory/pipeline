@@ -6,7 +6,6 @@ import type { Session } from "~/modules/sessions/sessions.types";
 import type { Project } from "../projects.types";
 
 export default async function createRunAnnotations({ runId }: { runId: string }, { request }: { request: Request }) {
-  console.log(runId);
 
   const documents = getDocumentsAdapter();
 
@@ -44,14 +43,16 @@ export default async function createRunAnnotations({ runId }: { runId: string },
 
   for (const session of run.data.sessions) {
     const sessionModel = await documents.getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
+    currentSessionIndex++;
     childrenJobs.push({
       name: annotationJobName,
       job: {
         inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
         outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
         prompt: { prompt: userPrompt, annotationSchema },
-        model: run.data.model,
-        team: project.data.team
+        run: run.data.model,
+        team: project.data.team,
+        currentSessionIndex
       }
     })
   }
