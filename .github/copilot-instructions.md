@@ -129,8 +129,8 @@ cd workers && yarn workers
 **2. Release Workflow** (`.github/workflows/release.yml`)
 - **Triggers**: Tags matching `v[0-9]+.[0-9]+.[0-9]+` (e.g., v1.2.3)
 - **What it does**: Builds Docker image and deploys to AWS ECS
-- **Docker build uses**: Node 20-alpine and npm (not yarn)
-- **Build command in Docker**: `npm run build` (after `npm ci`)
+- **Docker build uses**: Node 25-alpine with yarn
+- **Build command in Docker**: `yarn build` (after `yarn install --frozen-lockfile --production`)
 
 ### Pre-commit Checklist
 Before committing, always:
