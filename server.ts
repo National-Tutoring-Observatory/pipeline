@@ -3,8 +3,8 @@ import dotenv from 'dotenv';
 import express from "express";
 import http from 'http';
 import morgan from "morgan";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { User } from "~/modules/users/users.types";
+import getDocumentsAdapter from "./app/modules/documents/helpers/getDocumentsAdapter";
+import type { User } from "./app/modules/users/users.types";
 import { setupSockets } from "./sockets";
 // These imports are needed to handle the inline import. These are not duplicates
 import './app/modules/documents/documents';
