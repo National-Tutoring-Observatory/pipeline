@@ -1,3 +1,4 @@
+import type { Job } from 'bullmq';
 import dayjs from 'dayjs';
 import fse from 'fs-extra';
 import filter from 'lodash/filter.js';
@@ -9,15 +10,15 @@ export default class LocalWorker {
   name;
   file;
   isProcessing = false;
-  interval;
-  events = {
+  interval: any;
+  events: any = {
     "active": [],
     "completed": [],
     "failed": [],
     "error": []
   }
 
-  constructor(name, file) {
+  constructor(name: string, file: string) {
     this.name = name;
     this.file = file;
     this.setupQueue();
@@ -78,7 +79,7 @@ export default class LocalWorker {
           await fse.writeJson(jobsPath, jobs);
           this.emit('completed', currentJob);
 
-        } catch (error) {
+        } catch (error: any) {
 
           currentJob.finishedOn = Date.now();
           currentJob.attemptsMade = jobs[0].attemptsMade + 1;
@@ -100,12 +101,12 @@ export default class LocalWorker {
         this.isProcessing = false;
 
       }
-    } catch (error) {
-      this.emit('error', error);
+    } catch (error: any) {
+      this.emit('error', undefined, error);
     }
   }
 
-  processJob = async (job) => {
+  processJob = async (job: Job) => {
     const processFile = await import(this.file);
     return await processFile.default(job);
   }
@@ -130,13 +131,13 @@ export default class LocalWorker {
     }
   }
 
-  on = (event, callback) => {
+  on = (event: string, callback: (job: Job, error?: Error) => any) => {
     if (this.events[event]) {
       this.events[event].push(callback);
     }
   }
 
-  emit = (event, job, error) => {
+  emit = (event: string, job?: Job, error?: Error) => {
     if (this.events[event] && this.events[event].length > 0) {
       for (const callback of this.events[event]) {
         callback(job, error);

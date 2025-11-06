@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "workers": "node ./index.js"
+    "workers": "node --import=tsx ./index.ts"
   },
   "dependencies": {
     "@socket.io/redis-emitter": "^5.1.0",

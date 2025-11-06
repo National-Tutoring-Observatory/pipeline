@@ -11,9 +11,7 @@ export default async function startRun({
   prompt,
   promptVersion,
   model
-}: StartRunProps, { context }: { context: any }) {
-
-  console.log(context);
+}: StartRunProps, { context }: { request: Request, context: any }) {
 
   const documents = getDocumentsAdapter();
 
