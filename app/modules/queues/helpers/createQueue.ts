@@ -7,15 +7,13 @@ export const QUEUES: Record<string, Queue | any> = {};
 export let redis: any;
 export let flowProducer: FlowProducer;
 
-const isRedisQueue = (process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB');
+redis = getRedisInstance({ maxRetriesPerRequest: null });
+flowProducer = new FlowProducer({ connection: redis });
 
-if (isRedisQueue) {
-  redis = getRedisInstance({ maxRetriesPerRequest: null });
-  flowProducer = new FlowProducer({ connection: redis });
-}
+const useBullMQ = (process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB');
 
 export default (name: string) => {
-  if (isRedisQueue) {
+  if (useBullMQ) {
     const queue = new Queue(name, {
       connection: redis
     });
