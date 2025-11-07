@@ -7,7 +7,7 @@ export default async function convertFilesToSessions(job: any) {
 
   const documents = getDocumentsAdapter();
 
-  await documents.updateDocument({ collection: 'projects', match: { _id: projectId }, update: { isConvertingFiles: true } });
+  await documents.updateDocument({ collection: 'projects', match: { _id: projectId }, update: { isConvertingFiles: false } });
 
   const sockets = await getSockets();
 
