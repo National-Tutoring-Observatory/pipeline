@@ -19,7 +19,7 @@ export default async ({ name, data, children }: { name: string, data: any, child
         return {
           name: child.name,
           queueName: 'tasks',
-          data: child.data
+          data: { parentName: name, ...child.data }
         }
       })
     };

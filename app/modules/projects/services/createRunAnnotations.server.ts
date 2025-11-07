@@ -35,7 +35,7 @@ export default async function createRunAnnotations({ runId }: { runId: string },
   const annotationJobName = run.data.annotationType === 'PER_UTTERANCE' ? 'ANNOTATE_PER_UTTERANCE' : 'ANNOTATE_PER_SESSION';
 
   childrenJobs.push({
-    name: 'START_RUN_ANNOTATION',
+    name: 'START_ANNOTATE_RUN',
     data: {
       projectId: run.data.project,
       runId: run.data._id
@@ -61,8 +61,16 @@ export default async function createRunAnnotations({ runId }: { runId: string },
     })
   }
 
+  childrenJobs.push({
+    name: 'FINISH_ANNOTATE_RUN',
+    data: {
+      projectId: run.data.project,
+      runId: run.data._id
+    }
+  })
+
   createTaskJob({
-    name: 'ANNOTATE_RUN_SESSIONS',
+    name: 'ANNOTATE_RUN',
     data: {
       projectId: run.data.project,
       runId: run.data._id,

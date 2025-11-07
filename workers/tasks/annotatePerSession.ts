@@ -12,7 +12,7 @@ import annotationPerSessionPrompts from "../prompts/annotatePerSession.prompts.j
 
 export default async function annotatePerSession(job: any) {
 
-  const { projectId, runId, sessionId, inputFile, outputFolder, prompt, model, team } = job.data;
+  const { projectId, runId, sessionId, inputFile, outputFolder, prompt, model, team, parentName } = job.data;
 
   await updateRunSession({
     runId,
@@ -25,10 +25,10 @@ export default async function annotatePerSession(job: any) {
 
   const sockets = await getSockets();
 
-  sockets.emit('ANNOTATE_RUN_SESSIONS', {
+  sockets.emit(parentName, {
     runId,
     sessionId,
-    task: 'ANNOTATE_PER_SESSION',
+    task: job.name,
     status: 'STARTED'
   });
 
@@ -85,10 +85,10 @@ export default async function annotatePerSession(job: any) {
 
   const completedSessionsCount = filter(run.data.sessions, { status: 'DONE' }).length;
 
-  sockets.emit('ANNOTATE_RUN_SESSIONS', {
+  sockets.emit(parentName, {
     runId,
     sessionId,
-    task: 'ANNOTATE_PER_SESSION',
+    task: job.name,
     status: 'FINISHED',
     progress: Math.round((100 / sessionsCount) * completedSessionsCount),
     step: `${completedSessionsCount}/${sessionsCount}`
