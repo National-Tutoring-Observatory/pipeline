@@ -3,6 +3,7 @@ import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
 import { redirect, useLoaderData, useRevalidator, useSubmit } from "react-router";
 import annotateRunSessions from "~/functions/annotateRunSessions";
+import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
@@ -147,6 +148,21 @@ export default function ProjectRunRoute() {
       payload: {}
     }), { method: 'POST', encType: 'application/json' });
   }
+
+  useHandleSockets({
+    event: 'ANNOTATE_RUN_SESSIONS',
+    matches: [{
+      runId: run.data._id,
+      task: 'ANNOTATE_PER_SESSION',
+      status: 'STARTED'
+    }, {
+      runId: run.data._id,
+      task: 'ANNOTATE_PER_SESSION',
+      status: 'FINISHED'
+    }], callback: () => {
+      debounceRevalidate(revalidate);
+    }
+  })
 
   useEffect(() => {
     const eventSource = new EventSource("/api/events");
