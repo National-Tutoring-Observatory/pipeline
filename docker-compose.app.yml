@@ -1,0 +1,23 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+      - .env.docker
+    ports:
+      - "5173:5173"
+    depends_on:
+      - redis
+      - mongodb
+
+  workers:
+    build:
+      dockerfile: workers/Dockerfile
+    env_file:
+      - .env
+      - .env.docker
+    depends_on:
+      - redis
+      - mongodb
