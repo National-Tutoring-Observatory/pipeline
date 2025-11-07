@@ -1,15 +1,18 @@
 import fse from 'fs-extra';
+import filter from 'lodash/filter';
 import map from 'lodash/map.js';
 import path from 'path';
 import getSockets from 'workers/helpers/getSockets';
 import updateRunSession from 'workers/helpers/updateRunSession';
+import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 import LLM from '~/modules/llm/llm';
+import type { Run } from '~/modules/runs/runs.types';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
 import annotationPerSessionPrompts from "../prompts/annotatePerSession.prompts.json";
 
 export default async function annotatePerSession(job: any) {
 
-  const { runId, sessionId, inputFile, outputFolder, prompt, model, team } = job.data;
+  const { projectId, runId, sessionId, inputFile, outputFolder, prompt, model, team } = job.data;
 
   await updateRunSession({
     runId,
@@ -74,11 +77,21 @@ export default async function annotatePerSession(job: any) {
     }
   });
 
+  const documents = getDocumentsAdapter();
+
+  const run = await documents.getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
+
+  const sessionsCount = run.data.sessions.length;
+
+  const completedSessionsCount = filter(run.data.sessions, { status: 'DONE' }).length;
+
   sockets.emit('ANNOTATE_RUN_SESSIONS', {
     runId,
     sessionId,
     task: 'ANNOTATE_PER_SESSION',
-    status: 'FINISHED'
+    status: 'FINISHED',
+    progress: Math.round((100 / sessionsCount) * completedSessionsCount),
+    step: `${completedSessionsCount}/${sessionsCount}`
   });
 
 };
