@@ -151,9 +151,13 @@ export default function ProjectRunRoute() {
   }
 
   useHandleSockets({
-    event: 'ANNOTATE_RUN_SESSIONS',
+    event: 'ANNOTATE_RUN',
     matches: [{
       runId: run.data._id,
+      task: 'START_ANNOTATE_RUN',
+      status: 'FINISHED'
+    }, {
+      runId: run.data._id,
       task: 'ANNOTATE_PER_SESSION',
       status: 'STARTED'
     }, {
@@ -170,11 +174,7 @@ export default function ProjectRunRoute() {
       status: 'FINISHED'
     }, {
       runId: run.data._id,
-      task: 'START_RUN_ANNOTATION',
-      status: 'STARTED'
-    }, {
-      runId: run.data._id,
-      task: 'FINISH_RUN_ANNOTATION',
+      task: 'FINISH_ANNOTATE_RUN',
       status: 'FINISHED'
     }], callback: (payload) => {
       if (has(payload, 'progress')) {

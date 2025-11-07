@@ -6,14 +6,14 @@ import annotatePerSession from "../tasks/annotatePerSession";
 import annotatePerUtterance from "../tasks/annotatePerUtterance";
 import convertFilesToSessions from "../tasks/convertFilesToSessions";
 import convertFileToSession from "../tasks/convertFileToSession";
-import finishRunAnnotation from "../tasks/finishRunAnnotation";
-import startRunAnnotation from "../tasks/startRunAnnoation";
+import finishAnnotateRun from "../tasks/finishAnnotateRun";
+import startAnnotateRun from "../tasks/startAnnotateRun";
 
 export default async (job: Job) => {
   try {
     switch (job.name) {
-      case 'START_RUN_ANNOTATION': {
-        await startRunAnnotation(job);
+      case 'START_ANNOTATE_RUN': {
+        await startAnnotateRun(job);
         break;
       }
       case 'ANNOTATE_PER_UTTERANCE': {
@@ -24,8 +24,8 @@ export default async (job: Job) => {
         await annotatePerSession(job);
         break;
       }
-      case 'ANNOTATE_RUN_SESSIONS': {
-        await finishRunAnnotation(job);
+      case 'FINISH_ANNOTATE_RUN': {
+        await finishAnnotateRun(job);
       }
       case 'CONVERT_FILES_TO_SESSIONS': {
         await convertFilesToSessions(job);

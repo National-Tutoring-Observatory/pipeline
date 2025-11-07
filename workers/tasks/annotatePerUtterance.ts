@@ -23,7 +23,7 @@ export default async function annotatePerUtterance(job: any) {
 
   const sockets = await getSockets();
 
-  sockets.emit('ANNOTATE_RUN_SESSIONS', {
+  sockets.emit('ANNOTATE_RUN', {
     runId,
     sessionId,
     task: 'ANNOTATE_PER_UTTERANCE',
@@ -85,7 +85,7 @@ export default async function annotatePerUtterance(job: any) {
 
   const completedSessionsCount = filter(run.data.sessions, { status: 'DONE' }).length;
 
-  sockets.emit('ANNOTATE_RUN_SESSIONS', {
+  sockets.emit('ANNOTATE_RUN', {
     runId,
     sessionId,
     task: 'ANNOTATE_PER_UTTERANCE',

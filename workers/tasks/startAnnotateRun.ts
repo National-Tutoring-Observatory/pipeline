@@ -2,7 +2,7 @@ import type { Job } from 'bullmq';
 import getSockets from 'workers/helpers/getSockets';
 import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 
-export default async function finishRunAnnotation(job: Job) {
+export default async function startAnnotateRun(job: Job) {
 
   const { runId } = job.data;
 
@@ -12,18 +12,16 @@ export default async function finishRunAnnotation(job: Job) {
     collection: 'runs',
     match: { _id: runId },
     update: {
-      isRunning: false,
-      isComplete: true,
-      hasErrored: false,
-      finishedAt: new Date()
+      isRunning: true,
+      startedAt: new Date()
     }
   });
 
   const sockets = await getSockets();
 
-  sockets.emit('ANNOTATE_RUN_SESSIONS', {
+  sockets.emit('ANNOTATE_RUN', {
     runId,
-    task: 'FINISH_RUN_ANNOTATION',
+    task: 'START_ANNOTATE_RUN',
     status: 'FINISHED'
   });
 
