@@ -1,12 +1,13 @@
 import fse from 'fs-extra';
 import map from 'lodash/map.js';
 import path from 'path';
+import getSockets from 'workers/helpers/getSockets';
 import updateRunSession from 'workers/helpers/updateRunSession';
 import LLM from '~/modules/llm/llm';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
 import annotationPerSessionPrompts from "../prompts/annotatePerSession.prompts.json";
 
-export default async function annotationPerSession(job: any) {
+export default async function annotatePerSession(job: any) {
 
   const { runId, sessionId, inputFile, outputFolder, prompt, model, team } = job.data;
 
@@ -17,7 +18,16 @@ export default async function annotationPerSession(job: any) {
       status: 'RUNNING',
       startedAt: new Date()
     }
-  })
+  });
+
+  const sockets = await getSockets();
+
+  sockets.emit('ANNOTATE_RUN_SESSIONS', {
+    runId,
+    sessionId,
+    task: 'ANNOTATE_PER_SESSION',
+    status: 'STARTED'
+  });
 
   const storage = getStorageAdapter();
 
@@ -62,6 +72,13 @@ export default async function annotationPerSession(job: any) {
       status: 'DONE',
       finishedAt: new Date(),
     }
+  });
+
+  sockets.emit('ANNOTATE_RUN_SESSIONS', {
+    runId,
+    sessionId,
+    task: 'ANNOTATE_PER_SESSION',
+    status: 'FINISHED'
   });
 
 };
