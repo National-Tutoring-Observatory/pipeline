@@ -5,6 +5,7 @@ import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
 import { redirect, useMatches, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
+import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
@@ -134,6 +135,29 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       toast.success('Uploading files');
     });
   }
+
+  useHandleSockets({
+    event: 'CONVERT_FILES_TO_SESSIONS',
+    matches: [{
+      projectId: project.data._id,
+      task: 'CONVERT_FILES_TO_SESSIONS',
+      status: 'FINISHED'
+    }, {
+      projectId: project.data._id,
+      task: 'CONVERTED_FILES_TO_SESSIONS',
+      status: 'FINISHED'
+    }, {
+      projectId: project.data._id,
+      task: 'CONVERT_FILE_TO_SESSION',
+      status: 'STARTED'
+    }, {
+      projectId: project.data._id,
+      task: 'CONVERT_FILE_TO_SESSION',
+      status: 'FINISHED'
+    }], callback: () => {
+      debounceRevalidate(revalidate);
+    }
+  })
 
   useEffect(() => {
 
