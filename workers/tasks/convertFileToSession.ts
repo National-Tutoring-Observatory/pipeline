@@ -58,11 +58,16 @@ export default async function convertFileToSession(job: any) {
     }
   });
 
+  const sessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId } }) as number;
+
+  const completedSessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId, hasConverted: true } }) as number;
+
   sockets.emit('CONVERT_FILES_TO_SESSIONS', {
     projectId,
     sessionId,
     task: 'CONVERT_FILE_TO_SESSION',
-    status: 'FINISHED'
+    status: 'FINISHED',
+    progress: Math.round((100 / sessionsCount) * completedSessionsCount)
   });
 
 };

@@ -1,13 +1,15 @@
 import registerDocumentsAdapter from "~/modules/documents/helpers/registerDocumentsAdapter";
-import getDocuments from "./services/getDocuments";
+import countDocuments from "./services/countDocuments";
 import createDocument from "./services/createDocument";
-import getDocument from "./services/getDocument";
-import updateDocument from "./services/updateDocument";
 import deleteDocument from "./services/deleteDocument";
+import getDocument from "./services/getDocument";
+import getDocuments from "./services/getDocuments";
+import updateDocument from "./services/updateDocument";
 
 registerDocumentsAdapter({
   name: 'LOCAL',
   getDocuments,
+  countDocuments,
   createDocument,
   getDocument,
   updateDocument,

@@ -1,5 +1,6 @@
 
 import filter from 'lodash/filter';
+import has from 'lodash/has';
 import map from 'lodash/map';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
@@ -154,7 +155,10 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       projectId: project.data._id,
       task: 'CONVERT_FILE_TO_SESSION',
       status: 'FINISHED'
-    }], callback: () => {
+    }], callback: (payload) => {
+      if (has(payload, 'progress')) {
+        setConvertFilesProgress(payload.progress);
+      }
       debounceRevalidate(revalidate);
     }
   })

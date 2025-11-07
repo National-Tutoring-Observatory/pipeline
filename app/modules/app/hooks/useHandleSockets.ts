@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import type { Socket } from "socket.io-client";
 import { getSockets } from "~/modules/sockets/sockets";
 
-export default function useHandleSockets({ event, matches, callback }: { event: string, matches: any[], callback: () => any }) {
+export default function useHandleSockets({ event, matches, callback }: { event: string, matches: any[], callback: (payload: any) => any }) {
   useEffect(() => {
 
     let sockets: Socket | null;
@@ -12,7 +12,7 @@ export default function useHandleSockets({ event, matches, callback }: { event: 
     const handleSocketsCallback = (payload: any) => {
       each(matches, (match) => {
         if (isMatch(payload, match)) {
-          callback();
+          callback(payload);
         }
       })
     }
