@@ -1,17 +1,19 @@
 import fse from 'fs-extra';
-import find from 'lodash/find.js';
+import map from 'lodash/map.js';
 import path from 'path';
 import updateRunSession from 'workers/helpers/updateRunSession';
 import LLM from '~/modules/llm/llm';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
-import annotationPerUtterancePrompts from "../prompts/annotatePerUtterance.prompts.json";
+import annotationPerSessionPrompts from "../prompts/annotatePerSession.prompts.json";
 
-export default async function annotatePerUtterance(job: any) {
+export default async function annotationPerSession(job: any) {
 
   const { runId, sessionId, inputFile, outputFolder, prompt, model, team } = job.data;
 
   await updateRunSession({
-    runId, sessionId, update: {
+    runId,
+    sessionId,
+    update: {
       status: 'RUNNING',
       startedAt: new Date()
     }
@@ -30,22 +32,20 @@ export default async function annotatePerUtterance(job: any) {
 
   const llm = new LLM({ quality: 'high', model, user: team });
 
-  llm.addSystemMessage(annotationPerUtterancePrompts.system, {
+  llm.addSystemMessage(annotationPerSessionPrompts.system, {
     annotationSchema: JSON.stringify(prompt.annotationSchema)
   });
 
   llm.addUserMessage(`${prompt.prompt}\n\nConversation: {{conversation}}`, {
     conversation: data
-  });
+  })
 
   const response = await llm.createChat();
 
-  const annotations = response.annotations || [];
-
-  for (const annotation of annotations) {
-    const currentUtterance = find(originalJSON.transcript, { _id: annotation._id });
-    currentUtterance.annotations = [...currentUtterance.annotations, annotation];
-  }
+  originalJSON.annotations = map(response.annotations || [], (annotation: any, index: number) => {
+    annotation._id = `${index}`;
+    return annotation;
+  })
 
   await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, originalJSON);
 

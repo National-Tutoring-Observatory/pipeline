@@ -1,6 +1,7 @@
 import type { Job } from "bullmq";
 import '~/modules/documents/documents';
 import '~/modules/storage/storage';
+import annotatePerSession from "../tasks/annotatePerSession";
 import annotatePerUtterance from "../tasks/annotatePerUtterance";
 import startRunAnnotation from "../tasks/startRunAnnoation";
 
@@ -16,7 +17,7 @@ export default async (job: Job) => {
         break;
       }
       case 'ANNOTATE_PER_SESSION': {
-        console.log('Annotating per session');
+        await annotatePerSession(job);
         break;
       }
     }
