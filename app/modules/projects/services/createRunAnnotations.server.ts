@@ -37,6 +37,7 @@ export default async function createRunAnnotations({ runId }: { runId: string },
   childrenJobs.push({
     name: 'START_RUN_ANNOTATION',
     data: {
+      projectId: run.data.project,
       runId: run.data._id
     }
   })
@@ -47,6 +48,7 @@ export default async function createRunAnnotations({ runId }: { runId: string },
     childrenJobs.push({
       name: annotationJobName,
       data: {
+        projectId: run.data.project,
         runId: run.data._id,
         sessionId: session.sessionId,
         inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
@@ -62,6 +64,7 @@ export default async function createRunAnnotations({ runId }: { runId: string },
   createTaskJob({
     name: 'ANNOTATE_RUN_SESSIONS',
     data: {
+      projectId: run.data.project,
       runId: run.data._id,
     },
     children: childrenJobs

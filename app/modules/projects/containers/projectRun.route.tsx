@@ -1,3 +1,4 @@
+import has from 'lodash/has';
 import map from 'lodash/map';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
@@ -175,7 +176,13 @@ export default function ProjectRunRoute() {
       runId: run.data._id,
       task: 'FINISH_RUN_ANNOTATION',
       status: 'FINISHED'
-    }], callback: () => {
+    }], callback: (payload) => {
+      if (has(payload, 'progress')) {
+        setRunSessionsProgress(payload.progress);
+      }
+      if (has(payload, 'step')) {
+        setRunSessionsStep(payload.step);
+      }
       debounceRevalidate(revalidate);
     }
   })
