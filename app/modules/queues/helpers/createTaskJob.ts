@@ -7,12 +7,12 @@ interface ChildJob {
   data: any
 }
 
-export default async ({ task, data, children }: { task: string, data: any, children: ChildJob[] }) => {
+export default async ({ name, data, children }: { name: string, data: any, children: ChildJob[] }) => {
   const queue = getQueue('tasks');
 
   if (children && children.length > 0) {
     const flow = {
-      name: task,
+      name,
       queueName: 'tasks',
       data,
       children: map(children, (child) => {
@@ -27,7 +27,7 @@ export default async ({ task, data, children }: { task: string, data: any, child
     return flowTree.job;
   }
 
-  const taskJob = await queue.add(task, data, {
+  const taskJob = await queue.add(name, data, {
     removeOnComplete: {
       age: 72 * 3600, // keep up to 1 hour
       count: 2000, // keep up to 2000 jobs

@@ -1,0 +1,51 @@
+import dotenv from 'dotenv';
+import fse from 'fs-extra';
+import path from 'path';
+import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
+import LLM from '~/modules/llm/llm';
+import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
+import convertToSessionPrompts from '../prompts/convertFileToSession.prompts.json';
+import transcriptSchema from "../schemas/transcript.schema.json";
+dotenv.config({ path: '.env' });
+
+export default async function convertFileToSession(job: any) {
+
+  const { projectId, sessionId, inputFile, outputFolder, team } = job.data;
+
+  const storage = getStorageAdapter();
+
+  await storage.download({ downloadPath: inputFile });
+
+  const data = await fse.readFile(path.join('tmp', inputFile));
+
+  const outputFileName = path.basename(inputFile).replace('.json', '').replace('.vtt', '');
+
+  const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI', user: team })
+
+  llm.setOrchestratorMessage(convertToSessionPrompts.orchestrator, { schema: JSON.stringify(transcriptSchema) });
+
+  llm.addSystemMessage(convertToSessionPrompts.system, {});
+
+  llm.addUserMessage(convertToSessionPrompts.user, { schema: JSON.stringify(transcriptSchema), data });
+
+  const response = await llm.createChat();
+
+  await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, response);
+
+  const buffer = await fse.readFile(`tmp/${outputFolder}/${outputFileName}.json`);
+
+  await storage.upload({ file: { buffer, size: buffer.length, type: 'application/json' }, uploadPath: `${outputFolder}/${outputFileName}.json` });
+
+  const documents = getDocumentsAdapter();
+
+  await documents.updateDocument({
+    collection: 'sessions',
+    match: {
+      _id: sessionId
+    },
+    update: {
+      hasConverted: true
+    }
+  });
+
+};

@@ -60,7 +60,7 @@ export default async function createRunAnnotations({ runId }: { runId: string },
   }
 
   createTaskJob({
-    task: 'ANNOTATE_RUN_SESSIONS',
+    name: 'ANNOTATE_RUN_SESSIONS',
     data: {
       runId: run.data._id,
     },

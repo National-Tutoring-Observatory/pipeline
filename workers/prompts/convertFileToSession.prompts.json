@@ -1,0 +1,5 @@
+{
+  "orchestrator": "You are an expert at reading unstructured and structured data. \n\n# Make sure the output matches the JSON schema: {{schema}}",
+  "system": "You are an expert at reading unstructured data and putting it into a structure format. You will be given different types of data and will be expected to put it into the given JSON structure.",
+  "user": "Schema: {{schema}}\n\nPlease look at the following and merge into the schema: {{data}}\n# Where '_id' is unique.\n# Where 'role' can be TEACHER or a STUDENT_1, where 1 can be a number based upon the student speaking if there are multiple students.\n# Where 'content' is the utterance string of what the speaker has said\n# Where 'start_time' and 'end_time' are time stamps in the format of 00:00:00 (minutes, seconds, milliseconds) for the start and end of the utterance. Estimate these if they are not available based upon utterance length.\n# Where annotations is a blank array."
+}
