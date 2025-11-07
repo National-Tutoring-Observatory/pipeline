@@ -87,7 +87,7 @@ yarn typecheck
 ### Build
 Always run before testing production behavior:
 ```bash
-yarn build
+yarn app:build
 ```
 **Time**: ~8-10 seconds
 **What it does**:
@@ -97,7 +97,7 @@ yarn build
 
 ### Development Server
 ```bash
-yarn dev
+yarn app:dev
 ```
 **Port**: http://localhost:5173
 **What it does**: Runs adapters.js first, then starts dev server with HMR
@@ -112,7 +112,7 @@ yarn start
 
 ### Redis (For Background Jobs & Socket Communication)
 ```bash
-yarn redis
+yarn local:redis
 ```
 **What it does**: Starts redis-memory-server for local development (if REDIS_URL not set)
 **When needed**: Required for workers, Socket.IO, and BullMQ functionality
@@ -120,7 +120,7 @@ yarn redis
 
 ### Workers (Background Jobs)
 ```bash
-yarn workers
+yarn workers:dev
 ```
 **What it does**: Starts BullMQ workers for background task processing
 **Prerequisites**: Redis must be running (use `yarn redis` or set REDIS_URL)
@@ -135,7 +135,7 @@ yarn workers
 - **Node version**: 22
 - **Steps**:
   1. `yarn install --frozen-lockfile`
-  2. `yarn run typecheck`
+  2. `yarn typecheck`
 - **To replicate locally**: Run the exact same commands above
 
 **2. Release Workflow** (`.github/workflows/release.yml`)
@@ -230,7 +230,7 @@ The codebase follows a **consistent error handling convention** for React Router
 **IMPORTANT**: The `app/adapters.js` script MUST run before build/dev:
 - **What it does**: Scans `app/storageAdapters/` and auto-generates `app/modules/storage/storage.ts`
 - **Why**: This file imports all storage adapter implementations
-- **When**: Both `yarn build` and `yarn dev` run it automatically
+- **When**: Both `yarn app:build` and `yarn app:dev` run it automatically
 - **Manual**: `node ./app/adapters.js` (rarely needed)
 
 If you add/remove storage adapters, the build will automatically regenerate the imports.

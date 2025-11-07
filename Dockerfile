@@ -12,7 +12,7 @@ FROM node:25-alpine AS build-env
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
-RUN yarn build
+RUN yarn app:build
 
 FROM node:25-alpine
 COPY ./package.json yarn.lock tsconfig.json server.ts sessionStorage.ts sockets.ts global-bundle.pem /app/
@@ -24,4 +24,4 @@ COPY ./public /app/public
 WORKDIR /app
 RUN node ./app/adapters.js
 EXPOSE 5173
-CMD ["yarn", "start"]
+CMD ["yarn", "app:prod"]
