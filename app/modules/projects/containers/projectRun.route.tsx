@@ -171,6 +171,10 @@ export default function ProjectRunRoute() {
       runId: run.data._id,
       task: 'START_RUN_ANNOTATION',
       status: 'STARTED'
+    }, {
+      runId: run.data._id,
+      task: 'FINISH_RUN_ANNOTATION',
+      status: 'FINISHED'
     }], callback: () => {
       debounceRevalidate(revalidate);
     }
