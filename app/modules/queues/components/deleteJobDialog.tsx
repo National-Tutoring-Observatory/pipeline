@@ -37,12 +37,6 @@ export default function DeleteJobDialog({ job, onRemoveJobClicked }: DeleteJobDi
         valueClassName="font-mono"
       />
 
-      <JobDetailField
-        label="State"
-        value={job.state}
-        valueClassName="capitalize"
-      />
-
       <DialogFooter className="justify-end">
         <DialogClose asChild>
           <Button type="button" variant="secondary">

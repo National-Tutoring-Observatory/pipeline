@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DialogClose,
@@ -46,15 +45,9 @@ export default function JobDetailsDialog({ job, onDelete }: JobDetailsDialogProp
 
           <JobDetailField
             label="Queue"
-            value={job.queue}
+            value={job.queue.name}
             valueClassName="capitalize"
           />
-
-          <JobDetailField label="State">
-            <Badge variant="outline" className="capitalize">
-              {job.state}
-            </Badge>
-          </JobDetailField>
 
           <JobDetailField
             label="Created"
