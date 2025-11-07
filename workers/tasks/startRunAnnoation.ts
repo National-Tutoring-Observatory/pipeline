@@ -1,4 +1,5 @@
 import type { Job } from 'bullmq';
+import getSockets from 'workers/helpers/getSockets';
 import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 
 export default async function startRunAnnotation(job: Job) {
@@ -14,6 +15,14 @@ export default async function startRunAnnotation(job: Job) {
       isRunning: true,
       startedAt: new Date()
     }
+  });
+
+  const sockets = await getSockets();
+
+  sockets.emit('ANNOTATE_RUN_SESSIONS', {
+    runId,
+    task: 'START_RUN_ANNOTATION',
+    status: 'STARTED'
   });
 
 }
