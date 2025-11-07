@@ -10,6 +10,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import type { Collection } from "~/modules/collections/collections.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import hasFeatureFlag from '~/modules/featureFlags/helpers/hasFeatureFlag';
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import convertFileToFiles from "~/modules/uploads/convertFileToFiles";
@@ -49,6 +50,14 @@ export async function action({
     // @ts-ignore
     const body = JSON.parse(formData.get('body'));
     const { entityId } = body;
+    const user = await getSessionUser({ request }) as User;
+
+    if (!user) {
+      return redirect('/');
+    }
+
+    await validateProjectOwnership({ user, projectId: entityId });
+
     let files = formData.getAll('files');
 
     if (files.length === 1) {
@@ -60,16 +69,13 @@ export async function action({
       }
     }
 
-    const user = await getSessionUser({ request }) as User;
-
-    if (!user) {
-      return redirect('/');
-    }
-
-    await validateProjectOwnership({ user, projectId: entityId });
-
-    uploadFiles({ files, entityId }).then(() => {
-      convertFilesToSessions({ entityId });
+    uploadFiles({ files, entityId }).then(async () => {
+      const hasWorkers = await hasFeatureFlag('HAS_WORKERS', { request });
+      if (hasWorkers) {
+        console.log('createSessionsFromFiles');
+      } else {
+        convertFilesToSessions({ entityId });
+      }
     });
 
     const documents = getDocumentsAdapter();
