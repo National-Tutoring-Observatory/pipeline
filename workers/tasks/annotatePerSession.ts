@@ -85,9 +85,6 @@ export default async function annotatePerSession(job: any) {
 
   const completedSessionsCount = filter(run.data.sessions, { status: 'DONE' }).length;
 
-  console.log(sessionsCount);
-  console.log(completedSessionsCount);
-
   sockets.emit('ANNOTATE_RUN_SESSIONS', {
     runId,
     sessionId,

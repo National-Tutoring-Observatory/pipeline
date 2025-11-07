@@ -1,9 +1,12 @@
 import fse from 'fs-extra';
+import filter from 'lodash/filter';
 import find from 'lodash/find.js';
 import path from 'path';
 import getSockets from 'workers/helpers/getSockets';
 import updateRunSession from 'workers/helpers/updateRunSession';
+import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 import LLM from '~/modules/llm/llm';
+import type { Run } from '~/modules/runs/runs.types';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
 import annotationPerUtterancePrompts from "../prompts/annotatePerUtterance.prompts.json";
 
@@ -74,11 +77,21 @@ export default async function annotatePerUtterance(job: any) {
     }
   });
 
+  const documents = getDocumentsAdapter();
+
+  const run = await documents.getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
+
+  const sessionsCount = run.data.sessions.length;
+
+  const completedSessionsCount = filter(run.data.sessions, { status: 'DONE' }).length;
+
   sockets.emit('ANNOTATE_RUN_SESSIONS', {
     runId,
     sessionId,
     task: 'ANNOTATE_PER_UTTERANCE',
-    status: 'FINISHED'
+    status: 'FINISHED',
+    progress: Math.round((100 / sessionsCount) * completedSessionsCount),
+    step: `${completedSessionsCount}/${sessionsCount}`
   });
 
 };
