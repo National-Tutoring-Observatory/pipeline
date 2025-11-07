@@ -20,6 +20,7 @@ import type { User } from "~/modules/users/users.types";
 import Project from '../components/project';
 import { validateProjectOwnership } from "../helpers/projectOwnership";
 import type { Project as ProjectType } from "../projects.types";
+import createSessionsFromFiles from '../services/createSessionsFromFiles.server';
 import type { Route } from "./+types/project.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -69,10 +70,10 @@ export async function action({
       }
     }
 
+    const hasWorkers = await hasFeatureFlag('HAS_WORKERS', { request });
     uploadFiles({ files, entityId }).then(async () => {
-      const hasWorkers = await hasFeatureFlag('HAS_WORKERS', { request });
       if (hasWorkers) {
-        console.log('createSessionsFromFiles');
+        createSessionsFromFiles({ projectId: entityId }, { request });
       } else {
         convertFilesToSessions({ entityId });
       }
@@ -80,7 +81,11 @@ export async function action({
 
     const documents = getDocumentsAdapter();
 
-    return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, isConvertingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
+    if (hasWorkers) {
+      return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
+    } else {
+      return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, isConvertingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
+    }
 
   }
 }
