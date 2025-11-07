@@ -1,9 +1,9 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import clsx from "clsx";
+import { Link, Outlet } from "react-router";
 import UploadFilesContainer from "~/modules/files/containers/uploadFiles.container";
 import type { Project } from "../projects.types";
-import { Link, Outlet } from "react-router";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import clsx from "clsx";
-import { Progress } from "@/components/ui/progress";
 
 interface ProjectProps {
   project: Project,
