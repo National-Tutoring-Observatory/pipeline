@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import fse from 'fs-extra';
 import path from 'path';
+import getSockets from 'workers/helpers/getSockets';
 import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 import LLM from '~/modules/llm/llm';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
@@ -11,6 +12,15 @@ dotenv.config({ path: '.env' });
 export default async function convertFileToSession(job: any) {
 
   const { projectId, sessionId, inputFile, outputFolder, team } = job.data;
+
+  const sockets = await getSockets();
+
+  sockets.emit('CONVERT_FILES_TO_SESSIONS', {
+    projectId,
+    sessionId,
+    task: 'CONVERT_FILE_TO_SESSION',
+    status: 'STARTED'
+  });
 
   const storage = getStorageAdapter();
 
@@ -46,6 +56,13 @@ export default async function convertFileToSession(job: any) {
     update: {
       hasConverted: true
     }
+  });
+
+  sockets.emit('CONVERT_FILES_TO_SESSIONS', {
+    projectId,
+    sessionId,
+    task: 'CONVERT_FILE_TO_SESSION',
+    status: 'FINISHED'
   });
 
 };
