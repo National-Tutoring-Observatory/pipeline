@@ -1,6 +1,7 @@
 import fse from 'fs-extra';
 import find from 'lodash/find.js';
 import path from 'path';
+import getSockets from 'workers/helpers/getSockets';
 import updateRunSession from 'workers/helpers/updateRunSession';
 import LLM from '~/modules/llm/llm';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
@@ -16,6 +17,15 @@ export default async function annotatePerUtterance(job: any) {
       startedAt: new Date()
     }
   })
+
+  const sockets = await getSockets();
+
+  sockets.emit('ANNOTATE_RUN_SESSIONS', {
+    runId,
+    sessionId,
+    task: 'ANNOTATE_PER_UTTERANCE',
+    status: 'STARTED'
+  });
 
   const storage = getStorageAdapter();
 
@@ -62,6 +72,13 @@ export default async function annotatePerUtterance(job: any) {
       status: 'DONE',
       finishedAt: new Date(),
     }
+  });
+
+  sockets.emit('ANNOTATE_RUN_SESSIONS', {
+    runId,
+    sessionId,
+    task: 'ANNOTATE_PER_UTTERANCE',
+    status: 'FINISHED'
   });
 
 };
