@@ -66,14 +66,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     dbStatus = 'CONNECTED';
   }
 
-  const isRedisQueue = (process.env.REDIS_URL && isDocumentDB);
-
-  if (isRedisQueue) {
-    cacheStatus = 'DISCONNECTED';
-    if (redis && redis.status === 'ready') {
-      cacheStatus = 'CONNECTED';
-    }
-  } else {
+  cacheStatus = 'DISCONNECTED';
+  if (redis.status === 'ready') {
     cacheStatus = 'CONNECTED';
   }
 
