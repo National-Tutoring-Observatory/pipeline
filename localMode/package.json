@@ -1,6 +1,7 @@
 {
   "name": "localMode",
   "private": true,
+  "type": "module",
   "scripts": {
     "redis": "node redis.js"
   },
