@@ -1,5 +1,5 @@
 FROM node:25-alpine
-WORKDIR /app
+WORKDIR /srv
 COPY package.json yarn.lock ./
 COPY workers/package.json ./workers/
 COPY ./global-bundle.pem ./
