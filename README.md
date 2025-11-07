@@ -18,10 +18,11 @@ You'll need to set up your .env file.
 cp .env.example .env
 ```
 
+
 Start the development server with HMR:
 
 ```bash
-yarn dev
+yarn app:dev
 ```
 
 Your application will be available at `http://localhost:5173`.
