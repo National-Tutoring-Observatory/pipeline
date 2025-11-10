@@ -141,11 +141,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     event: 'CONVERT_FILES_TO_SESSIONS',
     matches: [{
       projectId: project.data._id,
-      task: 'CONVERT_FILES_TO_SESSIONS',
-      status: 'FINISHED'
-    }, {
-      projectId: project.data._id,
-      task: 'CONVERTED_FILES_TO_SESSIONS',
+      task: 'START_CONVERT_FILES_TO_SESSIONS',
       status: 'FINISHED'
     }, {
       projectId: project.data._id,
@@ -154,6 +150,10 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     }, {
       projectId: project.data._id,
       task: 'CONVERT_FILE_TO_SESSION',
+      status: 'FINISHED'
+    }, {
+      projectId: project.data._id,
+      task: 'FINISH_CONVERT_FILES_TO_SESSIONS',
       status: 'FINISHED'
     }], callback: (payload) => {
       if (has(payload, 'progress')) {

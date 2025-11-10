@@ -1,7 +1,7 @@
-import getSockets from "workers/helpers/getSockets";
+import emitFromJob from "workers/helpers/emitFromJob";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 
-export default async function convertedFilesToSessions(job: any) {
+export default async function finishConvertedFilesToSessions(job: any) {
 
   const { projectId } = job.data;
 
@@ -9,12 +9,6 @@ export default async function convertedFilesToSessions(job: any) {
 
   await documents.updateDocument({ collection: 'projects', match: { _id: projectId }, update: { isConvertingFiles: false } });
 
-  const sockets = await getSockets();
-
-  sockets.emit('CONVERT_FILES_TO_SESSIONS', {
-    projectId,
-    task: 'CONVERTED_FILES_TO_SESSIONS',
-    status: 'FINISHED'
-  });
+  await emitFromJob(job, { projectId }, 'FINISHED');
 
 }

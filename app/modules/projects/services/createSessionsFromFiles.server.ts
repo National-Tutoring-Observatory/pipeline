@@ -33,7 +33,7 @@ export default async function createSessionsFromFiles({ projectId }: { projectId
   const childrenJobs = [];
 
   childrenJobs.push({
-    name: 'CONVERT_FILES_TO_SESSIONS',
+    name: 'START_CONVERT_FILES_TO_SESSIONS',
     data: {
       projectId,
     },
@@ -53,8 +53,15 @@ export default async function createSessionsFromFiles({ projectId }: { projectId
     })
   }
 
+  childrenJobs.push({
+    name: 'FINISH_CONVERT_FILES_TO_SESSIONS',
+    data: {
+      projectId,
+    }
+  });
+
   createTaskJob({
-    name: 'CONVERTED_FILES_TO_SESSIONS',
+    name: 'CONVERT_FILES_TO_SESSIONS',
     data: {
       projectId,
     },
