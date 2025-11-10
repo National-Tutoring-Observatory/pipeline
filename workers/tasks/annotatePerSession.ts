@@ -2,7 +2,7 @@ import fse from 'fs-extra';
 import filter from 'lodash/filter';
 import map from 'lodash/map.js';
 import path from 'path';
-import getSockets from 'workers/helpers/getSockets';
+import emitFromJob from 'workers/helpers/emitFromJob';
 import updateRunSession from 'workers/helpers/updateRunSession';
 import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 import LLM from '~/modules/llm/llm';
@@ -23,14 +23,10 @@ export default async function annotatePerSession(job: any) {
     }
   });
 
-  const sockets = await getSockets();
-
-  sockets.emit(parentName, {
+  await emitFromJob(job, {
     runId,
-    sessionId,
-    task: job.name,
-    status: 'STARTED'
-  });
+    sessionId
+  }, 'STARTED');
 
   const storage = getStorageAdapter();
 
@@ -85,13 +81,11 @@ export default async function annotatePerSession(job: any) {
 
   const completedSessionsCount = filter(run.data.sessions, { status: 'DONE' }).length;
 
-  sockets.emit(parentName, {
+  await emitFromJob(job, {
     runId,
     sessionId,
-    task: job.name,
-    status: 'FINISHED',
     progress: Math.round((100 / sessionsCount) * completedSessionsCount),
     step: `${completedSessionsCount}/${sessionsCount}`
-  });
+  }, 'FINISHED');
 
 };

@@ -1,5 +1,5 @@
 import type { Job } from 'bullmq';
-import getSockets from 'workers/helpers/getSockets';
+import emitFromJob from 'workers/helpers/emitFromJob';
 import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 
 export default async function startAnnotateRun(job: Job) {
@@ -17,12 +17,6 @@ export default async function startAnnotateRun(job: Job) {
     }
   });
 
-  const sockets = await getSockets();
-
-  sockets.emit('ANNOTATE_RUN', {
-    runId,
-    task: 'START_ANNOTATE_RUN',
-    status: 'FINISHED'
-  });
+  await emitFromJob(job, { runId }, 'FINISHED');
 
 }

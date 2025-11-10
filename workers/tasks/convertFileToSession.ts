@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import fse from 'fs-extra';
 import path from 'path';
-import getSockets from 'workers/helpers/getSockets';
+import emitFromJob from 'workers/helpers/emitFromJob';
 import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 import LLM from '~/modules/llm/llm';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
@@ -13,14 +13,10 @@ export default async function convertFileToSession(job: any) {
 
   const { projectId, sessionId, inputFile, outputFolder, team } = job.data;
 
-  const sockets = await getSockets();
-
-  sockets.emit('CONVERT_FILES_TO_SESSIONS', {
+  await emitFromJob(job, {
     projectId,
     sessionId,
-    task: 'CONVERT_FILE_TO_SESSION',
-    status: 'STARTED'
-  });
+  }, 'STARTED');
 
   const storage = getStorageAdapter();
 
@@ -62,12 +58,10 @@ export default async function convertFileToSession(job: any) {
 
   const completedSessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId, hasConverted: true } }) as number;
 
-  sockets.emit('CONVERT_FILES_TO_SESSIONS', {
+  await emitFromJob(job, {
     projectId,
     sessionId,
-    task: 'CONVERT_FILE_TO_SESSION',
-    status: 'FINISHED',
-    progress: Math.round((100 / sessionsCount) * completedSessionsCount)
-  });
+    progress: Math.round((100 / sessionsCount) * completedSessionsCount),
+  }, 'FINISHED');
 
 };
