@@ -1,14 +1,13 @@
 import map from 'lodash/map';
 import { useEffect } from "react";
-import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
+import { useActionData, useNavigate, useSubmit } from "react-router";
 import { toast } from "sonner";
+import { userContext } from '~/context';
+import { authMiddleware } from '~/middleware/auth';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
-import type { User } from "~/modules/users/users.types";
 import CreateProjectDialog from "../components/createProjectDialog";
 import DeleteProjectDialog from "../components/deleteProjectDialog";
 import EditProjectDialog from "../components/editProjectDialog";
@@ -21,11 +20,15 @@ type Projects = {
   data: Project[],
 };
 
-export async function loader({ request, params, context }: Route.LoaderArgs & { context: any }) {
-  const documents = getDocumentsAdapter();
-  const authenticationTeams = await getSessionUserTeams({ request });
-  const teamIds = map(authenticationTeams, 'team');
+export const middleware: Route.MiddlewareFunction[] = [
+  authMiddleware,
+];
 
+export async function loader({ context }: Route.LoaderArgs) {
+  const user = context.get(userContext)!;
+  const teamIds = map(user.teams, 'team');
+
+  const documents = getDocumentsAdapter();
   const projects = await documents.getDocuments({ collection: 'projects', match: { team: { $in: teamIds } }, sort: {}, populate: [{ path: 'team' }] }) as Projects;
 
   return { projects };
@@ -33,17 +36,14 @@ export async function loader({ request, params, context }: Route.LoaderArgs & { 
 
 export async function action({
   request,
+  context
 }: Route.ActionArgs) {
 
   const { intent, entityId, payload = {} } = await request.json();
 
   const { name, team } = payload;
 
-  const user = await getSessionUser({ request }) as User;
-
-  if (!user) {
-    return redirect('/');
-  }
+  const user = context.get(userContext)!;
 
   const documents = getDocumentsAdapter();
 
