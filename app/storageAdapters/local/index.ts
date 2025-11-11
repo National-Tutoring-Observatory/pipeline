@@ -6,18 +6,18 @@ import registerStorageAdapter from "~/modules/storage/helpers/registerStorageAda
 
 registerStorageAdapter({
   name: 'LOCAL',
-  download: async ({ downloadPath }): Promise<string> => {
-    const absolutePath = path.resolve(PROJECT_ROOT, downloadPath);
+  download: async ({ sourcePath }): Promise<string> => {
+    const absolutePath = path.resolve(PROJECT_ROOT, sourcePath);
     const exists = await fse.exists(absolutePath);
     if (!exists) {
       throw new Error(`LOCAL: File not found: ${absolutePath}`);
     }
     try {
-      const destinationPath = path.join(PROJECT_ROOT, 'tmp', downloadPath);
+      const destinationPath = path.join(PROJECT_ROOT, 'tmp', sourcePath);
       await fse.copy(absolutePath, destinationPath);
       return destinationPath;
     } catch (error) {
-      throw new Error(`LOCAL: Error copying file to tmp for ${downloadPath}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(`LOCAL: Error copying file to tmp for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
   upload: async ({ file, uploadPath }: { file: any, uploadPath: string }): Promise<void> => {

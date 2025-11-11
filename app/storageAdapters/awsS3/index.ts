@@ -9,7 +9,7 @@ import registerStorageAdapter from "~/modules/storage/helpers/registerStorageAda
 
 registerStorageAdapter({
   name: 'AWS_S3',
-  download: async ({ downloadPath }: { downloadPath: string }): Promise<string> => {
+  download: async ({ sourcePath }: { sourcePath: string }): Promise<string> => {
     const { AWS_REGION, AWS_KEY, AWS_SECRET, AWS_BUCKET } = process.env;
     if (!AWS_REGION || !AWS_KEY || !AWS_SECRET || !AWS_BUCKET) {
       throw new Error("Missing AWS configuration: AWS_REGION, AWS_KEY, or AWS_SECRET");
@@ -24,13 +24,13 @@ registerStorageAdapter({
 
     const params = {
       Bucket: AWS_BUCKET,
-      Key: downloadPath
+      Key: sourcePath
     };
 
     try {
       const data = await s3Client.send(new GetObjectCommand(params));
       if (data.Body && data.Body instanceof Readable) {
-        const tmpPath = path.join(PROJECT_ROOT, 'tmp', downloadPath);
+        const tmpPath = path.join(PROJECT_ROOT, 'tmp', sourcePath);
         const downloadDirectory = path.dirname(tmpPath);
         await fse.ensureDir(downloadDirectory);
         const fileStream = fse.createWriteStream(tmpPath);
@@ -42,9 +42,9 @@ registerStorageAdapter({
         });
         return tmpPath;
       }
-      throw new Error(`AWS_S3: No file body returned for ${downloadPath}`);
+      throw new Error(`AWS_S3: No file body returned for ${sourcePath}`);
     } catch (error) {
-      throw new Error(`AWS_S3 download error for ${downloadPath}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(`AWS_S3 download error for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
   upload: async ({ file, uploadPath }: { file: { buffer: Buffer, contentType: string, size: number }, uploadPath: string }): Promise<void> => {
