@@ -12,14 +12,26 @@ export default async ({ name, data, children }: { name: string, data: any, child
 
   if (children && children.length > 0) {
     const flow = {
-      name,
+      name: `${name}:FINISH`,
       queueName: 'tasks',
-      data,
+      data: {
+        ...data,
+        props: {
+          event: name,
+          task: `${name}:FINISH`
+        }
+      },
       children: map(children, (child) => {
         return {
           name: child.name,
           queueName: 'tasks',
-          data: { parentName: name, ...child.data }
+          data: {
+            ...child.data,
+            props: {
+              event: name,
+              task: child.name
+            }
+          }
         }
       })
     };
@@ -27,7 +39,13 @@ export default async ({ name, data, children }: { name: string, data: any, child
     return flowTree.job;
   }
 
-  const taskJob = await queue.add(name, data, {
+  const taskJob = await queue.add(name, {
+    ...data,
+    props: {
+      event: name,
+      task: `${name}:FINISH`
+    }
+  }, {
     removeOnComplete: {
       age: 72 * 3600, // keep up to 1 hour
       count: 2000, // keep up to 2000 jobs

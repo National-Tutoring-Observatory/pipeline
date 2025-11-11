@@ -160,27 +160,19 @@ export default function ProjectRunRoute() {
     event: 'ANNOTATE_RUN',
     matches: [{
       runId: run.data._id,
-      task: 'START_ANNOTATE_RUN',
+      task: 'ANNOTATE_RUN:START',
       status: 'FINISHED'
     }, {
       runId: run.data._id,
-      task: 'ANNOTATE_PER_SESSION',
+      task: 'ANNOTATE_RUN:PROCESS',
       status: 'STARTED'
     }, {
       runId: run.data._id,
-      task: 'ANNOTATE_PER_SESSION',
+      task: 'ANNOTATE_RUN:PROCESS',
       status: 'FINISHED'
     }, {
       runId: run.data._id,
-      task: 'ANNOTATE_PER_UTTERANCE',
-      status: 'STARTED'
-    }, {
-      runId: run.data._id,
-      task: 'ANNOTATE_PER_UTTERANCE',
-      status: 'FINISHED'
-    }, {
-      runId: run.data._id,
-      task: 'FINISH_ANNOTATE_RUN',
+      task: 'ANNOTATE_RUN:FINISH',
       status: 'FINISHED'
     }], callback: (payload) => {
       if (has(payload, 'progress')) {

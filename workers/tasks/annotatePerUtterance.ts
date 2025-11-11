@@ -91,6 +91,7 @@ export default async function annotatePerUtterance(job: any) {
     }, 'FINISHED');
 
   } catch (error: any) {
+
     await updateRunSession({
       runId,
       sessionId,
@@ -99,10 +100,12 @@ export default async function annotatePerUtterance(job: any) {
         finishedAt: new Date(),
       }
     });
+
     await emitFromJob(job, {
       runId,
       sessionId
     }, 'ERRORED');
+
     return {
       status: 'ERRORED',
       error: error.message
