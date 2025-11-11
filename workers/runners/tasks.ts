@@ -6,6 +6,7 @@ import annotatePerSession from "../tasks/annotatePerSession";
 import annotatePerUtterance from "../tasks/annotatePerUtterance";
 import convertFileToSession from "../tasks/convertFileToSession";
 import finishAnnotateRun from "../tasks/finishAnnotateRun";
+import handleAnnotateRun from '../tasks/handleAnnotateRun';
 import startAnnotateRun from "../tasks/startAnnotateRun";
 import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
 
@@ -13,30 +14,34 @@ export default async (job: Job) => {
   try {
     switch (job.name) {
       case 'START_ANNOTATE_RUN': {
-        await startAnnotateRun(job);
-        break;
+        return startAnnotateRun(job);
       }
       case 'ANNOTATE_PER_UTTERANCE': {
-        await annotatePerUtterance(job);
-        break;
+        return annotatePerUtterance(job);
       }
       case 'ANNOTATE_PER_SESSION': {
-        await annotatePerSession(job);
-        break;
+        return annotatePerSession(job);
       }
       case 'FINISH_ANNOTATE_RUN': {
-        await finishAnnotateRun(job);
+        return finishAnnotateRun(job);
+      }
+      case 'ANNOTATE_RUN': {
+        return handleAnnotateRun(job);
       }
       case 'START_CONVERT_FILES_TO_SESSIONS': {
-        await startConvertFilesToSessions(job);
-        break;
+        return startConvertFilesToSessions(job);
       }
       case 'CONVERT_FILE_TO_SESSION': {
-        await convertFileToSession(job);
-        break;
+        return convertFileToSession(job);
       }
       case 'FINISH_CONVERT_FILES_TO_SESSIONS': {
-        await finishConvertedFilesToSessions(job);
+        return finishConvertedFilesToSessions(job);
+      }
+      case 'CONVERT_FILES_TO_SESSIONS': {
+        return console.log('FINAL', 'CONVERT_FILES_TO_SESSIONS');
+      }
+      default: {
+        return { status: 'ERRORED', message: `Missing task for ${job.name}` }
       }
     }
   } catch (error) {

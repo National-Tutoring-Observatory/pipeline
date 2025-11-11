@@ -13,55 +13,82 @@ export default async function convertFileToSession(job: any) {
 
   const { projectId, sessionId, inputFile, outputFolder, team } = job.data;
 
-  await emitFromJob(job, {
-    projectId,
-    sessionId,
-  }, 'STARTED');
+  try {
 
-  const storage = getStorageAdapter();
 
-  await storage.download({ downloadPath: inputFile });
+    await emitFromJob(job, {
+      projectId,
+      sessionId,
+    }, 'STARTED');
 
-  const data = await fse.readFile(path.join('tmp', inputFile));
+    const storage = getStorageAdapter();
 
-  const outputFileName = path.basename(inputFile).replace('.json', '').replace('.vtt', '');
+    await storage.download({ downloadPath: inputFile });
 
-  const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI', user: team })
+    const data = await fse.readFile(path.join('tmp', inputFile));
 
-  llm.setOrchestratorMessage(convertToSessionPrompts.orchestrator, { schema: JSON.stringify(transcriptSchema) });
+    const outputFileName = path.basename(inputFile).replace('.json', '').replace('.vtt', '');
 
-  llm.addSystemMessage(convertToSessionPrompts.system, {});
+    const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI', user: team })
 
-  llm.addUserMessage(convertToSessionPrompts.user, { schema: JSON.stringify(transcriptSchema), data });
+    llm.setOrchestratorMessage(convertToSessionPrompts.orchestrator, { schema: JSON.stringify(transcriptSchema) });
 
-  const response = await llm.createChat();
+    llm.addSystemMessage(convertToSessionPrompts.system, {});
 
-  await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, response);
+    llm.addUserMessage(convertToSessionPrompts.user, { schema: JSON.stringify(transcriptSchema), data });
 
-  const buffer = await fse.readFile(`tmp/${outputFolder}/${outputFileName}.json`);
+    const response = await llm.createChat();
 
-  await storage.upload({ file: { buffer, size: buffer.length, type: 'application/json' }, uploadPath: `${outputFolder}/${outputFileName}.json` });
+    await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, response);
 
-  const documents = getDocumentsAdapter();
+    const buffer = await fse.readFile(`tmp/${outputFolder}/${outputFileName}.json`);
 
-  await documents.updateDocument({
-    collection: 'sessions',
-    match: {
-      _id: sessionId
-    },
-    update: {
-      hasConverted: true
+    await storage.upload({ file: { buffer, size: buffer.length, type: 'application/json' }, uploadPath: `${outputFolder}/${outputFileName}.json` });
+
+    const documents = getDocumentsAdapter();
+
+    await documents.updateDocument({
+      collection: 'sessions',
+      match: {
+        _id: sessionId
+      },
+      update: {
+        hasConverted: true
+      }
+    });
+
+    const sessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId } }) as number;
+
+    const completedSessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId, hasConverted: true } }) as number;
+
+    await emitFromJob(job, {
+      projectId,
+      sessionId,
+      progress: Math.round((100 / sessionsCount) * completedSessionsCount),
+    }, 'FINISHED');
+
+  } catch (error: any) {
+    const documents = getDocumentsAdapter();
+
+    await documents.updateDocument({
+      collection: 'sessions',
+      match: {
+        _id: sessionId
+      },
+      update: {
+        hasErrored: true,
+        error: error.message
+      }
+    });
+
+    await emitFromJob(job, {
+      projectId,
+      sessionId,
+    }, 'ERRORED');
+    return {
+      status: 'ERRORED',
+      error: error.message
     }
-  });
-
-  const sessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId } }) as number;
-
-  const completedSessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId, hasConverted: true } }) as number;
-
-  await emitFromJob(job, {
-    projectId,
-    sessionId,
-    progress: Math.round((100 / sessionsCount) * completedSessionsCount),
-  }, 'FINISHED');
+  }
 
 };

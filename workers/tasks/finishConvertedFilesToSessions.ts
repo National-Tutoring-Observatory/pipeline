@@ -11,4 +11,6 @@ export default async function finishConvertedFilesToSessions(job: any) {
 
   await emitFromJob(job, { projectId }, 'FINISHED');
 
+  return { status: 'SUCCESS' };
+
 }

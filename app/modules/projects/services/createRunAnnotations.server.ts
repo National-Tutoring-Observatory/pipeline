@@ -43,8 +43,11 @@ export default async function createRunAnnotations({ runId }: { runId: string },
   })
 
   for (const session of run.data.sessions) {
-    const sessionModel = await documents.getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
     currentSessionIndex++;
+    if (session.status === 'DONE') {
+      continue;
+    }
+    const sessionModel = await documents.getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
     childrenJobs.push({
       name: annotationJobName,
       data: {
