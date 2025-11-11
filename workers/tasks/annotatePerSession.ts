@@ -44,10 +44,6 @@ export default async function annotatePerSession(job: any) {
 
     const llm = new LLM({ quality: 'high', model, user: team });
 
-    const hasErrored = Math.random() > 0.5;
-
-    if (hasErrored) throw new Error("This errored");
-
     llm.addSystemMessage(annotationPerSessionPrompts.system, {
       annotationSchema: JSON.stringify(prompt.annotationSchema)
     });

@@ -31,10 +31,6 @@ export default async function convertFileToSession(job: any) {
 
     const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI', user: team })
 
-    var shouldFail = Math.random() < 0.5;
-
-    if (shouldFail) throw Error("Oh gosh - I errored");
-
     llm.setOrchestratorMessage(convertToSessionPrompts.orchestrator, { schema: JSON.stringify(transcriptSchema) });
 
     llm.addSystemMessage(convertToSessionPrompts.system, {});

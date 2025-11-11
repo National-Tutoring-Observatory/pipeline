@@ -49,10 +49,6 @@ export default async function annotatePerUtterance(job: any) {
       conversation: data
     });
 
-    var shouldFail = Math.random() < 0.5;
-
-    if (shouldFail) throw Error("Oh gosh - I errored");
-
     const response = await llm.createChat();
 
     const annotations = response.annotations || [];
