@@ -214,15 +214,15 @@ export class ProcessManager {
   async start() {
     try {
       console.log('🏗️  Building NTO Pipeline...');
-      await this.runSequential('yarn', ['build'], { label: 'build' });
+      await this.runSequential('yarn', ['app:build'], { label: 'build' });
 
       console.log('✅ Build completed successfully!');
-      this.spawn('yarn', ['redis'], { label: 'redis' });
+      this.spawn('yarn', ['local:redis'], { label: 'redis' });
 
       await this.waitForRedisReady();
 
-      this.spawn('yarn', ['start'], { label: 'server' });
-      this.spawn('yarn', ['workers'], { label: 'workers' });
+      this.spawn('yarn', ['app:prod'], { label: 'server' });
+      this.spawn('yarn', ['workers:prod'], { label: 'workers' });
       console.log('🎉 All processes started! Press Ctrl+C to stop.');
 
       process.stdin.resume();
