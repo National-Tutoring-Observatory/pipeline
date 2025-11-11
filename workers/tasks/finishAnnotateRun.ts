@@ -14,11 +14,12 @@ export default async function finishAnnotateRun(job: Job) {
     update: {
       isRunning: false,
       isComplete: true,
-      hasErrored: false,
       finishedAt: new Date()
     }
   });
 
   await emitFromJob(job, { runId }, 'FINISHED');
+
+  return { status: 'SUCCESS' };
 
 }

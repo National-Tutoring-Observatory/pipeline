@@ -90,7 +90,13 @@ export async function action({
         collection: 'runs',
         match: { _id: params.runId, project: params.projectId }
       }) as Run;
-      annotateRunSessions({ runId: run.data._id }, { request });
+      const hasWorkers = await hasFeatureFlag('HAS_WORKERS', { request });
+
+      if (hasWorkers) {
+        createRunAnnotations({ runId: run.data._id }, { request });
+      } else {
+        annotateRunSessions({ runId: run.data._id }, { request });
+      }
       return {};
     }
     case 'EXPORT_RUN': {

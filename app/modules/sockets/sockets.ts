@@ -21,7 +21,6 @@ export function connectSockets(isAppRunningLocally: boolean) {
 
   if (SOCKETS) return SOCKETS;
   const socket = io(window.location.origin, {
-    transports: ["polling"],
     reconnection: true,
     reconnectionDelay: 200,
     reconnectionAttempts: 20,

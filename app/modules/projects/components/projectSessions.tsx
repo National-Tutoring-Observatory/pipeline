@@ -1,10 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import dayjs from "dayjs";
 import map from 'lodash/map';
-import { EllipsisVertical } from "lucide-react";
-import { Link } from "react-router";
 import type { Session } from "~/modules/sessions/sessions.types";
 
 export default function ProjectFiles({
@@ -40,7 +36,7 @@ export default function ProjectFiles({
                   </TableCell>
                   <TableCell>{dayjs(session.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                   <TableCell>{session.fileType}</TableCell>
-                  <TableCell>{session.hasConverted === true ? "Converted" : "Not converted"}</TableCell>
+                  <TableCell>{session.hasConverted === true ? "Converted" : session.hasErrored ? "Errored" : "Not converted"}</TableCell>
                   <TableCell className="text-right flex justify-end">
                     {/* <DropdownMenu>
                       <DropdownMenuTrigger asChild>

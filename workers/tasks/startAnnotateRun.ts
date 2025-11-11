@@ -13,10 +13,16 @@ export default async function startAnnotateRun(job: Job) {
     match: { _id: runId },
     update: {
       isRunning: true,
+      isComplete: false,
+      hasErrored: false,
       startedAt: new Date()
     }
   });
 
   await emitFromJob(job, { runId }, 'FINISHED');
+
+  return {
+    status: 'SUCCESS'
+  }
 
 }

@@ -14,78 +14,103 @@ export default async function annotatePerUtterance(job: any) {
 
   const { runId, sessionId, inputFile, outputFolder, prompt, model, team } = job.data;
 
-  await updateRunSession({
-    runId, sessionId, update: {
-      status: 'RUNNING',
-      startedAt: new Date()
+  try {
+
+    await updateRunSession({
+      runId, sessionId, update: {
+        status: 'RUNNING',
+        startedAt: new Date()
+      }
+    })
+
+    await emitFromJob(job, {
+      runId,
+      sessionId,
+    }, 'STARTED');
+
+    const storage = getStorageAdapter();
+
+    await storage.download({ downloadPath: inputFile });
+
+    const data = await fse.readFile(path.join('tmp', inputFile));
+
+    const inputFileSplit = inputFile.split('/');
+    const outputFileName = inputFileSplit[inputFileSplit.length - 1].replace('.json', '');
+
+    const originalJSON = JSON.parse(data.toString());
+
+    const llm = new LLM({ quality: 'high', model, user: team });
+
+    llm.addSystemMessage(annotationPerUtterancePrompts.system, {
+      annotationSchema: JSON.stringify(prompt.annotationSchema)
+    });
+
+    llm.addUserMessage(`${prompt.prompt}\n\nConversation: {{conversation}}`, {
+      conversation: data
+    });
+
+    var shouldFail = Math.random() < 0.5;
+
+    if (shouldFail) throw Error("Oh gosh - I errored");
+
+    const response = await llm.createChat();
+
+    const annotations = response.annotations || [];
+
+    for (const annotation of annotations) {
+      const currentUtterance = find(originalJSON.transcript, { _id: annotation._id });
+      currentUtterance.annotations = [...currentUtterance.annotations, annotation];
     }
-  })
 
-  await emitFromJob(job, {
-    runId,
-    sessionId,
-  }, 'STARTED');
+    await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, originalJSON);
 
-  const storage = getStorageAdapter();
+    const buffer = await fse.readFile(`tmp/${outputFolder}/${outputFileName}.json`);
 
-  await storage.download({ downloadPath: inputFile });
+    await storage.upload({ file: { buffer, size: buffer.length, type: 'application/json' }, uploadPath: `${outputFolder}/${outputFileName}.json` });
 
-  const data = await fse.readFile(path.join('tmp', inputFile));
+    await fse.remove(`tmp/${outputFolder}/${outputFileName}.json`);
 
-  const inputFileSplit = inputFile.split('/');
-  const outputFileName = inputFileSplit[inputFileSplit.length - 1].replace('.json', '');
+    await updateRunSession({
+      runId,
+      sessionId,
+      update: {
+        status: 'DONE',
+        finishedAt: new Date(),
+      }
+    });
 
-  const originalJSON = JSON.parse(data.toString());
+    const documents = getDocumentsAdapter();
 
-  const llm = new LLM({ quality: 'high', model, user: team });
+    const run = await documents.getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
 
-  llm.addSystemMessage(annotationPerUtterancePrompts.system, {
-    annotationSchema: JSON.stringify(prompt.annotationSchema)
-  });
+    const sessionsCount = run.data.sessions.length;
 
-  llm.addUserMessage(`${prompt.prompt}\n\nConversation: {{conversation}}`, {
-    conversation: data
-  });
+    const completedSessionsCount = filter(run.data.sessions, { status: 'DONE' }).length;
 
-  const response = await llm.createChat();
+    await emitFromJob(job, {
+      runId,
+      sessionId,
+      progress: Math.round((100 / sessionsCount) * completedSessionsCount),
+      step: `${completedSessionsCount}/${sessionsCount}`
+    }, 'FINISHED');
 
-  const annotations = response.annotations || [];
-
-  for (const annotation of annotations) {
-    const currentUtterance = find(originalJSON.transcript, { _id: annotation._id });
-    currentUtterance.annotations = [...currentUtterance.annotations, annotation];
+  } catch (error: any) {
+    await updateRunSession({
+      runId,
+      sessionId,
+      update: {
+        status: 'ERRORED',
+        finishedAt: new Date(),
+      }
+    });
+    await emitFromJob(job, {
+      runId,
+      sessionId
+    }, 'ERRORED');
+    return {
+      status: 'ERRORED',
+      error: error.message
+    }
   }
-
-  await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, originalJSON);
-
-  const buffer = await fse.readFile(`tmp/${outputFolder}/${outputFileName}.json`);
-
-  await storage.upload({ file: { buffer, size: buffer.length, type: 'application/json' }, uploadPath: `${outputFolder}/${outputFileName}.json` });
-
-  await fse.remove(`tmp/${outputFolder}/${outputFileName}.json`);
-
-  await updateRunSession({
-    runId,
-    sessionId,
-    update: {
-      status: 'DONE',
-      finishedAt: new Date(),
-    }
-  });
-
-  const documents = getDocumentsAdapter();
-
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
-
-  const sessionsCount = run.data.sessions.length;
-
-  const completedSessionsCount = filter(run.data.sessions, { status: 'DONE' }).length;
-
-  await emitFromJob(job, {
-    runId,
-    sessionId,
-    progress: Math.round((100 / sessionsCount) * completedSessionsCount),
-    step: `${completedSessionsCount}/${sessionsCount}`
-  }, 'FINISHED');
 
 };

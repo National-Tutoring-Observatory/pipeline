@@ -22,7 +22,7 @@ export interface Run {
   hasExportedJSONL: boolean;
 }
 
-export interface RunSession { sessionId: string, status: string, name: string, fileType: string, startedAt: Date, finishedAt: Date }
+export interface RunSession { sessionId: string, status: 'DONE' | 'RUNNING' | 'ERRORED', name: string, fileType: string, startedAt: Date, finishedAt: Date }
 
 export interface CreateRun {
   selectedAnnotationType: string,
