@@ -1,6 +1,5 @@
 import fse from 'fs-extra';
 import find from 'lodash/find';
-import path from "path";
 import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
@@ -43,9 +42,8 @@ export async function action({
 
   const storage = getStorageAdapter();
 
-  await storage.download({ downloadPath: sessionPath });
-
-  const sessionFile = await fse.readJSON(path.join('tmp', sessionPath));
+  const downloadedPath = await storage.download({ sourcePath: sessionPath });
+  const sessionFile = await fse.readJSON(downloadedPath);
 
   if (run.data.annotationType === 'PER_UTTERANCE') {
     const currentUtterance = find(sessionFile.transcript, { _id: params.annotationId });

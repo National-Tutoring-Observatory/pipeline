@@ -3,8 +3,9 @@ export interface Job {
   _id: string,
   id: string,
   state: 'active' | 'completed' | 'delayed' | 'failed' | 'paused' | 'prioritized' | 'waiting' | 'waiting-children',
-  queue: 'tasks' | 'cron',
-
+  queue: {
+    name: string
+  }
   // Core properties
   name: string,
   data: any,

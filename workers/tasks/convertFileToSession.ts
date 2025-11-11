@@ -23,9 +23,8 @@ export default async function convertFileToSession(job: any) {
 
     const storage = getStorageAdapter();
 
-    await storage.download({ downloadPath: inputFile });
-
-    const data = await fse.readFile(path.join('tmp', inputFile));
+    const downloadedPath = await storage.download({ sourcePath: inputFile });
+    const data = await fse.readFile(downloadedPath);
 
     const outputFileName = path.basename(inputFile).replace('.json', '').replace('.vtt', '');
 

@@ -1,14 +1,15 @@
-import registerStorageAdapter from "~/modules/storage/helpers/registerStorageAdapter";
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import fse from "fs-extra";
 import path from "path";
 import { Readable } from "stream";
+import { PROJECT_ROOT } from '~/helpers/projectRoot';
+import registerStorageAdapter from "~/modules/storage/helpers/registerStorageAdapter";
 
 registerStorageAdapter({
   name: 'AWS_S3',
-  download: async ({ downloadPath }: { downloadPath: string }) => {
+  download: async ({ sourcePath }: { sourcePath: string }): Promise<string> => {
     const { AWS_REGION, AWS_KEY, AWS_SECRET, AWS_BUCKET } = process.env;
     if (!AWS_REGION || !AWS_KEY || !AWS_SECRET || !AWS_BUCKET) {
       throw new Error("Missing AWS configuration: AWS_REGION, AWS_KEY, or AWS_SECRET");
@@ -23,26 +24,27 @@ registerStorageAdapter({
 
     const params = {
       Bucket: AWS_BUCKET,
-      Key: downloadPath
+      Key: sourcePath
     };
 
     try {
       const data = await s3Client.send(new GetObjectCommand(params));
       if (data.Body && data.Body instanceof Readable) {
-        const downloadDirectory = path.dirname(path.join('tmp', downloadPath));
+        const tmpPath = path.join(PROJECT_ROOT, 'tmp', sourcePath);
+        const downloadDirectory = path.dirname(tmpPath);
         await fse.ensureDir(downloadDirectory);
-        const fileStream = fse.createWriteStream(path.join('tmp', downloadPath));
+        const fileStream = fse.createWriteStream(tmpPath);
         data.Body.pipe(fileStream);
 
         await new Promise((resolve, reject) => {
           fileStream.on("finish", () => resolve(undefined));
           fileStream.on("error", reject);
         });
-
+        return tmpPath;
       }
-
+      throw new Error(`AWS_S3: No file body returned for ${sourcePath}`);
     } catch (error) {
-      console.log('AWS_S3 download error', error);
+      throw new Error(`AWS_S3 download error for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
   upload: async ({ file, uploadPath }: { file: { buffer: Buffer, contentType: string, size: number }, uploadPath: string }): Promise<void> => {

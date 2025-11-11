@@ -1,12 +1,10 @@
-import fs from 'fs';
 import dotenv from 'dotenv';
-dotenv.config({ path: '.env' });
 import fse from 'fs-extra';
 import find from 'lodash/find.js';
-import systemPrompt from "./system.prompt.json";
 import LLM from '~/modules/llm/llm';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
-import path from 'path';
+import systemPrompt from "./system.prompt.json";
+dotenv.config({ path: '.env' });
 
 export const handler = async (event: { body: any }) => {
 
@@ -15,9 +13,8 @@ export const handler = async (event: { body: any }) => {
 
   const storage = getStorageAdapter();
 
-  await storage.download({ downloadPath: inputFile });
-
-  const data = await fse.readFile(path.join('tmp', inputFile));
+  const downloadedPath = await storage.download({ sourcePath: inputFile });
+  const data = await fse.readFile(downloadedPath);
 
   const inputFileSplit = inputFile.split('/');
   const outputFileName = inputFileSplit[inputFileSplit.length - 1].replace('.json', '');

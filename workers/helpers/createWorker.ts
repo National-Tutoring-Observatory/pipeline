@@ -4,37 +4,25 @@ dotenv.config({ path: '../.env' })
 import { Job, MetricsTime, Worker } from 'bullmq';
 import Redis from 'ioredis';
 import { getRedisInstance } from './getRedisInstance';
-import LocalWorker from './localWorker';
 
-export let redis: Redis;
-
-const isRedisQueue = (process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB');
+export const redis = getRedisInstance({ maxRetriesPerRequest: null });
 
 export const WORKERS: any = {};
-
-if (isRedisQueue) {
-  redis = getRedisInstance({ maxRetriesPerRequest: null });
-}
 
 export default async ({ name }: { name: string }, file: string) => {
 
   let worker;
 
-  if (isRedisQueue) {
-    worker = new Worker(name, file, {
-      connection: redis,
-      concurrency: 1,
-      metrics: {
-        maxDataPoints: MetricsTime.ONE_WEEK * 2,
-      },
-      useWorkerThreads: false
-    });
-  } else {
-    worker = new LocalWorker(name, file);
-  }
+  worker = new Worker(name, file, {
+    connection: redis,
+    concurrency: 1,
+    metrics: {
+      maxDataPoints: MetricsTime.ONE_WEEK * 2,
+    },
+    useWorkerThreads: false
+  });
 
   if (worker) {
-
     worker.on('active', (job: Job) => {
       console.log('Job started', job.name);
     });
@@ -53,7 +41,6 @@ export default async ({ name }: { name: string }, file: string) => {
     });
 
     WORKERS[name] = worker;
-
   }
 
   async function shutdown() {
@@ -68,9 +55,7 @@ export default async ({ name }: { name: string }, file: string) => {
 
     await Promise.all(workers);
 
-    if (redis) {
-      await redis.disconnect();
-    }
+    await redis.disconnect();
 
     process.exit(0);
 
