@@ -1,5 +1,4 @@
 import fse from 'fs-extra';
-import path from 'path';
 import map from 'lodash/map.js';
 import pick from 'lodash/pick.js';
 import type { Run } from '~/modules/runs/runs.types';
@@ -19,15 +18,12 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
     const storage = getStorageAdapter();
 
     for (const session of run.sessions) {
-
       const sessionPath = `${inputFolder}/${session.sessionId}/${session.name}`;
 
-      await storage.download({ downloadPath: sessionPath });
-
-      const json = await fse.readJSON(path.join('tmp', sessionPath));
+      const downloadedPath = await storage.download({ sourcePath: sessionPath });
+      const json = await fse.readJSON(downloadedPath);
 
       sessionsArray.push(json);
-
     }
 
     const sessionsAsJSONL = map(sessionsArray, (session) => {

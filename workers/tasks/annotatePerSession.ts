@@ -1,7 +1,6 @@
 import fse from 'fs-extra';
 import filter from 'lodash/filter';
 import map from 'lodash/map.js';
-import path from 'path';
 import emitFromJob from 'workers/helpers/emitFromJob';
 import updateRunSession from 'workers/helpers/updateRunSession';
 import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
@@ -15,8 +14,6 @@ export default async function annotatePerSession(job: any) {
   const { projectId, runId, sessionId, inputFile, outputFolder, prompt, model, team } = job.data;
 
   try {
-
-
     await updateRunSession({
       runId,
       sessionId,
@@ -33,9 +30,8 @@ export default async function annotatePerSession(job: any) {
 
     const storage = getStorageAdapter();
 
-    await storage.download({ downloadPath: inputFile });
-
-    const data = await fse.readFile(path.join('tmp', inputFile));
+    const downloadedPath = await storage.download({ sourcePath: inputFile });
+    const data = await fse.readFile(downloadedPath);
 
     const inputFileSplit = inputFile.split('/');
     const outputFileName = inputFileSplit[inputFileSplit.length - 1].replace('.json', '');

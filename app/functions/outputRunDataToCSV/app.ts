@@ -1,9 +1,7 @@
-import fs from 'fs';
 import fse from 'fs-extra';
-import path from 'path';
 import { json2csv } from 'json-2-csv';
-import map from 'lodash/map.js';
 import each from 'lodash/each.js';
+import map from 'lodash/map.js';
 import pick from 'lodash/pick.js';
 import type { Run } from '~/modules/runs/runs.types';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
@@ -27,12 +25,10 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
     const storage = getStorageAdapter();
 
     for (const session of run.sessions) {
-
       const sessionPath = `${inputFolder}/${session.sessionId}/${session.name}`;
 
-      await storage.download({ downloadPath: sessionPath });
-
-      const json = await fse.readJSON(path.join('tmp', sessionPath));
+      const downloadedPath = await storage.download({ sourcePath: sessionPath });
+      const json = await fse.readJSON(downloadedPath);
 
       const transcript = map(json.transcript, (utterance) => {
         utterance.sessionId = session.sessionId;

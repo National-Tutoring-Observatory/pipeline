@@ -1,17 +1,16 @@
-import ProjectRunSessions from "../components/projectRunSessions";
-import type { Route } from "./+types/projectRunSessions.route";
-import type { Project } from "../projects.types";
-import type { Run } from "~/modules/runs/runs.types";
-import find from 'lodash/find';
 import fse from 'fs-extra';
-import { redirect, useLoaderData } from "react-router";
-import { useEffect } from "react";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
-import path from "path";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import find from 'lodash/find';
 import map from 'lodash/map';
+import { useEffect } from "react";
+import { redirect, useLoaderData } from "react-router";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import type { Run } from "~/modules/runs/runs.types";
+import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
+import ProjectRunSessions from "../components/projectRunSessions";
+import type { Project } from "../projects.types";
+import type { Route } from "./+types/projectRunSessions.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -32,9 +31,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const storage = getStorageAdapter();
 
-  await storage.download({ downloadPath: sessionPath });
-
-  const sessionFile = await fse.readJSON(path.join('tmp', sessionPath));
+  const downloadedPath = await storage.download({ sourcePath: sessionPath });
+  const sessionFile = await fse.readJSON(downloadedPath);
   return { project, run, session, sessionFile };
 }
 
