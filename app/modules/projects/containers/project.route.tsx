@@ -141,21 +141,22 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     event: 'CONVERT_FILES_TO_SESSIONS',
     matches: [{
       projectId: project.data._id,
-      task: 'START_CONVERT_FILES_TO_SESSIONS',
+      task: 'CONVERT_FILES_TO_SESSIONS:START',
       status: 'FINISHED'
     }, {
       projectId: project.data._id,
-      task: 'CONVERT_FILE_TO_SESSION',
+      task: 'CONVERT_FILES_TO_SESSIONS:PROCESS',
       status: 'STARTED'
     }, {
       projectId: project.data._id,
-      task: 'CONVERT_FILE_TO_SESSION',
+      task: 'CONVERT_FILES_TO_SESSIONS:PROCESS',
       status: 'FINISHED'
     }, {
       projectId: project.data._id,
-      task: 'FINISH_CONVERT_FILES_TO_SESSIONS',
+      task: 'CONVERT_FILES_TO_SESSIONS:FINISH',
       status: 'FINISHED'
     }], callback: (payload) => {
+      console.log(payload);
       if (has(payload, 'progress')) {
         setConvertFilesProgress(payload.progress);
       }

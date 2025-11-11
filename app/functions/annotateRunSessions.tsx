@@ -65,7 +65,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
 
     emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING', step: `${completedSessions + 1}/${run.data.sessions.length}` });
 
-    let status;
+    let status: 'DONE' | 'ERRORED' | 'RUNNING';
 
     try {
       if (run.data.annotationType === 'PER_UTTERANCE') {

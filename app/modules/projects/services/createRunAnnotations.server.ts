@@ -1,6 +1,6 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
-import createTaskJob from "~/modules/queues/helpers/createTaskJob";
+import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { Project } from "../projects.types";
@@ -30,17 +30,14 @@ export default async function createRunAnnotations({ runId }: { runId: string },
 
   let currentSessionIndex = 0;
 
-  const childrenJobs = [];
+  const annotationType = run.data.annotationType === 'PER_UTTERANCE' ? 'ANNOTATE_PER_UTTERANCE' : 'ANNOTATE_PER_SESSION';
 
-  const annotationJobName = run.data.annotationType === 'PER_UTTERANCE' ? 'ANNOTATE_PER_UTTERANCE' : 'ANNOTATE_PER_SESSION';
+  const taskSequencer = new TaskSequencer('ANNOTATE_RUN');
 
-  childrenJobs.push({
-    name: 'START_ANNOTATE_RUN',
-    data: {
-      projectId: run.data.project,
-      runId: run.data._id
-    }
-  })
+  taskSequencer.addTask('START', {
+    projectId: run.data.project,
+    runId: run.data._id
+  });
 
   for (const session of run.data.sessions) {
     currentSessionIndex++;
@@ -48,37 +45,25 @@ export default async function createRunAnnotations({ runId }: { runId: string },
       continue;
     }
     const sessionModel = await documents.getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
-    childrenJobs.push({
-      name: annotationJobName,
-      data: {
-        projectId: run.data.project,
-        runId: run.data._id,
-        sessionId: session.sessionId,
-        inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-        outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
-        prompt: { prompt: userPrompt, annotationSchema },
-        model: run.data.model,
-        team: project.data.team,
-        currentSessionIndex
-      }
-    })
-  }
-
-  childrenJobs.push({
-    name: 'FINISH_ANNOTATE_RUN',
-    data: {
-      projectId: run.data.project,
-      runId: run.data._id
-    }
-  })
-
-  createTaskJob({
-    name: 'ANNOTATE_RUN',
-    data: {
+    taskSequencer.addTask('PROCESS', {
+      annotationType,
       projectId: run.data.project,
       runId: run.data._id,
-    },
-    children: childrenJobs
+      sessionId: session.sessionId,
+      inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
+      outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+      prompt: { prompt: userPrompt, annotationSchema },
+      model: run.data.model,
+      team: project.data.team,
+      currentSessionIndex
+    });
+  }
+
+  taskSequencer.addTask('FINISH', {
+    projectId: run.data.project,
+    runId: run.data._id
   });
+
+  taskSequencer.run();
 
 }

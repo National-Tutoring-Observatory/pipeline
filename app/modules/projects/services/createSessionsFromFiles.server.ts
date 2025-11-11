@@ -1,6 +1,6 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { File } from "~/modules/files/files.types";
-import createTaskJob from "~/modules/queues/helpers/createTaskJob";
+import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { Project } from "../projects.types";
 
@@ -30,42 +30,29 @@ export default async function createSessionsFromFiles({ projectId }: { projectId
   }
 
   const projectSessions = await documents.getDocuments({ collection: 'sessions', match: { project: projectId }, sort: {} }) as { data: Array<Session> };
-  const childrenJobs = [];
 
-  childrenJobs.push({
-    name: 'START_CONVERT_FILES_TO_SESSIONS',
-    data: {
-      projectId,
-    },
-  })
+  const taskSequencer = new TaskSequencer('CONVERT_FILES_TO_SESSIONS');
+
+  taskSequencer.addTask('START', {
+    projectId,
+  });
 
   for (const projectSession of projectSessions.data) {
     const file = await documents.getDocument({ collection: 'files', match: { _id: projectSession.file } }) as { data: { name: string } };
-    childrenJobs.push({
-      name: 'CONVERT_FILE_TO_SESSION',
-      data: {
-        projectId,
-        sessionId: projectSession._id,
-        inputFile: `${inputDirectory}/${projectSession.file}/${file.data.name}`,
-        outputFolder: `${outputDirectory}/${projectSession._id}`,
-        team: project.data.team
-      }
-    })
+    taskSequencer.addTask('PROCESS', {
+      projectId,
+      sessionId: projectSession._id,
+      inputFile: `${inputDirectory}/${projectSession.file}/${file.data.name}`,
+      outputFolder: `${outputDirectory}/${projectSession._id}`,
+      team: project.data.team
+    });
   }
 
-  childrenJobs.push({
-    name: 'FINISH_CONVERT_FILES_TO_SESSIONS',
-    data: {
-      projectId,
-    }
+  taskSequencer.addTask('FINISH', {
+    projectId,
   });
 
-  createTaskJob({
-    name: 'CONVERT_FILES_TO_SESSIONS',
-    data: {
-      projectId,
-    },
-    children: childrenJobs
-  });
+  taskSequencer.run();
+
 
 }
