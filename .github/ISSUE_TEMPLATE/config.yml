@@ -1,0 +1,6 @@
+blank_issues_enabled: false
+contact_links:
+  - name: NTO Community Support
+    url: https://github.com/National-Tutoring-Observatory/pipeline/issues/new/choose
+    about: Please report bugs, request features, or ask a question here.
+
