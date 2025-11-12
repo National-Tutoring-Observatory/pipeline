@@ -18,7 +18,7 @@ jobs:
       projects: write # Use this for org/user projects. Use 'repository-projects: write' for repo projects
 
     steps:
-      - name: "Add to the 'Inbox' column" # <-- Updated
+      - name: "Add to the 'Inbox' column"
         # This uses the current, well-maintained action version (v5.1.0)
         uses: "peter-evans/add-to-project@v5.1.0"
         with:
@@ -29,4 +29,4 @@ jobs:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           
           # This finds the column named "Inbox" on your board and adds the issue there.
-          column-name: "Inbox" # <-- Updated
+          column-name: "Inbox"
