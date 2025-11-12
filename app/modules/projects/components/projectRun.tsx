@@ -1,19 +1,19 @@
-import { Button } from "@/components/ui/button";
-import type { CreateRun, Run } from "~/modules/runs/runs.types";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
-import providers from "~/modules/prompts/providers";
-import find from 'lodash/find';
-import annotationTypes from "~/modules/prompts/annotationTypes";
-import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import dayjs from "dayjs";
+import find from 'lodash/find';
 import map from 'lodash/map';
-import ProjectRunCreatorContainer from "../containers/projectRunCreator.container";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
-import ProjectRunDownloads from "./projectRunDownloads";
 import { Link } from "react-router";
+import annotationTypes from "~/modules/prompts/annotationTypes";
+import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
+import providers from "~/modules/prompts/providers";
+import type { CreateRun, Run } from "~/modules/runs/runs.types";
+import ProjectRunCreatorContainer from "../containers/projectRunCreator.container";
+import ProjectRunDownloads from "./projectRunDownloads";
 
 export default function ProjectRun({
   run,
@@ -110,7 +110,7 @@ export default function ProjectRun({
             <div className="flex justify-between items-end">
               <div className="text-xs text-muted-foreground">Sessions</div>
               {(run.hasErrored) && (
-                <Button onClick={onReRunClicked}>Re-run</Button>
+                <Button onClick={onReRunClicked}>Re-run errored</Button>
               )}
             </div>
             <div className="border rounded-md h-80 overflow-y-auto mt-2">

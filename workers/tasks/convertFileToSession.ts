@@ -28,7 +28,7 @@ export default async function convertFileToSession(job: any) {
 
     const outputFileName = path.basename(inputFile).replace('.json', '').replace('.vtt', '');
 
-    const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI', user: team })
+    const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI', user: team });
 
     llm.setOrchestratorMessage(convertToSessionPrompts.orchestrator, { schema: JSON.stringify(transcriptSchema) });
 

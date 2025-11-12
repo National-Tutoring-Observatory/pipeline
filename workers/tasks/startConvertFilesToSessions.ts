@@ -7,7 +7,7 @@ export default async function startConvertFilesToSessions(job: any) {
 
   const documents = getDocumentsAdapter();
 
-  await documents.updateDocument({ collection: 'projects', match: { _id: projectId }, update: { isConvertingFiles: false } });
+  await documents.updateDocument({ collection: 'projects', match: { _id: projectId }, update: { isConvertingFiles: true } });
 
   await emitFromJob(job, { projectId }, 'FINISHED');
 
