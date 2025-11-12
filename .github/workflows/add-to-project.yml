@@ -12,21 +12,20 @@ jobs:
     name: "Add issue to Support project"
     runs-on: "ubuntu-latest"
     
-    # This permissions block is required to allow the action to write to your project
-    permissions:
-      issues: write
-      projects: write # Use this for org/user projects. Use 'repository-projects: write' for repo projects
+    # We removed the 'permissions:' block entirely, as it's not supported
+    # on the GitHub Free plan for the 'projects' scope.
 
     steps:
       - name: "Add to the 'Inbox' column"
-        # This uses the current, well-maintained action version (v5.1.0)
-        uses: "peter-evans/add-to-project@v5.1.0"
+        # We'll use a main version tag (v6) for the latest updates
+        uses: "peter-evans/add-to-project@v6.0.0"
         with:
           # The URL of your project board.
           project-url: "https://github.com/orgs/National-Tutoring-Observatory/projects/24"
           
-          # This token is automatically provided by GitHub
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          # This token comes from your Organization's Actions Secrets
+          github-token: "${{ secrets.ORG_PROJECT_TOKEN }}"
           
-          # This finds the column named "Inbox" on your board and adds the issue there.
+          # This finds the column named "Inbox" on your board.
+          # Make sure this name is an exact, case-sensitive match.
           column-name: "Inbox"
