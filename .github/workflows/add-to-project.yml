@@ -13,7 +13,7 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - name: "Add to the 'Triage' column"
+      - name: "Add to the 'Inbox' column"
         # This uses the current, well-maintained action version (v5)
         uses: "peter-evans/add-to-project@v5.1.0"
         with:
@@ -25,4 +25,4 @@ jobs:
           
           # This is the key part:
           # It finds the column named "Triage" on your board and adds the issue there.
-          column-name: "Triage"
+          column-name: "Inbox"
