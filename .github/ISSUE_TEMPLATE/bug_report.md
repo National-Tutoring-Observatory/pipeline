@@ -1,22 +1,27 @@
 ---
-name: "❓ Question"
-about: "Ask a 'how-to' question or seek clarification."
-title: "Q: [Your Question]"
-labels: "type: question, status: needs-triage"
-assignees: "kirk"
+name: "🐛 Bug Report"
+about: "Report a reproducible bug or unexpected behavior."
+title: "BUG: [Short description of bug]"
+labels: "type: bug, status: needs-triage"
+assignees:
+  - kirk
+  - doug
+  - josh
 ---
-<!--
-*****************************************************************
-**STOP! 👋 Have you checked our GitHub Discussions Q&A?**
-*****************************************************************
 
-Your question may already be answered there! This "Issues" section is primarily for bugs and feature requests.
+### 1. Steps to Reproduce
+Please be as specific as possible.
+1. Go to '...'
+2. Run command '...' with data '...'
+3. See error '...'
 
-Please ask general questions in our Q&A Discussions tab first:
-**https://github.com/orgs/National-Tutoring-Observatory/discussions**
+### 2. Expected Behavior
+A clear and concise description of what you expected to happen.
 
-If you're confident your question is best handled as an issue, please delete this message and continue.
--->
+### 3. Actual Behavior
+A clear and concise description of what actually happened. (Please include error logs, and screenshots if possible!)
 
-### Your Question
-A clear and concise description of your question.
+### 4. Environment
+* **Pipeline Version:** (e.g., v1.2.0 or main branch)
+* **Browser/OS (if UI-related):** (e.g., Chrome 105, Windows 11)
+* **Any other relevant context:**
