@@ -11,10 +11,15 @@ jobs:
   add-to-project:
     name: "Add issue to Support project"
     runs-on: "ubuntu-latest"
+    
+    # This permissions block is required to allow the action to write to your project
+    permissions:
+      issues: write
+      projects: write # Use this for org/user projects. Use 'repository-projects: write' for repo projects
 
     steps:
-      - name: "Add to the 'Inbox' column"
-        # This uses the current, well-maintained action version (v5)
+      - name: "Add to the 'Inbox' column" # <-- Updated
+        # This uses the current, well-maintained action version (v5.1.0)
         uses: "peter-evans/add-to-project@v5.1.0"
         with:
           # The URL of your project board.
@@ -23,6 +28,5 @@ jobs:
           # This token is automatically provided by GitHub
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           
-          # This is the key part:
-          # It finds the column named "Triage" on your board and adds the issue there.
-          column-name: "Inbox"
+          # This finds the column named "Inbox" on your board and adds the issue there.
+          column-name: "Inbox" # <-- Updated
