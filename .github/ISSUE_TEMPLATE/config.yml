@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: ? Questions
-    url: https://github.com/National-Tutoring-Observatory/pipeline/issues/new/choose
-    about: Please use our GitHub Discussions for questions, 'how-to' help, and general conversation.
+  - name: "❓ Ask a Question"
+    url: "https://github.com/orgs/National-Tutoring-Observatory/discussions"
+    about: "Please use our GitHub Discussions for questions, 'how-to' help, and general conversation."
