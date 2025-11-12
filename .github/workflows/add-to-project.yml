@@ -3,7 +3,6 @@
 
 name: "Auto-add new issues to Support Board"
 
-# This action runs on a schedule (e.g., once a day at 5 AM)
 on:
   issues:
     types: [opened] # This action only runs when an issue is created
@@ -15,15 +14,13 @@ jobs:
 
     steps:
       - name: "Add to the 'Triage' column"
-        # This uses a popular, well-maintained action to add to projects
-        uses: "peter-evans/add-to-project@v3.1.0"
+        # This uses the current, well-maintained action version (v5)
+        uses: "peter-evans/add-to-project@v5.1.0"
         with:
           # The URL of your project board.
-          # This is already set to the one you just linked!
           project-url: "https://github.com/orgs/National-Tutoring-Observatory/projects/24"
           
           # This token is automatically provided by GitHub
-          # and has permission to add to projects in your org.
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           
           # This is the key part:
