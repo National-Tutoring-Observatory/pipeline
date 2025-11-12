@@ -1,36 +1,22 @@
-name: "🐛 Bug Report" about: "Report a reproducible bug or unexpected behavior." title: "BUG: [Short description of bug]" labels: "type: bug, status: needs-triage" assignees: "kirk, doug, josh"
-
+---
+name: "❓ Question"
+about: "Ask a 'how-to' question or seek clarification."
+title: "Q: [Your Question]"
+labels: "type: question, status: needs-triage"
+assignees: "kirk"
+---
 <!--
-Thank you for helping improve our platform!
-Please check our existing issues first to avoid duplicates:
-https://www.google.com/search?q=https://github.com/National-Tutoring-Observatory/pipeline/issues
+*****************************************************************
+**STOP! 👋 Have you checked our GitHub Discussions Q&A?**
+*****************************************************************
 
-If you have a QUESTION, please use our Q&A Discussions tab instead:
-https://github.com/orgs/National-Tutoring-Observatory/discussions
+Your question may already be answered there! This "Issues" section is primarily for bugs and feature requests.
+
+Please ask general questions in our Q&A Discussions tab first:
+**https://github.com/orgs/National-Tutoring-Observatory/discussions**
+
+If you're confident your question is best handled as an issue, please delete this message and continue.
 -->
 
-1. Steps to Reproduce
-
-Please be as specific as possible.
-
-Go to '...'
-
-Run command '...' with data '...'
-
-See error '...'
-
-2. Expected Behavior
-
-A clear and concise description of what you expected to happen.
-
-3. Actual Behavior
-
-A clear and concise description of what actually happened. (Please include error logs, and screenshots if possible!)
-
-4. Environment
-
-Pipeline Version: (e.g., v1.2.0 or main branch)
-
-Browser/OS (if UI-related): (e.g., Chrome 105, Windows 11)
-
-Any other relevant context:
+### Your Question
+A clear and concise description of your question.
