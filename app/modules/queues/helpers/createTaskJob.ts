@@ -14,6 +14,13 @@ export default async ({ name, data, children }: { name: string, data: any, child
     const flow = {
       name: `${name}:FINISH`,
       queueName: 'tasks',
+      opts: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 1000,
+        },
+      },
       data: {
         ...data,
         props: {
@@ -25,6 +32,13 @@ export default async ({ name, data, children }: { name: string, data: any, child
         return {
           name: child.name,
           queueName: 'tasks',
+          opts: {
+            attempts: 3,
+            backoff: {
+              type: 'exponential',
+              delay: 1000,
+            },
+          },
           data: {
             ...child.data,
             props: {
@@ -46,6 +60,11 @@ export default async ({ name, data, children }: { name: string, data: any, child
       task: `${name}:FINISH`
     }
   }, {
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 1000,
+    },
     removeOnComplete: {
       age: 72 * 3600, // keep up to 1 hour
       count: 2000, // keep up to 2000 jobs

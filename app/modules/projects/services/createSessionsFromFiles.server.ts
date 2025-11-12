@@ -4,7 +4,11 @@ import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { Project } from "../projects.types";
 
-export default async function createSessionsFromFiles({ projectId }: { projectId: string }, { request }: { request: Request }) {
+export default async function createSessionsFromFiles({
+  projectId,
+  shouldCreateSessionModels = true
+}: { projectId: string, shouldCreateSessionModels: boolean }, { request }: { request: Request }) {
+
 
   const documents = getDocumentsAdapter();
 
@@ -16,17 +20,19 @@ export default async function createSessionsFromFiles({ projectId }: { projectId
 
   const outputDirectory = `storage/${projectId}/preAnalysis`;
 
-  for (const projectFile of projectFiles.data) {
-    await documents.createDocument({
-      collection: 'sessions',
-      update: {
-        project: projectFile.project,
-        file: projectFile._id,
-        fileType: 'application/json',
-        name: `${projectFile.name.replace(/\.[^.]+$/, '')}.json`,
-        hasConverted: false
-      }
-    }) as { data: Session };
+  if (shouldCreateSessionModels) {
+    for (const projectFile of projectFiles.data) {
+      await documents.createDocument({
+        collection: 'sessions',
+        update: {
+          project: projectFile.project,
+          file: projectFile._id,
+          fileType: 'application/json',
+          name: `${projectFile.name.replace(/\.[^.]+$/, '')}.json`,
+          hasConverted: false
+        }
+      }) as { data: Session };
+    }
   }
 
   const projectSessions = await documents.getDocuments({ collection: 'sessions', match: { project: projectId }, sort: {} }) as { data: Array<Session> };
@@ -38,6 +44,9 @@ export default async function createSessionsFromFiles({ projectId }: { projectId
   });
 
   for (const projectSession of projectSessions.data) {
+    if (projectSession.hasConverted) {
+      continue;
+    }
     const file = await documents.getDocument({ collection: 'files', match: { _id: projectSession.file } }) as { data: { name: string } };
     taskSequencer.addTask('PROCESS', {
       projectId,

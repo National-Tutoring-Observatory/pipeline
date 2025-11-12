@@ -5,6 +5,7 @@ export interface Project {
   name: string;
   team: Team | string;
   createdAt: string;
+  hasErrored: boolean,
   isUploadingFiles: boolean;
   isConvertingFiles: boolean;
   hasSetupProject: boolean;

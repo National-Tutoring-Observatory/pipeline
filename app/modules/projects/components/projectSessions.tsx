@@ -1,15 +1,25 @@
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import dayjs from "dayjs";
 import map from 'lodash/map';
 import type { Session } from "~/modules/sessions/sessions.types";
+import type { Project } from "../projects.types";
 
-export default function ProjectFiles({
+export default function ProjectSessions({
+  project,
   sessions,
-  onSessionClicked
-}: { sessions: Session[], onSessionClicked: (session: Session) => void }) {
+  onSessionClicked,
+  onReRunClicked
+}: { project: Project, sessions: Session[], onSessionClicked: (session: Session) => void, onReRunClicked: () => void }) {
   return (
     <div className="mt-8">
-      <div className="border rounded-md">
+      <div className="flex justify-between items-end">
+        <div className="text-xs text-muted-foreground">Sessions</div>
+        {(project.hasErrored && !project.isConvertingFiles) && (
+          <Button onClick={onReRunClicked}>Re-run errored</Button>
+        )}
+      </div>
+      <div className="border rounded-md mt-2">
         <Table>
           <TableHeader>
             <TableRow>

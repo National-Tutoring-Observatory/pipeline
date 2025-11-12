@@ -75,7 +75,7 @@ export async function action({
     const hasWorkers = await hasFeatureFlag('HAS_WORKERS', { request });
     uploadFiles({ files, entityId }).then(async () => {
       if (hasWorkers) {
-        createSessionsFromFiles({ projectId: entityId }, { request });
+        createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true }, { request });
       } else {
         convertFilesToSessions({ entityId });
       }
