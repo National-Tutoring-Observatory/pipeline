@@ -1,4 +1,4 @@
-name: "💡 Feature Request" about: Suggest a new feature, enhancement, or data source. title: "FEAT: [Short description of feature]" labels: "type: feature-request, status: needs-triage" assignees: "kirk, doug, josh"
+name: "💡 Feature Request" about: "Suggest a new feature, enhancement, or data source." title: "FEAT: [Short description of feature]" labels: "type: feature-request, status: needs-triage" assignees: "kirk, doug, josh"
 
 <!--
 Thank you for your suggestion!
