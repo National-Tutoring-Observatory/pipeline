@@ -1,4 +1,4 @@
-name: "🐛 Bug Report" about: Report a reproducible bug or unexpected behavior. title: "BUG: [Short description of bug]" labels: "type: bug, status: needs-triage" assignees: "kirk, doug, josh"
+name: "🐛 Bug Report" about: "Report a reproducible bug or unexpected behavior." title: "BUG: [Short description of bug]" labels: "type: bug, status: needs-triage" assignees: "kirk, doug, josh"
 
 <!--
 Thank you for helping improve our platform!
