@@ -1,12 +1,12 @@
 import fse from 'fs-extra';
 import filter from 'lodash/filter';
 import find from 'lodash/find.js';
-import emitFromJob from 'workers/helpers/emitFromJob';
-import updateRunSession from 'workers/helpers/updateRunSession';
-import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
-import LLM from '~/modules/llm/llm';
-import type { Run } from '~/modules/runs/runs.types';
-import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
+import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter';
+import LLM from '../../app/modules/llm/llm';
+import type { Run } from '../../app/modules/runs/runs.types';
+import getStorageAdapter from '../../app/modules/storage/helpers/getStorageAdapter';
+import emitFromJob from '../helpers/emitFromJob';
+import updateRunSession from '../helpers/updateRunSession';
 import annotationPerUtterancePrompts from "../prompts/annotatePerUtterance.prompts.json";
 
 export default async function annotatePerUtterance(job: any) {

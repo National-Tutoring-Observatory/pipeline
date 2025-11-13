@@ -1,7 +1,7 @@
 import extend from 'lodash/extend.js';
 import find from 'lodash/find.js';
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { Run, RunSession } from "~/modules/runs/runs.types";
+import getDocumentsAdapter from "../../app/modules/documents/helpers/getDocumentsAdapter";
+import type { Run, RunSession } from "../../app/modules/runs/runs.types";
 
 export default async function updateRunSession({ runId, sessionId, update }: { runId: string, sessionId: string, update: Partial<RunSession> }) {
   const documents = getDocumentsAdapter();
