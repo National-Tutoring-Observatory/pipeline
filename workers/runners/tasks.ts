@@ -1,11 +1,11 @@
 import type { Job } from "bullmq";
-import finishConvertedFilesToSessions from "workers/tasks/finishConvertedFilesToSessions";
 import '~/modules/documents/documents';
 import '~/modules/storage/storage';
 import annotatePerSession from "../tasks/annotatePerSession";
 import annotatePerUtterance from "../tasks/annotatePerUtterance";
 import convertFileToSession from "../tasks/convertFileToSession";
 import finishAnnotateRun from "../tasks/finishAnnotateRun";
+import finishConvertedFilesToSessions from "../tasks/finishConvertedFilesToSessions";
 import startAnnotateRun from "../tasks/startAnnotateRun";
 import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
 
