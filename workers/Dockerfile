@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 COPY workers/package.json ./workers/
 COPY ./global-bundle.pem ./
-RUN corepack enable
+RUN npm install -g yarn
 RUN yarn install --frozen-lockfile --production
 COPY ./workers ./workers/
 EXPOSE 4000
