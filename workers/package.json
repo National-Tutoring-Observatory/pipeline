@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch --include './**/*.ts' ./index.ts",
-    "prod": "tsx ./index.ts"
+    "prod": "tsx --tsconfig ../tsconfig.server.json ./index.ts"
   },
   "dependencies": {
     "@socket.io/redis-emitter": "^5.1.0",
