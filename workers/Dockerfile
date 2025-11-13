@@ -7,5 +7,6 @@ WORKDIR /app
 RUN apk add --no-cache yarn
 ENV REDISMS_DISABLE_POSTINSTALL=1
 RUN yarn install --frozen-lockfile --production
+RUN node ./app/adapters.js
 EXPOSE 4000
 CMD ["yarn", "workers:prod"]
