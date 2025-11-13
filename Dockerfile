@@ -2,12 +2,14 @@ FROM node:25-alpine AS development-dependencies-env
 COPY . /app
 WORKDIR /app
 RUN apk add --no-cache yarn
+ENV REDISMS_DISABLE_POSTINSTALL=1
 RUN yarn install --frozen-lockfile
 
 FROM node:25-alpine AS production-dependencies-env
 COPY ./package.json yarn.lock /app/
 WORKDIR /app
 RUN apk add --no-cache yarn
+ENV REDISMS_DISABLE_POSTINSTALL=1
 RUN yarn install --frozen-lockfile --production
 
 FROM node:25-alpine AS build-env
