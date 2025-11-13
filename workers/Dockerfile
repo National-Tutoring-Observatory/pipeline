@@ -1,5 +1,5 @@
 FROM node:25-alpine
-COPY package.json yarn.lock global-bundle.pem tsconfig.json tsconfig.server.json ./app/
+COPY package.json yarn.lock global-bundle.pem tsconfig.json ./app/
 COPY workers/package.json ./app/workers/
 COPY ./workers ./app/workers
 COPY ./app /app/app

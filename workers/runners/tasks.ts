@@ -1,6 +1,6 @@
 import type { Job } from "bullmq";
-import '~/modules/documents/documents';
-import '~/modules/storage/storage';
+import "../../app/modules/documents/documents";
+import "../../app/modules/storage/storage";
 import annotatePerSession from "../tasks/annotatePerSession";
 import annotatePerUtterance from "../tasks/annotatePerUtterance";
 import convertFileToSession from "../tasks/convertFileToSession";

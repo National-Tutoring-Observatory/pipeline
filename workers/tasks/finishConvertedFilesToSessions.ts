@@ -1,6 +1,6 @@
 import find from 'lodash/find.js';
-import emitFromJob from "workers/helpers/emitFromJob";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import getDocumentsAdapter from "../../app/modules/documents/helpers/getDocumentsAdapter";
+import emitFromJob from "../helpers/emitFromJob";
 
 export default async function finishConvertedFilesToSessions(job: any) {
 
