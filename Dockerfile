@@ -1,17 +1,20 @@
 FROM node:25-alpine AS development-dependencies-env
 COPY . /app
 WORKDIR /app
+RUN corepack enable
 RUN yarn install --frozen-lockfile
 
 FROM node:25-alpine AS production-dependencies-env
 COPY ./package.json yarn.lock /app/
 WORKDIR /app
+RUN corepack enable
 RUN yarn install --frozen-lockfile --production
 
 FROM node:25-alpine AS build-env
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
+RUN corepack enable
 RUN yarn app:build
 
 FROM node:25-alpine
@@ -22,6 +25,7 @@ COPY ./app /app/app
 COPY ./documentation /app/documentation
 COPY ./public /app/public
 WORKDIR /app
+RUN corepack enable
 RUN node ./app/adapters.js
 EXPOSE 5173
 CMD ["yarn", "app:prod"]
