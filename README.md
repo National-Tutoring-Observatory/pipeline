@@ -1,3 +1,5 @@
+[![API Healthcheck](https://github.com/National-Tutoring-Observatory/pipeline/actions/workflows/api-healthcheck.yml/badge.svg)](https://github.com/National-Tutoring-Observatory/pipeline/actions/workflows/api-healthcheck.yml)
+
 ## Getting Started
 
 Make sure you have followed the "Setup: Prerequisites" here: https://github.com/National-Tutoring-Observatory/RnD. You will need Node.js and Yarn.js installed first.
