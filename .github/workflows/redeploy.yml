@@ -51,8 +51,6 @@ jobs:
               --query "services[0].taskDefinition" \
               --output text)
 
-            echo "Using task definition: $TASK_DEF"
-
             echo "Triggering force deployment..."
             aws ecs update-service \
               --cluster "$CLUSTER" \
