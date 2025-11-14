@@ -1,9 +1,9 @@
-import { useCallback } from 'react'
-import { useDropzone } from 'react-dropzone';
-import map from 'lodash/map';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import clsx from 'clsx';
+import map from 'lodash/map';
+import { useDropzone } from 'react-dropzone';
+import Flag from '~/modules/featureFlags/components/flag';
 
 export default function UploadFiles({
   acceptedFiles,
@@ -33,7 +33,11 @@ export default function UploadFiles({
 
   return (
     <div>
-
+      <Flag flag="HAS_NEW_UPLOADS_FLOW">
+        <div>
+          New uploads
+        </div>
+      </Flag>
       <div className={uploadClassName} {...getRootProps()}>
         <input {...getInputProps()} disabled={isUploading} />
         {
