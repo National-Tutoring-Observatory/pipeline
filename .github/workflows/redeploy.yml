@@ -1,0 +1,66 @@
+name: Force ECS Redeployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type 'REDEPLOY' to confirm"
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  force-redeploy:
+    name: Force new deployment of ECS services
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate Confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "REDEPLOY" ]; then
+            echo "Confirmation failed — type exactly 'REDEPLOY'."
+            exit 1
+          fi
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Force new deployment for ECS services
+        shell: bash
+        run: |
+          CLUSTER="${{ vars.ECS_CLUSTER }}"
+          SERVICES="${{ vars.ECS_SERVICE }} ${{ vars.ECS_WORKER_SERVICE }}"
+
+          echo "Starting force redeployment on cluster: $CLUSTER"
+          echo "Services: $SERVICES"
+
+          for SERVICE in $SERVICES; do
+            echo "-----------------------------------------"
+            echo "📌 Processing service: $SERVICE"
+
+            echo "Fetching current task definition..."
+            TASK_DEF=$(aws ecs describe-services \
+              --cluster "$CLUSTER" \
+              --services "$SERVICE" \
+              --query "services[0].taskDefinition" \
+              --output text)
+
+            echo "Using task definition: $TASK_DEF"
+
+            echo "Triggering force deployment..."
+            aws ecs update-service \
+              --cluster "$CLUSTER" \
+              --service "$SERVICE" \
+              --task-definition "$TASK_DEF" \
+              --force-new-deployment
+
+            echo "Triggered new deployment for: $SERVICE"
+          done
+
+          echo "-----------------------------------------"
+          echo "✅ All ECS services have been redeployed."
