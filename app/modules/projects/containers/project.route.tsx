@@ -13,6 +13,7 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import type { Collection } from "~/modules/collections/collections.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import hasFeatureFlag from '~/modules/featureFlags/helpers/hasFeatureFlag';
+import type { FileStructure, FileType } from '~/modules/files/files.types';
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import convertFileToFiles from "~/modules/uploads/convertFileToFiles";
@@ -62,6 +63,20 @@ export async function action({
     await validateProjectOwnership({ user, projectId: entityId });
 
     let files = formData.getAll('files');
+
+    const hasNewUploadsFlow = await hasFeatureFlag('HAS_NEW_UPLOADS_FLOW', { request });
+
+    if (hasNewUploadsFlow) {
+
+      console.log(files);
+      console.log(body);
+
+      if (body.fileStructure === 'MULTIPLE') {
+        //files = await splitMultipleSessionsIntoFiles({ files, entityId });
+      }
+
+      return;
+    }
 
     if (files.length === 1) {
 
@@ -113,11 +128,21 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const [uploadFilesProgress, setUploadFilesProgress] = useState(0);
   const [convertFilesProgress, setConvertFilesProgress] = useState(0);
 
-  const onUploadFiles = async (acceptedFiles: any[]) => {
+  const onUploadFiles = async ({
+    acceptedFiles,
+    fileType,
+    fileStructure
+  }: {
+    acceptedFiles: any[],
+    fileType: FileType,
+    fileStructure: FileStructure
+  }) => {
     const formData = new FormData();
     formData.append('body', JSON.stringify({
       intent: 'UPLOAD_PROJECT_FILES',
       entityId: project.data._id,
+      fileType,
+      fileStructure,
       files: Array.from(acceptedFiles).map(file => ({
         name: file.name,
         size: file.size,

@@ -7,7 +7,7 @@ import UploadFiles from "../components/uploadFiles";
 import type { FileStructure, FileType } from '../files.types';
 
 interface UploadFilesContainerProps {
-  onUploadFiles: (acceptedFiles: any[]) => void;
+  onUploadFiles: ({ acceptedFiles, fileType, fileStructure }: { acceptedFiles: any[], fileType: FileType, fileStructure: FileStructure }) => void;
 }
 
 class UploadFilesContainer extends Component<UploadFilesContainerProps> {
@@ -41,7 +41,8 @@ class UploadFilesContainer extends Component<UploadFilesContainerProps> {
 
   onUploadFilesClicked = () => {
     this.setState({ isUploading: true });
-    this.props.onUploadFiles(this.state.acceptedFiles);
+    const { acceptedFiles, fileType, fileStructure } = this.state;
+    this.props.onUploadFiles({ acceptedFiles, fileType, fileStructure });
   }
 
   onFileTypeChanged = (fileType: FileType) => {
@@ -49,6 +50,9 @@ class UploadFilesContainer extends Component<UploadFilesContainerProps> {
       let fileStructure = this.state.fileStructure;
       if (fileType !== 'CSV') {
         fileStructure = 'SINGLE';
+      }
+      if (fileType === 'JSONL') {
+        fileStructure = 'MULTIPLE';
       }
       this.setState({ fileType, fileStructure });
     }
