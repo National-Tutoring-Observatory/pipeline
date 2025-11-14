@@ -1,0 +1,60 @@
+name: API Healthcheck
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"  # every 15 minutes
+  workflow_dispatch:
+
+jobs:
+  check-api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check API response
+        id: api
+        run: |
+          echo "Requesting API..."
+          response=$(curl -s -w "HTTPSTATUS:%{http_code}" https://app.nationaltutoringobservatory.org/api)
+
+          # Extract body and status code
+          body=$(echo "$response" | sed -e 's/HTTPSTATUS\:.*//g')
+          status=$(echo "$response" | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+
+          echo "Status code: $status"
+
+          # ---- Log JSON response in GitHub Actions Log ----
+          echo "::group::API JSON Response"
+          echo "$body" | jq .
+          echo "::endgroup::"
+
+          # Validate HTTP status
+          if [ "$status" -ne 200 ]; then
+            echo "❌ API did not return HTTP 200"
+            exit 1
+          fi
+
+          # Expected values
+          expected='{"status":200,"dbStatus":"CONNECTED","cacheStatus":"CONNECTED","missingParameters":[]}'
+
+          # Validate JSON format
+          if ! echo "$body" | jq -e . >/dev/null 2>&1; then
+            echo "❌ Response is not valid JSON."
+            exit 1
+          fi
+
+          # Compare JSON objects (order-independent)
+          if [ "$(echo "$body" | jq -S .)" != "$(echo "$expected" | jq -S .)" ]; then
+            echo "❌ JSON does not match expected values."
+            
+            echo "::group::Expected JSON"
+            echo "$expected" | jq .
+            echo "::endgroup::"
+
+            echo "::group::Actual JSON"
+            echo "$body" | jq .
+            echo "::endgroup::"
+
+            exit 1
+          fi
+
+          echo "✅ API response is valid."
