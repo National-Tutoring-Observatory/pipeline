@@ -5,3 +5,7 @@ export interface File {
   project: string;
   fileType: string;
 }
+
+export type FileType = 'CSV' | 'JSON' | 'JSONL' | 'VTT';
+
+export type FileStructure = 'MULTIPLE' | 'SINGLE';
