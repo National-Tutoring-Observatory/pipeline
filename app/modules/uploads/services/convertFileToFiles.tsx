@@ -1,8 +1,8 @@
-import path from "path";
-import uploadFile from "./uploadFile";
-import removeFile from "./removeFile";
-import { handler as splitDataToSessions } from '../../functions/splitDataToSessions/app';
 import fs from 'fs';
+import path from "path";
+import { handler as splitDataToSessions } from '../../../functions/splitDataToSessions/app';
+import removeFile from "./removeFile";
+import uploadFile from "./uploadFile";
 
 export default async function convertFileToFiles({ file, entityId, }: { file: File, entityId: string }): Promise<File[]> {
   const splitFiles = [];

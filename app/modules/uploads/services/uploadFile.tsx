@@ -1,7 +1,6 @@
 import path from 'path';
-import fse from 'fs-extra';
-import getStorageAdapter from '../../modules/storage/helpers/getStorageAdapter';
-import getFileInfo from '../../modules/storage/helpers/getFileInfo';
+import getFileInfo from '../../storage/helpers/getFileInfo';
+import getStorageAdapter from '../../storage/helpers/getStorageAdapter';
 
 export default async function uploadFile({ file, uploadDirectory }: { file: any, uploadDirectory: string }): Promise<void> {
   const storage = getStorageAdapter();
