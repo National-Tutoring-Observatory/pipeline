@@ -16,9 +16,10 @@ import hasFeatureFlag from '~/modules/featureFlags/helpers/hasFeatureFlag';
 import type { FileStructure, FileType } from '~/modules/files/files.types';
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
-import convertFileToFiles from "~/modules/uploads/convertFileToFiles";
-import convertFilesToSessions from "~/modules/uploads/convertFilesToSessions";
-import uploadFiles from "~/modules/uploads/uploadFiles";
+import convertFileToFiles from "~/modules/uploads/services/convertFileToFiles";
+import convertFilesToSessions from "~/modules/uploads/services/convertFilesToSessions";
+import splitMultipleSessionsIntoFiles from '~/modules/uploads/services/splitMultipleSessionsIntoFiles';
+import uploadFiles from "~/modules/uploads/services/uploadFiles";
 import type { User } from "~/modules/users/users.types";
 import Project from '../components/project';
 import { validateProjectOwnership } from "../helpers/projectOwnership";
@@ -62,20 +63,24 @@ export async function action({
 
     await validateProjectOwnership({ user, projectId: entityId });
 
-    let files = formData.getAll('files');
+    let files = formData.getAll('files') as File[];
 
     const hasNewUploadsFlow = await hasFeatureFlag('HAS_NEW_UPLOADS_FLOW', { request });
 
     if (hasNewUploadsFlow) {
 
-      console.log(files);
-      console.log(body);
-
       if (body.fileStructure === 'MULTIPLE') {
-        //files = await splitMultipleSessionsIntoFiles({ files, entityId });
+        files = await splitMultipleSessionsIntoFiles({ files, fileType: body.fileType });
       }
 
-      return;
+      uploadFiles({ files, entityId }).then(async () => {
+        createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true }, { request });
+      });
+
+      const documents = getDocumentsAdapter();
+
+      return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
+
     }
 
     if (files.length === 1) {
