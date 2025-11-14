@@ -7,6 +7,7 @@ import map from 'lodash/map';
 import { useDropzone } from 'react-dropzone';
 import Flag from '~/modules/featureFlags/components/flag';
 import type { FileStructure, FileType } from '../files.types';
+import getFileUploadAccepts from '../helpers/getFileUploadAccepts';
 
 export default function UploadFiles({
   acceptedFiles,
@@ -30,7 +31,7 @@ export default function UploadFiles({
   onFileStructureChanged: (fileStructure: FileStructure) => void
 }) {
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept: getFileUploadAccepts([fileType]), onDrop });
 
   let uploadButtonText = `Upload ${acceptedFiles.length} files`;
 
@@ -55,6 +56,7 @@ export default function UploadFiles({
                 type="single"
                 variant="outline"
                 value={fileType}
+                disabled={acceptedFiles.length > 0}
                 onValueChange={onFileTypeChanged}
               >
                 <ToggleGroupItem value="CSV" aria-label="Toggle bold">
@@ -80,7 +82,7 @@ export default function UploadFiles({
                 variant="outline"
                 value={fileStructure}
                 onValueChange={onFileStructureChanged}
-                disabled={fileType !== 'CSV'}
+                disabled={fileType !== 'CSV' || acceptedFiles.length > 0}
               >
                 <ToggleGroupItem value="MULTIPLE" aria-label="Toggle bold">
                   Multiple sessions per file
