@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
-import UploadFiles from "../components/uploadFiles";
-import map from 'lodash/map';
-import { v4 as uuidv4 } from 'uuid';
-import remove from 'lodash/remove';
 import cloneDeep from 'lodash/cloneDeep';
+import map from 'lodash/map';
+import remove from 'lodash/remove';
+import { Component } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import UploadFiles from "../components/uploadFiles";
+import type { FileStructure, FileType } from '../files.types';
 
 interface UploadFilesContainerProps {
   onUploadFiles: (acceptedFiles: any[]) => void;
@@ -13,6 +14,8 @@ class UploadFilesContainer extends Component<UploadFilesContainerProps> {
 
   state = {
     acceptedFiles: [],
+    fileType: 'CSV' as FileType,
+    fileStructure: 'MULTIPLE' as FileStructure,
     isUploading: false,
   }
 
@@ -41,14 +44,35 @@ class UploadFilesContainer extends Component<UploadFilesContainerProps> {
     this.props.onUploadFiles(this.state.acceptedFiles);
   }
 
+  onFileTypeChanged = (fileType: FileType) => {
+    if (fileType) {
+      let fileStructure = this.state.fileStructure;
+      if (fileType !== 'CSV') {
+        fileStructure = 'SINGLE';
+      }
+      this.setState({ fileType, fileStructure });
+    }
+  }
+
+  onFileStructureChanged = (fileStructure: FileStructure) => {
+    this.setState({ fileStructure });
+  }
+
   render() {
+
+    const { acceptedFiles, fileType, fileStructure, isUploading } = this.state;
+
     return (
       <UploadFiles
-        acceptedFiles={this.state.acceptedFiles}
-        isUploading={this.state.isUploading}
+        acceptedFiles={acceptedFiles}
+        fileType={fileType}
+        fileStructure={fileStructure}
+        isUploading={isUploading}
         onDrop={this.onDrop}
         onDeleteAcceptedFileClicked={this.onDeleteAcceptedFileClicked}
         onUploadFilesClicked={this.onUploadFilesClicked}
+        onFileTypeChanged={this.onFileTypeChanged}
+        onFileStructureChanged={this.onFileStructureChanged}
       />
     )
   }
