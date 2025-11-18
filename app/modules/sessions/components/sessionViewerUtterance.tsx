@@ -5,7 +5,7 @@ import type { Utterance } from "../sessions.types";
 
 export default function SessionViewerUtterance({
   utterance,
-  leadRole,
+  leadRole = 'TEACHER',
   isSelected,
   onUtteranceClicked,
 }: {
