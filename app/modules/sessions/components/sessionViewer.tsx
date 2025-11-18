@@ -1,10 +1,10 @@
+import { Button } from '@/components/ui/button';
 import map from 'lodash/map';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { Annotation, Session, SessionFile, Utterance } from '../sessions.types';
 import SessionViewerAnnotation from './sessionViewerAnnotation';
 import SessionViewerDetails from './sessionViewerDetails';
 import SessionViewerUtterance from './sessionViewerUtterance';
-import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function SessionViewer({
   session,
@@ -37,6 +37,7 @@ export default function SessionViewer({
           return (
             <SessionViewerUtterance
               key={utterance._id}
+              leadRole={sessionFile.leadRole}
               utterance={utterance}
               isSelected={isSelected}
               onUtteranceClicked={onUtteranceClicked}

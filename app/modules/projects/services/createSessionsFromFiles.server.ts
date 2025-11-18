@@ -6,8 +6,9 @@ import type { Project } from "../projects.types";
 
 export default async function createSessionsFromFiles({
   projectId,
-  shouldCreateSessionModels = true
-}: { projectId: string, shouldCreateSessionModels: boolean }, { request }: { request: Request }) {
+  shouldCreateSessionModels = true,
+  attributesMapping,
+}: { projectId: string, shouldCreateSessionModels: boolean, attributesMapping?: any }, { request }: { request: Request }) {
 
 
   const documents = getDocumentsAdapter();
@@ -53,7 +54,8 @@ export default async function createSessionsFromFiles({
       sessionId: projectSession._id,
       inputFile: `${inputDirectory}/${projectSession.file}/${file.data.name}`,
       outputFolder: `${outputDirectory}/${projectSession._id}`,
-      team: project.data.team
+      team: project.data.team,
+      attributesMapping
     });
   }
 

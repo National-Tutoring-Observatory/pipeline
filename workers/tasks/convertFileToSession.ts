@@ -1,20 +1,17 @@
 import dotenv from 'dotenv';
 import fse from 'fs-extra';
+import map from 'lodash/map';
 import path from 'path';
 import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter';
-import LLM from '../../app/modules/llm/llm';
 import getStorageAdapter from '../../app/modules/storage/helpers/getStorageAdapter';
 import emitFromJob from '../helpers/emitFromJob';
-import convertToSessionPrompts from '../prompts/convertFileToSession.prompts.json';
-import transcriptSchema from "../schemas/transcript.schema.json";
 dotenv.config({ path: '.env' });
 
 export default async function convertFileToSession(job: any) {
 
-  const { projectId, sessionId, inputFile, outputFolder, team } = job.data;
+  const { projectId, sessionId, inputFile, outputFolder, team, attributesMapping } = job.data;
 
   try {
-
 
     await emitFromJob(job, {
       projectId,
@@ -24,21 +21,34 @@ export default async function convertFileToSession(job: any) {
     const storage = getStorageAdapter();
 
     const downloadedPath = await storage.download({ sourcePath: inputFile });
-    const data = await fse.readFile(downloadedPath);
 
     const outputFileName = path.basename(inputFile).replace('.json', '').replace('.vtt', '');
 
-    const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI', user: team });
+    if (attributesMapping.session_id && attributesMapping.role && attributesMapping.content && attributesMapping.sequence_id) {
+      const jsonFile = await fse.readJSON(downloadedPath);
 
-    llm.setOrchestratorMessage(convertToSessionPrompts.orchestrator, { schema: JSON.stringify(transcriptSchema) });
-
-    llm.addSystemMessage(convertToSessionPrompts.system, {});
-
-    llm.addUserMessage(convertToSessionPrompts.user, { schema: JSON.stringify(transcriptSchema), data });
-
-    const response = await llm.createChat();
-
-    await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, response);
+      const transcript = map(jsonFile, (dataItem, index) => {
+        return {
+          _id: `${index}`,
+          role: dataItem.role,
+          content: dataItem.content,
+          start_time: dataItem.start_time,
+          end_time: dataItem.end_time,
+          timestamp: dataItem.timestamp,
+          session_id: dataItem.session_id,
+          sequence_id: dataItem.sequence_id,
+          annotations: [],
+        }
+      })
+      const json = {
+        transcript,
+        leadRole: attributesMapping.leadRole,
+        annotations: [],
+      }
+      await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, json);
+    } else {
+      throw new Error("Files do not match the given format");
+    }
 
     const buffer = await fse.readFile(`tmp/${outputFolder}/${outputFileName}.json`);
 

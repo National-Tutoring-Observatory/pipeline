@@ -17,6 +17,7 @@ export interface Session {
 
 export interface SessionFile {
   transcript: Utterance[];
+  leadRole: string;
   annotations: Annotation[]
 }
 

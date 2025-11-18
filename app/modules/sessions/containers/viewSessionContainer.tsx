@@ -6,6 +6,7 @@ import type { Session } from "../sessions.types";
 export default function ViewSessionContainer({ session }: { session: Session }) {
 
   const [transcript, setTranscript] = useState(null);
+  const [leadRole, setLeadRole] = useState('');
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -30,6 +31,7 @@ export default function ViewSessionContainer({ session }: { session: Session }) 
       const sessionData = await sessionRequest.json();
 
       setTranscript(sessionData.transcript);
+      setLeadRole(sessionData.leadRole);
 
     }
     fetchSession();
@@ -39,6 +41,7 @@ export default function ViewSessionContainer({ session }: { session: Session }) 
     <ViewSession
       transcript={transcript}
       session={session}
+      leadRole={leadRole}
     />
   );
 }

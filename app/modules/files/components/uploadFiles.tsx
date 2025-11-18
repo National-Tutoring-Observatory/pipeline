@@ -1,34 +1,34 @@
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import clsx from 'clsx';
 import map from 'lodash/map';
 import { useDropzone } from 'react-dropzone';
+import { Link } from 'react-router';
 import Flag from '~/modules/featureFlags/components/flag';
-import type { FileStructure, FileType } from '../files.types';
+import type { FileType } from '../files.types';
 import getFileUploadAccepts from '../helpers/getFileUploadAccepts';
 
 export default function UploadFiles({
   acceptedFiles,
   fileType,
-  fileStructure,
+  instructions,
   isUploading,
   onDrop,
   onDeleteAcceptedFileClicked,
   onUploadFilesClicked,
   onFileTypeChanged,
-  onFileStructureChanged
 }: {
   acceptedFiles: { _id: string, name: string, type: string }[],
   fileType: FileType,
-  fileStructure: FileStructure,
+  instructions: { overview: string, link: string },
   isUploading: boolean,
   onDrop: (acceptedFiles: any) => void,
   onDeleteAcceptedFileClicked: (id: string) => void,
   onUploadFilesClicked: () => void,
-  onFileTypeChanged: (fileType: FileType) => void,
-  onFileStructureChanged: (fileStructure: FileStructure) => void
+  onFileTypeChanged: (fileType: FileType) => void
 }) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept: getFileUploadAccepts([fileType]), onDrop });
@@ -47,7 +47,7 @@ export default function UploadFiles({
     <div>
       <Flag flag="HAS_NEW_UPLOADS_FLOW">
         <div className="grid grid-cols-2 gap-x-4">
-          <div className="grid gap-y-2 mb-4">
+          <div className="grid gap-y-2">
             <div className="grid gap-y-2 mb-4">
               <Label>
                 Choose a file type
@@ -62,7 +62,7 @@ export default function UploadFiles({
                 <ToggleGroupItem value="CSV" aria-label="Toggle bold">
                   CSV
                 </ToggleGroupItem>
-                <ToggleGroupItem value="JSON" aria-label="Toggle italic">
+                {/* <ToggleGroupItem value="JSON" aria-label="Toggle italic">
                   JSON
                 </ToggleGroupItem>
                 <ToggleGroupItem value="JSONL" aria-label="Toggle strikethrough">
@@ -70,26 +70,7 @@ export default function UploadFiles({
                 </ToggleGroupItem>
                 <ToggleGroupItem value="VTT" aria-label="Toggle bold">
                   VTT
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </div>
-            <div className="grid gap-y-2 mb-4">
-              <Label>
-                Choose how your data is organised
-              </Label>
-              <ToggleGroup
-                type="single"
-                variant="outline"
-                value={fileStructure}
-                onValueChange={onFileStructureChanged}
-                disabled={fileType !== 'CSV' || acceptedFiles.length > 0}
-              >
-                <ToggleGroupItem value="MULTIPLE" aria-label="Toggle bold">
-                  Multiple sessions per file
-                </ToggleGroupItem>
-                <ToggleGroupItem value="SINGLE" aria-label="Toggle bold">
-                  Single sessions per file
-                </ToggleGroupItem>
+                </ToggleGroupItem> */}
               </ToggleGroup>
             </div>
             <div className="grid gap-y-2">
@@ -106,26 +87,33 @@ export default function UploadFiles({
               </div>
             </div>
           </div>
-          <div>
-            <div className="grid gap-y-2">
-              <Label>
-                Instructions
-              </Label>
-              <div>
-                Instructions for upload the data type will go here...
-              </div>
-            </div>
+          <div className="h-full">
+            <Card className='h-full shadow-none'>
+              <CardHeader>
+                <CardTitle>
+                  Instructions for {fileType}
+                </CardTitle>
+                <CardDescription>
+                  <div dangerouslySetInnerHTML={{ __html: instructions.overview }} />
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm mb-2">
+                  For more detailed instructions, please read our help document.
+                </div>
+                <Button variant="secondary" asChild>
+                  <Link
+                    to={instructions.link}
+                    target="_blank"
+                  >
+                    View help document
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </Flag>
-      <div className={uploadClassName} {...getRootProps()}>
-        <input {...getInputProps()} disabled={isUploading} />
-        {
-          isDragActive ?
-            <p>Drop the files here ...</p> :
-            <p>Drag 'n' drop some files here, or click to select files</p>
-        }
-      </div>
+      </Flag >
       {(acceptedFiles.length > 0) && (
         <div className="mt-8">
           <div className="border rounded-md">
@@ -166,8 +154,9 @@ export default function UploadFiles({
             </Button>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   )
 
 }
