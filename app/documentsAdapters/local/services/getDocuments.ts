@@ -1,13 +1,14 @@
 import fse from 'fs-extra';
-import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import each from 'lodash/each';
 import get from 'lodash/get';
 import orderBy from 'lodash/orderBy';
 import mongoose from 'mongoose';
-import getModelFromCollection from '~/modules/documents/helpers/getModelFromCollection';
 import getCollectionFromModel from '~/modules/documents/helpers/getCollectionFromModel';
-import getDocument from './getDocument';
+import getModelFromCollection from '~/modules/documents/helpers/getModelFromCollection';
 import filterDocumentsByMatch from '../helpers/filterDocumentsByMatch';
+import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
+import getCollectionPath from '../helpers/getCollectionPath';
+import getDocument from './getDocument';
 
 export default async ({
   collection,
@@ -24,7 +25,7 @@ export default async ({
   try {
     await findOrCreateDocuments({ collection });
 
-    const json = await fse.readJson(`./data/${collection}.json`);
+    const json = await fse.readJson(getCollectionPath(collection));
 
     let data = filterDocumentsByMatch(json, match);
 

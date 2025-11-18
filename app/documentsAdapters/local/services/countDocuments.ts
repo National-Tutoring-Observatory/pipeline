@@ -1,6 +1,7 @@
 import fse from 'fs-extra';
 import filterDocumentsByMatch from '../helpers/filterDocumentsByMatch';
 import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
+import getCollectionPath from '../helpers/getCollectionPath';
 
 export default async ({
   collection,
@@ -13,7 +14,7 @@ export default async ({
   try {
     await findOrCreateDocuments({ collection });
 
-    const json = await fse.readJson(`./data/${collection}.json`);
+    const json = await fse.readJson(getCollectionPath(collection));
 
     let data = filterDocumentsByMatch(json, match);
 
