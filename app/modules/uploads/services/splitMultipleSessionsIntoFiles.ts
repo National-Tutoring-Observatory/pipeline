@@ -1,5 +1,5 @@
-import type { FileType } from '~/modules/files/files.types';
 import { parse } from 'csv-parse/sync';
+import type { FileType } from '~/modules/files/files.types';
 
 export default async function splitMultipleSessionsIntoFiles({ files, fileType }: { files: File[], fileType: FileType }): Promise<File[]> {
   const splitFiles = [];
@@ -44,8 +44,8 @@ export default async function splitMultipleSessionsIntoFiles({ files, fileType }
         files.get(sessionId).push(line);
       }
 
-      for (const [fileObject] of files.entries()) {
-        const splitFileName = `session-${fileIndex + 1}-${lineIndex + 1}.json`;
+      for (const [fileId, fileObject] of files.entries()) {
+        const splitFileName = `${fileId.replace(/\.[^.]+$/, '')}.json`;
 
         const options = {
           type: 'application/json',

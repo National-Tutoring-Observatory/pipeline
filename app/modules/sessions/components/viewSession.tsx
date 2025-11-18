@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import map from 'lodash/map';
-import SessionViewerUtterance from "./sessionViewerUtterance";
-import type { Session, Utterance } from "../sessions.types";
 import { LoaderPinwheel } from "lucide-react";
+import type { Session, Utterance } from "../sessions.types";
+import SessionViewerUtterance from "./sessionViewerUtterance";
 
-export default function ViewSession({ session, transcript }: { session: Session, transcript: any }) {
+export default function ViewSession({ session, transcript, leadRole }: { session: Session, transcript: any, leadRole: string }) {
   return (
     <DialogContent className=" max-h-screen">
       <DialogHeader>
@@ -24,6 +24,7 @@ export default function ViewSession({ session, transcript }: { session: Session,
               <SessionViewerUtterance
                 key={utterance._id}
                 utterance={utterance}
+                leadRole={leadRole}
                 isSelected={false}
                 onUtteranceClicked={() => { }}
               />

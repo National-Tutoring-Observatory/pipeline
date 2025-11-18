@@ -7,5 +7,3 @@ export interface File {
 }
 
 export type FileType = 'CSV' | 'JSON' | 'JSONL' | 'VTT';
-
-export type FileStructure = 'MULTIPLE' | 'SINGLE';

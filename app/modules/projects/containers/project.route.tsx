@@ -13,7 +13,7 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import type { Collection } from "~/modules/collections/collections.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import hasFeatureFlag from '~/modules/featureFlags/helpers/hasFeatureFlag';
-import type { FileStructure, FileType } from '~/modules/files/files.types';
+import type { FileType } from '~/modules/files/files.types';
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import convertFileToFiles from "~/modules/uploads/services/convertFileToFiles";
@@ -22,6 +22,7 @@ import splitMultipleSessionsIntoFiles from '~/modules/uploads/services/splitMult
 import uploadFiles from "~/modules/uploads/services/uploadFiles";
 import type { User } from "~/modules/users/users.types";
 import Project from '../components/project';
+import getAttributeMappingFromFile from '../helpers/getAttributeMappingFromFile';
 import { validateProjectOwnership } from "../helpers/projectOwnership";
 import type { Project as ProjectType } from "../projects.types";
 import createSessionsFromFiles from '../services/createSessionsFromFiles.server';
@@ -63,21 +64,28 @@ export async function action({
 
     await validateProjectOwnership({ user, projectId: entityId });
 
+    const documents = getDocumentsAdapter();
+
+    const project = await documents.getDocument({ collection: 'projects', match: { _id: entityId } }) as { data: ProjectType };
+
     let files = formData.getAll('files') as File[];
 
     const hasNewUploadsFlow = await hasFeatureFlag('HAS_NEW_UPLOADS_FLOW', { request });
 
     if (hasNewUploadsFlow) {
 
-      if (body.fileStructure === 'MULTIPLE') {
+      if (body.fileType === 'CSV' || body.fileType === 'JSONL') {
         files = await splitMultipleSessionsIntoFiles({ files, fileType: body.fileType });
       }
 
+      const projectTeam = project.data.team as string;
+
+      const attributesMapping = await getAttributeMappingFromFile({ file: files[0], team: projectTeam });
+
       uploadFiles({ files, entityId }).then(async () => {
-        createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true }, { request });
+        createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true, attributesMapping }, { request });
       });
 
-      const documents = getDocumentsAdapter();
 
       return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
 
@@ -100,8 +108,6 @@ export async function action({
         convertFilesToSessions({ entityId });
       }
     });
-
-    const documents = getDocumentsAdapter();
 
     if (hasWorkers) {
       return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
@@ -136,18 +142,15 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const onUploadFiles = async ({
     acceptedFiles,
     fileType,
-    fileStructure
   }: {
     acceptedFiles: any[],
     fileType: FileType,
-    fileStructure: FileStructure
   }) => {
     const formData = new FormData();
     formData.append('body', JSON.stringify({
       intent: 'UPLOAD_PROJECT_FILES',
       entityId: project.data._id,
       fileType,
-      fileStructure,
       files: Array.from(acceptedFiles).map(file => ({
         name: file.name,
         size: file.size,

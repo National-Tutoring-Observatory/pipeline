@@ -3,7 +3,7 @@ import { Progress } from "@/components/ui/progress";
 import clsx from "clsx";
 import { Link, Outlet } from "react-router";
 import UploadFilesContainer from "~/modules/files/containers/uploadFiles.container";
-import type { FileStructure, FileType } from "~/modules/files/files.types";
+import type { FileType } from "~/modules/files/files.types";
 import type { Project } from "../projects.types";
 
 interface ProjectProps {
@@ -16,7 +16,7 @@ interface ProjectProps {
   uploadFilesProgress: number,
   convertFilesProgress: number,
   convertedSessionsCount: number,
-  onUploadFiles: ({ acceptedFiles, fileType, fileStructure }: { acceptedFiles: any[], fileType: FileType, fileStructure: FileStructure }) => void
+  onUploadFiles: ({ acceptedFiles, fileType }: { acceptedFiles: any[], fileType: FileType }) => void
 }
 
 export default function Project({
