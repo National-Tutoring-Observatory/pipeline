@@ -27,6 +27,7 @@ export interface Utterance {
   content: string;
   start_time: string;
   end_time: string;
+  timestamp: string;
   annotations: any[]
 }
 
