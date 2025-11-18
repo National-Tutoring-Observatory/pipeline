@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
 import { NotebookPen } from "lucide-react";
+import getUtteranceDetails from "../helpers/getUtteranceDetails";
 import type { Utterance } from "../sessions.types";
 
 export default function SessionViewerUtterance({
@@ -32,7 +33,7 @@ export default function SessionViewerUtterance({
         </div>
         <div className="text-xs text-muted-foreground mt-1 flex items-center">
           <div>
-            {utterance.start_time} - {utterance.role}
+            {getUtteranceDetails({ utterance })}
           </div>
           {(utterance.annotations.length > 0) && (
             <Button variant="link" size={"sm"} className="decoration-purple-500" onClick={() => onUtteranceClicked(utterance._id)}>
