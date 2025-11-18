@@ -7,7 +7,6 @@ import clsx from 'clsx';
 import map from 'lodash/map';
 import { useDropzone } from 'react-dropzone';
 import { Link } from 'react-router';
-import Flag from '~/modules/featureFlags/components/flag';
 import type { FileType } from '../files.types';
 import getFileUploadAccepts from '../helpers/getFileUploadAccepts';
 
@@ -45,24 +44,23 @@ export default function UploadFiles({
 
   return (
     <div>
-      <Flag flag="HAS_NEW_UPLOADS_FLOW">
-        <div className="grid grid-cols-2 gap-x-4">
-          <div className="grid gap-y-2">
-            <div className="grid gap-y-2 mb-4">
-              <Label>
-                Choose a file type
-              </Label>
-              <ToggleGroup
-                type="single"
-                variant="outline"
-                value={fileType}
-                disabled={acceptedFiles.length > 0}
-                onValueChange={onFileTypeChanged}
-              >
-                <ToggleGroupItem value="CSV" aria-label="Toggle bold">
-                  CSV
-                </ToggleGroupItem>
-                {/* <ToggleGroupItem value="JSON" aria-label="Toggle italic">
+      <div className="grid grid-cols-2 gap-x-4">
+        <div className="grid gap-y-2">
+          <div className="grid gap-y-2 mb-4">
+            <Label>
+              Choose a file type
+            </Label>
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              value={fileType}
+              disabled={acceptedFiles.length > 0}
+              onValueChange={onFileTypeChanged}
+            >
+              <ToggleGroupItem value="CSV" aria-label="Toggle bold">
+                CSV
+              </ToggleGroupItem>
+              {/* <ToggleGroupItem value="JSON" aria-label="Toggle italic">
                   JSON
                 </ToggleGroupItem>
                 <ToggleGroupItem value="JSONL" aria-label="Toggle strikethrough">
@@ -71,49 +69,48 @@ export default function UploadFiles({
                 <ToggleGroupItem value="VTT" aria-label="Toggle bold">
                   VTT
                 </ToggleGroupItem> */}
-              </ToggleGroup>
-            </div>
-            <div className="grid gap-y-2">
-              <Label>
-                Upload files
-              </Label>
-              <div className={uploadClassName} {...getRootProps()}>
-                <input {...getInputProps()} disabled={isUploading} />
-                {
-                  isDragActive ?
-                    <p>Drop the files here ...</p> :
-                    <p>Drag 'n' drop some files here, or click to select files</p>
-                }
-              </div>
-            </div>
+            </ToggleGroup>
           </div>
-          <div className="h-full">
-            <Card className='h-full shadow-none'>
-              <CardHeader>
-                <CardTitle>
-                  Instructions for {fileType}
-                </CardTitle>
-                <CardDescription>
-                  <div dangerouslySetInnerHTML={{ __html: instructions.overview }} />
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm mb-2">
-                  For more detailed instructions, please read our help document.
-                </div>
-                <Button variant="secondary" asChild>
-                  <Link
-                    to={instructions.link}
-                    target="_blank"
-                  >
-                    View help document
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
+          <div className="grid gap-y-2">
+            <Label>
+              Upload files
+            </Label>
+            <div className={uploadClassName} {...getRootProps()}>
+              <input {...getInputProps()} disabled={isUploading} />
+              {
+                isDragActive ?
+                  <p>Drop the files here ...</p> :
+                  <p>Drag 'n' drop some files here, or click to select files</p>
+              }
+            </div>
           </div>
         </div>
-      </Flag >
+        <div className="h-full">
+          <Card className='h-full shadow-none'>
+            <CardHeader>
+              <CardTitle>
+                Instructions for {fileType}
+              </CardTitle>
+              <CardDescription>
+                <div dangerouslySetInnerHTML={{ __html: instructions.overview }} />
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm mb-2">
+                For more detailed instructions, please read our help document.
+              </div>
+              <Button variant="secondary" asChild>
+                <Link
+                  to={instructions.link}
+                  target="_blank"
+                >
+                  View help document
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
       {(acceptedFiles.length > 0) && (
         <div className="mt-8">
           <div className="border rounded-md">

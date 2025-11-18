@@ -3,12 +3,10 @@ import map from 'lodash/map';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
 import { redirect, useLoaderData, useRevalidator, useSubmit } from "react-router";
-import annotateRunSessions from "~/functions/annotateRunSessions";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import hasFeatureFlag from '~/modules/featureFlags/helpers/hasFeatureFlag';
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import exportRun from "~/modules/runs/helpers/exportRun";
 import type { CreateRun, Run as RunType } from "~/modules/runs/runs.types";
@@ -75,13 +73,7 @@ export async function action({
         model
       }, { request, context });
 
-      const hasWorkers = await hasFeatureFlag('HAS_WORKERS', { request });
-
-      if (hasWorkers) {
-        createRunAnnotations({ runId: run.data._id }, { request });
-      } else {
-        annotateRunSessions({ runId: run.data._id }, { request });
-      }
+      createRunAnnotations({ runId: run.data._id }, { request });
 
       return {}
     }
@@ -90,13 +82,9 @@ export async function action({
         collection: 'runs',
         match: { _id: params.runId, project: params.projectId }
       }) as Run;
-      const hasWorkers = await hasFeatureFlag('HAS_WORKERS', { request });
 
-      if (hasWorkers) {
-        createRunAnnotations({ runId: run.data._id }, { request });
-      } else {
-        annotateRunSessions({ runId: run.data._id }, { request });
-      }
+      createRunAnnotations({ runId: run.data._id }, { request });
+
       return {};
     }
     case 'EXPORT_RUN': {
