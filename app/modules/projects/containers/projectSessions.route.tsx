@@ -2,10 +2,8 @@ import { redirect, useLoaderData, useRouteLoaderData, useSubmit } from "react-ro
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import hasFeatureFlag from "~/modules/featureFlags/helpers/hasFeatureFlag";
 import ViewSessionContainer from "~/modules/sessions/containers/viewSessionContainer";
 import type { Session } from "~/modules/sessions/sessions.types";
-import convertFilesToSessions from "~/modules/uploads/services/convertFilesToSessions";
 import type { User } from "~/modules/users/users.types";
 import ProjectSessions from "../components/projectSessions";
 import { isProjectOwner } from "../helpers/projectOwnership";
@@ -42,13 +40,8 @@ export async function action({
 
   switch (intent) {
     case 'RE_RUN': {
-      const hasWorkers = await hasFeatureFlag('HAS_WORKERS', { request });
 
-      if (hasWorkers) {
-        createSessionsFromFiles({ projectId: params.id, shouldCreateSessionModels: false }, { request });
-      } else {
-        convertFilesToSessions({ entityId: params.id });
-      }
+      createSessionsFromFiles({ projectId: params.id, shouldCreateSessionModels: false }, { request });
 
       const documents = getDocumentsAdapter();
 

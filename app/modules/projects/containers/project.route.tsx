@@ -12,12 +12,9 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import type { Collection } from "~/modules/collections/collections.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import hasFeatureFlag from '~/modules/featureFlags/helpers/hasFeatureFlag';
 import type { FileType } from '~/modules/files/files.types';
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
-import convertFileToFiles from "~/modules/uploads/services/convertFileToFiles";
-import convertFilesToSessions from "~/modules/uploads/services/convertFilesToSessions";
 import splitMultipleSessionsIntoFiles from '~/modules/uploads/services/splitMultipleSessionsIntoFiles';
 import uploadFiles from "~/modules/uploads/services/uploadFiles";
 import type { User } from "~/modules/users/users.types";
@@ -70,50 +67,19 @@ export async function action({
 
     let files = formData.getAll('files') as File[];
 
-    const hasNewUploadsFlow = await hasFeatureFlag('HAS_NEW_UPLOADS_FLOW', { request });
-
-    if (hasNewUploadsFlow) {
-
-      if (body.fileType === 'CSV' || body.fileType === 'JSONL') {
-        files = await splitMultipleSessionsIntoFiles({ files, fileType: body.fileType });
-      }
-
-      const projectTeam = project.data.team as string;
-
-      const attributesMapping = await getAttributeMappingFromFile({ file: files[0], team: projectTeam });
-
-      uploadFiles({ files, entityId }).then(async () => {
-        createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true, attributesMapping }, { request });
-      });
-
-
-      return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
-
+    if (body.fileType === 'CSV' || body.fileType === 'JSONL') {
+      files = await splitMultipleSessionsIntoFiles({ files, fileType: body.fileType });
     }
 
-    if (files.length === 1) {
+    const projectTeam = project.data.team as string;
 
-      if (files[0] instanceof File) {
-        if (files[0].type === 'application/jsonl') {
-          files = await convertFileToFiles({ file: files[0], entityId });
-        }
-      }
-    }
+    const attributesMapping = await getAttributeMappingFromFile({ file: files[0], team: projectTeam });
 
-    const hasWorkers = await hasFeatureFlag('HAS_WORKERS', { request });
     uploadFiles({ files, entityId }).then(async () => {
-      if (hasWorkers) {
-        createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true }, { request });
-      } else {
-        convertFilesToSessions({ entityId });
-      }
+      createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true, attributesMapping }, { request });
     });
 
-    if (hasWorkers) {
-      return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
-    } else {
-      return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, isConvertingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
-    }
+    return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
 
   }
 }
