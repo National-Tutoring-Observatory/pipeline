@@ -1,7 +1,8 @@
 import fse from 'fs-extra';
-import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
-import find from 'lodash/find.js';
 import extend from 'lodash/extend.js';
+import find from 'lodash/find.js';
+import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
+import getCollectionPath from '../helpers/getCollectionPath';
 import validateDocument from '../helpers/validateDocument';
 
 export default async ({ collection, match, update }: { collection: string, match: { _id: string }, update: {} }) => {
@@ -9,7 +10,7 @@ export default async ({ collection, match, update }: { collection: string, match
   try {
     await findOrCreateDocuments({ collection });
 
-    const json = await fse.readJson(`./data/${collection}.json`);
+    const json = await fse.readJson(getCollectionPath(collection));
 
     let returnedDocument = find(json, match);
 
@@ -17,7 +18,7 @@ export default async ({ collection, match, update }: { collection: string, match
 
     const document = await validateDocument({ collection, document: returnedDocument });
 
-    await fse.writeJson(`./data/${collection}.json`, json);
+    await fse.writeJson(getCollectionPath(collection), json);
 
     return {
       data: JSON.parse(JSON.stringify(document))

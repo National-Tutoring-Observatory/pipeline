@@ -1,6 +1,6 @@
 import fse from 'fs-extra';
 import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
-import getId from '../helpers/getId';
+import getCollectionPath from '../helpers/getCollectionPath';
 import validateDocument from '../helpers/validateDocument';
 
 export default async ({ collection, update }: { collection: string, update: any }) => {
@@ -8,13 +8,13 @@ export default async ({ collection, update }: { collection: string, update: any 
   try {
     await findOrCreateDocuments({ collection });
 
-    const json = await fse.readJson(`./data/${collection}.json`);
+    const json = await fse.readJson(getCollectionPath(collection));
 
     const document = await validateDocument({ collection, document: update });
 
     json.push(document);
 
-    await fse.writeJson(`./data/${collection}.json`, json);
+    await fse.writeJson(getCollectionPath(collection), json);
 
     return {
       data: JSON.parse(JSON.stringify(document))
