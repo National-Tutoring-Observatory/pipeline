@@ -30,11 +30,18 @@ registerLLM('AI_GATEWAY', {
     // @ts-ignore
     let modelName = AI_GATEWAY_PROVIDERS[model][quality];
 
+    let metadata: any = {};
+
+    if (user) {
+      metadata.tags = [user]
+    }
+
     const chatCompletion = await llm.chat.completions.create({
       user,
       model: modelName,
       messages: messages,
-      response_format: { type: "json_object" }
+      response_format: { type: "json_object" },
+      metadata
     });
 
     return JSON.parse(chatCompletion.choices[0].message.content);
