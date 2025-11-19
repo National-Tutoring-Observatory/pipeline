@@ -12,23 +12,30 @@ export default function SessionViewer({
   selectedUtteranceId,
   selectedUtteranceAnnotations,
   isVoting,
+  utteranceCount,
+  annotatedUtteranceCount,
   onUtteranceClicked,
   onPreviousUtteranceClicked,
   onNextUtteranceClicked,
   onDownVoteClicked,
-  onUpVoteClicked
+  onUpVoteClicked,
+  onJumpToFirstAnnotation
 }: {
   session: Session,
   sessionFile: SessionFile,
   selectedUtteranceAnnotations: Annotation[],
   selectedUtteranceId: string | null,
   isVoting: boolean,
+  utteranceCount: number,
+  annotatedUtteranceCount: number,
   onUtteranceClicked: (utteranceId: string) => void;
   onPreviousUtteranceClicked: () => void;
   onNextUtteranceClicked: () => void;
   onDownVoteClicked: (annotationId: string) => void;
   onUpVoteClicked: (annotationId: string) => void;
+  onJumpToFirstAnnotation: () => void;
 }) {
+
   return (
     <div className="border h-[calc(100vh-200px)] flex rounded-md">
       <div className="flex flex-col w-3/5 p-4 h-full overflow-y-scroll scroll-smooth border-r">
@@ -46,7 +53,12 @@ export default function SessionViewer({
         })}
       </div>
       <div className="py-8 w-2/5 h-full">
-        <SessionViewerDetails session={session} />
+        <SessionViewerDetails
+          session={session}
+          utteranceCount={utteranceCount}
+          annotatedUtteranceCount={annotatedUtteranceCount}
+          onJumpToFirstAnnotation={onJumpToFirstAnnotation}
+        />
         {(sessionFile.annotations && sessionFile.annotations.length > 0) && (
           <div className="p-4">
             <div className="text-muted-foreground mb-2">

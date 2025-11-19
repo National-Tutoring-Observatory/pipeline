@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import SessionViewer from '../components/sessionViewer';
-import type { Session, SessionFile } from '../sessions.types';
 import find from 'lodash/find';
 import findIndex from 'lodash/findIndex';
+import { useEffect, useState } from 'react';
 import { useFetcher, useLocation, useNavigate } from 'react-router';
 import type { Run } from '~/modules/runs/runs.types';
+import SessionViewer from '../components/sessionViewer';
+import type { Session, SessionFile } from '../sessions.types';
 
 export default function SessionViewerContainer({ run, session, sessionFile }: { run: Run, session: Session, sessionFile: SessionFile }) {
 
@@ -14,6 +14,9 @@ export default function SessionViewerContainer({ run, session, sessionFile }: { 
   const navigate = useNavigate();
 
   const fetcher = useFetcher();
+
+  const utteranceCount = sessionFile.transcript.length;
+  const annotatedUtteranceCount = sessionFile.transcript.filter(u => u.annotations && u.annotations.length > 0).length;
 
   const navigateToUtterance = (utteranceId: string) => {
     navigate(`#session-viewer-utterance-${utteranceId}`);
@@ -97,6 +100,15 @@ export default function SessionViewerContainer({ run, session, sessionFile }: { 
     }
   }
 
+  // Handler to jump to first annotation
+  const onJumpToFirstAnnotation = () => {
+    const firstAnnotated = sessionFile.transcript.find(u => u.annotations && u.annotations.length > 0);
+    if (firstAnnotated) {
+      setSelectedUtteranceId(firstAnnotated._id);
+      navigateToUtterance(firstAnnotated._id);
+    }
+  };
+
   return (
     <SessionViewer
       session={session}
@@ -104,11 +116,14 @@ export default function SessionViewerContainer({ run, session, sessionFile }: { 
       selectedUtteranceId={selectedUtteranceId}
       selectedUtteranceAnnotations={selectedUtteranceAnnotations}
       isVoting={isVoting}
+      utteranceCount={utteranceCount}
+      annotatedUtteranceCount={annotatedUtteranceCount}
       onUtteranceClicked={onUtteranceClicked}
       onPreviousUtteranceClicked={onPreviousUtteranceClicked}
       onNextUtteranceClicked={onNextUtteranceClicked}
       onDownVoteClicked={onDownVoteClicked}
       onUpVoteClicked={onUpVoteClicked}
+      onJumpToFirstAnnotation={onJumpToFirstAnnotation}
     />
   );
 }
