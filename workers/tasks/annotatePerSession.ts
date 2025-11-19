@@ -49,8 +49,6 @@ export default async function annotatePerSession(job: any) {
       conversation: data
     })
 
-    console.log(llm.getMessagesAsString())
-
     const response = await llm.createChat();
 
     originalJSON.annotations = map(response.annotations || [], (annotation: any, index: number) => {
