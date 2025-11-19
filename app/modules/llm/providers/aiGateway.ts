@@ -34,7 +34,10 @@ registerLLM('AI_GATEWAY', {
       user,
       model: modelName,
       messages: messages,
-      response_format: { type: "json_object" }
+      response_format: { type: "json_object" },
+      "metadata": {
+        "tags": [user]
+      },
     });
 
     return JSON.parse(chatCompletion.choices[0].message.content);
