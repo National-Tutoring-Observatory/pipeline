@@ -1,6 +1,7 @@
 import each from 'lodash/each';
 import has from 'lodash/has';
 import LLM from '~/modules/llm/llm';
+import leadRolePrompt from '../prompts/leadRole.prompt.json';
 
 const REQUIRED_ATTRIBUTES = {
   'session_id': {
@@ -45,12 +46,9 @@ export default async function getAttributeMappingFromFile({ file, team }: { file
 
   const llm = new LLM({ quality: 'high', model: 'GEMINI', user: team });
 
-  llm.addSystemMessage("You are an expert in finding who is a lead role in a conversation. These conversations are usual between a teacher and student. The conversations can also be between a chatbot and a user.", {});
+  llm.addSystemMessage(leadRolePrompt.system, {});
 
-  llm.addUserMessage(`Out of these unique roles, who would you define as being the lead role (teacher or chatbot)? {{roles}}.
-    - Only return a value from the list of roles.
-    - Return the result as leadRole: [one of the role values]
-  `, {
+  llm.addUserMessage(leadRolePrompt.user, {
     roles: uniqueRoles.join(' | ')
   });
 
