@@ -1,12 +1,13 @@
 ---
 name: "💡 Feature Request"
 about: "Suggest a new feature, enhancement, or data source."
-title: "FEAT: [Short description of feature]"
-labels: "type: feature-request, status: needs-triage"
+title: "[Short description of feature]"
+labels:
+  - "enhancement"
 assignees:
-  - kirk
-  - doug
-  - josh
+  - "kirkvanacore"
+  - "jmarland-nto"
+  - "sushijoe"
 ---
 
 ### 1. What problem does this feature solve?

@@ -1,10 +1,11 @@
 ---
 name: "❓ Question"
 about: "Ask a 'how-to' question or seek clarification."
-title: "Q: [Your Question]"
-labels: "type: question, status: needs-triage"
+title: "[Your Question]"
+labels:
+  - "question"
 assignees:
-  - kirk
+  - "kirkvanacore"
 ---
 
 ### Your Question
