@@ -1,12 +1,13 @@
 ---
 name: "🐛 Bug Report"
 about: "Report a reproducible bug or unexpected behavior."
-title: "BUG: [Short description of bug]"
-labels: "type: bug, status: needs-triage"
+title: "[Short description of bug]"
+labels:
+  - "bug"
 assignees:
-  - kirk
-  - doug
-  - josh
+  - "kirkvanacore"
+  - "jmarland-nto"
+  - "sushijoe"
 ---
 
 ### 1. Steps to Reproduce
