@@ -138,8 +138,8 @@ export default function ProjectRun({
                               session.name
                             )}
                         </TableCell>
-                        <TableCell>{dayjs(session.startedAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
-                        <TableCell>{dayjs(session.finishedAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
+                        <TableCell>{session.status !== 'NOT_STARTED' ? dayjs(session.startedAt).format('ddd, MMM D, YYYY - h:mm A') : '--'}</TableCell>
+                        <TableCell>{session.finishedAt ? dayjs(session.finishedAt).format('ddd, MMM D, YYYY - h:mm A') : '--'}</TableCell>
                         <TableCell>{session.fileType}</TableCell>
                         <TableCell>{session.status}</TableCell>
                       </TableRow>
