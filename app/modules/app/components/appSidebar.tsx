@@ -1,13 +1,12 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { BadgeCheck, Bell, ChartNoAxesGantt, ChevronsUpDown, CreditCard, Flag, FolderKanban, LifeBuoy, LogOut, Rocket, Sparkles, SquareTerminal, Users } from "lucide-react";
+import { ChartNoAxesGantt, ChevronsUpDown, Flag, FolderKanban, LifeBuoy, LogOut, SquareTerminal, Users } from "lucide-react";
 import { useContext, useEffect } from "react";
 import { NavLink, useFetcher } from "react-router";
 import Role from "~/modules/authentication/components/role";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
-import SupportArticlesContianer from "~/modules/support/containers/supportArticles.container";
+import SupportArticlesContainer from "~/modules/support/containers/supportArticles.container";
 import type { User } from "~/modules/users/users.types";
 
 export default function AppSidebar() {
@@ -137,7 +136,7 @@ export default function AppSidebar() {
                     </SidebarMenuButton>
                   </SheetTrigger>
                   <SheetContent side="left" className="overflow-y-auto">
-                    <SupportArticlesContianer />
+                    <SupportArticlesContainer />
                   </SheetContent>
                 </Sheet>
               </SidebarMenuItem>

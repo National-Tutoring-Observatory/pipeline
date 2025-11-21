@@ -1,29 +1,51 @@
-import { SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { ChevronLeft, ChevronRight, LifeBuoy, LoaderPinwheel } from "lucide-react";
-import map from 'lodash/map';
-import type { SupportArticle } from "../support.types";
 import { Button } from "@/components/ui/button";
+import { SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import map from 'lodash/map';
+import { ChevronLeft, ChevronRight, LifeBuoy, LoaderPinwheel, Search } from "lucide-react";
+import type { SupportArticle } from "../support.types";
 
 export default function SupportArticles({
   isLoading,
   supportArticles,
   selectedDocumentId,
   onSupportArticleClicked,
-  onBackToSupportArticlesClicked
+  onBackToSupportArticlesClicked,
+  onSearchClicked
 }: {
   isLoading: boolean,
   supportArticles: SupportArticle[],
   selectedDocumentId: string | null,
   onSupportArticleClicked: (selectedDocumentId: string) => void,
   onBackToSupportArticlesClicked: () => void,
+  onSearchClicked: () => void,
 }) {
   return (
     <div>
       <SheetHeader className="sticky top-0 bg-white" >
-        <SheetTitle className="flex items-center">
-          <LifeBuoy size={16} />
-          <span className="ml-2">Help & Support</span>
-        </SheetTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <SheetTitle className="flex items-center">
+              <LifeBuoy size={16} />
+              <span className="ml-2">Help & Support</span>
+            </SheetTitle>
+            {(!selectedDocumentId) && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Search help articles"
+                    onClick={onSearchClicked}
+                  >
+                    <Search size={18} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Search help articles</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        </div>
         {(!selectedDocumentId) && (
           <SheetDescription>
             Select a help article below to find out more.
