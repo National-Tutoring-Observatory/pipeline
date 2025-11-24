@@ -1,8 +1,10 @@
+import get from 'lodash/get';
 import { useEffect, useState } from 'react';
+import { useFetcher } from 'react-router';
+import addDialog from '~/modules/dialogs/addDialog';
 import SupportArticles from '../components/supportArticles';
 import type { SupportArticle } from '../support.types';
-import { useFetcher } from 'react-router';
-import get from 'lodash/get';
+import SearchSupportArticlesDialogContainer from './searchSupportArticlesDialog.container';
 
 export default function SupportArticlesContianer() {
 
@@ -32,6 +34,18 @@ export default function SupportArticlesContianer() {
 
   const supportArticles: SupportArticle[] = get(fetcher, 'data.data', []);
 
+  const onSearchClicked = () => {
+    addDialog(
+      <SearchSupportArticlesDialogContainer
+        supportArticles={supportArticles}
+        onSelectArticle={id => {
+          setSelectedDocumentId(id);
+          addDialog(null); // Close dialog
+        }}
+      />
+    );
+  };
+
   return (
     <SupportArticles
       isLoading={isLoading}
@@ -39,6 +53,7 @@ export default function SupportArticlesContianer() {
       selectedDocumentId={selectedDocumentId}
       onSupportArticleClicked={onSupportArticleClicked}
       onBackToSupportArticlesClicked={onBackToSupportArticlesClicked}
+      onSearchClicked={onSearchClicked}
     />
   );
 }
