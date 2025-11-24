@@ -1,4 +1,4 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import map from 'lodash/map';
 import type { AnnotationType } from "../prompts.types";
 
@@ -14,26 +14,14 @@ export default function AnnotationTypeSelector({
   onSelectedAnnotationTypeChanged: (selectedPrompt: string) => void,
 }) {
   return (
-    <Select
-      value={annotationType}
-      onValueChange={(annotationType: string) => {
-        onSelectedAnnotationTypeChanged(annotationType);
-      }}
-    >
-      <SelectTrigger id="annotation-type" className="w-[180px]">
-        <SelectValue placeholder="Select an annotation type" />
-      </SelectTrigger>
-      <SelectContent>
-        {map(annotationTypes, (annotationTypeItem) => {
-          return (
-            <SelectItem
-              key={annotationTypeItem.value}
-              value={annotationTypeItem.value}>
-              {annotationTypeItem.name}
-            </SelectItem>
-          );
-        })}
-      </SelectContent>
-    </Select>
+    <Tabs value={annotationType} onValueChange={onSelectedAnnotationTypeChanged} className="w-full">
+      <TabsList>
+        {map(annotationTypes, (annotationTypeItem) => (
+          <TabsTrigger key={annotationTypeItem.value} value={annotationTypeItem.value}>
+            {annotationTypeItem.name}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   )
 }
