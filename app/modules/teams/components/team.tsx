@@ -1,25 +1,27 @@
-import type { Project } from "~/modules/projects/projects.types";
-import type { Team } from "../teams.types";
-import type { User } from "~/modules/users/users.types";
-import map from 'lodash/map';
-import find from 'lodash/find';
 import { Button } from "@/components/ui/button";
+import map from 'lodash/map';
+import { Trash2 } from "lucide-react";
 import { Link } from "react-router";
+import type { Project } from "~/modules/projects/projects.types";
 import type { Prompt } from "~/modules/prompts/prompts.types";
+import type { User } from "~/modules/users/users.types";
 import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
+import type { Team } from "../teams.types";
+
 
 interface TeamProps {
-  team: Team,
-  projects: Project[],
-  prompts: Prompt[],
-  users: User[]
-  authentication: User | null,
-  canCreateProjects: boolean,
-  canCreatePrompts: boolean,
-  onCreateProjectButtonClicked: () => void,
-  onCreatePromptButtonClicked: () => void,
-  onAddUserToTeamClicked: () => void,
-  onInviteUserToTeamClicked: () => void,
+  team: Team;
+  projects: Project[];
+  prompts: Prompt[];
+  users: User[];
+  authentication: User | null;
+  canCreateProjects: boolean;
+  canCreatePrompts: boolean;
+  onCreateProjectButtonClicked: () => void;
+  onCreatePromptButtonClicked: () => void;
+  onAddUserToTeamClicked: () => void;
+  onInviteUserToTeamClicked: () => void;
+  onRemoveUserFromTeamClicked: (userId: string) => void;
 }
 
 export default function Team({
@@ -33,7 +35,8 @@ export default function Team({
   onCreateProjectButtonClicked,
   onCreatePromptButtonClicked,
   onAddUserToTeamClicked,
-  onInviteUserToTeamClicked
+  onInviteUserToTeamClicked,
+  onRemoveUserFromTeamClicked
 }: TeamProps) {
 
   return (
@@ -162,7 +165,7 @@ export default function Team({
                 {map(users, (user) => {
 
                   const {
-                    name
+                    name: roleName
                   } = getUserRoleInTeam({ user, team });
 
                   let username = user.username;
@@ -185,14 +188,21 @@ export default function Team({
                           {username}
                         </div>
                         {(!user.isRegistered) && (
-
                           <div className="text-xs text-muted-foreground">
                             {`${window.location.origin}/invite/${user.inviteId}`}
                           </div>
                         )}
                       </div>
-                      <div>
-                        {name}
+                      <div className="flex items-center gap-2">
+                        <span>{roleName}</span>
+                        <button
+                          type="button"
+                          aria-label="Remove user from team"
+                          className="ml-2 text-muted-foreground hover:text-destructive"
+                          onClick={() => onRemoveUserFromTeamClicked(user._id)}
+                        >
+                          <Trash2 size={18} />
+                        </button>
                       </div>
                     </div>
                   )
