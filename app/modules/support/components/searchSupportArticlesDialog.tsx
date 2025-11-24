@@ -43,7 +43,7 @@ export default function SearchSupportArticlesDialog({
   }
 
   return (
-    <DialogContent className="min-h-[80vh] max-h-[80vh] flex flex-col">
+    <DialogContent className="min-h-[350px] max-h-[70vh] h-full flex flex-col">
       <DialogHeader>
         <DialogTitle>Search Support Articles</DialogTitle>
         <DialogDescription>Find help articles by keyword.</DialogDescription>
