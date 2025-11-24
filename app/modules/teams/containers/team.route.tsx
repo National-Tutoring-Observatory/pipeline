@@ -1,4 +1,13 @@
 
+import { Button } from "@/components/ui/button";
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useContext, useEffect } from "react";
 import { redirect, useFetcher, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
@@ -48,7 +57,7 @@ export async function action({
 
   const { intent, payload = {} } = await request.json()
 
-  const { userIds } = payload;
+  const { userIds, userId } = payload;
 
   const user = await getSessionUser({ request }) as User;
 
@@ -62,10 +71,8 @@ export async function action({
 
   switch (intent) {
     case 'ADD_USERS_TO_TEAM':
-
       for (const userId of userIds) {
         const user = await documents.getDocument({ collection: 'users', match: { _id: userId } }) as { data: User };
-
         if (user.data) {
           if (!user.data.teams) {
             user.data.teams = [];
@@ -76,6 +83,14 @@ export async function action({
           });
           await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { teams: user.data.teams } });
         }
+      }
+      return {};
+    case 'REMOVE_USER_FROM_TEAM':
+      if (!userId) return {};
+      const userDoc = await documents.getDocument({ collection: 'users', match: { _id: userId } }) as { data: User };
+      if (userDoc.data && Array.isArray(userDoc.data.teams)) {
+        userDoc.data.teams = userDoc.data.teams.filter(t => t.team !== params.id);
+        await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { teams: userDoc.data.teams } });
       }
       return {};
     default:
@@ -174,6 +189,45 @@ export default function TeamRoute({ loaderData }: {
   }
 
 
+
+  const onRemoveUserFromTeamClicked = (userId: string) => {
+    addDialog(
+      <ConfirmRemoveUserDialog
+        onConfirm={() => {
+          submit(
+            JSON.stringify({ intent: 'REMOVE_USER_FROM_TEAM', payload: { userId } }),
+            { method: 'PUT', encType: 'application/json' }
+          );
+        }}
+      />
+    );
+  };
+
+  function ConfirmRemoveUserDialog({ onConfirm }: { onConfirm: () => void }) {
+    return (
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Remove user from team?</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to remove this user from the team? This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button type="button" variant="secondary">
+              Cancel
+            </Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button type="button" variant="destructive" onClick={onConfirm}>
+              Remove
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    );
+  }
+
   return (
     <Team
       team={team.data}
@@ -187,6 +241,7 @@ export default function TeamRoute({ loaderData }: {
       onCreatePromptButtonClicked={onCreatePromptButtonClicked}
       onAddUserToTeamClicked={onAddUserToTeamButtonClicked}
       onInviteUserToTeamClicked={onInviteUserToTeamButtonClicked}
+      onRemoveUserFromTeamClicked={onRemoveUserFromTeamClicked}
     />
   );
 }
