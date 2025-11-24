@@ -9,13 +9,41 @@ export default function SearchSupportArticlesDialog({
 }: {
   searchValue: string,
   onSearchValueChange: (val: string) => void,
-  results: { documentId: string, title: string, snippet?: string }[],
+  results: { documentId: string, title: string, snippet: string }[],
   onSelectArticle: (documentId: string) => void
 }) {
   const MIN_SEARCH_LENGTH = 3;
   const trimmedSearch = searchValue.trim();
+  let resultsContent;
+  if (results.length > 0) {
+    resultsContent = results.map(article => (
+      <div key={article.documentId} className="mb-3">
+        <Button
+          variant="ghost"
+          className="w-full text-left mb-1"
+          onClick={() => onSelectArticle(article.documentId)}
+        >
+          {article.title}
+        </Button>
+        <div
+          className="text-xs text-muted-foreground px-2 py-1"
+          dangerouslySetInnerHTML={{ __html: article.snippet }}
+        />
+
+      </div>
+    ));
+  } else if (trimmedSearch.length > 0 && trimmedSearch.length < MIN_SEARCH_LENGTH) {
+    resultsContent = (
+      <div className="text-muted-foreground py-2 px-2">Enter at least {MIN_SEARCH_LENGTH} characters to search.</div>
+    );
+  } else {
+    resultsContent = (
+      <div className="text-muted-foreground py-2 px-2">No results found.</div>
+    );
+  }
+
   return (
-    <DialogContent className="max-h-[80vh] flex flex-col">
+    <DialogContent className="min-h-[80vh] max-h-[80vh] flex flex-col">
       <DialogHeader>
         <DialogTitle>Search Support Articles</DialogTitle>
         <DialogDescription>Find help articles by keyword.</DialogDescription>
@@ -28,30 +56,8 @@ export default function SearchSupportArticlesDialog({
         onChange={e => onSearchValueChange(e.target.value)}
         autoFocus
       />
-      <div className="flex-1 overflow-y-auto min-h-0">
-        {results.length > 0
-          ? results.map(article => (
-            <div key={article.documentId} className="mb-3">
-              <Button
-                variant="ghost"
-                className="w-full text-left mb-1"
-                onClick={() => onSelectArticle(article.documentId)}
-              >
-                {article.title}
-              </Button>
-              {article.snippet && (
-                <div
-                  className="text-xs text-muted-foreground px-2 py-1"
-                  dangerouslySetInnerHTML={{ __html: article.snippet }}
-                />
-              )}
-            </div>
-          ))
-          : (trimmedSearch.length > 0 && trimmedSearch.length < MIN_SEARCH_LENGTH ? (
-            <div className="text-muted-foreground py-2 px-2">Enter at least {MIN_SEARCH_LENGTH} characters to search.</div>
-          ) : (trimmedSearch.length >= MIN_SEARCH_LENGTH ? (
-            <div className="text-muted-foreground py-2 px-2">No results found.</div>
-          ) : null))}
+      <div className="flex-1 overflow-y-auto">
+        {resultsContent}
       </div>
       <DialogFooter className="justify-end mt-4 flex-shrink-0">
         <DialogClose asChild>
