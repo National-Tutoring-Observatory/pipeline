@@ -1,4 +1,5 @@
 import registerDocumentsAdapter from "~/modules/documents/helpers/registerDocumentsAdapter";
+import withCollectionLock from "./helpers/withCollectionLock";
 import countDocuments from "./services/countDocuments";
 import createDocument from "./services/createDocument";
 import deleteDocument from "./services/deleteDocument";
@@ -8,10 +9,10 @@ import updateDocument from "./services/updateDocument";
 
 registerDocumentsAdapter({
   name: 'LOCAL',
-  getDocuments,
-  countDocuments,
-  createDocument,
-  getDocument,
-  updateDocument,
-  deleteDocument
+  getDocuments: withCollectionLock(getDocuments),
+  countDocuments: withCollectionLock(countDocuments),
+  createDocument: withCollectionLock(createDocument),
+  getDocument: withCollectionLock(getDocument),
+  updateDocument: withCollectionLock(updateDocument),
+  deleteDocument: withCollectionLock(deleteDocument)
 })

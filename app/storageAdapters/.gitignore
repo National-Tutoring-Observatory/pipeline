@@ -1,6 +1,7 @@
 # Ignore all files except local and .gitignore
 *
 !awsS3
-!awsS3/*
-!local/*
+!awsS3/**
+!local
+!local/**
 !.gitignore

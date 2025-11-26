@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '../.env' })
 
+import { getRedisInstance } from 'app/helpers/getRedisInstance';
 import { Job, MetricsTime, Worker } from 'bullmq';
-import { getRedisInstance } from './getRedisInstance';
 
 export const redis = getRedisInstance({ maxRetriesPerRequest: null });
 

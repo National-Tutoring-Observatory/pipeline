@@ -1,4 +1,5 @@
-import Redis, { type RedisOptions } from 'ioredis';
+import type { Redis, RedisOptions } from 'ioredis';
+import IORedis from 'ioredis';
 
 /**
  * Creates a new Redis instance
@@ -19,5 +20,5 @@ export const getRedisInstance = (options?: RedisOptions): Redis => {
         );
     }
 
-    return new Redis(redisUrl, options || {});
+    return new IORedis(redisUrl, options || {});
 };
