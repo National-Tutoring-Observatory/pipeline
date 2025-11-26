@@ -1,7 +1,8 @@
 import map from 'lodash/map';
 import { useEffect } from "react";
-import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
+import { redirect, useActionData, useNavigate, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
+import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
@@ -15,6 +16,7 @@ import EditProjectDialog from "../components/editProjectDialog";
 import Projects from "../components/projects";
 import { validateProjectOwnership } from "../helpers/projectOwnership";
 import type { Project } from "../projects.types";
+import deleteProject from "../services/deleteProject.server";
 import type { Route } from "./+types/projects.route";
 
 type Projects = {
@@ -82,11 +84,7 @@ export async function action({
         user,
         projectId: entityId,
       });
-
-      return await documents.deleteDocument({
-        collection: 'projects',
-        match: { _id: entityId },
-      });
+      return await deleteProject({ projectId: entityId });
 
     default:
       return {};
@@ -103,12 +101,19 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const submit = useSubmit();
   const actionData = useActionData();
   const navigate = useNavigate();
+  const { revalidate } = useRevalidator();
 
   useEffect(() => {
     if (actionData?.intent === 'CREATE_PROJECT') {
       navigate(`/projects/${actionData.data._id}`)
     }
   }, [actionData]);
+
+  useHandleSockets({
+    event: 'DELETE_PROJECT',
+    matches: [{ status: 'FINISHED' }],
+    callback: revalidate
+  });
 
   useEffect(() => {
     updateBreadcrumb([{ text: 'Projects' }])
