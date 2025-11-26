@@ -2,6 +2,8 @@ import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter
 import type { File } from "~/modules/files/files.types";
 import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
 import type { Session } from "~/modules/sessions/sessions.types";
+import { getProjectFileStoragePath } from "~/modules/uploads/helpers/projectFileStorage";
+import { getProjectSessionStorageDir } from "~/modules/uploads/helpers/projectSessionStorage";
 import type { Project } from "../projects.types";
 
 export default async function createSessionsFromFiles({
@@ -16,10 +18,6 @@ export default async function createSessionsFromFiles({
   const projectFiles = await documents.getDocuments({ collection: 'files', match: { project: projectId }, sort: {} }) as { data: Array<File> };
 
   const project = await documents.getDocument({ collection: 'projects', match: { _id: projectId } }) as { data: Project };
-
-  const inputDirectory = `storage/${projectId}/files`;
-
-  const outputDirectory = `storage/${projectId}/preAnalysis`;
 
   if (shouldCreateSessionModels) {
     for (const projectFile of projectFiles.data) {
@@ -52,8 +50,8 @@ export default async function createSessionsFromFiles({
     taskSequencer.addTask('PROCESS', {
       projectId,
       sessionId: projectSession._id,
-      inputFile: `${inputDirectory}/${projectSession.file}/${file.data.name}`,
-      outputFolder: `${outputDirectory}/${projectSession._id}`,
+      inputFile: getProjectFileStoragePath(projectId, String(projectSession.file), file.data.name),
+      outputFolder: getProjectSessionStorageDir(projectId, projectSession._id),
       team: project.data.team,
       attributesMapping
     });

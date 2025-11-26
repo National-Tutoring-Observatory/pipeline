@@ -7,16 +7,17 @@ import uploadFile from "./uploadFile";
 export default async function convertFileToFiles({ file, entityId, }: { file: File, entityId: string }): Promise<File[]> {
   const splitFiles = [];
   const uploadDirectory = `storage/${entityId}/tmp`;
-
-  await uploadFile({ file, uploadDirectory });
-
   const fileName = path.basename(file.name);
+  const uploadPath = path.join(uploadDirectory, fileName);
+
+  await uploadFile({ file, uploadPath });
+
 
   await splitDataToSessions({
     body: {
       contentType: 'JSONL',
-      inputFile: path.join(uploadDirectory, fileName),
-      outputFolder: `storage/${entityId}/tmp`,
+      inputFile: uploadPath,
+      outputFolder: uploadDirectory,
       outputFileKey: 'id',
       sessionLimit: 1,
       sessionSkip: 0

@@ -2,6 +2,7 @@ import path from "path";
 import type { Project } from "~/modules/projects/projects.types";
 import getDocumentsAdapter from "../../documents/helpers/getDocumentsAdapter";
 import { emitter } from "../../events/emitter";
+import { getProjectFileStoragePath } from "../helpers/projectFileStorage";
 import uploadFile from "./uploadFile";
 
 export default async function uploadFiles({ files, entityId }: { files: any, entityId: string }) {
@@ -23,7 +24,8 @@ export default async function uploadFiles({ files, entityId }: { files: any, ent
         }
       }) as { data: any };
 
-      await uploadFile({ file, uploadDirectory: `storage/${entityId}/files/${document.data._id}` }).then(async () => {
+      const uploadPath = getProjectFileStoragePath(entityId, document.data._id, file.name);
+      await uploadFile({ file, uploadPath }).then(async () => {
         await documents.updateDocument({
           collection: 'files',
           match: {
