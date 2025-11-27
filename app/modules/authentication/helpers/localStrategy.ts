@@ -28,7 +28,7 @@ const localStrategy = new LOCAL(
   async () => {
     if (!process.env.DOCUMENTS_ADAPTER || process.env.DOCUMENTS_ADAPTER === 'LOCAL') {
       const documents = getDocumentsAdapter();
-      const user = await documents.getDocument({ collection: 'users', match: {} }) as { data: User | undefined };
+      const user = await documents.getDocument<User>({ collection: 'users', match: {} });
       if (!user.data) {
         throw new Error("User not found");
       }

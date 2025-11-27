@@ -11,25 +11,23 @@ import DuplicateRunDialog from '../components/duplicateRunDialog';
 import EditRunDialog from "../components/editRunDialog";
 import ProjectRuns from "../components/projectRuns";
 import type { Route } from "./+types/projectRuns.route";
-
-type Runs = {
-  data: [],
-};
+import type { DocumentAdapter } from "~/modules/documents/documents.types";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const runs = await documents.getDocuments({ collection: 'runs', match: { project: params.id }, sort: {} }) as Runs;
+  const result = await documents.getDocuments<Run>({ collection: 'runs', match: { project: params.id }, sort: {} });
+  const runs = { data: result.data };
   return { runs };
 }
 
 
-async function getExistingRun(documents: any, runId: string): Promise<Run> {
-  const existingRun = await documents.getDocument({
+async function getExistingRun(documents: DocumentAdapter, runId: string): Promise<Run> {
+  const existingRun = await documents.getDocument<Run>({
     collection: 'runs',
     match: {
       _id: runId,
     }
-  }) as { data: Run };
+  });
 
   if (!existingRun.data) {
     throw new Error("Run not found.");
@@ -64,7 +62,7 @@ export async function action({
         throw new Error("Annotation type is required and must be a string.");
       }
       await validateProjectOwnership({ user, projectId: params.id });
-      run = await documents.createDocument({
+      run = await documents.createDocument<Run>({
         collection: 'runs', update: {
           project: params.id,
           name,
@@ -73,7 +71,7 @@ export async function action({
           isRunning: false,
           isComplete: false
         }
-      }) as { data: Run };
+      });
       return {
         intent: 'CREATE_RUN',
         ...run
@@ -88,7 +86,7 @@ export async function action({
       const projectId = existingRun.project as string;
       await validateProjectOwnership({ user, projectId });
 
-      await documents.updateDocument({
+      await documents.updateDocument<Run>({
         collection: 'runs',
         match: {
           _id: entityId,
@@ -96,7 +94,7 @@ export async function action({
         update: {
           name
         }
-      }) as { data: Run };
+      });
       return {};
     }
     case 'DUPLICATE_RUN': {
@@ -110,7 +108,7 @@ export async function action({
 
       const { project, annotationType, prompt, promptVersion, model, sessions } = existingRun;
 
-      run = await documents.createDocument({
+      run = await documents.createDocument<Run>({
         collection: 'runs',
         update: {
           project,
@@ -124,7 +122,7 @@ export async function action({
           isRunning: false,
           isComplete: false
         }
-      }) as { data: Run };
+      });
       return {
         intent: 'DUPLICATE_RUN',
         ...run

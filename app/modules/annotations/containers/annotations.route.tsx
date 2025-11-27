@@ -23,7 +23,7 @@ export async function action({
 
   const documents = getDocumentsAdapter();
 
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: params.runId } }) as { data: Run };
+  const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: params.runId } });
 
   if (!run.data) {
     throw new Error("Run not found.");
@@ -32,7 +32,7 @@ export async function action({
   const projectId = run.data.project as string;
   await validateProjectOwnership({ user, projectId });
 
-  const session = await documents.getDocument({ collection: 'sessions', match: { _id: params.sessionId, project: projectId } }) as { data: Session };
+  const session = await documents.getDocument<Session>({ collection: 'sessions', match: { _id: params.sessionId, project: projectId } });
 
   if (!session.data) {
     throw new Error("Session not found or does not belong to this project.");

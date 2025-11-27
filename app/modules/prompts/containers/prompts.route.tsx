@@ -14,18 +14,15 @@ import DeletePromptDialog from "../components/deletePromptDialog";
 import EditPromptDialog from "../components/editPromptDialog";
 import Prompts from "../components/prompts";
 import { validatePromptOwnership } from "../helpers/promptOwnership";
-import type { Prompt } from "../prompts.types";
+import type { Prompt, PromptVersion } from "../prompts.types";
 import type { Route } from "./+types/prompts.route";
-
-type Prompts = {
-  data: [],
-};
 
 export async function loader({ request }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
-  const prompts = await documents.getDocuments({ collection: 'prompts', match: { team: { $in: teamIds } }, sort: {} }) as Prompts;
+  const result = await documents.getDocuments<Prompt>({ collection: 'prompts', match: { team: { $in: teamIds } }, sort: {} });
+  const prompts = { data: result.data };
   return { prompts };
 }
 
@@ -53,8 +50,8 @@ export async function action({
 
       await validateTeamMembership({ user, teamId: team });
 
-      const prompt = await documents.createDocument({ collection: 'prompts', update: { name, annotationType, team, productionVersion: 1 } }) as { data: Prompt };
-      await documents.createDocument({
+      const prompt = await documents.createDocument<Prompt>({ collection: 'prompts', update: { name, annotationType, team, productionVersion: 1 } });
+      await documents.createDocument<PromptVersion>({
         collection: 'promptVersions',
         update: {
           name: 'initial',

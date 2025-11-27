@@ -16,10 +16,6 @@ import { validateTeamAdmin } from "../helpers/teamAdmin";
 import type { Team } from "../teams.types";
 import type { Route } from "./+types/teams.route";
 
-type Teams = {
-  data: [],
-};
-
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
 
@@ -38,7 +34,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     match = { _id: { $in: teamIds } }
   }
 
-  const teams = await documents.getDocuments({ collection: 'teams', match, sort: {} }) as Teams;
+  const result = await documents.getDocuments<Team>({ collection: 'teams', match, sort: {} });
+  const teams = { data: result.data };
 
   return { teams };
 }
@@ -67,7 +64,7 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Team name is required and must be a string.");
       }
-      const team = await documents.createDocument({ collection: 'teams', update: { name } }) as { data: Team };
+      const team = await documents.createDocument<Team>({ collection: 'teams', update: { name } });
       return {
         intent: 'CREATE_TEAM',
         ...team

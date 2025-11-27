@@ -11,17 +11,14 @@ import FeatureFlags from '../components/featureFlags';
 import type { FeatureFlag } from '../featureFlags.types';
 import type { Route } from './+types/featureFlags.route';
 
-type FeatureFlags = {
-  data: FeatureFlag[]
-}
-
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const user = await getSessionUser({ request }) as User;
   if (!isSuperAdmin(user)) {
     return redirect('/');
   }
-  const featureFlags = await documents.getDocuments({ collection: 'featureFlags', match: {}, sort: {} }) as FeatureFlags;
+  const result = await documents.getDocuments<FeatureFlag>({ collection: 'featureFlags', match: {}, sort: {} });
+  const featureFlags = { data: result.data };
   return { featureFlags };
 }
 
@@ -43,7 +40,7 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Feature flag name is required and must be a string.");
       }
-      const featureFlag = await documents.createDocument({ collection: 'featureFlags', update: { name } }) as { data: FeatureFlag };
+      const featureFlag = await documents.createDocument<FeatureFlag>({ collection: 'featureFlags', update: { name } });
       return {
         intent: 'CREATE_FEATURE_FLAG',
         ...featureFlag

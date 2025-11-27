@@ -4,11 +4,8 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { Run } from "../runs.types";
 import type { Route } from "./+types/runsList.route";
+import type { Project } from "~/modules/projects/projects.types";
 
-
-type Runs = {
-  data: Run[],
-};
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const url = new URL(request.url);
@@ -23,15 +20,16 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const teamIds = map(authenticationTeams, 'team');
 
   // First verify the project exists and user has access
-  const project = await documents.getDocument({
+  const project = await documents.getDocument<Project>({
     collection: 'projects',
     match: { _id: projectId, team: { $in: teamIds } }
-  }) as { data: any };
+  });
 
   if (!project.data) {
     return redirect('/');
   }
 
-  const runs = await documents.getDocuments({ collection: 'runs', match: { project: projectId }, sort: {} }) as Runs;
+  const result = await documents.getDocuments<Run>({ collection: 'runs', match: { project: projectId }, sort: {} });
+  const runs = { data: result.data };
   return { runs };
 }

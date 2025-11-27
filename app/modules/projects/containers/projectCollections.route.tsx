@@ -1,25 +1,21 @@
-import { useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
-import ProjectCollections from "../components/projectCollections";
-import addDialog from "~/modules/dialogs/addDialog";
-import type { Collection } from "~/modules/collections/collections.types";
-import type { Route } from "./+types/projectCollections.route";
-import { toast } from "sonner";
 import { useEffect } from "react";
-import DuplicateCollectionDialog from "~/modules/collections/components/duplicateCollectionDialog";
+import { useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
+import { toast } from "sonner";
+import type { Collection } from "~/modules/collections/collections.types";
 import CreateCollectionDialog from "~/modules/collections/components/createCollectionDialog";
+import DuplicateCollectionDialog from "~/modules/collections/components/duplicateCollectionDialog";
 import EditCollectionDialog from "~/modules/collections/components/editCollectionDialog";
+import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-
-type Collections = {
-  data: [],
-};
+import ProjectCollections from "../components/projectCollections";
+import type { Route } from "./+types/projectCollections.route";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const collections = await documents.getDocuments({ collection: 'collections', match: { project: params.id }, sort: {} }) as Collections;
+  const result = await documents.getDocuments<Collection>({ collection: 'collections', match: { project: params.id }, sort: {} });
+  const collections = { data: result.data };
   return { collections };
 }
-
 
 export async function action({
   request,
@@ -38,7 +34,7 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
-      collection = await documents.createDocument({
+      collection = await documents.createDocument<Collection>({
         collection: 'collections', update: {
           project: params.id,
           name,
@@ -46,7 +42,7 @@ export async function action({
           runs: [],
           hasSetup: false
         }
-      }) as { data: Collection };
+      });
       return {
         intent: 'CREATE_COLLECTION',
         ...collection
@@ -57,7 +53,7 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
-      await documents.updateDocument({
+      await documents.updateDocument<Collection>({
         collection: 'collections',
         match: {
           _id: entityId,
@@ -65,7 +61,7 @@ export async function action({
         update: {
           name
         }
-      }) as { data: Collection };
+      });
       return {};
     }
     case 'DUPLICATE_COLLECTION': {
@@ -73,15 +69,20 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
-      const existingCollection = await documents.getDocument({
+      const existingCollection = await documents.getDocument<Collection>({
         collection: 'collections',
         match: {
           _id: entityId,
         }
-      }) as { data: Collection };
+      });
+
+      if (!existingCollection.data) {
+        throw new Error('Collection not found');
+      }
+
       const { project, sessions } = existingCollection.data;
 
-      collection = await documents.createDocument({
+      collection = await documents.createDocument<Collection>({
         collection: 'collections',
         update: {
           project,
@@ -90,7 +91,7 @@ export async function action({
           runs: [],
           hasSetup: true
         }
-      }) as { data: Collection };
+      });
       return {
         intent: 'DUPLICATE_COLLECTION',
         ...collection

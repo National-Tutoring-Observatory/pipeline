@@ -20,13 +20,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   const documents = getDocumentsAdapter();
-  const prompt = await documents.getDocument({ collection: 'prompts', match: { _id: params.id } }) as { data: Prompt };
+  const prompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: params.id } });
 
   if (!prompt.data) {
     return redirect('/');
   }
 
-  const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { version: Number(params.version), prompt: params.id } }) as { data: PromptVersion };
+  const promptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { version: Number(params.version), prompt: params.id } });
 
   if (!promptVersion.data) {
     return redirect('/');
@@ -51,28 +51,30 @@ export async function action({
     return redirect('/');
   }
 
-  const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { _id: entityId } }) as { data: { prompt: string } };
+  const promptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { _id: entityId } });
 
   if (!promptVersion.data) {
     throw new Error('Prompt version not found');
   }
 
-  await validatePromptOwnership({ user, promptId: promptVersion.data.prompt });
+  const promptId = (promptVersion.data.prompt as string);
+
+  await validatePromptOwnership({ user, promptId });
 
   switch (intent) {
     case 'UPDATE_PROMPT_VERSION':
-      await documents.updateDocument({
+      await documents.updateDocument<PromptVersion>({
         collection: 'promptVersions',
         match: { _id: entityId },
         update: { name, userPrompt, annotationSchema, hasBeenSaved: true, updatedAt: new Date(), }
-      }) as { data: PromptVersion }
+      })
       return {};
     case 'MAKE_PROMPT_VERSION_PRODUCTION':
-      await documents.updateDocument({
+      await documents.updateDocument<Prompt>({
         collection: 'prompts',
-        match: { _id: promptVersion.data.prompt },
+        match: { _id: promptId },
         update: { productionVersion: Number(params.version) }
-      }) as { data: Prompt }
+      })
       return {};
     default:
       return {};

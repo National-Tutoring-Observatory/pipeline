@@ -41,12 +41,17 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const team = await documents.getDocument({ collection: 'teams', match: { _id: params.id } }) as { data: TeamType };
+  const team = await documents.getDocument<TeamType>({ collection: 'teams', match: { _id: params.id } });
+  if (!team.data) {
+    return redirect('/teams');
+  }
 
-
-  const projects = await documents.getDocuments({ collection: 'projects', match: { team: team.data._id } }) as { data: Project };
-  const prompts = await documents.getDocuments({ collection: 'prompts', match: { team: team.data._id } }) as { data: Prompt };
-  const users = await documents.getDocuments({ collection: 'users', match: { "teams.team": team.data._id } }) as { data: TeamType };
+  const projectsResult = await documents.getDocuments<Project>({ collection: 'projects', match: { team: team.data._id } });
+  const projects = { data: projectsResult.data };
+  const promptsResult = await documents.getDocuments<Prompt>({ collection: 'prompts', match: { team: team.data._id } });
+  const prompts = { data: promptsResult.data };
+  const teamsResult = await documents.getDocuments<User>({ collection: 'users', match: { "teams.team": team.data._id } });
+  const users = { data: teamsResult.data };
   return { team, projects, prompts, users };
 }
 
@@ -72,7 +77,7 @@ export async function action({
   switch (intent) {
     case 'ADD_USERS_TO_TEAM':
       for (const userId of userIds) {
-        const user = await documents.getDocument({ collection: 'users', match: { _id: userId } }) as { data: User };
+        const user = await documents.getDocument<User>({ collection: 'users', match: { _id: userId } });
         if (user.data) {
           if (!user.data.teams) {
             user.data.teams = [];
@@ -87,7 +92,7 @@ export async function action({
       return {};
     case 'REMOVE_USER_FROM_TEAM':
       if (!userId) return {};
-      const userDoc = await documents.getDocument({ collection: 'users', match: { _id: userId } }) as { data: User };
+      const userDoc = await documents.getDocument<User>({ collection: 'users', match: { _id: userId } });
       if (userDoc.data && Array.isArray(userDoc.data.teams)) {
         userDoc.data.teams = userDoc.data.teams.filter(t => t.team !== params.id);
         await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { teams: userDoc.data.teams } });

@@ -1,17 +1,16 @@
-import getDatabaseConnection from '../helpers/getDatabaseConnection';
-import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
 import mongoose from 'mongoose';
+import type { GetDocumentParams, GetDocumentResult } from '~/modules/documents/documents.types';
+import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
+import getDatabaseConnection from '../helpers/getDatabaseConnection';
 
-export default async ({ collection, match }: { collection: string; match: any; }) => {
-
+export default async function getDocument<T = any>({ collection, match }: GetDocumentParams): Promise<GetDocumentResult<T>> {
   try {
-
     const connection = await getDatabaseConnection();
 
     const model = getModelFromCollection(collection);
     const Model = connection.models[model];
 
-    let data;
+    let data: any = null;
 
     const matchKeys = Object.keys(match);
 
@@ -21,13 +20,10 @@ export default async ({ collection, match }: { collection: string; match: any; }
       data = await Model.findOne(match);
     }
 
-    return {
-      data: JSON.parse(JSON.stringify(data))
-    }
-
+    const serialized = JSON.parse(JSON.stringify(data));
+    return { data: serialized as T };
   } catch (error) {
-    console.log(error);
-    return error;
+    console.error(error);
+    throw error;
   }
-
 }

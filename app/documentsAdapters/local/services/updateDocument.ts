@@ -4,9 +4,9 @@ import find from 'lodash/find.js';
 import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import getCollectionPath from '../helpers/getCollectionPath';
 import validateDocument from '../helpers/validateDocument';
+import type { UpdateDocumentParams, UpdateDocumentResult } from '~/modules/documents/documents.types';
 
-export default async ({ collection, match, update }: { collection: string, match: { _id: string }, update: {} }) => {
-
+export default async function updateDocument<T = any>({ collection, match, update }: UpdateDocumentParams): Promise<UpdateDocumentResult<T>> {
   try {
     await findOrCreateDocuments({ collection });
 
@@ -21,11 +21,10 @@ export default async ({ collection, match, update }: { collection: string, match
     await fse.writeJson(getCollectionPath(collection), json);
 
     return {
-      data: JSON.parse(JSON.stringify(document))
-    }
-
+      data: JSON.parse(JSON.stringify(document)) as T
+    };
   } catch (error) {
-    return error;
+    console.error(error);
+    throw new Error(`Error updating document in collection '${collection}'`);
   }
-
-}
+};

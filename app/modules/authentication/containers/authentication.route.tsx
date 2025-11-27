@@ -50,7 +50,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   if (referrerSplit[referrerSplit.length - 1] === data.inviteId && referrerSplit[referrerSplit.length - 2] === 'invite') {
     const documents = getDocumentsAdapter();
-    const invitedUser = await documents.getDocument({ collection: 'users', match: { inviteId: data.inviteId, isRegistered: false } }) as { data: User };
+    const invitedUser = await documents.getDocument<User>({ collection: 'users', match: { inviteId: data.inviteId, isRegistered: false } });
     if (!invitedUser.data) {
       return Response.json({ ok: false, error: "Invalid invite" }, { status: 404 })
     }

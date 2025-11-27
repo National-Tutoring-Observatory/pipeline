@@ -9,31 +9,30 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import exportRun from "~/modules/runs/helpers/exportRun";
-import type { CreateRun, Run as RunType } from "~/modules/runs/runs.types";
+import type { CreateRun, Run } from "~/modules/runs/runs.types";
 import ProjectRun from "../components/projectRun";
 import type { Project } from "../projects.types";
 import createRunAnnotations from '../services/createRunAnnotations.server';
 import startRun from '../services/startRun.server';
 import type { Route } from "./+types/projectRun.route";
 
-type Run = {
-  data: RunType,
-};
-
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } } }) as { data: Project };
+  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } } });
   if (!project.data) {
     return redirect('/');
   }
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, }) as Run;
+  const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, });
+  if (!run.data) {
+    return redirect('/');
+  }
   let runPrompt;
   let runPromptVersion;
   if (run.data.hasSetup) {
-    runPrompt = await documents.getDocument({ collection: 'prompts', match: { _id: run.data.prompt } }) as { data: Prompt };
-    runPromptVersion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
+    runPrompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: run.data.prompt } });
+    runPromptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } });
   }
   return { project, run, runPrompt, runPromptVersion };
 }
@@ -73,16 +72,17 @@ export async function action({
         model
       }, { request, context });
 
+      if (!run.data) throw new Error('Run not created');
       createRunAnnotations({ runId: run.data._id }, { request });
 
       return {}
     }
     case 'RE_RUN': {
-      const run = await documents.getDocument({
+      const run = await documents.getDocument<Run>({
         collection: 'runs',
         match: { _id: params.runId, project: params.projectId }
-      }) as Run;
-
+      });
+      if (!run.data) throw new Error('Run not found');
       createRunAnnotations({ runId: run.data._id }, { request });
 
       return {};

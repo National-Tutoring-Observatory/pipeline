@@ -11,8 +11,10 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
 
   const documents = getDocumentsAdapter();
 
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: run.data.project } }) as { data: Project };
+  const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: runId } });
+  if (!run.data) throw new Error(`Run not found: ${runId}`);
+  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: run.data.project } });
+  if (!project.data) throw new Error(`Project not found: ${run.data.project}`);
 
   if (run.data.isRunning) { return {} }
 
@@ -29,7 +31,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
     }
   });
 
-  const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
+  const promptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } });
+  if (!promptVersion.data) throw new Error(`Prompt version not found: ${run.data.prompt} v${run.data.promptVersion}`);
 
   emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: 0, status: 'STARTED', step: `0/${run.data.sessions.length}` });
 
@@ -50,7 +53,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
       emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING' });
       continue;
     }
-    const sessionModel = await documents.getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
+    const sessionModel = await documents.getDocument<Session>({ collection: 'sessions', match: { _id: session.sessionId } });
+    if (!sessionModel.data) throw new Error(`Session not found: ${session.sessionId}`);
 
     session.status = 'RUNNING';
     session.startedAt = new Date();

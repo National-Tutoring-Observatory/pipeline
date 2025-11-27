@@ -17,16 +17,13 @@ import { validateProjectOwnership } from "../helpers/projectOwnership";
 import type { Project } from "../projects.types";
 import type { Route } from "./+types/projects.route";
 
-type Projects = {
-  data: Project[],
-};
-
 export async function loader({ request, params, context }: Route.LoaderArgs & { context: any }) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
-  const projects = await documents.getDocuments({ collection: 'projects', match: { team: { $in: teamIds } }, sort: {}, populate: [{ path: 'team' }] }) as Projects;
+  const result = await documents.getDocuments<Project>({ collection: 'projects', match: { team: { $in: teamIds } }, sort: {}, populate: [{ path: 'team' }] });
+  const projects = { data: result.data };
 
   return { projects };
 }
@@ -55,10 +52,10 @@ export async function action({
 
       await validateTeamMembership({ user, teamId: team });
 
-      const project = await documents.createDocument({
+      const project = await documents.createDocument<Project>({
         collection: 'projects',
         update: { name, team },
-      }) as { data: Project };
+      });
 
       return {
         intent: 'CREATE_PROJECT',

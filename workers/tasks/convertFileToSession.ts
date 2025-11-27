@@ -3,6 +3,7 @@ import fse from 'fs-extra';
 import map from 'lodash/map';
 import path from 'path';
 import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter';
+import type { Session } from '../../app/modules/sessions/sessions.types';
 import getStorageAdapter from '../../app/modules/storage/helpers/getStorageAdapter';
 import emitFromJob from '../helpers/emitFromJob';
 dotenv.config({ path: '.env' });
@@ -56,7 +57,7 @@ export default async function convertFileToSession(job: any) {
 
     const documents = getDocumentsAdapter();
 
-    await documents.updateDocument({
+    await documents.updateDocument<Session>({
       collection: 'sessions',
       match: {
         _id: sessionId
@@ -66,9 +67,9 @@ export default async function convertFileToSession(job: any) {
       }
     });
 
-    const sessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId } }) as number;
+    const sessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId } });
 
-    const completedSessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId, hasConverted: true } }) as number;
+    const completedSessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId, hasConverted: true } });
 
     await emitFromJob(job, {
       projectId,
@@ -79,7 +80,7 @@ export default async function convertFileToSession(job: any) {
   } catch (error: any) {
     const documents = getDocumentsAdapter();
 
-    await documents.updateDocument({
+    await documents.updateDocument<Session>({
       collection: 'sessions',
       match: {
         _id: sessionId
