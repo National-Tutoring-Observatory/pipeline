@@ -67,9 +67,9 @@ export default async function convertFileToSession(job: any) {
       }
     });
 
-    const sessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId } }) as number;
+    const sessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId } });
 
-    const completedSessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId, hasConverted: true } }) as number;
+    const completedSessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId, hasConverted: true } });
 
     await emitFromJob(job, {
       projectId,
