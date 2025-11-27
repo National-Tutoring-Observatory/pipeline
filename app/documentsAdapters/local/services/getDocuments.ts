@@ -13,14 +13,14 @@ import getDocument from './getDocument';
 
 const DEFAULT_PAGE_SIZE = 50;
 
-export default async ({
+export default async function getDocuments<T = any>({
   collection,
   match,
   sort = {},
   populate = [],
   page,
   pageSize
-}: GetDocumentsParams): Promise<GetDocumentsResult> => {
+}: GetDocumentsParams): Promise<GetDocumentsResult<T>> {
 
   try {
     await findOrCreateDocuments({ collection });
@@ -76,7 +76,7 @@ export default async ({
             const collection = getCollectionFromModel(refModel);
 
             if (collection) {
-              const refData = await getDocument({ collection, match: { _id: model[populateItem.path] } }) as { data: any };
+              const refData = await getDocument<any>({ collection, match: { _id: model[populateItem.path] } });
 
               if (refData && refData.data) {
                 model[populateItem.path] = refData.data;
@@ -91,7 +91,7 @@ export default async ({
       currentPage: currentPage,
       totalPages: totalPages,
       count: count,
-      data
+      data: data as unknown as T[]
     }
   } catch (error) {
     console.log(error);

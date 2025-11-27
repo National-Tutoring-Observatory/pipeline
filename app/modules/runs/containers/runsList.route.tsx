@@ -28,7 +28,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const result = await documents.getDocuments({ collection: 'runs', match: { project: projectId }, sort: {} });
-  const runs = { data: result.data as Run[] };
+  const result = await documents.getDocuments<Run>({ collection: 'runs', match: { project: projectId }, sort: {} });
+  const runs = { data: result.data };
   return { runs };
 }

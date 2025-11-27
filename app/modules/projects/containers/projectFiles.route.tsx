@@ -6,8 +6,8 @@ import type { Route } from "./+types/projectFiles.route";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments({ collection: 'files', match: { project: params.id }, sort: {} });
-  const files = { data: result.data as File[] };
+  const result = await documents.getDocuments<File>({ collection: 'files', match: { project: params.id }, sort: {} });
+  const files = { data: result.data };
   return { files };
 }
 

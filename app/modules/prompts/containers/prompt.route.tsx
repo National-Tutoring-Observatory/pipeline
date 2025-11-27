@@ -20,11 +20,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!prompt.data) {
     return redirect('/prompts');
   }
-  const promptVersions = await documents.getDocuments({
+  const promptVersions = await documents.getDocuments<PromptVersion>({
     collection: 'promptVersions',
     match: { prompt: params.id },
     sort: { version: -1 },
-  }) as { data: PromptVersion[] };
+  });
   return { prompt, promptVersions };
 }
 
@@ -50,7 +50,7 @@ export async function action({
     case 'CREATE_PROMPT_VERSION':
       const previousPromptVerion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: entityId, version: Number(version) } }) as { data: PromptVersion };
       const newPromptAttributes = pick(previousPromptVerion.data, ['userPrompt', 'annotationSchema']);
-      const promptVerions = await documents.getDocuments({ collection: 'promptVersions', match: { prompt: entityId }, sort: {} }) as { count: number };
+      const promptVerions = await documents.getDocuments<PromptVersion>({ collection: 'promptVersions', match: { prompt: entityId }, sort: {} }) as { count: number };
       const promptVersion = await documents.createDocument({ collection: 'promptVersions', update: { ...newPromptAttributes, name: `${previousPromptVerion.data.name.replace(/#\d+/g, '').trim()} #${promptVerions.count + 1}`, prompt: entityId, version: promptVerions.count + 1 } }) as { data: PromptVersion }
       return {
         intent: 'CREATE_PROMPT_VERSION',
