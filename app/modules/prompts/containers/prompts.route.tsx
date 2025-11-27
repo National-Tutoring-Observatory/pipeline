@@ -14,7 +14,7 @@ import DeletePromptDialog from "../components/deletePromptDialog";
 import EditPromptDialog from "../components/editPromptDialog";
 import Prompts from "../components/prompts";
 import { validatePromptOwnership } from "../helpers/promptOwnership";
-import type { Prompt } from "../prompts.types";
+import type { Prompt, PromptVersion } from "../prompts.types";
 import type { Route } from "./+types/prompts.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -50,8 +50,8 @@ export async function action({
 
       await validateTeamMembership({ user, teamId: team });
 
-      const prompt = await documents.createDocument({ collection: 'prompts', update: { name, annotationType, team, productionVersion: 1 } }) as { data: Prompt };
-      await documents.createDocument({
+      const prompt = await documents.createDocument<Prompt>({ collection: 'prompts', update: { name, annotationType, team, productionVersion: 1 } });
+      await documents.createDocument<PromptVersion>({
         collection: 'promptVersions',
         update: {
           name: 'initial',

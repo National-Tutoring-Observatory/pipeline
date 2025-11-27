@@ -52,7 +52,7 @@ export async function action({
       if (!previousPromptVerion.data) throw new Error('Previous prompt version not found');
       const newPromptAttributes = pick(previousPromptVerion.data, ['userPrompt', 'annotationSchema']);
       const promptVerions = await documents.getDocuments<PromptVersion>({ collection: 'promptVersions', match: { prompt: entityId }, sort: {} }) as { count: number };
-      const promptVersion = await documents.createDocument({ collection: 'promptVersions', update: { ...newPromptAttributes, name: `${previousPromptVerion.data.name.replace(/#\d+/g, '').trim()} #${promptVerions.count + 1}`, prompt: entityId, version: promptVerions.count + 1 } }) as { data: PromptVersion }
+      const promptVersion = await documents.createDocument<PromptVersion>({ collection: 'promptVersions', update: { ...newPromptAttributes, name: `${previousPromptVerion.data.name.replace(/#\d+/g, '').trim()} #${promptVerions.count + 1}`, prompt: entityId, version: promptVerions.count + 1 } })
       return {
         intent: 'CREATE_PROMPT_VERSION',
         ...promptVersion

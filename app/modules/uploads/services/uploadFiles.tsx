@@ -1,5 +1,6 @@
 import path from "path";
 import type { Project } from "~/modules/projects/projects.types";
+import type { File } from "~/modules/files/files.types";
 import getDocumentsAdapter from "../../documents/helpers/getDocumentsAdapter";
 import { emitter } from "../../events/emitter";
 import { getProjectFileStoragePath } from "../helpers/projectFileStorage";
@@ -14,7 +15,7 @@ export default async function uploadFiles({ files, entityId }: { files: any, ent
   for (const file of files) {
     if (file instanceof File) {
       const name = path.basename(file.name);
-      const document = await documents.createDocument({
+      const document = await documents.createDocument<File>({
         collection: 'files',
         update: {
           project: entityId,
@@ -22,7 +23,7 @@ export default async function uploadFiles({ files, entityId }: { files: any, ent
           name,
           hasUploaded: false
         }
-      }) as { data: any };
+      });
 
       const uploadPath = getProjectFileStoragePath(entityId, document.data._id, file.name);
       await uploadFile({ file, uploadPath }).then(async () => {

@@ -64,7 +64,7 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Team name is required and must be a string.");
       }
-      const team = await documents.createDocument({ collection: 'teams', update: { name } }) as { data: Team };
+      const team = await documents.createDocument<Team>({ collection: 'teams', update: { name } });
       return {
         intent: 'CREATE_TEAM',
         ...team
