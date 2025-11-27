@@ -2,22 +2,22 @@ import { ToggleGroup } from "@/components/ui/toggle-group";
 import { useLocation, useNavigate } from "react-router";
 import { QueueTab } from "./queueTab";
 
-interface QueueTypeTabsProps {
-  taskCount: number;
-  cronCount: number;
+interface Queue {
+  key: string;
+  label: string;
+  count: number;
 }
 
-export default function QueueTypeTabs({ taskCount, cronCount }: QueueTypeTabsProps) {
+interface QueueTypeTabsProps {
+  queues: Queue[];
+}
+
+export default function QueueTypeTabs({ queues }: QueueTypeTabsProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
 
-  const types = [
-    { key: "tasks", label: "Tasks", count: taskCount },
-    { key: "cron", label: "Cron", count: cronCount }
-  ];
-
-  const currentValue = currentPath.includes('/tasks') ? 'tasks' : 'cron';
+  const currentValue = queues.find(t => currentPath.includes(`/${t.key}`))?.key ?? queues[0]?.key ?? '';
 
   const handleValueChange = (value: string) => {
     if (value) {
@@ -34,13 +34,13 @@ export default function QueueTypeTabs({ taskCount, cronCount }: QueueTypeTabsPro
         onValueChange={handleValueChange}
         aria-label="Queue type selection"
       >
-        {types.map((type, idx) => (
+        {queues.map((queue, idx) => (
           <QueueTab
-            key={type.key}
-            value={type.key}
-            label={type.label}
-            count={type.count}
-            ariaLabel={`${type.label} queue (${type.count} jobs)`}
+            key={queue.key}
+            value={queue.key}
+            label={queue.label}
+            count={queue.count}
+            ariaLabel={`${queue.label} queue (${queue.count} jobs)`}
           />
         ))}
       </ToggleGroup>
