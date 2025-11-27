@@ -63,8 +63,8 @@ const checkSuperAdminExists = async () => {
     match: { role: 'SUPER_ADMIN', githubId: parseInt(process.env.SUPER_ADMIN_GITHUB_ID as string) }
   });
 
-  if (!user.data) {
-    await documents.createDocument({
+    if (!user.data) {
+    await documents.createDocument<User>({
       collection: 'users',
       update: {
         role: 'SUPER_ADMIN',

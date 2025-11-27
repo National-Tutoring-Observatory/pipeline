@@ -28,7 +28,7 @@ export async function action({
 
     const inviteId = crypto.randomBytes(21).toString('hex').slice(0, 21);
 
-    const newUser = await documents.createDocument({
+    const newUser = await documents.createDocument<User>({
       collection: 'users',
       update: {
         role: "USER",

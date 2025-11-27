@@ -54,10 +54,10 @@ export async function action({
 
       await validateTeamMembership({ user, teamId: team });
 
-      const project = await documents.createDocument({
+      const project = await documents.createDocument<Project>({
         collection: 'projects',
         update: { name, team },
-      }) as { data: Project };
+      });
 
       return {
         intent: 'CREATE_PROJECT',

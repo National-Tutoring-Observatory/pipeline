@@ -62,7 +62,7 @@ export async function action({
         throw new Error("Annotation type is required and must be a string.");
       }
       await validateProjectOwnership({ user, projectId: params.id });
-      run = await documents.createDocument({
+      run = await documents.createDocument<Run>({
         collection: 'runs', update: {
           project: params.id,
           name,
@@ -71,7 +71,7 @@ export async function action({
           isRunning: false,
           isComplete: false
         }
-      }) as { data: Run };
+      });
       return {
         intent: 'CREATE_RUN',
         ...run
@@ -108,7 +108,7 @@ export async function action({
 
       const { project, annotationType, prompt, promptVersion, model, sessions } = existingRun;
 
-      run = await documents.createDocument({
+      run = await documents.createDocument<Run>({
         collection: 'runs',
         update: {
           project,
@@ -122,7 +122,7 @@ export async function action({
           isRunning: false,
           isComplete: false
         }
-      }) as { data: Run };
+      });
       return {
         intent: 'DUPLICATE_RUN',
         ...run

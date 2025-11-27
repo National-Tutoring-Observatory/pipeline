@@ -3,7 +3,7 @@ import type { CreateDocumentParams, CreateDocumentResult } from '~/modules/docum
 import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
 import getDatabaseConnection from '../helpers/getDatabaseConnection';
 
-export default async ({ collection, update }: CreateDocumentParams): Promise<CreateDocumentResult> => {
+export default async function createDocument<T = any>({ collection, update }: CreateDocumentParams): Promise<CreateDocumentResult<T>> {
 
   try {
 
@@ -15,7 +15,7 @@ export default async ({ collection, update }: CreateDocumentParams): Promise<Cre
     const data = await Model.create(update);
 
     return {
-      data: JSON.parse(JSON.stringify(data))
+      data: JSON.parse(JSON.stringify(data)) as T
     }
 
   } catch (error) {
