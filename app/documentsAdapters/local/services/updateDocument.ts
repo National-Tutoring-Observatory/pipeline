@@ -5,8 +5,7 @@ import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import getCollectionPath from '../helpers/getCollectionPath';
 import validateDocument from '../helpers/validateDocument';
 
-export default async ({ collection, match, update }: { collection: string, match: { _id: string }, update: {} }) => {
-
+export default async ({ collection, match, update }: { collection: string, match: { _id: string }, update: {} }): Promise<{ data: any }> => {
   try {
     await findOrCreateDocuments({ collection });
 
@@ -22,10 +21,9 @@ export default async ({ collection, match, update }: { collection: string, match
 
     return {
       data: JSON.parse(JSON.stringify(document))
-    }
-
+    };
   } catch (error) {
-    return error;
+    console.error(error);
+    throw new Error(`Error updating document in collection '${collection}'`);
   }
-
-}
+};

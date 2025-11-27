@@ -22,7 +22,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const featureFlag = await documents.getDocument({ collection: 'featureFlags', match: { _id: params.id } }) as { data: FeatureFlagType };
 
-  const users = await documents.getDocuments({ collection: 'users', match: { featureFlags: { $in: [featureFlag.data.name] } } }) as { data: User };
+  const result = await documents.getDocuments({ collection: 'users', match: { featureFlags: { $in: [featureFlag.data.name] } } });
+  const users = { data: result.data as User[] };
 
   return { featureFlag, users };
 }

@@ -1,7 +1,8 @@
-import getDatabaseConnection from '../helpers/getDatabaseConnection';
+import type { UpdateDocumentParams, UpdateDocumentResult } from '~/modules/documents/documents.types';
 import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
+import getDatabaseConnection from '../helpers/getDatabaseConnection';
 
-export default async ({ collection, match, update }: { collection: string, match: { _id: string }, update: {} }) => {
+export default async ({ collection, match, update }: UpdateDocumentParams): Promise<UpdateDocumentResult> => {
 
   try {
 
@@ -18,7 +19,7 @@ export default async ({ collection, match, update }: { collection: string, match
 
   } catch (error) {
     console.log(error);
-    return error;
+    throw error;
   }
 
 }

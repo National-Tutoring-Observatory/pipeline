@@ -6,7 +6,6 @@ import getDocument from "./services/getDocument";
 import getDocuments from "./services/getDocuments";
 import updateDocument from "./services/updateDocument";
 
-// @ts-ignore
 registerDocumentsAdapter({
   name: 'DOCUMENT_DB',
   getDocuments,

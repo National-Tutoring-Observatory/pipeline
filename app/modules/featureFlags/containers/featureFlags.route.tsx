@@ -11,17 +11,14 @@ import FeatureFlags from '../components/featureFlags';
 import type { FeatureFlag } from '../featureFlags.types';
 import type { Route } from './+types/featureFlags.route';
 
-type FeatureFlags = {
-  data: FeatureFlag[]
-}
-
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const user = await getSessionUser({ request }) as User;
   if (!isSuperAdmin(user)) {
     return redirect('/');
   }
-  const featureFlags = await documents.getDocuments({ collection: 'featureFlags', match: {}, sort: {} }) as FeatureFlags;
+  const result = await documents.getDocuments({ collection: 'featureFlags', match: {}, sort: {} });
+  const featureFlags = { data: result.data as FeatureFlag[] };
   return { featureFlags };
 }
 

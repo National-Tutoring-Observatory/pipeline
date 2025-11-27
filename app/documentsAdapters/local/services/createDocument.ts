@@ -3,8 +3,7 @@ import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import getCollectionPath from '../helpers/getCollectionPath';
 import validateDocument from '../helpers/validateDocument';
 
-export default async ({ collection, update }: { collection: string, update: any }) => {
-
+export default async ({ collection, update }: { collection: string, update: any }): Promise<{ data: any }> => {
   try {
     await findOrCreateDocuments({ collection });
 
@@ -18,11 +17,9 @@ export default async ({ collection, update }: { collection: string, update: any 
 
     return {
       data: JSON.parse(JSON.stringify(document))
-    }
-
+    };
   } catch (error) {
-    console.log(error);
-    return error;
+    console.error(error);
+    throw new Error(`Error creating document in collection '${collection}'`);
   }
-
-}
+};

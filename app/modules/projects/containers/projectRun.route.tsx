@@ -9,16 +9,12 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import exportRun from "~/modules/runs/helpers/exportRun";
-import type { CreateRun, Run as RunType } from "~/modules/runs/runs.types";
+import type { CreateRun, Run } from "~/modules/runs/runs.types";
 import ProjectRun from "../components/projectRun";
 import type { Project } from "../projects.types";
 import createRunAnnotations from '../services/createRunAnnotations.server';
 import startRun from '../services/startRun.server';
 import type { Route } from "./+types/projectRun.route";
-
-type Run = {
-  data: RunType,
-};
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -28,7 +24,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!project.data) {
     return redirect('/');
   }
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, }) as Run;
+  const run = await documents.getDocument({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, }) as { data: Run };
   let runPrompt;
   let runPromptVersion;
   if (run.data.hasSetup) {
@@ -81,8 +77,7 @@ export async function action({
       const run = await documents.getDocument({
         collection: 'runs',
         match: { _id: params.runId, project: params.projectId }
-      }) as Run;
-
+      }) as { data: Run };
       createRunAnnotations({ runId: run.data._id }, { request });
 
       return {};
