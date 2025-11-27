@@ -13,27 +13,34 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   const tasksQueue = getQueue('tasks');
+  const generalQueue = getQueue('general');
   const cronQueue = getQueue('cron');
 
   const taskCount = await tasksQueue.count();
+  const generalCount = await generalQueue.count();
   const cronCount = await cronQueue.count();
 
+  const queues = [
+    { key: 'tasks', label: 'Tasks', count: taskCount },
+    { key: 'general', label: 'General', count: generalCount },
+    { key: 'cron', label: 'Cron', count: cronCount },
+  ];
+
   return {
-    taskCount,
-    cronCount
+    queues,
   };
 }
 
 export default function QueuesLayoutRoute() {
   const data = useLoaderData<typeof loader>();
-
+  const queues = data.queues;
   return (
     <div className="p-6">
       <div className="mb-6">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
           Queues
         </h1>
-        <QueueTypeTabs taskCount={data.taskCount} cronCount={data.cronCount} />
+        <QueueTypeTabs queues={queues} />
       </div>
 
       <Outlet />
