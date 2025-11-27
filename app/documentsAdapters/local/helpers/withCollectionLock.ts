@@ -12,28 +12,28 @@ const redlock = new Redlock([redis], {
   retryJitter: 50,
 });
 
-export default function withCollectionLock<T extends { collection: string }, R>(
-  fn: (args: T) => Promise<R>,
-  opts?: { timeoutMs?: number }
-): (args: T) => Promise<R> {
+export default function withCollectionLock<T extends (...args: any[]) => Promise<any>>(fn: T, opts?: { timeoutMs?: number }): T {
   const timeoutMs = opts?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
 
-  return async (args: T) => {
-    const { collection } = args;
+  const wrapper = (async (...args: Parameters<T>) => {
+    const firstArg = args[0] as any;
+    const collection = firstArg && typeof firstArg === 'object' ? firstArg.collection : undefined;
     const resource = `locks:local:documents:${collection}`;
     const ttl = timeoutMs;
 
     try {
       const lock = await redlock.acquire([resource], ttl);
       try {
-        const res = await fn(args);
+        const res = await fn(...(args as any));
         return res;
       } finally {
         await lock.release();
       }
     } catch (err: any) {
-      console.error(err)
+      console.error(err);
       throw new Error(`Error acquiring lock for collection '${collection}'`);
     }
-  };
+  }) as T;
+
+  return wrapper;
 }

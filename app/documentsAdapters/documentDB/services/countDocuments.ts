@@ -1,13 +1,8 @@
+import type { CountDocumentsParams, CountDocumentsResult } from '~/modules/documents/documents.types';
 import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
 import getDatabaseConnection from '../helpers/getDatabaseConnection';
 
-export default async ({
-  collection,
-  match,
-}: {
-  collection: string,
-  match: {} | any,
-}) => {
+export default async ({ collection, match }: CountDocumentsParams): Promise<CountDocumentsResult> => {
 
   try {
 
@@ -22,7 +17,7 @@ export default async ({
 
   } catch (error) {
     console.log(error);
-    return error;
+    throw error;
   }
 
 }
