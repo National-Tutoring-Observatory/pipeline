@@ -253,8 +253,7 @@ const orcidStrategy = new OrcidStrategy<User>(
   async ({ profile }) => {
     const documents = getDocumentsAdapter();
 
-    const user = await documents.getDocument({ collection: 'users', match: { orcidId: profile.id, hasOrcidSSO: true } }) as { data: User };
-
+    const user = await documents.getDocument<User>({ collection: 'users', match: { orcidId: profile.id, hasOrcidSSO: true } });
     if (!user.data) {
       throw redirect("/?error=UNREGISTERED");
     }

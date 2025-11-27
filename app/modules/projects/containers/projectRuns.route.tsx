@@ -11,6 +11,7 @@ import DuplicateRunDialog from '../components/duplicateRunDialog';
 import EditRunDialog from "../components/editRunDialog";
 import ProjectRuns from "../components/projectRuns";
 import type { Route } from "./+types/projectRuns.route";
+import type { DocumentAdapter } from "~/modules/documents/documents.types";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -20,13 +21,13 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 
-async function getExistingRun(documents: any, runId: string): Promise<Run> {
-  const existingRun = await documents.getDocument({
+async function getExistingRun(documents: DocumentAdapter, runId: string): Promise<Run> {
+  const existingRun = await documents.getDocument<Run>({
     collection: 'runs',
     match: {
       _id: runId,
     }
-  }) as { data: Run };
+  });
 
   if (!existingRun.data) {
     throw new Error("Run not found.");

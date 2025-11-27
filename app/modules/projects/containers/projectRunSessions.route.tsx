@@ -16,11 +16,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } } }) as { data: Project };
+  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } } });
   if (!project.data) {
     return redirect('/');
   }
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, }) as { data: Run };
+  const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, });
+  if (!run.data) {
+    return redirect('/');
+  }
   const session = find(run.data.sessions, (session) => {
     if (session.sessionId === params.sessionId) {
       return session;

@@ -30,7 +30,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.id, team: { $in: teamIds } } }) as { data: ProjectType };
+  const project = await documents.getDocument<ProjectType>({ collection: 'projects', match: { _id: params.id, team: { $in: teamIds } } });
   if (!project.data) {
     return redirect('/');
   }
@@ -64,7 +64,8 @@ export async function action({
 
     const documents = getDocumentsAdapter();
 
-    const project = await documents.getDocument({ collection: 'projects', match: { _id: entityId } }) as { data: ProjectType };
+    const project = await documents.getDocument<ProjectType>({ collection: 'projects', match: { _id: entityId } });
+    if (!project.data) throw new Error('Project not found');
 
     let files = formData.getAll('files') as File[];
 
@@ -116,7 +117,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     const formData = new FormData();
     formData.append('body', JSON.stringify({
       intent: 'UPLOAD_PROJECT_FILES',
-      entityId: project.data._id,
+      entityId: project.data!._id,
       fileType,
       files: Array.from(acceptedFiles).map(file => ({
         name: file.name,
@@ -140,19 +141,19 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   useHandleSockets({
     event: 'CONVERT_FILES_TO_SESSIONS',
     matches: [{
-      projectId: project.data._id,
+      projectId: project.data!._id,
       task: 'CONVERT_FILES_TO_SESSIONS:START',
       status: 'FINISHED'
     }, {
-      projectId: project.data._id,
+      projectId: project.data!._id,
       task: 'CONVERT_FILES_TO_SESSIONS:PROCESS',
       status: 'STARTED'
     }, {
-      projectId: project.data._id,
+      projectId: project.data!._id,
       task: 'CONVERT_FILES_TO_SESSIONS:PROCESS',
       status: 'FINISHED'
     }, {
-      projectId: project.data._id,
+      projectId: project.data!._id,
       task: 'CONVERT_FILES_TO_SESSIONS:FINISH',
       status: 'FINISHED'
     }], callback: (payload) => {
@@ -170,7 +171,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.projectId === project.data._id) {
+      if (data.projectId === project.data!._id) {
         switch (data.event) {
           case 'UPLOAD_FILES':
             setUploadFilesProgress(data.progress);
@@ -199,12 +200,12 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   }, []);
 
   useEffect(() => {
-    updateBreadcrumb([{ text: 'Projects', link: `/` }, { text: project.data.name }])
+    updateBreadcrumb([{ text: 'Projects', link: `/` }, { text: project.data!.name }])
   }, []);
 
   return (
     <Project
-      project={project.data}
+      project={project.data!}
       filesCount={filesCount}
       sessionsCount={sessionsCount}
       convertedSessionsCount={convertedSessionsCount}

@@ -1,14 +1,15 @@
-import type { Run } from "../runs.types";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { emitter } from "~/modules/events/emitter";
 import { handler as outputRunDataToCSV } from '../../../functions/outputRunDataToCSV/app';
 import { handler as outputRunDataToJSON } from '../../../functions/outputRunDataToJSON/app';
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import type { Run } from "../runs.types";
 
 export default async function exportRun({ runId, exportType }: { runId: string, exportType: string }) {
 
   const documents = getDocumentsAdapter();
 
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
+  const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: runId } });
+  if (!run.data) throw new Error('Run not found');
 
   const inputDirectory = `storage/${run.data.project}/runs/${run.data._id}`;
 

@@ -14,7 +14,10 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const documents = getDocumentsAdapter();
 
-  const featureFlag = await documents.getDocument({ collection: 'featureFlags', match: { _id: featureFlagId } }) as { data: FeatureFlag };
+  const featureFlag = await documents.getDocument<FeatureFlag>({ collection: 'featureFlags', match: { _id: featureFlagId } });
+  if (!featureFlag.data) {
+    throw new Error('Feature flag not found');
+  }
 
   const users = await documents.getDocuments<User>({
     collection: 'users',

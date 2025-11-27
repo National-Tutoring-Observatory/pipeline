@@ -20,16 +20,19 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } } }) as { data: Project };
+  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } } });
   if (!project.data) {
     return redirect('/');
   }
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, }) as { data: Run };
+  const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, });
+  if (!run.data) {
+    return redirect('/');
+  }
   let runPrompt;
   let runPromptVersion;
   if (run.data.hasSetup) {
-    runPrompt = await documents.getDocument({ collection: 'prompts', match: { _id: run.data.prompt } }) as { data: Prompt };
-    runPromptVersion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
+    runPrompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: run.data.prompt } });
+    runPromptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } });
   }
   return { project, run, runPrompt, runPromptVersion };
 }
@@ -74,10 +77,11 @@ export async function action({
       return {}
     }
     case 'RE_RUN': {
-      const run = await documents.getDocument({
+      const run = await documents.getDocument<Run>({
         collection: 'runs',
         match: { _id: params.runId, project: params.projectId }
-      }) as { data: Run };
+      });
+      if (!run.data) throw new Error('Run not found');
       createRunAnnotations({ runId: run.data._id }, { request });
 
       return {};

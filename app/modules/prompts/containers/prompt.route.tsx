@@ -16,7 +16,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
-  const prompt = await documents.getDocument({ collection: 'prompts', match: { _id: params.id, team: { $in: teamIds } } }) as { data: PromptType };
+  const prompt = await documents.getDocument<PromptType>({ collection: 'prompts', match: { _id: params.id, team: { $in: teamIds } } });
   if (!prompt.data) {
     return redirect('/prompts');
   }
@@ -48,7 +48,8 @@ export async function action({
 
   switch (intent) {
     case 'CREATE_PROMPT_VERSION':
-      const previousPromptVerion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: entityId, version: Number(version) } }) as { data: PromptVersion };
+      const previousPromptVerion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: entityId, version: Number(version) } });
+      if (!previousPromptVerion.data) throw new Error('Previous prompt version not found');
       const newPromptAttributes = pick(previousPromptVerion.data, ['userPrompt', 'annotationSchema']);
       const promptVerions = await documents.getDocuments<PromptVersion>({ collection: 'promptVersions', match: { prompt: entityId }, sort: {} }) as { count: number };
       const promptVersion = await documents.createDocument({ collection: 'promptVersions', update: { ...newPromptAttributes, name: `${previousPromptVerion.data.name.replace(/#\d+/g, '').trim()} #${promptVerions.count + 1}`, prompt: entityId, version: promptVerions.count + 1 } }) as { data: PromptVersion }

@@ -9,8 +9,10 @@ export default async function createRunAnnotations({ runId }: { runId: string },
 
   const documents = getDocumentsAdapter();
 
-  const run = await documents.getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: run.data.project } }) as { data: Project };
+  const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: runId } });
+  if (!run.data) throw new Error('Run not found');
+  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: run.data.project } });
+  if (!project.data) throw new Error(`Project not found: ${run.data.project}`);
 
   if (run.data.isRunning) { return {} }
 
@@ -18,7 +20,8 @@ export default async function createRunAnnotations({ runId }: { runId: string },
 
   const outputDirectory = `storage/${run.data.project}/runs/${run.data._id}`;
 
-  const promptVersion = await documents.getDocument({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } }) as { data: PromptVersion };
+  const promptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } });
+  if (!promptVersion.data) throw new Error('Prompt version not found');
   const userPrompt = promptVersion.data.userPrompt;
 
   let annotationFields: Record<string, any> = {};
@@ -44,7 +47,10 @@ export default async function createRunAnnotations({ runId }: { runId: string },
     if (session.status === 'DONE') {
       continue;
     }
-    const sessionModel = await documents.getDocument({ collection: 'sessions', match: { _id: session.sessionId } }) as { data: Session };
+    const sessionModel = await documents.getDocument<Session>({ collection: 'sessions', match: { _id: session.sessionId } });
+    if (!sessionModel.data) {
+      throw new Error(`Session not found: ${session.sessionId}`);
+    }
     taskSequencer.addTask('PROCESS', {
       annotationType,
       projectId: run.data.project,

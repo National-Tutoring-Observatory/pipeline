@@ -11,10 +11,10 @@ export async function isProjectOwner({
 }): Promise<boolean> {
   const documents = getDocumentsAdapter();
 
-  const project = await documents.getDocument({
+  const project = await documents.getDocument<{ team: string }>({
     collection: 'projects',
     match: { _id: projectId },
-  }) as { data: { team: string } | null };
+  });
 
   if (!project.data) {
     return false;

@@ -48,16 +48,14 @@ const githubStrategy = new GitHubStrategy<User>(
 
     const documents = getDocumentsAdapter();
 
-    let user = await documents.getDocument({ collection: 'users', match: { githubId: githubUser.id, hasGithubSSO: true } }) as { data: User };
+    let user = await documents.getDocument<User>({ collection: 'users', match: { githubId: githubUser.id, hasGithubSSO: true } });
 
     let update: any = {};
 
     if (!user.data) {
-
       // if no user but is invite, update the invitedUser
       if (isInvitedUser) {
-        user = await documents.getDocument({ collection: 'users', match: { inviteId } }) as { data: User };
-
+        user = await documents.getDocument<User>({ collection: 'users', match: { inviteId } });
 
         if (user.data) {
           if (dayjs().isAfter(dayjs(user.data.invitedAt).add(48, 'hours'))) {
@@ -76,7 +74,9 @@ const githubStrategy = new GitHubStrategy<User>(
       }
     } else if (isInvitedUser) {
       // If user already exists, check teams and add if that team does not exist on the user.
-      const invitedUser = await documents.getDocument({ collection: 'users', match: { inviteId } }) as { data: User };
+      const invitedUser = await documents.getDocument<User>({ collection: 'users', match: { inviteId } });
+
+      if (!invitedUser.data) throw redirect("/?error=UNREGISTERED");
 
       if (dayjs().isAfter(dayjs(invitedUser.data.invitedAt).add(48, 'hours'))) {
         throw redirect("/?error=EXPIRED_INVITE");

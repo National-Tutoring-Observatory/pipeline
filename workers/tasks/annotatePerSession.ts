@@ -75,7 +75,11 @@ export default async function annotatePerSession(job: any) {
 
     const documents = getDocumentsAdapter();
 
-    const run = await documents.getDocument({ collection: 'runs', match: { _id: runId } }) as { data: Run };
+    const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: runId } });
+
+    if (!run.data) {
+      throw new Error(`Run not found: ${runId}`);
+    }
 
     const sessionsCount = run.data.sessions.length;
 

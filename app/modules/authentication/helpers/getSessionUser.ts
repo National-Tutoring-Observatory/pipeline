@@ -10,6 +10,6 @@ export default async ({ request }: { request: Request }) => {
   const user = session.get("user");
   if (!user) return null;
   const documents = getDocumentsAdapter();
-  const sessionUser = await documents.getDocument({ collection: 'users', match: { _id: user._id } }) as { data: User };
+  const sessionUser = await documents.getDocument<User>({ collection: 'users', match: { _id: user._id } });
   return sessionUser.data;
 }
