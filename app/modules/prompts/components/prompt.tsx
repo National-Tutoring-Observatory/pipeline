@@ -1,9 +1,9 @@
+import { Button } from "@/components/ui/button";
+import map from 'lodash/map';
+import { CirclePlus } from "lucide-react";
 import { Outlet } from "react-router";
 import type { Prompt, PromptVersion } from "../prompts.types";
-import map from 'lodash/map';
 import PromptVersionItem from './promptVersionItem';
-import { Button } from "@/components/ui/button";
-import { CirclePlus, Icon } from "lucide-react";
 
 export default function Prompt({
   prompt,
@@ -13,9 +13,12 @@ export default function Prompt({
 }: { prompt: Prompt, promptVersions: PromptVersion[], version: number, onCreatePromptVersionClicked: () => void }) {
   return (
     <div className="max-w-6xl p-8">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
-        {prompt.name}
-      </h1>
+      <div className="mb-4 flex flex-row justify-between items-center">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-2">
+          {prompt.name}
+        </h1>
+        <p className="text-sm text-muted-foreground">Annotation Type: {prompt.annotationType}</p>
+      </div>
       <div className="border rounded-md flex">
 
         <div className="w-1/4 h-full">
