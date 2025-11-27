@@ -34,12 +34,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!project.data) {
     return redirect('/');
   }
-  const files = await documents.getDocuments<AppFile>({ collection: 'files', match: { project: params.id }, sort: {} });
+  const filesCount = await documents.countDocuments({ collection: 'files', match: { project: params.id } });
   const sessions = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: params.id }, sort: {} });
+  const sessionsCount = sessions.count;
   const convertedSessionsCount = filter(sessions.data, { hasConverted: true }).length;
-  const runs = await documents.getDocuments<Run>({ collection: 'runs', match: { project: params.id }, sort: {} });
-  const collections = await documents.getDocuments<Collection>({ collection: 'collections', match: { project: params.id }, sort: {} });
-  return { project, filesCount: files.count, sessionsCount: sessions.count, convertedSessionsCount, runsCount: runs.count, collectionsCount: collections.count };
+  const runsCount = await documents.countDocuments({ collection: 'runs', match: { project: params.id } });
+  const collectionsCount = await documents.countDocuments({ collection: 'collections', match: { project: params.id } });
+  return { project, filesCount, sessionsCount, convertedSessionsCount, runsCount, collectionsCount };
 }
 
 export async function action({
