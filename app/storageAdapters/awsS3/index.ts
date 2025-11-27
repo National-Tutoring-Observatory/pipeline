@@ -1,4 +1,4 @@
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import fse from "fs-extra";
@@ -7,23 +7,35 @@ import { Readable } from "stream";
 import { PROJECT_ROOT } from '~/helpers/projectRoot';
 import registerStorageAdapter from "~/modules/storage/helpers/registerStorageAdapter";
 
+function getS3Client() {
+  const { AWS_REGION, AWS_KEY, AWS_SECRET } = process.env;
+  if (!AWS_REGION || !AWS_KEY || !AWS_SECRET) {
+    throw new Error("Missing AWS configuration: AWS_REGION, AWS_KEY, or AWS_SECRET");
+  }
+  return new S3Client({
+    region: AWS_REGION,
+    credentials: {
+      accessKeyId: AWS_KEY,
+      secretAccessKey: AWS_SECRET
+    }
+  });
+}
+
+function getAwsBucket() {
+  const { AWS_BUCKET } = process.env;
+  if (!AWS_BUCKET) {
+    throw new Error("Missing AWS configuration: AWS_BUCKET");
+  }
+  return AWS_BUCKET;
+}
+
 registerStorageAdapter({
   name: 'AWS_S3',
   download: async ({ sourcePath }: { sourcePath: string }): Promise<string> => {
-    const { AWS_REGION, AWS_KEY, AWS_SECRET, AWS_BUCKET } = process.env;
-    if (!AWS_REGION || !AWS_KEY || !AWS_SECRET || !AWS_BUCKET) {
-      throw new Error("Missing AWS configuration: AWS_REGION, AWS_KEY, or AWS_SECRET");
-    }
-    const s3Client = new S3Client({
-      region: AWS_REGION,
-      credentials: {
-        accessKeyId: AWS_KEY,
-        secretAccessKey: AWS_SECRET
-      }
-    });
+    const s3Client = getS3Client();
 
     const params = {
-      Bucket: AWS_BUCKET,
+      Bucket: getAwsBucket(),
       Key: sourcePath
     };
 
@@ -51,17 +63,7 @@ registerStorageAdapter({
 
     const { buffer, contentType, size } = file;
 
-    const { AWS_REGION, AWS_KEY, AWS_SECRET } = process.env;
-    if (!AWS_REGION || !AWS_KEY || !AWS_SECRET) {
-      throw new Error("Missing AWS configuration: AWS_REGION, AWS_KEY, or AWS_SECRET");
-    }
-    const s3Client = new S3Client({
-      region: AWS_REGION,
-      credentials: {
-        accessKeyId: AWS_KEY,
-        secretAccessKey: AWS_SECRET
-      }
-    });
+    const s3Client = getS3Client();
 
     const ACL: "private" = "private";
 
@@ -71,7 +73,7 @@ registerStorageAdapter({
       const fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
       console.log('uploadAsset:size', fileSizeInMegabytes);
 
-      let params = { Bucket: process.env.AWS_BUCKET, Key: uploadPath, Body: buffer, ACL, ContentType: contentType };
+      let params = { Bucket: getAwsBucket(), Key: uploadPath, Body: buffer, ACL, ContentType: contentType };
 
       const upload = new Upload({
         client: s3Client,
@@ -93,30 +95,22 @@ registerStorageAdapter({
 
 
   },
-  remove: () => { console.log('removing'); },
+  remove: async ({ sourcePath }: { sourcePath: string }) => {
+    const s3Client = getS3Client();
+    const command = new DeleteObjectCommand({ Bucket: getAwsBucket(), Key: sourcePath });
+    await s3Client.send(command);
+    console.log(`AWS_S3: Deleted file ${sourcePath}`);
+  },
   request: async (url, options) => {
-
-    const { AWS_REGION, AWS_KEY, AWS_SECRET, AWS_BUCKET } = process.env;
-    if (!AWS_REGION || !AWS_KEY || !AWS_SECRET || !AWS_BUCKET) {
-      throw new Error("Missing AWS configuration: AWS_REGION, AWS_KEY, or AWS_SECRET");
-    }
-    const s3Client = new S3Client({
-      region: AWS_REGION,
-      credentials: {
-        accessKeyId: AWS_KEY,
-        secretAccessKey: AWS_SECRET
-      }
-    });
+    const s3Client = getS3Client();
 
     const params = {
-      Bucket: AWS_BUCKET,
+      Bucket: getAwsBucket(),
       Key: url
     };
 
     const command = new GetObjectCommand(params);
     const requestUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
     return requestUrl;
-
-
   }
 })

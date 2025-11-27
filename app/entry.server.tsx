@@ -13,6 +13,7 @@ import './modules/storage/storage';
 
 const setupQueues = async () => {
   createQueue('tasks');
+  createQueue('general');
   createQueue('cron');
 }
 

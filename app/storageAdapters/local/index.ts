@@ -29,8 +29,11 @@ registerStorageAdapter({
       console.log(error);
     }
   },
-  remove: () => { console.log('removing'); },
-  request: (url, options) => {
+  remove: async ({ sourcePath }: { sourcePath: string }) => {
+    const absolutePath = path.resolve(PROJECT_ROOT, sourcePath);
+    await fse.remove(absolutePath);
+  },
+  request: (url, _) => {
     return new Promise((resolve) => {
       resolve(`/${url}`);
     });

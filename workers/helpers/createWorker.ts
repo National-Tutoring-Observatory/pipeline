@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config({ path: '../.env' })
-
 import { getRedisInstance } from 'app/helpers/getRedisInstance';
 import { Job, MetricsTime, Worker } from 'bullmq';
 
