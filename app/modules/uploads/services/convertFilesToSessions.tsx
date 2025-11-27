@@ -19,7 +19,7 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
   const outputDirectory = `storage/${entityId}/preAnalysis`;
 
   for (const projectFile of projectFiles.data) {
-    await documents.createDocument({
+    await documents.createDocument<Session>({
       collection: 'sessions',
       update: {
         project: projectFile.project,
@@ -28,7 +28,7 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
         name: `${projectFile.name.replace(/\.[^.]+$/, '')}.json`,
         hasConverted: false
       }
-    }) as { data: Session };
+    });
   }
 
   emitter.emit("CONVERT_FILES", { projectId: entityId, progress: 0, status: 'STARTED' });

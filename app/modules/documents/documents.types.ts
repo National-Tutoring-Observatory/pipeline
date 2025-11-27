@@ -25,9 +25,8 @@ export interface CreateDocumentParams {
   collection: string;
   update: any;
 }
-
-export interface CreateDocumentResult {
-  data: any;
+export interface CreateDocumentResult<T = any> {
+  data: T;
 }
 
 export interface GetDocumentParams {
@@ -60,7 +59,7 @@ export interface DocumentAdapter {
   name: string;
   getDocuments: <T = any>(params: GetDocumentsParams) => Promise<GetDocumentsResult<T>>;
   countDocuments: (params: CountDocumentsParams) => Promise<CountDocumentsResult>;
-  createDocument: (params: CreateDocumentParams) => Promise<CreateDocumentResult>;
+  createDocument: <T = any>(params: CreateDocumentParams) => Promise<CreateDocumentResult<T>>;
   getDocument: <T = any>(params: GetDocumentParams) => Promise<GetDocumentResult<T>>;
   updateDocument: (params: UpdateDocumentParams) => Promise<UpdateDocumentResult>;
   deleteDocument: (params: DeleteDocumentParams) => Promise<DeleteDocumentResult>;

@@ -34,7 +34,7 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
-      collection = await documents.createDocument({
+      collection = await documents.createDocument<Collection>({
         collection: 'collections', update: {
           project: params.id,
           name,
@@ -42,7 +42,7 @@ export async function action({
           runs: [],
           hasSetup: false
         }
-      }) as { data: Collection };
+      });
       return {
         intent: 'CREATE_COLLECTION',
         ...collection
@@ -82,7 +82,7 @@ export async function action({
 
       const { project, sessions } = existingCollection.data;
 
-      collection = await documents.createDocument({
+      collection = await documents.createDocument<Collection>({
         collection: 'collections',
         update: {
           project,
@@ -91,7 +91,7 @@ export async function action({
           runs: [],
           hasSetup: true
         }
-      }) as { data: Collection };
+      });
       return {
         intent: 'DUPLICATE_COLLECTION',
         ...collection

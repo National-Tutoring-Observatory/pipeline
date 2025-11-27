@@ -24,7 +24,7 @@ export default async function createSessionsFromFiles({
 
   if (shouldCreateSessionModels) {
     for (const projectFile of projectFiles.data) {
-      await documents.createDocument({
+      await documents.createDocument<Session>({
         collection: 'sessions',
         update: {
           project: projectFile.project,
@@ -33,7 +33,7 @@ export default async function createSessionsFromFiles({
           name: `${projectFile.name.replace(/\.[^.]+$/, '')}.json`,
           hasConverted: false
         }
-      }) as { data: Session };
+      });
     }
   }
 
