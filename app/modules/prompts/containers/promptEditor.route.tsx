@@ -63,18 +63,18 @@ export async function action({
 
   switch (intent) {
     case 'UPDATE_PROMPT_VERSION':
-      await documents.updateDocument({
+      await documents.updateDocument<PromptVersion>({
         collection: 'promptVersions',
         match: { _id: entityId },
         update: { name, userPrompt, annotationSchema, hasBeenSaved: true, updatedAt: new Date(), }
-      }) as { data: PromptVersion }
+      })
       return {};
     case 'MAKE_PROMPT_VERSION_PRODUCTION':
-      await documents.updateDocument({
+      await documents.updateDocument<Prompt>({
         collection: 'prompts',
         match: { _id: promptId },
         update: { productionVersion: Number(params.version) }
-      }) as { data: Prompt }
+      })
       return {};
     default:
       return {};

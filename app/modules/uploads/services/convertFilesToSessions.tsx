@@ -70,7 +70,7 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
     emitter.emit("CONVERT_FILES", { projectId: entityId, progress: Math.round((100 / projectSessions.data.length) * completedFiles), status: 'RUNNING' });
   }
 
-  await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isConvertingFiles: false } }) as { data: Project };
+  await documents.updateDocument<Project>({ collection: 'projects', match: { _id: entityId }, update: { isConvertingFiles: false } });
   emitter.emit("CONVERT_FILES", { projectId: entityId, progress: 100, status: 'DONE' });
 
 }

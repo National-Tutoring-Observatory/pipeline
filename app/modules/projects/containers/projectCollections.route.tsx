@@ -53,7 +53,7 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
-      await documents.updateDocument({
+      await documents.updateDocument<Collection>({
         collection: 'collections',
         match: {
           _id: entityId,
@@ -61,7 +61,7 @@ export async function action({
         update: {
           name
         }
-      }) as { data: Collection };
+      });
       return {};
     }
     case 'DUPLICATE_COLLECTION': {
