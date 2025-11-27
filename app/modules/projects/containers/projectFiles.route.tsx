@@ -1,16 +1,13 @@
 import { useLoaderData } from "react-router";
-import ProjectFiles from "../components/projectFiles";
-import type { File } from "~/modules/files/files.types";
-import type { Route } from "./+types/projectFiles.route";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-
-type Files = {
-  data: [File],
-};
+import type { File } from "~/modules/files/files.types";
+import ProjectFiles from "../components/projectFiles";
+import type { Route } from "./+types/projectFiles.route";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const files = await documents.getDocuments({ collection: 'files', match: { project: params.id }, sort: {} }) as Files;
+  const result = await documents.getDocuments({ collection: 'files', match: { project: params.id }, sort: {} });
+  const files = { data: result.data as File[] };
   return { files };
 }
 

@@ -1,7 +1,9 @@
-import getDatabaseConnection from '../helpers/getDatabaseConnection';
-import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
 
-export default async ({ collection, update }: { collection: string; update: any; }) => {
+import type { CreateDocumentParams, CreateDocumentResult } from '~/modules/documents/documents.types';
+import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
+import getDatabaseConnection from '../helpers/getDatabaseConnection';
+
+export default async ({ collection, update }: CreateDocumentParams): Promise<CreateDocumentResult> => {
 
   try {
 
@@ -18,7 +20,7 @@ export default async ({ collection, update }: { collection: string; update: any;
 
   } catch (error) {
     console.log(error);
-    return error;
+    throw error;
   }
 
 }

@@ -1,10 +1,8 @@
-import getDatabaseConnection from '../helpers/getDatabaseConnection';
 import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
+import getDatabaseConnection from '../helpers/getDatabaseConnection';
 
 export default async ({ collection, match }: { collection: string; match: any; }) => {
-
   try {
-
     const connection = await getDatabaseConnection();
 
     const model = getModelFromCollection(collection);
@@ -12,11 +10,9 @@ export default async ({ collection, match }: { collection: string; match: any; }
 
     await Model.findByIdAndDelete(match._id);
 
-    return {}
-
+    return true;
   } catch (error) {
-    console.log(error);
-    return error;
+    console.error(error);
+    throw new Error(`Error deleting document from collection '${collection}'`);
   }
-
-}
+};

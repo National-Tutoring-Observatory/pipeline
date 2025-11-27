@@ -26,7 +26,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   const documents = getDocumentsAdapter();
-  const sessions = await documents.getDocuments({ collection: 'sessions', match: { project: params.id }, sort: {} }) as Sessions;
+  const result = await documents.getDocuments({ collection: 'sessions', match: { project: params.id }, sort: {} });
+  const sessions = { data: result.data as Session[] };
   return { sessions };
 }
 

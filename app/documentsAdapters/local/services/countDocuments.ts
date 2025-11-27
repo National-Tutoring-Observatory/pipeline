@@ -9,19 +9,17 @@ export default async ({
 }: {
   collection: string,
   match: {} | any,
-}) => {
-
+}): Promise<number> => {
   try {
     await findOrCreateDocuments({ collection });
 
     const json = await fse.readJson(getCollectionPath(collection));
 
-    let data = filterDocumentsByMatch(json, match);
+    const data = filterDocumentsByMatch(json, match);
 
     return data.length;
-
   } catch (error) {
-    return error;
+    console.error(error);
+    throw new Error(`Error counting documents for collection '${collection}'`);
   }
-
-}
+};

@@ -17,15 +17,12 @@ import { validatePromptOwnership } from "../helpers/promptOwnership";
 import type { Prompt } from "../prompts.types";
 import type { Route } from "./+types/prompts.route";
 
-type Prompts = {
-  data: [],
-};
-
 export async function loader({ request }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
-  const prompts = await documents.getDocuments({ collection: 'prompts', match: { team: { $in: teamIds } }, sort: {} }) as Prompts;
+  const result = await documents.getDocuments({ collection: 'prompts', match: { team: { $in: teamIds } }, sort: {} });
+  const prompts = { data: result.data as Prompt[] };
   return { prompts };
 }
 

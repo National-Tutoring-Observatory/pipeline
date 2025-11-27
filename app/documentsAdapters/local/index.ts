@@ -15,4 +15,4 @@ registerDocumentsAdapter({
   getDocument: withCollectionLock(getDocument),
   updateDocument: withCollectionLock(updateDocument),
   deleteDocument: withCollectionLock(deleteDocument)
-})
+});

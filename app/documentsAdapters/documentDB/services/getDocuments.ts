@@ -1,3 +1,4 @@
+import type { GetDocumentsParams, GetDocumentsResult } from '~/modules/documents/documents.types';
 import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
 import getDatabaseConnection from '../helpers/getDatabaseConnection';
 
@@ -10,14 +11,7 @@ export default async ({
   populate = [],
   page,
   pageSize
-}: {
-  collection: string,
-  match: {} | any,
-  sort?: {};
-  populate?: { path: string; select?: string }[];
-  page?: number | string;
-  pageSize?: number | string;
-}) => {
+}: GetDocumentsParams): Promise<GetDocumentsResult> => {
 
   try {
     const connection = await getDatabaseConnection();
@@ -71,6 +65,6 @@ export default async ({
 
   } catch (error) {
     console.log(error);
-    return error;
+    throw error;
   }
 }

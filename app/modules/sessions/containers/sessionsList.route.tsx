@@ -6,10 +6,6 @@ import type { User } from "~/modules/users/users.types";
 import type { Session } from "../sessions.types";
 import type { Route } from "./+types/sessionsList.route";
 
-type Sessions = {
-  data: [Session],
-};
-
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getSessionUser({ request }) as User;
   if (!user) {
@@ -28,6 +24,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   const documents = getDocumentsAdapter();
-  const sessions = await documents.getDocuments({ collection: 'sessions', match: { project: project, hasConverted: true }, sort: {} }) as Sessions;
+  const result = await documents.getDocuments({ collection: 'sessions', match: { project: project, hasConverted: true }, sort: {} });
+  const sessions = { data: result.data as Session[] };
   return { sessions };
 }

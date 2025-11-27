@@ -1,8 +1,9 @@
-import getDatabaseConnection from '../helpers/getDatabaseConnection';
-import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
 import mongoose from 'mongoose';
+import type { GetDocumentParams, GetDocumentResult } from '~/modules/documents/documents.types';
+import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
+import getDatabaseConnection from '../helpers/getDatabaseConnection';
 
-export default async ({ collection, match }: { collection: string; match: any; }) => {
+export default async ({ collection, match }: GetDocumentParams): Promise<GetDocumentResult> => {
 
   try {
 
@@ -27,7 +28,7 @@ export default async ({ collection, match }: { collection: string; match: any; }
 
   } catch (error) {
     console.log(error);
-    return error;
+    throw error;
   }
 
 }

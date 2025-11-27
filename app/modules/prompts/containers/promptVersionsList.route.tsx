@@ -5,10 +5,6 @@ import type { User } from "~/modules/users/users.types";
 import { isPromptOwner } from "../helpers/promptOwnership";
 import type { Route } from "./+types/promptVersionsList.route";
 
-type PromptVersions = {
-  data: [],
-};
-
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await getSessionUser({ request }) as User;
   if (!user) {
@@ -27,6 +23,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   const documents = getDocumentsAdapter();
-  const promptVersions = await documents.getDocuments({ collection: 'promptVersions', match: { prompt: prompt }, sort: { version: -1 } }) as PromptVersions;
+  const result = await documents.getDocuments({ collection: 'promptVersions', match: { prompt: prompt }, sort: { version: -1 } });
+  const promptVersions = { data: result.data as any[] };
   return { promptVersions };
 }

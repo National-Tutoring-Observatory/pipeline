@@ -1,25 +1,21 @@
-import { useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
-import ProjectCollections from "../components/projectCollections";
-import addDialog from "~/modules/dialogs/addDialog";
-import type { Collection } from "~/modules/collections/collections.types";
-import type { Route } from "./+types/projectCollections.route";
-import { toast } from "sonner";
 import { useEffect } from "react";
-import DuplicateCollectionDialog from "~/modules/collections/components/duplicateCollectionDialog";
+import { useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
+import { toast } from "sonner";
+import type { Collection } from "~/modules/collections/collections.types";
 import CreateCollectionDialog from "~/modules/collections/components/createCollectionDialog";
+import DuplicateCollectionDialog from "~/modules/collections/components/duplicateCollectionDialog";
 import EditCollectionDialog from "~/modules/collections/components/editCollectionDialog";
+import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-
-type Collections = {
-  data: [],
-};
+import ProjectCollections from "../components/projectCollections";
+import type { Route } from "./+types/projectCollections.route";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const collections = await documents.getDocuments({ collection: 'collections', match: { project: params.id }, sort: {} }) as Collections;
+  const result = await documents.getDocuments({ collection: 'collections', match: { project: params.id }, sort: {} });
+  const collections = { data: result.data as Collection[] };
   return { collections };
 }
-
 
 export async function action({
   request,

@@ -27,14 +27,15 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
   const collection = await documents.getDocument({ collection: 'collections', match: { _id: params.collectionId, project: params.projectId }, }) as Collection;
-  const runs = await documents.getDocuments({
+  const result = await documents.getDocuments({
     collection: 'runs',
     match: (item: Run) => {
       if (includes(collection.data.runs, item._id)) {
         return true;
       }
     }, sort: {}
-  }) as Collection;
+  });
+  const runs = { data: result.data as Run[] };
 
   return { project, collection, runs };
 }

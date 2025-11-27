@@ -3,6 +3,7 @@ import each from 'lodash/each';
 import get from 'lodash/get';
 import orderBy from 'lodash/orderBy';
 import mongoose from 'mongoose';
+import type { GetDocumentsParams, GetDocumentsResult } from '~/modules/documents/documents.types';
 import getCollectionFromModel from '~/modules/documents/helpers/getCollectionFromModel';
 import getModelFromCollection from '~/modules/documents/helpers/getModelFromCollection';
 import filterDocumentsByMatch from '../helpers/filterDocumentsByMatch';
@@ -19,14 +20,7 @@ export default async ({
   populate = [],
   page,
   pageSize
-}: {
-  collection: string,
-  match: {} | any,
-  sort?: {};
-  populate?: { path: string; select?: string }[];
-  page?: number | string;
-  pageSize?: number | string;
-}) => {
+}: GetDocumentsParams): Promise<GetDocumentsResult> => {
 
   try {
     await findOrCreateDocuments({ collection });
@@ -101,6 +95,6 @@ export default async ({
     }
   } catch (error) {
     console.log(error);
-    return error;
+    throw error;
   }
 }

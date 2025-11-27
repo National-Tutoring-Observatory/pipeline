@@ -12,13 +12,10 @@ import EditRunDialog from "../components/editRunDialog";
 import ProjectRuns from "../components/projectRuns";
 import type { Route } from "./+types/projectRuns.route";
 
-type Runs = {
-  data: [],
-};
-
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const runs = await documents.getDocuments({ collection: 'runs', match: { project: params.id }, sort: {} }) as Runs;
+  const result = await documents.getDocuments({ collection: 'runs', match: { project: params.id }, sort: {} });
+  const runs = { data: result.data as Run[] };
   return { runs };
 }
 
