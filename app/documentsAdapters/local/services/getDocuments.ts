@@ -10,16 +10,22 @@ import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import getCollectionPath from '../helpers/getCollectionPath';
 import getDocument from './getDocument';
 
+const DEFAULT_PAGE_SIZE = 50;
+
 export default async ({
   collection,
   match,
   sort = {},
-  populate = []
+  populate = [],
+  page,
+  pageSize
 }: {
   collection: string,
   match: {} | any,
   sort?: {};
-  populate?: { path: string; select?: string }[]
+  populate?: { path: string; select?: string }[];
+  page?: number | string;
+  pageSize?: number | string;
 }) => {
 
   try {
@@ -38,6 +44,27 @@ export default async ({
         orders.push(sortOrder);
       });
       data = orderBy(data, iteratees, orders);
+    }
+
+    const count = data.length;
+    let currentPage = 1;
+    let totalPages = 1;
+
+    if (page !== undefined) {
+      const parsedPage = parseInt(String(page), 10);
+      if (isNaN(parsedPage) || !Number.isInteger(parsedPage) || parsedPage < 1) {
+        throw new Error(`Invalid page number: ${page}`);
+      }
+
+      const parsedPageSize = pageSize !== undefined ? parseInt(String(pageSize), 10) : DEFAULT_PAGE_SIZE;
+      if (isNaN(parsedPageSize) || !Number.isInteger(parsedPageSize) || parsedPageSize < 1) {
+        throw new Error(`Invalid page size: ${pageSize}`);
+      }
+
+      currentPage = parsedPage;
+      totalPages = Math.max(1, Math.ceil(count / parsedPageSize));
+      const skip = (parsedPage - 1) * parsedPageSize;
+      data = data.slice(skip, skip + parsedPageSize) as any[];
     }
 
     if (populate.length > 0) {
@@ -67,14 +94,13 @@ export default async ({
     }
 
     return {
-      currentPage: 1,
-      totalPages: 1,
-      count: data.length,
+      currentPage: currentPage,
+      totalPages: totalPages,
+      count: count,
       data
     }
-
   } catch (error) {
+    console.log(error);
     return error;
   }
-
 }

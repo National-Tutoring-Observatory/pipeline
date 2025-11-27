@@ -4,7 +4,9 @@ export interface DocumentAdapter {
     collection: string;
     match: {} | any;
     sort?: {};
-    populate?: { path: string, select?: string }[]
+    populate?: { path: string, select?: string }[];
+    page?: number | string;
+    pageSize?: number | string;
   }) => Promise<unknown>;
   countDocuments: ({ collection, match }: {
     collection: string;
