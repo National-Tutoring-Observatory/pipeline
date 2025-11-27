@@ -1,3 +1,4 @@
+import type { DocumentAdapter } from '~/modules/documents/documents.types';
 import registerDocumentsAdapter from "~/modules/documents/helpers/registerDocumentsAdapter";
 import withCollectionLock from "./helpers/withCollectionLock";
 import countDocuments from "./services/countDocuments";
@@ -7,6 +8,7 @@ import getDocument from "./services/getDocument";
 import getDocuments from "./services/getDocuments";
 import updateDocument from "./services/updateDocument";
 
+// Cast to DocumentAdapter to preserve the generic signatures on the adapter interface
 registerDocumentsAdapter({
   name: 'LOCAL',
   getDocuments: withCollectionLock(getDocuments),

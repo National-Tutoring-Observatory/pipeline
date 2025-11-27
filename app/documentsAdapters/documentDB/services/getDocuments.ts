@@ -4,14 +4,14 @@ import getDatabaseConnection from '../helpers/getDatabaseConnection';
 
 const DEFAULT_PAGE_SIZE = 50;
 
-export default async ({
+export default async function getDocuments<T = any>({
   collection,
   match,
   sort = {},
   populate = [],
   page,
   pageSize
-}: GetDocumentsParams): Promise<GetDocumentsResult> => {
+}: GetDocumentsParams): Promise<GetDocumentsResult<T>> {
 
   try {
     const connection = await getDatabaseConnection();
@@ -60,7 +60,7 @@ export default async ({
       currentPage: currentPage,
       totalPages: totalPages,
       count,
-      data: JSON.parse(JSON.stringify(data))
+      data: JSON.parse(JSON.stringify(data)) as any as T[]
     }
 
   } catch (error) {

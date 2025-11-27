@@ -1,10 +1,9 @@
-import type { Collection } from "../collections.types";
-import { emitter } from "~/modules/events/emitter";
-import { handler as outputCollectionDataToCSV } from '../../../functions/outputCollectionDataToCSV/app';
-import { handler as outputCollectionDataToJSON } from '../../../functions/outputCollectionDataToJSON/app';
 import includes from 'lodash/includes';
-import type { Run } from "~/modules/runs/runs.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { emitter } from "~/modules/events/emitter";
+import type { Run } from "~/modules/runs/runs.types";
+import { handler as outputCollectionDataToCSV } from '../../../functions/outputCollectionDataToCSV/app';
+import type { Collection } from "../collections.types";
 
 export default async function exportCollection({ collectionId, exportType }: { collectionId: string, exportType: string }) {
 
@@ -12,7 +11,7 @@ export default async function exportCollection({ collectionId, exportType }: { c
 
   const collection = await documents.getDocument({ collection: 'collections', match: { _id: collectionId } }) as { data: Collection };
 
-  const runs = await documents.getDocuments({
+  const runs = await documents.getDocuments<Run>({
     collection: 'runs',
     match: (item: Run) => {
       if (includes(collection.data.runs, item._id)) {

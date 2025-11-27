@@ -15,7 +15,7 @@ export default async function createSessionsFromFiles({
 
   const documents = getDocumentsAdapter();
 
-  const projectFiles = await documents.getDocuments({ collection: 'files', match: { project: projectId }, sort: {} }) as { data: Array<File> };
+  const projectFiles = await documents.getDocuments<File>({ collection: 'files', match: { project: projectId }, sort: {} });
 
   const project = await documents.getDocument({ collection: 'projects', match: { _id: projectId } }) as { data: Project };
 
@@ -34,7 +34,7 @@ export default async function createSessionsFromFiles({
     }
   }
 
-  const projectSessions = await documents.getDocuments({ collection: 'sessions', match: { project: projectId }, sort: {} }) as { data: Array<Session> };
+  const projectSessions = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: projectId }, sort: {} });
 
   const taskSequencer = new TaskSequencer('CONVERT_FILES_TO_SESSIONS');
 

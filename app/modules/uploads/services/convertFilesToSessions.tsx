@@ -9,7 +9,7 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
 
   const documents = getDocumentsAdapter();
 
-  const projectFiles = await documents.getDocuments({ collection: 'files', match: { project: entityId }, sort: {} }) as { data: Array<File> };
+  const projectFiles = await documents.getDocuments<File>({ collection: 'files', match: { project: entityId }, sort: {} });
 
   const project = await documents.getDocument({ collection: 'projects', match: { _id: entityId } }) as { data: Project };
 
@@ -32,7 +32,7 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
 
   emitter.emit("CONVERT_FILES", { projectId: entityId, progress: 0, status: 'STARTED' });
 
-  const projectSessions = await documents.getDocuments({ collection: 'sessions', match: { project: entityId }, sort: {} }) as { data: Array<Session> };
+  const projectSessions = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: entityId }, sort: {} });
 
   let completedFiles = 0;
 

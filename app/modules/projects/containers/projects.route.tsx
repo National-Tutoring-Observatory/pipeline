@@ -24,8 +24,8 @@ export async function loader({ request, params, context }: Route.LoaderArgs & { 
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
-  const result = await documents.getDocuments({ collection: 'projects', match: { team: { $in: teamIds } }, sort: {}, populate: [{ path: 'team' }] });
-  const projects = { data: result.data as Project[] };
+  const result = await documents.getDocuments<Project>({ collection: 'projects', match: { team: { $in: teamIds } }, sort: {}, populate: [{ path: 'team' }] });
+  const projects = { data: result.data };
 
   return { projects };
 }

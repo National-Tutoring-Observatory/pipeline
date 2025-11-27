@@ -12,8 +12,8 @@ import type { Route } from "./+types/projectCollections.route";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments({ collection: 'collections', match: { project: params.id }, sort: {} });
-  const collections = { data: result.data as Collection[] };
+  const result = await documents.getDocuments<Collection>({ collection: 'collections', match: { project: params.id }, sort: {} });
+  const collections = { data: result.data };
   return { collections };
 }
 
