@@ -46,7 +46,7 @@ export async function action({
 
       const documents = getDocumentsAdapter();
 
-      return await documents.updateDocument({ collection: 'projects', match: { _id: params.id }, update: { isConvertingFiles: true } }) as { data: ProjectType };
+      return await documents.updateDocument<ProjectType>({ collection: 'projects', match: { _id: params.id }, update: { isConvertingFiles: true } });
 
     }
     default:

@@ -110,11 +110,11 @@ const githubStrategy = new GitHubStrategy<User>(
     update.username = githubUser.name || githubUser.login;
     update.email = email.email;
 
-    user = await documents.updateDocument({
+    user = await documents.updateDocument<User>({
       collection: 'users',
       match: { _id: user.data._id },
       update
-    }) as { data: User };
+    });
 
     return user.data;
   }

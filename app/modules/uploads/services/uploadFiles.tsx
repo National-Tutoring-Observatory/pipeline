@@ -44,6 +44,6 @@ export default async function uploadFiles({ files, entityId }: { files: any, ent
       console.warn('Expected a File, but got:', file);
     }
   }
-  await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: false } }) as { data: Project };
+  await documents.updateDocument<Project>({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: false } });
   emitter.emit("UPLOAD_FILES", { projectId: entityId, progress: 100, status: 'DONE' });
 }
