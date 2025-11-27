@@ -43,12 +43,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const team = await documents.getDocument({ collection: 'teams', match: { _id: params.id } }) as { data: TeamType };
 
-  const projectsResult = await documents.getDocuments({ collection: 'projects', match: { team: team.data._id } });
-  const projects = { data: projectsResult.data as Project[] };
-  const promptsResult = await documents.getDocuments({ collection: 'prompts', match: { team: team.data._id } });
-  const prompts = { data: promptsResult.data as Prompt[] };
-  const teamsResult = await documents.getDocuments({ collection: 'users', match: { "teams.team": team.data._id } });
-  const users = { data: teamsResult.data as TeamType[] };
+  const projectsResult = await documents.getDocuments<Project>({ collection: 'projects', match: { team: team.data._id } });
+  const projects = { data: projectsResult.data };
+  const promptsResult = await documents.getDocuments<Prompt>({ collection: 'prompts', match: { team: team.data._id } });
+  const prompts = { data: promptsResult.data };
+  const teamsResult = await documents.getDocuments<User>({ collection: 'users', match: { "teams.team": team.data._id } });
+  const users = { data: teamsResult.data };
   return { team, projects, prompts, users };
 }
 

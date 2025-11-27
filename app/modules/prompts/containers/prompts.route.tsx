@@ -21,8 +21,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
-  const result = await documents.getDocuments({ collection: 'prompts', match: { team: { $in: teamIds } }, sort: {} });
-  const prompts = { data: result.data as Prompt[] };
+  const result = await documents.getDocuments<Prompt>({ collection: 'prompts', match: { team: { $in: teamIds } }, sort: {} });
+  const prompts = { data: result.data };
   return { prompts };
 }
 

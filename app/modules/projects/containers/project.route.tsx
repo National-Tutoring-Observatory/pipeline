@@ -13,6 +13,7 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import type { Collection } from "~/modules/collections/collections.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { FileType } from '~/modules/files/files.types';
+import type { File as AppFile } from '~/modules/files/files.types';
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import splitMultipleSessionsIntoFiles from '~/modules/uploads/services/splitMultipleSessionsIntoFiles';
@@ -33,11 +34,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!project.data) {
     return redirect('/');
   }
-  const files = await documents.getDocuments({ collection: 'files', match: { project: params.id }, sort: {} }) as { count: number };
-  const sessions = await documents.getDocuments({ collection: 'sessions', match: { project: params.id }, sort: {} }) as { count: number, data: Session[] };
+  const files = await documents.getDocuments<AppFile>({ collection: 'files', match: { project: params.id }, sort: {} });
+  const sessions = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: params.id }, sort: {} });
   const convertedSessionsCount = filter(sessions.data, { hasConverted: true }).length;
-  const runs = await documents.getDocuments({ collection: 'runs', match: { project: params.id }, sort: {} }) as { count: number, data: Run[] };
-  const collections = await documents.getDocuments({ collection: 'collections', match: { project: params.id }, sort: {} }) as { count: number, data: Collection[] };
+  const runs = await documents.getDocuments<Run>({ collection: 'runs', match: { project: params.id }, sort: {} });
+  const collections = await documents.getDocuments<Collection>({ collection: 'collections', match: { project: params.id }, sort: {} });
   return { project, filesCount: files.count, sessionsCount: sessions.count, convertedSessionsCount, runsCount: runs.count, collectionsCount: collections.count };
 }
 

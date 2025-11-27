@@ -34,8 +34,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     match = { _id: { $in: teamIds } }
   }
 
-  const result = await documents.getDocuments({ collection: 'teams', match, sort: {} });
-  const teams = { data: result.data as any[] };
+  const result = await documents.getDocuments<Team>({ collection: 'teams', match, sort: {} });
+  const teams = { data: result.data };
 
   return { teams };
 }

@@ -17,8 +17,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!isSuperAdmin(user)) {
     return redirect('/');
   }
-  const result = await documents.getDocuments({ collection: 'featureFlags', match: {}, sort: {} });
-  const featureFlags = { data: result.data as FeatureFlag[] };
+  const result = await documents.getDocuments<FeatureFlag>({ collection: 'featureFlags', match: {}, sort: {} });
+  const featureFlags = { data: result.data };
   return { featureFlags };
 }
 

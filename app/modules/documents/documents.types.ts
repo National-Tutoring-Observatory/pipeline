@@ -7,11 +7,11 @@ export interface GetDocumentsParams {
   pageSize?: number | string;
 }
 
-export interface GetDocumentsResult {
+export interface GetDocumentsResult<T = any> {
   currentPage: number;
   totalPages: number;
   count: number;
-  data: any[];
+  data: T[];
 }
 
 export interface CountDocumentsParams {
@@ -58,7 +58,7 @@ export type DeleteDocumentResult = boolean;
 
 export interface DocumentAdapter {
   name: string;
-  getDocuments: (params: GetDocumentsParams) => Promise<GetDocumentsResult>;
+  getDocuments: <T = any>(params: GetDocumentsParams) => Promise<GetDocumentsResult<T>>;
   countDocuments: (params: CountDocumentsParams) => Promise<CountDocumentsResult>;
   createDocument: (params: CreateDocumentParams) => Promise<CreateDocumentResult>;
   getDocument: (params: GetDocumentParams) => Promise<GetDocumentResult>;
