@@ -3,16 +3,14 @@ import type { GetDocumentParams, GetDocumentResult } from '~/modules/documents/d
 import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
 import getDatabaseConnection from '../helpers/getDatabaseConnection';
 
-export default async ({ collection, match }: GetDocumentParams): Promise<GetDocumentResult> => {
-
+export default async function getDocument<T = any>({ collection, match }: GetDocumentParams): Promise<GetDocumentResult<T>> {
   try {
-
     const connection = await getDatabaseConnection();
 
     const model = getModelFromCollection(collection);
     const Model = connection.models[model];
 
-    let data;
+    let data: any = null;
 
     const matchKeys = Object.keys(match);
 
@@ -22,13 +20,10 @@ export default async ({ collection, match }: GetDocumentParams): Promise<GetDocu
       data = await Model.findOne(match);
     }
 
-    return {
-      data: JSON.parse(JSON.stringify(data))
-    }
-
+    const serialized = JSON.parse(JSON.stringify(data));
+    return { data: serialized as T };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw error;
   }
-
 }

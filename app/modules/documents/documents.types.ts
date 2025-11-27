@@ -35,8 +35,8 @@ export interface GetDocumentParams {
   match: any;
 }
 
-export interface GetDocumentResult {
-  data: any | null;
+export interface GetDocumentResult<T = any> {
+  data: T | null;
 }
 
 export interface UpdateDocumentParams {
@@ -61,7 +61,7 @@ export interface DocumentAdapter {
   getDocuments: <T = any>(params: GetDocumentsParams) => Promise<GetDocumentsResult<T>>;
   countDocuments: (params: CountDocumentsParams) => Promise<CountDocumentsResult>;
   createDocument: (params: CreateDocumentParams) => Promise<CreateDocumentResult>;
-  getDocument: (params: GetDocumentParams) => Promise<GetDocumentResult>;
+  getDocument: <T = any>(params: GetDocumentParams) => Promise<GetDocumentResult<T>>;
   updateDocument: (params: UpdateDocumentParams) => Promise<UpdateDocumentResult>;
   deleteDocument: (params: DeleteDocumentParams) => Promise<DeleteDocumentResult>;
 }

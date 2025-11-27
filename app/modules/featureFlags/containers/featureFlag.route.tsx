@@ -20,7 +20,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const featureFlag = await documents.getDocument({ collection: 'featureFlags', match: { _id: params.id } }) as { data: FeatureFlagType };
+  const featureFlag = await documents.getDocument<FeatureFlagType>({ collection: 'featureFlags', match: { _id: params.id } });
+  if (!featureFlag.data) {
+    return redirect('/featureFlags');
+  }
 
   const result = await documents.getDocuments<User>({ collection: 'users', match: { featureFlags: { $in: [featureFlag.data.name] } } });
   const users = { data: result.data };
@@ -48,14 +51,14 @@ export async function action({
     case 'ADD_USERS_TO_FEATURE_FLAG':
 
       for (const userId of userIds) {
-        const user = await documents.getDocument({ collection: 'users', match: { _id: userId } }) as { data: User };
+        const user = await documents.getDocument<User>({ collection: 'users', match: { _id: userId } });
 
         if (user.data) {
           if (!user.data.featureFlags) {
             user.data.featureFlags = [];
           }
-          const featureFlag = await documents.getDocument({ collection: 'featureFlags', match: { _id: params.id } }) as { data: FeatureFlagType };
-          if (featureFlag) {
+          const featureFlag = await documents.getDocument<FeatureFlagType>({ collection: 'featureFlags', match: { _id: params.id } });
+          if (featureFlag.data) {
             user.data.featureFlags.push(featureFlag.data.name);
             await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { featureFlags: user.data.featureFlags } });
           }
@@ -63,9 +66,9 @@ export async function action({
       }
       return {};
     case 'REMOVE_USER_FROM_FEATURE_FLAG':
-      const user = await documents.getDocument({ collection: 'users', match: { _id: userId } }) as { data: User };
-      const featureFlag = await documents.getDocument({ collection: 'featureFlags', match: { _id: params.id } }) as { data: FeatureFlagType };
-      if (featureFlag) {
+      const user = await documents.getDocument<User>({ collection: 'users', match: { _id: userId } });
+      const featureFlag = await documents.getDocument<FeatureFlagType>({ collection: 'featureFlags', match: { _id: params.id } });
+      if (user.data && featureFlag.data) {
         pull(user.data.featureFlags, featureFlag.data.name);
         await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { featureFlags: user.data.featureFlags } });
       }

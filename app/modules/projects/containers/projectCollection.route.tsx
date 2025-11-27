@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { redirect, useLoaderData, useRevalidator, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import type { Collection as CollectionType, CreateCollection } from "~/modules/collections/collections.types";
+import type { Collection, CreateCollection } from "~/modules/collections/collections.types";
 import exportCollection from "~/modules/collections/helpers/exportCollection";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { Run } from "~/modules/runs/runs.types";
@@ -13,24 +13,20 @@ import ProjectCollection from "../components/projectCollection";
 import type { Project } from "../projects.types";
 import type { Route } from "./+types/projectCollection.route";
 
-type Collection = {
-  data: CollectionType,
-};
-
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } }, }) as { data: Project };
+  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } }, });
   if (!project.data) {
     return redirect('/');
   }
-  const collection = await documents.getDocument({ collection: 'collections', match: { _id: params.collectionId, project: params.projectId }, }) as Collection;
+  const collection = await documents.getDocument<Collection>({ collection: 'collections', match: { _id: params.collectionId, project: params.projectId }, });
   const result = await documents.getDocuments<Run>({
     collection: 'runs',
     match: (item: Run) => {
-      if (includes(collection.data.runs, item._id)) {
+      if (includes(collection.data!.runs, item._id)) {
         return true;
       }
     }, sort: {}
@@ -58,11 +54,6 @@ export async function action({
 
   switch (intent) {
     case 'SETUP_COLLECTION':
-      const collection = await documents.getDocument({
-        collection: 'collections',
-        match: { _id: params.collectionId, project: params.projectId }
-      }) as Collection;
-
       await documents.updateDocument({
         collection: 'collections',
         match: { _id: params.collectionId },
@@ -71,7 +62,7 @@ export async function action({
           sessions,
           runs
         }
-      }) as Collection;
+      }) as { data: Collection };
 
       return {}
     case 'EXPORT_COLLECTION': {

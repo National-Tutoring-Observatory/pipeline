@@ -11,7 +11,8 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
 
   const projectFiles = await documents.getDocuments<File>({ collection: 'files', match: { project: entityId }, sort: {} });
 
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: entityId } }) as { data: Project };
+  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: entityId } });
+  if (!project.data) throw new Error('Project not found');
 
   const inputDirectory = `storage/${entityId}/files`;
 
@@ -39,7 +40,8 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
   for (const projectFile of projectSessions.data) {
     let hasErrored;
     let hasConverted;
-    const file = await documents.getDocument({ collection: 'files', match: { _id: projectFile.file } }) as { data: { name: string } };
+    const file = await documents.getDocument<File>({ collection: 'files', match: { _id: projectFile.file } });
+    if (!file.data) throw new Error('File not found');
     try {
       await convertSessionDataToJSON({
         body: {

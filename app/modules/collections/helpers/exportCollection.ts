@@ -9,16 +9,19 @@ export default async function exportCollection({ collectionId, exportType }: { c
 
   const documents = getDocumentsAdapter();
 
-  const collection = await documents.getDocument({ collection: 'collections', match: { _id: collectionId } }) as { data: Collection };
+  const collection = await documents.getDocument<Collection>({ collection: 'collections', match: { _id: collectionId } });
+  if (!collection.data) {
+    throw new Error('Collection not found');
+  }
 
   const runs = await documents.getDocuments<Run>({
     collection: 'runs',
     match: (item: Run) => {
-      if (includes(collection.data.runs, item._id)) {
+      if (includes(collection.data!.runs, item._id)) {
         return true;
       }
     }, sort: {}
-  }) as { data: Run[] };
+  });
 
   const inputDirectory = `storage/${collection.data.project}/runs`;
 
