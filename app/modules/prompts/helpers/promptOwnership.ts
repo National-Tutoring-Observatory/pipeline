@@ -1,6 +1,7 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { isTeamMember } from "~/modules/teams/helpers/teamMembership";
 import type { User } from "~/modules/users/users.types";
+import type { Prompt } from "../prompts.types";
 
 export async function isPromptOwner({
   user,
@@ -11,16 +12,16 @@ export async function isPromptOwner({
 }): Promise<boolean> {
   const documents = getDocumentsAdapter();
 
-  const prompt = await documents.getDocument({
+  const prompt = await documents.getDocument<Prompt>({
     collection: 'prompts',
     match: { _id: promptId },
-  }) as { data: { team: string } | null };
+  })
 
   if (!prompt.data) {
     return false;
   }
 
-  return await isTeamMember({ user, teamId: prompt.data.team });
+  return await isTeamMember({ user, teamId: (prompt.data.team as string) });
 }
 
 export async function validatePromptOwnership({

@@ -58,10 +58,10 @@ if (DEVELOPMENT) {
 const checkSuperAdminExists = async () => {
   const documents = getDocumentsAdapter();
 
-  const user = await documents.getDocument({
+  const user = await documents.getDocument<User>({
     collection: 'users',
     match: { role: 'SUPER_ADMIN', githubId: parseInt(process.env.SUPER_ADMIN_GITHUB_ID as string) }
-  }) as { data: User | undefined };
+  });
 
   if (!user.data) {
     await documents.createDocument({

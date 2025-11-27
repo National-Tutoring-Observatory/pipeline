@@ -69,12 +69,17 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
-      const existingCollection = await documents.getDocument({
+      const existingCollection = await documents.getDocument<Collection>({
         collection: 'collections',
         match: {
           _id: entityId,
         }
-      }) as { data: Collection };
+      });
+
+      if (!existingCollection.data) {
+        throw new Error('Collection not found');
+      }
+
       const { project, sessions } = existingCollection.data;
 
       collection = await documents.createDocument({

@@ -15,15 +15,18 @@ export default async function startRun({
 
   const documents = getDocumentsAdapter();
 
-  await documents.getDocument({
+  await documents.getDocument<Run>({
     collection: 'runs',
     match: { _id: runId, project: projectId }
-  }) as { data: Run };
+  });
 
   const sessionsAsObjects = [];
 
   for (const session of sessions) {
-    const sessionModel = await documents.getDocument({ collection: 'sessions', match: { _id: session } }) as { data: Session };
+    const sessionModel = await documents.getDocument<Session>({ collection: 'sessions', match: { _id: session } });
+    if (!sessionModel.data) {
+      throw new Error(`Session not found: ${session}`);
+    }
     sessionsAsObjects.push({
       name: sessionModel.data.name,
       fileType: sessionModel.data.fileType,

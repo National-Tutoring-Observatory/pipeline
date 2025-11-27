@@ -7,6 +7,7 @@ import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import type { Run } from "../runs.types";
 import type { Route } from "./+types/downloadRun.route";
+import type { Project } from "../../projects/projects.types";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
 
@@ -14,10 +15,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
-  const project = await documents.getDocument({
+  const project = await documents.getDocument<Project>({
     collection: 'projects',
     match: { _id: params.projectId, team: { $in: teamIds } }
-  }) as { data: any };
+  });
 
   if (!project.data) {
     return redirect('/');
@@ -29,10 +30,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const exportType = searchParams.get("exportType");
 
-  const run = await documents.getDocument({
+  const run = await documents.getDocument<Run>({
     collection: 'runs',
     match: { _id: params.runId, project: params.projectId }
-  }) as { data: Run };
+  });
 
   if (!run.data) {
     throw new Error("Run not found.");

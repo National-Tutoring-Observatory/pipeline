@@ -17,7 +17,8 @@ export default async function createSessionsFromFiles({
 
   const projectFiles = await documents.getDocuments<File>({ collection: 'files', match: { project: projectId }, sort: {} });
 
-  const project = await documents.getDocument({ collection: 'projects', match: { _id: projectId } }) as { data: Project };
+  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: projectId } });
+  if (!project.data) throw new Error('Project not found');
 
   if (shouldCreateSessionModels) {
     for (const projectFile of projectFiles.data) {
@@ -46,7 +47,8 @@ export default async function createSessionsFromFiles({
     if (projectSession.hasConverted) {
       continue;
     }
-    const file = await documents.getDocument({ collection: 'files', match: { _id: projectSession.file } }) as { data: { name: string } };
+    const file = await documents.getDocument<File>({ collection: 'files', match: { _id: projectSession.file } });
+    if (!file.data) throw new Error('File not found');
     taskSequencer.addTask('PROCESS', {
       projectId,
       sessionId: projectSession._id,
