@@ -86,7 +86,7 @@ export async function action({
       const projectId = existingRun.project as string;
       await validateProjectOwnership({ user, projectId });
 
-      await documents.updateDocument({
+      await documents.updateDocument<Run>({
         collection: 'runs',
         match: {
           _id: entityId,
@@ -94,7 +94,7 @@ export async function action({
         update: {
           name
         }
-      }) as { data: Run };
+      });
       return {};
     }
     case 'DUPLICATE_RUN': {

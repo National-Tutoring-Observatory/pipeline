@@ -81,7 +81,7 @@ export async function action({
       createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true, attributesMapping }, { request });
     });
 
-    return await documents.updateDocument({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, hasSetupProject: true } }) as { data: ProjectType };
+    return await documents.updateDocument<ProjectType>({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, hasSetupProject: true } });
 
   }
 }

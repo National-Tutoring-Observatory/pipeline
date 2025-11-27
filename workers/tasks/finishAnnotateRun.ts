@@ -1,5 +1,6 @@
 import type { Job } from 'bullmq';
 import find from 'lodash/find.js';
+import type { Run } from '../../app/modules/runs/runs.types';
 import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter';
 import emitFromJob from '../helpers/emitFromJob';
 
@@ -12,7 +13,7 @@ export default async function finishAnnotateRun(job: Job) {
 
   const documents = getDocumentsAdapter();
 
-  await documents.updateDocument({
+  await documents.updateDocument<Run>({
     collection: 'runs',
     match: { _id: runId },
     update: {

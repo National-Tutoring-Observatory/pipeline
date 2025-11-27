@@ -43,9 +43,8 @@ export interface UpdateDocumentParams {
   match: { _id: string };
   update: any;
 }
-
-export interface UpdateDocumentResult {
-  data: any;
+export interface UpdateDocumentResult<T = any> {
+  data: T | null;
 }
 
 export interface DeleteDocumentParams {
@@ -61,6 +60,6 @@ export interface DocumentAdapter {
   countDocuments: (params: CountDocumentsParams) => Promise<CountDocumentsResult>;
   createDocument: <T = any>(params: CreateDocumentParams) => Promise<CreateDocumentResult<T>>;
   getDocument: <T = any>(params: GetDocumentParams) => Promise<GetDocumentResult<T>>;
-  updateDocument: (params: UpdateDocumentParams) => Promise<UpdateDocumentResult>;
+  updateDocument: <T = any>(params: UpdateDocumentParams) => Promise<UpdateDocumentResult<T>>;
   deleteDocument: (params: DeleteDocumentParams) => Promise<DeleteDocumentResult>;
 }

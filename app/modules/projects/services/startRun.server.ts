@@ -35,7 +35,7 @@ export default async function startRun({
     });
   }
 
-  return await documents.updateDocument({
+  return await documents.updateDocument<Run>({
     collection: 'runs',
     match: { _id: runId },
     update: {
@@ -46,5 +46,5 @@ export default async function startRun({
       model,
       sessions: sessionsAsObjects
     }
-  }) as { data: Run };
+  });
 }

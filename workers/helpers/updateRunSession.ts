@@ -15,7 +15,7 @@ export default async function updateRunSession({ runId, sessionId, update }: { r
 
   extend(session, update);
 
-  await documents.updateDocument({
+  await documents.updateDocument<Run>({
     collection: 'runs',
     match: { _id: runId },
     update: {

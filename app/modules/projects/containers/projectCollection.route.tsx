@@ -54,7 +54,7 @@ export async function action({
 
   switch (intent) {
     case 'SETUP_COLLECTION':
-      await documents.updateDocument({
+      await documents.updateDocument<Collection>({
         collection: 'collections',
         match: { _id: params.collectionId },
         update: {
@@ -62,7 +62,7 @@ export async function action({
           sessions,
           runs
         }
-      }) as { data: Collection };
+      });
 
       return {}
     case 'EXPORT_COLLECTION': {

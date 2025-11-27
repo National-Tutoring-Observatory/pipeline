@@ -72,6 +72,7 @@ export async function action({
         model
       }, { request, context });
 
+      if (!run.data) throw new Error('Run not created');
       createRunAnnotations({ runId: run.data._id }, { request });
 
       return {}
