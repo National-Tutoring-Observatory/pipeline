@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import map from 'lodash/map';
 import { CirclePlus } from "lucide-react";
 import { Outlet } from "react-router";
+import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
 import type { Prompt, PromptVersion } from "../prompts.types";
 import PromptVersionItem from './promptVersionItem';
 
@@ -13,11 +14,11 @@ export default function Prompt({
 }: { prompt: Prompt, promptVersions: PromptVersion[], version: number, onCreatePromptVersionClicked: () => void }) {
   return (
     <div className="max-w-6xl p-8">
-      <div className="mb-4 flex flex-row justify-between items-center">
+      <div className="mb-4">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-2">
           {prompt.name}
         </h1>
-        <p className="text-sm text-muted-foreground">Annotation Type: {prompt.annotationType}</p>
+        <p className="text-sm text-muted-foreground">Annotation Type: {getAnnotationLabel(prompt.annotationType)}</p>
       </div>
       <div className="border rounded-md flex">
 
