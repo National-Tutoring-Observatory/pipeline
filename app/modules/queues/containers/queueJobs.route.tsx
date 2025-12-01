@@ -21,27 +21,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   const { type, state } = params;
-  const queue = getQueue(type as string);
 
-  let jobs: Job[] = [];
-
-  switch (state) {
-    case 'active':
-      jobs = await queue.getActive();
-      break;
-    case 'wait':
-      jobs = await queue.getWaiting();
-      break;
-    case 'completed':
-      jobs = await queue.getCompleted();
-      break;
-    case 'failed':
-      jobs = await queue.getFailed();
-      break;
-    case 'delayed':
-      jobs = await queue.getDelayed();
-      break;
-  }
+  const queue = getQueue(type);
+  const jobs = await queue.getJobs(state);
 
   return {
     queueType: type,
