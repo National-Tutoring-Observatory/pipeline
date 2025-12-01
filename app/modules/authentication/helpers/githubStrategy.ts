@@ -5,6 +5,7 @@ import { GitHubStrategy } from "remix-auth-github";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User, UserTeam } from "~/modules/users/users.types";
 // @ts-ignore
+import { INVITE_LINK_TTL_DAYS } from "~/modules/teams/helpers/inviteLink";
 import sessionStorage from '../../../../sessionStorage.js';
 
 const githubStrategy = new GitHubStrategy<User>(
@@ -58,7 +59,7 @@ const githubStrategy = new GitHubStrategy<User>(
         user = await documents.getDocument<User>({ collection: 'users', match: { inviteId } });
 
         if (user.data) {
-          if (dayjs().isAfter(dayjs(user.data.invitedAt).add(48, 'hours'))) {
+          if (dayjs().isAfter(dayjs(user.data.invitedAt).add(INVITE_LINK_TTL_DAYS, 'day'))) {
             throw redirect("/?error=EXPIRED_INVITE");
           }
           update.inviteId = null;
@@ -78,7 +79,7 @@ const githubStrategy = new GitHubStrategy<User>(
 
       if (!invitedUser.data) throw redirect("/?error=UNREGISTERED");
 
-      if (dayjs().isAfter(dayjs(invitedUser.data.invitedAt).add(48, 'hours'))) {
+      if (dayjs().isAfter(dayjs(invitedUser.data.invitedAt).add(INVITE_LINK_TTL_DAYS, 'day'))) {
         throw redirect("/?error=EXPIRED_INVITE");
       }
 

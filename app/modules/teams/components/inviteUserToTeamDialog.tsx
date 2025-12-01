@@ -1,15 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { CopyCheckIcon, CopyIcon, Loader2Icon, LoaderPinwheel } from "lucide-react";
-import type { User } from "~/modules/users/users.types";
-import map from 'lodash/map';
-import includes from 'lodash/includes';
-import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import getRoles from "../helpers/getRoles";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
+import map from 'lodash/map';
+import { CopyCheckIcon, CopyIcon, Loader2Icon } from "lucide-react";
+import getRoles from "../helpers/getRoles";
+import INVITE_LINK_TTL_DAYS from "../helpers/inviteLink";
 
 export default function InviteUserToTeamDialog({
   role,
@@ -98,6 +96,9 @@ export default function InviteUserToTeamDialog({
                     Invite link copied!
                   </div>
                 )}
+                <div className="text-xs mt-4 text-gray-500">
+                  {`This invite link will expire in ${INVITE_LINK_TTL_DAYS} days.`}
+                </div>
               </div>
             )}
             {(!inviteLink) && (
