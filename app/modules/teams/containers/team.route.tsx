@@ -7,8 +7,6 @@ import { AuthenticationContext } from "~/modules/authentication/containers/authe
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
-import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
 import type { User } from "~/modules/users/users.types";
 import Team from '../components/team';
 import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
@@ -85,23 +83,6 @@ export default function TeamRoute({ loaderData }: {
   const onCreateNewProjectClicked = ({ name }: { name: string }) => {
     fetcher.submit({ intent: 'CREATE_PROJECT', payload: { name, team: team.data._id } }, {
       action: "/api/projects",
-      method: "post",
-      encType: "application/json"
-    });
-  }
-
-  const onCreatePromptButtonClicked = () => {
-    addDialog(
-      <CreatePromptDialog
-        hasTeamSelection={false}
-        onCreateNewPromptClicked={onCreateNewPromptClicked}
-      />
-    );
-  }
-
-  const onCreateNewPromptClicked = ({ name, annotationType, }: { name: string, annotationType: string, }) => {
-    fetcher.submit({ intent: 'CREATE_PROMPT', payload: { name, annotationType, team: team.data._id } }, {
-      action: "/api/prompts",
       method: "post",
       encType: "application/json"
     });

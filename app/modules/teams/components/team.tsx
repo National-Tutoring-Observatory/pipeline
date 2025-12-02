@@ -10,7 +10,6 @@ interface TeamProps {
   canCreateProjects: boolean;
   canCreatePrompts: boolean;
   onCreateProjectButtonClicked: () => void;
-  onCreatePromptButtonClicked: () => void;
 }
 
 export default function Team({
