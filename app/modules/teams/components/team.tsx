@@ -27,7 +27,7 @@ export default function Team({
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-4">
         {team.name}
       </h1>
-      <Tabs value={active} onValueChange={handleTabChange}>
+      <Tabs value={active} onValueChange={handleTabChange} className="mb-2">
         <TabsList>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="prompts">Prompts</TabsTrigger>

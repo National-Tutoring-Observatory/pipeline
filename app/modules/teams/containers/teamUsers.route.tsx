@@ -139,7 +139,7 @@ export default function TeamUsersRoute() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h2>Users</h2>
+        <div className="text-sm font-medium text-muted-foreground">Users</div>
         <div>
 
           {isSuperAdminUser && (

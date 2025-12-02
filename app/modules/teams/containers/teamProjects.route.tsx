@@ -81,7 +81,7 @@ export default function TeamProjectsRoute() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h2>Projects</h2>
+        <div className="text-sm font-medium text-muted-foreground">Projects</div>
         {(canCreateProjects) && (
           <Button size="sm" onClick={onCreateProjectButtonClicked}>
             Create project

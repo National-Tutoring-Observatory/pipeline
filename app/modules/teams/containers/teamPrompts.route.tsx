@@ -102,7 +102,7 @@ export default function TeamPromptsRoute() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h2>Prompts</h2>
+        <div className="text-sm font-medium text-muted-foreground">Prompts</div>
         {(canCreatePrompts) && (
           <Button size="sm" onClick={onCreatePromptButtonClicked}>
             Create prompt
