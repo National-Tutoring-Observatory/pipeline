@@ -1,11 +1,25 @@
+import { Button } from "@/components/ui/button";
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 import { useEffect } from "react";
-import { useLoaderData, useOutletContext, useParams } from "react-router";
+import { redirect, useLoaderData, useOutletContext, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
+import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
 import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
+import { validateTeamAdmin } from "../helpers/teamAdmin";
 import type { Route } from "./+types/teamUsers.route";
+import AddUserToTeamDialogContainer from './addUserToTeamDialog.container';
+import InviteUserToTeamDialogContainer from "./inviteUserToTeamDialogContainer";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -13,10 +27,102 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return { users: teamsResult.data };
 }
 
+export async function action({ request, params }: Route.ActionArgs) {
+  const { intent, payload = {} } = await request.json();
+  const { userIds, userId } = payload;
+
+  const user = await getSessionUser({ request }) as User | null;
+  if (!user) return redirect('/');
+
+  await validateTeamAdmin({ user, teamId: params.id });
+
+  const documents = getDocumentsAdapter();
+
+  switch (intent) {
+    case 'ADD_USERS_TO_TEAM':
+      for (const id of userIds) {
+        const userDoc = await documents.getDocument<User>({ collection: 'users', match: { _id: id } });
+        if (userDoc.data) {
+          if (!userDoc.data.teams) userDoc.data.teams = [];
+          userDoc.data.teams.push({ team: params.id, role: 'ADMIN' });
+          await documents.updateDocument({ collection: 'users', match: { _id: id }, update: { teams: userDoc.data.teams } });
+        }
+      }
+      return {};
+    case 'REMOVE_USER_FROM_TEAM':
+      if (!userId) return {};
+      const userDoc = await documents.getDocument<User>({ collection: 'users', match: { _id: userId } });
+      if (userDoc.data && Array.isArray(userDoc.data.teams)) {
+        userDoc.data.teams = userDoc.data.teams.filter(t => t.team !== params.id);
+        await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { teams: userDoc.data.teams } });
+      }
+      return {};
+    default:
+      return {};
+  }
+}
+
 export default function TeamUsersRoute() {
   const data = useLoaderData<typeof loader>();
   const params = useParams();
   const ctx = useOutletContext<any>();
+  const submit = useSubmit();
+
+  const onAddUsersClicked = (userIds: string[]) => {
+    submit(JSON.stringify({ intent: 'ADD_USERS_TO_TEAM', payload: { userIds } }), { method: 'PUT', encType: 'application/json' });
+  }
+
+  const onAddUserToTeamButtonClicked = () => {
+    addDialog(
+      <AddUserToTeamDialogContainer
+        teamId={ctx.team._id}
+        onAddUsersClicked={onAddUsersClicked}
+      />
+    );
+  }
+
+  const onInviteUserToTeamButtonClicked = () => {
+    addDialog(
+      <InviteUserToTeamDialogContainer
+        teamId={ctx.team._id}
+      />
+    );
+  }
+
+  const onRemoveUserFromTeamClicked = (userId: string) => {
+    addDialog(
+      <ConfirmRemoveUserDialog
+        onConfirm={() => {
+          submit(JSON.stringify({ intent: 'REMOVE_USER_FROM_TEAM', payload: { userId } }), { method: 'PUT', encType: 'application/json' });
+        }}
+      />
+    );
+  }
+
+  function ConfirmRemoveUserDialog({ onConfirm }: { onConfirm: () => void }) {
+    return (
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Remove user from team?</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to remove this user from the team? This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button type="button" variant="secondary">
+              Cancel
+            </Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button type="button" variant="destructive" onClick={onConfirm}>
+              Remove
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    );
+  }
 
   useEffect(() => {
     updateBreadcrumb([
@@ -33,13 +139,13 @@ export default function TeamUsersRoute() {
         <div>
 
           {(ctx.authentication?.role === 'SUPER_ADMIN') && (
-            <button onClick={ctx.onAddUserToTeamClicked} className="btn btn-secondary">
+            <Button variant="secondary" onClick={onAddUserToTeamButtonClicked}>
               Add existing user
-            </button>
+            </Button>
           )}
-          <button onClick={ctx.onInviteUserToTeamClicked} className="ml-2 btn">
+          <Button onClick={onInviteUserToTeamButtonClicked} className="ml-2">
             Invite new user
-          </button>
+          </Button>
         </div>
       </div>
       <div>
@@ -83,7 +189,7 @@ export default function TeamUsersRoute() {
                       type="button"
                       aria-label="Remove user from team"
                       className="ml-2 text-muted-foreground hover:text-destructive"
-                      onClick={() => ctx.onRemoveUserFromTeamClicked(user._id)}
+                      onClick={() => onRemoveUserFromTeamClicked(user._id)}
                     >
                       <Trash2 size={18} />
                     </button>

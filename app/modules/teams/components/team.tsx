@@ -11,9 +11,6 @@ interface TeamProps {
   canCreatePrompts: boolean;
   onCreateProjectButtonClicked: () => void;
   onCreatePromptButtonClicked: () => void;
-  onAddUserToTeamClicked: () => void;
-  onInviteUserToTeamClicked: () => void;
-  onRemoveUserFromTeamClicked: (userId: string) => void;
 }
 
 export default function Team({
@@ -22,10 +19,7 @@ export default function Team({
   canCreateProjects,
   canCreatePrompts,
   onCreateProjectButtonClicked,
-  onCreatePromptButtonClicked,
-  onAddUserToTeamClicked,
-  onInviteUserToTeamClicked,
-  onRemoveUserFromTeamClicked
+  onCreatePromptButtonClicked
 }: TeamProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,10 +52,7 @@ export default function Team({
         canCreateProjects,
         canCreatePrompts,
         onCreateProjectButtonClicked,
-        onCreatePromptButtonClicked,
-        onAddUserToTeamClicked,
-        onInviteUserToTeamClicked,
-        onRemoveUserFromTeamClicked
+        onCreatePromptButtonClicked
       }} />
     </div>
   );

@@ -1,13 +1,5 @@
 
-import { Button } from "@/components/ui/button";
-import {
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+// dialog UI moved to users child route
 import { useContext, useEffect } from "react";
 import { redirect, useFetcher, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
@@ -23,8 +15,7 @@ import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
 import { isTeamAdmin, validateTeamAdmin } from "../helpers/teamAdmin";
 import type { Team as TeamType } from "../teams.types";
 import type { Route } from "./+types/team.route";
-import AddUserToTeamDialogContainer from './addUserToTeamDialog.container';
-import InviteUserToTeamDialogContainer from "./inviteUserToTeamDialogContainer";
+// moved add/invite handlers to child users route
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -64,34 +55,7 @@ export async function action({
   await validateTeamAdmin({ user, teamId: params.id });
 
   const documents = getDocumentsAdapter();
-
-  switch (intent) {
-    case 'ADD_USERS_TO_TEAM':
-      for (const userId of userIds) {
-        const user = await documents.getDocument<User>({ collection: 'users', match: { _id: userId } });
-        if (user.data) {
-          if (!user.data.teams) {
-            user.data.teams = [];
-          }
-          user.data.teams.push({
-            team: params.id,
-            role: 'ADMIN'
-          });
-          await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { teams: user.data.teams } });
-        }
-      }
-      return {};
-    case 'REMOVE_USER_FROM_TEAM':
-      if (!userId) return {};
-      const userDoc = await documents.getDocument<User>({ collection: 'users', match: { _id: userId } });
-      if (userDoc.data && Array.isArray(userDoc.data.teams)) {
-        userDoc.data.teams = userDoc.data.teams.filter(t => t.team !== params.id);
-        await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { teams: userDoc.data.teams } });
-      }
-      return {};
-    default:
-      return {};
-  }
+  return {};
 }
 
 export function HydrateFallback() {
@@ -143,27 +107,6 @@ export default function TeamRoute({ loaderData }: {
     });
   }
 
-  const onAddUsersClicked = (userIds: string[]) => {
-    submit(JSON.stringify({ intent: 'ADD_USERS_TO_TEAM', payload: { userIds } }), { method: 'PUT', encType: 'application/json' });
-  }
-
-  const onAddUserToTeamButtonClicked = () => {
-    addDialog(
-      <AddUserToTeamDialogContainer
-        teamId={team.data._id}
-        onAddUsersClicked={onAddUsersClicked}
-      />
-    );
-  }
-
-  const onInviteUserToTeamButtonClicked = () => {
-    addDialog(
-      <InviteUserToTeamDialogContainer
-        teamId={team.data._id}
-      />
-    );
-  }
-
   useEffect(() => {
     updateBreadcrumb([{ text: 'Teams', link: `/teams` }, { text: team.data.name }])
   }, []);
@@ -183,43 +126,7 @@ export default function TeamRoute({ loaderData }: {
 
 
 
-  const onRemoveUserFromTeamClicked = (userId: string) => {
-    addDialog(
-      <ConfirmRemoveUserDialog
-        onConfirm={() => {
-          submit(
-            JSON.stringify({ intent: 'REMOVE_USER_FROM_TEAM', payload: { userId } }),
-            { method: 'PUT', encType: 'application/json' }
-          );
-        }}
-      />
-    );
-  };
-
-  function ConfirmRemoveUserDialog({ onConfirm }: { onConfirm: () => void }) {
-    return (
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Remove user from team?</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to remove this user from the team? This action cannot be undone.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Cancel
-            </Button>
-          </DialogClose>
-          <DialogClose asChild>
-            <Button type="button" variant="destructive" onClick={onConfirm}>
-              Remove
-            </Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    );
-  }
+  // remove-user dialog moved to child route
 
   return (
     <Team
@@ -229,9 +136,6 @@ export default function TeamRoute({ loaderData }: {
       canCreatePrompts={canCreatePrompts}
       onCreateProjectButtonClicked={onCreateProjectButtonClicked}
       onCreatePromptButtonClicked={onCreatePromptButtonClicked}
-      onAddUserToTeamClicked={onAddUserToTeamButtonClicked}
-      onInviteUserToTeamClicked={onInviteUserToTeamButtonClicked}
-      onRemoveUserFromTeamClicked={onRemoveUserFromTeamClicked}
     />
   );
 }
