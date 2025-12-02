@@ -50,7 +50,7 @@ function ActionBar({
     <>
       <div ref={sentinelRef} className="h-4" aria-hidden />
 
-      <div className={`flex justify-between sticky top-4 border p-2 mb-2 rounded-2xl bg-white ${isStuck ? 'shadow' : ''}`}>
+      <div className={`flex justify-between sticky top-4 border p-2 mb-2 transition-all rounded-2xl bg-white ${isStuck ? 'shadow -mx-2' : ''}`}>
         <div>
           {(hasSearch) && (
             <Search
