@@ -6,19 +6,35 @@ import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationType
 import type { Prompt, PromptVersion } from "../prompts.types";
 import PromptVersionItem from './promptVersionItem';
 
+type PromptProps = {
+  prompt: Prompt;
+  promptVersions: PromptVersion[];
+  version: number;
+  onCreatePromptVersionClicked: () => void;
+  onEditPromptButtonClicked: (prompt: Prompt) => void;
+}
+
 export default function Prompt({
   prompt,
   promptVersions,
   version,
   onCreatePromptVersionClicked,
-}: { prompt: Prompt, promptVersions: PromptVersion[], version: number, onCreatePromptVersionClicked: () => void }) {
+  onEditPromptButtonClicked,
+}: PromptProps) {
   return (
     <div className="max-w-6xl p-8">
-      <div className="mb-4">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-2">
-          {prompt.name}
-        </h1>
-        <p className="text-sm text-muted-foreground">Annotation Type: {getAnnotationLabel(prompt.annotationType)}</p>
+      <div className="mb-4 flex justify-between items-start">
+        <div>
+          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-2">
+            {prompt.name}
+          </h1>
+          <p className="text-sm text-muted-foreground">Annotation Type: {getAnnotationLabel(prompt.annotationType)}</p>
+        </div>
+        {onEditPromptButtonClicked && (
+          <div>
+            <Button size="sm" variant="secondary" onClick={() => onEditPromptButtonClicked(prompt)}>Edit</Button>
+          </div>
+        )}
       </div>
       <div className="border rounded-md flex">
 
