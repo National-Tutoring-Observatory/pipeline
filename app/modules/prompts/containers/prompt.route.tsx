@@ -1,12 +1,15 @@
 import map from 'lodash/map';
 import pick from 'lodash/pick';
 import { useEffect } from "react";
-import { redirect, useActionData, useLoaderData, useNavigate, useParams, useSubmit } from "react-router";
+import { redirect, useActionData, useFetcher, useLoaderData, useNavigate, useParams, useSubmit } from "react-router";
+import { toast } from "sonner";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
+import EditPromptDialog from "../components/editPromptDialog";
 import Prompt from '../components/prompt';
 import { validatePromptOwnership } from "../helpers/promptOwnership";
 import type { Prompt as PromptType, PromptVersion } from "../prompts.types";
@@ -71,6 +74,7 @@ export default function PromptRoute() {
   const { id, version } = useParams();
 
   const submit = useSubmit();
+  const fetcher = useFetcher();
 
   const { prompt, promptVersions } = data;
 
@@ -92,12 +96,28 @@ export default function PromptRoute() {
     }]);
   }, []);
 
+  useEffect(() => {
+    if (fetcher.state === 'idle' && fetcher.data) {
+      toast.success('Updated prompt');
+    }
+  }, [fetcher.state, fetcher.data]);
+
+  const onEditPromptButtonClicked = (p: PromptType) => {
+    addDialog(<EditPromptDialog
+      prompt={p}
+      onEditPromptClicked={(updatedPrompt: PromptType) => {
+        fetcher.submit(JSON.stringify({ intent: 'UPDATE_PROMPT', entityId: updatedPrompt._id, payload: { name: updatedPrompt.name } }), { method: 'PUT', encType: 'application/json', action: '/prompts' });
+      }}
+    />);
+  }
+
   return (
     <Prompt
       prompt={prompt.data}
       promptVersions={promptVersions.data}
       version={Number(version)}
       onCreatePromptVersionClicked={onCreatePromptVersionClicked}
+      onEditPromptButtonClicked={onEditPromptButtonClicked}
     />
   );
 }
