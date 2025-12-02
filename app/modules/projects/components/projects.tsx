@@ -49,6 +49,10 @@ export default function Projects({
       <Flag flag="HAS_COLLECTION_UI" >
         <Collection
           items={projects}
+          actions={[{
+            action: 'CREATE',
+            text: 'Create project'
+          }]}
           getItemAttributes={(item) => {
 
             const teamName = get(item, 'team.name', '');
@@ -76,6 +80,11 @@ export default function Projects({
               text: 'Delete',
               variant: 'destructive'
             }]
+          }}
+          onActionClicked={(action) => {
+            if (action === 'CREATE') {
+              onCreateProjectButtonClicked();
+            }
           }}
           onItemActionClicked={({ id, action }) => {
             if (action === 'EDIT') {

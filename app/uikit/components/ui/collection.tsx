@@ -2,6 +2,7 @@ import map from 'lodash/map';
 import { EllipsisVertical } from 'lucide-react';
 import React, { type ReactElement } from 'react';
 import { Link } from 'react-router';
+import { ActionBar, type Action } from './actionBar';
 import { Badge } from './badge';
 import { Button } from './button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu';
@@ -10,9 +11,11 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparat
 
 export type CollectionProps<T> = {
   items: T[]
+  actions: Action[]
   renderItem?: (item: T) => ReactElement,
   getItemAttributes: (item: T) => CollectionItemAttributes<T>
   getItemActions: (item: T) => CollectionItemAction[]
+  onActionClicked: (action: string) => void,
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void
 }
 
@@ -121,14 +124,17 @@ const CollectionItemContent = ({
 
 const Collection = <T,>({
   items,
+  actions,
   renderItem,
   getItemAttributes,
   getItemActions,
+  onActionClicked,
   onItemActionClicked
 }: CollectionProps<T>) => {
 
   return (
     <div>
+      <ActionBar actions={actions} onActionClicked={onActionClicked} />
       <ItemGroup className="border rounded-sm">
         {map(items, (item, index) => {
 
@@ -139,7 +145,7 @@ const Collection = <T,>({
 
           const { id, title, description, to, meta } = getItemAttributes(item);
 
-          const actions = getItemActions(item);
+          const itemActions = getItemActions(item);
 
           return (
             <React.Fragment key={id}>
@@ -154,7 +160,7 @@ const Collection = <T,>({
                           title={title}
                           description={description}
                           meta={meta}
-                          actions={actions}
+                          actions={itemActions}
                           onItemActionClicked={onItemActionClicked}
                         />
                       )}
@@ -169,7 +175,7 @@ const Collection = <T,>({
                           title={title}
                           description={description}
                           meta={meta}
-                          actions={actions}
+                          actions={itemActions}
                           onItemActionClicked={onItemActionClicked}
                         />
                       )}
