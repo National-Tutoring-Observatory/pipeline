@@ -12,11 +12,14 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparat
 export type CollectionProps<T> = {
   items: T[]
   actions: Action[]
+  searchValue?: string,
+  hasSearch?: boolean,
   renderItem?: (item: T) => ReactElement,
   getItemAttributes: (item: T) => CollectionItemAttributes<T>
   getItemActions: (item: T) => CollectionItemAction[]
   onActionClicked: (action: string) => void,
-  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void
+  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
+  onSearchValueChanged?: (searchValue: string) => void
 }
 
 export type CollectionItemAction = {
@@ -125,16 +128,25 @@ const CollectionItemContent = ({
 const Collection = <T,>({
   items,
   actions,
+  searchValue,
+  hasSearch,
   renderItem,
   getItemAttributes,
   getItemActions,
   onActionClicked,
-  onItemActionClicked
+  onItemActionClicked,
+  onSearchValueChanged
 }: CollectionProps<T>) => {
 
   return (
     <div>
-      <ActionBar actions={actions} onActionClicked={onActionClicked} />
+      <ActionBar
+        actions={actions}
+        searchValue={searchValue}
+        hasSearch={hasSearch}
+        onActionClicked={onActionClicked}
+        onSearchValueChanged={onSearchValueChanged}
+      />
       <ItemGroup className="border rounded-sm">
         {map(items, (item, index) => {
 

@@ -53,6 +53,8 @@ export default function Projects({
             action: 'CREATE',
             text: 'Create project'
           }]}
+          hasSearch
+          searchValue={""}
           getItemAttributes={(item) => {
 
             const teamName = get(item, 'team.name', '');
@@ -87,13 +89,20 @@ export default function Projects({
             }
           }}
           onItemActionClicked={({ id, action }) => {
-            if (action === 'EDIT') {
-              const project = find(projects, { _id: id });
-
-              if (project) {
+            const project = find(projects, { _id: id });
+            if (!project) return null;
+            switch (action) {
+              case 'EDIT':
                 onEditProjectButtonClicked(project);
-              }
+                break;
+
+              case 'DELETE':
+                onDeleteProjectButtonClicked(project);
+                break;
             }
+          }}
+          onSearchValueChanged={(searchValue) => {
+            console.log(searchValue);
           }}
         />
       </Flag>
