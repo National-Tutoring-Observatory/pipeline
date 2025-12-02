@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import dayjs from "dayjs";
 import map from 'lodash/map';
 import { EllipsisVertical } from "lucide-react";
 import { Link } from "react-router";
+import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
 import type { Run } from "~/modules/runs/runs.types";
 
 export default function ProjectRuns({
@@ -37,7 +38,9 @@ export default function ProjectRuns({
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[300px]">Name</TableHead>
-                <TableHead>Created</TableHead>
+                <TableHead>Prompt</TableHead>
+                <TableHead>Annotation Type</TableHead>
+                <TableHead>Model</TableHead>
                 <TableHead>Started</TableHead>
                 <TableHead>Finished</TableHead>
                 <TableHead className="text-right"></TableHead>
@@ -52,7 +55,13 @@ export default function ProjectRuns({
                         {run.name}
                       </Link>
                     </TableCell>
-                    <TableCell>{dayjs(run.createdAt).format('ddd, MM/D/YY - h:mma')}</TableCell>
+                    <TableCell>
+                      {typeof run.prompt === "string"
+                        ? run.prompt
+                        : run.prompt?.name}
+                    </TableCell>
+                    <TableCell>{getAnnotationLabel(run.annotationType)}</TableCell>
+                    <TableCell>{run.model}</TableCell>
                     <TableCell>{run.startedAt ? dayjs(run.startedAt).format('ddd, MM/D/YY - h:mma') : '--'}</TableCell>
                     <TableCell>{run.finishedAt ? dayjs(run.finishedAt).format('ddd, MM/D/YY - h:mma') : '--'}</TableCell>
                     <TableCell className="text-right flex justify-end">

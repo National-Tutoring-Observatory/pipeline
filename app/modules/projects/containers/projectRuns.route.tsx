@@ -3,6 +3,7 @@ import { redirect, useActionData, useLoaderData, useNavigate, useSubmit } from "
 import { toast } from "sonner";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
+import type { DocumentAdapter } from "~/modules/documents/documents.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { validateProjectOwnership } from "~/modules/projects/helpers/projectOwnership";
 import type { Run } from "~/modules/runs/runs.types";
@@ -11,15 +12,13 @@ import DuplicateRunDialog from '../components/duplicateRunDialog';
 import EditRunDialog from "../components/editRunDialog";
 import ProjectRuns from "../components/projectRuns";
 import type { Route } from "./+types/projectRuns.route";
-import type { DocumentAdapter } from "~/modules/documents/documents.types";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments<Run>({ collection: 'runs', match: { project: params.id }, sort: {} });
+  const result = await documents.getDocuments<Run>({ collection: 'runs', match: { project: params.id }, sort: {}, populate: [{ path: 'prompt' }] });
   const runs = { data: result.data };
   return { runs };
 }
-
 
 async function getExistingRun(documents: DocumentAdapter, runId: string): Promise<Run> {
   const existingRun = await documents.getDocument<Run>({
