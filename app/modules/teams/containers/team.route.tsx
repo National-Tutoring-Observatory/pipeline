@@ -16,9 +16,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
-import type { Project } from "~/modules/projects/projects.types";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
-import type { Prompt } from "~/modules/prompts/prompts.types";
 import type { User } from "~/modules/users/users.types";
 import Team from '../components/team';
 import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
@@ -45,14 +43,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!team.data) {
     return redirect('/teams');
   }
-
-  const projectsResult = await documents.getDocuments<Project>({ collection: 'projects', match: { team: team.data._id } });
-  const projects = { data: projectsResult.data };
-  const promptsResult = await documents.getDocuments<Prompt>({ collection: 'prompts', match: { team: team.data._id } });
-  const prompts = { data: promptsResult.data };
-  const teamsResult = await documents.getDocuments<User>({ collection: 'users', match: { "teams.team": team.data._id } });
-  const users = { data: teamsResult.data };
-  return { team, projects, prompts, users };
+  return { team };
 }
 
 export async function action({
@@ -109,13 +100,10 @@ export function HydrateFallback() {
 
 export default function TeamRoute({ loaderData }: {
   loaderData: {
-    team: { data: TeamType },
-    projects: { data: Project[] },
-    users: { data: User[] },
-    prompts: { data: Prompt[] }
+    team: { data: TeamType }
   }
 }) {
-  const { team, projects, prompts, users } = loaderData;
+  const { team } = loaderData;
 
   const fetcher = useFetcher();
   const submit = useSubmit();
@@ -236,9 +224,6 @@ export default function TeamRoute({ loaderData }: {
   return (
     <Team
       team={team.data}
-      projects={projects.data}
-      prompts={prompts.data}
-      users={users.data}
       authentication={authentication}
       canCreateProjects={canCreateProjects}
       canCreatePrompts={canCreatePrompts}
