@@ -1,8 +1,13 @@
+import { Button } from '@/components/ui/button';
 import { useEffect } from "react";
-import { Link, useLoaderData, useOutletContext, useParams } from "react-router";
+import { Link, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
 import type { Project } from "~/modules/projects/projects.types";
+import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
 import type { Route } from "./+types/teamProjects.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -11,10 +16,36 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return { projects: projectsResult.data };
 }
 
+export async function action({ request, params }: Route.ActionArgs) {
+  const { intent, payload = {} } = await request.json();
+  const { name } = payload;
+
+  const user = await getSessionUser({ request });
+  if (!user) return { redirect: '/' };
+
+  await validateTeamMembership({ user, teamId: params.id });
+
+  const documents = getDocumentsAdapter();
+
+  if (intent === 'CREATE_PROJECT') {
+    if (typeof name !== 'string') throw new Error('Project name is required and must be a string.');
+    const project = await documents.createDocument<Project>({ collection: 'projects', update: { name, team: params.id } });
+    return {
+      intent: 'CREATE_PROJECT',
+      ...project
+    };
+  }
+
+  return {};
+}
+
 export default function TeamProjectsRoute() {
   const data = useLoaderData<typeof loader>();
   const params = useParams();
   const ctx = useOutletContext<any>();
+  const actionData = useActionData();
+  const submit = useSubmit();
+  const navigate = useNavigate();
 
   useEffect(() => {
     updateBreadcrumb([
@@ -24,14 +55,33 @@ export default function TeamProjectsRoute() {
     ]);
   }, [params.id]);
 
+  useEffect(() => {
+    if (actionData?.intent === 'CREATE_PROJECT') {
+      navigate(`/projects/${actionData.data._id}`);
+    }
+  }, [actionData]);
+
+  const onCreateProjectButtonClicked = () => {
+    addDialog(
+      <CreateProjectDialog
+        hasTeamSelection={false}
+        onCreateNewProjectClicked={onCreateNewProjectClicked}
+      />
+    );
+  }
+
+  const onCreateNewProjectClicked = ({ name }: { name: string }) => {
+    submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name } }), { method: 'POST', encType: 'application/json' });
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between">
         <h2>Projects</h2>
         {(ctx.canCreateProjects) && (
-          <button onClick={ctx.onCreateProjectButtonClicked} className="btn">
+          <Button size="sm" onClick={onCreateProjectButtonClicked}>
             Create project
-          </button>
+          </Button>
         )}
       </div>
       <div>

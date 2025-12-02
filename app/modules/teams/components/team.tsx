@@ -9,7 +9,6 @@ interface TeamProps {
   authentication: User | null;
   canCreateProjects: boolean;
   canCreatePrompts: boolean;
-  onCreateProjectButtonClicked: () => void;
 }
 
 export default function Team({
@@ -17,8 +16,6 @@ export default function Team({
   authentication,
   canCreateProjects,
   canCreatePrompts,
-  onCreateProjectButtonClicked,
-  onCreatePromptButtonClicked
 }: TeamProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,9 +46,7 @@ export default function Team({
         team,
         authentication,
         canCreateProjects,
-        canCreatePrompts,
-        onCreateProjectButtonClicked,
-        onCreatePromptButtonClicked
+        canCreatePrompts
       }} />
     </div>
   );

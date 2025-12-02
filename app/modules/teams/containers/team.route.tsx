@@ -1,11 +1,10 @@
 
 // dialog UI moved to users child route
 import { useContext, useEffect } from "react";
-import { redirect, useFetcher, useSubmit } from "react-router";
+import { redirect } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
 import Team from '../components/team';
@@ -67,26 +66,8 @@ export default function TeamRoute({ loaderData }: {
 }) {
   const { team } = loaderData;
 
-  const fetcher = useFetcher();
-  const submit = useSubmit();
   const authentication = useContext(AuthenticationContext) as User | null;
 
-  const onCreateProjectButtonClicked = () => {
-    addDialog(
-      <CreateProjectDialog
-        hasTeamSelection={false}
-        onCreateNewProjectClicked={onCreateNewProjectClicked}
-      />
-    );
-  }
-
-  const onCreateNewProjectClicked = ({ name }: { name: string }) => {
-    fetcher.submit({ intent: 'CREATE_PROJECT', payload: { name, team: team.data._id } }, {
-      action: "/api/projects",
-      method: "post",
-      encType: "application/json"
-    });
-  }
 
   useEffect(() => {
     updateBreadcrumb([{ text: 'Teams', link: `/teams` }, { text: team.data.name }])
@@ -115,8 +96,6 @@ export default function TeamRoute({ loaderData }: {
       authentication={authentication}
       canCreateProjects={canCreateProjects}
       canCreatePrompts={canCreatePrompts}
-      onCreateProjectButtonClicked={onCreateProjectButtonClicked}
-      onCreatePromptButtonClicked={onCreatePromptButtonClicked}
     />
   );
 }
