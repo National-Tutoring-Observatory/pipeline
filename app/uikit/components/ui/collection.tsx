@@ -9,6 +9,7 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparat
 export type CollectionProps<T> = {
   items: T[]
   getItemAttributes: (item: T) => CollectionItemAttributes<T>
+  renderItem?: (item: T) => ReactElement,
 }
 
 export type CollectionItemMeta<T> = {
@@ -60,6 +61,7 @@ const CollectionItemContent = ({ title, description, meta }: Omit<CollectionItem
 const Collection = <T,>({
   items,
   getItemAttributes,
+  renderItem
 }: CollectionProps<T>) => {
 
   return (
@@ -79,11 +81,19 @@ const Collection = <T,>({
               <Item asChild>
                 {to ? (
                   <Link to={to}>
-                    <CollectionItemContent title={title} description={description} meta={meta} />
+                    {(renderItem) && (
+                      renderItem(item)
+                    ) || (
+                        <CollectionItemContent title={title} description={description} meta={meta} />
+                      )}
                   </Link>
                 ) : (
                   <div>
-                    <CollectionItemContent title={title} description={description} meta={meta} />
+                    {(renderItem) && (
+                      renderItem(item)
+                    ) || (
+                        <CollectionItemContent title={title} description={description} meta={meta} />
+                      )}
                   </div>
                 )}
               </Item>
