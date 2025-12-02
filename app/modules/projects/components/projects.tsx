@@ -14,7 +14,8 @@ import { Link } from "react-router";
 import Collection from "@/components/ui/collection";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import dayjs from 'dayjs';
-import { EllipsisVertical, Users } from "lucide-react";
+import find from 'lodash/find';
+import { Edit, EllipsisVertical, Trash2, Users } from "lucide-react";
 import Flag from "~/modules/featureFlags/components/flag";
 import type { Project } from "../projects.types";
 
@@ -62,6 +63,27 @@ export default function Projects({
               }, {
                 text: `Created at - ${dayjs(item.createdAt).format('ddd, MMM D, YYYY - h:mm A')}`,
               }]
+            }
+          }}
+          getItemActions={(item) => {
+            return [{
+              action: 'EDIT',
+              icon: <Edit />,
+              text: 'Edit'
+            }, {
+              action: 'DELETE',
+              icon: <Trash2 />,
+              text: 'Delete',
+              variant: 'destructive'
+            }]
+          }}
+          onItemActionClicked={({ id, action }) => {
+            if (action === 'EDIT') {
+              const project = find(projects, { _id: id });
+
+              if (project) {
+                onEditProjectButtonClicked(project);
+              }
             }
           }}
         />
