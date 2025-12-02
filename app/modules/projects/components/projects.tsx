@@ -16,7 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import dayjs from 'dayjs';
 import find from 'lodash/find';
 import get from 'lodash/get';
-import { Edit, EllipsisVertical, Trash2, Users } from "lucide-react";
+import { Edit, EllipsisVertical, FolderKanban, Trash2, Users } from "lucide-react";
 import Flag from "~/modules/featureFlags/components/flag";
 import type { Project } from "../projects.types";
 
@@ -58,6 +58,15 @@ export default function Projects({
           searchValue={""}
           currentPage={1}
           totalPages={2}
+          emptyAttributes={{
+            icon: <FolderKanban />,
+            title: 'No Projects yet',
+            description: "You haven't created any projects yet. Get started by creating your first project.",
+            actions: [{
+              action: 'CREATE',
+              text: 'Create project'
+            }]
+          }}
           getItemAttributes={(item) => {
 
             const teamName = get(item, 'team.name', '');
