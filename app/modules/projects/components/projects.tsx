@@ -11,9 +11,11 @@ import { cn } from "@/lib/utils";
 import map from 'lodash/map';
 import { Link } from "react-router";
 
+import Collection from "@/components/ui/collection";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import dayjs from 'dayjs';
 import { EllipsisVertical } from "lucide-react";
+import Flag from "~/modules/featureFlags/components/flag";
 import type { Project } from "../projects.types";
 
 interface ProjectsProps {
@@ -42,6 +44,18 @@ export default function Projects({
           </div>
         </div>
       )}
+      <Flag flag="HAS_COLLECTION_UI" >
+        <Collection
+          items={projects}
+          getItemAttributes={(item) => {
+            return {
+              id: item._id,
+              title: item.name,
+              to: `/projects/${item._id}`
+            }
+          }}
+        />
+      </Flag>
       {(projects.length > 0) && (
         <div className="border rounded-md">
           <div className="flex justify-end border-b p-2">
