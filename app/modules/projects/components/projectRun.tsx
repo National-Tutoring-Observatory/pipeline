@@ -23,7 +23,8 @@ export default function ProjectRun({
   runSessionsStep,
   onStartRunClicked,
   onExportRunButtonClicked,
-  onReRunClicked
+  onReRunClicked,
+  onEditRunButtonClicked
 }: {
   run: Run,
   runPrompt: Prompt,
@@ -33,6 +34,7 @@ export default function ProjectRun({
   onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions }: CreateRun) => void,
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void
   onReRunClicked: () => void
+  onEditRunButtonClicked?: (run: Run) => void
 }) {
 
   return (
@@ -64,6 +66,11 @@ export default function ProjectRun({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+            )}
+            {onEditRunButtonClicked && (
+              <Button variant="ghost" onClick={() => onEditRunButtonClicked(run)} className="ml-2">
+                Edit
+              </Button>
             )}
           </div>
         </div>
