@@ -1,13 +1,15 @@
 import { Button } from '@/components/ui/button';
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { Link, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import { AuthenticationContext } from '~/modules/authentication/containers/authentication.container';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
 import type { Prompt } from "~/modules/prompts/prompts.types";
-import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
+import { isTeamMember, validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
+import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/teamPrompts.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -67,6 +69,8 @@ export default function TeamPromptsRoute() {
   const actionData = useActionData();
   const submit = useSubmit();
   const navigate = useNavigate();
+  const authentication = useContext(AuthenticationContext) as User | null;
+  const canCreatePrompts = !!authentication && isTeamMember({ user: authentication, teamId: ctx.team._id });
 
   useEffect(() => {
     updateBreadcrumb([
@@ -99,7 +103,7 @@ export default function TeamPromptsRoute() {
     <div>
       <div className="flex items-center justify-between">
         <h2>Prompts</h2>
-        {(ctx.canCreatePrompts) && (
+        {(canCreatePrompts) && (
           <Button size="sm" onClick={onCreatePromptButtonClicked}>
             Create prompt
           </Button>
@@ -114,7 +118,7 @@ export default function TeamPromptsRoute() {
         {(data.prompts.length > 0) && (
           <div className="mt-4 border border-black/10 rounded-md ">
             {data.prompts.map((prompt: Prompt) => (
-              ctx.canCreatePrompts ? (
+              canCreatePrompts ? (
                 <Link
                   key={prompt._id}
                   to={`/prompts/${prompt._id}/${prompt.productionVersion}`}

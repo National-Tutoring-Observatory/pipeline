@@ -8,10 +8,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { redirect, useLoaderData, useOutletContext, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
+import { isSuperAdmin } from "~/modules/authentication/helpers/superAdmin";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
@@ -67,6 +69,8 @@ export default function TeamUsersRoute() {
   const params = useParams();
   const ctx = useOutletContext<any>();
   const submit = useSubmit();
+  const authentication = useContext(AuthenticationContext) as User | null;
+  const isSuperAdminUser = isSuperAdmin(authentication);
 
   const onAddUsersClicked = (userIds: string[]) => {
     submit(JSON.stringify({ intent: 'ADD_USERS_TO_TEAM', payload: { userIds } }), { method: 'PUT', encType: 'application/json' });
@@ -138,7 +142,7 @@ export default function TeamUsersRoute() {
         <h2>Users</h2>
         <div>
 
-          {(ctx.authentication?.role === 'SUPER_ADMIN') && (
+          {isSuperAdminUser && (
             <Button variant="secondary" onClick={onAddUserToTeamButtonClicked}>
               Add existing user
             </Button>

@@ -1,21 +1,14 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Outlet, useLocation, useNavigate } from "react-router";
-import type { User } from "~/modules/users/users.types";
 import type { Team } from "../teams.types";
 
 
 interface TeamProps {
   team: Team;
-  authentication: User | null;
-  canCreateProjects: boolean;
-  canCreatePrompts: boolean;
 }
 
 export default function Team({
   team,
-  authentication,
-  canCreateProjects,
-  canCreatePrompts,
 }: TeamProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,9 +37,6 @@ export default function Team({
 
       <Outlet context={{
         team,
-        authentication,
-        canCreateProjects,
-        canCreatePrompts
       }} />
     </div>
   );

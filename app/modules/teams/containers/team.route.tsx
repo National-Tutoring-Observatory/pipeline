@@ -73,29 +73,9 @@ export default function TeamRoute({ loaderData }: {
     updateBreadcrumb([{ text: 'Teams', link: `/teams` }, { text: team.data.name }])
   }, []);
 
-  let canCreateProjects = false;
-  let canCreatePrompts = false;
-
-  if (authentication) {
-    const {
-      role
-    } = getUserRoleInTeam({ user: authentication, team: team.data });
-    if (role) {
-      canCreateProjects = true;
-      canCreatePrompts = true;
-    }
-  }
-
-
-
-  // remove-user dialog moved to child route
-
   return (
     <Team
       team={team.data}
-      authentication={authentication}
-      canCreateProjects={canCreateProjects}
-      canCreatePrompts={canCreatePrompts}
     />
   );
 }

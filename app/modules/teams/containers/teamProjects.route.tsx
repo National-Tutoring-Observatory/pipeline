@@ -1,13 +1,15 @@
 import { Button } from '@/components/ui/button';
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { Link, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
 import type { Project } from "~/modules/projects/projects.types";
-import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
+import { isTeamMember, validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
+import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/teamProjects.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -46,6 +48,8 @@ export default function TeamProjectsRoute() {
   const actionData = useActionData();
   const submit = useSubmit();
   const navigate = useNavigate();
+  const authentication = useContext(AuthenticationContext) as User | null;
+  const canCreateProjects = !!authentication && isTeamMember({ user: authentication, teamId: ctx.team._id });
 
   useEffect(() => {
     updateBreadcrumb([
@@ -78,7 +82,7 @@ export default function TeamProjectsRoute() {
     <div>
       <div className="flex items-center justify-between">
         <h2>Projects</h2>
-        {(ctx.canCreateProjects) && (
+        {(canCreateProjects) && (
           <Button size="sm" onClick={onCreateProjectButtonClicked}>
             Create project
           </Button>
@@ -93,7 +97,7 @@ export default function TeamProjectsRoute() {
         {(data.projects.length > 0) && (
           <div className="mt-4 border border-black/10 rounded-md overflow-hidden">
             {data.projects.map((project: Project) => (
-              ctx.canCreateProjects ? (
+              canCreateProjects ? (
                 <Link
                   key={project._id}
                   to={`/projects/${project._id}`}
