@@ -1,6 +1,5 @@
-import { Button } from '@/components/ui/button';
 import { useContext, useEffect } from "react";
-import { Link, redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
+import { redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import { AuthenticationContext } from '~/modules/authentication/containers/authentication.container';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
@@ -10,6 +9,7 @@ import CreateProjectDialog from "~/modules/projects/components/createProjectDial
 import type { Project } from "~/modules/projects/projects.types";
 import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
 import type { User } from "~/modules/users/users.types";
+import TeamProjects from "../components/teamProjects";
 import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
 import { isTeamAdmin } from '../helpers/teamAdmin';
 import type { Route } from "./+types/teamProjects.route";
@@ -91,44 +91,11 @@ export default function TeamProjectsRoute() {
   const projects = data?.projects ?? [];
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <div className="text-sm font-medium text-muted-foreground">Projects</div>
-        {(canCreateProjects) && (
-          <Button size="sm" onClick={onCreateProjectButtonClicked}>
-            Create project
-          </Button>
-        )}
-      </div>
-      <div>
-        {(projects.length === 0) && (
-          <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
-            No projects are associated with this team
-          </div>
-        )}
-        {(projects.length > 0) && (
-          <div className="mt-4 border border-black/10 rounded-md overflow-hidden">
-            {projects.map((project: Project) => (
-              canCreateProjects ? (
-                <Link
-                  key={project._id}
-                  to={`/projects/${project._id}`}
-                  className="block border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm"
-                >
-                  {project.name}
-                </Link>
-              ) : (
-                <div
-                  key={project._id}
-                  className="block border-b border-black/10 p-4 last:border-0 text-sm"
-                >
-                  {project.name}
-                </div>
-              )
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    <TeamProjects
+      projects={projects}
+      team={ctx.team}
+      canCreateProjects={canCreateProjects}
+      onCreateProjectButtonClicked={onCreateProjectButtonClicked}
+    />
   );
 }

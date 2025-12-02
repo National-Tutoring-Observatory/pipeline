@@ -1,6 +1,5 @@
-import { Button } from '@/components/ui/button';
 import { useContext, useEffect } from "react";
-import { Link, redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
+import { redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import { AuthenticationContext } from '~/modules/authentication/containers/authentication.container';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
@@ -10,6 +9,7 @@ import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog"
 import type { Prompt } from "~/modules/prompts/prompts.types";
 import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
 import type { User } from "~/modules/users/users.types";
+import TeamPrompts from "../components/teamPrompts";
 import getUserRoleInTeam from '../helpers/getUserRoleInTeam';
 import { isTeamAdmin } from '../helpers/teamAdmin';
 import type { Route } from "./+types/teamPrompts.route";
@@ -108,46 +108,14 @@ export default function TeamPromptsRoute() {
   const onCreateNewPromptClicked = ({ name, annotationType }: { name: string, annotationType: string }) => {
     submit(JSON.stringify({ intent: 'CREATE_PROMPT', payload: { name, annotationType } }), { method: 'POST', encType: 'application/json' });
   }
+  const prompts = data.prompts ?? [];
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <div className="text-sm font-medium text-muted-foreground">Prompts</div>
-        {(canCreatePrompts) && (
-          <Button size="sm" onClick={onCreatePromptButtonClicked}>
-            Create prompt
-          </Button>
-        )}
-      </div>
-      <div>
-        {(data.prompts.length === 0) && (
-          <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
-            No prompts are associated with this team
-          </div>
-        )}
-        {(data.prompts.length > 0) && (
-          <div className="mt-4 border border-black/10 rounded-md ">
-            {data.prompts.map((prompt: Prompt) => (
-              canCreatePrompts ? (
-                <Link
-                  key={prompt._id}
-                  to={`/prompts/${prompt._id}/${prompt.productionVersion}`}
-                  className="block border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm"
-                >
-                  {prompt.name}
-                </Link>
-              ) : (
-                <div
-                  key={prompt._id}
-                  className="block border-b border-black/10 p-4 last:border-0 text-sm"
-                >
-                  {prompt.name}
-                </div>
-              )
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    <TeamPrompts
+      prompts={prompts}
+      team={ctx.team}
+      canCreatePrompts={canCreatePrompts}
+      onCreatePromptButtonClicked={onCreatePromptButtonClicked}
+    />
   );
 }

@@ -1,13 +1,3 @@
-import { Button } from "@/components/ui/button";
-import {
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Trash2 } from "lucide-react";
 import { useContext, useEffect } from "react";
 import { redirect, useLoaderData, useOutletContext, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
@@ -17,7 +7,8 @@ import { isSuperAdmin } from "~/modules/authentication/helpers/superAdmin";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
-import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
+import ConfirmRemoveUserDialog from "../components/confirmRemoveUserDialog";
+import TeamUsers from "../components/teamUsers";
 import { isTeamAdmin, validateTeamAdmin } from "../helpers/teamAdmin";
 import type { Route } from "./+types/teamUsers.route";
 import AddUserToTeamDialogContainer from './addUserToTeamDialog.container';
@@ -102,36 +93,9 @@ export default function TeamUsersRoute() {
 
   const onRemoveUserFromTeamClicked = (userId: string) => {
     addDialog(
-      <ConfirmRemoveUserDialog
-        onConfirm={() => {
-          submit(JSON.stringify({ intent: 'REMOVE_USER_FROM_TEAM', payload: { userId } }), { method: 'PUT', encType: 'application/json' });
-        }}
-      />
-    );
-  }
-
-  function ConfirmRemoveUserDialog({ onConfirm }: { onConfirm: () => void }) {
-    return (
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Remove user from team?</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to remove this user from the team? This action cannot be undone.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Cancel
-            </Button>
-          </DialogClose>
-          <DialogClose asChild>
-            <Button type="button" variant="destructive" onClick={onConfirm}>
-              Remove
-            </Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
+      <ConfirmRemoveUserDialog onConfirm={() => {
+        submit(JSON.stringify({ intent: 'REMOVE_USER_FROM_TEAM', payload: { userId } }), { method: 'PUT', encType: 'application/json' });
+      }} />
     );
   }
 
@@ -143,74 +107,16 @@ export default function TeamUsersRoute() {
     ]);
   }, [params.id]);
 
+  const users = data.users ?? [];
+
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <div className="text-sm font-medium text-muted-foreground">Users</div>
-        <div>
-
-          {isSuperAdminUser && (
-            <Button variant="secondary" onClick={onAddUserToTeamButtonClicked}>
-              Add existing user
-            </Button>
-          )}
-          <Button onClick={onInviteUserToTeamButtonClicked} className="ml-2">
-            Invite new user
-          </Button>
-        </div>
-      </div>
-      <div>
-        {(data.users.length === 0) && (
-          <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
-            No users are associated with this team
-          </div>
-        )}
-        {(data.users.length > 0) && (
-          <div className="mt-4 border border-black/10 rounded-md ">
-            {data.users.map((user: User) => {
-              const { name: roleName } = getUserRoleInTeam({ user, team: ctx.team });
-
-              let username = user.username;
-              if (!user.isRegistered) {
-                if (user.username) {
-                  username = `${user.username} - Invited user`;
-                } else {
-                  username = 'Invited user';
-                }
-              }
-
-              return (
-                <div
-                  key={user._id}
-                  className="flex border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm items-center justify-between"
-                >
-                  <div>
-                    <div>
-                      {username}
-                    </div>
-                    {(!user.isRegistered) && (
-                      <div className="text-xs text-muted-foreground">
-                        {`${window.location.origin}/invite/${user.inviteId}`}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span>{roleName}</span>
-                    <button
-                      type="button"
-                      aria-label="Remove user from team"
-                      className="ml-2 text-muted-foreground hover:text-destructive"
-                      onClick={() => onRemoveUserFromTeamClicked(user._id)}
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
+    <TeamUsers
+      users={users}
+      team={ctx.team}
+      isSuperAdminUser={isSuperAdminUser}
+      onAddUserToTeamButtonClicked={onAddUserToTeamButtonClicked}
+      onInviteUserToTeamButtonClicked={onInviteUserToTeamButtonClicked}
+      onRemoveUserFromTeamClicked={onRemoveUserFromTeamClicked}
+    />
   );
 }
