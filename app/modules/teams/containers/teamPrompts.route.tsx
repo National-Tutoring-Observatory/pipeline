@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useContext, useEffect } from "react";
-import { Link, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
+import { Link, redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import { AuthenticationContext } from '~/modules/authentication/containers/authentication.container';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
@@ -8,11 +8,20 @@ import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
 import type { Prompt } from "~/modules/prompts/prompts.types";
-import { isTeamMember, validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
+import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
 import type { User } from "~/modules/users/users.types";
+import getUserRoleInTeam from '../helpers/getUserRoleInTeam';
+import { isTeamAdmin } from '../helpers/teamAdmin';
 import type { Route } from "./+types/teamPrompts.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
+  const user = await getSessionUser({ request });
+  if (!user) {
+    return redirect('/');
+  }
+  if (!(await isTeamAdmin({ user, teamId: params.id }))) {
+    return redirect('/');
+  }
   const documents = getDocumentsAdapter();
   const promptsResult = await documents.getDocuments<Prompt>({ collection: 'prompts', match: { team: params.id } });
   return { prompts: promptsResult.data };
@@ -70,7 +79,8 @@ export default function TeamPromptsRoute() {
   const submit = useSubmit();
   const navigate = useNavigate();
   const authentication = useContext(AuthenticationContext) as User | null;
-  const canCreatePrompts = !!authentication && isTeamMember({ user: authentication, teamId: ctx.team._id });
+  const canCreatePrompts = !!authentication && !!getUserRoleInTeam({ user: authentication, team: ctx.team }).role
+
 
   useEffect(() => {
     updateBreadcrumb([

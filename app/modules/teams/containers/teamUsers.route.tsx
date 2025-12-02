@@ -18,12 +18,19 @@ import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
 import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
-import { validateTeamAdmin } from "../helpers/teamAdmin";
+import { isTeamAdmin, validateTeamAdmin } from "../helpers/teamAdmin";
 import type { Route } from "./+types/teamUsers.route";
 import AddUserToTeamDialogContainer from './addUserToTeamDialog.container';
 import InviteUserToTeamDialogContainer from "./inviteUserToTeamDialogContainer";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
+  const user = await getSessionUser({ request });
+  if (!user) {
+    return redirect('/');
+  }
+  if (!(await isTeamAdmin({ user, teamId: params.id }))) {
+    return redirect('/');
+  }
   const documents = getDocumentsAdapter();
   const teamsResult = await documents.getDocuments<User>({ collection: 'users', match: { "teams.team": params.id } });
   return { users: teamsResult.data };

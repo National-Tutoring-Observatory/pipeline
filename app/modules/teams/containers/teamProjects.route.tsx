@@ -1,18 +1,28 @@
 import { Button } from '@/components/ui/button';
 import { useContext, useEffect } from "react";
-import { Link, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
+import { Link, redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
+import { AuthenticationContext } from '~/modules/authentication/containers/authentication.container';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
 import type { Project } from "~/modules/projects/projects.types";
-import { isTeamMember, validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
+import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
 import type { User } from "~/modules/users/users.types";
+import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
+import { isTeamAdmin } from '../helpers/teamAdmin';
 import type { Route } from "./+types/teamProjects.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
+  const user = await getSessionUser({ request });
+  if (!user) {
+    return redirect('/');
+  }
+  if (!(await isTeamAdmin({ user, teamId: params.id }))) {
+    return redirect('/');
+  }
+
   const documents = getDocumentsAdapter();
   const projectsResult = await documents.getDocuments<Project>({ collection: 'projects', match: { team: params.id } });
   return { projects: projectsResult.data };
@@ -49,7 +59,7 @@ export default function TeamProjectsRoute() {
   const submit = useSubmit();
   const navigate = useNavigate();
   const authentication = useContext(AuthenticationContext) as User | null;
-  const canCreateProjects = !!authentication && isTeamMember({ user: authentication, teamId: ctx.team._id });
+  let canCreateProjects = !!authentication && !!getUserRoleInTeam({ user: authentication, team: ctx.team }).role
 
   useEffect(() => {
     updateBreadcrumb([
@@ -78,6 +88,8 @@ export default function TeamProjectsRoute() {
     submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name } }), { method: 'POST', encType: 'application/json' });
   }
 
+  const projects = data?.projects ?? [];
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -89,14 +101,14 @@ export default function TeamProjectsRoute() {
         )}
       </div>
       <div>
-        {(data.projects.length === 0) && (
+        {(projects.length === 0) && (
           <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
             No projects are associated with this team
           </div>
         )}
-        {(data.projects.length > 0) && (
+        {(projects.length > 0) && (
           <div className="mt-4 border border-black/10 rounded-md overflow-hidden">
-            {data.projects.map((project: Project) => (
+            {projects.map((project: Project) => (
               canCreateProjects ? (
                 <Link
                   key={project._id}
