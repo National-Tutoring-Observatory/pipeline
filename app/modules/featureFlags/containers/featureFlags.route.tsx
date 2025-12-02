@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { redirect, useActionData, useNavigate, useSubmit } from 'react-router';
+import { redirect, useActionData, useMatch, useNavigate, useSubmit } from 'react-router';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { isSuperAdmin, validateSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
@@ -60,9 +60,13 @@ export default function FeatureFlagsRoute({ loaderData }: Route.ComponentProps) 
   const actionData = useActionData();
   const navigate = useNavigate();
 
+  const match = useMatch('/featureFlags');
+
   useEffect(() => {
-    updateBreadcrumb([{ text: 'Feature flags', link: '/featureFlags' }])
-  }, []);
+    if (match) {
+      updateBreadcrumb([{ text: 'Feature flags', link: '/featureFlags' }])
+    }
+  }, [match]);
 
   useEffect(() => {
     if (actionData?.intent === 'CREATE_FEATURE_FLAG') {
