@@ -1,0 +1,54 @@
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { SidebarMenuButton } from "@/components/ui/sidebar";
+import { LifeBuoy } from "lucide-react";
+import { useState } from "react";
+import SupportArticlesContainer from "~/modules/support/containers/supportArticles.container";
+
+export default function SideBarHelpDropdown() {
+  const [docsOpen, setDocsOpen] = useState(false);
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <SidebarMenuButton size="sm" className="cursor-pointer">
+            <LifeBuoy />
+            <span>Help & Support</span>
+          </SidebarMenuButton>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+          side={"right"}
+          align="end"
+          sideOffset={4}
+        >
+          <DropdownMenuItem onClick={() => setDocsOpen(true)}>
+            Read the Documentation
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <a href="https://github.com/orgs/National-Tutoring-Observatory/discussions" target="_blank" rel="noopener noreferrer">
+              Ask a Question
+            </a>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <a href="https://github.com/National-Tutoring-Observatory/pipeline/issues/new/choose" target="_blank" rel="noopener noreferrer">
+              Report a Bug or Request a Feature
+            </a>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <a href="https://github.com/National-Tutoring-Observatory/pipeline/issues" target="_blank" rel="noopener noreferrer">
+              View Existing Issues
+            </a>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Sheet open={docsOpen} onOpenChange={setDocsOpen}>
+        <SheetContent side="left" className="overflow-y-auto">
+          <SupportArticlesContainer />
+        </SheetContent>
+      </Sheet>
+    </>
+  );
+}
