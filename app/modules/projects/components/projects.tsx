@@ -14,7 +14,7 @@ import { Link } from "react-router";
 import Collection from "@/components/ui/collection";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import dayjs from 'dayjs';
-import { EllipsisVertical } from "lucide-react";
+import { EllipsisVertical, Users } from "lucide-react";
 import Flag from "~/modules/featureFlags/components/flag";
 import type { Project } from "../projects.types";
 
@@ -48,10 +48,20 @@ export default function Projects({
         <Collection
           items={projects}
           getItemAttributes={(item) => {
+            let teamName = '';
+            if (item.team && typeof item.team === 'object' && 'name' in item.team && item.team.name) {
+              teamName = item.team.name;
+            }
             return {
               id: item._id,
               title: item.name,
-              to: `/projects/${item._id}`
+              to: `/projects/${item._id}`,
+              meta: [{
+                icon: <Users />,
+                text: teamName,
+              }, {
+                text: `Created at - ${dayjs(item.createdAt).format('ddd, MMM D, YYYY - h:mm A')}`,
+              }]
             }
           }}
         />

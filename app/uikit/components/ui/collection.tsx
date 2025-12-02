@@ -1,6 +1,7 @@
 import map from 'lodash/map';
-import React from 'react';
+import React, { type ReactElement } from 'react';
 import { Link } from 'react-router';
+import { Badge } from './badge';
 import { Button } from './button';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparator, ItemTitle } from './item';
 
@@ -10,24 +11,43 @@ export type CollectionProps<T> = {
   getItemAttributes: (item: T) => CollectionItemAttributes<T>
 }
 
+export type CollectionItemMeta<T> = {
+  text: string,
+  icon?: ReactElement
+}
+
 export type CollectionItemAttributes<T> = {
   id: string,
   title: string,
   description?: string,
-  to?: string
+  to?: string,
+  meta: CollectionItemMeta<T>[]
 }
 
 type CollectionItemProps = {
   title: string
   description?: string
-  to?: string
+  to?: string,
+  meta: CollectionItemMeta<unknown>[]
 }
 
-const CollectionItemContent = ({ title, description }: Omit<CollectionItemProps, 'to'>) => (
+const CollectionItemContent = ({ title, description, meta }: Omit<CollectionItemProps, 'to'>) => (
   <>
     <ItemContent className="gap-1">
-      <ItemTitle>{title}</ItemTitle>
+      <ItemTitle className="text-lg">{title}</ItemTitle>
       <ItemDescription>{description}</ItemDescription>
+      <div className="flex w-full flex-wrap gap-2">
+        {map(meta, (metaItem, index) => {
+          return (
+            <Badge key={index} variant="outline" className="text-muted-foreground">
+              {(metaItem.icon) && (
+                metaItem.icon
+              )}
+              {metaItem.text}
+            </Badge>
+          );
+        })}
+      </div>
     </ItemContent>
     <ItemActions>
       <Button onClick={(event) => { event.preventDefault(); event.stopPropagation() }}>
@@ -52,18 +72,18 @@ const Collection = <T,>({
             return null;
           }
 
-          const { id, title, description, to } = getItemAttributes(item);
+          const { id, title, description, to, meta } = getItemAttributes(item);
 
           return (
             <React.Fragment key={id}>
               <Item asChild>
                 {to ? (
                   <Link to={to}>
-                    <CollectionItemContent title={title} description={description} />
+                    <CollectionItemContent title={title} description={description} meta={meta} />
                   </Link>
                 ) : (
                   <div>
-                    <CollectionItemContent title={title} description={description} />
+                    <CollectionItemContent title={title} description={description} meta={meta} />
                   </div>
                 )}
               </Item>
