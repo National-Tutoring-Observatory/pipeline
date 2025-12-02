@@ -90,10 +90,8 @@ export default function FeatureFlagRoute({ loaderData }: {
   const submit = useSubmit();
 
   useEffect(() => {
-    setTimeout(() => {
-      updateBreadcrumb([{ text: 'Feature flags', link: '/featureFlags' }, { text: featureFlag.data.name }])
-    }, 0);
-  });
+    updateBreadcrumb([{ text: 'Feature flags', link: '/featureFlags' }, { text: featureFlag.data.name }])
+  }, [featureFlag.data.name]);
 
   const onAddUsersButtonClicked = () => {
     addDialog(
