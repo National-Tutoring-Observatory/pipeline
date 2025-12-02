@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import clsx from "clsx";
@@ -16,7 +17,8 @@ interface ProjectProps {
   uploadFilesProgress: number,
   convertFilesProgress: number,
   convertedSessionsCount: number,
-  onUploadFiles: ({ acceptedFiles, fileType }: { acceptedFiles: any[], fileType: FileType }) => void
+  onUploadFiles: ({ acceptedFiles, fileType }: { acceptedFiles: any[], fileType: FileType }) => void,
+  onEditProjectButtonClicked: (project: Project) => void
 }
 
 export default function Project({
@@ -30,13 +32,22 @@ export default function Project({
   convertFilesProgress,
   convertedSessionsCount,
   onUploadFiles
+  , onEditProjectButtonClicked
 }: ProjectProps) {
+
 
   return (
     <div className="max-w-6xl p-8">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
-        {project.name}
-      </h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
+          {project.name}
+        </h1>
+        <div>
+          <Button size="sm" variant="secondary" onClick={() => onEditProjectButtonClicked(project)}>
+            Edit
+          </Button>
+        </div>
+      </div>
       {(!project.hasSetupProject) && (
         <div>
           <UploadFilesContainer

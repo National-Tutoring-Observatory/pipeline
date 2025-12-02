@@ -2,14 +2,17 @@ import has from 'lodash/has';
 import map from 'lodash/map';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
-import { redirect, useLoaderData, useRevalidator, useSubmit } from "react-router";
+import { redirect, useFetcher, useLoaderData, useRevalidator, useSubmit } from "react-router";
+import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import exportRun from "~/modules/runs/helpers/exportRun";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
+import EditRunDialog from "../components/editRunDialog";
 import ProjectRun from "../components/projectRun";
 import type { Project } from "../projects.types";
 import createRunAnnotations from '../services/createRunAnnotations.server';
@@ -108,7 +111,14 @@ export default function ProjectRunRoute() {
   const [runSessionsProgress, setRunSessionsProgress] = useState(0);
   const [runSessionsStep, setRunSessionsStep] = useState('');
   const submit = useSubmit();
+  const fetcher = useFetcher();
   const { revalidate, state } = useRevalidator();
+
+  useEffect(() => {
+    if (fetcher.state === 'idle' && (fetcher.data)) {
+      toast.success('Updated run');
+    }
+  }, [fetcher.state, fetcher.data]);
 
   const onStartRunClicked = ({
     selectedAnnotationType,
@@ -142,6 +152,15 @@ export default function ProjectRunRoute() {
       intent: 'RE_RUN',
       payload: {}
     }), { method: 'POST', encType: 'application/json' });
+  }
+
+  const onEditRunButtonClicked = (run: Run) => {
+    addDialog(<EditRunDialog
+      run={run}
+      onEditRunClicked={(r: Run) => {
+        fetcher.submit(JSON.stringify({ intent: 'UPDATE_RUN', entityId: r._id, payload: { name: r.name } }), { method: 'PUT', encType: 'application/json', action: `/projects/${project.data._id}` });
+      }}
+    />);
   }
 
   useHandleSockets({
@@ -221,6 +240,7 @@ export default function ProjectRunRoute() {
       onStartRunClicked={onStartRunClicked}
       onExportRunButtonClicked={onExportRunButtonClicked}
       onReRunClicked={onReRunClicked}
+      onEditRunButtonClicked={onEditRunButtonClicked}
     />
   )
 }

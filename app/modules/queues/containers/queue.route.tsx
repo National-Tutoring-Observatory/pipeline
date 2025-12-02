@@ -63,7 +63,9 @@ export default function QueueRoute() {
     { key: 'waiting', label: 'Waiting', count: data.jobCounts.waiting },
     { key: 'completed', label: 'Completed', count: data.jobCounts.completed },
     { key: 'failed', label: 'Failed', count: data.jobCounts.failed },
-    { key: 'delayed', label: 'Delayed', count: data.jobCounts.delayed }
+    { key: 'delayed', label: 'Delayed', count: data.jobCounts.delayed },
+    { key: 'paused', label: 'Paused', count: data.jobCounts.paused },
+    { key: 'waiting-children', label: 'Waiting Children', count: data.jobCounts['waiting-children'] },
   ];
 
   const handlePauseResume = () => {

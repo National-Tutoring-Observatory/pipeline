@@ -9,6 +9,7 @@ import type { User } from "~/modules/users/users.types";
 import DeleteJobDialog from "../components/deleteJobDialog";
 import JobDetailsDialog from "../components/jobDetailsDialog";
 import JobsList from "../components/jobsList";
+import RetryJobDialog from "../components/retryJobDialog";
 import getQueue from "../helpers/getQueue";
 import type { Job } from "../queues.types";
 import type { Route } from "./+types/queueJobs.route";
@@ -20,27 +21,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   const { type, state } = params;
-  const queue = getQueue(type as string);
 
-  let jobs: Job[] = [];
-
-  switch (state) {
-    case 'active':
-      jobs = await queue.getActive();
-      break;
-    case 'wait':
-      jobs = await queue.getWaiting();
-      break;
-    case 'completed':
-      jobs = await queue.getCompleted();
-      break;
-    case 'failed':
-      jobs = await queue.getFailed();
-      break;
-    case 'delayed':
-      jobs = await queue.getDelayed();
-      break;
-  }
+  const queue = getQueue(type);
+  const jobs = await queue.getJobs(state);
 
   return {
     queueType: type,
@@ -74,8 +57,34 @@ export async function action({ request, params }: Route.ActionArgs) {
           success: true
         };
       } catch (error) {
-        console.error('Error removing job:', error);
-        throw new Error(error instanceof Error ? error.message : 'Unknown error occurred');
+        throw error;
+      }
+    case 'RETRY_JOB':
+      try {
+        const queue = getQueue(type as string);
+
+        if (!queue) {
+          throw new Error(`Queue "${type}" not found`);
+        }
+
+        const job = await queue.getJob(entityId);
+
+        if (!job) {
+          throw new Error(`Job "${entityId}" not found`);
+        }
+
+        if (job.state !== 'failed') {
+          throw new Error(`Job "${entityId}" is not in a failed state`);
+        }
+
+        await job.retry();
+
+        return {
+          intent: 'RETRY_JOB',
+          success: true
+        };
+      } catch (error) {
+        throw error;
       }
     default:
       throw new Error(`Unknown intent: ${intent}`);
@@ -115,9 +124,25 @@ export default function QueueJobsRoute() {
     );
   };
 
+  const handleRetryJob = (job: Job) => {
+    addDialog(
+      <RetryJobDialog
+        job={job}
+        onRetryJobClicked={onRetryJobClicked}
+      />
+    );
+  };
+
   const onRemoveJobClicked = (jobId: string) => {
     submit(JSON.stringify({ intent: 'DELETE_JOB', entityId: jobId }), {
       method: 'DELETE',
+      encType: 'application/json'
+    });
+  };
+
+  const onRetryJobClicked = (jobId: string) => {
+    submit(JSON.stringify({ intent: 'RETRY_JOB', entityId: jobId }), {
+      method: 'POST',
       encType: 'application/json'
     });
   };
@@ -128,6 +153,7 @@ export default function QueueJobsRoute() {
       state={state}
       onDisplayJobClick={handleJobClick}
       onRemoveJobClick={handleRemoveJob}
+      onRetryJobClick={handleRetryJob}
     />
   );
 }
