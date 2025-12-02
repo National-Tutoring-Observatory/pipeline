@@ -4,21 +4,20 @@ import has from 'lodash/has';
 import map from 'lodash/map';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
-import { redirect, useMatches, useRevalidator, useSubmit } from "react-router";
+import { redirect, useFetcher, useMatches, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import type { Collection } from "~/modules/collections/collections.types";
+import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { FileType } from '~/modules/files/files.types';
-import type { File as AppFile } from '~/modules/files/files.types';
-import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import splitMultipleSessionsIntoFiles from '~/modules/uploads/services/splitMultipleSessionsIntoFiles';
 import uploadFiles from "~/modules/uploads/services/uploadFiles";
 import type { User } from "~/modules/users/users.types";
+import EditProjectDialog from "../components/editProjectDialog";
 import Project from '../components/project';
 import getAttributeMappingFromFile from '../helpers/getAttributeMappingFromFile';
 import { validateProjectOwnership } from "../helpers/projectOwnership";
@@ -100,6 +99,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const { project, filesCount, sessionsCount, convertedSessionsCount, runsCount, collectionsCount } = loaderData;
 
   const submit = useSubmit();
+  const fetcher = useFetcher();
 
   const matches = useMatches();
 
@@ -138,6 +138,18 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       toast.success('Uploading files');
     });
   }
+
+  const onEditProjectButtonClicked = (project: ProjectType) => {
+    addDialog(<EditProjectDialog project={project} onEditProjectClicked={(p: ProjectType) => {
+      fetcher.submit(JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: p._id, payload: { name: p.name } }), { method: 'PUT', encType: 'application/json', action: '/api/projects' });
+    }} />);
+  }
+
+  useEffect(() => {
+    if (fetcher.state === 'idle' && fetcher.data) {
+      toast.success('Updated project');
+    }
+  }, [fetcher.state, fetcher.data]);
 
   useHandleSockets({
     event: 'CONVERT_FILES_TO_SESSIONS',
@@ -202,7 +214,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
 
   useEffect(() => {
     updateBreadcrumb([{ text: 'Projects', link: `/` }, { text: project.data!.name }])
-  }, []);
+  }, [project.data]);
 
   return (
     <Project
@@ -216,6 +228,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       convertFilesProgress={convertFilesProgress}
       uploadFilesProgress={uploadFilesProgress}
       onUploadFiles={onUploadFiles}
+      onEditProjectButtonClicked={onEditProjectButtonClicked}
     />
   );
 }
