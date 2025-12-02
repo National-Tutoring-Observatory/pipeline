@@ -1,21 +1,23 @@
-import type { User } from "~/modules/users/users.types";
-import type { FeatureFlag } from "../featureFlags.types";
-import map from 'lodash/map';
 import { Button } from "@/components/ui/button";
 import { Item, ItemActions, ItemContent, ItemGroup, ItemSeparator, ItemTitle } from "@/components/ui/item";
+import map from 'lodash/map';
+import { Trash } from "lucide-react";
 import React from "react";
-import { Delete, Trash } from "lucide-react";
+import type { User } from "~/modules/users/users.types";
+import type { FeatureFlag } from "../featureFlags.types";
 
 export default function FeatureFlag({
   featureFlag,
   users,
   onAddUsersClicked,
-  onRemoveUserFromFeatureFlagClicked
+  onRemoveUserFromFeatureFlagClicked,
+  onDeleteFeatureFlagClicked
 }: {
   featureFlag: FeatureFlag,
   users: User[],
   onAddUsersClicked: () => void,
   onRemoveUserFromFeatureFlagClicked: (userId: string) => void,
+  onDeleteFeatureFlagClicked: () => void,
 }) {
   return (
     <div className="w-full">
@@ -30,6 +32,13 @@ export default function FeatureFlag({
             onClick={onAddUsersClicked}
           >
             Add users
+          </Button>
+          <Button
+            variant="destructive"
+            className="ml-2"
+            onClick={onDeleteFeatureFlagClicked}
+          >
+            Delete
           </Button>
         </div>
       </div>
