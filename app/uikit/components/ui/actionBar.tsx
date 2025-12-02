@@ -1,9 +1,8 @@
 import map from 'lodash/map';
-import { Search } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Button } from './button';
-import { ButtonGroup } from './button-group';
-import { Input } from './input';
+import { Pagination, type PaginationProps } from './pagination';
+import { Search, type SearchProps } from './search';
 
 export type Action = {
   icon?: ReactElement,
@@ -14,19 +13,22 @@ export type Action = {
 
 export type ActionBarProps = {
   actions: Action[]
-  searchValue?: string,
   hasSearch?: boolean,
-  onActionClicked: (action: string) => void,
-  onSearchValueChanged?: (searchValue: string) => void
+  hasPagination?: boolean,
+  onActionClicked: (action: string) => void
 }
 
 function ActionBar({
   actions,
   searchValue,
   hasSearch = false,
+  hasPagination = false,
+  currentPage = 1,
+  totalPages = 1,
   onActionClicked,
-  onSearchValueChanged
-}: ActionBarProps) {
+  onSearchValueChanged,
+  onPaginationChanged
+}: ActionBarProps & SearchProps & PaginationProps) {
 
   const [isStuck, setIsStuck] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -51,19 +53,21 @@ function ActionBar({
       <div className={`flex justify-between sticky top-4 border p-2 mb-2 rounded-2xl bg-white ${isStuck ? 'shadow' : ''}`}>
         <div>
           {(hasSearch) && (
-            <ButtonGroup >
-              <Input placeholder="Search..." value={searchValue} className="shadow-none" onChange={(event) => {
-                if (onSearchValueChanged) {
-                  onSearchValueChanged(event.target.value);
-                }
-              }} />
-              <Button variant="outline" aria-label="Search" className="shadow-none">
-                <Search />
-              </Button>
-            </ButtonGroup>
+            <Search
+              searchValue={searchValue}
+              onSearchValueChanged={onSearchValueChanged}
+            />
           )}
         </div>
-        <div />
+        <div>
+          {(hasPagination) && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPaginationChanged={onPaginationChanged}
+            />
+          )}
+        </div>
         <div className="flex gap-x-1">
           {map(actions, (action) => {
             return (

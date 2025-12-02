@@ -54,7 +54,10 @@ export default function Projects({
             text: 'Create project'
           }]}
           hasSearch
+          hasPagination
           searchValue={""}
+          currentPage={1}
+          totalPages={2}
           getItemAttributes={(item) => {
 
             const teamName = get(item, 'team.name', '');
@@ -103,6 +106,9 @@ export default function Projects({
           }}
           onSearchValueChanged={(searchValue) => {
             console.log(searchValue);
+          }}
+          onPaginationChanged={(currentPage) => {
+            console.log(currentPage);
           }}
         />
       </Flag>

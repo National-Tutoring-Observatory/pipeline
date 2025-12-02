@@ -7,19 +7,20 @@ import { Badge } from './badge';
 import { Button } from './button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparator, ItemTitle } from './item';
+import type { PaginationProps } from './pagination';
+import type { SearchProps } from './search';
 
 
 export type CollectionProps<T> = {
   items: T[]
   actions: Action[]
-  searchValue?: string,
   hasSearch?: boolean,
+  hasPagination?: boolean,
   renderItem?: (item: T) => ReactElement,
   getItemAttributes: (item: T) => CollectionItemAttributes<T>
   getItemActions: (item: T) => CollectionItemAction[]
   onActionClicked: (action: string) => void,
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
-  onSearchValueChanged?: (searchValue: string) => void
 }
 
 export type CollectionItemAction = {
@@ -130,22 +131,30 @@ const Collection = <T,>({
   actions,
   searchValue,
   hasSearch,
+  hasPagination,
+  currentPage,
+  totalPages,
   renderItem,
   getItemAttributes,
   getItemActions,
   onActionClicked,
   onItemActionClicked,
-  onSearchValueChanged
-}: CollectionProps<T>) => {
+  onSearchValueChanged,
+  onPaginationChanged
+}: CollectionProps<T> & SearchProps & PaginationProps) => {
 
   return (
     <div>
       <ActionBar
         actions={actions}
         searchValue={searchValue}
+        currentPage={currentPage}
+        totalPages={totalPages}
         hasSearch={hasSearch}
+        hasPagination={hasPagination}
         onActionClicked={onActionClicked}
         onSearchValueChanged={onSearchValueChanged}
+        onPaginationChanged={onPaginationChanged}
       />
       <ItemGroup className="border rounded-sm">
         {map(items, (item, index) => {
