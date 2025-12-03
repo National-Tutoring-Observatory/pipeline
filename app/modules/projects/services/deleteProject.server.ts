@@ -8,7 +8,7 @@ export default async function deleteProject({ projectId }: { projectId: string }
   await documents.updateDocument({
     collection: "projects",
     match: { _id: projectId },
-    update: { deleted: true },
+    update: { isDeleted: true },
   });
 
   try {

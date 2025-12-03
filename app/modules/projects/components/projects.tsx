@@ -81,7 +81,8 @@ export default function Projects({
                 text: teamName,
               }, {
                 text: `Created at - ${dayjs(item.createdAt).format('ddd, MMM D, YYYY - h:mm A')}`,
-              }]
+              }],
+              isDisabled: true
             }
           }}
           getItemActions={(item) => {
@@ -144,7 +145,7 @@ export default function Projects({
                   // @ts-ignore
                   teamName = project.team.name;
                 }
-                const isDeleted = project.deleted === true;
+                const isDeleted = project.isDeleted === true;
                 return (
                   <TableRow
                     key={project._id}
