@@ -6,6 +6,7 @@ import { ActionBar, type Action } from './actionBar';
 import { Badge } from './badge';
 import { Button } from './button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu';
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from './empty';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparator, ItemTitle } from './item';
 import type { PaginationProps } from './pagination';
 import type { SearchProps } from './search';
@@ -16,6 +17,12 @@ export type CollectionProps<T> = {
   actions: Action[]
   hasSearch?: boolean,
   hasPagination?: boolean,
+  emptyAttributes: {
+    title?: string,
+    description?: string,
+    icon?: ReactElement,
+    actions?: Action[]
+  }
   renderItem?: (item: T) => ReactElement,
   getItemAttributes: (item: T) => CollectionItemAttributes<T>
   getItemActions: (item: T) => CollectionItemAction[]
@@ -134,6 +141,7 @@ const Collection = <T,>({
   hasPagination,
   currentPage,
   totalPages,
+  emptyAttributes = {},
   renderItem,
   getItemAttributes,
   getItemActions,
@@ -156,6 +164,31 @@ const Collection = <T,>({
         onSearchValueChanged={onSearchValueChanged}
         onPaginationChanged={onPaginationChanged}
       />
+      {(items.length === 0) && (
+        <Empty>
+          <EmptyHeader>
+            {(emptyAttributes.icon) && (
+              <EmptyMedia variant="icon">
+                {emptyAttributes.icon}
+              </EmptyMedia>
+            )}
+            <EmptyTitle>{emptyAttributes.title}</EmptyTitle>
+            <EmptyDescription>
+              {emptyAttributes.description}
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <div className="flex gap-2">
+              {map(emptyAttributes.actions, (action, index) => {
+                const variant = index > 0 ? 'outline' : undefined;
+                return (
+                  <Button key={action.action} variant={variant} onClick={() => onActionClicked(action.action)}>{action.text}</Button>
+                )
+              })}
+            </div>
+          </EmptyContent>
+        </Empty>
+      )}
       <ItemGroup className="border rounded-sm">
         {map(items, (item, index) => {
 
