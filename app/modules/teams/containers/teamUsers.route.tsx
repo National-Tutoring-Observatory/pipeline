@@ -11,6 +11,7 @@ import ConfirmRemoveUserDialog from "../components/confirmRemoveUserDialog";
 import TeamUsers from "../components/teamUsers";
 import { isTeamAdmin, validateTeamAdmin } from "../helpers/teamAdmin";
 import type { Route } from "./+types/teamUsers.route";
+import AddSuperAdminToTeamDialogContainer from "./addSuperAdminToTeamDialogContainer";
 import AddUserToTeamDialogContainer from './addUserToTeamDialog.container';
 import InviteUserToTeamDialogContainer from "./inviteUserToTeamDialogContainer";
 
@@ -77,6 +78,18 @@ export default function TeamUsersRoute() {
     submit(JSON.stringify({ intent: 'ADD_USERS_TO_TEAM', payload: { userIds } }), { method: 'PUT', encType: 'application/json' });
   }
 
+  const onAddSuperAdminClicked = () => {
+    submit(JSON.stringify({ intent: 'ADD_SUPERADMIN_TO_TEAM', payload: {} }), { method: 'PUT', encType: 'application/json' });
+  }
+
+  const onAddSuperAdminToTeamButtonClicked = () => {
+    addDialog(
+      <AddSuperAdminToTeamDialogContainer
+        onAddSuperAdminClicked={onAddSuperAdminClicked}
+      />
+    );
+  }
+
   const onAddUserToTeamButtonClicked = () => {
     addDialog(
       <AddUserToTeamDialogContainer
@@ -119,6 +132,7 @@ export default function TeamUsersRoute() {
       team={ctx.team}
       isSuperAdminUser={isSuperAdminUser}
       onAddUserToTeamButtonClicked={onAddUserToTeamButtonClicked}
+      onAddSuperAdminToTeamButtonClicked={onAddSuperAdminToTeamButtonClicked}
       onInviteUserToTeamButtonClicked={onInviteUserToTeamButtonClicked}
       onRemoveUserFromTeamClicked={onRemoveUserFromTeamClicked}
     />
