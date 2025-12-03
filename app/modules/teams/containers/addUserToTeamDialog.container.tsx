@@ -1,15 +1,18 @@
-import { useEffect, useRef, useState } from "react";
-import { useFetcher } from "react-router";
-import AddUserToTeamDialog from "../components/addUserToTeamDialog";
+import cloneDeep from "lodash/cloneDeep";
 import includes from 'lodash/includes';
 import remove from 'lodash/remove';
-import cloneDeep from "lodash/cloneDeep";
+import { useEffect, useState } from "react";
+import { useFetcher } from "react-router";
+import type { User } from "~/modules/users/users.types";
+import AddUserToTeamDialog from "../components/addUserToTeamDialog";
 
 export default function AddUserToTeamDialogContainer({
   teamId,
-  onAddUsersClicked
+  onAddUsersClicked,
+  superAdminId
 }: {
   teamId: string,
+  superAdminId: string | null,
   onAddUsersClicked: (userIds: string[]) => void,
 }) {
 
@@ -41,11 +44,14 @@ export default function AddUserToTeamDialogContainer({
     setIsSubmitButtonDisabled(clonedSelectedUsers.length === 0);
   }
 
+  const users = (fetcher.data?.data || []) as User[];
+  const availableUsers = superAdminId ? users.filter((user) => user._id !== superAdminId) : users;
+
   return (
     <AddUserToTeamDialog
       isFetching={isFetching}
       isSubmitButtonDisabled={isSubmitButtonDisabled}
-      users={fetcher.data?.data}
+      users={availableUsers}
       selectedUsers={selectedUsers}
       onAddUsersClicked={() => onAddUsersClicked(selectedUsers)}
       onSelectUserToggled={onSelectUserToggled}

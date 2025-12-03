@@ -41,6 +41,9 @@ export async function action({ request, params }: Route.ActionArgs) {
   switch (intent) {
     case 'ADD_USERS_TO_TEAM':
       for (const id of userIds) {
+        if (isSuperAdmin(user) && id === user._id) {
+          throw new Error("Super admin cannot be added to a team.");
+        }
         const userDoc = await documents.getDocument<User>({ collection: 'users', match: { _id: id } });
         if (userDoc.data) {
           if (!userDoc.data.teams) userDoc.data.teams = [];
@@ -78,6 +81,7 @@ export default function TeamUsersRoute() {
     addDialog(
       <AddUserToTeamDialogContainer
         teamId={ctx.team._id}
+        superAdminId={isSuperAdminUser ? authentication!._id : null}
         onAddUsersClicked={onAddUsersClicked}
       />
     );
