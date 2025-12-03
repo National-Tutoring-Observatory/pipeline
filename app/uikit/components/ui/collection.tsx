@@ -17,6 +17,7 @@ export type CollectionProps<T> = {
   actions: Action[]
   hasSearch?: boolean,
   hasPagination?: boolean,
+  isSyncing?: boolean,
   emptyAttributes: {
     title?: string,
     description?: string,
@@ -139,6 +140,7 @@ const Collection = <T,>({
   searchValue,
   hasSearch,
   hasPagination,
+  isSyncing,
   currentPage,
   totalPages,
   emptyAttributes = {},
@@ -160,6 +162,7 @@ const Collection = <T,>({
         totalPages={totalPages}
         hasSearch={hasSearch}
         hasPagination={hasPagination}
+        isSyncing={isSyncing}
         onActionClicked={onActionClicked}
         onSearchValueChanged={onSearchValueChanged}
         onPaginationChanged={onPaginationChanged}
