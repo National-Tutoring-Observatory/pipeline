@@ -49,6 +49,7 @@ export default function Projects({
       <Flag flag="HAS_COLLECTION_UI" >
         <Collection
           items={projects}
+          itemsLayout="list"
           actions={[{
             action: 'CREATE',
             text: 'Create project'

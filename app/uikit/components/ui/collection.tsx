@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import map from 'lodash/map';
 import { EllipsisVertical } from 'lucide-react';
 import React, { type ReactElement } from 'react';
@@ -14,6 +15,7 @@ import type { SearchProps } from './search';
 
 export type CollectionProps<T> = {
   items: T[]
+  itemsLayout: 'list' | 'card',
   actions: Action[]
   hasSearch?: boolean,
   hasPagination?: boolean,
@@ -136,6 +138,7 @@ const CollectionItemContent = ({
 
 const Collection = <T,>({
   items,
+  itemsLayout = 'list',
   actions,
   searchValue,
   hasSearch,
@@ -192,7 +195,10 @@ const Collection = <T,>({
           </EmptyContent>
         </Empty>
       )}
-      <ItemGroup className="border rounded-sm">
+      <ItemGroup className={clsx({
+        "border rounded-sm": itemsLayout === 'list',
+        "grid grid-cols-3 gap-4": itemsLayout === 'card'
+      })}>
         {map(items, (item, index) => {
 
           if (!getItemAttributes) {
@@ -206,7 +212,7 @@ const Collection = <T,>({
 
           return (
             <React.Fragment key={id}>
-              <Item asChild>
+              <Item asChild variant={itemsLayout === 'card' ? 'outline' : undefined}>
                 {to ? (
                   <Link to={to}>
                     {(renderItem) && (
@@ -239,7 +245,7 @@ const Collection = <T,>({
                   </div>
                 )}
               </Item>
-              {index !== items.length - 1 && <ItemSeparator />}
+              {(index !== items.length - 1) && (itemsLayout === 'list') && <ItemSeparator />}
             </React.Fragment>
           );
         })}
