@@ -1,12 +1,11 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { ChartNoAxesGantt, ChevronsUpDown, Flag, FolderKanban, LifeBuoy, LogOut, SquareTerminal, Users } from "lucide-react";
+import { ChartNoAxesGantt, ChevronsUpDown, Flag, FolderKanban, LogOut, SquareTerminal, Users } from "lucide-react";
 import { useContext, useEffect } from "react";
 import { NavLink, useFetcher } from "react-router";
+import SideBarHelpDropdown from "~/modules/app/components/sidebarHelpDropdown";
 import Role from "~/modules/authentication/components/role";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
-import SupportArticlesContainer from "~/modules/support/containers/supportArticles.container";
 import type { User } from "~/modules/users/users.types";
 
 export default function AppSidebar() {
@@ -110,15 +109,6 @@ export default function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </Role>
-              {/* <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink to={'/users'}>
-                    {({ isActive }) => (
-                      <span className={isActive ? "underline" : ""}>Users</span>
-                    )}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem> */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -128,17 +118,7 @@ export default function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <SidebarMenuButton size="sm" className="cursor-pointer">
-                      <LifeBuoy />
-                      <span>Help & Support</span>
-                    </SidebarMenuButton>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="overflow-y-auto">
-                    <SupportArticlesContainer />
-                  </SheetContent>
-                </Sheet>
+                <SideBarHelpDropdown />
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
@@ -153,10 +133,6 @@ export default function AppSidebar() {
                       size="lg"
                       className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                     >
-                      {/* <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage src={user.avatar} alt={user.username} />
-                        <AvatarFallback className="rounded-lg">{user.username}</AvatarFallback>
-                      </Avatar> */}
                       <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-medium">{user.username}</span>
                         <span className="truncate text-xs">{user.orcidId || user.githubId}</span>
@@ -170,41 +146,6 @@ export default function AppSidebar() {
                     align="end"
                     sideOffset={4}
                   >
-                    {/* <DropdownMenuLabel className="p-0 font-normal">
-                      <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                        <Avatar className="h-8 w-8 rounded-lg">
-                          <AvatarImage src={user.avatar} alt={user.name} />
-                          <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                        </Avatar>
-                        <div className="grid flex-1 text-left text-sm leading-tight">
-                          <span className="truncate font-medium">{user.name}</span>
-                          <span className="truncate text-xs">{user.email}</span>
-                        </div>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem>
-                        <Sparkles />
-                        Upgrade to Pro
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem>
-                        <BadgeCheck />
-                        Account
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <CreditCard />
-                        Billing
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Bell />
-                        Notifications
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator /> */}
                     <DropdownMenuItem onClick={onLogoutClicked}>
                       <LogOut />
                       Log out

@@ -5,6 +5,7 @@ import deleteProject from "../general/deleteProject";
 import deleteProjectFiles from "../general/deleteProjectFiles";
 import deleteProjectRuns from "../general/deleteProjectRuns";
 import deleteProjectSessions from "../general/deleteProjectSessions";
+import removeFeatureFlagFromUsers from "../general/removeFeatureFlagFromUsers";
 
 export default async (job: Job) => {
   try {
@@ -18,6 +19,9 @@ export default async (job: Job) => {
       }
       case 'DELETE_PROJECT:FINISH': {
         return deleteProject(job);
+      }
+      case 'REMOVE_FEATURE_FLAG': {
+        return removeFeatureFlagFromUsers(job);
       }
       default: {
         return { status: 'ERRORED', message: `Missing handler for ${job.name}` }
