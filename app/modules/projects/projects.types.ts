@@ -9,5 +9,5 @@ export interface Project {
   isUploadingFiles: boolean;
   isConvertingFiles: boolean;
   hasSetupProject: boolean;
-  deleted?: boolean;
+  isDeleted?: boolean;
 }

@@ -144,7 +144,7 @@ export default function Projects({
                   // @ts-ignore
                   teamName = project.team.name;
                 }
-                const isDeleted = project.deleted === true;
+                const isDeleted = project.isDeleted === true;
                 return (
                   <TableRow
                     key={project._id}

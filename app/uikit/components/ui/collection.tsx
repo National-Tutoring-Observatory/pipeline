@@ -50,7 +50,8 @@ export type CollectionItemAttributes<T> = {
   title: string,
   description?: string,
   to?: string,
-  meta: CollectionItemMeta<T>[]
+  meta?: CollectionItemMeta<T>[],
+  isDisabled?: boolean,
 }
 
 type CollectionItemProps = {
@@ -58,8 +59,9 @@ type CollectionItemProps = {
   title: string
   description?: string
   to?: string,
-  meta: CollectionItemMeta<unknown>[]
+  meta?: CollectionItemMeta<unknown>[]
   actions: CollectionItemAction[]
+  isDisabled?: boolean,
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void
 }
 
@@ -67,8 +69,9 @@ const CollectionItemContent = ({
   id,
   title,
   description,
-  meta,
+  meta = [],
   actions = [],
+  isDisabled = false,
   onItemActionClicked,
 }: Omit<CollectionItemProps, 'to'>) => (
   <>
@@ -92,7 +95,7 @@ const CollectionItemContent = ({
       <ItemActions>
         {(actions.length > 1) && (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild disabled={isDisabled}>
               <Button
                 variant="ghost"
                 className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
@@ -206,14 +209,14 @@ const Collection = <T,>({
             return null;
           }
 
-          const { id, title, description, to, meta } = getItemAttributes(item);
+          const { id, title, description, to, meta, isDisabled } = getItemAttributes(item);
 
           const itemActions = getItemActions(item);
 
           return (
             <React.Fragment key={id}>
-              <Item asChild variant={itemsLayout === 'card' ? 'outline' : undefined}>
-                {to ? (
+              <Item asChild variant={itemsLayout === 'card' ? 'outline' : undefined} className={clsx({ 'opacity-50': isDisabled })}>
+                {to && !isDisabled ? (
                   <Link to={to}>
                     {(renderItem) && (
                       renderItem(item)
@@ -224,6 +227,7 @@ const Collection = <T,>({
                           description={description}
                           meta={meta}
                           actions={itemActions}
+                          isDisabled={isDisabled}
                           onItemActionClicked={onItemActionClicked}
                         />
                       )}
@@ -239,6 +243,7 @@ const Collection = <T,>({
                           description={description}
                           meta={meta}
                           actions={itemActions}
+                          isDisabled={isDisabled}
                           onItemActionClicked={onItemActionClicked}
                         />
                       )}
