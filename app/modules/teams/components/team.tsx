@@ -16,7 +16,7 @@ export default function Team({
   const parts = location.pathname.split('/').filter(Boolean);
   // Expect path like /teams/:id(/projects|prompts|users)
   const last = parts[parts.length - 1];
-  const active = ['projects', 'prompts', 'users'].includes(last) ? last : 'projects';
+  const active = ['projects', 'prompts', 'users'].includes(last) ? last : 'users';
 
   const handleTabChange = (value: string) => {
     navigate(`/teams/${team._id}/${value}`);
@@ -29,9 +29,9 @@ export default function Team({
       </h1>
       <Tabs value={active} onValueChange={handleTabChange} className="mb-2">
         <TabsList>
+          <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="prompts">Prompts</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
         </TabsList>
       </Tabs>
 
