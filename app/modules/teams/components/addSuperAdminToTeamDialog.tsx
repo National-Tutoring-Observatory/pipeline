@@ -3,17 +3,28 @@ import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHead
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import type { TeamAssignmentOption } from "../teams.types";
+import { TEAM_ASSIGNMENT_OPTIONS } from "../teams.types";
+
+const OPTION_LABELS: Record<TeamAssignmentOption, string> = {
+  temporary: 'I need temporary access for debugging purposes',
+  permanent: 'I am a member of this team and need regular access',
+};
 
 export default function AddSuperAdminToTeamDialog({
   isSubmitButtonDisabled,
-  onAddSuperAdminToTeamClicked,
+  onAddSuperAdminClicked,
   reason,
-  onReasonChanged
+  option,
+  onReasonChanged,
+  onOptionChanged
 }: {
   isSubmitButtonDisabled: boolean,
-  onAddSuperAdminToTeamClicked: () => void,
+  onAddSuperAdminClicked: () => void,
   reason: string,
+  option: TeamAssignmentOption,
   onReasonChanged: (event: React.ChangeEvent<HTMLTextAreaElement>) => void,
+  onOptionChanged: (value: TeamAssignmentOption) => void,
 }) {
   return (
     <DialogContent>
@@ -34,27 +45,27 @@ export default function AddSuperAdminToTeamDialog({
         </div>
         <div className="mt-3">
           <Label className="text-xs mb-2">Assignment type</Label>
-          <RadioGroup defaultValue="temporary">
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="temporary" id="temporary" />
-              <Label htmlFor="temporary">I need temporary access for debugging purposes</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="permanent" id="permanent" />
-              <Label htmlFor="permanent">I certify I am a member of this team and need regular access</Label>
-            </div>
+          <RadioGroup defaultValue={option} onValueChange={onOptionChanged}>
+            {TEAM_ASSIGNMENT_OPTIONS.map((opt) => (
+              <div key={opt} className="flex items-center space-x-2">
+                <RadioGroupItem value={opt} id={opt} />
+                <Label htmlFor={opt}>{OPTION_LABELS[opt]}</Label>
+              </div>
+            ))}
           </RadioGroup>
         </div>
       </div>
       <DialogFooter>
-        <Button
-          disabled={isSubmitButtonDisabled}
-          onClick={onAddSuperAdminToTeamClicked}
-        >
-          Add Super Admin
-        </Button>
         < DialogClose asChild >
           <Button variant="outline" > Cancel </Button>
+        </DialogClose>
+        <DialogClose asChild>
+          <Button
+            disabled={isSubmitButtonDisabled}
+            onClick={onAddSuperAdminClicked}
+          >
+            Add Super Admin
+          </Button>
         </DialogClose>
       </DialogFooter>
     </DialogContent>

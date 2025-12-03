@@ -5,6 +5,7 @@ import deleteProject from "../general/deleteProject";
 import deleteProjectFiles from "../general/deleteProjectFiles";
 import deleteProjectRuns from "../general/deleteProjectRuns";
 import deleteProjectSessions from "../general/deleteProjectSessions";
+import removeExpiredTeamAssignment from "../general/removeExpiredTeamAssignment";
 import removeFeatureFlagFromUsers from "../general/removeFeatureFlagFromUsers";
 
 export default async (job: Job) => {
@@ -22,6 +23,9 @@ export default async (job: Job) => {
       }
       case 'REMOVE_FEATURE_FLAG': {
         return removeFeatureFlagFromUsers(job);
+      }
+      case 'REMOVE_EXPIRED_TEAM_ASSIGNMENT': {
+        return removeExpiredTeamAssignment(job);
       }
       default: {
         return { status: 'ERRORED', message: `Missing handler for ${job.name}` }
