@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import map from 'lodash/map';
 import { Link } from "react-router";
 
-import Collection from "@/components/ui/collection";
+import { Collection } from "@/components/ui/collection";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import dayjs from 'dayjs';
 import find from 'lodash/find';
@@ -48,7 +48,7 @@ export default function Projects({
       )}
       <Flag flag="HAS_COLLECTION_UI" >
         <Collection
-          items={projects}
+          items={[]}
           itemsLayout="list"
           actions={[{
             action: 'CREATE',
@@ -58,7 +58,7 @@ export default function Projects({
           hasPagination
           searchValue={""}
           currentPage={1}
-          totalPages={2}
+          totalPages={1}
           emptyAttributes={{
             icon: <FolderKanban />,
             title: 'No Projects yet',
