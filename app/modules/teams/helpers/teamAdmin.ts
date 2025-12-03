@@ -14,7 +14,9 @@ export async function isTeamAdmin({ user, teamId }: { user: User, teamId: string
   }
 
   return true;
-} export async function validateTeamAdmin({ user, teamId }: { user: User, teamId: string }) {
+}
+
+export async function validateTeamAdmin({ user, teamId }: { user: User, teamId: string }) {
   if (!(await isTeamAdmin({ user, teamId }))) {
     throw new Error("You do not have admin permissions for this team.");
   }
