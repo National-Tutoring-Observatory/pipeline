@@ -1,20 +1,19 @@
 import clsx from 'clsx';
 import map from 'lodash/map';
-import { EllipsisVertical } from 'lucide-react';
 import React, { type ReactElement } from 'react';
 import { Link } from 'react-router';
 import { ActionBar, type Action } from './actionBar';
-import { Badge } from './badge';
 import { Button } from './button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu';
+import type { CollectionItemAction, CollectionItemAttributes } from './collectionContentItem';
+import CollectionItemContent from './collectionContentItem';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from './empty';
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparator, ItemTitle } from './item';
+import { Item, ItemGroup, ItemSeparator } from './item';
 import type { PaginationProps } from './pagination';
 import type { SearchProps } from './search';
 
 
-export type CollectionProps<T> = {
-  items: T[]
+export type CollectionProps = {
+  items: any[]
   itemsLayout: 'list' | 'card',
   actions: Action[]
   hasSearch?: boolean,
@@ -26,120 +25,14 @@ export type CollectionProps<T> = {
     icon?: ReactElement,
     actions?: Action[]
   }
-  renderItem?: (item: T) => ReactElement,
-  getItemAttributes: (item: T) => CollectionItemAttributes<T>
-  getItemActions: (item: T) => CollectionItemAction[]
+  renderItem?: (item: any) => ReactElement,
+  getItemAttributes: (item: any) => CollectionItemAttributes
+  getItemActions: (item: any) => CollectionItemAction[]
   onActionClicked: (action: string) => void,
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
 }
 
-export type CollectionItemAction = {
-  icon?: ReactElement,
-  action: string,
-  text: string,
-  variant?: "default" | "destructive" | undefined
-}
-
-export type CollectionItemMeta<T> = {
-  text: string,
-  icon?: ReactElement
-}
-
-export type CollectionItemAttributes<T> = {
-  id: string,
-  title: string,
-  description?: string,
-  to?: string,
-  meta?: CollectionItemMeta<T>[],
-  isDisabled?: boolean,
-}
-
-type CollectionItemProps = {
-  id: string
-  title: string
-  description?: string
-  to?: string,
-  meta?: CollectionItemMeta<unknown>[]
-  actions: CollectionItemAction[]
-  isDisabled?: boolean,
-  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void
-}
-
-const CollectionItemContent = ({
-  id,
-  title,
-  description,
-  meta = [],
-  actions = [],
-  isDisabled = false,
-  onItemActionClicked,
-}: Omit<CollectionItemProps, 'to'>) => (
-  <>
-    <ItemContent className="gap-1">
-      <ItemTitle className="text-lg">{title}</ItemTitle>
-      <ItemDescription>{description}</ItemDescription>
-      <div className="flex w-full flex-wrap gap-2">
-        {map(meta, (metaItem, index) => {
-          return (
-            <Badge key={index} variant="outline" className="text-muted-foreground">
-              {(metaItem.icon) && (
-                metaItem.icon
-              )}
-              {metaItem.text}
-            </Badge>
-          );
-        })}
-      </div>
-    </ItemContent>
-    {(actions.length > 0) && (
-      <ItemActions>
-        {(actions.length > 1) && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild disabled={isDisabled}>
-              <Button
-                variant="ghost"
-                className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                size="icon"
-              >
-                <EllipsisVertical />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-32">
-              {map(actions, (action, index) => {
-                return (
-                  <>
-                    <DropdownMenuItem variant={action.variant} onClick={(event) => {
-                      event.stopPropagation();
-                      onItemActionClicked({ id, action: action.action })
-                    }}>
-                      {action.icon ? action.icon : null}
-                      {action.text}
-                    </DropdownMenuItem>
-                    {(index !== actions.length - 1) && (
-                      <DropdownMenuSeparator />
-                    )}
-                  </>
-                )
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) || (
-            <Button variant="ghost" onClick={(event) => {
-              event.stopPropagation();
-              onItemActionClicked({ id, action: actions[0].action })
-            }}>
-              {actions[0].icon ? actions[0].icon : null}
-              {actions[0].text}
-            </Button>
-          )}
-
-      </ItemActions>
-    )}
-  </>
-);
-
-const Collection = <T,>({
+const Collection = ({
   items,
   itemsLayout = 'list',
   actions,
@@ -157,7 +50,7 @@ const Collection = <T,>({
   onItemActionClicked,
   onSearchValueChanged,
   onPaginationChanged
-}: CollectionProps<T> & SearchProps & PaginationProps) => {
+}: CollectionProps & SearchProps & PaginationProps) => {
 
   return (
     <div>
@@ -259,4 +152,4 @@ const Collection = <T,>({
   )
 }
 
-export default Collection
+export { Collection };
