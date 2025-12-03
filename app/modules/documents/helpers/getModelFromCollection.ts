@@ -9,7 +9,8 @@ export const MODELS_BY_COLLECTION: { [key: string]: string } = {
   runs: 'Run',
   sessions: 'Session',
   featureFlags: 'FeatureFlag',
-  jobs: 'Job'
+  jobs: 'Job',
+  audits: 'Audit',
 }
 
 export default (collection: string) => {
