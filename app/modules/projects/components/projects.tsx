@@ -81,8 +81,7 @@ export default function Projects({
                 text: teamName,
               }, {
                 text: `Created at - ${dayjs(item.createdAt).format('ddd, MMM D, YYYY - h:mm A')}`,
-              }],
-              isDisabled: true
+              }]
             }
           }}
           getItemActions={(item) => {
