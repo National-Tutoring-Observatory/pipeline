@@ -190,7 +190,6 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   }
 
   const onPaginationChanged = (currentPage: number) => {
-    console.log(currentPage);
     setCurrentPage(currentPage);
   }
 
