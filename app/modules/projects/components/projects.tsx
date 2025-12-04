@@ -14,24 +14,45 @@ import { Link } from "react-router";
 import { Collection } from "@/components/ui/collection";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import dayjs from 'dayjs';
-import find from 'lodash/find';
-import get from 'lodash/get';
-import { Edit, EllipsisVertical, FolderKanban, Trash2, Users } from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 import Flag from "~/modules/featureFlags/components/flag";
+import getProjectsEmptyAttributes from "../helpers/getProjectsEmptyAttributes";
+import getProjectsItemActions from "../helpers/getProjectsItemActions";
+import getProjectsItemAttributes from "../helpers/getProjectsItemAttributes";
+import projectsActions from "../helpers/projectsActions";
+import projectsFilters from "../helpers/projectsFilters";
 import type { Project } from "../projects.types";
 
 interface ProjectsProps {
   projects: Project[];
+  searchValue: string,
+  currentPage: number,
+  totalPages: number,
+  filtersValues: {},
   onCreateProjectButtonClicked: () => void;
   onEditProjectButtonClicked: (project: Project) => void;
   onDeleteProjectButtonClicked: (project: Project) => void;
+  onActionClicked: (action: string) => void;
+  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
+  onSearchValueChanged: (searchValue: string) => void,
+  onPaginationChanged: (currentPage: number) => void,
+  onFiltersValueChanged: (filterValue: any) => void
 }
 
 export default function Projects({
   projects,
+  searchValue,
+  currentPage,
+  totalPages,
+  filtersValues,
   onCreateProjectButtonClicked,
   onEditProjectButtonClicked,
-  onDeleteProjectButtonClicked
+  onDeleteProjectButtonClicked,
+  onActionClicked,
+  onItemActionClicked,
+  onSearchValueChanged,
+  onPaginationChanged,
+  onFiltersValueChanged
 }: ProjectsProps) {
   return (
     <div className="max-w-6xl p-8">
@@ -50,80 +71,22 @@ export default function Projects({
         <Collection
           items={projects}
           itemsLayout="list"
-          actions={[{
-            action: 'CREATE',
-            text: 'Create project'
-          }]}
-          filters={[{
-            value: 'ONE',
-            text: 'One'
-          }]}
+          actions={projectsActions}
+          filters={projectsFilters}
+          filtersValues={filtersValues}
           hasSearch
           hasPagination
-          searchValue={""}
-          currentPage={1}
-          totalPages={1}
-          emptyAttributes={{
-            icon: <FolderKanban />,
-            title: 'No Projects yet',
-            description: "You haven't created any projects yet. Get started by creating your first project.",
-            actions: [{
-              action: 'CREATE',
-              text: 'Create project'
-            }]
-          }}
-          getItemAttributes={(item) => {
-
-            const teamName = get(item, 'team.name', '');
-
-            return {
-              id: item._id,
-              title: item.name,
-              to: `/projects/${item._id}`,
-              meta: [{
-                icon: <Users />,
-                text: teamName,
-              }, {
-                text: `Created at - ${dayjs(item.createdAt).format('ddd, MMM D, YYYY - h:mm A')}`,
-              }]
-            }
-          }}
-          getItemActions={(item) => {
-            return [{
-              action: 'EDIT',
-              icon: <Edit />,
-              text: 'Edit'
-            }, {
-              action: 'DELETE',
-              icon: <Trash2 />,
-              text: 'Delete',
-              variant: 'destructive'
-            }]
-          }}
-          onActionClicked={(action) => {
-            if (action === 'CREATE') {
-              onCreateProjectButtonClicked();
-            }
-          }}
-          onItemActionClicked={({ id, action }) => {
-            const project = find(projects, { _id: id });
-            if (!project) return null;
-            switch (action) {
-              case 'EDIT':
-                onEditProjectButtonClicked(project);
-                break;
-
-              case 'DELETE':
-                onDeleteProjectButtonClicked(project);
-                break;
-            }
-          }}
-          onSearchValueChanged={(searchValue) => {
-            console.log(searchValue);
-          }}
-          onPaginationChanged={(currentPage) => {
-            console.log(currentPage);
-          }}
+          searchValue={searchValue}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          emptyAttributes={getProjectsEmptyAttributes()}
+          getItemAttributes={getProjectsItemAttributes}
+          getItemActions={getProjectsItemActions}
+          onActionClicked={onActionClicked}
+          onItemActionClicked={onItemActionClicked}
+          onSearchValueChanged={onSearchValueChanged}
+          onPaginationChanged={onPaginationChanged}
+          onFiltersValueChanged={onFiltersValueChanged}
         />
       </Flag>
       {(projects.length > 0) && (

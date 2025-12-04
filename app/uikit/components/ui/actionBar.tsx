@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import map from 'lodash/map';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Button } from './button';
-import Filters from './filters';
+import Filters, { type Filter, type FiltersProps } from './filters';
 import { Pagination, type PaginationProps } from './pagination';
 import { Search, type SearchProps } from './search';
 import { Spinner } from './spinner';
@@ -12,12 +12,6 @@ export type Action = {
   action: string,
   text: string,
   variant?: "default" | "destructive" | undefined
-}
-
-export type Filter = {
-  icon?: ReactElement,
-  value: string,
-  text: string
 }
 
 export type ActionBarProps = {
@@ -32,6 +26,7 @@ export type ActionBarProps = {
 function ActionBar({
   actions,
   filters,
+  filtersValues,
   searchValue,
   hasSearch = false,
   hasPagination = false,
@@ -40,8 +35,9 @@ function ActionBar({
   totalPages = 1,
   onActionClicked,
   onSearchValueChanged,
-  onPaginationChanged
-}: ActionBarProps & SearchProps & PaginationProps) {
+  onPaginationChanged,
+  onFiltersValueChanged
+}: ActionBarProps & SearchProps & PaginationProps & FiltersProps) {
 
   const [isStuck, setIsStuck] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -66,7 +62,7 @@ function ActionBar({
       <div className={clsx(`flex justify-between sticky top-4 border p-2 mb-2 transition-all rounded-2xl bg-white`, {
         'shadow -mx-2': isStuck
       })}>
-        <div className="w-1/3 flex items-center">
+        <div className="w-1/3 flex items-center gap-x-1">
           {(hasSearch) && (
             <Search
               searchValue={searchValue}
@@ -74,7 +70,11 @@ function ActionBar({
             />
           )}
           {(filters && filters.length > 0) && (
-            <Filters />
+            <Filters
+              filters={filters}
+              filtersValues={filtersValues}
+              onFiltersValueChanged={onFiltersValueChanged}
+            />
           )}
         </div>
         <div className="w-1/3 flex justify-center">

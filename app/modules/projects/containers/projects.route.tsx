@@ -1,5 +1,6 @@
+import find from 'lodash/find';
 import map from 'lodash/map';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { redirect, useActionData, useNavigate, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
@@ -100,6 +101,11 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
 
+  const [filtersValues, setFiltersValues] = useState({ 'TEAM': null, 'ANNOTATION_TYPE': null });
+  const [searchValue, setSearchValue] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = 10;
+
   useEffect(() => {
     if (actionData?.intent === 'CREATE_PROJECT') {
       navigate(`/projects/${actionData.data._id}`)
@@ -159,12 +165,54 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     });
   }
 
+  const onActionClicked = (action: String) => {
+    if (action === 'CREATE') {
+      onCreateProjectButtonClicked();
+    }
+  }
+
+  const onItemActionClicked = ({ id, action }: { id: string, action: string }) => {
+    const project = find(projects.data, { _id: id });
+    if (!project) return null;
+    switch (action) {
+      case 'EDIT':
+        onEditProjectButtonClicked(project);
+        break;
+
+      case 'DELETE':
+        onDeleteProjectButtonClicked(project);
+        break;
+    }
+  }
+
+  const onSearchValueChanged = (searchValue: string) => {
+    setSearchValue(searchValue);
+  }
+
+  const onPaginationChanged = (currentPage: number) => {
+    console.log(currentPage);
+    setCurrentPage(currentPage);
+  }
+
+  const onFiltersValueChanged = (filterValue: any) => {
+    setFiltersValues({ ...filtersValues, ...filterValue });
+  }
+
   return (
     <Projects
       projects={projects?.data}
+      searchValue={searchValue}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      filtersValues={filtersValues}
       onCreateProjectButtonClicked={onCreateProjectButtonClicked}
       onEditProjectButtonClicked={onEditProjectButtonClicked}
       onDeleteProjectButtonClicked={onDeleteProjectButtonClicked}
+      onActionClicked={onActionClicked}
+      onItemActionClicked={onItemActionClicked}
+      onSearchValueChanged={onSearchValueChanged}
+      onPaginationChanged={onPaginationChanged}
+      onFiltersValueChanged={onFiltersValueChanged}
     />
   );
 }
