@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import map from 'lodash/map';
-import { CirclePlus } from "lucide-react";
+import { CirclePlus, Pencil } from "lucide-react";
 import { Outlet } from "react-router";
 import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
 import type { Prompt, PromptVersion } from "../prompts.types";
@@ -32,7 +32,10 @@ export default function Prompt({
         </div>
         {onEditPromptButtonClicked && (
           <div>
-            <Button size="sm" variant="secondary" onClick={() => onEditPromptButtonClicked(prompt)}>Edit</Button>
+            <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditPromptButtonClicked(prompt)}>
+              <Pencil />
+              Edit
+            </Button>
           </div>
         )}
       </div>
