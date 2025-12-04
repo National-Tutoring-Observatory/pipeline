@@ -19,13 +19,68 @@ import { validateProjectOwnership } from "../helpers/projectOwnership";
 import type { Project } from "../projects.types";
 import deleteProject from "../services/deleteProject.server";
 import type { Route } from "./+types/projects.route";
+import { escapeRegExp } from 'lodash';
+
+type BuildQueryProps = {
+  queryParams: QueryParams,
+  sortableFields: string[],
+  filterValues?: {
+    [key: string]: string[]
+  }
+}
+type QueryParams = { searchValue?: string, page?: string, filters?: Record<string, string>, sort?: string}
+type Query = { match?: any, sort?: any, page?: string  }
+
+function buildQueryFromParams({ queryParams, sortableFields, filterValues } : BuildQueryProps) : Query {
+  let query = {} as Query;
+
+  const searchValue = queryParams.searchValue
+
+  if (searchValue) {
+    query.match = { name: { $regex: new RegExp(escapeRegExp(searchValue), "i") } };
+  }
+
+  const filters = queryParams.filters
+  if (filters) {
+    const team = filters.team;
+    if (team) {
+      if (typeof team !== 'string') {
+        throw new Error('Team filter must be a string.');
+      }
+      if (filterValues && filterValues.team && !filterValues.team.includes(team)) {
+        throw new Error('Access to the specified team is not allowed.');
+      }
+      query.match = { ...query.match, team: { $in: team } };
+    }
+  }
+
+  const sort = queryParams.sort;
+  if (sort) {
+    if (typeof sort !== 'string') {
+      throw new Error('Sort parameter must be a string.');
+    }
+    if (!sortableFields.includes(sort.replace('-', ''))) {
+      throw new Error('Invalid sort field.');
+    }
+    query.sort = sort
+  } else {
+    query.sort = {}
+  }
+
+  query.page = queryParams.page;
+
+  return query
+}
 
 export async function loader({ request, params, context }: Route.LoaderArgs & { context: any }) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
-  const result = await documents.getDocuments<Project>({ collection: 'projects', match: { team: { $in: teamIds } }, sort: {}, populate: [{ path: 'team' }] });
+  const queryParams = (new URL(request.url).searchParams.get('query') || {}) as QueryParams;
+  const query = buildQueryFromParams({ queryParams, sortableFields: ['name', 'createdAt'], filterValues: {team: teamIds}});
+
+  const result = await documents.getDocuments<Project>({ collection: 'projects', match: query.match, sort: query.sort, populate: [{ path: 'team' }] });
   const projects = { data: result.data };
 
   return { projects };
