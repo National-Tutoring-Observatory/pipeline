@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { redirect } from "react-router";
+import { redirect, useFetcher } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
@@ -8,6 +8,9 @@ import Team from '../components/team';
 import { isTeamAdmin } from "../helpers/teamAdmin";
 import type { Team as TeamType } from "../teams.types";
 import type { Route } from "./+types/team.route";
+import EditTeamDialog from "../components/editTeamDialog";
+import addDialog from "~/modules/dialogs/addDialog";
+import { toast } from "sonner";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -40,6 +43,24 @@ export default function TeamRoute({ loaderData }: {
 }) {
   const { team } = loaderData;
 
+  const fetcher = useFetcher();
+
+  const onEditTeamButtonClicked = (team: TeamType) => {
+    addDialog(<EditTeamDialog
+      team={team}
+      onEditTeamClicked={(team: TeamType) => {
+        fetcher.submit(JSON.stringify({ intent: 'UPDATE_TEAM', entityId: team._id, payload: { name: team.name } }), { method: 'PUT', encType: 'application/json', action: `/teams` });
+      }}
+    />);
+  }
+
+  useEffect(() => {
+    if (fetcher.state === 'idle' && (fetcher.data)) {
+      toast.success('Updated team');
+    }
+  }, [fetcher.state, fetcher.data]);
+
+
   useEffect(() => {
     updateBreadcrumb([{ text: 'Teams', link: `/teams` }, { text: team.data.name }])
   }, []);
@@ -47,6 +68,7 @@ export default function TeamRoute({ loaderData }: {
   return (
     <Team
       team={team.data}
+      onEditTeamButtonClicked={onEditTeamButtonClicked}
     />
   );
 }
