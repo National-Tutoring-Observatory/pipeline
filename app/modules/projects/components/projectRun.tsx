@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import dayjs from "dayjs";
 import find from 'lodash/find';
 import map from 'lodash/map';
-import { Download } from "lucide-react";
+import { Download, Pencil } from "lucide-react";
 import { Link } from "react-router";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
@@ -44,14 +44,14 @@ export default function ProjectRun({
           <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
             {run.name}
           </h1>
-          <div>
+          <div className="flex text-muted-foreground gap-1">
             {(run.isComplete && (!run.hasExportedCSV || !run.hasExportedJSONL)) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
                     disabled={run.isExporting}
-                    className="data-[state=open]:bg-muted text-muted-foreground flex"
+                    className="data-[state=open]:bg-muted flex"
                   >
                     <Download />
                     {run.isExporting ? <span>Exporting</span> : <span>Export</span>}
@@ -69,6 +69,7 @@ export default function ProjectRun({
             )}
             {onEditRunButtonClicked && (
               <Button variant="ghost" onClick={() => onEditRunButtonClicked(run)} className="ml-2">
+                <Pencil />
                 Edit
               </Button>
             )}
