@@ -58,12 +58,16 @@ export default function ProjectRun({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'CSV' })}>
-                    As Table (.csv file)
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'JSON' })}>
-                    JSONL (.jsonl file)
-                  </DropdownMenuItem>
+                  {!run.hasExportedCSV && (
+                    <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'CSV' })}>
+                      As Table (.csv file)
+                    </DropdownMenuItem>
+                  )}
+                  {!run.hasExportedJSONL && (
+                    <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'JSON' })}>
+                      JSONL (.jsonl file)
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
