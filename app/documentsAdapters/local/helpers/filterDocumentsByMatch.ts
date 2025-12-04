@@ -25,6 +25,31 @@ function matchesCondition(itemValue: any, condition: any): boolean {
     return itemValue !== val;
   }
 
+  // $regex
+  if (isObject(condition) && has(condition, '$regex')) {
+    const cond: any = condition;
+    const regexVal: any = cond.$regex;
+    const options: string = cond.$options || '';
+    let re: RegExp | null = null;
+    try {
+      if (regexVal instanceof RegExp) {
+        re = regexVal;
+      } else if (typeof regexVal === 'string') {
+        re = new RegExp(regexVal, options);
+      }
+    } catch (err) {
+      return false;
+    }
+
+    if (!re) return false;
+
+    if (isArray(itemValue)) {
+      return some(itemValue, (val) => re!.test(val));
+    }
+
+    return re.test(itemValue);
+  }
+
   // $in
   if (has(condition, '$in')) {
     const cond: any = condition;
