@@ -14,6 +14,7 @@ import runSchema from './schemas/run.schema';
 import sessionSchema from './schemas/session.schema';
 import teamSchema from './schemas/team.schema';
 import userSchema from './schemas/user.schema';
+import auditSchema from './schemas/audit.schema';
 
 const registerModels = () => {
   if (!mongoose.models.Project) {
@@ -48,6 +49,9 @@ const registerModels = () => {
   }
   if (!mongoose.models.Job) {
     mongoose.model('Job', jobSchema);
+  }
+  if (!mongoose.models.Audit) {
+    mongoose.model('Audit', auditSchema);
   }
 }
 

@@ -8,23 +8,30 @@ interface TeamUsersProps {
   users: User[];
   team: Team;
   isSuperAdminUser: boolean;
+  isTeamMemberUser: boolean;
   onAddUserToTeamButtonClicked: () => void;
+  onAddSuperAdminToTeamButtonClicked: () => void;
   onInviteUserToTeamButtonClicked: () => void;
   onRemoveUserFromTeamClicked: (userId: string) => void;
 }
 
-export default function TeamUsers({ users, team, isSuperAdminUser, onAddUserToTeamButtonClicked, onInviteUserToTeamButtonClicked, onRemoveUserFromTeamClicked }: TeamUsersProps) {
+export default function TeamUsers({ users, team, isSuperAdminUser, isTeamMemberUser, onAddUserToTeamButtonClicked, onAddSuperAdminToTeamButtonClicked, onInviteUserToTeamButtonClicked, onRemoveUserFromTeamClicked }: TeamUsersProps) {
   return (
     <div>
       <div className="flex items-center justify-between">
         <div className="text-sm font-medium text-muted-foreground">Users</div>
         <div>
+          {isSuperAdminUser && !isTeamMemberUser && (
+            <Button variant="secondary" onClick={onAddSuperAdminToTeamButtonClicked} className="mr-2">
+              Request Access to Team
+            </Button>
+          )}
           {isSuperAdminUser && (
-            <Button variant="secondary" onClick={onAddUserToTeamButtonClicked}>
+            <Button variant="secondary" onClick={onAddUserToTeamButtonClicked} className="mr-2">
               Add existing user
             </Button>
           )}
-          <Button onClick={onInviteUserToTeamButtonClicked} className="ml-2">
+          <Button onClick={onInviteUserToTeamButtonClicked}>
             Invite new user
           </Button>
         </div>

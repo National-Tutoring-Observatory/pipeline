@@ -10,7 +10,11 @@ import type { User } from "~/modules/users/users.types";
 import ConfirmRemoveUserDialog from "../components/confirmRemoveUserDialog";
 import TeamUsers from "../components/teamUsers";
 import { isTeamAdmin, validateTeamAdmin } from "../helpers/teamAdmin";
+import { addSuperAdminToTeam } from '../services/teamUsers.server';
+import type { TeamAssignmentOption } from "../teams.types";
+import { isTeamAssignmentOption } from "../teams.types";
 import type { Route } from "./+types/teamUsers.route";
+import AddSuperAdminToTeamDialogContainer from "./addSuperAdminToTeamDialogContainer";
 import AddUserToTeamDialogContainer from './addUserToTeamDialog.container';
 import InviteUserToTeamDialogContainer from "./inviteUserToTeamDialogContainer";
 
@@ -39,8 +43,19 @@ export async function action({ request, params }: Route.ActionArgs) {
   const documents = getDocumentsAdapter();
 
   switch (intent) {
+    case 'ADD_SUPERADMIN_TO_TEAM': {
+      const { reason, option } = payload;
+      if (!isTeamAssignmentOption(option)) {
+        throw new Error('Invalid team assignment option');
+      }
+      await addSuperAdminToTeam({ teamId: params.id, userId: user._id, reason: reason, option: option });
+      return {};
+    }
     case 'ADD_USERS_TO_TEAM':
       for (const id of userIds) {
+        if (isSuperAdmin(user) && id === user._id) {
+          throw new Error("Super admin cannot be added to a team.");
+        }
         const userDoc = await documents.getDocument<User>({ collection: 'users', match: { _id: id } });
         if (userDoc.data) {
           if (!userDoc.data.teams) userDoc.data.teams = [];
@@ -69,15 +84,29 @@ export default function TeamUsersRoute() {
   const submit = useSubmit();
   const authentication = useContext(AuthenticationContext) as User | null;
   const isSuperAdminUser = isSuperAdmin(authentication);
+  const isTeamMemberUser = ctx.team && authentication && authentication.teams.some((t) => t.team === ctx.team._id);
 
   const onAddUsersClicked = (userIds: string[]) => {
     submit(JSON.stringify({ intent: 'ADD_USERS_TO_TEAM', payload: { userIds } }), { method: 'PUT', encType: 'application/json' });
+  }
+
+  const onAddSuperAdminClicked = (reason: string, option: TeamAssignmentOption) => {
+    submit(JSON.stringify({ intent: 'ADD_SUPERADMIN_TO_TEAM', payload: { reason, option } }), { method: 'PUT', encType: 'application/json' });
+  }
+
+  const onAddSuperAdminToTeamButtonClicked = () => {
+    addDialog(
+      <AddSuperAdminToTeamDialogContainer
+        onAddSuperAdminClicked={onAddSuperAdminClicked}
+      />
+    );
   }
 
   const onAddUserToTeamButtonClicked = () => {
     addDialog(
       <AddUserToTeamDialogContainer
         teamId={ctx.team._id}
+        superAdminId={isSuperAdminUser ? authentication!._id : null}
         onAddUsersClicked={onAddUsersClicked}
       />
     );
@@ -114,7 +143,9 @@ export default function TeamUsersRoute() {
       users={users}
       team={ctx.team}
       isSuperAdminUser={isSuperAdminUser}
+      isTeamMemberUser={isTeamMemberUser}
       onAddUserToTeamButtonClicked={onAddUserToTeamButtonClicked}
+      onAddSuperAdminToTeamButtonClicked={onAddSuperAdminToTeamButtonClicked}
       onInviteUserToTeamButtonClicked={onInviteUserToTeamButtonClicked}
       onRemoveUserFromTeamClicked={onRemoveUserFromTeamClicked}
     />

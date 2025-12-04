@@ -3,7 +3,7 @@ import type { Route } from "./+types/teamIndex.route";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const id = params.id as string;
-  return redirect(`/teams/${id}/projects`);
+  return redirect(`/teams/${id}/users`);
 }
 
 export default function TeamIndexRoute() {

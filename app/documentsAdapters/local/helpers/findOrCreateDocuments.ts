@@ -4,7 +4,7 @@ import includes from 'lodash/includes.js';
 import getCollectionPath from './getCollectionPath';
 
 
-const COLLECTIONS = ['teams', 'users', 'prompts', 'promptVersions', 'projects', 'files', 'sessions', 'runs', 'collections', 'jobs', 'featureFlags'];
+const COLLECTIONS = ['teams', 'users', 'prompts', 'promptVersions', 'projects', 'files', 'sessions', 'runs', 'collections', 'jobs', 'featureFlags', 'audits'];
 
 
 const DEFAULTS = {
@@ -18,7 +18,8 @@ const DEFAULTS = {
   files: [],
   sessions: [],
   jobs: [],
-  featureFlags: []
+  featureFlags: [],
+  audits: [],
 };
 
 
