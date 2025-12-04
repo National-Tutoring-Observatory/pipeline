@@ -48,11 +48,15 @@ export default function Projects({
       )}
       <Flag flag="HAS_COLLECTION_UI" >
         <Collection
-          items={[]}
+          items={projects}
           itemsLayout="list"
           actions={[{
             action: 'CREATE',
             text: 'Create project'
+          }]}
+          filters={[{
+            value: 'ONE',
+            text: 'One'
           }]}
           hasSearch
           hasPagination

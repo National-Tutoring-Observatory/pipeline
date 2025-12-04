@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import map from 'lodash/map';
 import React, { type ReactElement } from 'react';
 import { Link } from 'react-router';
-import { ActionBar, type Action } from './actionBar';
+import { ActionBar, type Action, type Filter } from './actionBar';
 import { Button } from './button';
 import type { CollectionItemAction, CollectionItemAttributes } from './collectionContentItem';
 import CollectionItemContent from './collectionContentItem';
@@ -15,7 +15,8 @@ import type { SearchProps } from './search';
 export type CollectionProps = {
   items: any[]
   itemsLayout: 'list' | 'card',
-  actions: Action[]
+  actions?: Action[]
+  filters?: Filter[],
   hasSearch?: boolean,
   hasPagination?: boolean,
   isSyncing?: boolean,
@@ -36,6 +37,7 @@ const Collection = ({
   items,
   itemsLayout = 'list',
   actions,
+  filters,
   searchValue,
   hasSearch,
   hasPagination,
@@ -56,6 +58,7 @@ const Collection = ({
     <div>
       <ActionBar
         actions={actions}
+        filters={filters}
         searchValue={searchValue}
         currentPage={currentPage}
         totalPages={totalPages}

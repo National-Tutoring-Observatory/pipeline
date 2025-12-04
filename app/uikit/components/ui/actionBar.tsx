@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import map from 'lodash/map';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Button } from './button';
+import Filters from './filters';
 import { Pagination, type PaginationProps } from './pagination';
 import { Search, type SearchProps } from './search';
 import { Spinner } from './spinner';
@@ -13,8 +14,15 @@ export type Action = {
   variant?: "default" | "destructive" | undefined
 }
 
+export type Filter = {
+  icon?: ReactElement,
+  value: string,
+  text: string
+}
+
 export type ActionBarProps = {
-  actions: Action[]
+  actions?: Action[],
+  filters?: Filter[],
   hasSearch?: boolean,
   hasPagination?: boolean,
   isSyncing?: boolean,
@@ -23,6 +31,7 @@ export type ActionBarProps = {
 
 function ActionBar({
   actions,
+  filters,
   searchValue,
   hasSearch = false,
   hasPagination = false,
@@ -57,12 +66,15 @@ function ActionBar({
       <div className={clsx(`flex justify-between sticky top-4 border p-2 mb-2 transition-all rounded-2xl bg-white`, {
         'shadow -mx-2': isStuck
       })}>
-        <div className="w-1/3">
+        <div className="w-1/3 flex items-center">
           {(hasSearch) && (
             <Search
               searchValue={searchValue}
               onSearchValueChanged={onSearchValueChanged}
             />
+          )}
+          {(filters && filters.length > 0) && (
+            <Filters />
           )}
         </div>
         <div className="w-1/3 flex justify-center">
