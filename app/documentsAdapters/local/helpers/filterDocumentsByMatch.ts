@@ -15,6 +15,36 @@ interface Document {
   [key: string]: any;
 }
 
+function matchesCondition(itemValue: any, condition: any): boolean {
+  // $ne
+  if (has(condition, '$ne')) {
+    const val = condition.$ne;
+    if (isArray(itemValue)) {
+      return !some(itemValue, (v) => v === val);
+    }
+    return itemValue !== val;
+  }
+
+  // $in
+  if (has(condition, '$in')) {
+    const cond: any = condition;
+    const inArray = cond.$in;
+    if (!isArray(inArray)) return false;
+
+    if (isArray(itemValue)) {
+      return some(itemValue, (v) => includes(inArray, v));
+    }
+
+    return includes(inArray, itemValue);
+  }
+
+  // default equality (handle arrays)
+  if (isArray(itemValue)) {
+    return some(itemValue, (v) => v === condition);
+  }
+  return itemValue === condition;
+}
+
 export default (
   collection: Document[],
   match: Match
@@ -26,21 +56,7 @@ export default (
 
       if (!key.includes('.')) {
         const itemValue = get(item, key);
-        if (isObject(condition) && has(condition, '$ne')) {
-          return itemValue !== condition.$ne;
-        }
-        if (has(condition, '$in')) {
-          if (!isArray(condition.$in)) return false;
-
-          // If itemValue is an array, check if any element in itemValue is in condition.$in
-          if (isArray(itemValue)) {
-            return some(itemValue, (val) => includes(condition.$in, val));
-          }
-
-          // If itemValue is scalar, check if itemValue is in condition.$in
-          return includes(condition.$in, itemValue);
-        }
-        return itemValue === condition;
+        return matchesCondition(itemValue, condition);
       }
 
       const [arrayPath, nestedKey] = key.split('.');
@@ -49,18 +65,12 @@ export default (
       if (!isArray(nestedArray)) return false;
 
       if (isObject(condition) && has(condition, '$ne')) {
-        return !some(nestedArray, { [nestedKey]: condition.$ne });
+        // For nested $ne, original behavior: document matches if NONE of the nested items equal the $ne value
+        return !some(nestedArray, (nestedItem) => get(nestedItem, nestedKey) === condition.$ne);
       }
 
-      if (has(condition, '$in')) {
-        const inArray = condition.$in;
-        if (!isArray(inArray)) return false;
-        return some(nestedArray, (nestedItem) => {
-          return includes(inArray, get(nestedItem, nestedKey));
-        });
-      }
-
-      return some(nestedArray, { [nestedKey]: condition });
+      // For other conditions, match if any nested item satisfies the condition
+      return some(nestedArray, (nestedItem) => matchesCondition(get(nestedItem, nestedKey), condition));
     });
   });
 
