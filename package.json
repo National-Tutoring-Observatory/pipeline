@@ -14,7 +14,10 @@
     "workers:prod": "yarn workspace pipeline-worker prod",
     "local:redis": "yarn workspace localMode redis",
     "local:start": "./localMode/bin/start-all.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:typecheck": "tsc -p tsconfig.test.json"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",
@@ -77,6 +80,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "vitest": "^1.0.0",
     "@react-router/dev": "^7.5.3",
     "@tailwindcss/vite": "^4.1.4",
     "@types/archiver": "^6.0.3",

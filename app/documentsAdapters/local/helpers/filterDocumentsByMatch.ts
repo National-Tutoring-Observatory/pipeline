@@ -17,11 +17,24 @@ interface Document {
 
 function matchesCondition(itemValue: any, condition: any): boolean {
   // $ne
-  if (has(condition, '$ne')) {
+  if (isObject(condition) && has(condition, '$ne')) {
     const val = condition.$ne;
+
+    // If itemValue is an array, follow Mongo semantics:
+    // - If val is an array: $ne matches when the arrays differ (order, length, elements)
+    // - If val is a scalar: $ne matches when none of the array elements equal the scalar
     if (isArray(itemValue)) {
+      if (isArray(val)) {
+        const valArr: any[] = val as any[];
+        if (itemValue.length !== valArr.length) return true;
+        for (let i = 0; i < itemValue.length; i++) {
+          if (itemValue[i] !== valArr[i]) return true;
+        }
+        return false;
+      }
       return !some(itemValue, (v) => v === val);
     }
+
     return itemValue !== val;
   }
 
@@ -43,8 +56,10 @@ function matchesCondition(itemValue: any, condition: any): boolean {
 
     if (!re) return false;
 
+    if (itemValue == null) return false;
+
     if (isArray(itemValue)) {
-      return some(itemValue, (val) => re!.test(val));
+      return some(itemValue, (val) => val != null && re!.test(String(val)));
     }
 
     return re.test(itemValue);
@@ -70,6 +85,51 @@ function matchesCondition(itemValue: any, condition: any): boolean {
   return itemValue === condition;
 }
 
+function evaluateExpression(item: Document, expr: Match): boolean {
+  return every(expr, (condition, key) => {
+    if (key === '$or') {
+      // nested $or inside expression: treat similarly (should be array of expressions)
+      if (!isArray(condition)) return false;
+      return some(condition, (subExpr) => isObject(subExpr) && evaluateExpression(item, subExpr));
+    }
+
+    if (key === '$and') {
+      // nested $and inside expression: all sub-expressions must match
+      if (!isArray(condition)) return false;
+      return every(condition, (subExpr) => isObject(subExpr) && evaluateExpression(item, subExpr));
+    }
+
+    // If key is a simple field, evaluate directly
+    if (!key.includes('.')) {
+      return matchesCondition(get(item, key), condition);
+    }
+
+    // Otherwise, resolve nested path recursively (supports arbitrary depth)
+    const pathSegments = key.split('.');
+
+    function resolveAndMatch(current: any, segments: string[]): boolean {
+      if (segments.length === 0) {
+        return matchesCondition(current, condition);
+      }
+      const [head, ...rest] = segments;
+      const next = get(current, head);
+
+      if (isArray(next)) {
+        // If condition is $ne, require ALL nested items to match the $ne (i.e., none equal)
+        if (isObject(condition) && has(condition, '$ne')) {
+          return every(next, (el) => resolveAndMatch(el, rest));
+        }
+        // Otherwise, succeed if ANY nested item matches
+        return some(next, (el) => resolveAndMatch(el, rest));
+      }
+
+      return resolveAndMatch(next, rest);
+    }
+
+    return resolveAndMatch(item, pathSegments);
+  });
+}
+
 export default (
   collection: Document[],
   match: Match
@@ -77,26 +137,7 @@ export default (
 
 
   return filter(collection, (item: Document) => {
-    return every(match, (condition, key) => {
-
-      if (!key.includes('.')) {
-        const itemValue = get(item, key);
-        return matchesCondition(itemValue, condition);
-      }
-
-      const [arrayPath, nestedKey] = key.split('.');
-      const nestedArray = get(item, arrayPath);
-
-      if (!isArray(nestedArray)) return false;
-
-      if (isObject(condition) && has(condition, '$ne')) {
-        // For nested $ne, original behavior: document matches if NONE of the nested items equal the $ne value
-        return !some(nestedArray, (nestedItem) => get(nestedItem, nestedKey) === condition.$ne);
-      }
-
-      // For other conditions, match if any nested item satisfies the condition
-      return some(nestedArray, (nestedItem) => matchesCondition(get(nestedItem, nestedKey), condition));
-    });
+    return evaluateExpression(item, match);
   });
 
 
