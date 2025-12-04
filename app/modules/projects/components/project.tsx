@@ -6,6 +6,7 @@ import { Link, Outlet } from "react-router";
 import UploadFilesContainer from "~/modules/files/containers/uploadFiles.container";
 import type { FileType } from "~/modules/files/files.types";
 import type { Project } from "../projects.types";
+import { Pencil } from "lucide-react";
 
 interface ProjectProps {
   project: Project,
@@ -43,7 +44,8 @@ export default function Project({
           {project.name}
         </h1>
         <div>
-          <Button size="sm" variant="secondary" onClick={() => onEditProjectButtonClicked(project)}>
+          <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditProjectButtonClicked(project)}>
+            <Pencil />
             Edit
           </Button>
         </div>
