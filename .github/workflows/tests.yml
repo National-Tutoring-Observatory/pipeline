@@ -11,6 +11,29 @@ jobs:
     env:
       REDISMS_DISABLE_POSTINSTALL: 1
 
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      mongo:
+        image: mongo:5
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: ci_user
+          MONGO_INITDB_ROOT_PASSWORD: ci_password
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -23,6 +46,18 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+
+      - name: Wait for services
+        run: |
+          for i in {1..30}; do
+            if nc -z localhost 6379 && nc -z localhost 27017; then
+              echo "redis and mongo are up"
+              exit 0
+            fi
+            echo "waiting for services... ($i/30)"
+            sleep 2
+          done
+          echo "services failed to start" && exit 1
 
       - name: TypeScript type check
         run: yarn typecheck

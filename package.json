@@ -80,7 +80,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "vitest": "^1.0.0",
+    "vitest": "^4.0.0",
     "@react-router/dev": "^7.5.3",
     "@tailwindcss/vite": "^4.1.4",
     "@types/archiver": "^6.0.3",

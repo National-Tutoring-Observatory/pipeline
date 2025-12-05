@@ -23,3 +23,12 @@ export const PROJECT_ROOT: string = (() => {
   console.warn('PROJECT_ROOT env var not set, using:', resolved);
   return resolved;
 })();
+
+// DATA_PATH can be used to explicitly point tests or runtime to a data directory.
+// If not set, it defaults to `<PROJECT_ROOT>/data` for backwards compatibility.
+export const DATA_PATH: string = (() => {
+  if (process.env.DATA_PATH) {
+    return path.resolve(process.env.DATA_PATH);
+  }
+  return path.join(PROJECT_ROOT, 'data');
+})();
