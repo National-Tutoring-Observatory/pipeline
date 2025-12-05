@@ -1,4 +1,4 @@
-name: TypeScript Type Check
+name: CI — typecheck & tests
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
     branches: [ main ]
 
 jobs:
-  typecheck:
+  ci:
     runs-on: ubuntu-latest
     env:
       REDISMS_DISABLE_POSTINSTALL: 1
@@ -24,5 +24,8 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Run TypeScript type check
-        run: yarn run typecheck
+      - name: TypeScript type check
+        run: yarn typecheck
+
+      - name: Run tests
+        run: yarn test
