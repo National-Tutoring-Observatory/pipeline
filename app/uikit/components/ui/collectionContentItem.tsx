@@ -1,6 +1,6 @@
 import map from 'lodash/map';
 import { EllipsisVertical } from 'lucide-react';
-import { type ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { Badge } from './badge';
 import { Button } from './button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu';
@@ -82,7 +82,7 @@ const CollectionItemContent = ({
             <DropdownMenuContent align="end" className="w-32">
               {map(actions, (action, index) => {
                 return (
-                  <>
+                  <React.Fragment key={action.action}>
                     <DropdownMenuItem variant={action.variant} onClick={(event) => {
                       event.stopPropagation();
                       onItemActionClicked({ id, action: action.action })
@@ -93,7 +93,7 @@ const CollectionItemContent = ({
                     {(index !== actions.length - 1) && (
                       <DropdownMenuSeparator />
                     )}
-                  </>
+                  </React.Fragment>
                 )
               })}
             </DropdownMenuContent>

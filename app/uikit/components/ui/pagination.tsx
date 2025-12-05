@@ -24,7 +24,7 @@ function Pagination({
       >
         <ArrowLeft />
       </Button>
-      <div className="border-y border-r px-4 flex items-center text-xs h-9">
+      <div className="border-y border-r justify-center min-w-20 flex items-center text-xs h-9">
         {`${currentPage} / ${totalPages}`}
       </div>
       <Button

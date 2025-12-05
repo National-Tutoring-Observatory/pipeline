@@ -7,6 +7,7 @@ import { Button } from './button';
 import type { CollectionItemAction, CollectionItemAttributes } from './collectionContentItem';
 import CollectionItemContent from './collectionContentItem';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from './empty';
+import type { FiltersProps } from './filters';
 import { Item, ItemGroup, ItemSeparator } from './item';
 import type { PaginationProps } from './pagination';
 import type { SearchProps } from './search';
@@ -15,7 +16,7 @@ import type { SearchProps } from './search';
 export type CollectionProps = {
   items: any[]
   itemsLayout: 'list' | 'card',
-  actions: Action[]
+  actions?: Action[]
   hasSearch?: boolean,
   hasPagination?: boolean,
   isSyncing?: boolean,
@@ -36,6 +37,8 @@ const Collection = ({
   items,
   itemsLayout = 'list',
   actions,
+  filters,
+  filtersValues,
   searchValue,
   hasSearch,
   hasPagination,
@@ -49,13 +52,16 @@ const Collection = ({
   onActionClicked,
   onItemActionClicked,
   onSearchValueChanged,
-  onPaginationChanged
-}: CollectionProps & SearchProps & PaginationProps) => {
+  onPaginationChanged,
+  onFiltersValueChanged
+}: CollectionProps & SearchProps & PaginationProps & FiltersProps) => {
 
   return (
     <div>
       <ActionBar
         actions={actions}
+        filters={filters}
+        filtersValues={filtersValues}
         searchValue={searchValue}
         currentPage={currentPage}
         totalPages={totalPages}
@@ -65,6 +71,7 @@ const Collection = ({
         onActionClicked={onActionClicked}
         onSearchValueChanged={onSearchValueChanged}
         onPaginationChanged={onPaginationChanged}
+        onFiltersValueChanged={onFiltersValueChanged}
       />
       {(items.length === 0) && (
         <Empty>
