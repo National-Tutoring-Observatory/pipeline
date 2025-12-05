@@ -18,7 +18,7 @@ export default function SupportArticlesHeader({
         <div className="flex items-center gap-2">
           <SheetTitle className="flex items-center">
             <LifeBuoy size={16} />
-            <span className="ml-2">Help & Support</span>
+            <span className="ml-2" tabIndex={0}>Help & Support</span>
           </SheetTitle>
           <Tooltip>
             <TooltipTrigger asChild>
