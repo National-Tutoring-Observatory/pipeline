@@ -3,9 +3,8 @@ import find from 'lodash/find';
 import { redirect } from "react-router";
 import { GitHubStrategy } from "remix-auth-github";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import INVITE_LINK_TTL_DAYS from "~/modules/teams/helpers/inviteLink";
 import type { User, UserTeam } from "~/modules/users/users.types";
-// @ts-ignore
-import { INVITE_LINK_TTL_DAYS } from "~/modules/teams/helpers/inviteLink";
 import sessionStorage from '../../../../sessionStorage.js';
 
 const githubStrategy = new GitHubStrategy<User>(
