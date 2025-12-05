@@ -1,8 +1,8 @@
 import fse from 'fs-extra';
+import type { GetDocumentParams, GetDocumentResult } from '~/modules/documents/documents.types';
 import findDocumentByMatch from '../helpers/findDocumentByMatch';
 import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import getCollectionPath from '../helpers/getCollectionPath';
-import type { GetDocumentParams, GetDocumentResult } from '~/modules/documents/documents.types';
 
 export default async function getDocument<T = any>({ collection, match }: GetDocumentParams): Promise<GetDocumentResult<T>> {
   try {
@@ -13,7 +13,7 @@ export default async function getDocument<T = any>({ collection, match }: GetDoc
     const data = findDocumentByMatch(json, match) as T | null;
 
     return {
-      data
+      data: data || null
     };
   } catch (error) {
     console.error(error);
