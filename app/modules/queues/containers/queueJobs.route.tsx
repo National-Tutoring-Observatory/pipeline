@@ -77,7 +77,7 @@ export async function action({ request, params }: Route.ActionArgs) {
           throw new Error(`Job "${entityId}" is not in a failed state`);
         }
 
-        await job.retry();
+        await job.retry(true);
 
         return {
           intent: 'RETRY_JOB',
