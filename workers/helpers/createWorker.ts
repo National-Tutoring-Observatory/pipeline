@@ -11,7 +11,7 @@ export default async ({ name }: { name: string }, file: string) => {
 
   worker = new Worker(name, file, {
     connection: redis,
-    concurrency: 20,
+    concurrency: 5,
     metrics: {
       maxDataPoints: MetricsTime.ONE_WEEK * 2,
     },
