@@ -104,6 +104,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const [filtersValues, setFiltersValues] = useState({ 'TEAM': null, 'ANNOTATION_TYPE': null });
   const [searchValue, setSearchValue] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortValue] = useState('name');
   const totalPages = 10;
 
   useEffect(() => {
@@ -204,6 +205,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       currentPage={currentPage}
       totalPages={totalPages}
       filtersValues={filtersValues}
+      sortValue={sortValue}
       onCreateProjectButtonClicked={onCreateProjectButtonClicked}
       onEditProjectButtonClicked={onEditProjectButtonClicked}
       onDeleteProjectButtonClicked={onDeleteProjectButtonClicked}

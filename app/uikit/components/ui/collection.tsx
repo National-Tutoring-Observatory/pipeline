@@ -11,6 +11,7 @@ import type { FiltersProps } from './filters';
 import { Item, ItemGroup, ItemSeparator } from './item';
 import type { PaginationProps } from './pagination';
 import type { SearchProps } from './search';
+import type { SortProps } from './sort';
 
 
 export type CollectionProps = {
@@ -39,6 +40,8 @@ const Collection = ({
   actions,
   filters,
   filtersValues,
+  sortOptions,
+  sortValue,
   searchValue,
   hasSearch,
   hasPagination,
@@ -53,8 +56,9 @@ const Collection = ({
   onItemActionClicked,
   onSearchValueChanged,
   onPaginationChanged,
-  onFiltersValueChanged
-}: CollectionProps & SearchProps & PaginationProps & FiltersProps) => {
+  onFiltersValueChanged,
+  onSortValueChanged
+}: CollectionProps & SearchProps & PaginationProps & FiltersProps & SortProps) => {
 
   return (
     <div>
@@ -62,6 +66,8 @@ const Collection = ({
         actions={actions}
         filters={filters}
         filtersValues={filtersValues}
+        sortOptions={sortOptions}
+        sortValue={sortValue}
         searchValue={searchValue}
         currentPage={currentPage}
         totalPages={totalPages}
@@ -72,6 +78,7 @@ const Collection = ({
         onSearchValueChanged={onSearchValueChanged}
         onPaginationChanged={onPaginationChanged}
         onFiltersValueChanged={onFiltersValueChanged}
+        onSortValueChanged={onSortValueChanged}
       />
       {(items.length === 0) && (
         <Empty>

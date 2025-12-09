@@ -5,6 +5,8 @@ import { Button } from './button';
 import Filters, { type Filter, type FiltersProps } from './filters';
 import { Pagination, type PaginationProps } from './pagination';
 import { Search, type SearchProps } from './search';
+import type { SortOption, SortProps } from './sort';
+import Sort from './sort';
 import { Spinner } from './spinner';
 
 export type Action = {
@@ -17,6 +19,7 @@ export type Action = {
 export type ActionBarProps = {
   actions?: Action[],
   filters?: Filter[],
+  sortOptions?: SortOption[],
   hasSearch?: boolean,
   hasPagination?: boolean,
   isSyncing?: boolean,
@@ -27,6 +30,8 @@ function ActionBar({
   actions,
   filters,
   filtersValues,
+  sortOptions,
+  sortValue,
   searchValue,
   hasSearch = false,
   hasPagination = false,
@@ -36,8 +41,9 @@ function ActionBar({
   onActionClicked,
   onSearchValueChanged,
   onPaginationChanged,
-  onFiltersValueChanged
-}: ActionBarProps & SearchProps & PaginationProps & FiltersProps) {
+  onFiltersValueChanged,
+  onSortValueChanged
+}: ActionBarProps & SearchProps & PaginationProps & FiltersProps & SortProps) {
 
   const [isStuck, setIsStuck] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -74,6 +80,13 @@ function ActionBar({
               filters={filters}
               filtersValues={filtersValues}
               onFiltersValueChanged={onFiltersValueChanged}
+            />
+          )}
+          {(sortOptions && sortOptions.length > 0) && (
+            <Sort
+              sortOptions={sortOptions}
+              sortValue={sortValue}
+              onSortValueChanged={onSortValueChanged}
             />
           )}
         </div>
