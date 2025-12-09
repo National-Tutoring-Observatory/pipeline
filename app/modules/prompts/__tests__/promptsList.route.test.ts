@@ -3,12 +3,14 @@ import "~/modules/documents/documents";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { Team } from "~/modules/teams/teams.types.js";
 import type { User } from "~/modules/users/users.types.js";
-import sessionStorage from "../../../../sessionStorage.js";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
+import loginUser from '../../../../test/helpers/loginUser';
 import { loader } from "../containers/promptsList.route";
 import type { Prompt } from "../prompts.types.js";
 
 describe("promptsList.route loader — real documents adapter + real session", () => {
+  const documents = getDocumentsAdapter()
+
   beforeEach(async () => {
     await clearDocumentDB()
   })
@@ -20,15 +22,6 @@ describe("promptsList.route loader — real documents adapter + real session", (
 
   it("creates a session user and returns prompts filtered by annotationType + teamId (real adapter)", async () => {
     const documents = getDocumentsAdapter()
-
-    const loginUser = async (userId: string) => {
-      // build a real session cookie for the user
-      const session = await sessionStorage.getSession()
-      session.set("user", { _id: userId })
-      const setCookie = await sessionStorage.commitSession(session)
-      const cookieHeader = setCookie.split(";")[0] // "cookieName=val"
-      return cookieHeader
-    }
 
     const team = (await documents.createDocument<Team>({ collection: "teams", update: { name: "team 1" } })).data;
     const teamOther = (await documents.createDocument<Team>({ collection: "teams", update: { name: "team 2" } })).data;
