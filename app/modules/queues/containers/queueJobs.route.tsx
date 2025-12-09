@@ -74,14 +74,22 @@ export async function action({ request, params }: Route.ActionArgs) {
         }
 
         if (job.state !== 'failed') {
-          console.log(job.state);
-          throw new Error(`Job "${entityId}" is not in a failed state`);
-        }
+          // When a job.state is undefined, this means it is corrupt and should be treated as starting again
+          if (job.state === undefined) {
 
-        try {
-          await job.retry();
-        } catch (error) {
-          console.log(error);
+            job.attemptsMade = 0;
+
+            await job.changeState('waiting');
+
+          } else {
+            throw new Error(`Job "${entityId}" is not in a failed state`);
+          }
+        } else {
+          try {
+            await job.retry();
+          } catch (error) {
+            console.log(error);
+          }
         }
 
         return {
