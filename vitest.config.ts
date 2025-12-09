@@ -5,7 +5,8 @@ export default defineConfig(configEnv => mergeConfig(
   viteConfig(configEnv),
   defineConfig({
     test: {
-      globalSetup: './test/globalSetup.ts',
+      globalSetup: './test/vitest.globalSetup.ts',
+      setupFiles: ['./test/vitest.dbSetup.ts', './test/vitest.adaptersSetup.ts'],
     },
   })
 ))

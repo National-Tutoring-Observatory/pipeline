@@ -1,4 +1,4 @@
-import '../documents';
+import clearDocumentDB from 'test/helpers/clearDocumentDB';
 import getDocumentsAdapter from '../helpers/getDocumentsAdapter';
 import { runDocumentAdapterTests } from './documentAdapterSuite';
 
@@ -7,5 +7,8 @@ runDocumentAdapterTests(async () => {
 
   return {
     adapter,
+    prepare: async () => {
+      await clearDocumentDB()
+    }
   }
 })

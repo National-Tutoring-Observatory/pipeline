@@ -1,5 +1,4 @@
-import { rm } from 'fs/promises';
-import '../documents';
+import { rm, mkdir } from 'fs/promises';
 import getDocumentsAdapter from '../helpers/getDocumentsAdapter';
 import { runDocumentAdapterTests } from './documentAdapterSuite';
 import { DATA_PATH } from '~/helpers/projectRoot';
@@ -9,12 +8,9 @@ runDocumentAdapterTests(async () => {
 
   return {
     adapter,
-    teardown: async () => {
-      try {
-        await rm(DATA_PATH, { recursive: true, force: true })
-      } catch (e) {
-        // ignore
-      }
-    },
+    prepare: async () => {
+      await rm(DATA_PATH, { recursive: true, force: true })
+      await mkdir(DATA_PATH, { recursive: true });
+    }
   }
 })
