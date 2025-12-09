@@ -50,10 +50,13 @@ export default async function annotatePerUtterance(job: any) {
 
     const response = await llm.createChat();
 
+    console.log(response);
+
     const annotations = response.annotations || [];
 
     for (const annotation of annotations) {
       const currentUtterance = find(originalJSON.transcript, { _id: annotation._id });
+      console.log(currentUtterance, originalJSON.transcript, annotation._id);
       currentUtterance.annotations = [...currentUtterance.annotations, annotation];
     }
 
