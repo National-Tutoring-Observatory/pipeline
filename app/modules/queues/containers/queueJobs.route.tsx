@@ -74,16 +74,22 @@ export async function action({ request, params }: Route.ActionArgs) {
         }
 
         if (job.state !== 'failed') {
+          console.log(job.state);
           throw new Error(`Job "${entityId}" is not in a failed state`);
         }
 
-        await job.retry();
+        try {
+          await job.retry();
+        } catch (error) {
+          console.log(error);
+        }
 
         return {
           intent: 'RETRY_JOB',
           success: true
         };
       } catch (error) {
+        console.log(error);
         throw error;
       }
     default:
