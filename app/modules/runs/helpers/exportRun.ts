@@ -11,9 +11,10 @@ export default async function exportRun({ runId, exportType }: { runId: string, 
   const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: runId } });
   if (!run.data) throw new Error('Run not found');
 
-  const inputDirectory = `storage/${run.data.project}/runs/${run.data._id}`;
+  const projectId = run.data.project;
 
-  const outputDirectory = `storage/${run.data.project}/runs/${run.data._id}/exports`;
+  const inputDirectory = `storage/${projectId}/runs/${runId}`;
+  const outputDirectory = `storage/${projectId}/runs/${runId}/exports`;
 
   await documents.updateDocument({
     collection: 'runs',
@@ -39,18 +40,16 @@ export default async function exportRun({ runId, exportType }: { runId: string, 
     update.hasExportedJSONL = true;
   }
 
+  const downloadType = exportType === 'CSV' ? 'CSV' : 'JSONL';
+  const downloadUrl = `/api/downloads/${projectId}/${runId}?exportType=${downloadType}`;
 
   setTimeout(async () => {
-
     await documents.updateDocument({
       collection: 'runs',
       match: { _id: runId },
       update
     });
 
-
-    emitter.emit("EXPORT_RUN", { runId: runId, progress: 100, status: 'DONE' });
-
+    emitter.emit("EXPORT_RUN", { runId: runId, project: projectId, progress: 100, status: 'DONE', exportType, url: downloadUrl });
   }, 2000);
-
 }
