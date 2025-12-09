@@ -25,6 +25,5 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const documents = getDocumentsAdapter();
   const result = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: project, hasConverted: true }, sort: {} });
-  const sessions = { data: result.data };
-  return { sessions };
+  return { sessions: result };
 }
