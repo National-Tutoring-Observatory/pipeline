@@ -3,6 +3,8 @@ import map from 'lodash/map';
 import { useEffect, useState } from "react";
 import { redirect, useActionData, useNavigate, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
+import type { QueryParams } from '~/helpers/buildQueryFromParams';
+import buildQueryFromParams from '~/helpers/buildQueryFromParams';
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
@@ -20,12 +22,18 @@ import type { Project } from "../projects.types";
 import deleteProject from "../services/deleteProject.server";
 import type { Route } from "./+types/projects.route";
 
+
+
 export async function loader({ request, params, context }: Route.LoaderArgs & { context: any }) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
-  const result = await documents.getDocuments<Project>({ collection: 'projects', match: { team: { $in: teamIds } }, sort: {}, populate: [{ path: 'team' }] });
+  const rawQueryParams = new URL(request.url).searchParams.get('query') || '{}';
+  const queryParams = (JSON.parse(rawQueryParams)) as QueryParams;
+  const query = buildQueryFromParams({ queryParams, searchableFields: ['name'], sortableFields: ['name', 'createdAt'], filterableFields: ['team'], filterableValues: { team: teamIds } });
+
+  const result = await documents.getDocuments<Project>({ collection: 'projects', populate: [{ path: 'team' }], ...query });
   const projects = { data: result.data };
 
   return { projects };

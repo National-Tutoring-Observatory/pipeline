@@ -32,8 +32,6 @@ export default async () => {
   const connectionString = `mongodb://${encodeURIComponent(DOCUMENT_DB_USERNAME)}:${encodeURIComponent(DOCUMENT_DB_PASSWORD)}@${DOCUMENT_DB_CONNECTION_STRING}`;
 
   if (!CONNECTION) {
-    console.log('Database:connecting');
-
     const connectionOptions: any = {
       connectTimeoutMS: 10000,
     };
@@ -53,7 +51,6 @@ export default async () => {
     mongoose.connection.on('error', err => {
       console.error('Mongoose connection error:', err);
     });
-    console.log('Database:connected');
   }
 
 
