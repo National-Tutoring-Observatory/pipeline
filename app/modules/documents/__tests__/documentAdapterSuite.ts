@@ -1,41 +1,26 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, beforeEach, afterEach, describe, expect, it } from 'vitest'
 import type { DocumentAdapter } from '../documents.types'
 
 export type AdapterFactory = () => Promise<{
   adapter: DocumentAdapter
-  teardown?: () => Promise<void>
+  prepare?: () => Promise<void>
 }>
 
 export function runDocumentAdapterTests(makeAdapter: AdapterFactory) {
   describe('Document adapter contract tests', () => {
     let adapter: DocumentAdapter
-    let teardown: (() => Promise<void>) | undefined
+    let prepare: (() => Promise<void>) | undefined
 
     const collection = 'users';
 
     beforeAll(async () => {
       const res = await makeAdapter()
       adapter = res.adapter
-      teardown = res.teardown
+      prepare = res.prepare
     })
-
-    afterAll(async () => {
-      if (teardown) await teardown()
-    })
-
-    async function clearAll() {
-      const res: any = await adapter.getDocuments({ collection, match: {} });
-      const docs = (res && res.data) || []
-      await Promise.all(
-        docs.map((d: any) => {
-          const id = d.id ?? d._id ?? d
-          return adapter.deleteDocument({ collection, match: { _id: id } } as any)
-        })
-      )
-    }
 
     beforeEach(async () => {
-      await clearAll()
+      if (prepare) await prepare();
     })
 
     it('creates and reads a document', async () => {

@@ -1,4 +1,4 @@
-import { map } from "lodash";
+import map from "lodash/map";
 import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";

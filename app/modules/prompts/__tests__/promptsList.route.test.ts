@@ -8,12 +8,13 @@ import loginUser from '../../../../test/helpers/loginUser';
 import { loader } from "../containers/promptsList.route";
 import type { Prompt } from "../prompts.types.js";
 
-describe("promptsList.route loader — real documents adapter + real session", () => {
-  const documents = getDocumentsAdapter()
+const documents = getDocumentsAdapter()
 
+describe("promptsList.route loader", () => {
   beforeEach(async () => {
     await clearDocumentDB()
   })
+
   it("redirects to / when there is no session cookie", async () => {
     const res = await loader({ request: new Request("http://localhost/"), params: {} } as any)
     expect(res).toBeInstanceOf(Response)
@@ -21,8 +22,6 @@ describe("promptsList.route loader — real documents adapter + real session", (
   })
 
   it("creates a session user and returns prompts filtered by annotationType + teamId (real adapter)", async () => {
-    const documents = getDocumentsAdapter()
-
     const team = (await documents.createDocument<Team>({ collection: "teams", update: { name: "team 1" } })).data;
     const teamOther = (await documents.createDocument<Team>({ collection: "teams", update: { name: "team 2" } })).data;
 
