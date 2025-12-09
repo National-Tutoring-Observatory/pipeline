@@ -1,13 +1,14 @@
 import archiver from "archiver";
+import fs from 'fs';
 import map from 'lodash/map';
 import { PassThrough, Readable } from "node:stream";
 import { redirect } from "react-router";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
+import type { Project } from "../../projects/projects.types";
 import type { Run } from "../runs.types";
 import type { Route } from "./+types/downloadRun.route";
-import type { Project } from "../../projects/projects.types";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
 
@@ -88,23 +89,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   for (const file of filesToArchive) {
     try {
-      const requestUrl = await storage.request(file.path, {});
-      const response = await fetch(requestUrl as string);
-
-      // Check if the request was successful.
-      if (!response.ok) {
-        throw new Error(`Fetch Error: ${response.status} ${response.statusText}`);
-      }
-
-      if (response.body) {
-        // @ts-ignore
-        const stream = Readable.fromWeb(response.body);
-        archive.append(stream, { name: file.name });
-      } else {
-        throw new Error(`Response body is null for file ${file.name}`);
-      }
-      // const fileStream = fs.createReadStream(file.path);
-      // archive.append(fileStream, { name: file.name });
+      const localPath = await storage.download({ sourcePath: file.path });
+      const fileStream = fs.createReadStream(localPath);
+      archive.append(fileStream, { name: file.name });
     } catch (error) {
       console.error(`Error adding file ${file.name} to archive:`, error);
     }
