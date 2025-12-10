@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
 import {
+  DangerZone,
+  DangerZoneActionRow,
+  DangerZonePanel,
+  DangerZoneTitle
+} from "@/components/ui/dangerZone";
+import {
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -106,24 +112,25 @@ export default function JobDetailsDialog({ job, onDelete }: JobDetailsDialogProp
               {job.stacktrace?.join('\n') || 'No stack trace'}
             </Pre>
           </JobDetailField>
+
+          <DangerZone>
+            <DangerZoneTitle />
+            <DangerZonePanel>
+              <DangerZoneActionRow
+                title="Remove from the queue"
+                description={`Remove this job from the ${job.queue.name} queue`}
+                buttonLabel="Remove Job"
+                buttonOnClick={handleDelete}
+              />
+            </DangerZonePanel>
+          </DangerZone>
         </div>
       </div>
 
       <DialogFooter className="flex-shrink-0 border-t pt-4">
-        <div className="flex items-center justify-between w-full">
-          <div>
-            <p className="text-sm font-medium text-destructive">Danger Zone</p>
-            <p className="text-xs text-muted-foreground">Remove this job from the queue</p>
-          </div>
-          <div className="flex gap-2">
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="button" variant="destructive" onClick={handleDelete}>
-              Remove Job
-            </Button>
-          </div>
-        </div>
+        <DialogClose asChild>
+          <Button variant="outline">Cancel</Button>
+        </DialogClose>
       </DialogFooter>
     </DialogContent>
   );
