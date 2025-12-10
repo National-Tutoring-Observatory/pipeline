@@ -110,12 +110,20 @@ export default function JobDetailsDialog({ job, onDelete }: JobDetailsDialogProp
       </div>
 
       <DialogFooter className="flex-shrink-0 border-t pt-4">
-        <DialogClose asChild>
-          <Button variant="outline">Close</Button>
-        </DialogClose>
-        <Button variant="destructive" onClick={handleDelete}>
-          Remove Job
-        </Button>
+        <div className="flex items-center justify-between w-full">
+          <div>
+            <p className="text-sm font-medium text-destructive">Danger Zone</p>
+            <p className="text-xs text-muted-foreground">Remove this job from the queue</p>
+          </div>
+          <div className="flex gap-2">
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="button" variant="destructive" onClick={handleDelete}>
+              Remove Job
+            </Button>
+          </div>
+        </div>
       </DialogFooter>
     </DialogContent>
   );
