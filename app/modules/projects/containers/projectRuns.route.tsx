@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { redirect, useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
+import { redirect, useActionData, useLoaderData, useNavigate, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -12,6 +12,7 @@ import DuplicateRunDialog from '../components/duplicateRunDialog';
 import EditRunDialog from "../components/editRunDialog";
 import ProjectRuns from "../components/projectRuns";
 import type { Route } from "./+types/projectRuns.route";
+import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -138,6 +139,7 @@ export default function ProjectRunsRoute() {
   const submit = useSubmit();
   const actionData = useActionData();
   const navigate = useNavigate();
+  const { revalidate } = useRevalidator();
 
   useEffect(() => {
     if (actionData?.intent === 'CREATE_RUN' || actionData?.intent === 'DUPLICATE_RUN') {
@@ -183,6 +185,19 @@ export default function ProjectRunsRoute() {
     />
     );
   }
+
+  useHandleSockets({
+    event: 'ANNOTATE_RUN',
+    matches: [{
+      task: 'ANNOTATE_RUN:START',
+      status: 'FINISHED'
+    }, {
+      task: 'ANNOTATE_RUN:FINISH',
+      status: 'FINISHED'
+    }], callback: (payload) => {
+      revalidate();
+    }
+  })
 
   return (
     <ProjectRuns
