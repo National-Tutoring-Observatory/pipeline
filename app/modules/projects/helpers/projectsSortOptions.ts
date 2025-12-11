@@ -1,4 +1,7 @@
 export default [{
-  text: 'Annotation type',
-  value: 'ANNOTATION_TYPE'
+  value: 'name',
+  text: 'Name'
+}, {
+  value: 'createdAt',
+  text: 'Created at'
 }]
