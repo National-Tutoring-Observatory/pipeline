@@ -5,9 +5,9 @@ import { redirect } from "react-router";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
+import type { Project } from "../../projects/projects.types";
 import type { Run } from "../runs.types";
 import type { Route } from "./+types/downloadRun.route";
-import type { Project } from "../../projects/projects.types";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
 
@@ -88,7 +88,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   for (const file of filesToArchive) {
     try {
-      const requestUrl = await storage.request(file.path, {});
+      const requestUrl = await storage.request({ url: file.path });
       const response = await fetch(requestUrl as string);
 
       // Check if the request was successful.

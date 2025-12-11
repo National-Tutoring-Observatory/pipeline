@@ -36,7 +36,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     const storage = getStorageAdapter();
-    const requestUrl = await storage.request(url, {});
+    const requestUrl = await storage.request({ url });
     return { requestUrl };
   }
 
