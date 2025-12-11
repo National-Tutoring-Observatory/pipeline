@@ -30,12 +30,18 @@ export async function loader({ request, params, context }: Route.LoaderArgs & { 
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
-  const queryParams = getQueryParamsFromRequest(request, {
-    searchValue: '',
-    currentPage: 1,
-    sort: 'name',
-    filters: {}
-  });
+  let queryParams = {};
+
+  const sessionUser = await getSessionUser({ request });
+
+  if (sessionUser?.featureFlags.includes('HAS_COLLECTION_UI')) {
+    queryParams = getQueryParamsFromRequest(request, {
+      searchValue: '',
+      currentPage: 1,
+      sort: 'name',
+      filters: {}
+    });
+  }
 
   const query = buildQueryFromParams({ queryParams, searchableFields: ['name'], sortableFields: ['name', 'createdAt'], filterableFields: ['team'], filterableValues: { team: teamIds } });
 
