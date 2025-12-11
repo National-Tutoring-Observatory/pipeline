@@ -165,7 +165,7 @@ describe('buildQueryFromParams', () => {
 
   it('preserves page parameter', () => {
     const query = buildQueryFromParams({
-      queryParams: { page: '2' },
+      queryParams: { currentPage: '2' },
       searchableFields: [],
       sortableFields: ['name'],
     })
