@@ -3,13 +3,13 @@ import { redirect, useLoaderData, useOutletContext, useParams, useSubmit } from 
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import { isSuperAdmin } from "~/modules/authentication/helpers/superAdmin";
+import { userIsSuperAdmin } from "~/modules/authorization/helpers/superAdmin";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
+import TeamAuthorization from "../authorization";
 import ConfirmRemoveUserDialog from "../components/confirmRemoveUserDialog";
 import TeamUsers from "../components/teamUsers";
-import { isTeamAdmin, validateTeamAdmin } from "../helpers/teamAdmin";
 import { addSuperAdminToTeam } from '../services/teamUsers.server';
 import type { TeamAssignmentOption } from "../teams.types";
 import { isTeamAssignmentOption } from "../teams.types";
@@ -23,7 +23,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!user) {
     return redirect('/');
   }
-  if (!(await isTeamAdmin({ user, teamId: params.id }))) {
+  if (!TeamAuthorization.Users.canView(user, params.id)) {
     return redirect('/');
   }
   const documents = getDocumentsAdapter();
@@ -38,12 +38,13 @@ export async function action({ request, params }: Route.ActionArgs) {
   const user = await getSessionUser({ request }) as User | null;
   if (!user) return redirect('/');
 
-  await validateTeamAdmin({ user, teamId: params.id });
-
   const documents = getDocumentsAdapter();
 
   switch (intent) {
     case 'ADD_SUPERADMIN_TO_TEAM': {
+      if (!TeamAuthorization.Users.canRequestAccess(user, params.id)) {
+        throw new Error('Only super admins can add super admins to teams.');
+      }
       const { reason, option } = payload;
       if (!isTeamAssignmentOption(option)) {
         throw new Error('Invalid team assignment option');
@@ -52,8 +53,11 @@ export async function action({ request, params }: Route.ActionArgs) {
       return {};
     }
     case 'ADD_USERS_TO_TEAM':
+      if (!TeamAuthorization.Users.canUpdate(user, params.id)) {
+        throw new Error('You do not have permission to manage team users.');
+      }
       for (const id of userIds) {
-        if (isSuperAdmin(user) && id === user._id) {
+        if (userIsSuperAdmin(user) && id === user._id) {
           throw new Error("Super admin cannot be added to a team.");
         }
         const userDoc = await documents.getDocument<User>({ collection: 'users', match: { _id: id } });
@@ -65,6 +69,9 @@ export async function action({ request, params }: Route.ActionArgs) {
       }
       return {};
     case 'REMOVE_USER_FROM_TEAM':
+      if (!TeamAuthorization.Users.canUpdate(user, params.id)) {
+        throw new Error('You do not have permission to manage team users.');
+      }
       if (!userId) return {};
       const userDoc = await documents.getDocument<User>({ collection: 'users', match: { _id: userId } });
       if (userDoc.data && Array.isArray(userDoc.data.teams)) {
@@ -83,7 +90,7 @@ export default function TeamUsersRoute() {
   const ctx = useOutletContext<any>();
   const submit = useSubmit();
   const authentication = useContext(AuthenticationContext) as User | null;
-  const isSuperAdminUser = isSuperAdmin(authentication);
+  const isSuperAdminUser = userIsSuperAdmin(authentication);
   const isTeamMemberUser = ctx.team && authentication && authentication.teams.some((t) => t.team === ctx.team._id);
 
   const onAddUsersClicked = (userIds: string[]) => {

@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
-import { validateTeamAdmin } from "../helpers/teamAdmin";
+import TeamAuthorization from "../authorization";
 import type { Route } from "./+types/generateInviteToTeam.route";
 
 export async function action({
@@ -22,7 +22,9 @@ export async function action({
       return {};
     }
 
-    await validateTeamAdmin({ user, teamId: payload.teamId });
+    if (!TeamAuthorization.Users.canInvite(user, payload.teamId)) {
+      throw new Error('You do not have permission to invite users to this team.');
+    }
 
     const documents = getDocumentsAdapter();
 

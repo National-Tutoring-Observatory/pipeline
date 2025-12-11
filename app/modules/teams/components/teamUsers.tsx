@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import type { User } from "~/modules/users/users.types";
 import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
+import useTeamAuthorization from "../hooks/useTeamAuthorization";
 import type { Team } from "../teams.types";
 
 interface TeamUsersProps {
@@ -16,24 +17,27 @@ interface TeamUsersProps {
 }
 
 export default function TeamUsers({ users, team, isSuperAdminUser, isTeamMemberUser, onAddUserToTeamButtonClicked, onAddSuperAdminToTeamButtonClicked, onInviteUserToTeamButtonClicked, onRemoveUserFromTeamClicked }: TeamUsersProps) {
+  const { users: usersAuthorization } = useTeamAuthorization(team._id);
   return (
     <div>
       <div className="flex items-center justify-between">
         <div className="text-sm font-medium text-muted-foreground">Users</div>
         <div>
-          {isSuperAdminUser && !isTeamMemberUser && (
+          {usersAuthorization.canRequestAccess && (
             <Button variant="secondary" onClick={onAddSuperAdminToTeamButtonClicked} className="mr-2">
               Request Access to Team
             </Button>
           )}
-          {isSuperAdminUser && (
+          {usersAuthorization.canUpdate && (
             <Button variant="secondary" onClick={onAddUserToTeamButtonClicked} className="mr-2">
               Add existing user
             </Button>
           )}
-          <Button onClick={onInviteUserToTeamButtonClicked}>
-            Invite new user
-          </Button>
+          {usersAuthorization.canInvite && (
+            <Button onClick={onInviteUserToTeamButtonClicked}>
+              Invite new user
+            </Button>
+          )}
         </div>
       </div>
       <div>

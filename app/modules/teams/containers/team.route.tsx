@@ -1,16 +1,16 @@
 import { useEffect } from "react";
 import { redirect, useFetcher } from "react-router";
+import { toast } from "sonner";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
+import TeamAuthorization from "../authorization";
+import EditTeamDialog from "../components/editTeamDialog";
 import Team from '../components/team';
-import { isTeamAdmin } from "../helpers/teamAdmin";
 import type { Team as TeamType } from "../teams.types";
 import type { Route } from "./+types/team.route";
-import EditTeamDialog from "../components/editTeamDialog";
-import addDialog from "~/modules/dialogs/addDialog";
-import { toast } from "sonner";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -21,7 +21,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  if (!(await isTeamAdmin({ user: userSession, teamId: params.id }))) {
+  if (!TeamAuthorization.canView(userSession, params.id)) {
     return redirect('/');
   }
 
