@@ -6,6 +6,7 @@ import path from "path";
 import { Readable } from "stream";
 import { PROJECT_ROOT } from '~/helpers/projectRoot';
 import registerStorageAdapter from "~/modules/storage/helpers/registerStorageAdapter";
+import type { DownloadParams, RemoveDirParams, RemoveParams, RequestParams, UploadParams } from '~/modules/storage/storage.types';
 
 const S3_MAX_BATCH_SIZE = 1000; // AWS S3 limit for DeleteObjectsCommand and ListObjectsV2
 
@@ -33,7 +34,7 @@ function getAwsBucket() {
 
 registerStorageAdapter({
   name: 'AWS_S3',
-  download: async ({ sourcePath }: { sourcePath: string }): Promise<string> => {
+  download: async ({ sourcePath }: DownloadParams): Promise<string> => {
     const s3Client = getS3Client();
 
     const params = {
@@ -61,7 +62,7 @@ registerStorageAdapter({
       throw new Error(`AWS_S3 download error for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
-  upload: async ({ file, uploadPath }: { file: { buffer: Buffer, contentType: string, size: number }, uploadPath: string }): Promise<void> => {
+  upload: async ({ file, uploadPath }: UploadParams): Promise<void> => {
 
     const { buffer, contentType, size } = file;
 
@@ -97,13 +98,13 @@ registerStorageAdapter({
 
 
   },
-  remove: async ({ sourcePath }: { sourcePath: string }) => {
+  remove: async ({ sourcePath }: RemoveParams): Promise<void> => {
     const s3Client = getS3Client();
     const command = new DeleteObjectCommand({ Bucket: getAwsBucket(), Key: sourcePath });
     await s3Client.send(command);
     console.log(`AWS_S3: Deleted file ${sourcePath}`);
   },
-  removeDir: async ({ sourcePath }: { sourcePath: string }) => {
+  removeDir: async ({ sourcePath }: RemoveDirParams): Promise<void> => {
     const s3Client = getS3Client();
     const bucket = getAwsBucket();
     const prefix = sourcePath.endsWith('/') ? sourcePath : `${sourcePath}/`;
@@ -127,7 +128,7 @@ registerStorageAdapter({
       throw error;
     }
   },
-  request: async (url, options) => {
+  request: async ({ url }: RequestParams): Promise<unknown> => {
     const s3Client = getS3Client();
 
     const params = {

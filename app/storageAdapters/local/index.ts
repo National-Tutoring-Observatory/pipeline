@@ -3,10 +3,11 @@ import fse from 'fs-extra';
 import path from 'path';
 import { PROJECT_ROOT } from '~/helpers/projectRoot';
 import registerStorageAdapter from "~/modules/storage/helpers/registerStorageAdapter";
+import type { DownloadParams, RemoveDirParams, RemoveParams, RequestParams, UploadParams } from '~/modules/storage/storage.types';
 
 registerStorageAdapter({
   name: 'LOCAL',
-  download: async ({ sourcePath }): Promise<string> => {
+  download: async ({ sourcePath }: DownloadParams): Promise<string> => {
     const absolutePath = path.resolve(PROJECT_ROOT, sourcePath);
     const exists = await fse.exists(absolutePath);
     if (!exists) {
@@ -20,7 +21,7 @@ registerStorageAdapter({
       throw new Error(`LOCAL: Error copying file to tmp for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
-  upload: async ({ file, uploadPath }: { file: any, uploadPath: string }): Promise<void> => {
+  upload: async ({ file, uploadPath }: UploadParams): Promise<void> => {
     try {
       const absoluteUploadPath = path.resolve(PROJECT_ROOT, uploadPath);
       const { buffer } = file;
@@ -29,15 +30,15 @@ registerStorageAdapter({
       console.log(error);
     }
   },
-  remove: async ({ sourcePath }: { sourcePath: string }) => {
+  remove: async ({ sourcePath }: RemoveParams): Promise<void> => {
     const absolutePath = path.resolve(PROJECT_ROOT, sourcePath);
     await fse.remove(absolutePath);
   },
-  removeDir: async ({ sourcePath }: { sourcePath: string }) => {
+  removeDir: async ({ sourcePath }: RemoveDirParams): Promise<void> => {
     const absolutePath = path.resolve(PROJECT_ROOT, sourcePath);
     await fse.remove(absolutePath);
   },
-  request: (url, _) => {
+  request: ({ url, options }: RequestParams): Promise<unknown> => {
     return new Promise((resolve) => {
       resolve(`/${url}`);
     });
