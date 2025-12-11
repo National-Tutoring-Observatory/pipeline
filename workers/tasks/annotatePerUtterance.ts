@@ -57,7 +57,6 @@ export default async function annotatePerUtterance(job: any) {
 
     for (const annotation of annotations) {
       const currentUtterance = find(originalJSON.transcript, { _id: annotation._id });
-      console.log(currentUtterance, annotation._id, sessionId);
       currentUtterance.annotations = [...currentUtterance.annotations, annotation];
     }
 
