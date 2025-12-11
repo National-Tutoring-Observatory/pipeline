@@ -1,4 +1,4 @@
-import { DeleteObjectCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, S3Client, paginateListObjectsV2 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import fse from "fs-extra";
@@ -6,6 +6,8 @@ import path from "path";
 import { Readable } from "stream";
 import { PROJECT_ROOT } from '~/helpers/projectRoot';
 import registerStorageAdapter from "~/modules/storage/helpers/registerStorageAdapter";
+
+const S3_MAX_BATCH_SIZE = 1000; // AWS S3 limit for DeleteObjectsCommand and ListObjectsV2
 
 function getS3Client() {
   const { AWS_REGION, AWS_KEY, AWS_SECRET } = process.env;
@@ -100,6 +102,30 @@ registerStorageAdapter({
     const command = new DeleteObjectCommand({ Bucket: getAwsBucket(), Key: sourcePath });
     await s3Client.send(command);
     console.log(`AWS_S3: Deleted file ${sourcePath}`);
+  },
+  removeDir: async ({ sourcePath }: { sourcePath: string }) => {
+    const s3Client = getS3Client();
+    const bucket = getAwsBucket();
+    const prefix = sourcePath.endsWith('/') ? sourcePath : `${sourcePath}/`;
+
+    try {
+      const paginator = paginateListObjectsV2({ client: s3Client, pageSize: S3_MAX_BATCH_SIZE }, { Bucket: bucket, Prefix: prefix });
+
+      for await (const page of paginator) {
+        if (!page.Contents || page.Contents.length === 0) continue;
+
+        const keysToDelete = page.Contents.map(object => ({ Key: object.Key! }));
+
+        const deleteCommand = new DeleteObjectsCommand({
+          Bucket: bucket,
+          Delete: { Objects: keysToDelete }
+        });
+        await s3Client.send(deleteCommand);
+      }
+    } catch (error) {
+      console.error(`AWS_S3: Error deleting directory ${sourcePath}:`, error);
+      throw error;
+    }
   },
   request: async (url, options) => {
     const s3Client = getS3Client();
