@@ -1,6 +1,6 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { ChartNoAxesGantt, ChevronsUpDown, Flag, FolderKanban, LogOut, SquareTerminal, Users } from "lucide-react";
+import { ChartNoAxesGantt, ChevronsUpDown, ClipboardList, Flag, Folder, LogOut, Users } from "lucide-react";
 import { useContext, useEffect } from "react";
 import { NavLink, useFetcher } from "react-router";
 import SideBarHelpDropdown from "~/modules/app/components/sidebarHelpDropdown";
@@ -43,7 +43,7 @@ export default function AppSidebar() {
                   <NavLink to={'/'}>
                     {({ isActive }) => (
                       <>
-                        <FolderKanban />
+                        <Folder />
                         <span className={isActive ? "underline" : ""}>Projects</span>
                       </>
                     )}
@@ -55,7 +55,7 @@ export default function AppSidebar() {
                   <NavLink to={'/prompts'}>
                     {({ isActive }) => (
                       <>
-                        <SquareTerminal />
+                        <ClipboardList />
                         <span className={isActive ? "underline" : ""}>Prompts</span>
                       </>
                     )}

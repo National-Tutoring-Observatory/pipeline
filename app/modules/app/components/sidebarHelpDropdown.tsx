@@ -1,7 +1,7 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { SidebarMenuButton } from "@/components/ui/sidebar";
-import { LifeBuoy } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 import { useState } from "react";
 import SupportArticlesContainer from "~/modules/support/containers/supportArticles.container";
 
@@ -13,7 +13,7 @@ export default function SideBarHelpDropdown() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <SidebarMenuButton size="sm" className="cursor-pointer">
-            <LifeBuoy />
+            <CircleHelp />
             <span>Help & Support</span>
           </SidebarMenuButton>
         </DropdownMenuTrigger>

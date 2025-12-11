@@ -91,9 +91,7 @@ export async function action({
       return {};
     }
     case 'EXPORT_RUN': {
-
       exportRun({ runId: params.runId, exportType });
-
       return {};
     }
     default:
@@ -208,6 +206,19 @@ export default function ProjectRunRoute() {
             break;
           case 'EXPORT_RUN':
             debounceRevalidate(revalidate);
+            // If the export finished, trigger download automatically.
+            if (data.status === 'DONE') {
+              const url = data.url;
+              const a = document.createElement('a');
+              a.href = url;
+              a.target = '_blank';
+              a.rel = 'noopener';
+              // Append to body before clicking to ensure Safari compatibility
+              document.body.appendChild(a);
+              a.click();
+              // Remove after click
+              document.body.removeChild(a);
+            }
             break;
         }
       }

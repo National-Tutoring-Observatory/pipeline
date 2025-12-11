@@ -1,6 +1,7 @@
 import fse from 'fs-extra';
 import filter from 'lodash/filter';
 import find from 'lodash/find.js';
+import getConversationFromJSON from 'workers/helpers/getConversationFromJSON';
 import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter';
 import LLM from '../../app/modules/llm/llm';
 import type { Run } from '../../app/modules/runs/runs.types';
@@ -37,6 +38,8 @@ export default async function annotatePerUtterance(job: any) {
 
     const originalJSON = JSON.parse(data.toString());
 
+    const conversation = getConversationFromJSON(originalJSON);
+
     const llm = new LLM({ quality: 'high', model, user: team });
 
     llm.addSystemMessage(annotationPerUtterancePrompts.system, {
@@ -45,7 +48,7 @@ export default async function annotatePerUtterance(job: any) {
     });
 
     llm.addUserMessage(`${prompt.prompt}\n\nConversation: {{conversation}}`, {
-      conversation: data
+      conversation
     });
 
     const response = await llm.createChat();
@@ -54,6 +57,7 @@ export default async function annotatePerUtterance(job: any) {
 
     for (const annotation of annotations) {
       const currentUtterance = find(originalJSON.transcript, { _id: annotation._id });
+      console.log(currentUtterance, annotation._id, sessionId);
       currentUtterance.annotations = [...currentUtterance.annotations, annotation];
     }
 

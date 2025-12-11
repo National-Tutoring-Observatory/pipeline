@@ -1,6 +1,7 @@
 import fse from 'fs-extra';
 import filter from 'lodash/filter';
 import map from 'lodash/map.js';
+import getConversationFromJSON from 'workers/helpers/getConversationFromJSON';
 import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter';
 import LLM from '../../app/modules/llm/llm';
 import type { Run } from '../../app/modules/runs/runs.types';
@@ -38,6 +39,8 @@ export default async function annotatePerSession(job: any) {
 
     const originalJSON = JSON.parse(data.toString());
 
+    const conversation = getConversationFromJSON(originalJSON);
+
     const llm = new LLM({ quality: 'high', model, user: team });
 
     llm.addSystemMessage(annotationPerSessionPrompts.system, {
@@ -46,7 +49,7 @@ export default async function annotatePerSession(job: any) {
     });
 
     llm.addUserMessage(`${prompt.prompt}\n\nConversation: {{conversation}}`, {
-      conversation: data
+      conversation
     })
 
     const response = await llm.createChat();
