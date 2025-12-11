@@ -3,7 +3,8 @@ import find from 'lodash/find';
 import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import { validateProjectOwnership } from "~/modules/projects/helpers/projectOwnership";
+import ProjectAuthorization from "~/modules/projects/authorization";
+import type { Project } from "~/modules/projects/projects.types";
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
@@ -30,7 +31,18 @@ export async function action({
   }
 
   const projectId = run.data.project as string;
-  await validateProjectOwnership({ user, projectId });
+  const project = await documents.getDocument<Project>({
+    collection: 'projects',
+    match: { _id: projectId },
+  });
+  if (!project.data) {
+    throw new Error('Project not found');
+  }
+
+  const teamId = (project.data.team as any)._id || project.data.team;
+  if (!ProjectAuthorization.Annotations.canManage(user, teamId)) {
+    throw new Error('You do not have permission to update annotations in this project.');
+  }
 
   const session = await documents.getDocument<Session>({ collection: 'sessions', match: { _id: params.sessionId, project: projectId } });
 

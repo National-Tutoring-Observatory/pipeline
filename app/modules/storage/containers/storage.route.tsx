@@ -1,6 +1,8 @@
 import type { ActionFunctionArgs } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import { isProjectOwner } from "~/modules/projects/helpers/projectOwnership";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import ProjectAuthorization from "~/modules/projects/authorization";
+import type { Project } from "~/modules/projects/projects.types";
 import type { User } from "~/modules/users/users.types";
 import getStorageAdapter from "../helpers/getStorageAdapter";
 
@@ -30,8 +32,14 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     const projectId = extractProjectIdFromUrl(url);
+    const documents = getDocumentsAdapter();
+    const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: projectId } });
+    if (!project.data) {
+      throw new Error('Project not found');
+    }
 
-    if (!(await isProjectOwner({ user, projectId }))) {
+    const teamId = (project.data.team as any)._id || project.data.team;
+    if (!ProjectAuthorization.canView(user, teamId)) {
       throw new Error("You do not have permission to access files from this project");
     }
 

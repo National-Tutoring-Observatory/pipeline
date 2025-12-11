@@ -2,11 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import clsx from "clsx";
+import { Pencil } from "lucide-react";
 import { Link, Outlet } from "react-router";
 import UploadFilesContainer from "~/modules/files/containers/uploadFiles.container";
 import type { FileType } from "~/modules/files/files.types";
+import useProjectAuthorization from "../hooks/useProjectAuthorization";
 import type { Project } from "../projects.types";
-import { Pencil } from "lucide-react";
 
 interface ProjectProps {
   project: Project,
@@ -35,7 +36,8 @@ export default function Project({
   onUploadFiles
   , onEditProjectButtonClicked
 }: ProjectProps) {
-
+  const teamId = (project.team as any)._id || project.team;
+  const { canUpdate } = useProjectAuthorization(teamId);
 
   return (
     <div className="max-w-6xl p-8">
@@ -43,12 +45,14 @@ export default function Project({
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
           {project.name}
         </h1>
-        <div>
-          <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditProjectButtonClicked(project)}>
-            <Pencil />
-            Edit
-          </Button>
-        </div>
+        {canUpdate && (
+          <div>
+            <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditProjectButtonClicked(project)}>
+              <Pencil />
+              Edit
+            </Button>
+          </div>
+        )}
       </div>
       {(!project.hasSetupProject) && (
         <div>
