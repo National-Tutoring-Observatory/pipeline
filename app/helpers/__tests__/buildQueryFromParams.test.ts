@@ -150,7 +150,7 @@ describe('buildQueryFromParams', () => {
       searchableFields: [],
       sortableFields: ['name'],
     })
-    expect(query.sort).toEqual({})
+    expect(query.sort).toEqual(null)
   })
 
   it('throws when sort provided but no sortableFields configured', () => {
