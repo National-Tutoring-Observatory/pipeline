@@ -5,9 +5,9 @@ import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter
 import ViewSessionContainer from "~/modules/sessions/containers/viewSessionContainer";
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { User } from "~/modules/users/users.types";
+import ProjectAuthorization from "../authorization";
 import ProjectSessions from "../components/projectSessions";
-import { isProjectOwner } from "../helpers/projectOwnership";
-import type { Project as ProjectType } from "../projects.types";
+import type { Project } from "../projects.types";
 import createSessionsFromFiles from "../services/createSessionsFromFiles.server";
 import type { Route } from "./+types/projectSessions.route";
 
@@ -21,11 +21,17 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  if (!(await isProjectOwner({ user, projectId: params.id }))) {
+  const documents = getDocumentsAdapter();
+  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.id } });
+  if (!project.data) {
     return redirect('/');
   }
 
-  const documents = getDocumentsAdapter();
+  const teamId = (project.data.team as any)._id || project.data.team;
+  if (!ProjectAuthorization.canView(user, teamId)) {
+    return redirect('/');
+  }
+
   const result = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: params.id }, sort: {} });
   const sessions = { data: result.data };
   return { sessions };
@@ -46,7 +52,7 @@ export async function action({
 
       const documents = getDocumentsAdapter();
 
-      return await documents.updateDocument<ProjectType>({ collection: 'projects', match: { _id: params.id }, update: { isConvertingFiles: true } });
+      return await documents.updateDocument<Project>({ collection: 'projects', match: { _id: params.id }, update: { isConvertingFiles: true } });
 
     }
     default:
