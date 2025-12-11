@@ -28,38 +28,14 @@ export default async function deleteProject({ projectId }: { projectId: string }
       },
       children: [
         {
-          name: `DELETE_PROJECT:FILES`,
+          name: `DELETE_PROJECT:DATA`,
           queueName: 'general',
           opts: { attempts: 3 },
           data: {
             projectId,
             props: {
               event: 'DELETE_PROJECT',
-              task: `DELETE_PROJECT:FILES`
-            }
-          }
-        },
-        {
-          name: `DELETE_PROJECT:SESSIONS`,
-          queueName: 'general',
-          opts: { attempts: 3 },
-          data: {
-            projectId,
-            props: {
-              event: 'DELETE_PROJECT',
-              task: `DELETE_PROJECT:SESSIONS`
-            }
-          }
-        },
-        {
-          name: `DELETE_PROJECT:RUNS`,
-          queueName: 'general',
-          opts: { attempts: 3 },
-          data: {
-            projectId,
-            props: {
-              event: 'DELETE_PROJECT',
-              task: `DELETE_PROJECT:RUNS`
+              task: `DELETE_PROJECT:DATA`
             }
           }
         }
