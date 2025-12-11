@@ -22,6 +22,7 @@ import getProjectsItemAttributes from "../helpers/getProjectsItemAttributes";
 import projectsActions from "../helpers/projectsActions";
 import projectsFilters from "../helpers/projectsFilters";
 import projectsSortOptions from "../helpers/projectsSortOptions";
+import useProjectAuthorization from "../hooks/useProjectAuthorization";
 import type { Project } from "../projects.types";
 
 interface ProjectsProps {
@@ -113,6 +114,8 @@ export default function Projects({
             </TableHeader>
             <TableBody>
               {map(projects, (project) => {
+                const teamId = (project.team as any)._id || project.team;
+                const { canUpdate, canDelete } = useProjectAuthorization(teamId);
                 let teamName = '';
                 // @ts-ignore
                 if (project.team && project.team?.name) {
@@ -141,30 +144,38 @@ export default function Projects({
                       {isDeleted ? (
                         <span className="inline-block px-2 py-1 text-xs font-semibold rounded bg-yellow-100 text-yellow-800 border border-yellow-200 mr-2">Pending Deletion</span>
                       ) : null}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                            size="icon"
-                            disabled={isDeleted}
-                            tabIndex={isDeleted ? -1 : 0}
-                            aria-disabled={isDeleted}
-                          >
-                            <EllipsisVertical />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-32">
-                          <DropdownMenuItem onClick={() => onEditProjectButtonClicked(project)} disabled={isDeleted} aria-disabled={isDeleted}>
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem variant="destructive" onClick={() => onDeleteProjectButtonClicked(project)} disabled={isDeleted} aria-disabled={isDeleted}>
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {(canUpdate || canDelete) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                              size="icon"
+                              disabled={isDeleted}
+                              tabIndex={isDeleted ? -1 : 0}
+                              aria-disabled={isDeleted}
+                            >
+                              <EllipsisVertical />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-32">
+                            {canUpdate && (
+                              <DropdownMenuItem onClick={() => onEditProjectButtonClicked(project)} disabled={isDeleted} aria-disabled={isDeleted}>
+                                Edit
+                              </DropdownMenuItem>
+                            )}
+                            {canDelete && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem variant="destructive" onClick={() => onDeleteProjectButtonClicked(project)} disabled={isDeleted} aria-disabled={isDeleted}>
+                                  Delete
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </TableCell>
                   </TableRow>
                 );
