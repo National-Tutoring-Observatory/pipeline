@@ -1,8 +1,9 @@
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Pencil } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import type { Team } from "../teams.types";
-import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import useTeamAuthorization from "../hooks/useTeamAuthorization";
 
 
 interface TeamProps {
@@ -16,6 +17,7 @@ export default function Team({
 }: TeamProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { canUpdate } = useTeamAuthorization(team._id);
 
   const parts = location.pathname.split('/').filter(Boolean);
   // Expect path like /teams/:id(/projects|prompts|users)
@@ -32,10 +34,12 @@ export default function Team({
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
           {team.name}
         </h1>
-        <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditTeamButtonClicked(team)}>
-          <Pencil />
-          Edit
-        </Button>
+        {canUpdate && (
+          <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditTeamButtonClicked(team)}>
+            <Pencil />
+            Edit
+          </Button>
+        )}
       </div>
       <Tabs value={active} onValueChange={handleTabChange} className="mb-2">
         <TabsList>
