@@ -1,9 +1,9 @@
-import type { DocumentAdapter } from '~/modules/documents/documents.types';
 import registerDocumentsAdapter from "~/modules/documents/helpers/registerDocumentsAdapter";
 import withCollectionLock from "./helpers/withCollectionLock";
 import countDocuments from "./services/countDocuments";
 import createDocument from "./services/createDocument";
 import deleteDocument from "./services/deleteDocument";
+import deleteDocuments from "./services/deleteDocuments";
 import getDocument from "./services/getDocument";
 import getDocuments from "./services/getDocuments";
 import updateDocument from "./services/updateDocument";
@@ -16,5 +16,6 @@ registerDocumentsAdapter({
   createDocument: withCollectionLock(createDocument),
   getDocument: withCollectionLock(getDocument),
   updateDocument: withCollectionLock(updateDocument),
-  deleteDocument: withCollectionLock(deleteDocument)
+  deleteDocument: withCollectionLock(deleteDocument),
+  deleteDocuments: withCollectionLock(deleteDocuments)
 });
