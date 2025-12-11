@@ -54,6 +54,13 @@ export interface DeleteDocumentParams {
 
 export type DeleteDocumentResult = boolean;
 
+export interface DeleteDocumentsParams {
+  collection: string;
+  match: any;
+}
+
+export type DeleteDocumentsResult = number;
+
 export interface DocumentAdapter {
   name: string;
   getDocuments: <T = any>(params: GetDocumentsParams) => Promise<GetDocumentsResult<T>>;
@@ -62,4 +69,5 @@ export interface DocumentAdapter {
   getDocument: <T = any>(params: GetDocumentParams) => Promise<GetDocumentResult<T>>;
   updateDocument: <T = any>(params: UpdateDocumentParams) => Promise<UpdateDocumentResult<T>>;
   deleteDocument: (params: DeleteDocumentParams) => Promise<DeleteDocumentResult>;
+  deleteDocuments: (params: DeleteDocumentsParams) => Promise<DeleteDocumentsResult>;
 }
