@@ -126,8 +126,6 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     filters: {}
   });
 
-  const totalPages = projects.totalPages;
-
   useEffect(() => {
     if (actionData?.intent === 'CREATE_PROJECT') {
       navigate(`/projects/${actionData.data._id}`)
@@ -229,7 +227,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       projects={projects?.data}
       searchValue={searchValue}
       currentPage={currentPage}
-      totalPages={totalPages}
+      totalPages={projects.totalPages}
       filtersValues={filtersValues}
       sortValue={sortValue}
       onCreateProjectButtonClicked={onCreateProjectButtonClicked}
