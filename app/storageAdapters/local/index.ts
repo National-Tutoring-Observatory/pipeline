@@ -33,6 +33,10 @@ registerStorageAdapter({
     const absolutePath = path.resolve(PROJECT_ROOT, sourcePath);
     await fse.remove(absolutePath);
   },
+  removeDir: async ({ sourcePath }: { sourcePath: string }) => {
+    const absolutePath = path.resolve(PROJECT_ROOT, sourcePath);
+    await fse.remove(absolutePath);
+  },
   request: (url, _) => {
     return new Promise((resolve) => {
       resolve(`/${url}`);
