@@ -58,6 +58,14 @@ DOCUMENT_DB_USERNAME='pipeline'
 DOCUMENT_DB_PASSWORD='pipeline123'
 DOCUMENT_DB_LOCAL='true'
 
+AWS_S3_ENDPOINT='http://localhost:4566' # For LocalStack testing
+AWS_S3_REGION='us-east-1'
+AWS_S3_BUCKET='nto-pipeline-local'
+AWS_S3_FORCE_PATH_STYLE='true' # Required for LocalStack
+AWS_ACCESS_KEY_ID=test
+AWS_SECRET_ACCESS_KEY=test
+AWS_DEFAULT_REGION=us-east-1
+
 # Redis for background jobs
 REDIS_URL='redis://localhost:6379'
 ```
