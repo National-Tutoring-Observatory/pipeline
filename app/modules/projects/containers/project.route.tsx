@@ -89,7 +89,7 @@ export async function action({
     const attributesMapping = await getAttributeMappingFromFile({ file: files[0], team: projectTeam });
 
     uploadFiles({ files, entityId }).then(async () => {
-      createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true, attributesMapping }, { request });
+      createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true, attributesMapping });
     });
 
     return await documents.updateDocument<ProjectType>({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, hasSetupProject: true } });

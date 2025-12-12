@@ -10,9 +10,7 @@ export default async function createSessionsFromFiles({
   projectId,
   shouldCreateSessionModels = true,
   attributesMapping,
-}: { projectId: string, shouldCreateSessionModels: boolean, attributesMapping?: any }, { request }: { request: Request }) {
-
-
+}: { projectId: string, shouldCreateSessionModels: boolean, attributesMapping?: any }) {
   const documents = getDocumentsAdapter();
 
   const projectFiles = await documents.getDocuments<File>({ collection: 'files', match: { project: projectId }, sort: {} });

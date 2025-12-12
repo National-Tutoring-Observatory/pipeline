@@ -48,7 +48,7 @@ export async function action({
   switch (intent) {
     case 'RE_RUN': {
 
-      createSessionsFromFiles({ projectId: params.id, shouldCreateSessionModels: false }, { request });
+      createSessionsFromFiles({ projectId: params.id, shouldCreateSessionModels: false });
 
       const documents = getDocumentsAdapter();
 
