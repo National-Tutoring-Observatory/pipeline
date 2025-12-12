@@ -33,6 +33,41 @@ services:
       retries: 3
       start_period: 40s
 
+  localstack:
+    image: localstack/localstack
+    container_name: localstack-main
+    ports:
+      - "127.0.0.1:4566:4566"
+      - "127.0.0.1:4510-4559:4510-4559"
+    environment:
+      - DEBUG=${DEBUG:-0}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SERVICES=s3
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./data/s3}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:4566/_localstack/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  localstack-init:
+    image: localstack/localstack
+    container_name: localstack-init
+    depends_on:
+      localstack:
+        condition: service_healthy
+    environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+    entrypoint: >
+      aws s3api create-bucket --endpoint-url http://localstack-main:4566 --bucket nto-pipeline-local --region us-east-1
+    restart: "no"
+
 volumes:
   redis_data:
     driver: local

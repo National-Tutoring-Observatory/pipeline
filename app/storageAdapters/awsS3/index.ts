@@ -11,17 +11,23 @@ import type { DownloadParams, RemoveDirParams, RemoveParams, RequestParams, Uplo
 const S3_MAX_BATCH_SIZE = 1000; // AWS S3 limit for DeleteObjectsCommand and ListObjectsV2
 
 function getS3Client() {
-  const { AWS_REGION, AWS_KEY, AWS_SECRET } = process.env;
+  const { AWS_REGION, AWS_KEY, AWS_SECRET, AWS_S3_FORCE_PATH_STYLE } = process.env;
   if (!AWS_REGION || !AWS_KEY || !AWS_SECRET) {
     throw new Error("Missing AWS configuration: AWS_REGION, AWS_KEY, or AWS_SECRET");
   }
-  return new S3Client({
+  const config: any = {
     region: AWS_REGION,
     credentials: {
       accessKeyId: AWS_KEY,
       secretAccessKey: AWS_SECRET
     }
-  });
+  };
+
+  if (AWS_S3_FORCE_PATH_STYLE === 'true') {
+    config.forcePathStyle = true;
+  }
+
+  return new S3Client(config);
 }
 
 function getAwsBucket() {
