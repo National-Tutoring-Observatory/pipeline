@@ -48,7 +48,7 @@ export default class TaskSequencer {
 
   }
 
-  run = () => {
+  run = async () => {
     const startTask = find(this.tasks, { action: 'START' });
     const finishTask = find(this.tasks, { action: 'FINISH' })
     const processTasks = filter(this.tasks, { action: 'PROCESS' });
@@ -79,7 +79,7 @@ export default class TaskSequencer {
       })
     }
 
-    createTaskJob({
+    await createTaskJob({
       name: this.name,
       data: finishTask.data,
       children: childrenJobs
