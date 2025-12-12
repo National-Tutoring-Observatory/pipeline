@@ -1,11 +1,10 @@
 import fse from 'fs-extra';
-import each from 'lodash/each';
 import get from 'lodash/get';
-import orderBy from 'lodash/orderBy';
 import mongoose from 'mongoose';
 import type { GetDocumentsParams, GetDocumentsResult } from '~/modules/documents/documents.types';
 import getCollectionFromModel from '~/modules/documents/helpers/getCollectionFromModel';
 import getModelFromCollection from '~/modules/documents/helpers/getModelFromCollection';
+import applySortToDocuments from '../helpers/applySortToDocuments';
 import filterDocumentsByMatch from '../helpers/filterDocumentsByMatch';
 import findOrCreateDocuments from '../helpers/findOrCreateDocuments';
 import getCollectionPath from '../helpers/getCollectionPath';
@@ -24,21 +23,11 @@ export default async function getDocuments<T = any>({
 
   try {
     await findOrCreateDocuments({ collection });
-
     const json = await fse.readJson(getCollectionPath(collection));
 
     let data = filterDocumentsByMatch(json, match);
 
-    if (Object.keys(sort).length > 0) {
-      const iteratees: string[] = [];
-      const orders: Array<'asc' | 'desc'> = [];
-      each(sort, (sortValue, sortKey) => {
-        iteratees.push(sortKey);
-        let sortOrder: 'asc' | 'desc' = sortValue === -1 ? 'desc' : 'asc';
-        orders.push(sortOrder);
-      });
-      data = orderBy(data, iteratees, orders);
-    }
+    data = applySortToDocuments(data, sort);
 
     const count = data.length;
     let currentPage = 1;
