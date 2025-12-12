@@ -2,7 +2,7 @@ import type { GetDocumentsParams, GetDocumentsResult } from '~/modules/documents
 import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
 import getDatabaseConnection from '../helpers/getDatabaseConnection';
 
-const DEFAULT_PAGE_SIZE = 50;
+const DEFAULT_PAGE_SIZE = 20;
 
 export default async function getDocuments<T = any>({
   collection,

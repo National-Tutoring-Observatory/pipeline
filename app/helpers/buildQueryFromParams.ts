@@ -1,6 +1,6 @@
 import escapeRegExp from 'lodash/escapeRegExp'
 
-export type QueryParams = { searchValue?: string, page?: string, filters?: Record<string, string>, sort?: string }
+export type QueryParams = { searchValue?: string, currentPage?: string, filters?: Record<string, string>, sort?: string }
 type BuildQueryProps = {
   queryParams: QueryParams,
   searchableFields: string[]
@@ -71,10 +71,10 @@ export function buildQueryFromParams({ queryParams, searchableFields, sortableFi
     }
     query.sort = sort
   } else {
-    query.sort = {}
+    query.sort = null;
   }
 
-  query.page = queryParams.page;
+  query.page = queryParams.currentPage;
 
   return query
 }

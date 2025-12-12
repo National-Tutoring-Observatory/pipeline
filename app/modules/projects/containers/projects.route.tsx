@@ -1,11 +1,12 @@
 import find from 'lodash/find';
 import map from 'lodash/map';
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { redirect, useActionData, useNavigate, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
-import type { QueryParams } from '~/helpers/buildQueryFromParams';
 import buildQueryFromParams from '~/helpers/buildQueryFromParams';
+import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
+import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
@@ -29,14 +30,24 @@ export async function loader({ request, params, context }: Route.LoaderArgs & { 
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
-  const rawQueryParams = new URL(request.url).searchParams.get('query') || '{}';
-  const queryParams = (JSON.parse(rawQueryParams)) as QueryParams;
+  let queryParams = {};
+
+  const sessionUser = await getSessionUser({ request });
+
+  if (sessionUser?.featureFlags.includes('HAS_COLLECTION_UI')) {
+    queryParams = getQueryParamsFromRequest(request, {
+      searchValue: '',
+      currentPage: 1,
+      sort: 'name',
+      filters: {}
+    });
+  }
+
   const query = buildQueryFromParams({ queryParams, searchableFields: ['name'], sortableFields: ['name', 'createdAt'], filterableFields: ['team'], filterableValues: { team: teamIds } });
 
   const result = await documents.getDocuments<Project>({ collection: 'projects', populate: [{ path: 'team' }], ...query });
-  const projects = { data: result.data };
 
-  return { projects };
+  return { projects: result };
 }
 
 export async function action({
@@ -109,11 +120,17 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
 
-  const [filtersValues, setFiltersValues] = useState({ 'TEAM': null, 'ANNOTATION_TYPE': null });
-  const [searchValue, setSearchValue] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortValue, setSortValue] = useState('name');
-  const totalPages = 10;
+  const {
+    searchValue, setSearchValue,
+    currentPage, setCurrentPage,
+    sortValue, setSortValue,
+    filtersValues, setFiltersValues
+  } = useSearchQueryParams({
+    searchValue: '',
+    currentPage: 1,
+    sortValue: 'name',
+    filters: {}
+  });
 
   useEffect(() => {
     if (actionData?.intent === 'CREATE_PROJECT') {
@@ -216,7 +233,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       projects={projects?.data}
       searchValue={searchValue}
       currentPage={currentPage}
-      totalPages={totalPages}
+      totalPages={projects.totalPages}
       filtersValues={filtersValues}
       sortValue={sortValue}
       onCreateProjectButtonClicked={onCreateProjectButtonClicked}

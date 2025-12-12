@@ -13,11 +13,15 @@ const SortItem = ({
       <Label>
         {item.text}
       </Label>
-      <ToggleGroup type="single" size="sm" variant={"outline"} value={value} onValueChange={onValueChange}>
-        <ToggleGroupItem value={`-${item.value}`}>
+      <ToggleGroup type="single" size="sm" variant={"outline"} value={value} onValueChange={(value) => {
+        if (value) {
+          onValueChange(value);
+        }
+      }}>
+        <ToggleGroupItem value={item.value}>
           <ArrowDownWideNarrow />
         </ToggleGroupItem>
-        <ToggleGroupItem value={item.value}>
+        <ToggleGroupItem value={`-${item.value}`}>
           <ArrowUpWideNarrow />
         </ToggleGroupItem>
       </ToggleGroup>

@@ -150,7 +150,7 @@ describe('buildQueryFromParams', () => {
       searchableFields: [],
       sortableFields: ['name'],
     })
-    expect(query.sort).toEqual({})
+    expect(query.sort).toEqual(null)
   })
 
   it('throws when sort provided but no sortableFields configured', () => {
@@ -165,7 +165,7 @@ describe('buildQueryFromParams', () => {
 
   it('preserves page parameter', () => {
     const query = buildQueryFromParams({
-      queryParams: { page: '2' },
+      queryParams: { currentPage: '2' },
       searchableFields: [],
       sortableFields: ['name'],
     })
