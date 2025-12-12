@@ -61,7 +61,5 @@ export default async function createSessionsFromFiles({
     projectId,
   });
 
-  taskSequencer.run();
-
-
+  await taskSequencer.run();
 }
