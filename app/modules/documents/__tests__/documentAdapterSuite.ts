@@ -131,5 +131,83 @@ export function runDocumentAdapterTests(makeAdapter: AdapterFactory) {
       expect(docs.length).toEqual(2)
       expect(docs.every((doc: any) => doc.isRegistered === true)).toBe(true)
     })
+
+    describe('sorting documents', () => {
+      it('handles null sort parameter gracefully', async () => {
+        await adapter.createDocument({ collection, update: { username: 'charlie' } } as any)
+        await adapter.createDocument({ collection, update: { username: 'alice' } } as any)
+        await adapter.createDocument({ collection, update: { username: 'bob' } } as any)
+
+        const res: any = await adapter.getDocuments({ collection, match: {}, sort: null } as any)
+        const docs = (res && res.data) || []
+        expect(Array.isArray(docs)).toBe(true)
+        expect(docs.length).toEqual(3)
+      })
+
+      it('supports all Mongoose sort formats', async () => {
+        await adapter.createDocument({ collection, update: { username: 'charlie' } } as any)
+        await adapter.createDocument({ collection, update: { username: 'alice' } } as any)
+        await adapter.createDocument({ collection, update: { username: 'bob' } } as any)
+
+        const expectAscOrder = (docs: any[]) => {
+          expect(docs.length).toBe(3)
+          expect(docs[0].username).toBe('alice')
+          expect(docs[1].username).toBe('bob')
+          expect(docs[2].username).toBe('charlie')
+        }
+
+        const expectDescOrder = (docs: any[]) => {
+          expect(docs.length).toBe(3)
+          expect(docs[0].username).toBe('charlie')
+          expect(docs[1].username).toBe('bob')
+          expect(docs[2].username).toBe('alice')
+        }
+
+        // Numeric: { field: 1 | -1 }
+        let res: any = await adapter.getDocuments({ collection, match: {}, sort: { username: 1 } } as any)
+        expectAscOrder(res.data)
+
+        res = await adapter.getDocuments({ collection, match: {}, sort: { username: -1 } } as any)
+        expectDescOrder(res.data)
+
+        // String values: { field: 'asc' | 'desc' }
+        res = await adapter.getDocuments({ collection, match: {}, sort: { username: 'asc' } } as any)
+        expectAscOrder(res.data)
+
+        res = await adapter.getDocuments({ collection, match: {}, sort: { username: 'desc' } } as any)
+        expectDescOrder(res.data)
+
+        // String syntax: 'field' or '-field'
+        res = await adapter.getDocuments({ collection, match: {}, sort: 'username' } as any)
+        expectAscOrder(res.data)
+
+        res = await adapter.getDocuments({ collection, match: {}, sort: '-username' } as any)
+        expectDescOrder(res.data)
+
+        // Array syntax: [['field', 'asc' | 'desc']]
+        res = await adapter.getDocuments({ collection, match: {}, sort: [['username', 'asc']] } as any)
+        expectAscOrder(res.data)
+
+        res = await adapter.getDocuments({ collection, match: {}, sort: [['username', 'desc']] } as any)
+        expectDescOrder(res.data)
+      })
+
+      it('sorts by multiple fields', async () => {
+        await adapter.createDocument({ collection, update: { username: 'alice', role: 'USER' } } as any)
+        await adapter.createDocument({ collection, update: { username: 'alice', role: 'SUPER_ADMIN' } } as any)
+        await adapter.createDocument({ collection, update: { username: 'bob', role: 'USER' } } as any)
+
+        // Sort by username asc, then role asc
+        const res: any = await adapter.getDocuments({ collection, match: {}, sort: { username: 1, role: 1 } } as any)
+        const docs = res.data
+        expect(docs.length).toBe(3)
+        expect(docs[0].username).toBe('alice')
+        expect(docs[0].role).toBe('SUPER_ADMIN')
+        expect(docs[1].username).toBe('alice')
+        expect(docs[1].role).toBe('USER')
+        expect(docs[2].username).toBe('bob')
+        expect(docs[2].role).toBe('USER')
+      })
+    })
   })
 }
