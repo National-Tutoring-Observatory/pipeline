@@ -8,11 +8,11 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
+import TeamAuthorization from "../authorization";
 import CreateTeamDialog from "../components/createTeamDialog";
 import DeleteTeamDialog from "../components/deleteTeamDialog";
 import EditTeamDialog from "../components/editTeamDialog";
 import Teams from "../components/teams";
-import { validateTeamAdmin } from "../helpers/teamAdmin";
 import type { Team } from "../teams.types";
 import type { Route } from "./+types/teams.route";
 
@@ -58,7 +58,7 @@ export async function action({
 
   switch (intent) {
     case 'CREATE_TEAM':
-      if (user.role !== 'SUPER_ADMIN') {
+      if (!TeamAuthorization.canCreate(user)) {
         throw new Error("Insufficient permissions. Only super admins can create teams.");
       }
       if (typeof name !== "string") {
@@ -70,10 +70,12 @@ export async function action({
         ...team
       }
     case 'UPDATE_TEAM':
-      await validateTeamAdmin({ user, teamId: entityId });
+      if (!TeamAuthorization.canUpdate(user, entityId)) {
+        throw new Error("Insufficient permissions. Only team admins can update teams.");
+      }
       return await documents.updateDocument({ collection: 'teams', match: { _id: entityId }, update: { name } });
     case 'DELETE_TEAM':
-      if (user.role !== 'SUPER_ADMIN') {
+      if (!TeamAuthorization.canDelete(user, entityId)) {
         throw new Error("Insufficient permissions. Only super admins can delete teams.");
       }
       return await documents.deleteDocument({ collection: 'teams', match: { _id: entityId } })

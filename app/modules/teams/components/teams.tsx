@@ -1,4 +1,5 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -6,15 +7,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
+import dayjs from 'dayjs';
 import map from 'lodash/map';
-import { Link } from "react-router";
-
-import type { Team } from "../teams.types";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
-import dayjs from 'dayjs'
+import { Link } from "react-router";
 import type { User } from "~/modules/users/users.types";
+import type { Team } from "../teams.types";
+import useTeamAuthorization from "./helpers/useTeamAuthorization";
 
 interface TeamsProps {
   teams: Team[];
@@ -31,6 +31,8 @@ export default function Teams({
   onEditTeamButtonClicked,
   onDeleteTeamButtonClicked
 }: TeamsProps) {
+  const { canCreate } = useTeamAuthorization();
+
   return (
     <div className="max-w-6xl p-8">
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
@@ -40,7 +42,7 @@ export default function Teams({
         <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
           No teams created
           <div className="mt-3">
-            {(authentication?.role === 'SUPER_ADMIN') && (
+            {canCreate && (
               <Button onClick={onCreateTeamButtonClicked}>Create team</Button>
             )}
           </div>
@@ -49,7 +51,7 @@ export default function Teams({
       {(teams.length > 0) && (
         <div className="border rounded-md">
           <div className="flex justify-end border-b p-2">
-            {(authentication?.role === 'SUPER_ADMIN') && (
+            {canCreate && (
               <Button onClick={onCreateTeamButtonClicked}>Create team</Button>
             )}
           </div>
@@ -63,6 +65,7 @@ export default function Teams({
             </TableHeader>
             <TableBody>
               {map(teams, (team) => {
+                const { canUpdate, canDelete } = useTeamAuthorization(team._id);
                 return (
                   <TableRow key={team._id}>
                     <TableCell className="font-medium">
@@ -72,29 +75,37 @@ export default function Teams({
                     </TableCell>
                     <TableCell>{dayjs(team.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                     <TableCell className="text-right flex justify-end">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                            size="icon"
-                          >
-                            <EllipsisVertical />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-32">
-                          <DropdownMenuItem onClick={() => onEditTeamButtonClicked(team)}>
-                            Edit
-                          </DropdownMenuItem>
-                          {/* <DropdownMenuItem>Make a copy</DropdownMenuItem>
-                          <DropdownMenuItem>Favorite</DropdownMenuItem> */}
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem variant="destructive" onClick={() => onDeleteTeamButtonClicked(team)}>
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {(canUpdate || canDelete) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                              size="icon"
+                            >
+                              <EllipsisVertical />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-32">
+                            {canUpdate && (
+                              <DropdownMenuItem onClick={() => onEditTeamButtonClicked(team)}>
+                                Edit
+                              </DropdownMenuItem>
+                            )}
+                            {/* <DropdownMenuItem>Make a copy</DropdownMenuItem>
+                            <DropdownMenuItem>Favorite</DropdownMenuItem> */}
+                            {canDelete && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem variant="destructive" onClick={() => onDeleteTeamButtonClicked(team)}>
+                                  Delete
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </TableCell>
                   </TableRow>
                 );
