@@ -3,8 +3,8 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
+import PromptAuthorization from "../authorization";
 import PromptEditor from "../components/promptEditor";
-import { isPromptOwner, validatePromptOwnership } from "../helpers/promptOwnership";
 import type { Prompt, PromptVersion } from "../prompts.types";
 import type { Route } from "./+types/promptEditor.route";
 import SavePromptVersionDialogContainer from "./savePromptVersionDialogContainer";
@@ -15,14 +15,15 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  if (!(await isPromptOwner({ user, promptId: params.id }))) {
-    return redirect('/');
-  }
-
   const documents = getDocumentsAdapter();
   const prompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: params.id } });
 
   if (!prompt.data) {
+    return redirect('/');
+  }
+
+  const teamId = (prompt.data.team as any)._id || prompt.data.team;
+  if (!PromptAuthorization.canView(user, teamId)) {
     return redirect('/');
   }
 
@@ -58,8 +59,16 @@ export async function action({
   }
 
   const promptId = (promptVersion.data.prompt as string);
+  const prompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: promptId } });
 
-  await validatePromptOwnership({ user, promptId });
+  if (!prompt.data) {
+    throw new Error('Prompt not found');
+  }
+
+  const teamId = (prompt.data.team as any)._id || prompt.data.team;
+  if (!PromptAuthorization.canUpdate(user, teamId)) {
+    throw new Error('Access denied');
+  }
 
   switch (intent) {
     case 'UPDATE_PROMPT_VERSION':

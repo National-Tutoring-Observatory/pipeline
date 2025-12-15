@@ -1,21 +1,23 @@
 import { Button } from '@/components/ui/button';
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
+import usePromptAuthorization from "~/modules/prompts/hooks/usePromptAuthorization";
 import type { Prompt } from "~/modules/prompts/prompts.types";
 import type { Team } from "../teams.types";
 
 interface TeamPromptsProps {
   prompts: Prompt[];
   team: Team;
-  canCreatePrompts: boolean;
   onCreatePromptButtonClicked: () => void;
 }
 
-export default function TeamPrompts({ prompts, team, canCreatePrompts, onCreatePromptButtonClicked }: TeamPromptsProps) {
+export default function TeamPrompts({ prompts, team, onCreatePromptButtonClicked }: TeamPromptsProps) {
+  const params = useParams();
+  const { canCreate } = usePromptAuthorization(params.id || null);
   return (
     <div>
       <div className="flex items-center justify-between">
         <div className="text-sm font-medium text-muted-foreground">Prompts</div>
-        {(canCreatePrompts) && (
+        {canCreate && (
           <Button size="sm" onClick={onCreatePromptButtonClicked}>
             Create prompt
           </Button>
@@ -30,7 +32,7 @@ export default function TeamPrompts({ prompts, team, canCreatePrompts, onCreateP
         {(prompts.length > 0) && (
           <div className="mt-4 border border-black/10 rounded-md ">
             {prompts.map((prompt: Prompt) => (
-              canCreatePrompts ? (
+              canCreate ? (
                 <Link
                   key={prompt._id}
                   to={`/prompts/${prompt._id}/${prompt.productionVersion}`}

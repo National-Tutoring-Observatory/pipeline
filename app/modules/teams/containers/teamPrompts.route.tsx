@@ -1,17 +1,13 @@
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import { AuthenticationContext } from '~/modules/authentication/containers/authentication.container';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import PromptAuthorization from "~/modules/prompts/authorization";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
 import type { Prompt } from "~/modules/prompts/prompts.types";
-import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
-import type { User } from "~/modules/users/users.types";
 import TeamPrompts from "../components/teamPrompts";
-import getUserRoleInTeam from '../helpers/getUserRoleInTeam';
-import { isTeamAdmin } from '../helpers/teamAdmin';
 import type { Route } from "./+types/teamPrompts.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -19,7 +15,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!user) {
     return redirect('/');
   }
-  if (!(await isTeamAdmin({ user, teamId: params.id }))) {
+  if (!PromptAuthorization.canView(user, params.id)) {
     return redirect('/');
   }
   const documents = getDocumentsAdapter();
@@ -34,7 +30,9 @@ export async function action({ request, params }: Route.ActionArgs) {
   const user = await getSessionUser({ request });
   if (!user) return { redirect: '/' };
 
-  await validateTeamMembership({ user, teamId: params.id });
+  if (!PromptAuthorization.canCreate(user, params.id)) {
+    throw new Error('You do not have permission to create a prompt in this team.');
+  }
 
   const documents = getDocumentsAdapter();
 
@@ -78,8 +76,6 @@ export default function TeamPromptsRoute() {
   const actionData = useActionData();
   const submit = useSubmit();
   const navigate = useNavigate();
-  const authentication = useContext(AuthenticationContext) as User | null;
-  const canCreatePrompts = !!authentication && !!getUserRoleInTeam({ user: authentication, team: ctx.team }).role
 
 
   useEffect(() => {
@@ -114,7 +110,6 @@ export default function TeamPromptsRoute() {
     <TeamPrompts
       prompts={prompts}
       team={ctx.team}
-      canCreatePrompts={canCreatePrompts}
       onCreatePromptButtonClicked={onCreatePromptButtonClicked}
     />
   );
