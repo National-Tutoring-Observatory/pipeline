@@ -3,6 +3,7 @@ import type { AnnotationSchemaItem } from "../prompts.types";
 import type { Route } from "./+types/promptVersionAlignment.route";
 import type { User } from "~/modules/users/users.types";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import PromptAuthorization from "../authorization";
 import { redirect } from "react-router";
 
 export async function action({
@@ -15,6 +16,10 @@ export async function action({
   }
 
   const { userPrompt, annotationSchema, team } = await request.json();
+
+  if (!PromptAuthorization.canCreate(user, team)) {
+    throw new Error('Access denied');
+  }
 
   let annotationFields: Record<string, any> = {};
 
