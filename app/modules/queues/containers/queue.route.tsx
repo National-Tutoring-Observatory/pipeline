@@ -1,6 +1,6 @@
 import { Outlet, redirect, useFetcher, useLoaderData, useParams } from "react-router";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import { isSuperAdmin, validateSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
+import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthorization';
 import type { User } from "~/modules/users/users.types";
 import QueueControls from "../components/queueControls";
 import QueueStateTabs from "../components/queueStateTabs";
@@ -9,7 +9,7 @@ import type { Route } from "./+types/queue.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await getSessionUser({ request }) as User;
-  if (!isSuperAdmin(user)) {
+  if (!SystemAdminAuthorization.Queues.canManage(user)) {
     return redirect('/');
   }
 
@@ -28,7 +28,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {
   const user = await getSessionUser({ request }) as User;
-  validateSuperAdmin(user);
+  if (!SystemAdminAuthorization.Queues.canManage(user)) {
+    throw new Error('Access denied');
+  }
 
   const { intent } = await request.json();
   const { type: queueType } = params;

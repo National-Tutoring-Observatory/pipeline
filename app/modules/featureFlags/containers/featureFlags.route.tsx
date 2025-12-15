@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { redirect, useActionData, useMatch, useNavigate, useSubmit } from 'react-router';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import { isSuperAdmin, validateSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
+import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthorization';
 import addDialog from '~/modules/dialogs/addDialog';
 import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 import type { User } from '~/modules/users/users.types';
@@ -14,7 +14,7 @@ import type { Route } from './+types/featureFlags.route';
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const user = await getSessionUser({ request }) as User;
-  if (!isSuperAdmin(user)) {
+  if (!SystemAdminAuthorization.FeatureFlags.canManage(user)) {
     return redirect('/');
   }
   const result = await documents.getDocuments<FeatureFlag>({ collection: 'featureFlags', match: {}, sort: {} });
@@ -27,7 +27,9 @@ export async function action({
 }: Route.ActionArgs) {
 
   const user = await getSessionUser({ request }) as User;
-  validateSuperAdmin(user);
+  if (!SystemAdminAuthorization.FeatureFlags.canManage(user)) {
+    throw new Error('Access denied');
+  }
 
   const { intent, entityId, payload = {} } = await request.json()
 
