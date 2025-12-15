@@ -1,34 +1,36 @@
-import map from 'lodash/map';
 import pick from 'lodash/pick';
 import { useEffect } from "react";
 import { redirect, useActionData, useFetcher, useLoaderData, useNavigate, useParams, useSubmit } from "react-router";
 import { toast } from "sonner";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { User } from "~/modules/users/users.types";
+import PromptAuthorization from "~/modules/prompts/authorization";
 import EditPromptDialog from "../components/editPromptDialog";
 import Prompt from '../components/prompt';
-import { validatePromptOwnership } from "../helpers/promptOwnership";
 import type { Prompt as PromptType, PromptVersion } from "../prompts.types";
 import type { Route } from "./+types/prompt.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
+  const user = await getSessionUser({ request });
+  if (!user) {
+    return redirect('/');
+  }
   const documents = getDocumentsAdapter();
-  const authenticationTeams = await getSessionUserTeams({ request });
-  const teamIds = map(authenticationTeams, 'team');
-  const prompt = await documents.getDocument<PromptType>({ collection: 'prompts', match: { _id: params.id, team: { $in: teamIds } } });
-  if (!prompt.data) {
+  const promptDoc = await documents.getDocument<PromptType>({ collection: 'prompts', match: { _id: params.id } });
+  if (!promptDoc.data) {
     return redirect('/prompts');
+  }
+  if (!PromptAuthorization.canView(user, (promptDoc.data.team as any)._id || promptDoc.data.team)) {
+    throw new Error('You do not have permission to view this prompt.');
   }
   const promptVersions = await documents.getDocuments<PromptVersion>({
     collection: 'promptVersions',
     match: { prompt: params.id },
     sort: { version: -1 },
   });
-  return { prompt, promptVersions };
+  return { prompt: promptDoc, promptVersions };
 }
 
 export async function action({
@@ -39,15 +41,16 @@ export async function action({
 
   const { version } = payload;
 
-  const user = await getSessionUser({ request }) as User;
-
+  const user = await getSessionUser({ request });
   if (!user) {
     return redirect('/');
   }
-
-  await validatePromptOwnership({ user, promptId: entityId });
-
   const documents = getDocumentsAdapter();
+  const versionPromptDoc = await documents.getDocument<PromptType>({ collection: 'prompts', match: { _id: entityId } });
+  if (!versionPromptDoc.data) throw new Error('Prompt not found');
+  if (!PromptAuthorization.canUpdate(user, (versionPromptDoc.data.team as any)._id || versionPromptDoc.data.team)) {
+    throw new Error("You do not have permission to update this prompt.");
+  }
 
   switch (intent) {
     case 'CREATE_PROMPT_VERSION':
