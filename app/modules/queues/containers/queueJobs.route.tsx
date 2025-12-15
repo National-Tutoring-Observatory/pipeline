@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { redirect, useLoaderData, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import { isSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
+import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthorization';
 import addDialog from '~/modules/dialogs/addDialog';
 import type { User } from "~/modules/users/users.types";
 import DeleteJobDialog from "../components/deleteJobDialog";
@@ -16,7 +16,7 @@ import type { Route } from "./+types/queueJobs.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await getSessionUser({ request }) as User;
-  if (!isSuperAdmin(user)) {
+  if (!SystemAdminAuthorization.Queues.canManage(user)) {
     return redirect('/');
   }
 
@@ -34,8 +34,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {
   const user = await getSessionUser({ request }) as User;
-  if (!isSuperAdmin(user)) {
-    return redirect('/');
+  if (!SystemAdminAuthorization.Queues.canManage(user)) {
+    throw new Error('Access denied');
   }
 
   const { intent, entityId } = await request.json();

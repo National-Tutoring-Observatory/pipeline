@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { redirect, useActionData, useNavigate, useSubmit } from 'react-router';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import { isSuperAdmin } from '~/modules/authentication/helpers/superAdmin';
+import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthorization';
 import addDialog from '~/modules/dialogs/addDialog';
 import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 import getQueue from '~/modules/queues/helpers/getQueue';
@@ -18,7 +18,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
 
   const user = await getSessionUser({ request }) as User;
-  if (!isSuperAdmin(user)) {
+  if (!SystemAdminAuthorization.FeatureFlags.canManage(user)) {
     return redirect('/');
   }
 
@@ -39,8 +39,8 @@ export async function action({
 }: Route.ActionArgs) {
 
   const user = await getSessionUser({ request }) as User;
-  if (!isSuperAdmin(user)) {
-    return {};
+  if (!SystemAdminAuthorization.FeatureFlags.canManage(user)) {
+    throw new Error('Access denied');
   }
 
   const { intent, payload = {} } = await request.json();
