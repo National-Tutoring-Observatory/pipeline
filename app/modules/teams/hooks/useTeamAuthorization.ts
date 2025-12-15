@@ -7,7 +7,7 @@ export default function useTeamAuthorization(teamId: string | null = null): Team
   const user = useContext(AuthenticationContext) as User | null;
 
   const defaults: TeamAuthorizationShape = {
-    canCreate: false,
+    canCreate: TeamAuthorization.canCreate(user),
     canView: false,
     canUpdate: false,
     canDelete: false,
@@ -19,11 +19,10 @@ export default function useTeamAuthorization(teamId: string | null = null): Team
     },
   };
 
-  if (!user || !teamId) return defaults;
+  if (!teamId) return defaults;
 
   return {
     ...defaults,
-    canCreate: TeamAuthorization.canCreate(user),
     canView: TeamAuthorization.canView(user, teamId),
     canUpdate: TeamAuthorization.canUpdate(user, teamId),
     canDelete: TeamAuthorization.canDelete(user, teamId),
