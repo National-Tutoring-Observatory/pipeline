@@ -8,15 +8,13 @@ import type { Team } from "../teams.types";
 interface TeamUsersProps {
   users: User[];
   team: Team;
-  isSuperAdminUser: boolean;
-  isTeamMemberUser: boolean;
   onAddUserToTeamButtonClicked: () => void;
   onAddSuperAdminToTeamButtonClicked: () => void;
   onInviteUserToTeamButtonClicked: () => void;
   onRemoveUserFromTeamClicked: (userId: string) => void;
 }
 
-export default function TeamUsers({ users, team, isSuperAdminUser, isTeamMemberUser, onAddUserToTeamButtonClicked, onAddSuperAdminToTeamButtonClicked, onInviteUserToTeamButtonClicked, onRemoveUserFromTeamClicked }: TeamUsersProps) {
+export default function TeamUsers({ users, team, onAddUserToTeamButtonClicked, onAddSuperAdminToTeamButtonClicked, onInviteUserToTeamButtonClicked, onRemoveUserFromTeamClicked }: TeamUsersProps) {
   const { users: usersAuthorization } = useTeamAuthorization(team._id);
   return (
     <div>

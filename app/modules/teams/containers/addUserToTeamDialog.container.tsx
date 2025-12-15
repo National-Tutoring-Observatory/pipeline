@@ -9,10 +9,8 @@ import AddUserToTeamDialog from "../components/addUserToTeamDialog";
 export default function AddUserToTeamDialogContainer({
   teamId,
   onAddUsersClicked,
-  superAdminId
 }: {
   teamId: string,
-  superAdminId: string | null,
   onAddUsersClicked: (userIds: string[]) => void,
 }) {
 
@@ -45,13 +43,12 @@ export default function AddUserToTeamDialogContainer({
   }
 
   const users = (fetcher.data?.data || []) as User[];
-  const availableUsers = superAdminId ? users.filter((user) => user._id !== superAdminId) : users;
 
   return (
     <AddUserToTeamDialog
       isFetching={isFetching}
       isSubmitButtonDisabled={isSubmitButtonDisabled}
-      users={availableUsers}
+      users={users}
       selectedUsers={selectedUsers}
       onAddUsersClicked={() => onAddUsersClicked(selectedUsers)}
       onSelectUserToggled={onSelectUserToggled}

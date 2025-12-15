@@ -3,7 +3,6 @@ import { redirect, useLoaderData, useOutletContext, useParams, useSubmit } from 
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import { userIsSuperAdmin } from "~/modules/authorization/helpers/superAdmin";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
@@ -57,9 +56,6 @@ export async function action({ request, params }: Route.ActionArgs) {
         throw new Error('You do not have permission to manage team users.');
       }
       for (const id of userIds) {
-        if (userIsSuperAdmin(user) && id === user._id) {
-          throw new Error("Super admin cannot be added to a team.");
-        }
         const userDoc = await documents.getDocument<User>({ collection: 'users', match: { _id: id } });
         if (userDoc.data) {
           if (!userDoc.data.teams) userDoc.data.teams = [];
@@ -90,8 +86,6 @@ export default function TeamUsersRoute() {
   const ctx = useOutletContext<any>();
   const submit = useSubmit();
   const authentication = useContext(AuthenticationContext) as User | null;
-  const isSuperAdminUser = userIsSuperAdmin(authentication);
-  const isTeamMemberUser = ctx.team && authentication && authentication.teams.some((t) => t.team === ctx.team._id);
 
   const onAddUsersClicked = (userIds: string[]) => {
     submit(JSON.stringify({ intent: 'ADD_USERS_TO_TEAM', payload: { userIds } }), { method: 'PUT', encType: 'application/json' });
@@ -113,7 +107,6 @@ export default function TeamUsersRoute() {
     addDialog(
       <AddUserToTeamDialogContainer
         teamId={ctx.team._id}
-        superAdminId={isSuperAdminUser ? authentication!._id : null}
         onAddUsersClicked={onAddUsersClicked}
       />
     );
@@ -149,8 +142,6 @@ export default function TeamUsersRoute() {
     <TeamUsers
       users={users}
       team={ctx.team}
-      isSuperAdminUser={isSuperAdminUser}
-      isTeamMemberUser={isTeamMemberUser}
       onAddUserToTeamButtonClicked={onAddUserToTeamButtonClicked}
       onAddSuperAdminToTeamButtonClicked={onAddSuperAdminToTeamButtonClicked}
       onInviteUserToTeamButtonClicked={onInviteUserToTeamButtonClicked}
