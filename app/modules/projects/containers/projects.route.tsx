@@ -44,6 +44,8 @@ export async function loader({ request, params, context }: Route.LoaderArgs & { 
 
   const query = buildQueryFromParams({ queryParams, searchableFields: ['name'], sortableFields: ['name', 'createdAt'], filterableFields: ['team'], filterableValues: { team: teamIds } });
 
+  query.match = { team: { $in: teamIds } }
+
   const result = await documents.getDocuments<Project>({ collection: 'projects', populate: [{ path: 'team' }], ...query });
 
   return { projects: result };
