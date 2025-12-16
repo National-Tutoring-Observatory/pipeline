@@ -3,10 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import clsx from "clsx";
 import { Pencil } from "lucide-react";
+import { useContext } from "react";
 import { Link, Outlet } from "react-router";
+import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import UploadFilesContainer from "~/modules/files/containers/uploadFiles.container";
 import type { FileType } from "~/modules/files/files.types";
-import useProjectAuthorization from "../hooks/useProjectAuthorization";
+import ProjectAuthorization from "~/modules/projects/authorization";
+import type { User } from "~/modules/users/users.types";
 import type { Project } from "../projects.types";
 
 interface ProjectProps {
@@ -36,8 +39,8 @@ export default function Project({
   onUploadFiles
   , onEditProjectButtonClicked
 }: ProjectProps) {
-  const teamId = (project.team as any)._id || project.team;
-  const { canUpdate } = useProjectAuthorization(teamId);
+  const user = useContext(AuthenticationContext) as User | null;
+  const canUpdate = ProjectAuthorization.canUpdate(user, project);
 
   return (
     <div className="max-w-6xl p-8">

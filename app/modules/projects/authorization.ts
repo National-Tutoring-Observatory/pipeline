@@ -1,32 +1,60 @@
 import type { User } from '~/modules/users/users.types';
 import { userIsTeamAdmin, userIsTeamMember } from '../authorization/helpers/teamMembership';
+import type { Project } from './projects.types';
+
+const getTeamId = (project: Project): string => {
+  return typeof project.team === 'string' ? project.team : project.team._id;
+};
+
+const getProjectCreatorId = (project: Project): string | null => {
+  if (!project.createdBy) return null;
+  return typeof project.createdBy === 'string' ? project.createdBy : project.createdBy._id;
+};
+
+const canUserManageProject = (user: User | null, project: Project): boolean => {
+  if (!user) {
+    return false;
+  }
+
+  const teamId = getTeamId(project);
+  if (!teamId) return false;
+
+  const isAdmin = userIsTeamAdmin(user, teamId);
+  const isTeamMember = userIsTeamMember(user, teamId);
+  const ownsProject = user._id === getProjectCreatorId(project);
+
+  return isAdmin || (isTeamMember && ownsProject);
+};
 
 const ProjectAuthorization = {
   canCreate(user: User | null, teamId: string): boolean {
     return userIsTeamAdmin(user, teamId);
   },
 
-  canView(user: User | null, teamId: string): boolean {
+  canView(user: User | null, project: Project): boolean {
+    if (!user) return false;
+    const teamId = getTeamId(project);
+    if (!teamId) return false;
     return userIsTeamMember(user, teamId);
   },
 
-  canUpdate(user: User | null, teamId: string): boolean {
-    return userIsTeamAdmin(user, teamId);
+  canUpdate(user: User | null, project: Project): boolean {
+    return canUserManageProject(user, project);
   },
 
-  canDelete(user: User | null, teamId: string): boolean {
-    return userIsTeamAdmin(user, teamId);
+  canDelete(user: User | null, project: Project): boolean {
+    return canUserManageProject(user, project);
   },
 
   Runs: {
-    canManage(user: User | null, teamId: string): boolean {
-      return userIsTeamMember(user, teamId);
+    canManage(user: User | null, project: Project): boolean {
+      return userIsTeamMember(user, getTeamId(project));
     },
   },
 
   Annotations: {
-    canManage(user: User | null, teamId: string): boolean {
-      return userIsTeamMember(user, teamId);
+    canManage(user: User | null, project: Project): boolean {
+      return userIsTeamMember(user, getTeamId(project));
     },
   },
 };
