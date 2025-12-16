@@ -1,7 +1,11 @@
+import find from 'lodash/find';
 import map from 'lodash/map';
 import { useEffect } from "react";
 import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
 import { toast } from "sonner";
+import buildQueryFromParams from '~/helpers/buildQueryFromParams';
+import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
+import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
@@ -21,9 +25,17 @@ export async function loader({ request }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
-  const result = await documents.getDocuments<Prompt>({ collection: 'prompts', match: { team: { $in: teamIds } }, sort: {} });
-  const prompts = { data: result.data };
-  return { prompts };
+
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: '',
+    currentPage: 1,
+    sort: 'name',
+    filters: {}
+  });
+
+  const query = buildQueryFromParams({ queryParams, searchableFields: ['name'], sortableFields: ['name', 'createdAt'], filterableFields: ['team'], filterableValues: { team: teamIds } });
+  const result = await documents.getDocuments<Prompt>({ collection: 'prompts', populate: [{ path: 'team' }], ...query });
+  return { prompts: result };
 }
 
 export async function action({
@@ -95,6 +107,18 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
   const actionData = useActionData();
   const navigate = useNavigate();
 
+  const {
+    searchValue, setSearchValue,
+    currentPage, setCurrentPage,
+    sortValue, setSortValue,
+    filtersValues, setFiltersValues
+  } = useSearchQueryParams({
+    searchValue: '',
+    currentPage: 1,
+    sortValue: 'name',
+    filters: {}
+  });
+
   useEffect(() => {
     if (actionData?.intent === 'CREATE_PROMPT') {
       navigate(`/prompts/${actionData.data._id}/${actionData.data.productionVersion}`)
@@ -146,9 +170,56 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
     });
   }
 
+  const onActionClicked = (action: String) => {
+    if (action === 'CREATE') {
+      onCreatePromptButtonClicked();
+    }
+  }
+
+  const onItemActionClicked = ({ id, action }: { id: string, action: string }) => {
+    const prompt = find(prompts.data, { _id: id });
+    if (!prompt) return null;
+    switch (action) {
+      case 'EDIT':
+        onEditPromptButtonClicked(prompt);
+        break;
+
+      case 'DELETE':
+        onDeletePromptButtonClicked(prompt);
+        break;
+    }
+  }
+
+  const onSearchValueChanged = (searchValue: string) => {
+    setSearchValue(searchValue);
+  }
+
+  const onPaginationChanged = (currentPage: number) => {
+    setCurrentPage(currentPage);
+  }
+
+  const onFiltersValueChanged = (filterValue: any) => {
+    setFiltersValues({ ...filtersValues, ...filterValue });
+  }
+
+  const onSortValueChanged = (sortValue: string) => {
+    setSortValue(sortValue);
+  }
+
   return (
     <Prompts
       prompts={prompts?.data}
+      searchValue={searchValue}
+      currentPage={currentPage}
+      totalPages={prompts.totalPages}
+      filtersValues={filtersValues}
+      sortValue={sortValue}
+      onActionClicked={onActionClicked}
+      onItemActionClicked={onItemActionClicked}
+      onSearchValueChanged={onSearchValueChanged}
+      onPaginationChanged={onPaginationChanged}
+      onFiltersValueChanged={onFiltersValueChanged}
+      onSortValueChanged={onSortValueChanged}
       onCreatePromptButtonClicked={onCreatePromptButtonClicked}
       onEditPromptButtonClicked={onEditPromptButtonClicked}
       onDeletePromptButtonClicked={onDeletePromptButtonClicked}
