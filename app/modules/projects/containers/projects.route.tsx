@@ -79,7 +79,7 @@ export async function action({
 
       const project = await documents.createDocument<Project>({
         collection: 'projects',
-        update: { name, team },
+        update: { name, team, createdBy: user._id },
       });
 
       return {
@@ -91,8 +91,7 @@ export async function action({
       const projectDoc = await documents.getDocument<Project>({ collection: 'projects', match: { _id: entityId } });
       if (!projectDoc.data) throw new Error('Project not found');
 
-      const teamId = (projectDoc.data.team as any)._id || projectDoc.data.team;
-      if (!ProjectAuthorization.canUpdate(user, teamId)) {
+      if (!ProjectAuthorization.canUpdate(user, projectDoc.data)) {
         throw new Error("You do not have permission to update this project.");
       }
 
@@ -107,8 +106,7 @@ export async function action({
       const projectDoc = await documents.getDocument<Project>({ collection: 'projects', match: { _id: entityId } });
       if (!projectDoc.data) throw new Error('Project not found');
 
-      const teamId = (projectDoc.data.team as any)._id || projectDoc.data.team;
-      if (!ProjectAuthorization.canDelete(user, teamId)) {
+      if (!ProjectAuthorization.canDelete(user, projectDoc.data)) {
         throw new Error("You do not have permission to delete this project.");
       }
       return await deleteProject({ projectId: entityId });

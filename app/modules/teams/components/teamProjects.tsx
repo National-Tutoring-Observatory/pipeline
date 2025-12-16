@@ -1,7 +1,10 @@
 import { Button } from '@/components/ui/button';
-import { Link, useParams } from "react-router";
-import useProjectAuthorization from "~/modules/projects/hooks/useProjectAuthorization";
+import { useContext } from 'react';
+import { Link } from "react-router";
+import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
+import ProjectAuthorization from "~/modules/projects/authorization";
 import type { Project } from "~/modules/projects/projects.types";
+import type { User } from "~/modules/users/users.types";
 import type { Team } from "../teams.types";
 
 interface TeamProjectsProps {
@@ -11,7 +14,8 @@ interface TeamProjectsProps {
 }
 
 export default function TeamProjects({ projects, team, onCreateProjectButtonClicked }: TeamProjectsProps) {
-  const { canCreate } = useProjectAuthorization(team._id);
+  const user = useContext(AuthenticationContext) as User | null;
+  const canCreate = ProjectAuthorization.canCreate(user, team._id);
   return (
     <div>
       <div className="flex items-center justify-between">

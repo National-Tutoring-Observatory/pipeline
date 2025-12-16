@@ -29,8 +29,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const teamId = (project.data.team as any)._id || project.data.team;
-  if (!ProjectAuthorization.canView(user, teamId)) {
+  if (!ProjectAuthorization.canView(user, project.data)) {
     return redirect('/');
   }
 

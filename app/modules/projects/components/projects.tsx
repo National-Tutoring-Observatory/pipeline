@@ -9,20 +9,23 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import map from 'lodash/map';
+import { useContext } from "react";
 import { Link } from "react-router";
 
 import { Collection } from "@/components/ui/collection";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import dayjs from 'dayjs';
 import { EllipsisVertical } from "lucide-react";
+import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import Flag from "~/modules/featureFlags/components/flag";
+import ProjectAuthorization from "~/modules/projects/authorization";
+import type { User } from "~/modules/users/users.types";
 import getProjectsEmptyAttributes from "../helpers/getProjectsEmptyAttributes";
 import getProjectsItemActions from "../helpers/getProjectsItemActions";
 import getProjectsItemAttributes from "../helpers/getProjectsItemAttributes";
 import projectsActions from "../helpers/projectsActions";
 import projectsFilters from "../helpers/projectsFilters";
 import projectsSortOptions from "../helpers/projectsSortOptions";
-import useProjectAuthorization from "../hooks/useProjectAuthorization";
 import type { Project } from "../projects.types";
 
 interface ProjectsProps {
@@ -114,8 +117,9 @@ export default function Projects({
             </TableHeader>
             <TableBody>
               {map(projects, (project) => {
-                const teamId = (project.team as any)._id || project.team;
-                const { canUpdate, canDelete } = useProjectAuthorization(teamId);
+                const user = useContext(AuthenticationContext) as User | null;
+                const canUpdate = ProjectAuthorization.canUpdate(user, project);
+                const canDelete = ProjectAuthorization.canDelete(user, project);
                 let teamName = '';
                 // @ts-ignore
                 if (project.team && project.team?.name) {

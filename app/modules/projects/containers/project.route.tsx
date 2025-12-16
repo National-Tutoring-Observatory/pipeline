@@ -36,8 +36,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const teamId = (project.data.team as any)._id || project.data.team;
-  if (!ProjectAuthorization.canView(user, teamId)) {
+  if (!ProjectAuthorization.canView(user, project.data)) {
     return redirect('/');
   }
 
@@ -73,8 +72,7 @@ export async function action({
     const project = await documents.getDocument<ProjectType>({ collection: 'projects', match: { _id: entityId } });
     if (!project.data) throw new Error('Project not found');
 
-    const teamId = (project.data.team as any)._id || project.data.team;
-    if (!ProjectAuthorization.canUpdate(user, teamId)) {
+    if (!ProjectAuthorization.canUpdate(user, project.data)) {
       throw new Error("You do not have permission to upload files to this project.");
     }
 
