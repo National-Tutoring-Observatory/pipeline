@@ -59,7 +59,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   if (intent === 'CREATE_PROJECT') {
     if (typeof name !== 'string') throw new Error('Project name is required and must be a string.');
-    const project = await documents.createDocument<Project>({ collection: 'projects', update: { name, team: params.id } });
+    const project = await documents.createDocument<Project>({ collection: 'projects', update: { name, team: params.id, createdBy: user._id } });
     return {
       intent: 'CREATE_PROJECT',
       ...project

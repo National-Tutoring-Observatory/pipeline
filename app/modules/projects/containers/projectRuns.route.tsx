@@ -89,7 +89,7 @@ export async function action({
       if (typeof annotationType !== "string") {
         throw new Error("Annotation type is required and must be a string.");
       }
-      if (!ProjectAuthorization.Runs.canManage(user, teamId)) {
+      if (!ProjectAuthorization.Runs.canManage(user, project.data)) {
         throw new Error('You do not have permission to create a run in this project.');
       }
       run = await documents.createDocument<Run>({
@@ -112,7 +112,7 @@ export async function action({
         throw new Error("Run name is required and must be a string.");
       }
 
-      if (!ProjectAuthorization.Runs.canManage(user, teamId)) {
+      if (!ProjectAuthorization.Runs.canManage(user, project.data)) {
         throw new Error('You do not have permission to update runs in this project.');
       }
 
@@ -135,18 +135,18 @@ export async function action({
         throw new Error("Run name is required and must be a string.");
       }
 
-      if (!ProjectAuthorization.Runs.canManage(user, teamId)) {
+      if (!ProjectAuthorization.Runs.canManage(user, project.data)) {
         throw new Error('You do not have permission to duplicate runs in this project.');
       }
 
       const existingRun = await getExistingRun(documents, entityId);
 
-      const { project, annotationType, prompt, promptVersion, model, sessions } = existingRun;
+      const { project: projectId, annotationType, prompt, promptVersion, model, sessions } = existingRun;
 
       run = await documents.createDocument<Run>({
         collection: 'runs',
         update: {
-          project,
+          project: projectId,
           name: name,
           annotationType,
           prompt,
