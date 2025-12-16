@@ -36,6 +36,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (run.data.hasSetup) {
     runPrompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: run.data.prompt } });
     runPromptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } });
+
+    if ((!runPrompt?.data || !runPromptVersion?.data) && run.data.snapshot) {
+      runPrompt = { data: run.data.snapshot.prompt as Prompt };
+      runPromptVersion = { data: run.data.snapshot.promptVersion as PromptVersion };
+    }
   }
   return { project, run, runPrompt, runPromptVersion };
 }

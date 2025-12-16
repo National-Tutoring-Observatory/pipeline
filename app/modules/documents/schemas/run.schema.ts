@@ -15,6 +15,16 @@ export default new mongoose.Schema({
     startedAt: { type: Date, default: Date.now },
     finishedAt: { type: Date, default: Date.now }
   }],
+  snapshot: {
+    prompt: {
+      _id: mongoose.Types.ObjectId,
+      name: String,
+      userPrompt: String,
+      annotationSchema: [mongoose.Schema.Types.Mixed],
+      annotationType: String,
+      version: Number
+    }
+  },
   hasSetup: { type: Boolean, default: false },
   isRunning: { type: Boolean, default: false },
   isComplete: { type: Boolean, default: false },

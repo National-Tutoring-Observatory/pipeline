@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import dayjs from "dayjs";
 import find from 'lodash/find';
 import map from 'lodash/map';
-import { Download, Pencil } from "lucide-react";
+import { AlertCircle, Download, Pencil } from "lucide-react";
 import { Link } from "react-router";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
@@ -58,7 +58,7 @@ export default function ProjectRun({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  {!run.hasExportedCSV && (
+                  {(
                     <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'CSV' })}>
                       As Table (.csv file)
                     </DropdownMenuItem>
@@ -91,6 +91,14 @@ export default function ProjectRun({
       )}
       {(run.hasSetup) && (
         <div>
+          {(runPrompt as any)?.deleted && (
+            <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-md flex gap-2 items-start">
+              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-amber-800">
+                <strong>Prompt was deleted</strong> - The prompt used for this run is no longer available. However, a complete snapshot of the prompt was saved when the run was created, so the run can still be completed and exported.
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-3 gap-6">
             <div>
               <div className="text-xs text-muted-foreground">Annotation type</div>
@@ -103,9 +111,10 @@ export default function ProjectRun({
               <div>
                 <div>
                   {runPrompt.name}
+                  {(runPrompt as any)?.deleted && <span className="text-xs text-muted-foreground ml-2">(deleted)</span>}
                 </div>
                 <div>
-                  <Badge >
+                  <Badge>
                     Version {runPromptVersion.version}
                   </Badge>
                 </div>

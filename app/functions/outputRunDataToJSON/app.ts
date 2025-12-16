@@ -1,6 +1,5 @@
 import fse from 'fs-extra';
 import map from 'lodash/map.js';
-import pick from 'lodash/pick.js';
 import type { Run } from '~/modules/runs/runs.types';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
 
@@ -37,10 +36,28 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
     await storage.upload({ file: { buffer: sessionsBuffer, size: sessionsBuffer.length, type: 'application/json' }, uploadPath: sessionsOutputFile });
 
     // OUTPUT META
-    let runObject = pick(run, ['project', '_id', 'name', 'annotationType', 'prompt', 'promptVersion', 'model']);
+    let runObject: any = {
+      project: run.project,
+      _id: run._id,
+      name: run.name,
+      annotationType: run.annotationType,
+      model: run.model,
+      sessionsCount: run.sessions.length
+    };
 
-    // @ts-ignore
-    runObject.sessionsCount = run.sessions.length;
+    // Use snapshot data if available for reproducibility
+    if (run.snapshot?.prompt) {
+      runObject.prompt = {
+        name: run.snapshot.prompt.name,
+        userPrompt: run.snapshot.prompt.userPrompt,
+        version: run.snapshot.prompt.version,
+        annotationType: run.snapshot.prompt.annotationType
+      };
+    } else {
+      // Fallback to IDs for old runs without snapshots
+      runObject.prompt = run.prompt;
+      runObject.promptVersion = run.promptVersion;
+    }
 
     metaArray.push(runObject);
 
