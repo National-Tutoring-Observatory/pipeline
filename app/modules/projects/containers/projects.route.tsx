@@ -3,7 +3,7 @@ import map from 'lodash/map';
 import { useEffect } from "react";
 import { redirect, useActionData, useNavigate, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
-import buildQueryFromParams from '~/helpers/buildQueryFromParams';
+import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
@@ -29,22 +29,19 @@ export async function loader({ request, params, context }: Route.LoaderArgs & { 
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
-  let queryParams = {};
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: '',
+    currentPage: 1,
+    sort: 'name',
+    filters: {}
+  });
 
-  const sessionUser = await getSessionUser({ request });
-
-  if (sessionUser?.featureFlags.includes('HAS_COLLECTION_UI')) {
-    queryParams = getQueryParamsFromRequest(request, {
-      searchValue: '',
-      currentPage: 1,
-      sort: 'name',
-      filters: {}
-    });
-  }
-
-  const query = buildQueryFromParams({ queryParams, searchableFields: ['name'], sortableFields: ['name', 'createdAt'], filterableFields: ['team'], filterableValues: { team: teamIds } });
-
-  query.match = { team: { $in: teamIds } }
+  const query = buildQueryFromParams({
+    match: { team: { $in: teamIds } },
+    queryParams,
+    searchableFields: ['name'],
+    sortableFields: ['name', 'createdAt']
+  });
 
   const result = await documents.getDocuments<Project>({ collection: 'projects', populate: [{ path: 'team' }], ...query });
 
@@ -247,9 +244,6 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       totalPages={projects.totalPages}
       filtersValues={filtersValues}
       sortValue={sortValue}
-      onCreateProjectButtonClicked={onCreateProjectButtonClicked}
-      onEditProjectButtonClicked={onEditProjectButtonClicked}
-      onDeleteProjectButtonClicked={onDeleteProjectButtonClicked}
       onActionClicked={onActionClicked}
       onItemActionClicked={onItemActionClicked}
       onSearchValueChanged={onSearchValueChanged}

@@ -1,14 +1,13 @@
-import escapeRegExp from 'lodash/escapeRegExp'
+import escapeRegExp from 'lodash/escapeRegExp';
+import has from 'lodash/has';
 
 export type QueryParams = { searchValue?: string, currentPage?: string, filters?: Record<string, string>, sort?: string }
 type BuildQueryProps = {
+  match: any,
   queryParams: QueryParams,
   searchableFields: string[]
   sortableFields: string[],
-  filterableFields?: string[],
-  filterableValues?: {
-    [key: string]: string[]
-  },
+  filterableFields?: string[]
 }
 export type Query = { match: any, sort?: any, page?: string }
 
@@ -16,8 +15,14 @@ function regexMatch(field: string, value: string) {
   return { [field]: { $regex: new RegExp(escapeRegExp(value), "i") } };
 }
 
-export function buildQueryFromParams({ queryParams, searchableFields, sortableFields, filterableFields, filterableValues }: BuildQueryProps): Query {
-  let query = { match: {} } as Query;
+export function buildQueryFromParams({
+  match = {},
+  queryParams,
+  searchableFields,
+  sortableFields,
+  filterableFields
+}: BuildQueryProps): Query {
+  let query = { match } as Query;
 
   const searchValue = queryParams.searchValue;
   if (searchValue) {
@@ -35,28 +40,15 @@ export function buildQueryFromParams({ queryParams, searchableFields, sortableFi
     }
   }
 
-  const filters = queryParams.filters
-  if (filters) {
+  const filters = queryParams.filters;
+  if (filters && Object.keys(filters).length > 0) {
     if (!filterableFields || filterableFields.length === 0) {
       throw new Error('Filters provided but no filterable fields are configured.');
     }
 
-    let conditions: any[] = [];
     for (const field of filterableFields) {
-      const val = filters[field];
-      if (val) {
-        if (typeof val !== 'string') {
-          throw new Error(`Filter value for ${field} must be a string.`);
-        }
-        if (filterableValues && filterableValues[field] && !filterableValues[field].includes(val)) {
-          throw new Error(`Access to the specified ${field} is not allowed.`);
-        }
-        conditions.push({ [field]: { $in: [val] } });
-      }
-      if (conditions.length == 1) {
-        query.match = { ...query.match, ...conditions[0] };
-      } else if (conditions.length > 1) {
-        query.match = { ...query.match, $and: conditions };
+      if (has(filters, field)) {
+        query.match[field] = filters[field];
       }
     }
   }
