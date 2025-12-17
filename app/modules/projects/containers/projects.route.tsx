@@ -247,9 +247,6 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       totalPages={projects.totalPages}
       filtersValues={filtersValues}
       sortValue={sortValue}
-      onCreateProjectButtonClicked={onCreateProjectButtonClicked}
-      onEditProjectButtonClicked={onEditProjectButtonClicked}
-      onDeleteProjectButtonClicked={onDeleteProjectButtonClicked}
       onActionClicked={onActionClicked}
       onItemActionClicked={onItemActionClicked}
       onSearchValueChanged={onSearchValueChanged}
