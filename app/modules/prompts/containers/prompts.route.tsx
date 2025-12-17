@@ -3,7 +3,7 @@ import map from 'lodash/map';
 import { useEffect } from "react";
 import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
 import { toast } from "sonner";
-import buildQueryFromParams from '~/helpers/buildQueryFromParams';
+import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
@@ -33,7 +33,16 @@ export async function loader({ request }: Route.LoaderArgs) {
     filters: {}
   });
 
-  const query = buildQueryFromParams({ queryParams, searchableFields: ['name'], sortableFields: ['name', 'createdAt'], filterableFields: ['team'], filterableValues: { team: teamIds } });
+  const query = buildQueryFromParams({
+    match: {
+      team: { $in: teamIds },
+    },
+    queryParams,
+    searchableFields: ['name'],
+    sortableFields: ['name', 'createdAt'],
+    filterableFields: ['annotationType']
+  });
+
   const result = await documents.getDocuments<Prompt>({ collection: 'prompts', populate: [{ path: 'team' }], ...query });
   return { prompts: result };
 }

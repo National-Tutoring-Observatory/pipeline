@@ -10,13 +10,17 @@ type DefaultQueryParams = {
   filters?: Record<string, unknown> | null;
 };
 
-function parseFiltersFromUrl(filterStr: string | null, defaultFilters?: Record<string, unknown> | null): Record<string, unknown> {
-  if (!filterStr) return defaultFilters ?? {};
-  try {
-    return JSON.parse(filterStr) as Record<string, unknown>;
-  } catch {
-    return defaultFilters ?? {};
-  }
+function parseFiltersFromUrl(searchParams: URLSearchParams, defaultFilters?: Record<string, unknown> | null): Record<string, unknown> {
+  const filters: Record<string, unknown> = {};
+
+  searchParams.forEach((value, key) => {
+    if (key.startsWith("filter_")) {
+      const filterKey = key.replace("filter_", "");
+      filters[filterKey] = value;
+    }
+  });
+
+  return Object.keys(filters).length > 0 ? filters : (defaultFilters ?? {});
 }
 
 export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
@@ -35,7 +39,7 @@ export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
   );
 
   const [filtersValues, setFiltersValuesState] = useState<Record<string, unknown>>(
-    parseFiltersFromUrl(searchParams.get("filters"), defaultQueryParams.filters)
+    parseFiltersFromUrl(searchParams, defaultQueryParams.filters)
   );
 
   useEffect(() => {
@@ -100,11 +104,22 @@ export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
     setSearchParams((prevSearchParams: URLSearchParams) => {
       const newSearchParams = new URLSearchParams(prevSearchParams.toString());
 
-      const stringified = JSON.stringify(value || {});
-      if (!stringified || stringified === "{}") {
-        newSearchParams.delete(key);
-      } else {
-        newSearchParams.set(key, stringified);
+      // Remove all existing filter_* params
+      const keysToDelete: string[] = [];
+      newSearchParams.forEach((_, paramKey) => {
+        if (paramKey.startsWith("filter_")) {
+          keysToDelete.push(paramKey);
+        }
+      });
+      keysToDelete.forEach(k => newSearchParams.delete(k));
+
+      // Add new filter params
+      if (value && Object.keys(value).length > 0) {
+        Object.entries(value).forEach(([filterKey, filterValue]) => {
+          if (filterValue !== null && filterValue !== undefined && filterValue !== "") {
+            newSearchParams.set(`filter_${filterKey}`, String(filterValue));
+          }
+        });
       }
 
       if (key !== "currentPage") {

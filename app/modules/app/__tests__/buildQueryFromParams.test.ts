@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import buildQueryFromParams from '../buildQueryFromParams'
+import buildQueryFromParams from '../helpers/buildQueryFromParams'
 
 describe('buildQueryFromParams', () => {
   it('builds a single-field regex match when one searchable field is provided', () => {
     const query = buildQueryFromParams({
+      match: {},
       queryParams: { searchValue: 'foo' },
       searchableFields: ['name'],
       sortableFields: ['name'],
@@ -16,6 +17,7 @@ describe('buildQueryFromParams', () => {
 
   it('builds an $or when multiple searchable fields are provided', () => {
     const query = buildQueryFromParams({
+      match: {},
       queryParams: { searchValue: 'bar' },
       searchableFields: ['name', 'description'],
       sortableFields: ['name'],
@@ -29,6 +31,7 @@ describe('buildQueryFromParams', () => {
 
   it('escapes regex special characters in search values', () => {
     const query = buildQueryFromParams({
+      match: {},
       queryParams: { searchValue: 'a.b' },
       searchableFields: ['name'],
       sortableFields: ['name'],
@@ -43,6 +46,7 @@ describe('buildQueryFromParams', () => {
   it('throws when searchValue provided but no searchableFields configured', () => {
     expect(() =>
       buildQueryFromParams({
+        match: {},
         queryParams: { searchValue: 'x' },
         // explicitly no searchable fields
         searchableFields: [],
@@ -51,61 +55,38 @@ describe('buildQueryFromParams', () => {
     ).toThrow()
   })
 
-  it('applies filters and respects allowed filterableValues', () => {
+  it('applies filters correctly', () => {
     const query = buildQueryFromParams({
+      match: {},
       queryParams: { filters: { team: 'team1' } },
       searchableFields: [],
       sortableFields: ['name'],
       filterableFields: ['team'],
-      filterableValues: { team: ['team1', 'team2'] },
     })
 
     expect(query.match).toEqual({
-      team: { $in: ['team1'] }
+      team: 'team1'
     })
   })
 
   it('applies multiple filters correctly', () => {
     const query = buildQueryFromParams({
+      match: {},
       queryParams: { filters: { team: 'team1', status: 'active' } },
       searchableFields: [],
       sortableFields: ['name'],
       filterableFields: ['team', 'status'],
     })
 
-    expect(query.match.$and).toEqual([
-      { team: { $in: ['team1'] } },
-      { status: { $in: ['active'] } },
-    ])
-  })
-
-  it('throws when filter value is not allowed', () => {
-    expect(() =>
-      buildQueryFromParams({
-        queryParams: { filters: { team: 'bad' } },
-        searchableFields: [],
-        sortableFields: ['name'],
-        filterableFields: ['team'],
-        filterableValues: { team: ['team1', 'team2'] },
-      })
-    ).toThrow(/Access to the specified team is not allowed/)
-  })
-
-  it('throws when filter value is not a string', () => {
-    expect(() =>
-      // force a non-string value at runtime
-      buildQueryFromParams({
-        // @ts-expect-error test invalid runtime value
-        queryParams: { filters: { team: 123 } },
-        searchableFields: [],
-        sortableFields: ['name'],
-        filterableFields: ['team'],
-      })
-    ).toThrow(/Filter value for team must be a string/)
+    expect(query.match).toEqual({
+      team: 'team1',
+      status: 'active'
+    })
   })
 
   it('ignores filters that are not listed in filterableFields', () => {
     const query = buildQueryFromParams({
+      match: {},
       queryParams: { filters: { foo: 'x' } },
       searchableFields: [],
       sortableFields: ['name'],
@@ -118,6 +99,7 @@ describe('buildQueryFromParams', () => {
   it('throws when filters provided but no filterableFields configured', () => {
     expect(() =>
       buildQueryFromParams({
+        match: {},
         queryParams: { filters: { team: 'team1' } },
         searchableFields: [],
         sortableFields: ['name'],
@@ -128,6 +110,7 @@ describe('buildQueryFromParams', () => {
 
   it('validates sort field and allows dashed sort values', () => {
     const query = buildQueryFromParams({
+      match: {},
       queryParams: { sort: '-name' },
       searchableFields: [],
       sortableFields: ['name'],
@@ -137,6 +120,7 @@ describe('buildQueryFromParams', () => {
 
     expect(() =>
       buildQueryFromParams({
+        match: {},
         queryParams: { sort: 'invalid' },
         searchableFields: [],
         sortableFields: ['name'],
@@ -146,6 +130,7 @@ describe('buildQueryFromParams', () => {
 
   it('returns empty sort object when no sort specified', () => {
     const query = buildQueryFromParams({
+      match: {},
       queryParams: {},
       searchableFields: [],
       sortableFields: ['name'],
@@ -156,6 +141,7 @@ describe('buildQueryFromParams', () => {
   it('throws when sort provided but no sortableFields configured', () => {
     expect(() =>
       buildQueryFromParams({
+        match: {},
         queryParams: { sort: 'name' },
         searchableFields: [],
         // sortableFields omitted
@@ -165,6 +151,7 @@ describe('buildQueryFromParams', () => {
 
   it('preserves page parameter', () => {
     const query = buildQueryFromParams({
+      match: {},
       queryParams: { currentPage: '2' },
       searchableFields: [],
       sortableFields: ['name'],
@@ -175,6 +162,7 @@ describe('buildQueryFromParams', () => {
 
   it('page is undefined when not provided', () => {
     const query = buildQueryFromParams({
+      match: {},
       queryParams: {},
       searchableFields: [],
       sortableFields: ['name'],
