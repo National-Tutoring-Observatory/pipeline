@@ -1,5 +1,9 @@
+import find from 'lodash/find';
 import { useEffect } from "react";
 import { redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
+import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
+import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
+import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -20,9 +24,24 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: '',
+    currentPage: 1,
+    sort: 'name',
+    filters: {}
+  });
+
+  const query = buildQueryFromParams({
+    match: { team: params.id },
+    queryParams,
+    searchableFields: ['name'],
+    sortableFields: ['name', 'createdAt'],
+    filterableFields: []
+  });
+
   const documents = getDocumentsAdapter();
-  const projectsResult = await documents.getDocuments<Project>({ collection: 'projects', match: { team: params.id } });
-  return { projects: projectsResult.data };
+  const result = await documents.getDocuments<Project>({ collection: 'projects', ...query });
+  return { projects: result };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -59,6 +78,18 @@ export default function TeamProjectsRoute() {
   const navigate = useNavigate();
   const teamId = params.id;
 
+  const {
+    searchValue, setSearchValue,
+    currentPage, setCurrentPage,
+    sortValue, setSortValue,
+    filtersValues, setFiltersValues
+  } = useSearchQueryParams({
+    searchValue: '',
+    currentPage: 1,
+    sortValue: 'name',
+    filters: {}
+  });
+
   useEffect(() => {
     updateBreadcrumb([
       { text: 'Teams', link: '/teams' },
@@ -86,12 +117,50 @@ export default function TeamProjectsRoute() {
     submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name } }), { method: 'POST', encType: 'application/json' });
   }
 
-  const projects = data?.projects ?? [];
+  const onActionClicked = (action: string) => {
+    if (action === 'CREATE') {
+      onCreateProjectButtonClicked();
+    }
+  }
+
+  const onItemActionClicked = ({ id, action }: { id: string, action: string }) => {
+    const project = find(data.projects.data, { _id: id });
+    if (!project) return null;
+  }
+
+  const onSearchValueChanged = (searchValue: string) => {
+    setSearchValue(searchValue);
+  }
+
+  const onPaginationChanged = (currentPage: number) => {
+    setCurrentPage(currentPage);
+  }
+
+  const onFiltersValueChanged = (filterValue: any) => {
+    setFiltersValues({ ...filtersValues, ...filterValue });
+  }
+
+  const onSortValueChanged = (sortValue: string) => {
+    setSortValue(sortValue);
+  }
+
+  const projects = data.projects.data ?? [];
 
   return (
     <TeamProjects
       projects={projects}
       team={ctx.team}
+      searchValue={searchValue}
+      currentPage={currentPage}
+      totalPages={data.projects.totalPages}
+      filtersValues={filtersValues}
+      sortValue={sortValue}
+      onActionClicked={onActionClicked}
+      onItemActionClicked={onItemActionClicked}
+      onSearchValueChanged={onSearchValueChanged}
+      onPaginationChanged={onPaginationChanged}
+      onFiltersValueChanged={onFiltersValueChanged}
+      onSortValueChanged={onSortValueChanged}
       onCreateProjectButtonClicked={onCreateProjectButtonClicked}
     />
   );
