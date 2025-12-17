@@ -43,6 +43,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   });
 
   const result = await documents.getDocuments<Prompt>({ collection: 'prompts', populate: [{ path: 'team' }], ...query });
+
   return { prompts: result };
 }
 
