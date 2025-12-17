@@ -1,57 +1,69 @@
-import { Button } from '@/components/ui/button';
-import { Link, useParams } from "react-router";
-import usePromptAuthorization from "~/modules/prompts/hooks/usePromptAuthorization";
+import { Collection } from "@/components/ui/collection";
 import type { Prompt } from "~/modules/prompts/prompts.types";
+import getTeamPromptsActions from "../helpers/getTeamPromptsActions";
+import getTeamPromptsEmptyAttributes from "../helpers/getTeamPromptsEmptyAttributes";
+import getTeamPromptsItemActions from "../helpers/getTeamPromptsItemActions";
+import getTeamPromptsItemAttributes from "../helpers/getTeamPromptsItemAttributes";
+import teamPromptsFilters from "../helpers/teamPromptsFilters";
+import teamPromptsSortOptions from "../helpers/teamPromptsSortOptions";
 import type { Team } from "../teams.types";
 
 interface TeamPromptsProps {
   prompts: Prompt[];
   team: Team;
-  onCreatePromptButtonClicked: () => void;
+  searchValue: string,
+  currentPage: number,
+  totalPages: number,
+  filtersValues: {},
+  sortValue: string,
+  onActionClicked: (action: string) => void;
+  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
+  onSearchValueChanged: (searchValue: string) => void,
+  onPaginationChanged: (currentPage: number) => void,
+  onFiltersValueChanged: (filterValue: any) => void,
+  onSortValueChanged: (sortValue: any) => void
 }
 
-export default function TeamPrompts({ prompts, team, onCreatePromptButtonClicked }: TeamPromptsProps) {
-  const params = useParams();
-  const { canCreate } = usePromptAuthorization(params.id || null);
+export default function TeamPrompts({
+  prompts,
+  team,
+  filtersValues,
+  sortValue,
+  searchValue,
+  currentPage,
+  totalPages,
+  onActionClicked,
+  onItemActionClicked,
+  onSearchValueChanged,
+  onPaginationChanged,
+  onFiltersValueChanged,
+  onSortValueChanged
+}: TeamPromptsProps) {
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <div className="text-sm font-medium text-muted-foreground">Prompts</div>
-        {canCreate && (
-          <Button size="sm" onClick={onCreatePromptButtonClicked}>
-            Create prompt
-          </Button>
-        )}
-      </div>
-      <div>
-        {(prompts.length === 0) && (
-          <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
-            No prompts are associated with this team
-          </div>
-        )}
-        {(prompts.length > 0) && (
-          <div className="mt-4 border border-black/10 rounded-md ">
-            {prompts.map((prompt: Prompt) => (
-              canCreate ? (
-                <Link
-                  key={prompt._id}
-                  to={`/prompts/${prompt._id}/${prompt.productionVersion}`}
-                  className="block border-b border-black/10 p-4 last:border-0 hover:bg-gray-50 text-sm"
-                >
-                  {prompt.name}
-                </Link>
-              ) : (
-                <div
-                  key={prompt._id}
-                  className="block border-b border-black/10 p-4 last:border-0 text-sm"
-                >
-                  {prompt.name}
-                </div>
-              )
-            ))}
-          </div>
-        )}
-      </div>
+      <Collection
+        items={prompts}
+        itemsLayout="list"
+        actions={getTeamPromptsActions(team._id)}
+        filters={teamPromptsFilters}
+        sortOptions={teamPromptsSortOptions}
+        hasSearch
+        hasPagination
+        filtersValues={filtersValues}
+        sortValue={sortValue}
+        searchValue={searchValue}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        emptyAttributes={getTeamPromptsEmptyAttributes()}
+        getItemAttributes={(item) => getTeamPromptsItemAttributes(item, team._id)}
+        getItemActions={getTeamPromptsItemActions}
+        onActionClicked={onActionClicked}
+        onItemActionClicked={onItemActionClicked}
+        onSearchValueChanged={onSearchValueChanged}
+        onPaginationChanged={onPaginationChanged}
+        onFiltersValueChanged={onFiltersValueChanged}
+        onSortValueChanged={onSortValueChanged}
+      />
     </div>
   );
 }

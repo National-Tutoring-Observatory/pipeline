@@ -43,7 +43,6 @@ export default function TeamProjects({
 }: TeamProjectsProps) {
   return (
     <div>
-      <div className="text-sm font-medium text-muted-foreground mb-4">Projects</div>
       <Collection
         items={projects}
         itemsLayout="list"

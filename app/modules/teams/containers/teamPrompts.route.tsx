@@ -1,5 +1,9 @@
+import find from 'lodash/find';
 import { useEffect } from "react";
 import { redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
+import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
+import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
+import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -18,9 +22,25 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!PromptAuthorization.canView(user, params.id)) {
     return redirect('/');
   }
+
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: '',
+    currentPage: 1,
+    sort: 'name',
+    filters: {}
+  });
+
+  const query = buildQueryFromParams({
+    match: { team: params.id },
+    queryParams,
+    searchableFields: ['name'],
+    sortableFields: ['name', 'createdAt'],
+    filterableFields: ['annotationType']
+  });
+
   const documents = getDocumentsAdapter();
-  const promptsResult = await documents.getDocuments<Prompt>({ collection: 'prompts', match: { team: params.id } });
-  return { prompts: promptsResult.data };
+  const result = await documents.getDocuments<Prompt>({ collection: 'prompts', ...query });
+  return { prompts: result };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -77,6 +97,17 @@ export default function TeamPromptsRoute() {
   const submit = useSubmit();
   const navigate = useNavigate();
 
+  const {
+    searchValue, setSearchValue,
+    currentPage, setCurrentPage,
+    sortValue, setSortValue,
+    filtersValues, setFiltersValues
+  } = useSearchQueryParams({
+    searchValue: '',
+    currentPage: 1,
+    sortValue: 'name',
+    filters: {}
+  });
 
   useEffect(() => {
     updateBreadcrumb([
@@ -104,13 +135,51 @@ export default function TeamPromptsRoute() {
   const onCreateNewPromptClicked = ({ name, annotationType }: { name: string, annotationType: string }) => {
     submit(JSON.stringify({ intent: 'CREATE_PROMPT', payload: { name, annotationType } }), { method: 'POST', encType: 'application/json' });
   }
-  const prompts = data.prompts ?? [];
+
+  const onActionClicked = (action: string) => {
+    if (action === 'CREATE') {
+      onCreatePromptButtonClicked();
+    }
+  }
+
+  const onItemActionClicked = ({ id, action }: { id: string, action: string }) => {
+    const prompt = find(data.prompts.data, { _id: id });
+    if (!prompt) return null;
+  }
+
+  const onSearchValueChanged = (searchValue: string) => {
+    setSearchValue(searchValue);
+  }
+
+  const onPaginationChanged = (currentPage: number) => {
+    setCurrentPage(currentPage);
+  }
+
+  const onFiltersValueChanged = (filterValue: any) => {
+    setFiltersValues({ ...filtersValues, ...filterValue });
+  }
+
+  const onSortValueChanged = (sortValue: string) => {
+    setSortValue(sortValue);
+  }
+
+  const prompts = data.prompts.data ?? [];
 
   return (
     <TeamPrompts
       prompts={prompts}
       team={ctx.team}
-      onCreatePromptButtonClicked={onCreatePromptButtonClicked}
+      searchValue={searchValue}
+      currentPage={currentPage}
+      totalPages={data.prompts.totalPages}
+      filtersValues={filtersValues}
+      sortValue={sortValue}
+      onActionClicked={onActionClicked}
+      onItemActionClicked={onItemActionClicked}
+      onSearchValueChanged={onSearchValueChanged}
+      onPaginationChanged={onPaginationChanged}
+      onFiltersValueChanged={onFiltersValueChanged}
+      onSortValueChanged={onSortValueChanged}
     />
   );
 }
