@@ -27,7 +27,10 @@ COPY ./package.json yarn.lock tsconfig.json server.ts sessionStorage.ts sockets.
 COPY ./app /app/app
 COPY ./documentation /app/documentation
 COPY ./public /app/public
+COPY ./migrations /app/migrations
+COPY ./migrate-mongo-config.js /app/
 WORKDIR /app
 RUN node ./app/adapters.js
+RUN yarn migrate
 EXPOSE 5173
 CMD ["yarn", "app:prod"]

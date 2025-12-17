@@ -110,7 +110,7 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
 
     if (run.snapshot?.prompt) {
       runObject.promptName = run.snapshot.prompt.name;
-      runObject.promptUserPrompt = run.snapshot.prompt.userPrompt;
+      runObject.promptUserPrompt = run.snapshot.promptVersion.userPrompt;
       runObject.promptAnnotationType = run.snapshot.prompt.annotationType;
     } else {
       runObject.prompt = run.prompt;

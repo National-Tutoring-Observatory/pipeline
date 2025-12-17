@@ -49,8 +49,8 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
     if (run.snapshot?.prompt) {
       runObject.prompt = {
         name: run.snapshot.prompt.name,
-        userPrompt: run.snapshot.prompt.userPrompt,
-        version: run.snapshot.prompt.version,
+        userPrompt: run.snapshot.promptVersion.userPrompt,
+        version: run.snapshot.promptVersion.version,
         annotationType: run.snapshot.prompt.annotationType
       };
     } else {
