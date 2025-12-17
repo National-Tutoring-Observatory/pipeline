@@ -1,7 +1,11 @@
+import find from 'lodash/find';
 import { useEffect } from "react";
 import { redirect, useActionData, useLoaderData, useNavigate, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
+import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
+import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
+import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { DocumentAdapter } from "~/modules/documents/documents.types";
@@ -15,11 +19,25 @@ import EditRunDialog from "../components/editRunDialog";
 import ProjectRuns from "../components/projectRuns";
 import type { Route } from "./+types/projectRuns.route";
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: '',
+    currentPage: 1,
+    sort: 'name',
+    filters: {}
+  });
+
+  const query = buildQueryFromParams({
+    match: { project: params.id },
+    queryParams,
+    searchableFields: ['name'],
+    sortableFields: ['name', 'createdAt'],
+    filterableFields: ['annotationType']
+  });
+
   const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments<Run>({ collection: 'runs', match: { project: params.id }, sort: {}, populate: [{ path: 'prompt' }] });
-  const runs = { data: result.data };
-  return { runs };
+  const result = await documents.getDocuments<Run>({ collection: 'runs', populate: [{ path: 'prompt' }], ...query });
+  return { runs: result };
 }
 
 async function getExistingRun(documents: DocumentAdapter, runId: string): Promise<Run> {
@@ -158,6 +176,18 @@ export default function ProjectRunsRoute() {
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
 
+  const {
+    searchValue, setSearchValue,
+    currentPage, setCurrentPage,
+    sortValue, setSortValue,
+    filtersValues, setFiltersValues
+  } = useSearchQueryParams({
+    searchValue: '',
+    currentPage: 1,
+    sortValue: 'name',
+    filters: {}
+  });
+
   useEffect(() => {
     if (actionData?.intent === 'CREATE_RUN' || actionData?.intent === 'DUPLICATE_RUN') {
       navigate(`/projects/${actionData.data.project}/runs/${actionData.data._id}`)
@@ -203,6 +233,41 @@ export default function ProjectRunsRoute() {
     );
   }
 
+  const onActionClicked = (action: string) => {
+    if (action === 'CREATE') {
+      onCreateRunButtonClicked();
+    }
+  }
+
+  const onItemActionClicked = ({ id, action }: { id: string, action: string }) => {
+    const run = find(runs.data, { _id: id });
+    if (!run) return null;
+    switch (action) {
+      case 'EDIT':
+        onEditRunButtonClicked(run);
+        break;
+      case 'DUPLICATE':
+        onDuplicateRunButtonClicked(run);
+        break;
+    }
+  }
+
+  const onSearchValueChanged = (searchValue: string) => {
+    setSearchValue(searchValue);
+  }
+
+  const onPaginationChanged = (currentPage: number) => {
+    setCurrentPage(currentPage);
+  }
+
+  const onFiltersValueChanged = (filterValue: any) => {
+    setFiltersValues({ ...filtersValues, ...filterValue });
+  }
+
+  const onSortValueChanged = (sortValue: string) => {
+    setSortValue(sortValue);
+  }
+
   useHandleSockets({
     event: 'ANNOTATE_RUN',
     matches: [{
@@ -219,9 +284,17 @@ export default function ProjectRunsRoute() {
   return (
     <ProjectRuns
       runs={runs.data}
-      onCreateRunButtonClicked={onCreateRunButtonClicked}
-      onEditRunButtonClicked={onEditRunButtonClicked}
-      onDuplicateRunButtonClicked={onDuplicateRunButtonClicked}
+      searchValue={searchValue}
+      currentPage={currentPage}
+      totalPages={runs.totalPages}
+      filtersValues={filtersValues}
+      sortValue={sortValue}
+      onActionClicked={onActionClicked}
+      onItemActionClicked={onItemActionClicked}
+      onSearchValueChanged={onSearchValueChanged}
+      onPaginationChanged={onPaginationChanged}
+      onFiltersValueChanged={onFiltersValueChanged}
+      onSortValueChanged={onSortValueChanged}
     />
   )
 }

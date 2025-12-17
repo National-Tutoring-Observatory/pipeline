@@ -1,98 +1,64 @@
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import dayjs from "dayjs";
-import map from 'lodash/map';
-import { EllipsisVertical } from "lucide-react";
-import { Link } from "react-router";
-import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
+import { Collection } from "@/components/ui/collection";
 import type { Run } from "~/modules/runs/runs.types";
+import getProjectRunsEmptyAttributes from "../helpers/getProjectRunsEmptyAttributes";
+import getProjectRunsItemActions from "../helpers/getProjectRunsItemActions";
+import getProjectRunsItemAttributes from "../helpers/getProjectRunsItemAttributes";
+import projectRunsActions from "../helpers/projectRunsActions";
+import projectRunsFilters from "../helpers/projectRunsFilters";
+import projectRunsSortOptions from "../helpers/projectRunsSortOptions";
 
 export default function ProjectRuns({
   runs,
-  onCreateRunButtonClicked,
-  onEditRunButtonClicked,
-  onDuplicateRunButtonClicked
+  searchValue,
+  currentPage,
+  totalPages,
+  filtersValues,
+  sortValue,
+  onActionClicked,
+  onItemActionClicked,
+  onSearchValueChanged,
+  onPaginationChanged,
+  onFiltersValueChanged,
+  onSortValueChanged,
 }: {
   runs: Run[],
-  onCreateRunButtonClicked: () => void,
-  onEditRunButtonClicked: (run: Run) => void,
-  onDuplicateRunButtonClicked: (run: Run) => void,
+  searchValue: string,
+  currentPage: number,
+  totalPages: number,
+  filtersValues: {},
+  sortValue: string,
+  onActionClicked: (action: string) => void;
+  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
+  onSearchValueChanged: (searchValue: string) => void,
+  onPaginationChanged: (currentPage: number) => void,
+  onFiltersValueChanged: (filterValue: any) => void,
+  onSortValueChanged: (sortValue: any) => void
 }) {
   return (
     <div className="mt-8">
-      {(runs.length === 0) && (
-        <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
-          No runs created
-          <div className="mt-3">
-            <Button onClick={onCreateRunButtonClicked}>Create run</Button>
-          </div>
-        </div>
-      )}
-      {(runs.length > 0) && (
-        <div className="border rounded-md">
-          <div className="flex justify-end border-b p-2">
-            <Button onClick={onCreateRunButtonClicked}>Create run</Button>
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[300px]">Name</TableHead>
-                <TableHead>Prompt</TableHead>
-                <TableHead>Annotation Type</TableHead>
-                <TableHead>Model</TableHead>
-                <TableHead>Started</TableHead>
-                <TableHead>Finished</TableHead>
-                <TableHead className="text-right"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {map(runs, (run) => {
-                return (
-                  <TableRow key={run._id}>
-                    <TableCell className="font-medium">
-                      <Link to={`/projects/${run.project}/runs/${run._id}`}>
-                        {run.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      {typeof run.prompt === "string"
-                        ? run.prompt
-                        : run.prompt?.name}
-                    </TableCell>
-                    <TableCell>{getAnnotationLabel(run.annotationType)}</TableCell>
-                    <TableCell>{run.model}</TableCell>
-                    <TableCell>{run.startedAt ? dayjs(run.startedAt).format('ddd, MM/D/YY - h:mma') : '--'}</TableCell>
-                    <TableCell>{run.finishedAt ? dayjs(run.finishedAt).format('ddd, MM/D/YY - h:mma') : '--'}</TableCell>
-                    <TableCell className="text-right flex justify-end">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                            size="icon"
-                          >
-                            <EllipsisVertical />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-32">
-                          <DropdownMenuItem onClick={() => onEditRunButtonClicked(run)}>
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onDuplicateRunButtonClicked(run)}>
-                            Duplicate
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+      <Collection
+        items={runs}
+        itemsLayout="list"
+        actions={projectRunsActions}
+        filters={projectRunsFilters}
+        sortOptions={projectRunsSortOptions}
+        hasSearch
+        hasPagination
+        filtersValues={filtersValues}
+        sortValue={sortValue}
+        searchValue={searchValue}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        emptyAttributes={getProjectRunsEmptyAttributes()}
+        getItemAttributes={getProjectRunsItemAttributes}
+        getItemActions={getProjectRunsItemActions}
+        onActionClicked={onActionClicked}
+        onItemActionClicked={onItemActionClicked}
+        onSearchValueChanged={onSearchValueChanged}
+        onPaginationChanged={onPaginationChanged}
+        onFiltersValueChanged={onFiltersValueChanged}
+        onSortValueChanged={onSortValueChanged}
+      />
     </div>
   )
 }
