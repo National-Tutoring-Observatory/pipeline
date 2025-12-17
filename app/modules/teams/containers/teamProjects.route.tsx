@@ -1,17 +1,14 @@
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import { AuthenticationContext } from '~/modules/authentication/containers/authentication.container';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import ProjectAuthorization from "~/modules/projects/authorization";
 import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
 import type { Project } from "~/modules/projects/projects.types";
-import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
-import type { User } from "~/modules/users/users.types";
+import TeamAuthorization from "../authorization";
 import TeamProjects from "../components/teamProjects";
-import getUserRoleInTeam from "../helpers/getUserRoleInTeam";
-import { isTeamAdmin } from '../helpers/teamAdmin';
 import type { Route } from "./+types/teamProjects.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -19,7 +16,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!user) {
     return redirect('/');
   }
-  if (!(await isTeamAdmin({ user, teamId: params.id }))) {
+  if (!TeamAuthorization.canView(user, params.id)) {
     return redirect('/');
   }
 
@@ -35,7 +32,9 @@ export async function action({ request, params }: Route.ActionArgs) {
   const user = await getSessionUser({ request });
   if (!user) return { redirect: '/' };
 
-  await validateTeamMembership({ user, teamId: params.id });
+  if (!ProjectAuthorization.canCreate(user, params.id)) {
+    throw new Error('You do not have permission to create a project in this team.');
+  }
 
   const documents = getDocumentsAdapter();
 
@@ -58,16 +57,15 @@ export default function TeamProjectsRoute() {
   const actionData = useActionData();
   const submit = useSubmit();
   const navigate = useNavigate();
-  const authentication = useContext(AuthenticationContext) as User | null;
-  let canCreateProjects = !!authentication && !!getUserRoleInTeam({ user: authentication, team: ctx.team }).role
+  const teamId = params.id;
 
   useEffect(() => {
     updateBreadcrumb([
       { text: 'Teams', link: '/teams' },
-      { text: ctx.team.name, link: `/teams/${params.id}` },
+      { text: ctx.team.name, link: `/teams/${teamId}` },
       { text: 'Projects' }
     ]);
-  }, [params.id]);
+  }, [teamId]);
 
   useEffect(() => {
     if (actionData?.intent === 'CREATE_PROJECT') {
@@ -94,7 +92,6 @@ export default function TeamProjectsRoute() {
     <TeamProjects
       projects={projects}
       team={ctx.team}
-      canCreateProjects={canCreateProjects}
       onCreateProjectButtonClicked={onCreateProjectButtonClicked}
     />
   );

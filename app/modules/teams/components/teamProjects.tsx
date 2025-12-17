@@ -1,21 +1,22 @@
 import { Button } from '@/components/ui/button';
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
+import useProjectAuthorization from "~/modules/projects/hooks/useProjectAuthorization";
 import type { Project } from "~/modules/projects/projects.types";
 import type { Team } from "../teams.types";
 
 interface TeamProjectsProps {
   projects: Project[];
   team: Team;
-  canCreateProjects: boolean;
   onCreateProjectButtonClicked: () => void;
 }
 
-export default function TeamProjects({ projects, team, canCreateProjects, onCreateProjectButtonClicked }: TeamProjectsProps) {
+export default function TeamProjects({ projects, team, onCreateProjectButtonClicked }: TeamProjectsProps) {
+  const { canCreate } = useProjectAuthorization(team._id);
   return (
     <div>
       <div className="flex items-center justify-between">
         <div className="text-sm font-medium text-muted-foreground">Projects</div>
-        {(canCreateProjects) && (
+        {(canCreate) && (
           <Button size="sm" onClick={onCreateProjectButtonClicked}>
             Create project
           </Button>
@@ -30,7 +31,7 @@ export default function TeamProjects({ projects, team, canCreateProjects, onCrea
         {(projects.length > 0) && (
           <div className="mt-4 border border-black/10 rounded-md overflow-hidden">
             {projects.map((project: Project) => (
-              canCreateProjects ? (
+              canCreate ? (
                 <Link
                   key={project._id}
                   to={`/projects/${project._id}`}

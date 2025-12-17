@@ -1,18 +1,19 @@
 import { useEffect } from "react";
 import { redirect, useActionData, useLoaderData, useNavigate, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
+import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { DocumentAdapter } from "~/modules/documents/documents.types";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import { validateProjectOwnership } from "~/modules/projects/helpers/projectOwnership";
+import ProjectAuthorization from "~/modules/projects/authorization";
+import type { Project } from "~/modules/projects/projects.types";
 import type { Run } from "~/modules/runs/runs.types";
 import CreateRunDialog from '../components/createRunDialog';
 import DuplicateRunDialog from '../components/duplicateRunDialog';
 import EditRunDialog from "../components/editRunDialog";
 import ProjectRuns from "../components/projectRuns";
 import type { Route } from "./+types/projectRuns.route";
-import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
@@ -53,6 +54,15 @@ export async function action({
 
   const documents = getDocumentsAdapter();
 
+  const project = await documents.getDocument<Project>({
+    collection: 'projects',
+    match: { _id: params.id },
+  });
+  if (!project.data) {
+    throw new Error('Project not found');
+  }
+  const teamId = (project.data.team as any)._id || project.data.team;
+
   switch (intent) {
     case 'CREATE_RUN': {
       if (typeof name !== "string") {
@@ -61,7 +71,9 @@ export async function action({
       if (typeof annotationType !== "string") {
         throw new Error("Annotation type is required and must be a string.");
       }
-      await validateProjectOwnership({ user, projectId: params.id });
+      if (!ProjectAuthorization.Runs.canManage(user, teamId)) {
+        throw new Error('You do not have permission to create a run in this project.');
+      }
       run = await documents.createDocument<Run>({
         collection: 'runs', update: {
           project: params.id,
@@ -82,9 +94,11 @@ export async function action({
         throw new Error("Run name is required and must be a string.");
       }
 
+      if (!ProjectAuthorization.Runs.canManage(user, teamId)) {
+        throw new Error('You do not have permission to update runs in this project.');
+      }
+
       const existingRun = await getExistingRun(documents, entityId);
-      const projectId = existingRun.project as string;
-      await validateProjectOwnership({ user, projectId });
 
       await documents.updateDocument<Run>({
         collection: 'runs',
@@ -102,9 +116,12 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Run name is required and must be a string.");
       }
+
+      if (!ProjectAuthorization.Runs.canManage(user, teamId)) {
+        throw new Error('You do not have permission to duplicate runs in this project.');
+      }
+
       const existingRun = await getExistingRun(documents, entityId);
-      const projectId = existingRun.project as string;
-      await validateProjectOwnership({ user, projectId });
 
       const { project, annotationType, prompt, promptVersion, model, sessions } = existingRun;
 

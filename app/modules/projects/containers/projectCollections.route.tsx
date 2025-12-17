@@ -1,17 +1,36 @@
-import { useEffect } from "react";
-import { useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
+import { useEffect, useState } from "react";
+import { redirect, useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
 import { toast } from "sonner";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import ProjectAuthorization from "~/modules/projects/authorization";
 import type { Collection } from "~/modules/collections/collections.types";
 import CreateCollectionDialog from "~/modules/collections/components/createCollectionDialog";
 import DuplicateCollectionDialog from "~/modules/collections/components/duplicateCollectionDialog";
 import EditCollectionDialog from "~/modules/collections/components/editCollectionDialog";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import type { Project } from "~/modules/projects/projects.types";
+import type { User } from "~/modules/users/users.types";
 import ProjectCollections from "../components/projectCollections";
 import type { Route } from "./+types/projectCollections.route";
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const user = await getSessionUser({ request }) as User;
+  if (!user) {
+    return redirect('/');
+  }
+
   const documents = getDocumentsAdapter();
+  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.id } });
+  if (!project.data) {
+    return redirect('/');
+  }
+
+  const teamId = (project.data.team as any)._id || project.data.team;
+  if (!ProjectAuthorization.canView(user, teamId)) {
+    return redirect('/');
+  }
+
   const result = await documents.getDocuments<Collection>({ collection: 'collections', match: { project: params.id }, sort: {} });
   const collections = { data: result.data };
   return { collections };
@@ -21,13 +40,26 @@ export async function action({
   request,
   params,
 }: Route.ActionArgs) {
+  const user = await getSessionUser({ request }) as User;
+  if (!user) {
+    return redirect('/');
+  }
+
+  const documents = getDocumentsAdapter();
+  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.id } });
+  if (!project.data) {
+    throw new Error('Project not found');
+  }
+
+  const teamId = (project.data.team as any)._id || project.data.team;
+  if (!ProjectAuthorization.Runs.canManage(user, teamId)) {
+    throw new Error('Access denied');
+  }
 
   const { intent, entityId, payload = {} } = await request.json();
 
   const { name } = payload;
   let collection;
-
-  const documents = getDocumentsAdapter();
 
   switch (intent) {
     case 'CREATE_COLLECTION': {

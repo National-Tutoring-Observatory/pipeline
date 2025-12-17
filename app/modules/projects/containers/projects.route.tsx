@@ -12,13 +12,12 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
 import type { User } from "~/modules/users/users.types";
+import ProjectAuthorization from "../authorization";
 import CreateProjectDialog from "../components/createProjectDialog";
 import DeleteProjectDialog from "../components/deleteProjectDialog";
 import EditProjectDialog from "../components/editProjectDialog";
 import Projects from "../components/projects";
-import { validateProjectOwnership } from "../helpers/projectOwnership";
 import type { Project } from "../projects.types";
 import deleteProject from "../services/deleteProject.server";
 import type { Route } from "./+types/projects.route";
@@ -44,6 +43,8 @@ export async function loader({ request, params, context }: Route.LoaderArgs & { 
   }
 
   const query = buildQueryFromParams({ match: { team: { $in: teamIds } }, queryParams, searchableFields: ['name'], sortableFields: ['name', 'createdAt'] });
+
+  query.match = { team: { $in: teamIds } }
 
   const result = await documents.getDocuments<Project>({ collection: 'projects', populate: [{ path: 'team' }], ...query });
 
@@ -72,7 +73,9 @@ export async function action({
         throw new Error("Project name is required and must be a string.");
       }
 
-      await validateTeamMembership({ user, teamId: team });
+      if (!ProjectAuthorization.canCreate(user, team)) {
+        throw new Error("You do not have permission to create projects in this team.");
+      }
 
       const project = await documents.createDocument<Project>({
         collection: 'projects',
@@ -84,24 +87,32 @@ export async function action({
         ...project,
       };
 
-    case 'UPDATE_PROJECT':
-      await validateProjectOwnership({
-        user,
-        projectId: entityId,
-      });
+    case 'UPDATE_PROJECT': {
+      const projectDoc = await documents.getDocument<Project>({ collection: 'projects', match: { _id: entityId } });
+      if (!projectDoc.data) throw new Error('Project not found');
+
+      const teamId = (projectDoc.data.team as any)._id || projectDoc.data.team;
+      if (!ProjectAuthorization.canUpdate(user, teamId)) {
+        throw new Error("You do not have permission to update this project.");
+      }
 
       return await documents.updateDocument({
         collection: 'projects',
         match: { _id: entityId },
         update: { name },
       });
+    }
 
-    case 'DELETE_PROJECT':
-      await validateProjectOwnership({
-        user,
-        projectId: entityId,
-      });
+    case 'DELETE_PROJECT': {
+      const projectDoc = await documents.getDocument<Project>({ collection: 'projects', match: { _id: entityId } });
+      if (!projectDoc.data) throw new Error('Project not found');
+
+      const teamId = (projectDoc.data.team as any)._id || projectDoc.data.team;
+      if (!ProjectAuthorization.canDelete(user, teamId)) {
+        throw new Error("You do not have permission to delete this project.");
+      }
       return await deleteProject({ projectId: entityId });
+    }
 
     default:
       return {};

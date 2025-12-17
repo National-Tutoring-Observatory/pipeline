@@ -11,13 +11,12 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import { validateTeamMembership } from "~/modules/teams/helpers/teamMembership";
+import PromptAuthorization from "~/modules/prompts/authorization";
 import type { User } from "~/modules/users/users.types";
 import CreatePromptDialog from "../components/createPromptDialog";
 import DeletePromptDialog from "../components/deletePromptDialog";
 import EditPromptDialog from "../components/editPromptDialog";
 import Prompts from "../components/prompts";
-import { validatePromptOwnership } from "../helpers/promptOwnership";
 import type { Prompt, PromptVersion } from "../prompts.types";
 import type { Route } from "./+types/prompts.route";
 
@@ -69,7 +68,9 @@ export async function action({
         throw new Error("Prompt name is required and must be a string.");
       }
 
-      await validateTeamMembership({ user, teamId: team });
+      if (!PromptAuthorization.canCreate(user, team)) {
+        throw new Error("You do not have permission to create prompts in this team.");
+      }
 
       const prompt = await documents.createDocument<Prompt>({ collection: 'prompts', update: { name, annotationType, team, productionVersion: 1 } });
       await documents.createDocument<PromptVersion>({
@@ -95,10 +96,20 @@ export async function action({
         ...prompt
       }
     case 'UPDATE_PROMPT':
-      await validatePromptOwnership({ user, promptId: entityId });
+      const promptDoc = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: entityId } });
+      if (!promptDoc.data) throw new Error('Prompt not found');
+      const updateTeamId = (promptDoc.data.team as any)._id || promptDoc.data.team;
+      if (!PromptAuthorization.canUpdate(user, updateTeamId)) {
+        throw new Error("You do not have permission to update this prompt.");
+      }
       return await documents.updateDocument({ collection: 'prompts', match: { _id: entityId }, update: { name } });
     case 'DELETE_PROMPT':
-      await validatePromptOwnership({ user, promptId: entityId });
+      const deletePromptDoc = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: entityId } });
+      if (!deletePromptDoc.data) throw new Error('Prompt not found');
+      const deleteTeamId = (deletePromptDoc.data.team as any)._id || deletePromptDoc.data.team;
+      if (!PromptAuthorization.canDelete(user, deleteTeamId)) {
+        throw new Error("You do not have permission to delete this prompt.");
+      }
       return await documents.deleteDocument({ collection: 'prompts', match: { _id: entityId } })
     default:
       return {};

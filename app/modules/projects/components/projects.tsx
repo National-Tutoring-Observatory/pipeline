@@ -15,9 +15,6 @@ interface ProjectsProps {
   totalPages: number,
   filtersValues: {},
   sortValue: string,
-  onCreateProjectButtonClicked: () => void;
-  onEditProjectButtonClicked: (project: Project) => void;
-  onDeleteProjectButtonClicked: (project: Project) => void;
   onActionClicked: (action: string) => void;
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
   onSearchValueChanged: (searchValue: string) => void,
@@ -33,9 +30,6 @@ export default function Projects({
   totalPages,
   filtersValues,
   sortValue,
-  onCreateProjectButtonClicked,
-  onEditProjectButtonClicked,
-  onDeleteProjectButtonClicked,
   onActionClicked,
   onItemActionClicked,
   onSearchValueChanged,

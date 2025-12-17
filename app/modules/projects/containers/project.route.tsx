@@ -1,7 +1,6 @@
 
 import filter from 'lodash/filter';
 import has from 'lodash/has';
-import map from 'lodash/map';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
 import { redirect, useFetcher, useMatches, useRevalidator, useSubmit } from "react-router";
@@ -9,7 +8,6 @@ import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { FileType } from '~/modules/files/files.types';
@@ -17,22 +15,32 @@ import type { Session } from "~/modules/sessions/sessions.types";
 import splitMultipleSessionsIntoFiles from '~/modules/uploads/services/splitMultipleSessionsIntoFiles';
 import uploadFiles from "~/modules/uploads/services/uploadFiles";
 import type { User } from "~/modules/users/users.types";
+import ProjectAuthorization from "../authorization";
 import EditProjectDialog from "../components/editProjectDialog";
 import Project from '../components/project';
 import getAttributeMappingFromFile from '../helpers/getAttributeMappingFromFile';
-import { validateProjectOwnership } from "../helpers/projectOwnership";
 import type { Project as ProjectType } from "../projects.types";
 import createSessionsFromFiles from '../services/createSessionsFromFiles.server';
 import type { Route } from "./+types/project.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const documents = getDocumentsAdapter();
-  const authenticationTeams = await getSessionUserTeams({ request });
-  const teamIds = map(authenticationTeams, 'team');
-  const project = await documents.getDocument<ProjectType>({ collection: 'projects', match: { _id: params.id, team: { $in: teamIds } } });
+  const user = await getSessionUser({ request }) as User;
+
+  if (!user) {
+    return redirect('/');
+  }
+
+  const project = await documents.getDocument<ProjectType>({ collection: 'projects', match: { _id: params.id } });
   if (!project.data) {
     return redirect('/');
   }
+
+  const teamId = (project.data.team as any)._id || project.data.team;
+  if (!ProjectAuthorization.canView(user, teamId)) {
+    return redirect('/');
+  }
+
   const filesCount = await documents.countDocuments({ collection: 'files', match: { project: params.id } });
   const sessions = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: params.id }, sort: {} });
   const sessionsCount = sessions.count;
@@ -60,12 +68,15 @@ export async function action({
       return redirect('/');
     }
 
-    await validateProjectOwnership({ user, projectId: entityId });
-
     const documents = getDocumentsAdapter();
 
     const project = await documents.getDocument<ProjectType>({ collection: 'projects', match: { _id: entityId } });
     if (!project.data) throw new Error('Project not found');
+
+    const teamId = (project.data.team as any)._id || project.data.team;
+    if (!ProjectAuthorization.canUpdate(user, teamId)) {
+      throw new Error("You do not have permission to upload files to this project.");
+    }
 
     let files = formData.getAll('files') as File[];
 
