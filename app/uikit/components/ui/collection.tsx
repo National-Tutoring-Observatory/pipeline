@@ -3,10 +3,9 @@ import map from 'lodash/map';
 import React, { type ReactElement } from 'react';
 import { Link } from 'react-router';
 import { ActionBar, type Action } from './actionBar';
-import { Button } from './button';
 import type { CollectionItemAction, CollectionItemAttributes } from './collectionContentItem';
 import CollectionItemContent from './collectionContentItem';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from './empty';
+import { CollectionEmpty } from './collectionEmpty';
 import type { FiltersProps } from './filters';
 import { Item, ItemGroup, ItemSeparator } from './item';
 import type { PaginationProps } from './pagination';
@@ -81,29 +80,12 @@ const Collection = ({
         onSortValueChanged={onSortValueChanged}
       />
       {(items.length === 0) && (
-        <Empty>
-          <EmptyHeader>
-            {(emptyAttributes.icon) && (
-              <EmptyMedia variant="icon">
-                {emptyAttributes.icon}
-              </EmptyMedia>
-            )}
-            <EmptyTitle>{emptyAttributes.title}</EmptyTitle>
-            <EmptyDescription>
-              {emptyAttributes.description}
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <div className="flex gap-2">
-              {map(emptyAttributes.actions, (action, index) => {
-                const variant = index > 0 ? 'outline' : undefined;
-                return (
-                  <Button key={action.action} variant={variant} onClick={() => onActionClicked(action.action)}>{action.text}</Button>
-                )
-              })}
-            </div>
-          </EmptyContent>
-        </Empty>
+        <CollectionEmpty
+          searchValue={searchValue}
+          filtersValues={filtersValues}
+          emptyAttributes={emptyAttributes}
+          onActionClicked={onActionClicked}
+        />
       )}
       <ItemGroup className={clsx({
         "border rounded-sm": itemsLayout === 'list',
