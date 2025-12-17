@@ -40,6 +40,7 @@ export async function loader({ request, params, context }: Route.LoaderArgs & { 
     match: { team: { $in: teamIds } },
     queryParams,
     searchableFields: ['name'],
+    filterableFields: ['team'],
     sortableFields: ['name', 'createdAt']
   });
 

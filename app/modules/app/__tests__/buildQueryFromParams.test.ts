@@ -84,6 +84,41 @@ describe('buildQueryFromParams', () => {
     })
   })
 
+  it('applies multiple in combination with match', () => {
+    const query = buildQueryFromParams({
+      match: { team: { $in: ['team1', 'team2'] } },
+      queryParams: { filters: { team: 'team1' } },
+      searchableFields: [],
+      sortableFields: [],
+      filterableFields: ['team'],
+    })
+
+    expect(query.match).toEqual({
+      $and: [
+        { team: { $in: ['team1', 'team2'] } },
+        { team: 'team1' }
+      ]
+    })
+  })
+
+  it('applies search and filters in combination with match', () => {
+    const query = buildQueryFromParams({
+      match: { team: { $in: ['team1', 'team2'] } },
+      queryParams: { searchValue: 'foo', filters: { team: 'team1' } },
+      searchableFields: ['name'],
+      sortableFields: ['name'],
+      filterableFields: ['team'],
+    })
+
+    expect(query.match).toEqual({
+      $and: [
+        { team: { $in: ['team1', 'team2'] } },
+        { team: 'team1' }
+      ],
+      name: { $regex: /foo/i }
+    })
+  })
+
   it('ignores filters that are not listed in filterableFields', () => {
     const query = buildQueryFromParams({
       match: {},
@@ -92,7 +127,6 @@ describe('buildQueryFromParams', () => {
       sortableFields: ['name'],
       filterableFields: ['team'],
     })
-    // no matching filterable field -> match should remain empty
     expect(query.match).toEqual({})
   })
 

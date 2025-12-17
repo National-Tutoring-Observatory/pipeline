@@ -48,7 +48,18 @@ export function buildQueryFromParams({
 
     for (const field of filterableFields) {
       if (has(filters, field)) {
-        query.match[field] = filters[field];
+        const filterValue = filters[field];
+
+        if (query.match[field] !== undefined) {
+          // Use $and to combine both conditions, remove field from root to avoid duplication
+          query.match.$and = [
+            { [field]: query.match[field] },
+            { [field]: filterValue }
+          ];
+          delete query.match[field];
+        } else {
+          query.match[field] = filterValue;
+        }
       }
     }
   }
