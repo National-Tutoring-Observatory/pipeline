@@ -1,7 +1,10 @@
-import { useContext, useEffect } from "react";
+import find from 'lodash/find';
+import { useEffect } from "react";
 import { redirect, useLoaderData, useOutletContext, useParams, useSubmit } from "react-router";
+import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
+import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
+import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
@@ -25,9 +28,25 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!TeamAuthorization.Users.canView(user, params.id)) {
     return redirect('/');
   }
+
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: '',
+    currentPage: 1,
+    sort: 'username',
+    filters: {}
+  });
+
+  const query = buildQueryFromParams({
+    match: { "teams.team": params.id },
+    queryParams,
+    searchableFields: ['username'],
+    sortableFields: ['username', 'createdAt'],
+    filterableFields: []
+  });
+
   const documents = getDocumentsAdapter();
-  const teamsResult = await documents.getDocuments<User>({ collection: 'users', match: { "teams.team": params.id } });
-  return { users: teamsResult.data };
+  const result = await documents.getDocuments<User>({ collection: 'users', ...query });
+  return { users: result };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -85,7 +104,18 @@ export default function TeamUsersRoute() {
   const params = useParams();
   const ctx = useOutletContext<any>();
   const submit = useSubmit();
-  const authentication = useContext(AuthenticationContext) as User | null;
+
+  const {
+    searchValue, setSearchValue,
+    currentPage, setCurrentPage,
+    sortValue, setSortValue,
+    filtersValues, setFiltersValues
+  } = useSearchQueryParams({
+    searchValue: '',
+    currentPage: 1,
+    sortValue: 'username',
+    filters: {}
+  });
 
   const onAddUsersClicked = (userIds: string[]) => {
     submit(JSON.stringify({ intent: 'ADD_USERS_TO_TEAM', payload: { userIds } }), { method: 'PUT', encType: 'application/json' });
@@ -128,6 +158,46 @@ export default function TeamUsersRoute() {
     );
   }
 
+  const onActionClicked = (action: string) => {
+    switch (action) {
+      case 'REQUEST_ACCESS':
+        onAddSuperAdminToTeamButtonClicked();
+        break;
+      case 'ADD_USER':
+        onAddUserToTeamButtonClicked();
+        break;
+      case 'INVITE_USER':
+        onInviteUserToTeamButtonClicked();
+        break;
+    }
+  }
+
+  const onItemActionClicked = ({ id, action }: { id: string, action: string }) => {
+    const user = find(data.users.data, { _id: id });
+    if (!user) return null;
+    switch (action) {
+      case 'REMOVE':
+        onRemoveUserFromTeamClicked(user._id);
+        break;
+    }
+  }
+
+  const onSearchValueChanged = (searchValue: string) => {
+    setSearchValue(searchValue);
+  }
+
+  const onPaginationChanged = (currentPage: number) => {
+    setCurrentPage(currentPage);
+  }
+
+  const onFiltersValueChanged = (filterValue: any) => {
+    setFiltersValues({ ...filtersValues, ...filterValue });
+  }
+
+  const onSortValueChanged = (sortValue: string) => {
+    setSortValue(sortValue);
+  }
+
   useEffect(() => {
     updateBreadcrumb([
       { text: 'Teams', link: '/teams' },
@@ -136,12 +206,23 @@ export default function TeamUsersRoute() {
     ]);
   }, [params.id]);
 
-  const users = data.users ?? [];
+  const users = data.users.data ?? [];
 
   return (
     <TeamUsers
       users={users}
       team={ctx.team}
+      searchValue={searchValue}
+      currentPage={currentPage}
+      totalPages={data.users.totalPages}
+      filtersValues={filtersValues}
+      sortValue={sortValue}
+      onActionClicked={onActionClicked}
+      onItemActionClicked={onItemActionClicked}
+      onSearchValueChanged={onSearchValueChanged}
+      onPaginationChanged={onPaginationChanged}
+      onFiltersValueChanged={onFiltersValueChanged}
+      onSortValueChanged={onSortValueChanged}
       onAddUserToTeamButtonClicked={onAddUserToTeamButtonClicked}
       onAddSuperAdminToTeamButtonClicked={onAddSuperAdminToTeamButtonClicked}
       onInviteUserToTeamButtonClicked={onInviteUserToTeamButtonClicked}
