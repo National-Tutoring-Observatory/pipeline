@@ -22,8 +22,6 @@ export default function ProjectSessions({
   onPaginationChanged,
   onFiltersValueChanged,
   onSortValueChanged,
-  onSessionClicked,
-  onReRunClicked
 }: {
   project: Project,
   sessions: Session[],
@@ -38,8 +36,6 @@ export default function ProjectSessions({
   onPaginationChanged: (currentPage: number) => void,
   onFiltersValueChanged: (filterValue: any) => void,
   onSortValueChanged: (sortValue: any) => void
-  onSessionClicked: (session: Session) => void,
-  onReRunClicked: () => void
 }) {
   return (
     <div className="mt-8">

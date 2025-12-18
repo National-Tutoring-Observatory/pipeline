@@ -155,8 +155,6 @@ export default function ProjectSessionsRoute() {
       onPaginationChanged={onPaginationChanged}
       onFiltersValueChanged={onFiltersValueChanged}
       onSortValueChanged={onSortValueChanged}
-      onSessionClicked={onSessionClicked}
-      onReRunClicked={onReRunClicked}
     />
   )
 }
