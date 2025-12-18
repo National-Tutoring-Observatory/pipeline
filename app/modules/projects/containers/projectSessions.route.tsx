@@ -1,4 +1,8 @@
+import find from 'lodash/find';
 import { redirect, useLoaderData, useRouteLoaderData, useSubmit } from "react-router";
+import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
+import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
+import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
@@ -32,9 +36,23 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const result = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: params.id }, sort: {} });
-  const sessions = { data: result.data };
-  return { sessions };
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: '',
+    currentPage: 1,
+    sort: 'name',
+    filters: {}
+  });
+
+  const query = buildQueryFromParams({
+    match: { project: params.id },
+    queryParams,
+    searchableFields: ['name'],
+    sortableFields: ['name', 'createdAt'],
+    filterableFields: []
+  });
+
+  const result = await documents.getDocuments<Session>({ collection: 'sessions', ...query });
+  return { sessions: result };
 }
 
 export async function action({
@@ -65,6 +83,18 @@ export default function ProjectSessionsRoute() {
   const { project } = useRouteLoaderData("project");
   const submit = useSubmit();
 
+  const {
+    searchValue, setSearchValue,
+    currentPage, setCurrentPage,
+    sortValue, setSortValue,
+    filtersValues, setFiltersValues
+  } = useSearchQueryParams({
+    searchValue: '',
+    currentPage: 1,
+    sortValue: 'name',
+    filters: {}
+  });
+
   const onSessionClicked = (session: Session) => {
     addDialog(
       <ViewSessionContainer
@@ -80,10 +110,51 @@ export default function ProjectSessionsRoute() {
     }), { method: 'POST', encType: 'application/json' });
   }
 
+  const onActionClicked = (action: string) => {
+    if (action === 'RE_RUN') {
+      onReRunClicked();
+    }
+  }
+
+  const onItemClicked = (id: string) => {
+    const session = find(sessions.data, { _id: id });
+    if (!session) return null;
+    if (session.hasConverted) {
+      onSessionClicked(session);
+    }
+  }
+
+  const onSearchValueChanged = (searchValue: string) => {
+    setSearchValue(searchValue);
+  }
+
+  const onPaginationChanged = (currentPage: number) => {
+    setCurrentPage(currentPage);
+  }
+
+  const onFiltersValueChanged = (filterValue: any) => {
+    setFiltersValues({ ...filtersValues, ...filterValue });
+  }
+
+  const onSortValueChanged = (sortValue: string) => {
+    setSortValue(sortValue);
+  }
+
   return (
     <ProjectSessions
       project={project.data}
       sessions={sessions.data}
+      searchValue={searchValue}
+      currentPage={currentPage}
+      totalPages={sessions.totalPages}
+      filtersValues={filtersValues}
+      sortValue={sortValue}
+      onActionClicked={onActionClicked}
+      onItemClicked={onItemClicked}
+      onSearchValueChanged={onSearchValueChanged}
+      onPaginationChanged={onPaginationChanged}
+      onFiltersValueChanged={onFiltersValueChanged}
+      onSortValueChanged={onSortValueChanged}
       onSessionClicked={onSessionClicked}
       onReRunClicked={onReRunClicked}
     />
