@@ -11,6 +11,7 @@ export const MODELS_BY_COLLECTION: { [key: string]: string } = {
   featureFlags: 'FeatureFlag',
   jobs: 'Job',
   audits: 'Audit',
+  migrations: 'Migration',
 }
 
 export default (collection: string) => {

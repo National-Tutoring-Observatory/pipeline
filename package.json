@@ -15,6 +15,7 @@
     "local:redis": "yarn workspace localMode redis",
     "local:start": "./localMode/bin/start-all.js",
     "seeds": "tsx -r dotenv/config ./seeds/index.ts",
+    "migration:generate": "./bin/generateMigration.js",
     "typecheck": "react-router typegen && tsc",
     "test": "vitest run",
     "test:watch": "vitest watch",

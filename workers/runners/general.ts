@@ -5,6 +5,7 @@ import deleteProject from "../general/deleteProject";
 import deleteProjectData from "../general/deleteProjectData";
 import removeExpiredTeamAssignment from "../general/removeExpiredTeamAssignment";
 import removeFeatureFlagFromUsers from "../general/removeFeatureFlagFromUsers";
+import runMigration from "../general/runMigration";
 
 export default async (job: Job) => {
   try {
@@ -20,6 +21,9 @@ export default async (job: Job) => {
       }
       case 'REMOVE_EXPIRED_TEAM_ASSIGNMENT': {
         return removeExpiredTeamAssignment(job);
+      }
+      case 'RUN_MIGRATION': {
+        return runMigration(job);
       }
       default: {
         return { status: 'ERRORED', message: `Missing handler for ${job.name}` }
