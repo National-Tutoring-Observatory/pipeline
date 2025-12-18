@@ -1,81 +1,67 @@
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import dayjs from "dayjs";
-import map from 'lodash/map';
+import { Collection } from "@/components/ui/collection";
 import type { Session } from "~/modules/sessions/sessions.types";
+import getProjectSessionsActions from "../helpers/getProjectSessionsActions";
+import getProjectSessionsEmptyAttributes from "../helpers/getProjectSessionsEmptyAttributes";
+import getProjectSessionsItemActions from "../helpers/getProjectSessionsItemActions";
+import getProjectSessionsItemAttributes from "../helpers/getProjectSessionsItemAttributes";
+import projectSessionsFilters from "../helpers/projectSessionsFilters";
+import projectSessionsSortOptions from "../helpers/projectSessionsSortOptions";
 import type { Project } from "../projects.types";
 
 export default function ProjectSessions({
   project,
   sessions,
-  onSessionClicked,
-  onReRunClicked
-}: { project: Project, sessions: Session[], onSessionClicked: (session: Session) => void, onReRunClicked: () => void }) {
+  searchValue,
+  currentPage,
+  totalPages,
+  filtersValues,
+  sortValue,
+  onActionClicked,
+  onItemClicked,
+  onSearchValueChanged,
+  onPaginationChanged,
+  onFiltersValueChanged,
+  onSortValueChanged,
+}: {
+  project: Project,
+  sessions: Session[],
+  searchValue: string,
+  currentPage: number,
+  totalPages: number,
+  filtersValues: {},
+  sortValue: string,
+  onActionClicked: (action: string) => void;
+  onItemClicked: (id: string) => void,
+  onSearchValueChanged: (searchValue: string) => void,
+  onPaginationChanged: (currentPage: number) => void,
+  onFiltersValueChanged: (filterValue: any) => void,
+  onSortValueChanged: (sortValue: any) => void
+}) {
   return (
     <div className="mt-8">
-      <div className="flex justify-between items-end">
-        <div className="text-xs text-muted-foreground">Sessions</div>
-        {(project.hasErrored && !project.isConvertingFiles) && (
-          <Button onClick={onReRunClicked}>Re-run errored</Button>
-        )}
-      </div>
-      <div className="border rounded-md mt-2">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[300px]">Name</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>File type</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {map(sessions, (session) => {
-              return (
-                <TableRow key={session._id}>
-                  <TableCell className="font-medium">
-                    {(session.hasConverted) && (
-                      <span className=" cursor-pointer" onClick={() => onSessionClicked(session)}>
-                        {session.name}
-                      </span>
-
-                    ) || (
-                        session.name
-                      )}
-                  </TableCell>
-                  <TableCell>{dayjs(session.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
-                  <TableCell>{session.fileType}</TableCell>
-                  <TableCell>{session.hasConverted === true ? "Converted" : session.hasErrored ? "Errored" : "Not converted"}</TableCell>
-                  <TableCell className="text-right flex justify-end">
-                    {/* <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                          size="icon"
-                        >
-                          <EllipsisVertical />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-32">
-                        <DropdownMenuItem onClick={() => onEditProjectButtonClicked(project)}>
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem variant="destructive" onClick={() => onDeleteProjectButtonClicked(project)}>
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu> */}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+      <Collection
+        items={sessions}
+        itemsLayout="list"
+        actions={getProjectSessionsActions(project)}
+        filters={projectSessionsFilters}
+        sortOptions={projectSessionsSortOptions}
+        hasSearch
+        hasPagination
+        filtersValues={filtersValues}
+        sortValue={sortValue}
+        searchValue={searchValue}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        emptyAttributes={getProjectSessionsEmptyAttributes()}
+        getItemAttributes={getProjectSessionsItemAttributes}
+        getItemActions={getProjectSessionsItemActions}
+        onItemClicked={onItemClicked}
+        onActionClicked={onActionClicked}
+        onSearchValueChanged={onSearchValueChanged}
+        onPaginationChanged={onPaginationChanged}
+        onFiltersValueChanged={onFiltersValueChanged}
+        onSortValueChanged={onSortValueChanged}
+      />
     </div>
   )
 }

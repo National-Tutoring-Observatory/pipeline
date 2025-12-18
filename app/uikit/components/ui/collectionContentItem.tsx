@@ -36,7 +36,7 @@ type CollectionItemProps = {
   meta?: CollectionItemMeta[]
   actions: CollectionItemAction[]
   isDisabled?: boolean,
-  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void
+  onItemActionClicked?: ({ id, action }: { id: string, action: string }) => void
 }
 
 const CollectionItemContent = ({
@@ -85,7 +85,9 @@ const CollectionItemContent = ({
                   <React.Fragment key={action.action}>
                     <DropdownMenuItem variant={action.variant} onClick={(event) => {
                       event.stopPropagation();
-                      onItemActionClicked({ id, action: action.action })
+                      if (onItemActionClicked) {
+                        onItemActionClicked({ id, action: action.action })
+                      }
                     }}>
                       {action.icon ? action.icon : null}
                       {action.text}
@@ -101,7 +103,9 @@ const CollectionItemContent = ({
         ) || (
             <Button variant="ghost" onClick={(event) => {
               event.stopPropagation();
-              onItemActionClicked({ id, action: actions[0].action })
+              if (onItemActionClicked) {
+                onItemActionClicked({ id, action: actions[0].action })
+              }
             }}>
               {actions[0].icon ? actions[0].icon : null}
               {actions[0].text}

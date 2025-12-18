@@ -29,15 +29,16 @@ export type CollectionProps = {
   renderItem?: (item: any) => ReactElement,
   getItemAttributes: (item: any) => CollectionItemAttributes
   getItemActions: (item: any) => CollectionItemAction[]
+  onItemClicked?: (id: string) => void,
   onActionClicked: (action: string) => void,
-  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
+  onItemActionClicked?: ({ id, action }: { id: string, action: string }) => void,
 }
 
 const Collection = ({
   items,
   itemsLayout = 'list',
-  actions,
-  filters,
+  actions = [],
+  filters = [],
   filtersValues,
   sortOptions,
   sortValue,
@@ -51,6 +52,7 @@ const Collection = ({
   renderItem,
   getItemAttributes,
   getItemActions,
+  onItemClicked,
   onActionClicked,
   onItemActionClicked,
   onSearchValueChanged,
@@ -122,7 +124,11 @@ const Collection = ({
                       )}
                   </Link>
                 ) : (
-                  <div>
+                  <div className={clsx({ 'hover:bg-accent/50 cursor-pointer': onItemClicked })} onClick={() => {
+                    if (onItemClicked) {
+                      onItemClicked(item._id)
+                    }
+                  }}>
                     {(renderItem) && (
                       renderItem(item)
                     ) || (
