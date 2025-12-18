@@ -6,10 +6,5 @@ export default (): CollectionItemAction[] => {
     action: 'EDIT',
     icon: <Edit />,
     text: 'Edit'
-  }, {
-    action: 'DELETE',
-    icon: <Trash2 />,
-    text: 'Delete',
-    variant: 'destructive'
   }]
 }
