@@ -1,7 +1,9 @@
 import { redirect } from "react-router";
+import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import TeamAuthorization from "~/modules/teams/authorization";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import TeamAuthorization from "~/modules/teams/authorization";
 import type { User } from '~/modules/users/users.types';
 import type { Route } from "./+types/availableTeamUsers.route";
 
@@ -22,14 +24,30 @@ export async function loader({ request }: Route.LoaderArgs) {
     throw new Error('Access denied');
   }
 
-  const documents = getDocumentsAdapter();
-  const users = await documents.getDocuments<User>({
-    collection: 'users', match: {
-      "teams.team": { "$ne": teamId },
-      "isRegistered": true
-    }
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: '',
+    currentPage: 1,
+    sort: 'username',
+    filters: {}
   });
 
-  return users;
+  const query = buildQueryFromParams({
+    match: {
+      "teams.team": { "$ne": teamId },
+      "isRegistered": true
+    },
+    queryParams,
+    searchableFields: ['username', 'email'],
+    sortableFields: ['username', 'createdAt'],
+    filterableFields: []
+  });
+
+  const documents = getDocumentsAdapter();
+  const result = await documents.getDocuments<User>({
+    collection: 'users',
+    ...query
+  });
+
+  return result;
 
 }
