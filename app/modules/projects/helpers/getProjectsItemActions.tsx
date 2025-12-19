@@ -7,10 +7,9 @@ import ProjectAuthorization from "../authorization";
 import type { Project } from "../projects.types";
 
 export default (item: Project): CollectionItemAction[] => {
-  const teamId = (item.team as any)._id || item.team;
   const user = useContext(AuthenticationContext) as User;
-  const canUpdate = ProjectAuthorization.canUpdate(user, teamId);
-  const canDelete = ProjectAuthorization.canDelete(user, teamId);
+  const canUpdate = ProjectAuthorization.canUpdate(user, item);
+  const canDelete = ProjectAuthorization.canDelete(user, item);
 
   const actions: CollectionItemAction[] = [];
 
