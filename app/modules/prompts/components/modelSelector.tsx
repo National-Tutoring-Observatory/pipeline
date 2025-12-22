@@ -1,23 +1,40 @@
-import { Button } from "@/components/ui/button"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import clsx from "clsx"
+import { Button } from "@/components/ui/button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import clsx from "clsx";
 import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
-import type { Model } from "../prompts.types";
+
+type Provider = {
+  name: string;
+  models: Array<{ label: string; code: string }>;
+};
 
 export default function ModelSelector({
-  models,
+  providers,
   selectedModel,
   isModelsOpen,
   onToggleModelPopover,
   onSelectedModelChanged
 }: {
-  models: Model[],
+  providers: Provider[],
   selectedModel: string,
   isModelsOpen: boolean,
   onToggleModelPopover: (isPromptsOpen: boolean) => void,
   onSelectedModelChanged: (selectedPrompt: string) => void,
 }) {
+  // Find selected model info
+  let selectedModelLabel: string | undefined;
+  let selectedModelProvider: string | undefined;
+
+  for (const provider of providers) {
+    const model = provider.models.find(m => m.code === selectedModel);
+    if (model) {
+      selectedModelLabel = model.label;
+      selectedModelProvider = provider.name;
+      break;
+    }
+  }
+
   return (
     <div>
       <Popover open={isModelsOpen} onOpenChange={onToggleModelPopover}>
@@ -28,8 +45,8 @@ export default function ModelSelector({
             aria-expanded={isModelsOpen}
             className="w-[200px] justify-between"
           >
-            {selectedModel
-              ? models.find((model: Model) => model.provider === selectedModel)?.name
+            {selectedModel && selectedModelLabel
+              ? `${selectedModelProvider} - ${selectedModelLabel}`
               : "Select model..."}
             <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -44,26 +61,28 @@ export default function ModelSelector({
                 </div>
                 {/* <Button >Create</Button> */}
               </CommandEmpty>
-              <CommandGroup>
-                {models.map((model: Model) => (
-                  <CommandItem
-                    key={model.provider}
-                    value={model.provider}
-                    onSelect={(currentValue) => {
-                      onSelectedModelChanged(model.provider)
-                      onToggleModelPopover(false)
-                    }}
-                  >
-                    <CheckIcon
-                      className={clsx(
-                        "mr-2 h-4 w-4",
-                        selectedModel === model.provider ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    {model.name}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
+              {providers.map((provider) => (
+                <CommandGroup key={provider.name} heading={provider.name}>
+                  {provider.models.map((model) => (
+                    <CommandItem
+                      key={model.code}
+                      value={model.code}
+                      onSelect={() => {
+                        onSelectedModelChanged(model.code)
+                        onToggleModelPopover(false)
+                      }}
+                    >
+                      <CheckIcon
+                        className={clsx(
+                          "mr-2 h-4 w-4",
+                          selectedModel === model.code ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {model.label}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              ))}
             </CommandList>
           </Command>
         </PopoverContent>
