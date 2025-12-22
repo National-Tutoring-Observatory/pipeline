@@ -22,7 +22,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!promptDoc.data) {
     return redirect('/prompts');
   }
-  if (!PromptAuthorization.canView(user, (promptDoc.data.team as any)._id || promptDoc.data.team)) {
+  if (!PromptAuthorization.canView(user, promptDoc.data)) {
     throw new Error('You do not have permission to view this prompt.');
   }
   const promptVersions = await documents.getDocuments<PromptVersion>({
