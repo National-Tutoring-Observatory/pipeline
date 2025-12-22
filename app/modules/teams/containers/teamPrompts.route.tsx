@@ -6,6 +6,7 @@ import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromR
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { userIsTeamMember } from "~/modules/authorization/helpers/teamMembership";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import PromptAuthorization from "~/modules/prompts/authorization";
@@ -19,7 +20,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!user) {
     return redirect('/');
   }
-  if (!PromptAuthorization.canView(user, params.id)) {
+  if (!userIsTeamMember(user, params.id)) {
     return redirect('/');
   }
 
@@ -31,7 +32,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   });
 
   const query = buildQueryFromParams({
-    match: { team: params.id },
+    match: { team: params.id, deletedAt: { $exists: false } },
     queryParams,
     searchableFields: ['name'],
     sortableFields: ['name', 'createdAt'],
@@ -59,7 +60,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   if (intent === 'CREATE_PROMPT') {
     if (typeof name !== 'string') throw new Error('Prompt name is required and must be a string.');
 
-    const prompt = await documents.createDocument<Prompt>({ collection: 'prompts', update: { name, annotationType, team: params.id, productionVersion: 1 } });
+    const prompt = await documents.createDocument<Prompt>({ collection: 'prompts', update: { name, annotationType, team: params.id, productionVersion: 1, createdBy: user._id } });
     await documents.createDocument({
       collection: 'promptVersions',
       update: {

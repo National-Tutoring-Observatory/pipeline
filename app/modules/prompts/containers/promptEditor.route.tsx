@@ -22,8 +22,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const teamId = (prompt.data.team as any)._id || prompt.data.team;
-  if (!PromptAuthorization.canView(user, teamId)) {
+  if (!PromptAuthorization.canView(user, prompt.data)) {
     return redirect('/');
   }
 

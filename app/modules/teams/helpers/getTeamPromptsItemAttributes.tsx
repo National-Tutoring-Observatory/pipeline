@@ -1,10 +1,11 @@
 import dayjs from 'dayjs';
-import { getAnnotationLabel } from '~/modules/annotations/helpers/annotationTypes';
-import usePromptAuthorization from "~/modules/prompts/hooks/usePromptAuthorization";
+import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
+import PromptAuthorization from '~/modules/prompts/authorization';
 import type { Prompt } from '~/modules/prompts/prompts.types';
+import type { User } from '~/modules/users/users.types';
 
-export default (item: Prompt, teamId: string) => {
-  const { canCreate } = usePromptAuthorization(teamId);
+export default (item: Prompt, teamId: string, user: User | null) => {
+  const canCreate = PromptAuthorization.canCreate(user, teamId);
 
   return {
     id: item._id,

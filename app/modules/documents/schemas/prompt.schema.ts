@@ -8,5 +8,6 @@ export default new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   createdBy: { type: mongoose.Types.ObjectId, ref: 'User' },
   updatedAt: { type: Date },
-  updatedBy: { type: mongoose.Types.ObjectId, ref: 'User' }
+  updatedBy: { type: mongoose.Types.ObjectId, ref: 'User' },
+  deletedAt: { type: Date }
 });
