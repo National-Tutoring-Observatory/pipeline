@@ -1,5 +1,6 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { Run, StartRunProps } from "~/modules/runs/runs.types";
+import buildRunSnapshot from "~/modules/runs/services/buildRunSnapshot.server";
 import type { Session } from "~/modules/sessions/sessions.types";
 
 
@@ -35,6 +36,12 @@ export default async function startRun({
     });
   }
 
+  // Build snapshot of prompt and model configuration
+  const snapshot = await buildRunSnapshot({
+    promptId: prompt,
+    promptVersionNumber: promptVersion
+  });
+
   return await documents.updateDocument<Run>({
     collection: 'runs',
     match: { _id: runId },
@@ -44,7 +51,8 @@ export default async function startRun({
       prompt,
       promptVersion,
       model,
-      sessions: sessionsAsObjects
+      sessions: sessionsAsObjects,
+      snapshot
     }
   });
 }
