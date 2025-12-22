@@ -5,11 +5,11 @@
       "name": "OpenAI",
       "models": [
         {
-          "label": "GPT-4 Mini",
+          "name": "GPT-4 Mini",
           "code": "openai.gpt-4.1-mini"
         },
         {
-          "label": "GPT-4 Turbo",
+          "name": "GPT-4 Turbo",
           "code": "openai.gpt-4.1"
         }
       ]
@@ -18,11 +18,11 @@
       "name": "Google",
       "models": [
         {
-          "label": "Gemini 2.0 Flash Lite",
+          "name": "Gemini 2.0 Flash Lite",
           "code": "google.gemini-2.0-flash-lite"
         },
         {
-          "label": "Gemini 2.5 Flash",
+          "name": "Gemini 2.5 Flash",
           "code": "google.gemini-2.5-flash"
         }
       ]
@@ -31,11 +31,11 @@
       "name": "Anthropic",
       "models": [
         {
-          "label": "Claude 3.7 Sonnet",
+          "name": "Claude 3.7 Sonnet",
           "code": "anthropic.claude-3.7-sonnet"
         },
         {
-          "label": "Claude 4 Sonnet",
+          "name": "Claude 4 Sonnet",
           "code": "anthropic.claude-4-sonnet"
         }
       ]

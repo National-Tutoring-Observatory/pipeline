@@ -4,10 +4,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import clsx from "clsx";
 import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
 
-type Provider = {
-  name: string;
-  models: Array<{ label: string; code: string }>;
-};
+import findModelByCode from '~/modules/llm/helpers/findModelByCode';
+import type { Provider } from '~/modules/llm/model.types';
+
 
 export default function ModelSelector({
   providers,
@@ -22,18 +21,8 @@ export default function ModelSelector({
   onToggleModelPopover: (isPromptsOpen: boolean) => void,
   onSelectedModelChanged: (selectedPrompt: string) => void,
 }) {
-  // Find selected model info
-  let selectedModelLabel: string | undefined;
-  let selectedModelProvider: string | undefined;
 
-  for (const provider of providers) {
-    const model = provider.models.find(m => m.code === selectedModel);
-    if (model) {
-      selectedModelLabel = model.label;
-      selectedModelProvider = provider.name;
-      break;
-    }
-  }
+  const selectedModelInfo = findModelByCode(selectedModel);
 
   return (
     <div>
@@ -45,8 +34,8 @@ export default function ModelSelector({
             aria-expanded={isModelsOpen}
             className="w-[200px] justify-between"
           >
-            {selectedModel && selectedModelLabel
-              ? `${selectedModelProvider} - ${selectedModelLabel}`
+            {selectedModelInfo
+              ? `${selectedModelInfo.name}`
               : "Select model..."}
             <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -78,7 +67,7 @@ export default function ModelSelector({
                           selectedModel === model.code ? "opacity-100" : "opacity-0"
                         )}
                       />
-                      {model.label}
+                      {model.name}
                     </CommandItem>
                   ))}
                 </CommandGroup>

@@ -72,7 +72,7 @@ export async function action({
         annotationType,
         prompt,
         promptVersion,
-        model
+        modelCode: model
       }, { request, context });
 
       if (!run.data) throw new Error('Run not created');

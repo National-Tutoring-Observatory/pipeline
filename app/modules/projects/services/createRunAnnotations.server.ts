@@ -1,6 +1,7 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
 import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
+import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { Project } from "../projects.types";
@@ -59,7 +60,7 @@ export default async function createRunAnnotations({ runId }: { runId: string },
       inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
       outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
       prompt: { prompt: userPrompt, annotationSchema },
-      model: run.data.model,
+      model: getRunModelCode(run.data),
       team: project.data.team,
       currentSessionIndex
     });
