@@ -1,5 +1,6 @@
 import fse from 'fs-extra';
 import map from 'lodash/map.js';
+import { getRunModelInfo } from '~/modules/runs/helpers/runModel';
 import type { Run } from '~/modules/runs/runs.types';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
 
@@ -41,7 +42,7 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
       _id: run._id,
       name: run.name,
       annotationType: run.annotationType,
-      model: run.model,
+      model: getRunModelInfo(run),
       sessionsCount: run.sessions.length
     };
 
