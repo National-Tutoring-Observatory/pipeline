@@ -24,7 +24,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     throw new Error("Invalid or missing annotationType");
   }
   const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments<Prompt>({ collection: 'prompts', match: { annotationType, team: { $in: teamIds } }, sort: {} });
+  const result = await documents.getDocuments<Prompt>({ collection: 'prompts', match: { annotationType, team: { $in: teamIds }, deletedAt: { $exists: false } }, sort: {} });
   const prompts = { data: result.data };
   return { prompts };
 }

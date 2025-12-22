@@ -1,5 +1,8 @@
 import { Collection } from "@/components/ui/collection";
+import { useContext } from 'react';
+import { AuthenticationContext } from '~/modules/authentication/containers/authentication.container';
 import type { Prompt } from "~/modules/prompts/prompts.types";
+import type { User } from '~/modules/users/users.types';
 import getTeamPromptsActions from "../helpers/getTeamPromptsActions";
 import getTeamPromptsEmptyAttributes from "../helpers/getTeamPromptsEmptyAttributes";
 import getTeamPromptsItemActions from "../helpers/getTeamPromptsItemActions";
@@ -39,12 +42,14 @@ export default function TeamPrompts({
   onFiltersValueChanged,
   onSortValueChanged
 }: TeamPromptsProps) {
+  const user = useContext(AuthenticationContext) as User | null;
+
   return (
     <div>
       <Collection
         items={prompts}
         itemsLayout="list"
-        actions={getTeamPromptsActions(team._id)}
+        actions={getTeamPromptsActions(team._id, user)}
         filters={teamPromptsFilters}
         sortOptions={teamPromptsSortOptions}
         hasSearch
@@ -55,7 +60,7 @@ export default function TeamPrompts({
         currentPage={currentPage}
         totalPages={totalPages}
         emptyAttributes={getTeamPromptsEmptyAttributes()}
-        getItemAttributes={(item) => getTeamPromptsItemAttributes(item, team._id)}
+        getItemAttributes={(item) => getTeamPromptsItemAttributes(item, team._id, user)}
         getItemActions={getTeamPromptsItemActions}
         onActionClicked={onActionClicked}
         onItemActionClicked={onItemActionClicked}

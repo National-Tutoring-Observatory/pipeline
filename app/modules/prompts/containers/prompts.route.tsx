@@ -35,6 +35,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const query = buildQueryFromParams({
     match: {
       team: { $in: teamIds },
+      deletedAt: { $exists: false }
     },
     queryParams,
     searchableFields: ['name'],
@@ -73,7 +74,7 @@ export async function action({
         throw new Error("You do not have permission to create prompts in this team.");
       }
 
-      const prompt = await documents.createDocument<Prompt>({ collection: 'prompts', update: { name, annotationType, team, productionVersion: 1 } });
+      const prompt = await documents.createDocument<Prompt>({ collection: 'prompts', update: { name, annotationType, team, productionVersion: 1, createdBy: user._id } });
       await documents.createDocument<PromptVersion>({
         collection: 'promptVersions',
         update: {
@@ -99,19 +100,38 @@ export async function action({
     case 'UPDATE_PROMPT':
       const promptDoc = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: entityId } });
       if (!promptDoc.data) throw new Error('Prompt not found');
-      const updateTeamId = (promptDoc.data.team as any)._id || promptDoc.data.team;
-      if (!PromptAuthorization.canUpdate(user, updateTeamId)) {
+      if (!PromptAuthorization.canUpdate(user, promptDoc.data)) {
         throw new Error("You do not have permission to update this prompt.");
       }
       return await documents.updateDocument({ collection: 'prompts', match: { _id: entityId }, update: { name } });
-    case 'DELETE_PROMPT':
+    case 'DELETE_PROMPT': {
       const deletePromptDoc = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: entityId } });
       if (!deletePromptDoc.data) throw new Error('Prompt not found');
-      const deleteTeamId = (deletePromptDoc.data.team as any)._id || deletePromptDoc.data.team;
-      if (!PromptAuthorization.canDelete(user, deleteTeamId)) {
+      if (!PromptAuthorization.canDelete(user, deletePromptDoc.data)) {
         throw new Error("You do not have permission to delete this prompt.");
       }
-      return await documents.deleteDocument({ collection: 'prompts', match: { _id: entityId } })
+
+      const runsUsingPromptCount = await documents.countDocuments({
+        collection: 'runs',
+        match: {
+          prompt: entityId,
+          hasSetup: true,        // Only active/configured runs
+          isComplete: false      // Exclude finished runs (data preserved in snapshot)
+        }
+      });
+
+      if (runsUsingPromptCount > 0) {
+        throw new Error(
+          `Cannot delete prompt: ${runsUsingPromptCount} active run(s) reference it. ` +
+          `Wait for runs to complete or create a new prompt for future runs.`
+        );
+      }
+
+      // Soft delete - hide the prompt
+      await documents.updateDocument({ collection: 'prompts', match: { _id: entityId }, update: { deletedAt: new Date() } });
+
+      return { intent: 'DELETE_PROMPT', status: 'deleted' };
+    }
     default:
       return {};
   }
