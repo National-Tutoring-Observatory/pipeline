@@ -41,5 +41,5 @@ export interface StartRunProps {
   annotationType: 'PER_UTTERANCE' | 'PER_SESSION',
   prompt: string
   promptVersion: number,
-  model: string
+  modelCode: string
 }

@@ -22,6 +22,11 @@ export default new mongoose.Schema({
       annotationSchema: [mongoose.Schema.Types.Mixed],
       annotationType: String,
       version: Number
+    },
+    model: {
+      code: String,
+      name: String,
+      provider: String
     }
   },
   hasSetup: { type: Boolean, default: false },

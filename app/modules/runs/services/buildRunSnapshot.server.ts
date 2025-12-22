@@ -8,17 +8,26 @@ import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
  */
 export interface RunSnapshot {
   prompt: {
-    name: string;
-    userPrompt: string;
-    annotationSchema: any[];
-    annotationType: string;
-    version: number;
-  };
+    name: string
+    userPrompt: string
+    annotationSchema: any[]
+    annotationType: string
+    version: number
+  }
+  model: {
+    code: string
+    provider: string
+    name: string
+  }
 }
 
 interface BuildPromptSnapshotProps {
   promptId: string;
   promptVersionNumber: number;
+}
+
+interface BuildModelSnapshotProps {
+  modelCode: string;
 }
 
 /**
@@ -60,20 +69,44 @@ async function buildPromptSnapshot({
 }
 
 /**
+ * Builds a model snapshot from the configuration
+ * Stores the model code and provider for reproducibility and extensibility
+ */
+import findModelByCode from "~/modules/llm/helpers/findModelByCode";
+
+async function buildModelSnapshot({
+  modelCode,
+}: BuildModelSnapshotProps) {
+  // Look up the display name for the model
+  const modelInfo = findModelByCode(modelCode);
+  if (!modelInfo) {
+    throw new Error(`Model not found: ${modelCode}`);
+  }
+  return {
+    code: modelCode,
+    provider: modelInfo.provider,
+    name: modelInfo.name
+  };
+}
+
+/**
  * Main snapshot builder that composes all sections
  * Add new snapshot types here as they're needed
  */
 export async function buildRunSnapshot(
   {
     promptId,
-    promptVersionNumber
+    promptVersionNumber,
+    modelCode
   }: {
     promptId: string;
     promptVersionNumber: number;
+    modelCode: string;
   }
 ): Promise<RunSnapshot> {
   const snapshot: RunSnapshot = {
-    prompt: await buildPromptSnapshot({ promptId, promptVersionNumber })
+    prompt: await buildPromptSnapshot({ promptId, promptVersionNumber }),
+    model: await buildModelSnapshot({ modelCode })
   };
 
   return snapshot;
