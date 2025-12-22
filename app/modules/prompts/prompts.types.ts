@@ -25,7 +25,8 @@ export interface PromptVersion {
 
 export interface Model {
   provider: string;
-  name: string;
+  label: string;
+  code: string;
 }
 
 export interface AnnotationType {
