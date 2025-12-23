@@ -6,7 +6,6 @@ export default new mongoose.Schema({
   annotationType: { type: String, enum: ["PER_UTTERANCE", "PER_SESSION"] },
   prompt: { type: mongoose.Types.ObjectId, ref: "Prompt" },
   promptVersion: { type: Number },
-  model: { type: String },
   sessions: [
     {
       sessionId: { type: mongoose.Types.ObjectId, ref: "Session" },
