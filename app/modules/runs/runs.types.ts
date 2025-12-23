@@ -9,9 +9,8 @@ export interface Run {
   annotationType: string;
   prompt: Prompt | string;
   promptVersion: number;
-  model: string;
   sessions: RunSession[]
-  snapshot?: RunSnapshot;
+  snapshot: RunSnapshot;
   hasSetup: boolean;
   isRunning: boolean;
   isComplete: boolean;

@@ -141,7 +141,7 @@ export async function action({
 
       const existingRun = await getExistingRun(documents, entityId);
 
-      const { project: projectId, annotationType, prompt, promptVersion, model, snapshot, sessions } = existingRun;
+      const { project: projectId, annotationType, prompt, promptVersion, snapshot, sessions } = existingRun;
 
       run = await documents.createDocument<Run>({
         collection: 'runs',
@@ -151,7 +151,6 @@ export async function action({
           annotationType,
           prompt,
           promptVersion,
-          model,
           sessions,
           hasSetup: false,
           isRunning: false,

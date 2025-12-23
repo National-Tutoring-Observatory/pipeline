@@ -10,7 +10,7 @@ const createRun = (overrides: Partial<Run> = {}): Run => ({
 
 describe('Run Model Helpers', () => {
   describe('getRunModelInfo', () => {
-    it('should return model info when snapshot exists', () => {
+    it('should return model info from snapshot', () => {
       const run = createRun({
         snapshot: {
           prompt: { name: 'p', userPrompt: 'up', annotationSchema: [], annotationType: 'PER_UTTERANCE', version: 1 },
@@ -20,53 +20,35 @@ describe('Run Model Helpers', () => {
 
       const info = getRunModelInfo(run);
 
-      expect(info).toBeDefined();
-      expect(info?.code).toBe('google.gemini-2.5-flash');
-      expect(info?.provider).toBe('Google');
-    });
-
-    it('should return undefined when no snapshot', () => {
-      const run = createRun();
-      const info = getRunModelInfo(run);
-      expect(info).toBeUndefined();
+      expect(info.code).toBe('google.gemini-2.5-flash');
+      expect(info.name).toBe('Gemini Flash');
+      expect(info.provider).toBe('Google');
     });
   });
 
   describe('getRunModelCode', () => {
-    it('should prefer snapshot.model.code over model field', () => {
+    it('should return snapshot model code', () => {
       const run = createRun({
-        model: 'old-value',
         snapshot: {
           prompt: { name: 'p', userPrompt: 'up', annotationSchema: [], annotationType: 'PER_UTTERANCE', version: 1 },
-          model: { code: 'new-code', name: 'New', provider: 'Provider' }
+          model: { code: 'google.gemini-2.5-flash', name: 'Gemini', provider: 'Google' }
         }
       });
 
-      expect(getRunModelCode(run)).toBe('new-code');
-    });
-
-    it('should fallback to model field when snapshot unavailable', () => {
-      const run = createRun({ model: 'some-code' });
-      expect(getRunModelCode(run)).toBe('some-code');
+      expect(getRunModelCode(run)).toBe('google.gemini-2.5-flash');
     });
   });
 
   describe('getRunModelDisplayName', () => {
-    it('should use snapshot name when available', () => {
+    it('should return snapshot model display name', () => {
       const run = createRun({
-        model: 'old-value',
         snapshot: {
           prompt: { name: 'p', userPrompt: 'up', annotationSchema: [], annotationType: 'PER_UTTERANCE', version: 1 },
-          model: { code: 'code', name: 'Display Name', provider: 'Provider' }
+          model: { code: 'google.gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'Google' }
         }
       });
 
-      expect(getRunModelDisplayName(run)).toBe('Display Name');
-    });
-
-    it('should fallback to raw model value when no snapshot', () => {
-      const run = createRun({ model: 'raw-value' });
-      expect(getRunModelDisplayName(run)).toBe('raw-value');
+      expect(getRunModelDisplayName(run)).toBe('Gemini 2.5 Flash');
     });
   });
 });
