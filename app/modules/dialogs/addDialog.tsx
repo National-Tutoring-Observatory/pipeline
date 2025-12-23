@@ -10,3 +10,8 @@ export default (component: ReactNode) => {
   // @ts-ignore
   addModalDispatch({ type: 'ADD', modal: { component } })
 }
+
+export const closeDialog = () => {
+  if (!addModalDispatch) return;
+  addModalDispatch({ type: 'REMOVE' });
+}

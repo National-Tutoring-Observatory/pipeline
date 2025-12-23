@@ -52,8 +52,38 @@ export async function action({
   request,
 }: Route.ActionArgs) {
 
-  const { intent, entityId, payload = {} } = await request.json();
+  async function parseActionRequest(req: Request) {
+    const ct = req.headers.get('content-type') || '';
+    const asNullIfMissing = (v: any) => (v === undefined || v === null ? null : String(v));
 
+    if (ct.includes('application/json')) {
+      const body = await req.json().catch(() => ({}));
+      return {
+        intent: asNullIfMissing(body.intent),
+        entityId: asNullIfMissing(body.entityId),
+        payload: body.payload ?? {},
+      };
+    }
+
+    const form = await req.formData();
+    const payloadField = form.get('payload');
+    let payload = {};
+    if (payloadField) {
+      try {
+        payload = typeof payloadField === 'string' ? JSON.parse(payloadField) : JSON.parse(String(payloadField));
+      } catch {
+        payload = {};
+      }
+    }
+
+    return {
+      intent: asNullIfMissing(form.get('intent')),
+      entityId: asNullIfMissing(form.get('entityId')),
+      payload,
+    };
+  }
+
+  const { intent, entityId, payload } = await parseActionRequest(request);
   const { name, team } = payload;
 
   const user = await getSessionUser({ request }) as User;
@@ -68,6 +98,19 @@ export async function action({
     case 'CREATE_PROJECT':
       if (typeof name !== "string") {
         throw new Error("Project name is required and must be a string.");
+      }
+
+      // Prevent duplicate project names within the same team (case-insensitive)
+      const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const nameTrimmed = name.trim();
+      const existing = await documents.getDocuments<Project>({
+        collection: 'projects',
+        match: { name: { $regex: `^${escapeRegExp(nameTrimmed)}$`, $options: 'i' }, team },
+        limit: 1
+      });
+
+      if (existing && existing.data && existing.data.length > 0) {
+        return new Response(JSON.stringify({ intent: 'VALIDATION_ERROR', errors: { name: 'A project with this name already exists in the selected team.' } }), { status: 400, headers: { 'Content-Type': 'application/json' } });
       }
 
       if (!ProjectAuthorization.canCreate(user, team)) {
@@ -159,6 +202,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       <CreateProjectDialog
         hasTeamSelection={true}
         onCreateNewProjectClicked={onCreateNewProjectClicked}
+        actionData={actionData}
       />
     );
   }

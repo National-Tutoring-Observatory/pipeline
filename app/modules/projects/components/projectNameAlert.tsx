@@ -2,8 +2,19 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircleIcon, CheckCircle } from "lucide-react";
 
 const ProjectNameAlert = ({
-  name
-}: { name: string }) => {
+  name,
+  serverError
+}: { name: string, serverError?: string | null }) => {
+  const serverMessage = serverError ?? null;
+
+  if (serverMessage) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircleIcon />
+        <AlertDescription>{serverMessage}</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <>

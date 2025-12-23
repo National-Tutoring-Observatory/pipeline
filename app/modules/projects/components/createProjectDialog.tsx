@@ -1,28 +1,42 @@
 import { Button } from "@/components/ui/button";
 import {
+  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogHeader,
-  DialogTitle,
   DialogFooter,
-  DialogClose
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import ProjectNameAlert from "./projectNameAlert";
+import { useEffect, useState } from "react";
+import { useFetcher, useNavigate } from "react-router";
+import { closeDialog } from "~/modules/dialogs/addDialog";
 import TeamsSelectorContainer from "~/modules/teams/containers/teamsSelector.container";
+import ProjectNameAlert from "./projectNameAlert";
 
 const CreateProjectDialog = ({
   hasTeamSelection,
-  onCreateNewProjectClicked
+  onCreateNewProjectClicked,
+  actionData
 }: {
   hasTeamSelection: boolean,
-  onCreateNewProjectClicked: ({ name, team }: { name: string, team: string | null }) => void
+  onCreateNewProjectClicked: ({ name, team }: { name: string, team: string | null }) => void,
+  actionData?: any
 }) => {
 
+  const fetcher = useFetcher();
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [team, setTeam] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (fetcher.data && fetcher.data.intent === 'CREATE_PROJECT' && fetcher.data.data && fetcher.data.data._id) {
+      // close the dialog and navigate to the new project
+      try { closeDialog(); } catch (e) { /* ignore */ }
+      navigate(`/projects/${fetcher.data.data._id}`);
+    }
+  }, [fetcher.data, navigate]);
 
   const onProjectNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
@@ -57,6 +71,7 @@ const CreateProjectDialog = ({
         <Input id="name-1" name="name" defaultValue={name} autoComplete="off" onChange={onProjectNameChanged} />
         <ProjectNameAlert
           name={name}
+          serverError={fetcher.data?.errors?.name ?? actionData?.errors?.name}
         />
       </div>
       {(hasTeamSelection) && (
@@ -74,14 +89,15 @@ const CreateProjectDialog = ({
             Cancel
           </Button>
         </DialogClose>
-        <DialogClose asChild>
-          <Button type="button" disabled={isSubmitButtonDisabled} onClick={() => {
-            onCreateNewProjectClicked({ name, team });
-          }}>
-            Create project
+        <fetcher.Form method="post" action="/api/projects">
+          <input type="hidden" name="intent" value="CREATE_PROJECT" />
+          <input type="hidden" name="payload" value={JSON.stringify({ name, team })} />
+          <Button type="submit" disabled={isSubmitButtonDisabled || fetcher.state === 'submitting'}>
+            {fetcher.state === 'submitting' ? 'Creating…' : 'Create project'}
           </Button>
-        </DialogClose>
+        </fetcher.Form>
       </DialogFooter>
+
     </DialogContent>
   );
 };
