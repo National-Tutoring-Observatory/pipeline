@@ -10,7 +10,7 @@ import { Download, Pencil } from "lucide-react";
 import { Link } from "react-router";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
-import providers from "~/modules/prompts/providers";
+import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
 import ProjectRunCreatorContainer from "../containers/projectRunCreator.container";
 import ProjectRunDownloads from "./projectRunDownloads";
@@ -114,7 +114,7 @@ export default function ProjectRun({
             <div>
               <div className="text-xs text-muted-foreground">Selected model</div>
               <div>
-                {find(providers, { provider: run.model })?.name}
+                {getRunModelDisplayName(run)}
               </div>
             </div>
           </div>

@@ -1,9 +1,10 @@
-import fse from 'fs-extra';
-import { json2csv } from 'json-2-csv';
-import each from 'lodash/each.js';
-import map from 'lodash/map.js';
-import type { Run } from '~/modules/runs/runs.types';
-import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
+import fse from 'fs-extra'
+import { json2csv } from 'json-2-csv'
+import each from 'lodash/each.js'
+import map from 'lodash/map.js'
+import { getRunModelCode } from '~/modules/runs/helpers/runModel'
+import type { Run } from '~/modules/runs/runs.types'
+import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter'
 
 export const handler = async (event: { body: { run: Run, inputFolder: string, outputFolder: string } }) => {
   try {
@@ -104,7 +105,7 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
       _id: run._id,
       name: run.name,
       annotationType: run.annotationType,
-      model: run.model,
+      model: getRunModelCode(run),
       sessionsCount: run.sessions.length
     };
 

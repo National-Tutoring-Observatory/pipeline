@@ -1,9 +1,10 @@
-import './providers/openAI.js'
-import './providers/aiGateway.js'
-import getLLM from './helpers/getLLM';
 import each from 'lodash/each.js';
+import aiGatewayConfig from '../../config/ai_gateway.json';
+import getLLM from './helpers/getLLM';
+import './providers/aiGateway.js';
+import './providers/openAI.js';
 
-const DEFAULTS = { quality: 'medium', model: 'GEMINI', stream: false, format: 'json', retries: 3 };
+const DEFAULTS = { model: aiGatewayConfig.defaultModel, stream: false, format: 'json', retries: 3 };
 
 interface Message {
   role: 'system' | 'assistant' | 'user';
@@ -46,7 +47,7 @@ class LLM {
 
       const scoreResponse = await this.methods.createChat({
         llm: this.llm,
-        options: { ...this.options, quality: 'high' },
+        options: { ...this.options },
         messages: [this.orchestratorMessage, {
           "role": 'assistant',
           'content': `

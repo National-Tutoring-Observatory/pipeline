@@ -2,6 +2,7 @@ import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter
 import { emitter } from "~/modules/events/emitter";
 import type { Project } from "~/modules/projects/projects.types";
 import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
+import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import { handler as annotatePerSession } from './annotatePerSession/app';
@@ -78,7 +79,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
             inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
             outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
             prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-            model: run.data.model,
+            model: getRunModelCode(run.data),
             team: project.data.team
           }
         });
@@ -88,7 +89,7 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
             inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
             outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
             prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-            model: run.data.model,
+            model: getRunModelCode(run.data),
             team: project.data.team
           }
         })

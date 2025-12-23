@@ -1,12 +1,10 @@
-import fs from 'fs';
-import fse from 'fs-extra';
-import path from 'path';
-import { json2csv } from 'json-2-csv';
-import map from 'lodash/map.js';
-import each from 'lodash/each.js';
-import pick from 'lodash/pick.js';
-import type { Run } from '~/modules/runs/runs.types';
-import type { Collection } from '~/modules/collections/collections.types';
+import fse from 'fs-extra'
+import { json2csv } from 'json-2-csv'
+import each from 'lodash/each.js'
+import map from 'lodash/map.js'
+import type { Collection } from '~/modules/collections/collections.types'
+import { getRunModelCode } from '~/modules/runs/helpers/runModel'
+import type { Run } from '~/modules/runs/runs.types'
 
 export const handler = async (event: { body: { collection: Collection, runs: Run[], inputFolder: string, outputFolder: string } }) => {
 
@@ -59,7 +57,7 @@ export const handler = async (event: { body: { collection: Collection, runs: Run
               if (!utteranceAnnotationKeysAsObject[annotationItemKey]) {
                 utteranceAnnotationKeysAsObject[annotationItemKey] = true;
               }
-              utterance[`model-${index}`] = run.model;
+              utterance[`model-${index}`] = getRunModelCode(run)
               utterance[`annotationType-${index}`] = run.annotationType;
               utterance[`prompt-${index}`] = run.prompt;
               utterance[`promptVersion-${index}`] = run.promptVersion;

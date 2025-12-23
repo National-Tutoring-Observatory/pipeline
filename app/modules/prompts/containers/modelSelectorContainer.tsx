@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import aiGatewayConfig from '../../../config/ai_gateway.json';
 import ModelSelector from '../components/modelSelector';
 
 export default function ModelSelectorContainer({
@@ -17,16 +18,7 @@ export default function ModelSelectorContainer({
 
   return (
     <ModelSelector
-      models={[{
-        provider: 'GEMINI',
-        name: 'Gemini'
-      }, {
-        provider: 'CHAT_GPT',
-        name: 'Chat GPT'
-      }, {
-        provider: 'CLAUDE',
-        name: 'Claude'
-      }]}
+      providers={aiGatewayConfig.providers}
       selectedModel={selectedModel}
       isModelsOpen={isModelsOpen}
       onToggleModelPopover={onToggleModelPopover}

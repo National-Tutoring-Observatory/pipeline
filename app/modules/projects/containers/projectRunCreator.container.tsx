@@ -1,9 +1,11 @@
-import type { CreateRun, Run } from "~/modules/runs/runs.types";
-import { useEffect, useState } from "react";
 import map from 'lodash/map';
-import ProjectRunCreator from "../components/projectRunCreator";
-import { useFetcher } from "react-router";
 import sampleSize from "lodash/sampleSize";
+import { useEffect, useState } from "react";
+import { useFetcher } from "react-router";
+import aiGatewayConfig from '~/config/ai_gateway.json';
+import { getRunModelCode } from "~/modules/runs/helpers/runModel";
+import type { CreateRun, Run } from "~/modules/runs/runs.types";
+import ProjectRunCreator from "../components/projectRunCreator";
 
 export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
   run: Run,
@@ -13,7 +15,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
   const [selectedAnnotationType, setSelectedAnnotationType] = useState(run.annotationType);
   const [selectedPrompt, setSelectedPrompt] = useState(run.prompt as string | null);
   const [selectedPromptVersion, setSelectedPromptVersion] = useState(run.promptVersion as number | null);
-  const [selectedModel, setSelectedModel] = useState(run.model || 'GEMINI');
+  const [selectedModel, setSelectedModel] = useState(getRunModelCode(run) || aiGatewayConfig.defaultModel);
   const [selectedSessions, setSelectedSessions] = useState<string[]>(map(run.sessions, 'sessionId'));
   const [randomSampleSize, setRandomSampleSize] = useState(0);
   const [isRunButtonDisabled, setIsRunButtonDisabled] = useState(true);
