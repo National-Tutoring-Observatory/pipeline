@@ -1,6 +1,7 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { User } from "~/modules/users/users.types";
 // @ts-ignore
+import dayjs from 'dayjs';
 import sessionStorage from '../../../../sessionStorage.js';
 import { authenticator } from "../authentication.server";
 import getSessionUser from "../helpers/getSessionUser";
@@ -30,7 +31,22 @@ export async function loader({ request }: Route.LoaderArgs) {
     }
   }
 
-  return { authentication: { data: user }, isAppRunningLocally: process.env.DOCUMENTS_ADAPTER === 'LOCAL' };
+  const session = await sessionStorage.getSession(request.headers.get("cookie"));
+  const lastActivity = session.get('lastActivity') as number | undefined;
+  const expirationThreshold = dayjs().subtract(72, 'hour');
+
+  if (lastActivity && dayjs(lastActivity).isBefore(expirationThreshold)) {
+    // destroy expired session and treat as not authenticated
+    return Response.json({ authentication: {} }, { headers: { "Set-Cookie": await sessionStorage.destroySession(session) } });
+  }
+
+  // update last activity and commit session cookie so client stays logged in
+  session.set('lastActivity', dayjs().valueOf());
+  const headers = new Headers({
+    "Set-Cookie": await sessionStorage.commitSession(session),
+  });
+
+  return Response.json({ authentication: { data: user }, isAppRunningLocally: process.env.DOCUMENTS_ADAPTER === 'LOCAL' }, { headers });
 
 }
 
@@ -65,5 +81,4 @@ export async function action({ request }: Route.ActionArgs) {
     }
     throw error;
   }
-
 }
