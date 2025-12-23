@@ -16,16 +16,16 @@ export function getRunModelCode(run: Run): string {
   if (run.snapshot?.model) {
     return run.snapshot?.model?.code;
   } else {
-    return run.model;
+    return '';
   }
 }
 
 export function getRunModelDisplayName(run: Run): string {
   const modelInfo = getRunModelInfo(run);
-  if (!modelInfo) {
-    return run.model;
-  } else {
+  if (modelInfo) {
     return modelInfo.name;
+  } else {
+    return '';
   }
 }
 
