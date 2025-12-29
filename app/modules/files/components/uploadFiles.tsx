@@ -24,7 +24,7 @@ export default function UploadFiles({
   fileType: FileType,
   instructions: { overview: string, link: string },
   isUploading: boolean,
-  onDrop: (acceptedFiles: any) => void,
+  onDrop: (acceptedFiles: File[]) => void,
   onDeleteAcceptedFileClicked: (id: string) => void,
   onUploadFilesClicked: () => void,
   onFileTypeChanged: (fileType: FileType) => void
