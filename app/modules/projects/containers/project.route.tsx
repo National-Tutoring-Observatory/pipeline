@@ -121,7 +121,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     acceptedFiles,
     fileType,
   }: {
-    acceptedFiles: any[],
+    acceptedFiles: File[],
     fileType: FileType,
   }) => {
     const formData = new FormData();
