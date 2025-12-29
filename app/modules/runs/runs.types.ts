@@ -9,6 +9,7 @@ export interface Run {
   prompt: Prompt | string;
   promptVersion: number;
   model: string;
+  leadRole?: string;
   sessions: RunSession[]
   hasSetup: boolean;
   isRunning: boolean;
@@ -29,6 +30,7 @@ export interface CreateRun {
   selectedPrompt: string | null,
   selectedPromptVersion: number | null,
   selectedModel: string,
+  selectedLeadRole: string | null,
   selectedSessions: string[]
 }
 
@@ -39,5 +41,6 @@ export interface StartRunProps {
   annotationType: 'PER_UTTERANCE' | 'PER_SESSION',
   prompt: string
   promptVersion: number,
-  model: string
+  model: string,
+  leadRole?: string | null
 }

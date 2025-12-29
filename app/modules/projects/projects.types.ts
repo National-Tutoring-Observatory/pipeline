@@ -12,4 +12,6 @@ export interface Project {
   isConvertingFiles: boolean;
   hasSetupProject: boolean;
   isDeleted?: boolean;
+  roles?: string[];
+  leadRole?: string;
 }

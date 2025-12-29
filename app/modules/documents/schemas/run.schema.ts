@@ -15,6 +15,7 @@ export default new mongoose.Schema({
     startedAt: { type: Date, default: Date.now },
     finishedAt: { type: Date, default: Date.now }
   }],
+  leadRole: { type: String },
   hasSetup: { type: Boolean, default: false },
   isRunning: { type: Boolean, default: false },
   isComplete: { type: Boolean, default: false },

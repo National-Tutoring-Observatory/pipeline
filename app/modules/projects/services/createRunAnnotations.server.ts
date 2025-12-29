@@ -60,6 +60,7 @@ export default async function createRunAnnotations({ runId }: { runId: string },
       outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
       prompt: { prompt: userPrompt, annotationSchema },
       model: run.data.model,
+      leadRole: run.data.leadRole,
       team: project.data.team,
       currentSessionIndex
     });

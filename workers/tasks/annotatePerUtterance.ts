@@ -12,7 +12,7 @@ import annotationPerUtterancePrompts from "../prompts/annotatePerUtterance.promp
 
 export default async function annotatePerUtterance(job: any) {
 
-  const { runId, sessionId, inputFile, outputFolder, prompt, model, team } = job.data;
+  const { runId, sessionId, inputFile, outputFolder, prompt, model, leadRole, team } = job.data;
 
   try {
 
@@ -44,7 +44,7 @@ export default async function annotatePerUtterance(job: any) {
 
     llm.addSystemMessage(annotationPerUtterancePrompts.system, {
       annotationSchema: JSON.stringify(prompt.annotationSchema),
-      leadRole: originalJSON.leadRole || 'TEACHER'
+      leadRole: leadRole || originalJSON.leadRole || 'TEACHER'
     });
 
     llm.addUserMessage(`${prompt.prompt}\n\nConversation: {{conversation}}`, {

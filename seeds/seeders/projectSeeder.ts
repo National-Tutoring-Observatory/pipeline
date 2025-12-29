@@ -131,6 +131,17 @@ async function processProjectFiles(projectId: string, teamId: string, fileNames:
   const attributesMapping = await getAttributeMappingFromFile({ file: splitFiles[0], team: teamId });
   console.log(`      ✓ Detected attribute mapping from file`);
 
+  // Update project with roles and leadRole
+  await documents.updateDocument({
+    collection: 'projects',
+    match: { _id: projectId },
+    update: {
+      roles: attributesMapping.roles,
+      leadRole: attributesMapping.leadRole
+    }
+  });
+  console.log(`      ✓ Set project roles: ${attributesMapping.roles.join(', ')} (lead: ${attributesMapping.leadRole})`);
+
   // Step 3: Upload split files to storage
   const uploadedFileIds: string[] = [];
 
