@@ -22,7 +22,7 @@ interface ProjectProps {
   uploadFilesProgress: number,
   convertFilesProgress: number,
   convertedSessionsCount: number,
-  onUploadFiles: ({ acceptedFiles, fileType }: { acceptedFiles: any[], fileType: FileType }) => void,
+  onUploadFiles: ({ acceptedFiles, fileType }: { acceptedFiles: File[], fileType: FileType }) => void,
   onEditProjectButtonClicked: (project: Project) => void
 }
 

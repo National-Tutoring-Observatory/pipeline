@@ -1,73 +1,61 @@
-import cloneDeep from 'lodash/cloneDeep';
-import map from 'lodash/map';
-import remove from 'lodash/remove';
-import { Component } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { useState } from 'react';
 import UploadFiles from "../components/uploadFiles";
 import type { FileType } from '../files.types';
 import getInstructionsByFileType from '../helpers/getInstructionsByFileType';
 
-interface UploadFilesContainerProps {
-  onUploadFiles: ({ acceptedFiles, fileType }: { acceptedFiles: any[], fileType: FileType }) => void;
+type AcceptedFile = File & { _id: string };
+
+function getFileKey(f: File) {
+  return `${f.name}-${f.size}-${f.lastModified}`;
 }
 
-class UploadFilesContainer extends Component<UploadFilesContainerProps> {
+interface UploadFilesContainerProps {
+  onUploadFiles: ({ acceptedFiles, fileType }: { acceptedFiles: File[], fileType: FileType }) => void;
+}
 
-  state = {
-    acceptedFiles: [],
-    fileType: 'CSV' as FileType,
-    isUploading: false,
-  }
+export default function UploadFilesContainer({ onUploadFiles }: UploadFilesContainerProps) {
+  const [acceptedFiles, setAcceptedFiles] = useState<AcceptedFile[]>([]);
+  const [fileType, setFileType] = useState<FileType>('CSV');
+  const [isUploading, setIsUploading] = useState(false);
 
-  onDrop = (acceptedFiles: any) => {
-    this.setState({
-      acceptedFiles: map(acceptedFiles, (acceptedFile) => {
-        acceptedFile._id = uuidv4();
-        return acceptedFile
-      })
-    });
-  }
-
-  onDeleteAcceptedFileClicked = (id: string) => {
-    const clonedAcceptedFiles = cloneDeep(this.state.acceptedFiles);
-
-    // @ts-ignore
-    remove(clonedAcceptedFiles, { _id: id });
-    this.setState({
-      acceptedFiles: clonedAcceptedFiles
-    });
-
-  }
-
-  onUploadFilesClicked = () => {
-    this.setState({ isUploading: true });
-    const { acceptedFiles, fileType } = this.state;
-    this.props.onUploadFiles({ acceptedFiles, fileType });
-  }
-
-  onFileTypeChanged = (fileType: FileType) => {
-    if (fileType) {
-      this.setState({ fileType });
+  const onDrop = (droppedFiles: File[]) => {
+    const existingKeys = new Set(acceptedFiles.map((f) => f._id));
+    const newFiles: AcceptedFile[] = [];
+    for (const file of droppedFiles) {
+      const key = getFileKey(file);
+      if (!existingKeys.has(key)) {
+        (file as AcceptedFile)._id = key;
+        newFiles.push(file as AcceptedFile);
+      }
     }
-  }
+    setAcceptedFiles((prev) => [...prev, ...newFiles]);
+  };
 
-  render() {
+  const onDeleteAcceptedFileClicked = (id: string) => {
+    setAcceptedFiles((prev) => prev.filter((f) => f._id !== id));
+  };
 
-    const { acceptedFiles, fileType, isUploading } = this.state;
+  const onUploadFilesClicked = () => {
+    setIsUploading(true);
+    onUploadFiles({ acceptedFiles, fileType });
+  };
 
-    return (
-      <UploadFiles
-        acceptedFiles={acceptedFiles}
-        fileType={fileType}
-        instructions={getInstructionsByFileType({ fileType })}
-        isUploading={isUploading}
-        onDrop={this.onDrop}
-        onDeleteAcceptedFileClicked={this.onDeleteAcceptedFileClicked}
-        onUploadFilesClicked={this.onUploadFilesClicked}
-        onFileTypeChanged={this.onFileTypeChanged}
-      />
-    )
-  }
-};
+  const onFileTypeChanged = (newFileType: FileType) => {
+    if (newFileType) {
+      setFileType(newFileType);
+    }
+  };
 
-export default UploadFilesContainer;
+  return (
+    <UploadFiles
+      acceptedFiles={acceptedFiles}
+      fileType={fileType}
+      instructions={getInstructionsByFileType({ fileType })}
+      isUploading={isUploading}
+      onDrop={onDrop}
+      onDeleteAcceptedFileClicked={onDeleteAcceptedFileClicked}
+      onUploadFilesClicked={onUploadFilesClicked}
+      onFileTypeChanged={onFileTypeChanged}
+    />
+  );
+}
