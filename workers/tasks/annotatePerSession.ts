@@ -12,7 +12,7 @@ import annotationPerSessionPrompts from "../prompts/annotatePerSession.prompts.j
 
 export default async function annotatePerSession(job: any) {
 
-  const { projectId, runId, sessionId, inputFile, outputFolder, prompt, model, team } = job.data;
+  const { projectId, runId, sessionId, inputFile, outputFolder, prompt, model, leadRole, team } = job.data;
 
   try {
     await updateRunSession({
@@ -45,7 +45,7 @@ export default async function annotatePerSession(job: any) {
 
     llm.addSystemMessage(annotationPerSessionPrompts.system, {
       annotationSchema: JSON.stringify(prompt.annotationSchema),
-      leadRole: originalJSON.leadRole || 'TEACHER'
+      leadRole: leadRole || originalJSON.leadRole || 'TEACHER'
     });
 
     llm.addUserMessage(`${prompt.prompt}\n\nConversation: {{conversation}}`, {

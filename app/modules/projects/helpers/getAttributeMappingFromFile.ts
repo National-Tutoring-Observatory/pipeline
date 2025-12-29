@@ -18,7 +18,16 @@ const REQUIRED_ATTRIBUTES = {
   }
 }
 
-export default async function getAttributeMappingFromFile({ file, team }: { file: File, team: string }): Promise<Record<string, string>> {
+export interface AttributeMapping {
+  session_id?: string;
+  role?: string;
+  content?: string;
+  sequence_id?: string;
+  leadRole: string;
+  roles: string[];
+}
+
+export default async function getAttributeMappingFromFile({ file, team }: { file: File, team: string }): Promise<AttributeMapping> {
   const fileContents = await file.text();
 
   const fileContentsAsJSON = JSON.parse(fileContents);
@@ -42,7 +51,7 @@ export default async function getAttributeMappingFromFile({ file, team }: { file
     })
   }
 
-  const uniqueRoles = [...new Set(fileContentsAsJSON.map((utterance: { role: string }) => utterance.role))];
+  const uniqueRoles = [...new Set(fileContentsAsJSON.map((utterance: { role: string }) => utterance.role))] as string[];
 
   const llm = new LLM({ quality: 'high', model: 'GEMINI', user: team });
 
@@ -54,8 +63,10 @@ export default async function getAttributeMappingFromFile({ file, team }: { file
 
   const response = await llm.createChat();
 
-  attributeMapping.leadRole = response.leadRole;
-
-  return attributeMapping;
+  return {
+    ...attributeMapping,
+    leadRole: response.leadRole,
+    roles: uniqueRoles
+  } as AttributeMapping;
 
 }

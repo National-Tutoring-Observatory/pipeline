@@ -37,6 +37,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     runPrompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: run.data.prompt } });
     runPromptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } });
   }
+
   return { project, run, runPrompt, runPromptVersion };
 }
 
@@ -54,6 +55,7 @@ export async function action({
     prompt,
     promptVersion,
     model,
+    leadRole,
     sessions,
     exportType
   } = payload;
@@ -72,7 +74,8 @@ export async function action({
         annotationType,
         prompt,
         promptVersion,
-        model
+        model,
+        leadRole
       }, { request, context });
 
       if (!run.data) throw new Error('Run not created');
@@ -123,6 +126,7 @@ export default function ProjectRunRoute() {
     selectedPrompt,
     selectedPromptVersion,
     selectedModel,
+    selectedLeadRole,
     selectedSessions }: CreateRun) => {
     submit(JSON.stringify({
       intent: 'START_RUN',
@@ -131,6 +135,7 @@ export default function ProjectRunRoute() {
         prompt: selectedPrompt,
         promptVersion: Number(selectedPromptVersion),
         model: selectedModel,
+        leadRole: selectedLeadRole,
         sessions: selectedSessions
       }
     }), { method: 'POST', encType: 'application/json' });
@@ -248,6 +253,8 @@ export default function ProjectRunRoute() {
       runPromptVersion={runPromptVersion?.data}
       runSessionsProgress={runSessionsProgress}
       runSessionsStep={runSessionsStep}
+      availableRoles={project.data.roles || []}
+      defaultLeadRole={project.data.leadRole || null}
       onStartRunClicked={onStartRunClicked}
       onExportRunButtonClicked={onExportRunButtonClicked}
       onReRunClicked={onReRunClicked}

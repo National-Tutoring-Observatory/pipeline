@@ -10,7 +10,8 @@ export default async function startRun({
   annotationType,
   prompt,
   promptVersion,
-  model
+  model,
+  leadRole
 }: StartRunProps, { context }: { request: Request, context: any }) {
 
   const documents = getDocumentsAdapter();
@@ -44,6 +45,7 @@ export default async function startRun({
       prompt,
       promptVersion,
       model,
+      leadRole,
       sessions: sessionsAsObjects
     }
   });

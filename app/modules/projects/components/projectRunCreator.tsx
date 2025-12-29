@@ -9,6 +9,7 @@ import AnnotationTypeSelectorContainer from "~/modules/prompts/containers/annoat
 import ModelSelectorContainer from '~/modules/prompts/containers/modelSelectorContainer';
 import PromptSelectorContainer from '~/modules/prompts/containers/promptSelectorContainer';
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
+import LeadRoleSelectorContainer from "../containers/leadRoleSelectorContainer";
 
 
 
@@ -17,6 +18,8 @@ export default function ProjectRunCreator({
   selectedPrompt,
   selectedPromptVersion,
   selectedModel,
+  selectedLeadRole,
+  availableRoles,
   selectedSessions,
   randomSampleSize,
   sessionsCount,
@@ -25,6 +28,7 @@ export default function ProjectRunCreator({
   onSelectedPromptChanged,
   onSelectedPromptVersionChanged,
   onSelectedModelChanged,
+  onSelectedLeadRoleChanged,
   onSelectedSessionsChanged,
   onStartRunButtonClicked,
   onRandomSampleSizeChanged,
@@ -34,6 +38,8 @@ export default function ProjectRunCreator({
   selectedPrompt: string | null,
   selectedPromptVersion: number | null,
   selectedModel: string,
+  selectedLeadRole: string | null,
+  availableRoles: string[],
   selectedSessions: string[],
   randomSampleSize: number,
   sessionsCount: number,
@@ -42,6 +48,7 @@ export default function ProjectRunCreator({
   onSelectedPromptChanged: (selectedPrompt: string) => void,
   onSelectedPromptVersionChanged: (selectedPromptVersion: number) => void,
   onSelectedModelChanged: (selectedModel: string) => void,
+  onSelectedLeadRoleChanged: (selectedLeadRole: string) => void,
   onSelectedSessionsChanged: (selectedSessions: string[]) => void,
   onStartRunButtonClicked: () => void,
   onRandomSampleSizeChanged: (randomSampleSize: number) => void,
@@ -125,6 +132,16 @@ export default function ProjectRunCreator({
             selectedSessions={selectedSessions}
             onSelectedSessionsChanged={onSelectedSessionsChanged}
           />
+          {availableRoles.length > 0 && (
+            <div className="mt-4 pt-4 border-t">
+              <Label className="text-sm text-muted-foreground mb-2 block">Lead role</Label>
+              <LeadRoleSelectorContainer
+                roles={availableRoles}
+                selectedLeadRole={selectedLeadRole}
+                onSelectedLeadRoleChanged={onSelectedLeadRoleChanged}
+              />
+            </div>
+          )}
           <div className="flex justify-center mt-4">
             <Button
               size="sm"

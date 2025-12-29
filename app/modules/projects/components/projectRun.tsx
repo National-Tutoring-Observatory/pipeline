@@ -21,6 +21,8 @@ export default function ProjectRun({
   runPromptVersion,
   runSessionsProgress,
   runSessionsStep,
+  availableRoles,
+  defaultLeadRole,
   onStartRunClicked,
   onExportRunButtonClicked,
   onReRunClicked,
@@ -31,7 +33,9 @@ export default function ProjectRun({
   runPromptVersion: PromptVersion,
   runSessionsProgress: number,
   runSessionsStep: string,
-  onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions }: CreateRun) => void,
+  availableRoles: string[],
+  defaultLeadRole: string | null,
+  onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedLeadRole, selectedSessions }: CreateRun) => void,
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void
   onReRunClicked: () => void
   onEditRunButtonClicked?: (run: Run) => void
@@ -87,7 +91,7 @@ export default function ProjectRun({
         )}
       </div>
       {(!run.hasSetup) && (
-        <ProjectRunCreatorContainer run={run} onStartRunClicked={onStartRunClicked} />
+        <ProjectRunCreatorContainer run={run} availableRoles={availableRoles} defaultLeadRole={defaultLeadRole} onStartRunClicked={onStartRunClicked} />
       )}
       {(run.hasSetup) && (
         <div>

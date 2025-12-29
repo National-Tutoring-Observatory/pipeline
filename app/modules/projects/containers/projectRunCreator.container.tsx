@@ -5,15 +5,18 @@ import ProjectRunCreator from "../components/projectRunCreator";
 import { useFetcher } from "react-router";
 import sampleSize from "lodash/sampleSize";
 
-export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
+export default function ProjectRunCreatorContainer({ run, availableRoles, defaultLeadRole, onStartRunClicked }: {
   run: Run,
-  onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions }: CreateRun) => void
+  availableRoles: string[],
+  defaultLeadRole: string | null,
+  onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedLeadRole, selectedSessions }: CreateRun) => void
 }) {
 
   const [selectedAnnotationType, setSelectedAnnotationType] = useState(run.annotationType);
   const [selectedPrompt, setSelectedPrompt] = useState(run.prompt as string | null);
   const [selectedPromptVersion, setSelectedPromptVersion] = useState(run.promptVersion as number | null);
   const [selectedModel, setSelectedModel] = useState(run.model || 'GEMINI');
+  const [selectedLeadRole, setSelectedLeadRole] = useState<string | null>(run.leadRole || defaultLeadRole);
   const [selectedSessions, setSelectedSessions] = useState<string[]>(map(run.sessions, 'sessionId'));
   const [randomSampleSize, setRandomSampleSize] = useState(0);
   const [isRunButtonDisabled, setIsRunButtonDisabled] = useState(true);
@@ -38,6 +41,10 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
     setSelectedModel(selectedModel);
   }
 
+  const onSelectedLeadRoleChanged = (selectedLeadRole: string) => {
+    setSelectedLeadRole(selectedLeadRole);
+  }
+
   const onSelectedSessionsChanged = (selectedSessions: string[]) => {
     setSelectedSessions(selectedSessions);
   }
@@ -57,6 +64,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
       selectedPrompt,
       selectedPromptVersion,
       selectedModel,
+      selectedLeadRole,
       selectedSessions
     })
   }
@@ -64,6 +72,8 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
   useEffect(() => {
     if (selectedPrompt && selectedPromptVersion && selectedSessions.length > 0) {
       setIsRunButtonDisabled(false);
+    } else {
+      setIsRunButtonDisabled(true);
     }
   }, [selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions]);
 
@@ -79,6 +89,8 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
       selectedPrompt={selectedPrompt}
       selectedPromptVersion={selectedPromptVersion}
       selectedModel={selectedModel}
+      selectedLeadRole={selectedLeadRole}
+      availableRoles={availableRoles}
       selectedSessions={selectedSessions}
       randomSampleSize={randomSampleSize}
       sessionsCount={sessionsFetcher?.data?.sessions?.count || 0}
@@ -87,6 +99,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
       onSelectedPromptChanged={onSelectedPromptChanged}
       onSelectedPromptVersionChanged={onSelectedPromptVersionChanged}
       onSelectedModelChanged={onSelectedModelChanged}
+      onSelectedLeadRoleChanged={onSelectedLeadRoleChanged}
       onSelectedSessionsChanged={onSelectedSessionsChanged}
       onStartRunButtonClicked={onStartRunButtonClicked}
       onRandomSampleSizeChanged={onRandomSampleSizeChanged}
