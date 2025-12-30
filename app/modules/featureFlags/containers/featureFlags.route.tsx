@@ -66,7 +66,9 @@ export default function FeatureFlagsRoute({ loaderData }: Route.ComponentProps) 
 
   useEffect(() => {
     if (match) {
-      updateBreadcrumb([{ text: 'Feature flags', link: '/featureFlags' }])
+      updateBreadcrumb([
+        { text: 'Feature flags' }
+      ])
     }
   }, [match]);
 
