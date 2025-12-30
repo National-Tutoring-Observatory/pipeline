@@ -77,15 +77,23 @@ export default function SessionViewerContainer({ run, session, sessionFile }: { 
   }
 
   useEffect(() => {
-    if (hash) {
-      const utteranceId = hash.replace('#session-viewer-utterance-', '') || '0';
-      if (!utteranceId) {
-        return;
-      } else {
-        updateSelectedUtterance(utteranceId);
-      }
+    if (!hash) {
+      setSelectedUtteranceIndex(null);
+      setSelectedUtteranceId(null);
+      return;
     }
-  }, []);
+
+    const utteranceId = hash.replace('#session-viewer-utterance-', '');
+    const utteranceIndex = findIndex(annotatedUtterances, { _id: utteranceId });
+
+    if (utteranceIndex === -1) {
+      setSelectedUtteranceIndex(null);
+      setSelectedUtteranceId(null);
+    } else {
+      setSelectedUtteranceIndex(utteranceIndex);
+      setSelectedUtteranceId(utteranceId);
+    }
+  }, [hash]);
 
   useEffect(() => {
     if (fetcher.state === 'submitting') {
@@ -94,6 +102,18 @@ export default function SessionViewerContainer({ run, session, sessionFile }: { 
       setIsVoting(false);
     }
   }, [fetcher]);
+
+  useEffect(() => {
+    if (selectedUtteranceId) {
+      const element = document.getElementById(`session-viewer-utterance-${selectedUtteranceId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } else {
+      const container = document.getElementById('session-viewer-scroll-container');
+      if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [selectedUtteranceId]);
 
   let selectedUtteranceAnnotations = [];
 

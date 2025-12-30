@@ -41,7 +41,7 @@ export default function SessionViewer({
 
   return (
     <div className="border h-[calc(100vh-200px)] flex rounded-md">
-      <div className="flex flex-col w-3/5 p-4 h-full overflow-y-scroll scroll-smooth border-r">
+      <div id="session-viewer-scroll-container" className="flex flex-col w-3/5 p-4 h-full overflow-y-scroll scroll-smooth border-r">
         {map(sessionFile.transcript, (utterance: Utterance) => {
           const isSelected = selectedUtteranceId === utterance._id;
           return (
