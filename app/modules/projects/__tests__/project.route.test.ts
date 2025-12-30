@@ -1,8 +1,9 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import "~/modules/documents/documents";
+import "~/modules/teams/team";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { Team } from "~/modules/teams/teams.types.js";
+import { TeamService } from "~/modules/teams/team";
 import type { User } from "~/modules/users/users.types.js";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
@@ -55,10 +56,7 @@ describe("project.route loader", () => {
       update: { username: 'other_user' }
     })).data;
 
-    const team = (await documents.createDocument<Team>({
-      collection: 'teams',
-      update: { name: 'Private Team' }
-    })).data;
+    const team = await TeamService.create({ name: 'Private Team' });
 
     const project = (await documents.createDocument<Project>({
       collection: 'projects',
@@ -82,10 +80,7 @@ describe("project.route loader", () => {
       update: { username: 'test_user', teams: [] }
     })).data;
 
-    const team = (await documents.createDocument<Team>({
-      collection: 'teams',
-      update: { name: 'Test Team' }
-    })).data;
+    const team = await TeamService.create({ name: 'Test Team' });
 
     await documents.updateDocument<User>({
       collection: 'users',
@@ -162,10 +157,7 @@ describe("project.route action - FILE_UPLOAD", () => {
       update: { username: 'test_user', teams: [] }
     })).data;
 
-    const team = (await documents.createDocument<Team>({
-      collection: 'teams',
-      update: { name: 'Test Team' }
-    })).data;
+    const team = await TeamService.create({ name: 'Test Team' });
 
     await documents.updateDocument<User>({
       collection: 'users',
@@ -202,10 +194,7 @@ describe("project.route action - FILE_UPLOAD", () => {
       update: { username: 'test_user', teams: [] }
     })).data;
 
-    const team = (await documents.createDocument<Team>({
-      collection: 'teams',
-      update: { name: 'Test Team' }
-    })).data;
+    const team = await TeamService.create({ name: 'Test Team' });
 
     // Add user to team
     await documents.updateDocument<User>({
