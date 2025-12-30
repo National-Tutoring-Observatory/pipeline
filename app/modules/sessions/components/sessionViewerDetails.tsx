@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import dayjs from "dayjs";
-import { CornerDownRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Session } from "../sessions.types";
 
 
@@ -8,14 +8,12 @@ interface SessionViewerDetailsProps {
   session: Session;
   utteranceCount: number;
   annotatedUtteranceCount: number;
-  onJumpToFirstAnnotation: () => void;
 }
 
 export default function SessionViewerDetails({
   session,
   utteranceCount: utteranceCount,
   annotatedUtteranceCount: annotatedUtteranceCount,
-  onJumpToFirstAnnotation,
 }: SessionViewerDetailsProps) {
   return (
     <div className="border-b px-4 pb-4">
@@ -40,17 +38,6 @@ export default function SessionViewerDetails({
                 <div className="text-xs text-muted-foreground mb-1">Annotated</div>
                 <div className="text-2xl font-bold">{annotatedUtteranceCount}</div>
               </div>
-            </div>
-            <div className="w-full flex justify-center mt-4">
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={onJumpToFirstAnnotation}
-                className="w-full border bg-muted/50 hover:bg-muted text-base font-medium rounded-xl py-4 flex items-center justify-center gap-2 shadow-none"
-              >
-                Jump to first annotation
-                <CornerDownRight className="w-5 h-5" />
-              </Button>
             </div>
           </div>
         )}
