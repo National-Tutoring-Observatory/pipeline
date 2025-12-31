@@ -3,8 +3,7 @@ import dotenv from 'dotenv';
 import express from "express";
 import http from 'http';
 import morgan from "morgan";
-import getDocumentsAdapter from "./app/modules/documents/helpers/getDocumentsAdapter";
-import type { User } from "./app/modules/users/users.types";
+import { UserService } from "./app/modules/users/user";
 import { setupSockets } from "./sockets";
 // These imports are needed to handle the inline import. These are not duplicates
 import './app/modules/documents/documents';
@@ -56,24 +55,19 @@ if (DEVELOPMENT) {
 }
 
 const checkSuperAdminExists = async () => {
-  const documents = getDocumentsAdapter();
-
-  const user = await documents.getDocument<User>({
-    collection: 'users',
-    match: { role: 'SUPER_ADMIN', githubId: parseInt(process.env.SUPER_ADMIN_GITHUB_ID as string) }
+  const users = await UserService.find({
+    role: 'SUPER_ADMIN',
+    githubId: parseInt(process.env.SUPER_ADMIN_GITHUB_ID as string)
   });
 
-    if (!user.data) {
-    await documents.createDocument<User>({
-      collection: 'users',
-      update: {
-        role: 'SUPER_ADMIN',
-        username: 'local',
-        githubId: process.env.SUPER_ADMIN_GITHUB_ID,
-        hasGithubSSO: process.env.SUPER_ADMIN_GITHUB_ID ? true : false,
-        isRegistered: true,
-        registeredAt: new Date()
-      }
+  if (users.length === 0) {
+    await UserService.create({
+      role: 'SUPER_ADMIN',
+      username: 'local',
+      githubId: parseInt(process.env.SUPER_ADMIN_GITHUB_ID as string),
+      hasGithubSSO: process.env.SUPER_ADMIN_GITHUB_ID ? true : false,
+      isRegistered: true,
+      registeredAt: new Date()
     })
   }
 }

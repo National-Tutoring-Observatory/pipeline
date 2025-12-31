@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import "~/modules/documents/documents";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { TeamService } from "~/modules/teams/team";
-import type { User } from "~/modules/users/users.types.js";
+import { UserService } from "~/modules/users/user";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
 import { loader } from "../containers/promptsList.route";
@@ -25,7 +25,7 @@ describe("promptsList.route loader", () => {
     const team = await TeamService.create({ name: "team 1" });
     const teamOther = await TeamService.create({ name: "team 2" });
 
-    const user = (await documents.createDocument<User>({ collection: "users", update: { username: "test_1", teams: [{ team: team._id, role: "ADMIN" }] } })).data;
+    const user = await UserService.create({ username: "test_1", teams: [{ team: team._id, role: "ADMIN" }] });
     const prompt = (await documents.createDocument<Prompt>({ collection: "prompts", update: { text: "prompt 1", annotationType: "PER_UTTERANCE", team: team._id } })).data;
     const promptOther = (await documents.createDocument<Prompt>({ collection: "prompts", update: { text: "prompt 2", annotationType: "PER_UTTERANCE", team: teamOther._id } })).data;
 
@@ -48,7 +48,7 @@ describe("promptsList.route loader", () => {
 
   it("throws when annotationType is invalid", async () => {
     const team = await TeamService.create({ name: "team" });
-    const user = (await documents.createDocument<User>({ collection: "users", update: { username: "test", teams: [{ team: team._id, role: "ADMIN" }] } })).data;
+    const user = await UserService.create({ username: "test", teams: [{ team: team._id, role: "ADMIN" }] });
 
     const cookieHeader = await loginUser(user._id);
 
@@ -62,7 +62,7 @@ describe("promptsList.route loader", () => {
 
   it("throws when annotationType is missing", async () => {
     const team = await TeamService.create({ name: "team" });
-    const user = (await documents.createDocument<User>({ collection: "users", update: { username: "test", teams: [{ team: team._id, role: "ADMIN" }] } })).data;
+    const user = await UserService.create({ username: "test", teams: [{ team: team._id, role: "ADMIN" }] });
 
     const cookieHeader = await loginUser(user._id);
 

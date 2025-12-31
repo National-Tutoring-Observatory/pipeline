@@ -1,5 +1,4 @@
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { User } from "~/modules/users/users.types";
+import { UserService } from "~/modules/users/user";
 // @ts-ignore
 import sessionStorage from '../../../../sessionStorage.js';
 
@@ -9,7 +8,6 @@ export default async ({ request }: { request: Request }) => {
   );
   const user = session.get("user");
   if (!user) return null;
-  const documents = getDocumentsAdapter();
-  const sessionUser = await documents.getDocument<User>({ collection: 'users', match: { _id: user._id } });
-  return sessionUser.data;
+  const sessionUser = await UserService.findById(user._id);
+  return sessionUser;
 }
