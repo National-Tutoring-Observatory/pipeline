@@ -4,17 +4,15 @@ import { toast } from "sonner";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { TeamService } from '../team';
 import type { User } from "~/modules/users/users.types";
+import type { Team } from "../teams.types";
 import TeamAuthorization from "../authorization";
 import EditTeamDialog from "../components/editTeamDialog";
-import Team from '../components/team';
-import type { Team as TeamType } from "../teams.types";
+import TeamComponent from '../components/team';
 import type { Route } from "./+types/team.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const documents = getDocumentsAdapter();
-
   const userSession = await getSessionUser({ request }) as User;
 
   if (!userSession) {
@@ -25,8 +23,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const team = await documents.getDocument<TeamType>({ collection: 'teams', match: { _id: params.id } });
-  if (!team.data) {
+  const team = await TeamService.findById(params.id);
+  if (!team) {
     return redirect('/teams');
   }
   return { team };
@@ -38,18 +36,18 @@ export function HydrateFallback() {
 
 export default function TeamRoute({ loaderData }: {
   loaderData: {
-    team: { data: TeamType }
+    team: Team
   }
 }) {
   const { team } = loaderData;
 
   const fetcher = useFetcher();
 
-  const onEditTeamButtonClicked = (team: TeamType) => {
+  const onEditTeamButtonClicked = (teamData: Team) => {
     addDialog(<EditTeamDialog
-      team={team}
-      onEditTeamClicked={(team: TeamType) => {
-        fetcher.submit(JSON.stringify({ intent: 'UPDATE_TEAM', entityId: team._id, payload: { name: team.name } }), { method: 'PUT', encType: 'application/json', action: `/teams` });
+      team={teamData}
+      onEditTeamClicked={(teamData: Team) => {
+        fetcher.submit(JSON.stringify({ intent: 'UPDATE_TEAM', entityId: teamData._id, payload: { name: teamData.name } }), { method: 'PUT', encType: 'application/json', action: `/teams` });
       }}
     />);
   }
@@ -62,12 +60,12 @@ export default function TeamRoute({ loaderData }: {
 
 
   useEffect(() => {
-    updateBreadcrumb([{ text: 'Teams', link: `/teams` }, { text: team.data.name }])
+    updateBreadcrumb([{ text: 'Teams', link: `/teams` }, { text: team.name }])
   }, []);
 
   return (
-    <Team
-      team={team.data}
+    <TeamComponent
+      team={team}
       onEditTeamButtonClicked={onEditTeamButtonClicked}
     />
   );
