@@ -1,6 +1,6 @@
 import { Strategy } from "remix-auth/strategy";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { User } from "~/modules/users/users.types";
+import { UserService } from "~/modules/users/user";
+
 export namespace LOCAL {
   export interface ConstructorOptions {
   }
@@ -27,12 +27,11 @@ const localStrategy = new LOCAL(
   {},
   async () => {
     if (!process.env.DOCUMENTS_ADAPTER || process.env.DOCUMENTS_ADAPTER === 'LOCAL') {
-      const documents = getDocumentsAdapter();
-      const user = await documents.getDocument<User>({ collection: 'users', match: {} });
-      if (!user.data) {
+      const users = await UserService.find();
+      if (users.length === 0) {
         throw new Error("User not found");
       }
-      return user.data;
+      return users[0] as any;
     }
     throw new Error("Unsupported DOCUMENTS_ADAPTER");
   }

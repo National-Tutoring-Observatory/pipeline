@@ -1,6 +1,6 @@
 import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
+import { UserService } from '~/modules/users/user';
 import getQueue from '~/modules/queues/helpers/getQueue';
-import type { User } from '~/modules/users/users.types';
 import type { TeamAssignmentOption } from '../teams.types';
 import { isTeamAssignmentOption } from '../teams.types';
 
@@ -15,10 +15,10 @@ export async function addSuperAdminToTeam({ teamId, userId, reason, option, dela
 }) {
   const documents = getDocumentsAdapter();
 
-  const userDoc = await documents.getDocument<User>({ collection: 'users', match: { _id: userId } });
-  if (!userDoc.data) throw new Error('User not found');
-  if (!userDoc.data.teams) userDoc.data.teams = [];
-  if (userDoc.data.teams.some(t => t.team === teamId)) {
+  const userDoc = await UserService.findById(userId);
+  if (!userDoc) throw new Error('User not found');
+  if (!userDoc.teams) userDoc.teams = [];
+  if (userDoc.teams.some((t: any) => t.team === teamId)) {
     throw new Error('User is already a member of the team');
   }
   if (!isTeamAssignmentOption(option)) {
@@ -27,9 +27,9 @@ export async function addSuperAdminToTeam({ teamId, userId, reason, option, dela
 
   const temporary = option === 'temporary';
 
-  userDoc.data.teams.push({ team: teamId, role: 'ADMIN' });
+  userDoc.teams.push({ team: teamId, role: 'ADMIN' });
 
-  await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { teams: userDoc.data.teams } });
+  await UserService.updateById(userId, { teams: userDoc.teams as any });
 
   documents.createDocument({
     collection: 'audits',

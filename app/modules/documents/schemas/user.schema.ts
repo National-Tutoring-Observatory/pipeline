@@ -6,7 +6,8 @@ export default new mongoose.Schema({
   email: { type: String },
   teams: [{
     team: { type: mongoose.Types.ObjectId, ref: 'Team' },
-    role: { type: String, enum: ['ADMIN'] }
+    role: { type: String, enum: ['ADMIN'] },
+    _id: false
   }],
   featureFlags: [{ type: String }],
   inviteId: { type: String },

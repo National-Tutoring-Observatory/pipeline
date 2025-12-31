@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter.js';
+import { UserService } from '../../app/modules/users/user.js';
 import type { File as FileDocument } from '../../app/modules/files/files.types.js';
 import type { Project } from '../../app/modules/projects/projects.types.js';
 import { getProjectFileStoragePath } from '../../app/modules/uploads/helpers/projectFileStorage.js';
@@ -89,7 +90,7 @@ export async function seedProjects() {
       // Create sessions from uploaded files and queue processing jobs
       console.log(`    → Processing files into sessions...`);
       const teamId = typeof projectResult.data.team === 'string' ? projectResult.data.team : projectResult.data.team._id;
-      await processProjectFiles(projectResult.data._id, teamId, projectData.files);
+      await processProjectFiles(documents, projectResult.data._id, teamId, projectData.files);
 
       console.log(`  ✅ Project '${projectData.name}' seeded with ${projectData.files.length} files\n`);
     } catch (error) {
@@ -99,7 +100,7 @@ export async function seedProjects() {
   }
 }
 
-async function processProjectFiles(projectId: string, teamId: string, files: Array<{ name: string; type: string }>) {
+async function processProjectFiles(documents: ReturnType<typeof getDocumentsAdapter>, projectId: string, teamId: string, files: Array<{ name: string; type: string }>) {
   // Load fixture files as File objects
   const fixtureFiles: Array<{ file: File; type: string }> = [];
   for (const fileConfig of files) {
@@ -118,13 +119,8 @@ async function processProjectFiles(projectId: string, teamId: string, files: Arr
   }
 
   // Get the admin user for createdBy field
-  const documents = getDocumentsAdapter();
-  const admin = await documents.getDocuments<any>({
-    collection: 'users',
-    match: { role: 'SUPER_ADMIN' },
-    sort: {},
-  });
-  const adminUserId = admin.data[0]?._id;
+  const admins = await UserService.find({ match: { role: 'SUPER_ADMIN' } });
+  const adminUserId = admins[0]?._id;
   if (!adminUserId) {
     console.warn(`      ⚠️  No admin user found`);
     return;

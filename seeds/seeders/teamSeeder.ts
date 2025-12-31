@@ -1,5 +1,5 @@
 import { TeamService } from '../../app/modules/teams/team.js';
-import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter.js';
+import { UserService } from '../../app/modules/users/user.js';
 import type { User } from '../../app/modules/users/users.types.js';
 import { getSeededUsers } from './userSeeder.js';
 
@@ -13,7 +13,6 @@ const SEED_TEAMS = [
 ];
 
 export async function seedTeams() {
-  const documents = getDocumentsAdapter();
   const users = await getSeededUsers();
 
   if (users.length === 0) {
@@ -27,13 +26,8 @@ export async function seedTeams() {
     return;
   }
 
-  // Find the existing "local" user (if it exists from previous login)
-  const localUserResult = await documents.getDocuments<User>({
-    collection: 'users',
-    match: { username: 'local' },
-    sort: {},
-  });
-  const localUser = localUserResult.data[0];
+  const localUsers = await UserService.find({ match: { username: 'local' } });
+  const localUser = localUsers[0] || null;
 
   if (localUser) {
     console.log(`  ℹ️  Found 'local' user, will add to Research Team Alpha`);
@@ -63,15 +57,11 @@ export async function seedTeams() {
 
   if (team) {
     // Update admin user to include first team
-    await documents.updateDocument<User>({
-      collection: 'users',
-      match: { _id: admin._id },
-      update: {
-        teams: [{
-          team: team._id,
-          role: 'ADMIN',
-        }],
-      }
+    await UserService.updateById(admin._id, {
+      teams: [{
+        team: team._id,
+        role: 'ADMIN',
+      }],
     });
   }
 }

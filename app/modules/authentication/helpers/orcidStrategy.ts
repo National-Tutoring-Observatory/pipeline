@@ -1,7 +1,6 @@
 import { redirect } from "react-router";
 import { Strategy } from "remix-auth/strategy";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { User } from "~/modules/users/users.types";
+import { UserService } from "~/modules/users/user";
 
 /**
  * The user profile returned by ORCID.
@@ -243,7 +242,7 @@ export class OrcidStrategy<User> extends Strategy<
 }
 
 
-const orcidStrategy = new OrcidStrategy<User>(
+const orcidStrategy = new OrcidStrategy<any>(
   {
     clientID: process.env.ORCID_CLIENT_ID!,
     clientSecret: process.env.ORCID_CLIENT_SECRET!,
@@ -251,15 +250,12 @@ const orcidStrategy = new OrcidStrategy<User>(
     sandbox: process.env.NODE_ENV === "development",
   },
   async ({ profile }) => {
-    const documents = getDocumentsAdapter();
-
-    const user = await documents.getDocument<User>({ collection: 'users', match: { orcidId: profile.id, hasOrcidSSO: true } });
-    if (!user.data) {
+    const users = await UserService.find({ match: { orcidId: profile.id, hasOrcidSSO: true } });
+    if (users.length === 0) {
       throw redirect("/?error=UNREGISTERED");
     }
 
-    return user.data;
-    //return await findOrCreateUser(profile.id, profile.emails.email[0]?.email);
+    return users[0] as any;
   }
 )
 

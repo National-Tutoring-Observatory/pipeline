@@ -7,7 +7,7 @@ import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
 import ConfirmRemoveUserDialog from "../components/confirmRemoveUserDialog";
@@ -44,9 +44,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: []
   });
 
-  const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments<User>({ collection: 'users', ...query });
-  return { users: result };
+  const result = await UserService.find({ match: query.match });
+  return { users: { data: result, totalPages: 1, total: result.length } };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -55,8 +54,6 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   const user = await getSessionUser({ request }) as User | null;
   if (!user) return redirect('/');
-
-  const documents = getDocumentsAdapter();
 
   switch (intent) {
     case 'ADD_SUPERADMIN_TO_TEAM': {
@@ -75,11 +72,11 @@ export async function action({ request, params }: Route.ActionArgs) {
         throw new Error('You do not have permission to manage team users.');
       }
       for (const id of userIds) {
-        const userDoc = await documents.getDocument<User>({ collection: 'users', match: { _id: id } });
-        if (userDoc.data) {
-          if (!userDoc.data.teams) userDoc.data.teams = [];
-          userDoc.data.teams.push({ team: params.id, role: 'ADMIN' });
-          await documents.updateDocument({ collection: 'users', match: { _id: id }, update: { teams: userDoc.data.teams } });
+        const userDoc = await UserService.findById(id);
+        if (userDoc) {
+          if (!userDoc.teams) userDoc.teams = [];
+          userDoc.teams.push({ team: params.id, role: 'ADMIN' });
+          await UserService.updateById(id, { teams: userDoc.teams });
         }
       }
       return {};
@@ -88,11 +85,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         throw new Error('You do not have permission to manage team users.');
       }
       if (!userId) return {};
-      const userDoc = await documents.getDocument<User>({ collection: 'users', match: { _id: userId } });
-      if (userDoc.data && Array.isArray(userDoc.data.teams)) {
-        userDoc.data.teams = userDoc.data.teams.filter(t => t.team !== params.id);
-        await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { teams: userDoc.data.teams } });
-      }
+      await UserService.removeTeam(userId, params.id);
       return {};
     default:
       return {};

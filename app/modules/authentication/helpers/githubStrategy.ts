@@ -2,12 +2,12 @@ import dayjs from "dayjs";
 import find from 'lodash/find';
 import { redirect } from "react-router";
 import { GitHubStrategy } from "remix-auth-github";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { UserService } from "~/modules/users/user";
 import INVITE_LINK_TTL_DAYS from "~/modules/teams/helpers/inviteLink";
-import type { User, UserTeam } from "~/modules/users/users.types";
+import type { UserTeam } from "~/modules/users/users.types";
 import sessionStorage from '../../../../sessionStorage.js';
 
-const githubStrategy = new GitHubStrategy<User>(
+const githubStrategy = new GitHubStrategy<any>(
   {
     //@ts-ignore
     clientId: process.env.GITHUB_CLIENT_ID,
@@ -46,19 +46,19 @@ const githubStrategy = new GitHubStrategy<User>(
 
     const isInvitedUser = !!inviteId;
 
-    const documents = getDocumentsAdapter();
-
-    let user = await documents.getDocument<User>({ collection: 'users', match: { githubId: githubUser.id, hasGithubSSO: true } });
+    const users = await UserService.find({ match: { githubId: githubUser.id, hasGithubSSO: true } });
+    let user = users.length > 0 ? users[0] : null;
 
     let update: any = {};
 
-    if (!user.data) {
+    if (!user) {
       // if no user but is invite, update the invitedUser
       if (isInvitedUser) {
-        user = await documents.getDocument<User>({ collection: 'users', match: { inviteId } });
+        const invitedUsers = await UserService.find({ match: { inviteId } });
+        user = invitedUsers.length > 0 ? invitedUsers[0] : null;
 
-        if (user.data) {
-          if (dayjs().isAfter(dayjs(user.data.invitedAt).add(INVITE_LINK_TTL_DAYS, 'day'))) {
+        if (user) {
+          if (dayjs().isAfter(dayjs(user.invitedAt).add(INVITE_LINK_TTL_DAYS, 'day'))) {
             throw redirect("/?error=EXPIRED_INVITE");
           }
           update.inviteId = null;
@@ -74,23 +74,24 @@ const githubStrategy = new GitHubStrategy<User>(
       }
     } else if (isInvitedUser) {
       // If user already exists, check teams and add if that team does not exist on the user.
-      const invitedUser = await documents.getDocument<User>({ collection: 'users', match: { inviteId } });
+      const invitedUsers = await UserService.find({ match: { inviteId } });
+      const invitedUser = invitedUsers.length > 0 ? invitedUsers[0] : null;
 
-      if (!invitedUser.data) throw redirect("/?error=UNREGISTERED");
+      if (!invitedUser) throw redirect("/?error=UNREGISTERED");
 
-      if (dayjs().isAfter(dayjs(invitedUser.data.invitedAt).add(INVITE_LINK_TTL_DAYS, 'day'))) {
+      if (dayjs().isAfter(dayjs(invitedUser.invitedAt).add(INVITE_LINK_TTL_DAYS, 'day'))) {
         throw redirect("/?error=EXPIRED_INVITE");
       }
 
-      const invitedUserTeam = invitedUser.data.teams[0] as UserTeam
-      const currentUserTeams = user.data.teams;
+      const invitedUserTeam = invitedUser.teams[0] as UserTeam
+      const currentUserTeams = user.teams;
       const isPartOfInvitedTeam = find(currentUserTeams, { team: invitedUserTeam.team });
       if (!isPartOfInvitedTeam) {
         currentUserTeams.push(invitedUserTeam);
         update.teams = currentUserTeams;
       }
       // Remove old invited user.
-      await documents.deleteDocument({ collection: 'users', match: { _id: invitedUser.data._id } });
+      await UserService.deleteById(invitedUser._id);
     }
 
     let email = find(emails, (email) => {
@@ -110,13 +111,9 @@ const githubStrategy = new GitHubStrategy<User>(
     update.username = githubUser.name || githubUser.login;
     update.email = email.email;
 
-    user = await documents.updateDocument<User>({
-      collection: 'users',
-      match: { _id: user.data._id },
-      update
-    });
+    user = await UserService.updateById(user._id, update);
 
-    return user.data;
+    return user;
   }
 );
 

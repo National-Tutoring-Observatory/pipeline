@@ -2,6 +2,7 @@ import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { UserService } from "~/modules/users/user";
 import type { FeatureFlag } from "~/modules/featureFlags/featureFlags.types";
 import type { User } from '~/modules/users/users.types';
 import type { Route } from "./+types/availableTeamUsers.route";
@@ -30,14 +31,13 @@ export async function loader({ request }: Route.LoaderArgs) {
     throw new Error('Feature flag not found');
   }
 
-  const users = await documents.getDocuments<User>({
-    collection: 'users',
+  const users = await UserService.find({
     match: {
-      "featureFlags": { "$ne": featureFlag.data.name },
-      "isRegistered": true
+      featureFlags: { "$ne": featureFlag.data.name },
+      isRegistered: true
     }
   });
 
-  return users;
+  return { data: users };
 
 }
