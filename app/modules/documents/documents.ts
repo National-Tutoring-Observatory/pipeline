@@ -14,14 +14,10 @@ import promptSchema from './schemas/prompt.schema';
 import promptVersionSchema from './schemas/promptVersion.schema';
 import runSchema from './schemas/run.schema';
 import sessionSchema from './schemas/session.schema';
-import userSchema from './schemas/user.schema';
 
 const registerModels = () => {
   if (!mongoose.models.Project) {
     mongoose.model('Project', projectSchema);
-  }
-  if (!mongoose.models.User) {
-    mongoose.model('User', userSchema);
   }
   if (!mongoose.models.Prompt) {
     mongoose.model('Prompt', promptSchema);
