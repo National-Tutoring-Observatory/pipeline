@@ -14,15 +14,14 @@ function generateTimestamp() {
   return dayjs().format('YYYYMMDDHHmmss')
 }
 
-const migrationTemplate = (id, name, description) => `import type { Db } from 'mongodb'
-import type { MigrationFile, MigrationResult } from '~/modules/migrations/types'
+const migrationTemplate = (id, name, description) => `import type { MigrationFile, MigrationResult } from '~/modules/migrations/types'
 
 export default {
   id: '${id}',
   name: '${name}',
   description: '${description}',
 
-  async up(db) {
+  async up(db: Db): Promise<MigrationResult> {
 
     // TODO: Implement migration logic here
 
