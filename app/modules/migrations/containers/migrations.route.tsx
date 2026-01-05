@@ -37,7 +37,6 @@ export async function action({ request }: Route.ActionArgs) {
     const queue = getQueue('general')
     await queue.add('RUN_MIGRATION', {
       migrationId,
-      direction: 'up',
       userId: user._id,
       props: {
         event: 'migration:update',

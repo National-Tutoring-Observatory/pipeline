@@ -21,7 +21,6 @@ describe('MigrationService', () => {
       // Create a migration run
       const run = await MigrationRunService.create({
         migrationId: 'test-001',
-        direction: 'up',
         triggeredBy: user._id,
         jobId: 'job-1'
       })
@@ -31,8 +30,8 @@ describe('MigrationService', () => {
         {
           id: 'test-001',
           name: 'Test Migration',
-          up: vi.fn(),
-          down: vi.fn()
+          description: 'Test migration description',
+          up: vi.fn()
         }
       ] as any)
 
@@ -50,8 +49,8 @@ describe('MigrationService', () => {
         {
           id: 'test-001',
           name: 'Test Migration',
-          up: vi.fn(),
-          down: vi.fn()
+          description: 'Test migration description',
+          up: vi.fn()
         }
       ] as any)
 
@@ -67,7 +66,6 @@ describe('MigrationService', () => {
 
       const run = await MigrationRunService.create({
         migrationId: 'test-001',
-        direction: 'up',
         triggeredBy: user._id,
         jobId: 'job-1'
       })
@@ -82,8 +80,8 @@ describe('MigrationService', () => {
         {
           id: 'test-001',
           name: 'Test Migration',
-          up: vi.fn(),
-          down: vi.fn()
+          description: 'Test migration description',
+          up: vi.fn()
         }
       ] as any)
 

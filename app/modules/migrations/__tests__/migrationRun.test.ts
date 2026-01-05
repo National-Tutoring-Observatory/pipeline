@@ -15,7 +15,6 @@ describe('MigrationRunService', () => {
 
       const run = await MigrationRunService.create({
         migrationId: 'test-001',
-        direction: 'up',
         triggeredBy: user._id,
         jobId: 'job-1'
       })
@@ -33,7 +32,6 @@ describe('MigrationRunService', () => {
 
       const run = await MigrationRunService.create({
         migrationId: 'test-001',
-        direction: 'up',
         triggeredBy: user._id,
         jobId: 'job-1'
       })
