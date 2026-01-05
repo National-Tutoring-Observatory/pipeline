@@ -1,0 +1,150 @@
+import map from 'lodash/map';
+import { useEffect, useState } from "react";
+import { redirect, useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
+import { toast } from "sonner";
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import type { CreateRun, Run } from "~/modules/runs/runs.types";
+import ProjectRunCreatorContainer from "../containers/projectRunCreator.container";
+import type { Project } from "../projects.types";
+import createRunAnnotations from '../services/createRunAnnotations.server';
+import startRun from '../services/startRun.server';
+import type { Route } from "./+types/projectCreateRun.route";
+import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
+
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const documents = getDocumentsAdapter();
+  const authenticationTeams = await getSessionUserTeams({ request });
+  const teamIds = map(authenticationTeams, 'team');
+  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } } });
+  if (!project.data) {
+    return redirect('/');
+  }
+  return { project };
+}
+
+export async function action({
+  request,
+  params,
+  context
+}: Route.ActionArgs) {
+
+  const { intent, payload = {} } = await request.json();
+
+  const {
+    name,
+    annotationType,
+    prompt,
+    promptVersion,
+    model,
+    sessions
+  } = payload;
+
+  const documents = getDocumentsAdapter();
+
+  switch (intent) {
+    case 'CREATE_AND_START_RUN': {
+      if (typeof name !== "string") {
+        throw new Error("Run name is required and must be a string.");
+      }
+      if (!['PER_UTTERANCE', 'PER_SESSION'].includes(annotationType)) {
+        throw new Error("Invalid annotation type.");
+      }
+
+      const newRun = await documents.createDocument<Run>({
+        collection: 'runs', update: {
+          project: params.projectId,
+          name,
+          annotationType,
+          hasSetup: false,
+          isRunning: false,
+          isComplete: false
+        }
+      });
+
+      if (!newRun.data) {
+        throw new Error('Failed to create run');
+      }
+
+      const startedRun = await startRun({
+        runId: newRun.data._id,
+        projectId: params.projectId,
+        sessions,
+        annotationType: annotationType,
+        prompt,
+        promptVersion: Number(promptVersion),
+        modelCode: model
+      }, { request, context });
+
+      if (!startedRun.data) {
+        throw new Error('Failed to start run');
+      }
+
+      createRunAnnotations({ runId: startedRun.data._id }, { request });
+
+      return {
+        intent: 'CREATE_AND_START_RUN',
+        data: startedRun.data
+      }
+    }
+    default: {
+      return {};
+    }
+  }
+}
+
+export default function ProjectCreateRunRoute() {
+  const { project } = useLoaderData();
+  const actionData = useActionData();
+  const submit = useSubmit();
+  const navigate = useNavigate();
+  const [runName, setRunName] = useState('');
+
+  const onRunNameChanged = (name: string) => {
+    setRunName(name);
+  }
+
+  const onStartRunClicked = ({
+    selectedAnnotationType,
+    selectedPrompt,
+    selectedPromptVersion,
+    selectedModel,
+    selectedSessions }: CreateRun) => {
+
+    submit(JSON.stringify({
+      intent: 'CREATE_AND_START_RUN',
+      payload: {
+        name: runName,
+        annotationType: selectedAnnotationType,
+        prompt: selectedPrompt,
+        promptVersion: Number(selectedPromptVersion),
+        model: selectedModel,
+        sessions: selectedSessions
+      }
+    }), { method: 'POST', encType: 'application/json' });
+  }
+
+  useEffect(() => {
+    if (actionData?.intent === 'CREATE_AND_START_RUN') {
+      toast.success('Run created and started');
+      navigate(`/projects/${actionData.data.project}/runs/${actionData.data._id}`);
+    }
+  }, [actionData]);
+
+  useEffect(() => {
+    updateBreadcrumb([{ text: 'Projects', link: `/` }, { text: project.data!.name, link: `/projects/${project.data!._id}` }]);
+  }, [project.data]);
+
+  return (
+    <div className="max-w-6xl p-8">
+      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
+        Create a new run
+      </h1>
+      <ProjectRunCreatorContainer
+        runName={runName}
+        onRunNameChanged={onRunNameChanged}
+        onStartRunClicked={onStartRunClicked}
+      />
+    </div>
+  )
+}

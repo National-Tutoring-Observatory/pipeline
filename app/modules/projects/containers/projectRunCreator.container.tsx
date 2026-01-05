@@ -7,17 +7,19 @@ import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
 import ProjectRunCreator from "../components/projectRunCreator";
 
-export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
-  run: Run,
-  onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions }: CreateRun) => void
-}) {
+interface ProjectRunCreatorContainerProps {
+  runName: string;
+  onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions }: CreateRun) => void;
+  onRunNameChanged: (name: string) => void;
+}
 
-  const [selectedAnnotationType, setSelectedAnnotationType] = useState(run.annotationType);
-  const [selectedPrompt, setSelectedPrompt] = useState(run.prompt as string | null);
-  const [selectedPromptVersion, setSelectedPromptVersion] = useState(run.promptVersion as number | null);
-  const [selectedModel, setSelectedModel] = useState(getRunModelCode(run) || aiGatewayConfig.defaultModel);
-  const [selectedSessions, setSelectedSessions] = useState<string[]>(map(run.sessions, 'sessionId'));
-  const [randomSampleSize, setRandomSampleSize] = useState(0);
+export default function ProjectRunCreatorContainer({ runName: initialRunName, onStartRunClicked, onRunNameChanged }: ProjectRunCreatorContainerProps) {
+  const [runName, setRunName] = useState(initialRunName);
+  const [selectedAnnotationType, setSelectedAnnotationType] = useState('PER_UTTERANCE');
+  const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
+  const [selectedPromptVersion, setSelectedPromptVersion] = useState<number | null>(null);
+  const [selectedModel, setSelectedModel] = useState(aiGatewayConfig.defaultModel);
+  const [selectedSessions, setSelectedSessions] = useState<string[]>([]);  const [randomSampleSize, setRandomSampleSize] = useState(0);
   const [isRunButtonDisabled, setIsRunButtonDisabled] = useState(true);
 
   const sessionsFetcher = useFetcher({ key: 'sessionsList' });
@@ -53,6 +55,11 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
     setSelectedSessions(randomSessions);
   }
 
+  const onRunNameChangedHandler = (name: string) => {
+    setRunName(name);
+    onRunNameChanged(name);
+  }
+
   const onStartRunButtonClicked = () => {
     onStartRunClicked({
       selectedAnnotationType,
@@ -77,6 +84,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
 
   return (
     <ProjectRunCreator
+      runName={runName}
       selectedAnnotationType={selectedAnnotationType}
       selectedPrompt={selectedPrompt}
       selectedPromptVersion={selectedPromptVersion}
@@ -85,6 +93,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
       randomSampleSize={randomSampleSize}
       sessionsCount={sessionsFetcher?.data?.sessions?.count || 0}
       isRunButtonDisabled={isRunButtonDisabled}
+      onRunNameChanged={onRunNameChangedHandler}
       onSelectedAnnotationTypeChanged={onSelectedAnnotationTypeChanged}
       onSelectedPromptChanged={onSelectedPromptChanged}
       onSelectedPromptVersionChanged={onSelectedPromptVersionChanged}
