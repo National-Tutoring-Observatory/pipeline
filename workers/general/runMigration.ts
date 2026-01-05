@@ -5,7 +5,7 @@ import type { Job } from 'bullmq'
 import emitFromJob from '../helpers/emitFromJob'
 
 export default async function runMigration(job: Job) {
-  const { migrationId, direction = 'up', userId } = job.data || {}
+  const { migrationId, userId } = job.data || {}
 
   if (!migrationId) {
     throw new Error('missing migrationId')
@@ -32,14 +32,12 @@ export default async function runMigration(job: Job) {
 
   const historyDoc = await MigrationRunService.create({
     migrationId,
-    direction,
     triggeredBy: userId,
     jobId: job.id!
   })
 
   await emitFromJob(job, {
     migrationId,
-    direction,
     status: 'STARTED'
   }, 'STARTED')
 
@@ -55,12 +53,11 @@ export default async function runMigration(job: Job) {
 
       await emitFromJob(job, {
         migrationId,
-        direction,
         result,
         status: 'FINISHED'
       }, 'FINISHED')
 
-      return { status: 'COMPLETED', migrationId, direction, result }
+      return { status: 'COMPLETED', migrationId, result }
     } else {
       await MigrationRunService.updateById(historyDoc._id, {
         status: 'failed',
@@ -70,7 +67,6 @@ export default async function runMigration(job: Job) {
 
       await emitFromJob(job, {
         migrationId,
-        direction,
         error: result.message,
         status: 'ERRORED'
       }, 'ERRORED')
@@ -88,7 +84,6 @@ export default async function runMigration(job: Job) {
 
     await emitFromJob(job, {
       migrationId,
-      direction,
       error: errorMessage,
       status: 'ERRORED'
     }, 'ERRORED')

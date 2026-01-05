@@ -44,7 +44,6 @@ export class MigrationRunService {
 
   static async create(data: {
     migrationId: string
-    direction: MigrationDirection
     triggeredBy: string
     jobId: string
   }): Promise<Migration> {

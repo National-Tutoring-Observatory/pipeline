@@ -202,7 +202,6 @@ describe('migrations.route', () => {
         'RUN_MIGRATION',
         expect.objectContaining({
           migrationId: 'test-migration-123',
-          direction: 'up',
           userId: user._id,
           props: expect.objectContaining({
             event: 'migration:update',
