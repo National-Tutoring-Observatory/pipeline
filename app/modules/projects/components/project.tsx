@@ -13,17 +13,17 @@ import type { User } from "~/modules/users/users.types";
 import type { Project } from "../projects.types";
 
 interface ProjectProps {
-  project: Project,
-  filesCount: number,
-  sessionsCount: number,
-  runsCount: number,
-  collectionsCount: number,
-  tabValue: string,
-  uploadFilesProgress: number,
-  convertFilesProgress: number,
-  convertedSessionsCount: number,
-  onUploadFiles: ({ acceptedFiles, fileType }: { acceptedFiles: File[], fileType: FileType }) => void,
-  onEditProjectButtonClicked: (project: Project) => void
+  project: Project;
+  filesCount: number;
+  sessionsCount: number;
+  runsCount: number;
+  collectionsCount: number;
+  tabValue: string;
+  uploadFilesProgress: number;
+  convertFilesProgress: number;
+  convertedSessionsCount: number;
+  onUploadFiles: ({ acceptedFiles }: { acceptedFiles: File[] }) => void;
+  onEditProjectButtonClicked: (project: Project) => void;
 }
 
 export default function Project({

@@ -21,7 +21,13 @@ const SEED_PROJECTS = [
   {
     name: 'Tutoring Transcripts Study 2024',
     files: [
-      'test_file.csv'
+      { name: 'test_upload.csv', type: 'CSV' }
+    ],
+  },
+  {
+    name: 'Tutoring Transcripts JSONL Study',
+    files: [
+      { name: 'test_upload.jsonl', type: 'JSONL' }
     ],
   }
 ];
@@ -93,15 +99,16 @@ export async function seedProjects() {
   }
 }
 
-async function processProjectFiles(projectId: string, teamId: string, fileNames: string[]) {
+async function processProjectFiles(projectId: string, teamId: string, files: Array<{ name: string; type: string }>) {
   // Load fixture files as File objects
-  const fixtureFiles: File[] = [];
-  for (const fileName of fileNames) {
-    const fixturePath = path.join(FIXTURES_DIR, fileName);
+  const fixtureFiles: Array<{ file: File; type: string }> = [];
+  for (const fileConfig of files) {
+    const fixturePath = path.join(FIXTURES_DIR, fileConfig.name);
     if (fs.existsSync(fixturePath)) {
       const fileBuffer = fs.readFileSync(fixturePath);
-      const fileObj = new File([fileBuffer], fileName, { type: 'text/csv' });
-      fixtureFiles.push(fileObj);
+      const mimeType = fileConfig.type === 'JSONL' ? 'application/jsonl' : 'text/csv';
+      const fileObj = new File([fileBuffer], fileConfig.name, { type: mimeType });
+      fixtureFiles.push({ file: fileObj, type: fileConfig.type as 'CSV' | 'JSONL' });
     }
   }
 
@@ -124,7 +131,8 @@ async function processProjectFiles(projectId: string, teamId: string, fileNames:
   }
 
   // Step 1: Split CSV/JSONL files by session_id
-  let splitFiles = await splitMultipleSessionsIntoFiles({ files: fixtureFiles, fileType: 'CSV' });
+  const filesToSplit = fixtureFiles.map(({ file }) => file);
+  const splitFiles = await splitMultipleSessionsIntoFiles({ files: filesToSplit });
   console.log(`      ✓ Split ${fixtureFiles.length} file(s) into ${splitFiles.length} session(s)`);
 
   // Step 2: Get attribute mapping from first split file

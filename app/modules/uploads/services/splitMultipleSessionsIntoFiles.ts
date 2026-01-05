@@ -1,69 +1,66 @@
-import { parse } from 'csv-parse/sync';
-import type { FileType } from '~/modules/files/files.types';
+import detectFileType from '~/modules/files/helpers/detectFileType';
+import { SUPPORTED_FILE_TYPES } from '~/modules/files/constants';
+import parseCSV from '../parsers/csvParser';
+import parseJSONL from '../parsers/jsonlParser';
 
-export default async function splitMultipleSessionsIntoFiles({ files, fileType }: { files: File[], fileType: FileType }): Promise<File[]> {
-  const splitFiles = [];
-  let fileIndex = 0;
+export default async function splitMultipleSessionsIntoFiles({
+  files,
+}: {
+  files: File[];
+}): Promise<File[]> {
+  if (files.length === 0) {
+    throw new Error('No files provided.');
+  }
+
+  const splitFiles: File[] = [];
+  const sessionIds = new Set<string>();
 
   for (const file of files) {
+    const detectedType = detectFileType(file.name);
 
-    let lineIndex = 0;
-    const fileContents = await file.text();
-
-    if (fileType === 'JSONL') {
-
-      const lines = fileContents.split('\n');
-
-      for (const line of lines) {
-        if (line.trim() === '') continue;
-        const splitFileName = `session-${fileIndex + 1}-${lineIndex + 1}.json`;
-
-        const options = {
-          type: 'application/json',
-        };
-
-        const newFile = new File([line], splitFileName, options);
-
-        splitFiles.push(newFile);
-        lineIndex++;
-      }
-    } else if (fileType === 'CSV') {
-
-      const lines = parse(fileContents, {
-        columns: true,
-        skip_empty_lines: true,
-      }) as Array<Record<string, string>>;
-
-      const files = new Map();
-
-      for (const line of lines) {
-        const sessionId = line.session_id;
-        if (!files.has(sessionId)) {
-          files.set(sessionId, []);
-        }
-        files.get(sessionId).push(line);
-      }
-
-      for (const [fileId, fileObject] of files.entries()) {
-        const splitFileName = `${fileId.replace(/\.[^.]+$/, '')}.json`;
-
-        const options = {
-          type: 'application/json',
-        };
-
-        const newFile = new File([JSON.stringify(fileObject)], splitFileName, options);
-
-        splitFiles.push(newFile);
-
-        lineIndex++;
-      }
-
+    if (!detectedType || !SUPPORTED_FILE_TYPES.includes(detectedType)) {
+      throw new Error(
+        `Unsupported file type: "${file.name}". Only ${SUPPORTED_FILE_TYPES.join(', ')} files are allowed.`
+      );
     }
 
-    fileIndex++;
+    const fileContents = await file.text();
+    let sessionDataMap: Record<string, any[]>;
 
+    try {
+      if (detectedType === 'JSONL') {
+        sessionDataMap = parseJSONL(fileContents);
+      } else if (detectedType === 'CSV') {
+        sessionDataMap = parseCSV(fileContents);
+      } else {
+        throw new Error(`Unsupported file type: ${detectedType}`);
+      }
+    } catch (error) {
+      throw new Error(
+        `Error parsing ${detectedType} file "${file.name}": ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+
+    // Check for session_id collisions
+    for (const sessionId of Object.keys(sessionDataMap)) {
+      if (sessionIds.has(sessionId)) {
+        throw new Error(
+          `Session ID collision detected: "${sessionId}" appears in multiple files. Each session must have a unique ID.`
+        );
+      }
+      sessionIds.add(sessionId);
+    }
+
+    for (const [sessionId, sessionData] of Object.entries(sessionDataMap)) {
+      const splitFileName = `${sessionId.replace(/\.[^.]+$/, '')}.json`;
+
+      const newFile = new File([JSON.stringify(sessionData)], splitFileName, {
+        type: 'application/json',
+      });
+
+      splitFiles.push(newFile);
+    }
   }
 
   return splitFiles;
-
 }

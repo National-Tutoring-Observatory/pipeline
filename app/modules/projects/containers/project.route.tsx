@@ -10,7 +10,6 @@ import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { FileType } from '~/modules/files/files.types';
 import type { Session } from "~/modules/sessions/sessions.types";
 import splitMultipleSessionsIntoFiles from '~/modules/uploads/services/splitMultipleSessionsIntoFiles';
 import uploadFiles from "~/modules/uploads/services/uploadFiles";
@@ -76,17 +75,27 @@ export async function action({
       throw new Error("You do not have permission to upload files to this project.");
     }
 
-    let files = formData.getAll('files') as File[];
+    const uploadedFiles = formData.getAll('files') as File[];
 
-    if (body.fileType === 'CSV' || body.fileType === 'JSONL') {
-      files = await splitMultipleSessionsIntoFiles({ files, fileType: body.fileType });
+    if (uploadedFiles.length === 0) {
+      throw new Error('No files provided.');
+    }
+
+    let splitFiles: File[] = [];
+
+    try {
+      splitFiles = await splitMultipleSessionsIntoFiles({ files: uploadedFiles });
+    } catch (error) {
+      throw new Error(
+        `File processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
 
     const projectTeam = project.data.team as string;
 
-    const attributesMapping = await getAttributeMappingFromFile({ file: files[0], team: projectTeam });
+    const attributesMapping = await getAttributeMappingFromFile({ file: splitFiles[0], team: projectTeam });
 
-    uploadFiles({ files, entityId }).then(async () => {
+    uploadFiles({ files: splitFiles, entityId }).then(async () => {
       await createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true, attributesMapping });
     });
 
@@ -119,16 +128,13 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
 
   const onUploadFiles = async ({
     acceptedFiles,
-    fileType,
   }: {
     acceptedFiles: File[],
-    fileType: FileType,
   }) => {
     const formData = new FormData();
     formData.append('body', JSON.stringify({
       intent: 'UPLOAD_PROJECT_FILES',
       entityId: project.data!._id,
-      fileType,
       files: Array.from(acceptedFiles).map(file => ({
         name: file.name,
         size: file.size,

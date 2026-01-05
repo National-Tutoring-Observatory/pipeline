@@ -1,0 +1,11 @@
+session_id,role,content,sequence_id
+session_001,Tutor,Hello! Today we're going to work on fractions.,1
+session_001,Student,Hi! I'm ready to learn.,2
+session_001,Tutor,Great! Let's start with a simple example.,3
+session_001,Student,Okay I'm listening.,4
+session_001,Tutor,A fraction shows a part of a whole.,5
+session_001,Student,Got it. Can you show me an example?,6
+session_002,Tutor,Welcome back! Let's review decimals today.,1
+session_002,Student,Hello! I've been practicing.,2
+session_002,Tutor,Excellent! Show me what you've learned.,3
+session_002,Student,I understand how to convert fractions to decimals.,4
