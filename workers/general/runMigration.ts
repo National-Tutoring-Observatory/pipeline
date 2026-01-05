@@ -1,5 +1,5 @@
 import getDatabaseConnection from 'app/documentsAdapters/documentDB/helpers/getDatabaseConnection'
-import { completeMigrationRun, createMigrationRun, failMigrationRun } from 'app/modules/migrations/queries'
+import { MigrationRunService } from 'app/modules/migrations/migrationRun'
 import { getAllMigrations } from 'app/modules/migrations/registry'
 import type { Job } from 'bullmq'
 import emitFromJob from '../helpers/emitFromJob'
@@ -15,6 +15,14 @@ export default async function runMigration(job: Job) {
     throw new Error('missing userId')
   }
 
+  // Establish database connection before any operations
+  const { connection } = await getDatabaseConnection()
+  const db = connection.db
+
+  if (!db) {
+    throw new Error('Database connection not established')
+  }
+
   const migrations = await getAllMigrations()
   const migration = migrations.find(m => m.id === migrationId)
 
@@ -22,7 +30,7 @@ export default async function runMigration(job: Job) {
     throw new Error(`Migration not found: ${migrationId}`)
   }
 
-  const historyDoc = await createMigrationRun({
+  const historyDoc = await MigrationRunService.create({
     migrationId,
     direction,
     triggeredBy: userId,
@@ -35,18 +43,15 @@ export default async function runMigration(job: Job) {
     status: 'STARTED'
   }, 'STARTED')
 
-  const { connection } = await getDatabaseConnection()
-  const db = connection.db
-
-  if (!db) {
-    throw new Error('Database connection not established')
-  }
-
   try {
     const result = await migration.up(db)
 
     if (result.success) {
-      await completeMigrationRun(historyDoc._id, result)
+      await MigrationRunService.updateById(historyDoc._id, {
+        status: 'completed',
+        completedAt: new Date(),
+        result
+      })
 
       await emitFromJob(job, {
         migrationId,
@@ -57,7 +62,11 @@ export default async function runMigration(job: Job) {
 
       return { status: 'COMPLETED', migrationId, direction, result }
     } else {
-      await failMigrationRun(historyDoc._id, result.message)
+      await MigrationRunService.updateById(historyDoc._id, {
+        status: 'failed',
+        completedAt: new Date(),
+        error: result.message
+      })
 
       await emitFromJob(job, {
         migrationId,
@@ -71,7 +80,11 @@ export default async function runMigration(job: Job) {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
 
-    await failMigrationRun(historyDoc._id, errorMessage)
+    await MigrationRunService.updateById(historyDoc._id, {
+      status: 'failed',
+      completedAt: new Date(),
+      error: errorMessage
+    })
 
     await emitFromJob(job, {
       migrationId,
