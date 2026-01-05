@@ -19,6 +19,7 @@ export default [
         id: "COLLECTIONS"
       }),
     ]),
+    route(":projectId/create-run", "modules/projects/containers/projectCreateRun.route.tsx"),
     route(":projectId/runs/:runId", "modules/projects/containers/projectRun.route.tsx"),
     route(":projectId/runs/:runId/sessions/:sessionId", "modules/projects/containers/projectRunSessions.route.tsx"),
     route(":projectId/collections/:collectionId", "modules/projects/containers/projectCollection.route.tsx")
