@@ -5,12 +5,17 @@ import clsx from "clsx";
 import { Pencil } from "lucide-react";
 import { useContext } from "react";
 import { Link, Outlet } from "react-router";
+import type { FetcherWithComponents } from "react-router";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import UploadFilesContainer from "~/modules/files/containers/uploadFiles.container";
-import type { FileType } from "~/modules/files/files.types";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import type { User } from "~/modules/users/users.types";
 import type { Project } from "../projects.types";
+
+interface UploadFilesData {
+  errors?: Record<string, string>;
+  success?: boolean;
+}
 
 interface ProjectProps {
   project: Project;
@@ -22,7 +27,7 @@ interface ProjectProps {
   uploadFilesProgress: number;
   convertFilesProgress: number;
   convertedSessionsCount: number;
-  onUploadFiles: ({ acceptedFiles }: { acceptedFiles: File[] }) => void;
+  uploadFetcher: FetcherWithComponents<UploadFilesData>;
   onEditProjectButtonClicked: (project: Project) => void;
 }
 
@@ -36,8 +41,8 @@ export default function Project({
   uploadFilesProgress,
   convertFilesProgress,
   convertedSessionsCount,
-  onUploadFiles
-  , onEditProjectButtonClicked
+  uploadFetcher,
+  onEditProjectButtonClicked
 }: ProjectProps) {
   const user = useContext(AuthenticationContext) as User | null;
   const canUpdate = ProjectAuthorization.canUpdate(user, project);
@@ -60,7 +65,8 @@ export default function Project({
       {(!project.hasSetupProject) && (
         <div>
           <UploadFilesContainer
-            onUploadFiles={onUploadFiles}
+            projectId={project._id}
+            uploadFetcher={uploadFetcher}
           />
         </div>
       )}

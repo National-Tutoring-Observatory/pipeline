@@ -1,36 +1,54 @@
-import { useState } from 'react';
+import type { FetcherWithComponents } from 'react-router';
 import UploadFiles from '../components/uploadFiles';
 import type { FileType } from '../files.types';
 import { SUPPORTED_FILE_TYPES } from '../constants';
 import getInstructionsByFileType from '../helpers/getInstructionsByFileType';
 import useFileAccumulator from '../hooks/useFileAccumulator';
 
-interface UploadFilesContainerProps {
-  onUploadFiles: ({ acceptedFiles }: { acceptedFiles: File[] }) => void;
+interface UploadFilesData {
+  errors?: Record<string, string>;
+  success?: boolean;
 }
 
-export default function UploadFilesContainer({ onUploadFiles }: UploadFilesContainerProps) {
-  const { acceptedFiles, addFiles, removeFile } = useFileAccumulator();
-  const [isUploading, setIsUploading] = useState(false);
+interface UploadFilesContainerProps {
+  projectId: string;
+  uploadFetcher: FetcherWithComponents<UploadFilesData>;
+}
 
-  const onUploadFilesClicked = () => {
-    setIsUploading(true);
-    onUploadFiles({ acceptedFiles });
-  };
+export default function UploadFilesContainer({ projectId, uploadFetcher }: UploadFilesContainerProps) {
+  const { acceptedFiles, addFiles, removeFile } = useFileAccumulator();
 
   const instructionsByType = SUPPORTED_FILE_TYPES.reduce((acc, fileType) => {
     acc[fileType] = getInstructionsByFileType({ fileType });
     return acc;
   }, {} as Record<FileType, { overview: string, link: string }>);
 
+  const handleUpload = () => {
+    const formData = new FormData();
+    formData.append('body', JSON.stringify({
+      intent: 'UPLOAD_PROJECT_FILES',
+      entityId: projectId
+    }));
+
+    acceptedFiles.forEach((file) => {
+      formData.append('files', file);
+    });
+
+    uploadFetcher.submit(formData, {
+      method: 'POST',
+      encType: 'multipart/form-data'
+    });
+  };
+
   return (
     <UploadFiles
       acceptedFiles={acceptedFiles}
       instructionsByType={instructionsByType}
-      isUploading={isUploading}
+      isUploading={uploadFetcher.state === 'submitting'}
       onDrop={addFiles}
       onDeleteAcceptedFileClicked={removeFile}
-      onUploadFilesClicked={onUploadFilesClicked}
+      fetcher={uploadFetcher}
+      onUploadClick={handleUpload}
     />
   );
 }
