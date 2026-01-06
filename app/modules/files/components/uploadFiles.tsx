@@ -8,9 +8,15 @@ import map from 'lodash/map';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Link } from 'react-router';
+import type { FetcherWithComponents } from 'react-router';
 import type { FileType } from '../files.types';
 import { SUPPORTED_FILE_TYPES } from '../constants';
 import getFileUploadAccepts from '../helpers/getFileUploadAccepts';
+
+interface UploadFilesData {
+  errors?: Record<string, string>;
+  success?: boolean;
+}
 
 export default function UploadFiles({
   acceptedFiles,
@@ -18,16 +24,19 @@ export default function UploadFiles({
   isUploading,
   onDrop,
   onDeleteAcceptedFileClicked,
-  onUploadFilesClicked,
+  fetcher,
+  onUploadClick,
 }: {
-  acceptedFiles: { _id: string, name: string, type: string }[],
-  instructionsByType: Record<FileType, { overview: string, link: string }>,
-  isUploading: boolean,
-  onDrop: (acceptedFiles: File[]) => void,
-  onDeleteAcceptedFileClicked: (id: string) => void,
-  onUploadFilesClicked: () => void,
+  acceptedFiles: { _id: string; name: string; type: string }[];
+  instructionsByType: Record<FileType, { overview: string; link: string }>;
+  isUploading: boolean;
+  onDrop: (acceptedFiles: File[]) => void;
+  onDeleteAcceptedFileClicked: (id: string) => void;
+  fetcher: FetcherWithComponents<UploadFilesData>;
+  onUploadClick: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<FileType>('CSV');
+  const data = fetcher.data as UploadFilesData | undefined;
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept: getFileUploadAccepts(SUPPORTED_FILE_TYPES), onDrop });
 
@@ -57,6 +66,12 @@ export default function UploadFiles({
                   <p>Drag 'n' drop some files here, or click to select files</p>
               }
             </div>
+            {data?.errors?.files && (
+              <div className="text-sm text-destructive space-y-1">
+                <p>{data.errors.files}</p>
+                <p>Check the File Instructions for the correct format.</p>
+              </div>
+            )}
           </div>
         </div>
         <div className="h-full">
@@ -129,7 +144,7 @@ export default function UploadFiles({
             <Button
               size="lg"
               disabled={isUploading}
-              onClick={onUploadFilesClicked}
+              onClick={onUploadClick}
             >
               {uploadButtonText}
             </Button>

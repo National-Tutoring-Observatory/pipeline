@@ -3,7 +3,7 @@ import filter from 'lodash/filter';
 import has from 'lodash/has';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
-import { redirect, useFetcher, useMatches, useRevalidator, useSubmit } from "react-router";
+import { redirect, useFetcher, useMatches, useRevalidator, data } from "react-router";
 import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
@@ -51,34 +51,34 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export async function action({
   request,
 }: Route.ActionArgs) {
+  const user = await getSessionUser({ request }) as User;
 
-  if (request.headers.get('content-type') === 'application/json') {
-    const { intent, entityId, payload } = await request.json()
-    return {};
-  } else {
-    const formData = await request.formData();
-    // @ts-ignore
-    const body = JSON.parse(formData.get('body'));
+  if (!user) {
+    return redirect('/');
+  }
+
+  const documents = getDocumentsAdapter();
+
+  const formData = await request.formData();
+    const body = JSON.parse(String(formData.get('body')));
     const { entityId } = body;
-    const user = await getSessionUser({ request }) as User;
-
-    if (!user) {
-      return redirect('/');
-    }
-
-    const documents = getDocumentsAdapter();
 
     const project = await documents.getDocument<ProjectType>({ collection: 'projects', match: { _id: entityId } });
-    if (!project.data) throw new Error('Project not found');
+    if (!project.data) {
+      return data({ errors: { general: 'Project not found' } }, { status: 400 });
+    }
 
     if (!ProjectAuthorization.canUpdate(user, project.data)) {
-      throw new Error("You do not have permission to upload files to this project.");
+      return data(
+        { errors: { general: 'You do not have permission to upload files to this project.' } },
+        { status: 403 }
+      );
     }
 
     const uploadedFiles = formData.getAll('files') as File[];
 
     if (uploadedFiles.length === 0) {
-      throw new Error('No files provided.');
+      return data({ errors: { files: 'Please select at least one file.' } }, { status: 400 });
     }
 
     let splitFiles: File[] = [];
@@ -86,8 +86,17 @@ export async function action({
     try {
       splitFiles = await splitMultipleSessionsIntoFiles({ files: uploadedFiles });
     } catch (error) {
-      throw new Error(
-        `File processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return data(
+        { errors: { files: `File processing failed: ${errorMessage}` } },
+        { status: 400 }
+      );
+    }
+
+    if (splitFiles.length === 0) {
+      return data(
+        { errors: { files: 'No valid sessions found in uploaded files.' } },
+        { status: 400 }
       );
     }
 
@@ -99,9 +108,17 @@ export async function action({
       await createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true, attributesMapping });
     });
 
-    return await documents.updateDocument<ProjectType>({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, hasSetupProject: true } });
+    const result = await documents.updateDocument<ProjectType>({
+      collection: 'projects',
+      match: { _id: entityId },
+      update: { isUploadingFiles: true, hasSetupProject: true }
+    });
 
-  }
+    if (!result.data) {
+      return data({ errors: { general: 'Failed to update project' } }, { status: 500 });
+    }
+
+    return data({ success: true });
 }
 
 
@@ -116,8 +133,8 @@ const debounceRevalidate = throttle((revalidate) => {
 export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const { project, filesCount, sessionsCount, convertedSessionsCount, runsCount, collectionsCount } = loaderData;
 
-  const submit = useSubmit();
-  const fetcher = useFetcher();
+  const uploadFetcher = useFetcher();
+  const editFetcher = useFetcher();
 
   const matches = useMatches();
 
@@ -126,45 +143,26 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const [uploadFilesProgress, setUploadFilesProgress] = useState(0);
   const [convertFilesProgress, setConvertFilesProgress] = useState(0);
 
-  const onUploadFiles = async ({
-    acceptedFiles,
-  }: {
-    acceptedFiles: File[],
-  }) => {
-    const formData = new FormData();
-    formData.append('body', JSON.stringify({
-      intent: 'UPLOAD_PROJECT_FILES',
-      entityId: project.data!._id,
-      files: Array.from(acceptedFiles).map(file => ({
-        name: file.name,
-        size: file.size,
-        type: file.type,
-      })),
-    }))
-    for (const file of acceptedFiles) {
-      const blob = new Blob([file], { type: file.type });
-      formData.append('files', blob, file.name);
-    }
-
-    await submit(formData, {
-      method: 'POST',
-      encType: 'multipart/form-data',
-    }).then(() => {
-      toast.success('Uploading files');
-    });
-  }
-
   const onEditProjectButtonClicked = (project: ProjectType) => {
     addDialog(<EditProjectDialog project={project} onEditProjectClicked={(p: ProjectType) => {
-      fetcher.submit(JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: p._id, payload: { name: p.name } }), { method: 'PUT', encType: 'application/json', action: '/api/projects' });
+      editFetcher.submit(JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: p._id, payload: { name: p.name } }), { method: 'PUT', encType: 'application/json', action: '/api/projects' });
     }} />);
   }
 
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data) {
+    console.log(editFetcher)
+    if (editFetcher.state === 'idle' && editFetcher.data) {
       toast.success('Updated project');
     }
-  }, [fetcher.state, fetcher.data]);
+  }, [editFetcher.state, editFetcher.data]);
+
+  useEffect(() => {
+    if (uploadFetcher.data?.success) {
+      toast.success('Files uploaded successfully');
+    } else if (uploadFetcher.data?.errors) {
+      toast.error('Upload failed');
+    }
+  }, [uploadFetcher.data]);
 
   useHandleSockets({
     event: 'CONVERT_FILES_TO_SESSIONS',
@@ -242,7 +240,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       tabValue={matches[matches.length - 1].id}
       convertFilesProgress={convertFilesProgress}
       uploadFilesProgress={uploadFilesProgress}
-      onUploadFiles={onUploadFiles}
+      uploadFetcher={uploadFetcher}
       onEditProjectButtonClicked={onEditProjectButtonClicked}
     />
   );
