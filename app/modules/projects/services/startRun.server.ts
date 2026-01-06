@@ -52,6 +52,7 @@ export default async function startRun({
       annotationType,
       prompt,
       promptVersion,
+      model: modelCode, // Store code for safety until migration runs
       sessions: sessionsAsObjects,
       snapshot
     }
