@@ -29,26 +29,25 @@ export default {
   async up(db: Db): Promise<MigrationResult> {
     const runsCollection = db.collection('runs')
 
-    // Find all runs that have a model but no snapshot.model
-    const runs = await runsCollection
-      .find({
-        model: { $exists: true, $ne: null },
-        'snapshot.model': { $exists: false }
-      })
-      .toArray()
+    const runs = runsCollection.find({
+      model: { $exists: true, $ne: null },
+      'snapshot.model': { $exists: false }
+    })
 
+    let total = 0
     let migrated = 0
     let failed = 0
     let mappedFromOldProvider = 0
     let missingModelConfig = 0
 
-    console.log(`Found ${runs.length} runs to backfill with model snapshots`)
+    console.log(`Processing runs that need model snapshot backfill`)
 
-    for (const run of runs) {
+    for await (const run of runs) {
+      total++
       if (!run.model) continue
 
       try {
-        // Step 1: Map old provider names to model codes if needed
+        // Step 1: Check if this is an old provider name or already a model code
         let modelCode = run.model
         let providerName: string | undefined
 
@@ -60,6 +59,10 @@ export default {
           modelCode = oldProviderName
           providerName = newProviderName
           mappedFromOldProvider++
+        } else if (run.model.includes('.')) {
+          // Already a model code (e.g., 'google.gemini-2.5-flash')
+          // This happens when runs were created after the refactor but before migration
+          console.log(`Run ${run._id} already has model code format: ${run.model}`)
         }
 
         // Step 2: Look up the model in the current config
@@ -95,7 +98,7 @@ export default {
       success: failed === 0,
       message,
       stats: {
-        total: runs.length,
+        total,
         migrated,
         failed,
         mappedFromOldProvider,
