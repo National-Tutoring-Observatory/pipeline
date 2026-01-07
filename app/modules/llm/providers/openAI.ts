@@ -7,10 +7,8 @@ registerLLM('OPEN_AI', {
     return openai;
   },
   createChat: async ({ llm, options, messages }: { llm: any; options: any; messages: Array<{ role: string; content: string }> }) => {
-    const { quality } = options;
-
     const chatCompletion = await llm.chat.completions.create({
-      model: quality === 'medium' ? "gpt-3.5-turbo" : "gpt-4o",
+      model: "gpt-4o",
       messages: messages,
       response_format: { type: "json_object" }
     });
