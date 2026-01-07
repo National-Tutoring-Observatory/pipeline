@@ -48,7 +48,6 @@ export default async function startRun({
     collection: 'runs',
     match: { _id: runId },
     update: {
-      hasSetup: true,
       annotationType,
       prompt,
       promptVersion,

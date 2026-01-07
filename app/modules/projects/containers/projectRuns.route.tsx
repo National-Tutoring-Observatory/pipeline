@@ -127,7 +127,6 @@ export async function action({
           promptVersion,
           model,
           sessions,
-          hasSetup: false,
           isRunning: false,
           isComplete: false,
           snapshot: snapshot,

@@ -31,9 +31,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!run.data) {
     return redirect('/');
   }
-  if (!run.data.hasSetup) {
-    return redirect(`/projects/${project.data._id}/create-run`);
-  }
   const runPrompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: run.data.prompt } });
   const runPromptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } });
   return { project, run, runPrompt, runPromptVersion };

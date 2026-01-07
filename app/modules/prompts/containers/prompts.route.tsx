@@ -115,7 +115,6 @@ export async function action({
         collection: 'runs',
         match: {
           prompt: entityId,
-          hasSetup: true,        // Only active/configured runs
           isComplete: false      // Exclude finished runs (data preserved in snapshot)
         }
       });
