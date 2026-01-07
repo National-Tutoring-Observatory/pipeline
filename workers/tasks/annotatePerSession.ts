@@ -41,7 +41,7 @@ export default async function annotatePerSession(job: any) {
 
     const conversation = getConversationFromJSON(originalJSON);
 
-    const llm = new LLM({ quality: 'high', model, user: team });
+    const llm = new LLM({ model, user: team });
 
     llm.addSystemMessage(annotationPerSessionPrompts.system, {
       annotationSchema: JSON.stringify(prompt.annotationSchema),
