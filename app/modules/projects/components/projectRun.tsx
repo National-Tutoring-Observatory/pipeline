@@ -12,6 +12,7 @@ import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import ProjectRunDownloads from "./projectRunDownloads";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProjectRun({
   run,
@@ -95,6 +96,11 @@ export default function ProjectRun({
             <div>
               <div>
                 {runPrompt.name}
+              </div>
+              <div>
+                <Badge >
+                  Version {runPromptVersion.version}
+                </Badge>
               </div>
             </div>
           </div>
