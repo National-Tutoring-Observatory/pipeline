@@ -1,6 +1,7 @@
 import each from 'lodash/each';
 import has from 'lodash/has';
 import LLM from '~/modules/llm/llm';
+import aiGatewayConfig from '~/config/ai_gateway.json';
 import leadRolePrompt from '../prompts/leadRole.prompt.json';
 
 const REQUIRED_ATTRIBUTES = {
@@ -44,7 +45,7 @@ export default async function getAttributeMappingFromFile({ file, team }: { file
 
   const uniqueRoles = [...new Set(fileContentsAsJSON.map((utterance: { role: string }) => utterance.role))];
 
-  const llm = new LLM({ quality: 'high', model: 'GEMINI', user: team });
+  const llm = new LLM({ model: aiGatewayConfig.defaultModel, user: team });
 
   llm.addSystemMessage(leadRolePrompt.system, {});
 

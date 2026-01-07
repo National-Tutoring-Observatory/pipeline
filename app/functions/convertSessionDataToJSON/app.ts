@@ -3,6 +3,7 @@ import fse from 'fs-extra';
 import path from 'path';
 import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
 import LLM from '../../modules/llm/llm';
+import aiGatewayConfig from '~/config/ai_gateway.json';
 import orchestratorPrompt from './orchestrator.prompt.json';
 import schema from "./schema.json";
 import systemPrompt from './system.prompt.json';
@@ -24,7 +25,7 @@ export const handler = async (event: LambdaEvent) => {
 
   const outputFileName = path.basename(inputFile).replace('.json', '').replace('.vtt', '');
 
-  const llm = new LLM({ quality: 'high', retries: 3, model: 'GEMINI', user: team })
+  const llm = new LLM({ retries: 3, model: aiGatewayConfig.defaultModel, user: team })
 
   llm.setOrchestratorMessage(orchestratorPrompt.prompt, { schema: JSON.stringify(schema) });
 

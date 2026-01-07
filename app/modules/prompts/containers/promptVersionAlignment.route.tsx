@@ -1,4 +1,5 @@
 import LLM from "~/modules/llm/llm";
+import aiGatewayConfig from "~/config/ai_gateway.json";
 import type { AnnotationSchemaItem } from "../prompts.types";
 import type { Route } from "./+types/promptVersionAlignment.route";
 import type { User } from "~/modules/users/users.types";
@@ -30,7 +31,7 @@ export async function action({
   }
   const annotationSchemaArray = [annotationFields];
 
-  const llm = new LLM({ quality: 'high', model: 'GEMINI', user: team });
+  const llm = new LLM({ model: aiGatewayConfig.defaultModel, user: team });
 
   llm.addSystemMessage(`You are an expert at looking over LLM prompts and are able to determine whether the prompt matches the annotation schema provided by the user.
     - The main focus for you is to make sure whatever is written in the prompt has an annotation field associated with it.
