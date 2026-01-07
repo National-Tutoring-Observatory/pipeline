@@ -3,7 +3,6 @@ import sampleSize from "lodash/sampleSize";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import aiGatewayConfig from '~/config/ai_gateway.json';
-import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
 import ProjectRunCreator from "../components/projectRunCreator";
 
@@ -19,7 +18,8 @@ export default function ProjectRunCreatorContainer({ runName: initialRunName, on
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
   const [selectedPromptVersion, setSelectedPromptVersion] = useState<number | null>(null);
   const [selectedModel, setSelectedModel] = useState(aiGatewayConfig.defaultModel);
-  const [selectedSessions, setSelectedSessions] = useState<string[]>([]);  const [randomSampleSize, setRandomSampleSize] = useState(0);
+  const [selectedSessions, setSelectedSessions] = useState<string[]>([]);
+  const [randomSampleSize, setRandomSampleSize] = useState(0);
   const [isRunButtonDisabled, setIsRunButtonDisabled] = useState(true);
 
   const sessionsFetcher = useFetcher({ key: 'sessionsList' });
