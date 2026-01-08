@@ -30,12 +30,11 @@ export default function AuthenticationContainer({ children }: { children: ReactN
     if (hasLoaded && authenticationFetcher.state === 'idle') {
       setIsFetching(false);
       const authentication = get(authenticationFetcher, 'data.authentication.data');
-      const isAppRunningLocally = get(authenticationFetcher, 'data.isAppRunningLocally', false);
 
       if (authentication) {
         setAuthentication(authentication);
         prevAuthRef.current = authentication;
-        connectSockets(isAppRunningLocally);
+        connectSockets();
       } else {
         // if we previously had an authenticated user and now it's gone,
         // force a reload so the app shows the login flow and server-side

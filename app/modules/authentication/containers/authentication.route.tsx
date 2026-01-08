@@ -11,21 +11,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   let user = await getSessionUser({ request });
 
   if (!user) {
-    if (!process.env.DOCUMENTS_ADAPTER || process.env.DOCUMENTS_ADAPTER === 'LOCAL') {
-      user = await authenticator.authenticate("local", request);
-
-      let session = await sessionStorage.getSession(
-        request.headers.get("cookie")
-      );
-
-      session.set("user", user);
-
-      const headers = new Headers({
-        "Set-Cookie": await sessionStorage.commitSession(session),
-      });
-
-      return Response.json({ authentication: { data: user }, isAppRunningLocally: process.env.DOCUMENTS_ADAPTER === 'LOCAL' }, { headers });
-    }
     return {
       authentication: {}
     }
@@ -46,7 +31,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     "Set-Cookie": await sessionStorage.commitSession(session),
   });
 
-  return Response.json({ authentication: { data: user }, isAppRunningLocally: process.env.DOCUMENTS_ADAPTER === 'LOCAL' }, { headers });
+  return Response.json({ authentication: { data: user } }, { headers });
 
 }
 
