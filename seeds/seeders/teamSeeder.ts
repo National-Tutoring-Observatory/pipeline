@@ -42,9 +42,9 @@ export async function seedTeams() {
   for (const teamData of SEED_TEAMS) {
     try {
       // Check if team already exists
-      const existing = await TeamService.findByName(teamData.name);
+      const existing = await TeamService.find({ match: { name: teamData.name } });
 
-      if (existing) {
+      if (existing.length > 0) {
         console.log(`  ⏭️  Team '${teamData.name}' already exists, skipping...`);
         continue;
       }
@@ -58,19 +58,22 @@ export async function seedTeams() {
   }
 
   // Add "local" user to Research Team Alpha
-  const team = await TeamService.findByName('Research Team Alpha');
+  const teams = await TeamService.find({ match: { name: 'Research Team Alpha' } });
+  const team = teams[0];
 
-  // Update admin user to include first team
-  await documents.updateDocument<User>({
-    collection: 'users',
-    match: { _id: admin._id },
-    update: {
-      teams: [{
-        team: team!._id,
-        role: 'ADMIN',
-      }],
-    }
-  });
+  if (team) {
+    // Update admin user to include first team
+    await documents.updateDocument<User>({
+      collection: 'users',
+      match: { _id: admin._id },
+      update: {
+        teams: [{
+          team: team._id,
+          role: 'ADMIN',
+        }],
+      }
+    });
+  }
 }
 
 export async function getSeededTeams() {

@@ -46,11 +46,6 @@ export class TeamService {
     return doc ? this.toTeam(doc) : null;
   }
 
-  static async findByName(name: string): Promise<Team | null> {
-    const doc = await TeamModel.findOne({ name });
-    return doc ? this.toTeam(doc) : null;
-  }
-
   static async create(data: Partial<Team>): Promise<Team> {
     const doc = await TeamModel.create(data);
     return this.toTeam(doc);
