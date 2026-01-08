@@ -15,6 +15,7 @@ interface ProjectsProps {
   totalPages: number,
   filtersValues: {},
   sortValue: string,
+  isSyncing: boolean,
   onActionClicked: (action: string) => void;
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
   onSearchValueChanged: (searchValue: string) => void,
@@ -30,6 +31,7 @@ export default function Projects({
   totalPages,
   filtersValues,
   sortValue,
+  isSyncing,
   onActionClicked,
   onItemActionClicked,
   onSearchValueChanged,
@@ -55,6 +57,7 @@ export default function Projects({
         searchValue={searchValue}
         currentPage={currentPage}
         totalPages={totalPages}
+        isSyncing={isSyncing}
         emptyAttributes={getProjectsEmptyAttributes()}
         getItemAttributes={getProjectsItemAttributes}
         getItemActions={getProjectsItemActions}

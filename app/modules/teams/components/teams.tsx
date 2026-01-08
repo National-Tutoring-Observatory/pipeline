@@ -14,6 +14,7 @@ interface TeamsProps {
   totalPages: number,
   filtersValues: {},
   sortValue: string,
+  isSyncing: boolean,
   onActionClicked: (action: string) => void;
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
   onSearchValueChanged: (searchValue: string) => void,
@@ -29,6 +30,7 @@ export default function Teams({
   searchValue,
   currentPage,
   totalPages,
+  isSyncing,
   onActionClicked,
   onItemActionClicked,
   onSearchValueChanged,
@@ -55,6 +57,7 @@ export default function Teams({
         currentPage={currentPage}
         totalPages={totalPages}
         emptyAttributes={getTeamsEmptyAttributes()}
+        isSyncing={isSyncing}
         getItemAttributes={getTeamsItemAttributes}
         getItemActions={getTeamsItemActions}
         onActionClicked={onActionClicked}

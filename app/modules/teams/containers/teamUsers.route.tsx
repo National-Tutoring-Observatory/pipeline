@@ -109,7 +109,8 @@ export default function TeamUsersRoute() {
     searchValue, setSearchValue,
     currentPage, setCurrentPage,
     sortValue, setSortValue,
-    filtersValues, setFiltersValues
+    filtersValues, setFiltersValues,
+    isSyncing
   } = useSearchQueryParams({
     searchValue: '',
     currentPage: 1,
@@ -217,16 +218,13 @@ export default function TeamUsersRoute() {
       totalPages={data.users.totalPages}
       filtersValues={filtersValues}
       sortValue={sortValue}
+      isSyncing={isSyncing}
       onActionClicked={onActionClicked}
       onItemActionClicked={onItemActionClicked}
       onSearchValueChanged={onSearchValueChanged}
       onPaginationChanged={onPaginationChanged}
       onFiltersValueChanged={onFiltersValueChanged}
       onSortValueChanged={onSortValueChanged}
-      onAddUserToTeamButtonClicked={onAddUserToTeamButtonClicked}
-      onAddSuperAdminToTeamButtonClicked={onAddSuperAdminToTeamButtonClicked}
-      onInviteUserToTeamButtonClicked={onInviteUserToTeamButtonClicked}
-      onRemoveUserFromTeamClicked={onRemoveUserFromTeamClicked}
     />
   );
 }

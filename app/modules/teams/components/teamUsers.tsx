@@ -16,16 +16,13 @@ interface TeamUsersProps {
   totalPages: number,
   filtersValues: {},
   sortValue: string,
+  isSyncing: boolean,
   onActionClicked: (action: string) => void;
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
   onSearchValueChanged: (searchValue: string) => void,
   onPaginationChanged: (currentPage: number) => void,
   onFiltersValueChanged: (filterValue: any) => void,
   onSortValueChanged: (sortValue: any) => void
-  onAddUserToTeamButtonClicked: () => void;
-  onAddSuperAdminToTeamButtonClicked: () => void;
-  onInviteUserToTeamButtonClicked: () => void;
-  onRemoveUserFromTeamClicked: (userId: string) => void;
 }
 
 export default function TeamUsers({
@@ -36,10 +33,7 @@ export default function TeamUsers({
   searchValue,
   currentPage,
   totalPages,
-  onAddUserToTeamButtonClicked,
-  onAddSuperAdminToTeamButtonClicked,
-  onInviteUserToTeamButtonClicked,
-  onRemoveUserFromTeamClicked,
+  isSyncing,
   onActionClicked,
   onItemActionClicked,
   onSearchValueChanged,
@@ -63,6 +57,7 @@ export default function TeamUsers({
         currentPage={currentPage}
         totalPages={totalPages}
         emptyAttributes={getTeamUsersEmptyAttributes()}
+        isSyncing={isSyncing}
         getItemAttributes={(item) => getTeamUsersItemAttributes(item, team)}
         getItemActions={(item) => getTeamUsersItemActions(item, team._id)}
         onActionClicked={onActionClicked}

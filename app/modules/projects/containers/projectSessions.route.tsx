@@ -86,7 +86,8 @@ export default function ProjectSessionsRoute() {
     searchValue, setSearchValue,
     currentPage, setCurrentPage,
     sortValue, setSortValue,
-    filtersValues, setFiltersValues
+    filtersValues, setFiltersValues,
+    isSyncing
   } = useSearchQueryParams({
     searchValue: '',
     currentPage: 1,
@@ -148,6 +149,7 @@ export default function ProjectSessionsRoute() {
       totalPages={sessions.totalPages}
       filtersValues={filtersValues}
       sortValue={sortValue}
+      isSyncing={isSyncing}
       onActionClicked={onActionClicked}
       onItemClicked={onItemClicked}
       onSearchValueChanged={onSearchValueChanged}

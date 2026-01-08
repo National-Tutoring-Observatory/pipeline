@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
+import { useNavigation, useSearchParams } from "react-router";
 
 const DEBOUNCE_TIME = 600;
 
@@ -25,6 +25,7 @@ function parseFiltersFromUrl(searchParams: URLSearchParams, defaultFilters?: Rec
 
 export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { state } = useNavigation();
 
   const [searchValue, setSearchValueState] = useState<string>(
     searchParams.get("searchValue") ?? defaultQueryParams.searchValue ?? ""
@@ -42,10 +43,14 @@ export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
     parseFiltersFromUrl(searchParams, defaultQueryParams.filters)
   );
 
+  const [isPending, setIsPending] = useState<boolean>(false);
+
   useEffect(() => {
     if (searchValue === (searchParams.get("searchValue") ?? defaultQueryParams.searchValue ?? "")) {
       return;
     }
+
+    setIsPending(true);
 
     const handler = setTimeout(() => {
       setSearchParams((prevSearchParams: URLSearchParams) => {
@@ -68,6 +73,14 @@ export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
       clearTimeout(handler);
     };
   }, [searchValue, defaultQueryParams.searchValue, searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (state === 'idle') {
+      setIsPending(false);
+    }
+  }, [state]);
+
+  const isSyncing = isPending || state === 'loading';
 
   const updateUrlParam = <T extends string | number>(
     key: string,
@@ -140,5 +153,6 @@ export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
     setSortValue: (value: string) => updateUrlParam<string>("sort", value, setSortValueState),
     filtersValues,
     setFiltersValues: (value: Record<string, unknown>) => updateUrlParamObject("filters", value, setFiltersValuesState),
+    isSyncing,
   };
 }

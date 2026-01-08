@@ -16,6 +16,7 @@ export default function ProjectSessions({
   totalPages,
   filtersValues,
   sortValue,
+  isSyncing,
   onActionClicked,
   onItemClicked,
   onSearchValueChanged,
@@ -30,6 +31,7 @@ export default function ProjectSessions({
   totalPages: number,
   filtersValues: {},
   sortValue: string,
+  isSyncing: boolean,
   onActionClicked: (action: string) => void;
   onItemClicked: (id: string) => void,
   onSearchValueChanged: (searchValue: string) => void,
@@ -52,6 +54,7 @@ export default function ProjectSessions({
         searchValue={searchValue}
         currentPage={currentPage}
         totalPages={totalPages}
+        isSyncing={isSyncing}
         emptyAttributes={getProjectSessionsEmptyAttributes()}
         getItemAttributes={getProjectSessionsItemAttributes}
         getItemActions={getProjectSessionsItemActions}

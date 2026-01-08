@@ -19,6 +19,7 @@ interface TeamPromptsProps {
   totalPages: number,
   filtersValues: {},
   sortValue: string,
+  isSyncing: boolean,
   onActionClicked: (action: string) => void;
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
   onSearchValueChanged: (searchValue: string) => void,
@@ -35,6 +36,7 @@ export default function TeamPrompts({
   searchValue,
   currentPage,
   totalPages,
+  isSyncing,
   onActionClicked,
   onItemActionClicked,
   onSearchValueChanged,
@@ -62,6 +64,7 @@ export default function TeamPrompts({
         emptyAttributes={getTeamPromptsEmptyAttributes()}
         getItemAttributes={(item) => getTeamPromptsItemAttributes(item, team._id, user)}
         getItemActions={getTeamPromptsItemActions}
+        isSyncing={isSyncing}
         onActionClicked={onActionClicked}
         onItemActionClicked={onItemActionClicked}
         onSearchValueChanged={onSearchValueChanged}
