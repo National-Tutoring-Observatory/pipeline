@@ -4,6 +4,7 @@ import "~/modules/documents/documents";
 import "~/modules/teams/team";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { TeamService } from "~/modules/teams/team";
+import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types.js";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
@@ -28,10 +29,7 @@ describe("project.route loader", () => {
   });
 
   it("redirects to / when project not found", async () => {
-    const user = (await documents.createDocument<User>({
-      collection: 'users',
-      update: { username: 'test_user' }
-    })).data;
+    const user = await UserService.create({ username: 'test_user' });
 
     const fakeProjectId = createValidId();
     const cookieHeader = await loginUser(user._id);
@@ -46,16 +44,8 @@ describe("project.route loader", () => {
   });
 
   it("redirects to / when user cannot view project", async () => {
-    const owner = (await documents.createDocument<User>({
-      collection: 'users',
-      update: { username: 'owner' }
-    })).data;
-
-    const otherUser = (await documents.createDocument<User>({
-      collection: 'users',
-      update: { username: 'other_user' }
-    })).data;
-
+    const owner = await UserService.create({ username: 'owner' });
+    const otherUser = await UserService.create({ username: 'other_user' });
     const team = await TeamService.create({ name: 'Private Team' });
 
     const project = (await documents.createDocument<Project>({
@@ -75,18 +65,11 @@ describe("project.route loader", () => {
   });
 
   it("returns project data for authorized users", async () => {
-    const user = (await documents.createDocument<User>({
-      collection: 'users',
-      update: { username: 'test_user', teams: [] }
-    })).data;
+    const user = await UserService.create({ username: 'test_user', teams: [] });
 
     const team = await TeamService.create({ name: 'Test Team' });
 
-    await documents.updateDocument<User>({
-      collection: 'users',
-      match: { _id: user._id },
-      update: { teams: [{ team: team._id, role: 'ADMIN' }] }
-    });
+    await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
 
     const project = (await documents.createDocument<Project>({
       collection: 'projects',
@@ -152,18 +135,11 @@ describe("project.route action - FILE_UPLOAD", () => {
   })
 
   it("returns 400 when no files provided", async () => {
-    const user = (await documents.createDocument<User>({
-      collection: 'users',
-      update: { username: 'test_user', teams: [] }
-    })).data;
+    const user = await UserService.create({ username: 'test_user', teams: [] });
 
     const team = await TeamService.create({ name: 'Test Team' });
 
-    await documents.updateDocument<User>({
-      collection: 'users',
-      match: { _id: user._id },
-      update: { teams: [{ team: team._id, role: 'ADMIN' }] }
-    });
+    await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
 
     const project = (await documents.createDocument<Project>({
       collection: 'projects',
@@ -189,19 +165,12 @@ describe("project.route action - FILE_UPLOAD", () => {
   })
 
   it("successfully uploads files and updates project state", async () => {
-    const user = (await documents.createDocument<User>({
-      collection: 'users',
-      update: { username: 'test_user', teams: [] }
-    })).data;
+    const user = await UserService.create({ username: 'test_user', teams: [] });
 
     const team = await TeamService.create({ name: 'Test Team' });
 
     // Add user to team
-    await documents.updateDocument<User>({
-      collection: 'users',
-      match: { _id: user._id },
-      update: { teams: [{ team: team._id, role: 'ADMIN' }] }
-    });
+    await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
 
     const project = (await documents.createDocument<Project>({
       collection: 'projects',
@@ -229,4 +198,3 @@ describe("project.route action - FILE_UPLOAD", () => {
     expect(resp.data?.errors?.files).toContain('File processing failed')
   })
 })
-
