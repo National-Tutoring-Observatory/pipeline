@@ -16,6 +16,7 @@ interface TeamUsersProps {
   totalPages: number,
   filtersValues: {},
   sortValue: string,
+  isSyncing: boolean,
   onActionClicked: (action: string) => void;
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
   onSearchValueChanged: (searchValue: string) => void,
@@ -36,6 +37,7 @@ export default function TeamUsers({
   searchValue,
   currentPage,
   totalPages,
+  isSyncing,
   onAddUserToTeamButtonClicked,
   onAddSuperAdminToTeamButtonClicked,
   onInviteUserToTeamButtonClicked,
@@ -63,6 +65,7 @@ export default function TeamUsers({
         currentPage={currentPage}
         totalPages={totalPages}
         emptyAttributes={getTeamUsersEmptyAttributes()}
+        isSyncing={isSyncing}
         getItemAttributes={(item) => getTeamUsersItemAttributes(item, team)}
         getItemActions={(item) => getTeamUsersItemActions(item, team._id)}
         onActionClicked={onActionClicked}

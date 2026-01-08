@@ -102,7 +102,8 @@ export default function TeamPromptsRoute() {
     searchValue, setSearchValue,
     currentPage, setCurrentPage,
     sortValue, setSortValue,
-    filtersValues, setFiltersValues
+    filtersValues, setFiltersValues,
+    isSyncing
   } = useSearchQueryParams({
     searchValue: '',
     currentPage: 1,
@@ -175,6 +176,7 @@ export default function TeamPromptsRoute() {
       totalPages={data.prompts.totalPages}
       filtersValues={filtersValues}
       sortValue={sortValue}
+      isSyncing={isSyncing}
       onActionClicked={onActionClicked}
       onItemActionClicked={onItemActionClicked}
       onSearchValueChanged={onSearchValueChanged}

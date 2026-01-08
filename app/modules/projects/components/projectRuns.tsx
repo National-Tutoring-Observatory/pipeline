@@ -14,6 +14,7 @@ export default function ProjectRuns({
   totalPages,
   filtersValues,
   sortValue,
+  isSyncing,
   onActionClicked,
   onItemActionClicked,
   onSearchValueChanged,
@@ -27,6 +28,7 @@ export default function ProjectRuns({
   totalPages: number,
   filtersValues: {},
   sortValue: string,
+  isSyncing: boolean,
   onActionClicked: (action: string) => void;
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
   onSearchValueChanged: (searchValue: string) => void,
@@ -49,6 +51,7 @@ export default function ProjectRuns({
         searchValue={searchValue}
         currentPage={currentPage}
         totalPages={totalPages}
+        isSyncing={isSyncing}
         emptyAttributes={getProjectRunsEmptyAttributes()}
         getItemAttributes={getProjectRunsItemAttributes}
         getItemActions={getProjectRunsItemActions}

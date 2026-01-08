@@ -152,7 +152,8 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
     searchValue, setSearchValue,
     currentPage, setCurrentPage,
     sortValue, setSortValue,
-    filtersValues, setFiltersValues
+    filtersValues, setFiltersValues,
+    isSyncing
   } = useSearchQueryParams({
     searchValue: '',
     currentPage: 1,
@@ -255,6 +256,7 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
       totalPages={prompts.totalPages}
       filtersValues={filtersValues}
       sortValue={sortValue}
+      isSyncing={isSyncing}
       onActionClicked={onActionClicked}
       onItemActionClicked={onItemActionClicked}
       onSearchValueChanged={onSearchValueChanged}

@@ -15,6 +15,7 @@ interface PromptsProps {
   totalPages: number,
   filtersValues: {},
   sortValue: string,
+  isSyncing: boolean,
   onActionClicked: (action: string) => void;
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
   onSearchValueChanged: (searchValue: string) => void,
@@ -33,6 +34,7 @@ export default function Prompts({
   searchValue,
   currentPage,
   totalPages,
+  isSyncing,
   onCreatePromptButtonClicked,
   onEditPromptButtonClicked,
   onDeletePromptButtonClicked,
@@ -61,6 +63,7 @@ export default function Prompts({
         searchValue={searchValue}
         currentPage={currentPage}
         totalPages={totalPages}
+        isSyncing={isSyncing}
         emptyAttributes={getPromptsEmptyAttributes()}
         getItemAttributes={getPromptsItemAttributes}
         getItemActions={getPromptsItemActions}

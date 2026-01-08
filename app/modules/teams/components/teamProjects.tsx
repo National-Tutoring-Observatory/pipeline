@@ -16,6 +16,7 @@ interface TeamProjectsProps {
   totalPages: number,
   filtersValues: {},
   sortValue: string,
+  isSyncing: boolean,
   onActionClicked: (action: string) => void;
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
   onSearchValueChanged: (searchValue: string) => void,
@@ -33,6 +34,7 @@ export default function TeamProjects({
   searchValue,
   currentPage,
   totalPages,
+  isSyncing,
   onCreateProjectButtonClicked,
   onActionClicked,
   onItemActionClicked,
