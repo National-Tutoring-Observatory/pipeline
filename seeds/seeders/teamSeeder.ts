@@ -74,5 +74,5 @@ export async function seedTeams() {
 }
 
 export async function getSeededTeams() {
-  return await TeamService.find({ name: { $in: SEED_TEAMS.map(t => t.name) } });
+  return await TeamService.find({ match: { name: { $in: SEED_TEAMS.map(t => t.name) } } });
 }

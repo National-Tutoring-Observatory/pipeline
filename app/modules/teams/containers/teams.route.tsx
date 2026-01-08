@@ -50,9 +50,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: []
   });
 
-  const teams = await TeamService.find(match);
+  const data = await TeamService.find({ match });
 
-  return { teams: { data: teams, totalPages: 1 } };
+  return { teams: { data, totalPages: 1 } };
 }
 
 export async function action({
@@ -92,8 +92,8 @@ export async function action({
       if (!TeamAuthorization.canDelete(user, entityId)) {
         throw new Error("Insufficient permissions. Only super admins can delete teams.");
       }
-      await TeamService.deleteById(entityId);
-      return { intent: 'DELETE_TEAM' };
+      const deleted = await TeamService.deleteById(entityId);
+      return { intent: 'DELETE_TEAM', data: deleted };
     default:
       return {};
   }
