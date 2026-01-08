@@ -225,10 +225,6 @@ export default function TeamUsersRoute() {
       onPaginationChanged={onPaginationChanged}
       onFiltersValueChanged={onFiltersValueChanged}
       onSortValueChanged={onSortValueChanged}
-      onAddUserToTeamButtonClicked={onAddUserToTeamButtonClicked}
-      onAddSuperAdminToTeamButtonClicked={onAddSuperAdminToTeamButtonClicked}
-      onInviteUserToTeamButtonClicked={onInviteUserToTeamButtonClicked}
-      onRemoveUserFromTeamClicked={onRemoveUserFromTeamClicked}
     />
   );
 }

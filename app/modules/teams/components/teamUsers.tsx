@@ -23,10 +23,6 @@ interface TeamUsersProps {
   onPaginationChanged: (currentPage: number) => void,
   onFiltersValueChanged: (filterValue: any) => void,
   onSortValueChanged: (sortValue: any) => void
-  onAddUserToTeamButtonClicked: () => void;
-  onAddSuperAdminToTeamButtonClicked: () => void;
-  onInviteUserToTeamButtonClicked: () => void;
-  onRemoveUserFromTeamClicked: (userId: string) => void;
 }
 
 export default function TeamUsers({
@@ -38,10 +34,6 @@ export default function TeamUsers({
   currentPage,
   totalPages,
   isSyncing,
-  onAddUserToTeamButtonClicked,
-  onAddSuperAdminToTeamButtonClicked,
-  onInviteUserToTeamButtonClicked,
-  onRemoveUserFromTeamClicked,
   onActionClicked,
   onItemActionClicked,
   onSearchValueChanged,
