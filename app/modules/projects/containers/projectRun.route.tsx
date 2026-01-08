@@ -11,7 +11,7 @@ import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import exportRun from "~/modules/runs/helpers/exportRun";
-import type { CreateRun, Run } from "~/modules/runs/runs.types";
+import type { Run } from "~/modules/runs/runs.types";
 import EditRunDialog from "../components/editRunDialog";
 import ProjectRun from "../components/projectRun";
 import type { Project } from "../projects.types";
@@ -31,12 +31,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!run.data) {
     return redirect('/');
   }
-  let runPrompt;
-  let runPromptVersion;
-  if (run.data.hasSetup) {
-    runPrompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: run.data.prompt } });
-    runPromptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } });
+  if (!run.data.hasSetup) {
+    return redirect(`/projects/${project.data._id}/create-run`);
   }
+  const runPrompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: run.data.prompt } });
+  const runPromptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } });
   return { project, run, runPrompt, runPromptVersion };
 }
 
@@ -72,7 +71,7 @@ export async function action({
         annotationType,
         prompt,
         promptVersion,
-        model
+        modelCode: model
       }, { request, context });
 
       if (!run.data) throw new Error('Run not created');
@@ -117,24 +116,6 @@ export default function ProjectRunRoute() {
       toast.success('Updated run');
     }
   }, [fetcher.state, fetcher.data]);
-
-  const onStartRunClicked = ({
-    selectedAnnotationType,
-    selectedPrompt,
-    selectedPromptVersion,
-    selectedModel,
-    selectedSessions }: CreateRun) => {
-    submit(JSON.stringify({
-      intent: 'START_RUN',
-      payload: {
-        annotationType: selectedAnnotationType,
-        prompt: selectedPrompt,
-        promptVersion: Number(selectedPromptVersion),
-        model: selectedModel,
-        sessions: selectedSessions
-      }
-    }), { method: 'POST', encType: 'application/json' });
-  }
 
   const onExportRunButtonClicked = ({ exportType }: { exportType: string }) => {
     submit(JSON.stringify({
@@ -248,7 +229,6 @@ export default function ProjectRunRoute() {
       runPromptVersion={runPromptVersion?.data}
       runSessionsProgress={runSessionsProgress}
       runSessionsStep={runSessionsStep}
-      onStartRunClicked={onStartRunClicked}
       onExportRunButtonClicked={onExportRunButtonClicked}
       onReRunClicked={onReRunClicked}
       onEditRunButtonClicked={onEditRunButtonClicked}

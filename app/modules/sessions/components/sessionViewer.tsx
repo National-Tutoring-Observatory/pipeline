@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import map from 'lodash/map';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Annotation, Session, SessionFile, Utterance } from '../sessions.types';
 import SessionViewerAnnotation from './sessionViewerAnnotation';
 import SessionViewerDetails from './sessionViewerDetails';
@@ -13,13 +13,14 @@ export default function SessionViewer({
   selectedUtteranceAnnotations,
   isVoting,
   utteranceCount,
+  selectedUtteranceIndex,
   annotatedUtteranceCount,
   onUtteranceClicked,
-  onPreviousUtteranceClicked,
-  onNextUtteranceClicked,
+  onPreviousAnnotationClicked,
+  onNextAnnotationClicked,
+  onJumpToFirstAnnotation,
   onDownVoteClicked,
   onUpVoteClicked,
-  onJumpToFirstAnnotation
 }: {
   session: Session,
   sessionFile: SessionFile,
@@ -27,18 +28,20 @@ export default function SessionViewer({
   selectedUtteranceId: string | null,
   isVoting: boolean,
   utteranceCount: number,
+  selectedUtteranceIndex: number | null,
   annotatedUtteranceCount: number,
   onUtteranceClicked: (utteranceId: string) => void;
-  onPreviousUtteranceClicked: () => void;
-  onNextUtteranceClicked: () => void;
+  onPreviousAnnotationClicked: () => void;
+  onNextAnnotationClicked: () => void;
+  onJumpToFirstAnnotation: () => void;
   onDownVoteClicked: (annotationId: string) => void;
   onUpVoteClicked: (annotationId: string) => void;
-  onJumpToFirstAnnotation: () => void;
 }) {
+  const hasSelectedAnnotation = selectedUtteranceIndex !== null;
 
   return (
     <div className="border h-[calc(100vh-200px)] flex rounded-md">
-      <div className="flex flex-col w-3/5 p-4 h-full overflow-y-scroll scroll-smooth border-r">
+      <div id="session-viewer-scroll-container" className="flex flex-col w-3/5 p-4 h-full overflow-y-scroll scroll-smooth border-r">
         {map(sessionFile.transcript, (utterance: Utterance) => {
           const isSelected = selectedUtteranceId === utterance._id;
           return (
@@ -57,7 +60,6 @@ export default function SessionViewer({
           session={session}
           utteranceCount={utteranceCount}
           annotatedUtteranceCount={annotatedUtteranceCount}
-          onJumpToFirstAnnotation={onJumpToFirstAnnotation}
         />
         {(sessionFile.annotations && sessionFile.annotations.length > 0) && (
           <div className="p-4">
@@ -77,19 +79,46 @@ export default function SessionViewer({
             })}
           </div>
         )}
-        {(selectedUtteranceAnnotations.length > 0) && (
+        {(annotatedUtteranceCount > 0) && (
           <div className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-muted-foreground ">
-                Utterance annotations
-              </div>
               <div>
-                <Button variant="ghost" size="icon" onClick={onPreviousUtteranceClicked}>
-                  <ChevronUp />
+                View Annotations
+                <p className="text-muted-foreground text-xs">Browse annotations in this session</p>
+              </div>
+            </div>
+            <div className="my-6">
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="outline"
+                  className="text-xs"
+                  onClick={onJumpToFirstAnnotation}
+                >
+                  Jump to first annotation
                 </Button>
-                <Button variant="ghost" size="icon" onClick={onNextUtteranceClicked}>
-                  <ChevronDown />
-                </Button>
+                {hasSelectedAnnotation &&
+                  <div className="text-sm text-muted-foreground">
+                    Annotation {selectedUtteranceIndex + 1} of {annotatedUtteranceCount}
+                  </div>
+                }
+                <div className="flex gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onPreviousAnnotationClicked}
+                    disabled={!hasSelectedAnnotation || (selectedUtteranceIndex == 0)}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onNextAnnotationClicked}
+                    disabled={!hasSelectedAnnotation || (selectedUtteranceIndex == (annotatedUtteranceCount - 1))}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </div>
             {map(selectedUtteranceAnnotations, (annotation) => {
@@ -106,6 +135,6 @@ export default function SessionViewer({
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 }

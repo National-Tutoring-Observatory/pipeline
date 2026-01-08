@@ -1,12 +1,17 @@
-import useProjectAuthorization from "~/modules/projects/hooks/useProjectAuthorization";
+import { useContext } from 'react';
+import { AuthenticationContext } from '~/modules/authentication/containers/authentication.container';
+import ProjectAuthorization from '~/modules/projects/authorization';
+import type { User } from '~/modules/users/users.types';
 
 export default (teamId: string) => {
-  const { canCreate } = useProjectAuthorization(teamId);
+  const user = useContext(AuthenticationContext) as User;
 
-  if (!canCreate) return [];
-
-  return [{
-    action: 'CREATE',
-    text: 'Create project'
-  }];
+  if (ProjectAuthorization.canCreate(user, teamId)) {
+    return [{
+      action: 'CREATE',
+      text: 'Create project'
+    }];
+  } else {
+    return [];
+  }
 }

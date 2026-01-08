@@ -38,8 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
       throw new Error('Project not found');
     }
 
-    const teamId = (project.data.team as any)._id || project.data.team;
-    if (!ProjectAuthorization.canView(user, teamId)) {
+    if (!ProjectAuthorization.canView(user, project.data)) {
       throw new Error("You do not have permission to access files from this project");
     }
 

@@ -1,36 +1,35 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from "@/components/ui/label";
+import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import clsx from 'clsx';
 import map from 'lodash/map';
+import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Link } from 'react-router';
 import type { FileType } from '../files.types';
+import { SUPPORTED_FILE_TYPES } from '../constants';
 import getFileUploadAccepts from '../helpers/getFileUploadAccepts';
 
 export default function UploadFiles({
   acceptedFiles,
-  fileType,
-  instructions,
+  instructionsByType,
   isUploading,
   onDrop,
   onDeleteAcceptedFileClicked,
   onUploadFilesClicked,
-  onFileTypeChanged,
 }: {
   acceptedFiles: { _id: string, name: string, type: string }[],
-  fileType: FileType,
-  instructions: { overview: string, link: string },
+  instructionsByType: Record<FileType, { overview: string, link: string }>,
   isUploading: boolean,
-  onDrop: (acceptedFiles: any) => void,
+  onDrop: (acceptedFiles: File[]) => void,
   onDeleteAcceptedFileClicked: (id: string) => void,
   onUploadFilesClicked: () => void,
-  onFileTypeChanged: (fileType: FileType) => void
 }) {
+  const [activeTab, setActiveTab] = useState<FileType>('CSV');
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept: getFileUploadAccepts([fileType]), onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept: getFileUploadAccepts(SUPPORTED_FILE_TYPES), onDrop });
 
   let uploadButtonText = `Upload ${acceptedFiles.length} files`;
 
@@ -46,31 +45,6 @@ export default function UploadFiles({
     <div>
       <div className="grid grid-cols-2 gap-x-4">
         <div className="grid gap-y-2">
-          <div className="grid gap-y-2 mb-4">
-            <Label>
-              Choose a file type
-            </Label>
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              value={fileType}
-              disabled={acceptedFiles.length > 0}
-              onValueChange={onFileTypeChanged}
-            >
-              <ToggleGroupItem value="CSV" aria-label="Toggle bold">
-                CSV
-              </ToggleGroupItem>
-              {/* <ToggleGroupItem value="JSON" aria-label="Toggle italic">
-                  JSON
-                </ToggleGroupItem>
-                <ToggleGroupItem value="JSONL" aria-label="Toggle strikethrough">
-                  JSONL
-                </ToggleGroupItem>
-                <ToggleGroupItem value="VTT" aria-label="Toggle bold">
-                  VTT
-                </ToggleGroupItem> */}
-            </ToggleGroup>
-          </div>
           <div className="grid gap-y-2">
             <Label>
               Upload files
@@ -89,24 +63,34 @@ export default function UploadFiles({
           <Card className='h-full shadow-none'>
             <CardHeader>
               <CardTitle>
-                Instructions for {fileType}
+                File Instructions
               </CardTitle>
-              <CardDescription>
-                <div dangerouslySetInnerHTML={{ __html: instructions.overview }} />
-              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-sm mb-2">
-                For more detailed instructions, please read our help document.
-              </div>
-              <Button variant="secondary" asChild>
-                <Link
-                  to={instructions.link}
-                  target="_blank"
-                >
-                  View help document
-                </Link>
-              </Button>
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as FileType)}>
+                <TabsList className="grid w-full grid-cols-2">
+                  {SUPPORTED_FILE_TYPES.map((type) => (
+                    <TabsTrigger key={type} value={type}>
+                      {type}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                {SUPPORTED_FILE_TYPES.map((type) => (
+                  <TabsContent key={type} value={type} className="space-y-4">
+                    <CardDescription>
+                      <div dangerouslySetInnerHTML={{ __html: instructionsByType[type].overview }} />
+                    </CardDescription>
+                    <Button variant="secondary" asChild>
+                      <Link
+                        to={instructionsByType[type].link}
+                        target="_blank"
+                      >
+                        View help document
+                      </Link>
+                    </Button>
+                  </TabsContent>
+                ))}
+              </Tabs>
             </CardContent>
           </Card>
         </div>

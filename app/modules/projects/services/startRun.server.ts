@@ -1,5 +1,7 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import findModelByCode from "~/modules/llm/helpers/findModelByCode";
 import type { Run, StartRunProps } from "~/modules/runs/runs.types";
+import buildRunSnapshot from "~/modules/runs/services/buildRunSnapshot.server";
 import type { Session } from "~/modules/sessions/sessions.types";
 
 
@@ -10,7 +12,7 @@ export default async function startRun({
   annotationType,
   prompt,
   promptVersion,
-  model
+  modelCode
 }: StartRunProps, { context }: { request: Request, context: any }) {
 
   const documents = getDocumentsAdapter();
@@ -35,6 +37,13 @@ export default async function startRun({
     });
   }
 
+  // Build snapshot of prompt and model configuration
+  const snapshot = await buildRunSnapshot({
+    promptId: prompt,
+    promptVersionNumber: promptVersion,
+    modelCode,
+  });
+
   return await documents.updateDocument<Run>({
     collection: 'runs',
     match: { _id: runId },
@@ -43,8 +52,9 @@ export default async function startRun({
       annotationType,
       prompt,
       promptVersion,
-      model,
-      sessions: sessionsAsObjects
+      model: modelCode, // Store code for safety until migration runs
+      sessions: sessionsAsObjects,
+      snapshot
     }
   });
 }

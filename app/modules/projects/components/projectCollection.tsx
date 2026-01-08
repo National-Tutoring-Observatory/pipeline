@@ -1,16 +1,16 @@
-import { Button } from "@/components/ui/button";
-import type { CreateCollection, Collection } from "~/modules/collections/collections.types";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Download } from "lucide-react";
-import CollectionCreatorContainer from "~/modules/collections/containers/collectionCreator.container";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Link } from "react-router";
-import type { Run } from "~/modules/runs/runs.types";
-import map from 'lodash/map';
-import find from 'lodash/find';
-import providers from "~/modules/prompts/providers";
-import annotationTypes from "~/modules/prompts/annotationTypes";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import find from 'lodash/find';
+import map from 'lodash/map';
+import { Download } from "lucide-react";
+import { Link } from "react-router";
+import type { Collection, CreateCollection } from "~/modules/collections/collections.types";
+import CollectionCreatorContainer from "~/modules/collections/containers/collectionCreator.container";
+import annotationTypes from "~/modules/prompts/annotationTypes";
+import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
+import type { Run } from "~/modules/runs/runs.types";
 
 export default function ProjectCollection({
   collection,
@@ -85,7 +85,7 @@ export default function ProjectCollection({
                           {run.name}
                         </Link>
                       </TableCell>
-                      <TableCell>{find(providers, { provider: run.model })?.name}</TableCell>
+                      <TableCell>{getRunModelDisplayName(run)}</TableCell>
                       <TableCell>{find(annotationTypes, { value: run.annotationType })?.name}</TableCell>
                       <TableCell>
                         <div>

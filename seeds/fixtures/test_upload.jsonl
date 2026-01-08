@@ -1,0 +1,9 @@
+{"session_id":"session_003","role":"Tutor","content":"Welcome to our algebra lesson!","sequence_id":1}
+{"session_id":"session_003","role":"Student","content":"Hi! I'm excited to learn algebra.","sequence_id":2}
+{"session_id":"session_003","role":"Tutor","content":"Let's start with linear equations.","sequence_id":3}
+{"session_id":"session_003","role":"Student","content":"What's a linear equation?","sequence_id":4}
+{"session_id":"session_003","role":"Tutor","content":"It's an equation where the highest power of the variable is 1.","sequence_id":5}
+{"session_id":"session_004","role":"Tutor","content":"Today we're covering geometry basics.","sequence_id":1}
+{"session_id":"session_004","role":"Student","content":"I'm ready!","sequence_id":2}
+{"session_id":"session_004","role":"Tutor","content":"Let's talk about triangles and their properties.","sequence_id":3}
+{"session_id":"session_004","role":"Student","content":"Triangles have three sides right?","sequence_id":4}

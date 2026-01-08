@@ -1,6 +1,6 @@
 import find from 'lodash/find';
 import { useEffect } from "react";
-import { redirect, useActionData, useLoaderData, useNavigate, useRevalidator, useSubmit } from "react-router";
+import { redirect, useActionData, useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
 import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
@@ -13,7 +13,6 @@ import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter
 import ProjectAuthorization from "~/modules/projects/authorization";
 import type { Project } from "~/modules/projects/projects.types";
 import type { Run } from "~/modules/runs/runs.types";
-import CreateRunDialog from '../components/createRunDialog';
 import DuplicateRunDialog from '../components/duplicateRunDialog';
 import EditRunDialog from "../components/editRunDialog";
 import ProjectRuns from "../components/projectRuns";
@@ -67,7 +66,7 @@ export async function action({
     return redirect('/');
   }
 
-  const { name, annotationType } = payload;
+  const { name } = payload;
   let run;
 
   const documents = getDocumentsAdapter();
@@ -82,37 +81,12 @@ export async function action({
   const teamId = (project.data.team as any)._id || project.data.team;
 
   switch (intent) {
-    case 'CREATE_RUN': {
-      if (typeof name !== "string") {
-        throw new Error("Run name is required and must be a string.");
-      }
-      if (typeof annotationType !== "string") {
-        throw new Error("Annotation type is required and must be a string.");
-      }
-      if (!ProjectAuthorization.Runs.canManage(user, teamId)) {
-        throw new Error('You do not have permission to create a run in this project.');
-      }
-      run = await documents.createDocument<Run>({
-        collection: 'runs', update: {
-          project: params.id,
-          name,
-          annotationType,
-          hasSetup: false,
-          isRunning: false,
-          isComplete: false
-        }
-      });
-      return {
-        intent: 'CREATE_RUN',
-        ...run
-      }
-    }
     case 'UPDATE_RUN': {
       if (typeof name !== "string") {
         throw new Error("Run name is required and must be a string.");
       }
 
-      if (!ProjectAuthorization.Runs.canManage(user, teamId)) {
+      if (!ProjectAuthorization.Runs.canManage(user, project.data)) {
         throw new Error('You do not have permission to update runs in this project.');
       }
 
@@ -135,18 +109,18 @@ export async function action({
         throw new Error("Run name is required and must be a string.");
       }
 
-      if (!ProjectAuthorization.Runs.canManage(user, teamId)) {
+      if (!ProjectAuthorization.Runs.canManage(user, project.data)) {
         throw new Error('You do not have permission to duplicate runs in this project.');
       }
 
       const existingRun = await getExistingRun(documents, entityId);
 
-      const { project, annotationType, prompt, promptVersion, model, sessions } = existingRun;
+      const { project: projectId, annotationType, prompt, promptVersion, model, snapshot, sessions } = existingRun;
 
       run = await documents.createDocument<Run>({
         collection: 'runs',
         update: {
-          project,
+          project: projectId,
           name: name,
           annotationType,
           prompt,
@@ -155,7 +129,8 @@ export async function action({
           sessions,
           hasSetup: false,
           isRunning: false,
-          isComplete: false
+          isComplete: false,
+          snapshot: snapshot,
         }
       });
       return {
@@ -171,6 +146,7 @@ export async function action({
 
 export default function ProjectRunsRoute() {
   const { runs } = useLoaderData();
+  const { id: projectId } = useParams();
   const submit = useSubmit();
   const actionData = useActionData();
   const navigate = useNavigate();
@@ -189,14 +165,10 @@ export default function ProjectRunsRoute() {
   });
 
   useEffect(() => {
-    if (actionData?.intent === 'CREATE_RUN' || actionData?.intent === 'DUPLICATE_RUN') {
+    if (actionData?.intent === 'DUPLICATE_RUN') {
       navigate(`/projects/${actionData.data.project}/runs/${actionData.data._id}`)
     }
   }, [actionData]);
-
-  const onCreateNewRunClicked = ({ name, annotationType }: { name: string, annotationType: string }) => {
-    submit(JSON.stringify({ intent: 'CREATE_RUN', payload: { name, annotationType } }), { method: 'POST', encType: 'application/json' });
-  }
 
   const onEditRunClicked = (run: Run) => {
     submit(JSON.stringify({ intent: 'UPDATE_RUN', entityId: run._id, payload: { name: run.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
@@ -218,11 +190,7 @@ export default function ProjectRunsRoute() {
   }
 
   const onCreateRunButtonClicked = () => {
-    addDialog(
-      <CreateRunDialog
-        onCreateNewRunClicked={onCreateNewRunClicked}
-      />
-    );
+    navigate(`/projects/${projectId}/create-run`);
   }
 
   const onDuplicateRunButtonClicked = (run: Run) => {

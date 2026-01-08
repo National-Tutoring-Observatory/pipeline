@@ -3,24 +3,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import clsx from "clsx";
 import { Pencil } from "lucide-react";
+import { useContext } from "react";
 import { Link, Outlet } from "react-router";
+import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import UploadFilesContainer from "~/modules/files/containers/uploadFiles.container";
 import type { FileType } from "~/modules/files/files.types";
-import useProjectAuthorization from "../hooks/useProjectAuthorization";
+import ProjectAuthorization from "~/modules/projects/authorization";
+import type { User } from "~/modules/users/users.types";
 import type { Project } from "../projects.types";
 
 interface ProjectProps {
-  project: Project,
-  filesCount: number,
-  sessionsCount: number,
-  runsCount: number,
-  collectionsCount: number,
-  tabValue: string,
-  uploadFilesProgress: number,
-  convertFilesProgress: number,
-  convertedSessionsCount: number,
-  onUploadFiles: ({ acceptedFiles, fileType }: { acceptedFiles: any[], fileType: FileType }) => void,
-  onEditProjectButtonClicked: (project: Project) => void
+  project: Project;
+  filesCount: number;
+  sessionsCount: number;
+  runsCount: number;
+  collectionsCount: number;
+  tabValue: string;
+  uploadFilesProgress: number;
+  convertFilesProgress: number;
+  convertedSessionsCount: number;
+  onUploadFiles: ({ acceptedFiles }: { acceptedFiles: File[] }) => void;
+  onEditProjectButtonClicked: (project: Project) => void;
 }
 
 export default function Project({
@@ -36,8 +39,8 @@ export default function Project({
   onUploadFiles
   , onEditProjectButtonClicked
 }: ProjectProps) {
-  const teamId = (project.team as any)._id || project.team;
-  const { canUpdate } = useProjectAuthorization(teamId);
+  const user = useContext(AuthenticationContext) as User | null;
+  const canUpdate = ProjectAuthorization.canUpdate(user, project);
 
   return (
     <div className="max-w-6xl p-8">

@@ -7,7 +7,7 @@ const RunNameAlert = ({
 
   return (
     <>
-      {(name.length === 0) && (
+      {(name.trim().length === 0) && (
         <Alert variant="destructive">
           <AlertCircleIcon />
           <AlertDescription>Run name is required</AlertDescription>

@@ -1,20 +1,24 @@
-import type { CreateRun, Run } from "~/modules/runs/runs.types";
-import { useEffect, useState } from "react";
 import map from 'lodash/map';
-import ProjectRunCreator from "../components/projectRunCreator";
-import { useFetcher } from "react-router";
 import sampleSize from "lodash/sampleSize";
+import { useEffect, useState } from "react";
+import { useFetcher } from "react-router";
+import aiGatewayConfig from '~/config/ai_gateway.json';
+import type { CreateRun, Run } from "~/modules/runs/runs.types";
+import ProjectRunCreator from "../components/projectRunCreator";
 
-export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
-  run: Run,
-  onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions }: CreateRun) => void
-}) {
+interface ProjectRunCreatorContainerProps {
+  runName: string;
+  onStartRunClicked: ({ selectedAnnotationType, selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions }: CreateRun) => void;
+  onRunNameChanged: (name: string) => void;
+}
 
-  const [selectedAnnotationType, setSelectedAnnotationType] = useState(run.annotationType);
-  const [selectedPrompt, setSelectedPrompt] = useState(run.prompt as string | null);
-  const [selectedPromptVersion, setSelectedPromptVersion] = useState(run.promptVersion as number | null);
-  const [selectedModel, setSelectedModel] = useState(run.model || 'GEMINI');
-  const [selectedSessions, setSelectedSessions] = useState<string[]>(map(run.sessions, 'sessionId'));
+export default function ProjectRunCreatorContainer({ runName: initialRunName, onStartRunClicked, onRunNameChanged }: ProjectRunCreatorContainerProps) {
+  const [runName, setRunName] = useState(initialRunName);
+  const [selectedAnnotationType, setSelectedAnnotationType] = useState('PER_UTTERANCE');
+  const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
+  const [selectedPromptVersion, setSelectedPromptVersion] = useState<number | null>(null);
+  const [selectedModel, setSelectedModel] = useState(aiGatewayConfig.defaultModel);
+  const [selectedSessions, setSelectedSessions] = useState<string[]>([]);
   const [randomSampleSize, setRandomSampleSize] = useState(0);
   const [isRunButtonDisabled, setIsRunButtonDisabled] = useState(true);
 
@@ -51,6 +55,11 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
     setSelectedSessions(randomSessions);
   }
 
+  const onRunNameChangedHandler = (name: string) => {
+    setRunName(name);
+    onRunNameChanged(name);
+  }
+
   const onStartRunButtonClicked = () => {
     onStartRunClicked({
       selectedAnnotationType,
@@ -75,6 +84,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
 
   return (
     <ProjectRunCreator
+      runName={runName}
       selectedAnnotationType={selectedAnnotationType}
       selectedPrompt={selectedPrompt}
       selectedPromptVersion={selectedPromptVersion}
@@ -83,6 +93,7 @@ export default function ProjectRunCreatorContainer({ run, onStartRunClicked }: {
       randomSampleSize={randomSampleSize}
       sessionsCount={sessionsFetcher?.data?.sessions?.count || 0}
       isRunButtonDisabled={isRunButtonDisabled}
+      onRunNameChanged={onRunNameChangedHandler}
       onSelectedAnnotationTypeChanged={onSelectedAnnotationTypeChanged}
       onSelectedPromptChanged={onSelectedPromptChanged}
       onSelectedPromptVersionChanged={onSelectedPromptVersionChanged}

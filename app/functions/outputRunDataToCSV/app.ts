@@ -1,10 +1,10 @@
-import fse from 'fs-extra';
-import { json2csv } from 'json-2-csv';
-import each from 'lodash/each.js';
-import map from 'lodash/map.js';
-import pick from 'lodash/pick.js';
-import type { Run } from '~/modules/runs/runs.types';
-import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter';
+import fse from 'fs-extra'
+import { json2csv } from 'json-2-csv'
+import each from 'lodash/each.js'
+import map from 'lodash/map.js'
+import { getRunModelCode } from '~/modules/runs/helpers/runModel'
+import type { Run } from '~/modules/runs/runs.types'
+import getStorageAdapter from '~/modules/storage/helpers/getStorageAdapter'
 
 export const handler = async (event: { body: { run: Run, inputFolder: string, outputFolder: string } }) => {
   try {
@@ -100,11 +100,24 @@ export const handler = async (event: { body: { run: Run, inputFolder: string, ou
       await storage.upload({ file: { buffer: sessionsBuffer, size: sessionsBuffer.length, type: 'application/json' }, uploadPath: sessionsOutputFile });
     }
 
-    // OUTPUT META
-    let runObject = pick(run, ['project', '_id', 'name', 'annotationType', 'prompt', 'promptVersion', 'model']);
+    let runObject: any = {
+      project: run.project,
+      _id: run._id,
+      name: run.name,
+      annotationType: run.annotationType,
+      model: getRunModelCode(run),
+      sessionsCount: run.sessions.length
+    };
 
-    // @ts-ignore
-    runObject.sessionsCount = run.sessions.length;
+    if (run.snapshot?.prompt) {
+      runObject.promptName = run.snapshot.prompt.name;
+      runObject.promptUserPrompt = run.snapshot.prompt.userPrompt;
+      runObject.promptAnnotationType = run.snapshot.prompt.annotationType;
+      runObject.promptVersion = run.snapshot.prompt.version;
+    } else {
+      runObject.prompt = run.prompt;
+      runObject.promptVersion = run.promptVersion;
+    }
 
     metaArray.push(runObject);
 

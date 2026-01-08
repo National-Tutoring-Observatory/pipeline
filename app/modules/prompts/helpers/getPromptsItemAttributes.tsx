@@ -11,7 +11,7 @@ export default (item: Prompt) => {
   return {
     id: item._id,
     title: item.name,
-    to: `/prompts/${item._id}`,
+    to: `/prompts/${item._id}/${item.productionVersion}`,
     meta: [{
       icon: <Users />,
       text: teamName,

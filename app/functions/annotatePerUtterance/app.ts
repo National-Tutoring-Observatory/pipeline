@@ -21,7 +21,7 @@ export const handler = async (event: { body: any }) => {
 
   const originalJSON = JSON.parse(data.toString());
 
-  const llm = new LLM({ quality: 'high', model, user: team });
+  const llm = new LLM({ model, user: team });
 
   llm.addSystemMessage(systemPrompt.prompt, {
     annotationSchema: JSON.stringify(prompt.annotationSchema)

@@ -3,10 +3,12 @@ import 'app/documentsAdapters/documentDB/index.ts';
 import 'app/documentsAdapters/local/index.ts';
 
 import mongoose from 'mongoose';
+import auditSchema from './schemas/audit.schema';
 import collectionSchema from './schemas/collection.schema';
 import featureFlagSchema from './schemas/featureFlag.schema';
 import fileSchema from './schemas/file.schema';
 import jobSchema from './schemas/job.schema';
+import migrationSchema from './schemas/migration.schema';
 import projectSchema from './schemas/project.schema';
 import promptSchema from './schemas/prompt.schema';
 import promptVersionSchema from './schemas/promptVersion.schema';
@@ -14,7 +16,6 @@ import runSchema from './schemas/run.schema';
 import sessionSchema from './schemas/session.schema';
 import teamSchema from './schemas/team.schema';
 import userSchema from './schemas/user.schema';
-import auditSchema from './schemas/audit.schema';
 
 const registerModels = () => {
   if (!mongoose.models.Project) {
@@ -52,6 +53,9 @@ const registerModels = () => {
   }
   if (!mongoose.models.Audit) {
     mongoose.model('Audit', auditSchema);
+  }
+  if (!mongoose.models.Migration) {
+    mongoose.model('Migration', migrationSchema);
   }
 }
 

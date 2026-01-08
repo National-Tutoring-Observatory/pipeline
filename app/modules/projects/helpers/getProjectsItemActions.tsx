@@ -1,11 +1,15 @@
 import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
 import { Edit, Trash2 } from "lucide-react";
-import useProjectAuthorization from "../hooks/useProjectAuthorization";
+import { useContext } from "react";
+import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
+import type { User } from "~/modules/users/users.types";
+import ProjectAuthorization from "../authorization";
 import type { Project } from "../projects.types";
 
 export default (item: Project): CollectionItemAction[] => {
-  const teamId = (item.team as any)._id || item.team;
-  const { canUpdate, canDelete } = useProjectAuthorization(teamId);
+  const user = useContext(AuthenticationContext) as User;
+  const canUpdate = ProjectAuthorization.canUpdate(user, item);
+  const canDelete = ProjectAuthorization.canDelete(user, item);
 
   const actions: CollectionItemAction[] = [];
 

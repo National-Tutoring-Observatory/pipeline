@@ -10,7 +10,6 @@ import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { FileType } from '~/modules/files/files.types';
 import type { Session } from "~/modules/sessions/sessions.types";
 import splitMultipleSessionsIntoFiles from '~/modules/uploads/services/splitMultipleSessionsIntoFiles';
 import uploadFiles from "~/modules/uploads/services/uploadFiles";
@@ -36,8 +35,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const teamId = (project.data.team as any)._id || project.data.team;
-  if (!ProjectAuthorization.canView(user, teamId)) {
+  if (!ProjectAuthorization.canView(user, project.data)) {
     return redirect('/');
   }
 
@@ -73,23 +71,32 @@ export async function action({
     const project = await documents.getDocument<ProjectType>({ collection: 'projects', match: { _id: entityId } });
     if (!project.data) throw new Error('Project not found');
 
-    const teamId = (project.data.team as any)._id || project.data.team;
-    if (!ProjectAuthorization.canUpdate(user, teamId)) {
+    if (!ProjectAuthorization.canUpdate(user, project.data)) {
       throw new Error("You do not have permission to upload files to this project.");
     }
 
-    let files = formData.getAll('files') as File[];
+    const uploadedFiles = formData.getAll('files') as File[];
 
-    if (body.fileType === 'CSV' || body.fileType === 'JSONL') {
-      files = await splitMultipleSessionsIntoFiles({ files, fileType: body.fileType });
+    if (uploadedFiles.length === 0) {
+      throw new Error('No files provided.');
+    }
+
+    let splitFiles: File[] = [];
+
+    try {
+      splitFiles = await splitMultipleSessionsIntoFiles({ files: uploadedFiles });
+    } catch (error) {
+      throw new Error(
+        `File processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
 
     const projectTeam = project.data.team as string;
 
-    const attributesMapping = await getAttributeMappingFromFile({ file: files[0], team: projectTeam });
+    const attributesMapping = await getAttributeMappingFromFile({ file: splitFiles[0], team: projectTeam });
 
-    uploadFiles({ files, entityId }).then(async () => {
-      createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true, attributesMapping }, { request });
+    uploadFiles({ files: splitFiles, entityId }).then(async () => {
+      await createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true, attributesMapping });
     });
 
     return await documents.updateDocument<ProjectType>({ collection: 'projects', match: { _id: entityId }, update: { isUploadingFiles: true, hasSetupProject: true } });
@@ -121,16 +128,13 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
 
   const onUploadFiles = async ({
     acceptedFiles,
-    fileType,
   }: {
-    acceptedFiles: any[],
-    fileType: FileType,
+    acceptedFiles: File[],
   }) => {
     const formData = new FormData();
     formData.append('body', JSON.stringify({
       intent: 'UPLOAD_PROJECT_FILES',
       entityId: project.data!._id,
-      fileType,
       files: Array.from(acceptedFiles).map(file => ({
         name: file.name,
         size: file.size,

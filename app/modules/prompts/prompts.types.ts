@@ -1,4 +1,5 @@
 import type { Team } from "../teams/teams.types";
+import type { User } from "../users/users.types";
 
 export interface Prompt {
   _id: string;
@@ -7,6 +8,7 @@ export interface Prompt {
   createdAt: string;
   annotationType: string;
   productionVersion: number;
+  createdBy: User | string;
 }
 
 export interface PromptVersion {
@@ -23,7 +25,8 @@ export interface PromptVersion {
 
 export interface Model {
   provider: string;
-  name: string;
+  label: string;
+  code: string;
 }
 
 export interface AnnotationType {

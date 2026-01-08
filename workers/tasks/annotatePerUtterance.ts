@@ -40,7 +40,7 @@ export default async function annotatePerUtterance(job: any) {
 
     const conversation = getConversationFromJSON(originalJSON);
 
-    const llm = new LLM({ quality: 'high', model, user: team });
+    const llm = new LLM({ model, user: team });
 
     llm.addSystemMessage(annotationPerUtterancePrompts.system, {
       annotationSchema: JSON.stringify(prompt.annotationSchema),
