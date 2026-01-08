@@ -132,7 +132,8 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     searchValue, setSearchValue,
     currentPage, setCurrentPage,
     sortValue, setSortValue,
-    filtersValues, setFiltersValues
+    filtersValues, setFiltersValues,
+    isSyncing
   } = useSearchQueryParams({
     searchValue: '',
     currentPage: 1,
@@ -235,7 +236,6 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     setSortValue(sortValue);
   }
 
-
   return (
     <Projects
       projects={projects?.data}
@@ -244,6 +244,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       totalPages={projects.totalPages}
       filtersValues={filtersValues}
       sortValue={sortValue}
+      isSyncing={isSyncing}
       onActionClicked={onActionClicked}
       onItemActionClicked={onItemActionClicked}
       onSearchValueChanged={onSearchValueChanged}
