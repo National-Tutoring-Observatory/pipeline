@@ -12,7 +12,6 @@ export interface Run {
   model: string;
   sessions: RunSession[]
   snapshot?: RunSnapshot;
-  hasSetup: boolean;
   isRunning: boolean;
   isComplete: boolean;
   hasErrored: boolean;
