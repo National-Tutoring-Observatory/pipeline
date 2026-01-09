@@ -1,3 +1,4 @@
+import getDatabaseConnection from "app/documentsAdapters/documentDB/helpers/getDatabaseConnection";
 import type { Job } from "bullmq";
 import "../../app/modules/documents/documents";
 import "../../app/modules/storage/storage";
@@ -11,6 +12,8 @@ import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
 
 export default async (job: Job) => {
   try {
+    await getDatabaseConnection();
+
     switch (job.name) {
       case 'ANNOTATE_RUN:START': {
         return startAnnotateRun(job);

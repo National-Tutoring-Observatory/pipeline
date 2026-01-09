@@ -1,5 +1,6 @@
 import "app/modules/documents/documents";
 import "app/modules/storage/storage";
+import getDatabaseConnection from "app/documentsAdapters/documentDB/helpers/getDatabaseConnection";
 import type { Job } from "bullmq";
 import deleteProject from "../general/deleteProject";
 import deleteProjectData from "../general/deleteProjectData";
@@ -9,6 +10,8 @@ import runMigration from "../general/runMigration";
 
 export default async (job: Job) => {
   try {
+    await getDatabaseConnection();
+
     switch (job.name) {
       case 'DELETE_PROJECT:DATA': {
         return deleteProjectData(job);
