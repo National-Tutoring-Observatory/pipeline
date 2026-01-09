@@ -79,5 +79,8 @@ export default [
       ]),
     ]),
   ]),
+  ...prefix("admin", [
+    route("users", "modules/users/containers/adminUsers.route.tsx"),
+  ]),
 
 ] satisfies RouteConfig;
