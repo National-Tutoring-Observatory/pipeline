@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import userSchema from '~/modules/documents/schemas/user.schema';
 import type { User } from './users.types';
 import type { FindOptions } from '~/modules/common/types';
+import { AuditService } from '~/modules/audits/audit';
 
 const UserModel = mongoose.models.User || mongoose.model('User', userSchema);
 
@@ -81,5 +82,47 @@ export class UserService {
       { featureFlags: { $in: [featureFlagName] } },
       { $pull: { featureFlags: featureFlagName } }
     );
+  }
+
+  static async assignSuperAdminRole({
+    targetUserId,
+    performedByUserId,
+    reason,
+    performedByUsername
+  }: {
+    targetUserId: string;
+    performedByUserId: string;
+    reason: string;
+    performedByUsername: string;
+  }): Promise<void> {
+    await this.updateById(targetUserId, { role: 'SUPER_ADMIN' });
+
+    await AuditService.create({
+      action: 'ADD_SUPERADMIN',
+      performedBy: performedByUserId,
+      performedByUsername,
+      context: { target: targetUserId, reason }
+    });
+  }
+
+  static async revokeSuperAdminRole({
+    targetUserId,
+    performedByUserId,
+    reason,
+    performedByUsername
+  }: {
+    targetUserId: string;
+    performedByUserId: string;
+    reason: string;
+    performedByUsername: string;
+  }): Promise<void> {
+    await this.updateById(targetUserId, { role: 'USER' });
+
+    await AuditService.create({
+      action: 'REMOVE_SUPERADMIN',
+      performedBy: performedByUserId,
+      performedByUsername,
+      context: { target: targetUserId, reason }
+    });
   }
 }
