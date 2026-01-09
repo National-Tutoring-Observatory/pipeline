@@ -3,7 +3,6 @@ import 'app/documentsAdapters/documentDB/index.ts';
 import 'app/documentsAdapters/local/index.ts';
 
 import mongoose from 'mongoose';
-import auditSchema from './schemas/audit.schema';
 import collectionSchema from './schemas/collection.schema';
 import featureFlagSchema from './schemas/featureFlag.schema';
 import fileSchema from './schemas/file.schema';
@@ -42,9 +41,6 @@ const registerModels = () => {
   }
   if (!mongoose.models.Job) {
     mongoose.model('Job', jobSchema);
-  }
-  if (!mongoose.models.Audit) {
-    mongoose.model('Audit', auditSchema);
   }
   if (!mongoose.models.Migration) {
     mongoose.model('Migration', migrationSchema);

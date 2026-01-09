@@ -1,28 +1,23 @@
-import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 import { UserService } from '~/modules/users/user';
+import { AuditService } from '~/modules/audits/audit';
 import getQueue from '~/modules/queues/helpers/getQueue';
 import type { TeamAssignmentOption } from '../teams.types';
-import { isTeamAssignmentOption } from '../teams.types';
 
 const MS_IN_A_DAY = 86400000;
 
-export async function addSuperAdminToTeam({ teamId, userId, reason, option, delayMs = MS_IN_A_DAY }: {
+export async function addSuperAdminToTeam({ teamId, userId, performedByUserId, reason, option, delayMs = MS_IN_A_DAY }: {
   teamId: string,
   userId: string,
+  performedByUserId: string,
   reason: string,
   option: TeamAssignmentOption,
   delayMs?: number
 }) {
-  const documents = getDocumentsAdapter();
-
   const userDoc = await UserService.findById(userId);
   if (!userDoc) throw new Error('User not found');
   if (!userDoc.teams) userDoc.teams = [];
   if (userDoc.teams.some((t: any) => t.team === teamId)) {
     throw new Error('User is already a member of the team');
-  }
-  if (!isTeamAssignmentOption(option)) {
-    throw new Error('Invalid team assignment option');
   }
 
   const temporary = option === 'temporary';
@@ -31,17 +26,15 @@ export async function addSuperAdminToTeam({ teamId, userId, reason, option, dela
 
   await UserService.updateById(userId, { teams: userDoc.teams as any });
 
-  documents.createDocument({
-    collection: 'audits',
-    update: {
-      action: 'ADD_SUPERADMIN',
-      user: userId,
+  await AuditService.create({
+    action: 'SUPERADMIN_REQUEST_TEAM_ADMIN',
+    performedBy: performedByUserId,
+    context: {
+      target: userId,
       team: teamId,
-      context: {
-        reason,
-        option,
-        temporary,
-      }
+      reason,
+      option,
+      temporary,
     }
   });
 

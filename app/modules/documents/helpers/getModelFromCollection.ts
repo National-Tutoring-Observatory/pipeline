@@ -10,7 +10,6 @@ export const MODELS_BY_COLLECTION: { [key: string]: string } = {
   sessions: 'Session',
   featureFlags: 'FeatureFlag',
   jobs: 'Job',
-  audits: 'Audit',
   migrations: 'Migration',
 }
 
