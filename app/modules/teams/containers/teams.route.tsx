@@ -9,19 +9,17 @@ import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { TeamService } from "../team";
 import type { User } from "~/modules/users/users.types";
+import type { Team } from "../teams.types";
 import TeamAuthorization from "../authorization";
 import CreateTeamDialog from "../components/createTeamDialog";
 import DeleteTeamDialog from "../components/deleteTeamDialog";
 import EditTeamDialog from "../components/editTeamDialog";
 import Teams from "../components/teams";
-import type { Team } from "../teams.types";
 import type { Route } from "./+types/teams.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const documents = getDocumentsAdapter();
-
   let match = {};
 
   const userSession = await getSessionUser({ request }) as User;
@@ -52,9 +50,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: []
   });
 
-  const result = await documents.getDocuments<Team>({ collection: 'teams', ...query });
+  const data = await TeamService.find({ match });
 
-  return { teams: result };
+  return { teams: { data, totalPages: 1 } };
 }
 
 export async function action({
@@ -71,8 +69,6 @@ export async function action({
     return redirect('/');
   }
 
-  const documents = getDocumentsAdapter();
-
   switch (intent) {
     case 'CREATE_TEAM':
       if (!TeamAuthorization.canCreate(user)) {
@@ -81,21 +77,23 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Team name is required and must be a string.");
       }
-      const team = await documents.createDocument<Team>({ collection: 'teams', update: { name } });
+      const team = await TeamService.create({ name });
       return {
         intent: 'CREATE_TEAM',
-        ...team
-      }
+        data: team
+      };
     case 'UPDATE_TEAM':
       if (!TeamAuthorization.canUpdate(user, entityId)) {
         throw new Error("Insufficient permissions. Only team admins can update teams.");
       }
-      return await documents.updateDocument({ collection: 'teams', match: { _id: entityId }, update: { name } });
+      const updated = await TeamService.updateById(entityId, { name });
+      return { data: updated };
     case 'DELETE_TEAM':
       if (!TeamAuthorization.canDelete(user, entityId)) {
         throw new Error("Insufficient permissions. Only super admins can delete teams.");
       }
-      return await documents.deleteDocument({ collection: 'teams', match: { _id: entityId } })
+      const deleted = await TeamService.deleteById(entityId);
+      return { intent: 'DELETE_TEAM', data: deleted };
     default:
       return {};
   }
@@ -128,6 +126,9 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   useEffect(() => {
     if (actionData?.intent === 'CREATE_TEAM') {
       navigate(`/teams/${actionData.data._id}`)
+    }
+    if (actionData?.intent === 'DELETE_TEAM') {
+      toast.success('Deleted team');
     }
   }, [actionData]);
 
@@ -170,9 +171,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   }
 
   const onDeleteTeamClicked = (teamId: string) => {
-    submit(JSON.stringify({ intent: 'DELETE_TEAM', entityId: teamId }), { method: 'DELETE', encType: 'application/json' }).then(() => {
-      toast.success('Deleted team');
-    });
+    submit(JSON.stringify({ intent: 'DELETE_TEAM', entityId: teamId }), { method: 'DELETE', encType: 'application/json' });
   }
 
   const onActionClicked = (action: String) => {
@@ -182,7 +181,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   }
 
   const onItemActionClicked = ({ id, action }: { id: string, action: string }) => {
-    const team = find(teams.data, { _id: id });
+    const team = find(teams.data, { _id: id }) as Team | undefined;
     if (!team) return null;
     switch (action) {
       case 'EDIT':
@@ -190,7 +189,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
         break;
 
       case 'DELETE':
-        onDeleteTeamButtonClicked(team);
+        onDeleteTeamClicked(team._id);
         break;
     }
   }

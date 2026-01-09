@@ -1,5 +1,5 @@
+import { TeamService } from '../../app/modules/teams/team.js';
 import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter.js';
-import type { Team } from '../../app/modules/teams/teams.types.js';
 import type { User } from '../../app/modules/users/users.types.js';
 import { getSeededUsers } from './userSeeder.js';
 
@@ -42,26 +42,15 @@ export async function seedTeams() {
   for (const teamData of SEED_TEAMS) {
     try {
       // Check if team already exists
-      const existing = await documents.getDocuments<Team>({
-        collection: 'teams',
-        match: { name: teamData.name },
-        sort: {},
-      });
+      const existing = await TeamService.find({ match: { name: teamData.name } });
 
-      if (existing.data.length > 0) {
+      if (existing.length > 0) {
         console.log(`  ⏭️  Team '${teamData.name}' already exists, skipping...`);
         continue;
       }
 
-      const result = await documents.createDocument<Team>({
-        collection: 'teams',
-        update: {
-          ...teamData,
-          createdBy: admin._id,
-          ownedBy: [admin._id],
-        },
-      });
-      console.log(`  ✓ Created team: ${teamData.name} (ID: ${result.data._id})`);
+      const result = await TeamService.create(teamData);
+      console.log(`  ✓ Created team: ${teamData.name} (ID: ${result._id})`);
     } catch (error) {
       console.error(`  ✗ Error creating team ${teamData.name}:`, error);
       throw error;
@@ -69,30 +58,24 @@ export async function seedTeams() {
   }
 
   // Add "local" user to Research Team Alpha
-  const team = await documents.getDocument<Team>({
-    collection: 'teams',
-    match: { name: 'Research Team Alpha' },
-  });
+  const teams = await TeamService.find({ match: { name: 'Research Team Alpha' } });
+  const team = teams[0];
 
-  // Update admin user to include first team
-  await documents.updateDocument<User>({
-    collection: 'users',
-    match: { _id: admin._id },
-    update: {
-      teams: [{
-        team: team.data!._id,
-        role: 'ADMIN',
-      }],
-    }
-  });
+  if (team) {
+    // Update admin user to include first team
+    await documents.updateDocument<User>({
+      collection: 'users',
+      match: { _id: admin._id },
+      update: {
+        teams: [{
+          team: team._id,
+          role: 'ADMIN',
+        }],
+      }
+    });
+  }
 }
 
 export async function getSeededTeams() {
-  const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments<Team>({
-    collection: 'teams',
-    match: { name: { $in: SEED_TEAMS.map(t => t.name) } },
-    sort: {},
-  });
-  return result.data;
+  return await TeamService.find({ match: { name: { $in: SEED_TEAMS.map(t => t.name) } } });
 }

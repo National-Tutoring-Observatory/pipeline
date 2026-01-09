@@ -1,4 +1,5 @@
 
+import mongoose from 'mongoose';
 import type { CreateDocumentParams, CreateDocumentResult } from '~/modules/documents/documents.types';
 import getModelFromCollection from '../../../modules/documents/helpers/getModelFromCollection';
 import getDatabaseConnection from '../helpers/getDatabaseConnection';
@@ -7,10 +8,10 @@ export default async function createDocument<T = any>({ collection, update }: Cr
 
   try {
 
-    const connection = await getDatabaseConnection();
+    await getDatabaseConnection();
 
     const model = getModelFromCollection(collection);
-    const Model = connection.models[model];
+    const Model = mongoose.models[model];
 
     const data = await Model.create(update);
 
