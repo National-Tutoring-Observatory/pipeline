@@ -1,15 +1,9 @@
 import mongoose from 'mongoose';
 import teamSchema from '~/modules/documents/schemas/team.schema';
 import type { Team } from './teams.types';
+import type { FindOptions } from '~/modules/common/types';
 
 const TeamModel = mongoose.model('Team', teamSchema);
-
-interface FindOptions {
-  match?: Record<string, any>;
-  sort?: Record<string, 1 | -1>;
-  pagination?: { skip: number; limit: number };
-  populate?: string[];
-}
 
 export class TeamService {
   private static toTeam(doc: any): Team {

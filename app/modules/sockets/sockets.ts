@@ -17,7 +17,7 @@ export async function getSockets() {
   return promise;
 }
 
-export function connectSockets(isAppRunningLocally: boolean) {
+export function connectSockets() {
 
   if (SOCKETS) return SOCKETS;
   const socket = io(window.location.origin, {

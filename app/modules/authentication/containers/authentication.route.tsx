@@ -1,4 +1,4 @@
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 // @ts-ignore
 import dayjs from 'dayjs';
@@ -11,21 +11,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   let user = await getSessionUser({ request });
 
   if (!user) {
-    if (!process.env.DOCUMENTS_ADAPTER || process.env.DOCUMENTS_ADAPTER === 'LOCAL') {
-      user = await authenticator.authenticate("local", request);
-
-      let session = await sessionStorage.getSession(
-        request.headers.get("cookie")
-      );
-
-      session.set("user", user);
-
-      const headers = new Headers({
-        "Set-Cookie": await sessionStorage.commitSession(session),
-      });
-
-      return Response.json({ authentication: { data: user }, isAppRunningLocally: process.env.DOCUMENTS_ADAPTER === 'LOCAL' }, { headers });
-    }
     return {
       authentication: {}
     }
@@ -46,7 +31,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     "Set-Cookie": await sessionStorage.commitSession(session),
   });
 
-  return Response.json({ authentication: { data: user }, isAppRunningLocally: process.env.DOCUMENTS_ADAPTER === 'LOCAL' }, { headers });
+  return Response.json({ authentication: { data: user } }, { headers });
 
 }
 
@@ -65,9 +50,8 @@ export async function action({ request }: Route.ActionArgs) {
   let session = await sessionStorage.getSession(clonedRequest.headers.get("cookie"));
 
   if (referrerSplit[referrerSplit.length - 1] === data.inviteId && referrerSplit[referrerSplit.length - 2] === 'invite') {
-    const documents = getDocumentsAdapter();
-    const invitedUser = await documents.getDocument<User>({ collection: 'users', match: { inviteId: data.inviteId, isRegistered: false } });
-    if (!invitedUser.data) {
+    const invitedUsers = await UserService.find({ match: { inviteId: data.inviteId, isRegistered: false } });
+    if (invitedUsers.length === 0) {
       return Response.json({ ok: false, error: "Invalid invite" }, { status: 404 })
     }
     session.flash("inviteId", data.inviteId);

@@ -2,7 +2,7 @@ import { redirect } from "react-router";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { UserService } from "~/modules/users/user";
 import TeamAuthorization from "~/modules/teams/authorization";
 import type { User } from '~/modules/users/users.types';
 import type { Route } from "./+types/availableTeamUsers.route";
@@ -42,12 +42,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     filterableFields: []
   });
 
-  const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments<User>({
-    collection: 'users',
-    ...query
-  });
+  const result = await UserService.find({ match: query.match });
 
-  return result;
+  return { data: result };
 
 }

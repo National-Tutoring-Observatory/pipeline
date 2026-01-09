@@ -1,4 +1,3 @@
-import pull from 'lodash/pull';
 import { useEffect } from 'react';
 import { redirect, useActionData, useNavigate, useSubmit } from 'react-router';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
@@ -7,6 +6,7 @@ import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthori
 import addDialog from '~/modules/dialogs/addDialog';
 import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 import getQueue from '~/modules/queues/helpers/getQueue';
+import { UserService } from '~/modules/users/user';
 import type { User } from '~/modules/users/users.types';
 import DeleteFeatureFlagDialog from '../components/deleteFeatureFlagDialog';
 import FeatureFlag from '../components/featureFlag';
@@ -27,8 +27,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/featureFlags');
   }
 
-  const result = await documents.getDocuments<User>({ collection: 'users', match: { featureFlags: { $in: [featureFlag.data.name] } } });
-  const users = { data: result.data };
+  const result = await UserService.find({ match: { featureFlags: { $in: [featureFlag.data.name] } } });
+  const users = { data: result };
 
   return { featureFlag, users };
 }
@@ -51,28 +51,17 @@ export async function action({
 
   switch (intent) {
     case 'ADD_USERS_TO_FEATURE_FLAG':
-
-      for (const userId of userIds) {
-        const user = await documents.getDocument<User>({ collection: 'users', match: { _id: userId } });
-
-        if (user.data) {
-          if (!user.data.featureFlags) {
-            user.data.featureFlags = [];
-          }
-          const featureFlag = await documents.getDocument<FeatureFlagType>({ collection: 'featureFlags', match: { _id: params.id } });
-          if (featureFlag.data) {
-            user.data.featureFlags.push(featureFlag.data.name);
-            await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { featureFlags: user.data.featureFlags } });
-          }
+      const featureFlagDoc = await documents.getDocument<FeatureFlagType>({ collection: 'featureFlags', match: { _id: params.id } });
+      if (featureFlagDoc.data) {
+        for (const id of userIds) {
+          await UserService.addFeatureFlag(id, featureFlagDoc.data.name);
         }
       }
       return {};
     case 'REMOVE_USER_FROM_FEATURE_FLAG':
-      const user = await documents.getDocument<User>({ collection: 'users', match: { _id: userId } });
-      const featureFlag = await documents.getDocument<FeatureFlagType>({ collection: 'featureFlags', match: { _id: params.id } });
-      if (user.data && featureFlag.data) {
-        pull(user.data.featureFlags, featureFlag.data.name);
-        await documents.updateDocument({ collection: 'users', match: { _id: userId }, update: { featureFlags: user.data.featureFlags } });
+      const featureFlagToRemove = await documents.getDocument<FeatureFlagType>({ collection: 'featureFlags', match: { _id: params.id } });
+      if (featureFlagToRemove.data) {
+        await UserService.removeFeatureFlagFromUser(userId, featureFlagToRemove.data.name);
       }
       return {};
     case 'DELETE_FEATURE_FLAG':

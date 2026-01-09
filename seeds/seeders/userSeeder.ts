@@ -1,5 +1,4 @@
-import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter.js';
-import type { User } from '../../app/modules/users/users.types.js';
+import { UserService } from '../../app/modules/users/user.js';
 
 // Use SUPER_ADMIN_GITHUB_ID from env if available, otherwise use test ID
 const superAdminGithubId = process.env.SUPER_ADMIN_GITHUB_ID ? parseInt(process.env.SUPER_ADMIN_GITHUB_ID) : 100001;
@@ -13,7 +12,7 @@ const SEED_USERS = [
     isRegistered: true,
     featureFlags: [],
     teams: [],
-    registeredAt: new Date().toISOString(),
+    registeredAt: new Date(),
   },
   {
     username: 'testuser1',
@@ -23,7 +22,7 @@ const SEED_USERS = [
     isRegistered: true,
     featureFlags: [],
     teams: [],
-    registeredAt: new Date().toISOString(),
+    registeredAt: new Date()
   },
   {
     username: 'testuser2',
@@ -33,33 +32,24 @@ const SEED_USERS = [
     isRegistered: true,
     featureFlags: [],
     teams: [],
-    registeredAt: new Date().toISOString(),
+    registeredAt: new Date()
   },
 ];
 
 export async function seedUsers() {
-  const documents = getDocumentsAdapter();
-
   for (const userData of SEED_USERS) {
     try {
       // Check if user already exists
-      const existing = await documents.getDocuments<User>({
-        collection: 'users',
-        match: { githubId: userData.githubId },
-        sort: {},
-      });
+      const existing = await UserService.find({ match: { githubId: userData.githubId } });
 
-      if (existing.data.length > 0) {
+      if (existing.length > 0) {
         console.log(`  ⏭️  User '${userData.username}' already exists, skipping...`);
         continue;
       }
 
-      const result = await documents.createDocument<User>({
-        collection: 'users',
-        update: userData,
-      });
+      const result = await UserService.create(userData);
 
-      console.log(`  ✓ Created user: ${userData.username} (ID: ${result.data._id})`);
+      console.log(`  ✓ Created user: ${userData.username} (ID: ${result._id})`);
     } catch (error) {
       console.error(`  ✗ Error creating user ${userData.username}:`, error);
       throw error;
@@ -68,11 +58,6 @@ export async function seedUsers() {
 }
 
 export async function getSeededUsers() {
-  const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments<User>({
-    collection: 'users',
-    match: { username: { $in: SEED_USERS.map(u => u.username) } },
-    sort: {},
-  });
-  return result.data;
+  const result = await UserService.find({ match: { username: { $in: SEED_USERS.map(u => u.username) } } });
+  return result;
 }

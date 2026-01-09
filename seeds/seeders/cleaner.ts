@@ -1,4 +1,5 @@
 import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter.js';
+import { UserService } from '../../app/modules/users/user.js';
 import type { Project } from '../../app/modules/projects/projects.types.js';
 import getStorageAdapter from '../../app/modules/storage/helpers/getStorageAdapter.js';
 
@@ -67,21 +68,17 @@ export async function cleanSeededOnly() {
 
   try {
     // Clean seeded users (by githubId range)
-    const seededUsers = await documents.getDocuments({
-      collection: 'users',
-      match: { githubId: { $gte: 100001, $lte: 100003 } },
-      sort: {},
-    });
+    const seededUsers = await UserService.find({ match: { githubId: { $gte: 100001, $lte: 100003 } } });
 
-    for (const user of seededUsers.data) {
+    for (const user of seededUsers) {
       await documents.deleteDocument({
         collection: 'users',
         match: { _id: user._id },
       });
     }
 
-    if (seededUsers.data.length > 0) {
-      console.log(`  ✓ Cleaned ${seededUsers.data.length} seeded users`);
+    if (seededUsers.length > 0) {
+      console.log(`  ✓ Cleaned ${seededUsers.length} seeded users`);
     }
 
     // Clean seeded teams (by name pattern)

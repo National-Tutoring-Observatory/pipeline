@@ -1,15 +1,9 @@
 import { Authenticator } from "remix-auth";
 import type { User } from "~/modules/users/users.types";
 import githubStrategy from "./helpers/githubStrategy";
-import localStrategy from "./helpers/localStrategy";
 import orcidStrategy from "./helpers/orcidStrategy";
 
 const authenticator = new Authenticator<User>();
-
-authenticator.use(
-  localStrategy,
-  "local"
-);
 
 authenticator.use(
   githubStrategy,

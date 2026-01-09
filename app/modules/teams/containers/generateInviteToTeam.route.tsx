@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
 import type { Route } from "./+types/generateInviteToTeam.route";
@@ -26,27 +26,27 @@ export async function action({
       throw new Error('You do not have permission to invite users to this team.');
     }
 
-    const documents = getDocumentsAdapter();
-
     const inviteId = crypto.randomBytes(21).toString('hex').slice(0, 21);
 
-    const newUser = await documents.createDocument<User>({
-      collection: 'users',
-      update: {
-        role: "USER",
-        username,
-        isRegistered: false,
-        inviteId,
-        invitedAt: new Date(),
-        teams: [{
-          team: teamId,
-          role
-        }],
-        createdBy: user._id
-      }
-    });
+    const newUser = await UserService.create({
+      role: "USER",
+      username,
+      isRegistered: false,
+      inviteId,
+      invitedAt: new Date(),
+      teams: [{
+        team: teamId,
+        role
+      }],
+      orcidId: '',
+      hasOrcidSSO: false,
+      githubId: 0,
+      hasGithubSSO: false,
+      featureFlags: [],
+      registeredAt: new Date(),
+    } as any);
 
-    return newUser
+    return { data: newUser }
   }
 
 
