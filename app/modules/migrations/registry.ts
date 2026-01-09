@@ -1,10 +1,7 @@
 import { readdir } from 'fs/promises'
-import { dirname, resolve } from 'path'
-import { fileURLToPath } from 'url'
+import { resolve } from 'path'
+import { PROJECT_ROOT } from '~/helpers/projectRoot'
 import type { MigrationFile } from './types'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
 
 let migrationsCache: MigrationFile[] | null = null
 
@@ -13,7 +10,7 @@ export async function getAllMigrations(): Promise<MigrationFile[]> {
     return migrationsCache
   }
 
-  const migrationsDir = resolve(__dirname, '../../migrations')
+  const migrationsDir = resolve(PROJECT_ROOT, 'app/migrations')
   const files = await readdir(migrationsDir)
   const migrationFiles = files.filter(file => file.endsWith('.ts'))
 

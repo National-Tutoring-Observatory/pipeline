@@ -2,7 +2,6 @@ import mongoose from 'mongoose'
 
 export default new mongoose.Schema({
   migrationId: { type: String, required: true },
-  direction: { type: String, enum: ['up', 'down'], required: true },
   status: { type: String, enum: ['pending', 'running', 'completed', 'failed'], required: true },
   startedAt: { type: Date, required: true },
   completedAt: { type: Date },
