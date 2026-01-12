@@ -155,44 +155,44 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     updateBreadcrumb([{ text: 'Projects' }])
   }, []);
 
-  const onCreateProjectButtonClicked = () => {
+  const openCreateProjectDialog = () => {
     addDialog(
       <CreateProjectDialog
         hasTeamSelection={true}
-        onCreateNewProjectClicked={onCreateNewProjectClicked}
+        onCreateNewProjectClicked={submitCreateProject}
       />
     );
   }
 
-  const onEditProjectButtonClicked = (project: Project) => {
+  const openEditProjectDialog = (project: Project) => {
     addDialog(<EditProjectDialog
       project={project}
-      onEditProjectClicked={onEditProjectClicked}
+      onEditProjectClicked={submitEditProject}
     />);
   }
 
-  const onDeleteProjectButtonClicked = (project: Project) => {
+  const openDeleteProjectDialog = (project: Project) => {
     addDialog(
       <DeleteProjectDialog
         project={project}
-        onDeleteProjectClicked={onDeleteProjectClicked}
+        onDeleteProjectClicked={submitDeleteProject}
       />
     );
   }
 
-  const onCreateNewProjectClicked = ({ name, team }: {
+  const submitCreateProject = ({ name, team }: {
     name: string, team: string | null
   }) => {
     submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name, team } }), { method: 'POST', encType: 'application/json' });
   }
 
-  const onEditProjectClicked = (project: Project) => {
+  const submitEditProject = (project: Project) => {
     submit(JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: project._id, payload: { name: project.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
       toast.success('Updated project');
     });
   }
 
-  const onDeleteProjectClicked = (projectId: string) => {
+  const submitDeleteProject = (projectId: string) => {
     submit(JSON.stringify({ intent: 'DELETE_PROJECT', entityId: projectId }), { method: 'DELETE', encType: 'application/json' }).then(() => {
       toast.success('Deleted project');
     });
@@ -200,7 +200,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
 
   const onActionClicked = (action: String) => {
     if (action === 'CREATE') {
-      onCreateProjectButtonClicked();
+      openCreateProjectDialog();
     }
   }
 
@@ -209,11 +209,11 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     if (!project) return null;
     switch (action) {
       case 'EDIT':
-        onEditProjectButtonClicked(project);
+        openEditProjectDialog(project);
         break;
 
       case 'DELETE':
-        onDeleteProjectButtonClicked(project);
+        openDeleteProjectDialog(project);
         break;
     }
   }

@@ -171,42 +171,42 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
     updateBreadcrumb([{ text: 'Prompts' }])
   }, []);
 
-  const onCreatePromptButtonClicked = () => {
+  const openCreatePromptDialog = () => {
     addDialog(
       <CreatePromptDialog
         hasTeamSelection={true}
-        onCreateNewPromptClicked={onCreateNewPromptClicked}
+        onCreateNewPromptClicked={submitCreatePrompt}
       />
     );
   }
 
-  const onEditPromptButtonClicked = (prompt: Prompt) => {
+  const openEditPromptDialog = (prompt: Prompt) => {
     addDialog(<EditPromptDialog
       prompt={prompt}
-      onEditPromptClicked={onEditPromptClicked}
+      onEditPromptClicked={submitEditPrompt}
     />);
   }
 
-  const onDeletePromptButtonClicked = (prompt: Prompt) => {
+  const openDeletePromptDialog = (prompt: Prompt) => {
     addDialog(
       <DeletePromptDialog
         prompt={prompt}
-        onDeletePromptClicked={onDeletePromptClicked}
+        onDeletePromptClicked={submitDeletePrompt}
       />
     );
   }
 
-  const onCreateNewPromptClicked = ({ name, annotationType, team }: { name: string, annotationType: string, team: string | null }) => {
+  const submitCreatePrompt = ({ name, annotationType, team }: { name: string, annotationType: string, team: string | null }) => {
     submit(JSON.stringify({ intent: 'CREATE_PROMPT', payload: { name, annotationType, team } }), { method: 'POST', encType: 'application/json' });
   }
 
-  const onEditPromptClicked = (prompt: Prompt) => {
+  const submitEditPrompt = (prompt: Prompt) => {
     submit(JSON.stringify({ intent: 'UPDATE_PROMPT', entityId: prompt._id, payload: { name: prompt.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
       toast.success('Updated prompt');
     });
   }
 
-  const onDeletePromptClicked = (promptId: string) => {
+  const submitDeletePrompt = (promptId: string) => {
     submit(JSON.stringify({ intent: 'DELETE_PROMPT', entityId: promptId }), { method: 'DELETE', encType: 'application/json' }).then(() => {
       toast.success('Deleted prompt');
     });
@@ -214,7 +214,7 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
 
   const onActionClicked = (action: String) => {
     if (action === 'CREATE') {
-      onCreatePromptButtonClicked();
+      openCreatePromptDialog();
     }
   }
 
@@ -223,11 +223,11 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
     if (!prompt) return null;
     switch (action) {
       case 'EDIT':
-        onEditPromptButtonClicked(prompt);
+        openEditPromptDialog(prompt);
         break;
 
       case 'DELETE':
-        onDeletePromptButtonClicked(prompt);
+        openDeletePromptDialog(prompt);
         break;
     }
   }
@@ -263,9 +263,6 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
       onPaginationChanged={onPaginationChanged}
       onFiltersValueChanged={onFiltersValueChanged}
       onSortValueChanged={onSortValueChanged}
-      onCreatePromptButtonClicked={onCreatePromptButtonClicked}
-      onEditPromptButtonClicked={onEditPromptButtonClicked}
-      onDeletePromptButtonClicked={onDeletePromptButtonClicked}
     />
   );
 }
