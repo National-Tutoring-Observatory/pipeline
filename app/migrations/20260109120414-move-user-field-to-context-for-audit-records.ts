@@ -31,31 +31,35 @@ export default {
     )
     console.log(`Renamed ADD_SUPERADMIN records: ${renamedResult.modifiedCount}`)
 
-    // Move user field to context.target
-    const result = await auditCollection.updateMany(
+    // Move user field to context.target using aggregation pipeline
+    const moveResult = await auditCollection.updateMany(
       { user: { $exists: true } },
       [
         {
           $set: {
             context: {
               $mergeObjects: [
-                '$context',
+                { $ifNull: ['$context', {}] },
                 { target: '$user' }
               ]
             }
           }
-        },
-        {
-          $unset: 'user'
         }
       ]
     )
-    console.log(`Moved user field to context.target: ${result.modifiedCount}`)
+    console.log(`Moved user to context.target: ${moveResult.modifiedCount}`)
+
+    // Remove user field
+    const unsetResult = await auditCollection.updateMany(
+      { user: { $exists: true } },
+      { $unset: { user: '' } }
+    )
+    console.log(`Removed user field: ${unsetResult.modifiedCount}`)
 
     return {
       success: true,
       message: 'Migration completed successfully',
-      stats: { migrated: renamedResult.modifiedCount + result.modifiedCount, failed: 0 }
+      stats: { migrated: renamedResult.modifiedCount + moveResult.modifiedCount, failed: 0 }
     }
   }
 } satisfies MigrationFile

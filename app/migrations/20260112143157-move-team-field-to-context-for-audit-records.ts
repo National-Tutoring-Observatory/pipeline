@@ -29,37 +29,31 @@ export default {
     let migrated = 0
     let failed = 0
 
-    for (const audit of auditsWithTeamField) {
-      try {
-        console.log(`  Processing audit ${audit._id}, team: ${audit.team}`)
-
-        // Move team to context.team
-        await auditCollection.updateOne(
-          { _id: audit._id },
-          [
-            {
-              $set: {
-                context: {
-                  $mergeObjects: [
-                    '$context',
-                    { team: '$team' }
-                  ]
-                }
-              }
-            },
-            {
-              $unset: 'team'
+    // Move team to context.team using aggregation pipeline
+    const moveResult = await auditCollection.updateMany(
+      { team: { $exists: true } },
+      [
+        {
+          $set: {
+            context: {
+              $mergeObjects: [
+                { $ifNull: ['$context', {}] },
+                { team: '$team' }
+              ]
             }
-          ]
-        )
+          }
+        }
+      ]
+    )
+    console.log(`Moved team to context.team: ${moveResult.modifiedCount}`)
+    migrated = moveResult.modifiedCount
 
-        console.log(`  ✓ Moved team to context.team for audit ${audit._id}`)
-        migrated++
-      } catch (error) {
-        console.error(`  ❌ Failed to migrate audit ${audit._id}:`, error)
-        failed++
-      }
-    }
+    // Remove team field
+    const unsetResult = await auditCollection.updateMany(
+      { team: { $exists: true } },
+      { $unset: { team: '' } }
+    )
+    console.log(`Removed team field: ${unsetResult.modifiedCount}`)
 
     console.log(`\n✓ Migration complete: ${migrated} migrated, ${failed} failed`)
 
