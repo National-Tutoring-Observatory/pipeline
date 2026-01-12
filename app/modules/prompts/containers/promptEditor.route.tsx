@@ -57,15 +57,14 @@ export async function action({
     throw new Error('Prompt version not found');
   }
 
-  const promptId = (promptVersion.data.prompt as string);
+  const promptId = typeof promptVersion.data.prompt === 'string' ? promptVersion.data.prompt : promptVersion.data.prompt._id;
   const prompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: promptId } });
 
   if (!prompt.data) {
     throw new Error('Prompt not found');
   }
 
-  const teamId = (prompt.data.team as any)._id || prompt.data.team;
-  if (!PromptAuthorization.canUpdate(user, teamId)) {
+  if (!PromptAuthorization.canUpdate(user, prompt.data)) {
     throw new Error('Access denied');
   }
 
