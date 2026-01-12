@@ -15,12 +15,9 @@ export type MigrationFile = {
 
 export type MigrationStatus = 'pending' | 'running' | 'completed' | 'failed'
 
-export type MigrationDirection = 'up' | 'down'
-
 export type Migration = {
   _id: string
   migrationId: string
-  direction: MigrationDirection
   status: MigrationStatus
   startedAt: Date
   completedAt?: Date

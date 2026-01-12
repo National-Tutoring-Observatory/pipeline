@@ -3,7 +3,7 @@ import getSessionUser from '~/modules/authentication/helpers/getSessionUser'
 import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthorization'
 import getQueue from '~/modules/queues/helpers/getQueue'
 import Migrations from '../components/migrations'
-import { getMigrationsWithStatus } from '../queries'
+import { MigrationService } from '../migration'
 import type { Route } from './+types/migrations.route'
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb'
 import { useEffect } from 'react'
@@ -14,7 +14,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     return redirect('/')
   }
 
-  const migrations = await getMigrationsWithStatus()
+  const migrations = await MigrationService.allWithStatus()
 
   return { migrations }
 }
@@ -37,7 +37,6 @@ export async function action({ request }: Route.ActionArgs) {
     const queue = getQueue('general')
     await queue.add('RUN_MIGRATION', {
       migrationId,
-      direction: 'up',
       userId: user._id,
       props: {
         event: 'migration:update',
