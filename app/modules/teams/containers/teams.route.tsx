@@ -126,26 +126,26 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
     updateBreadcrumb([{ text: 'Teams' }])
   }, []);
 
-  const onCreateTeamButtonClicked = () => {
+  const openCreateTeamDialog = () => {
     addDialog(
       <CreateTeamDialog
-        onCreateNewTeamClicked={onCreateNewTeamClicked}
+        onCreateNewTeamClicked={submitCreateTeam}
       />
     );
   }
 
-  const onEditTeamButtonClicked = (team: Team) => {
+  const openEditTeamDialog = (team: Team) => {
     addDialog(<EditTeamDialog
       team={team}
-      onEditTeamClicked={onEditTeamClicked}
+      onEditTeamClicked={submitEditTeam}
     />);
   }
 
-  const onCreateNewTeamClicked = (name: string) => {
+  const submitCreateTeam = (name: string) => {
     submit(JSON.stringify({ intent: 'CREATE_TEAM', payload: { name } }), { method: 'POST', encType: 'application/json' });
   }
 
-  const onEditTeamClicked = (team: Team) => {
+  const submitEditTeam = (team: Team) => {
     submit(JSON.stringify({ intent: 'UPDATE_TEAM', entityId: team._id, payload: { name: team.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
       toast.success('Updated team');
     });
@@ -153,7 +153,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
 
   const onActionClicked = (action: String) => {
     if (action === 'CREATE') {
-      onCreateTeamButtonClicked();
+      openCreateTeamDialog();
     }
   }
 
@@ -162,7 +162,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
     if (!team) return null;
     switch (action) {
       case 'EDIT':
-        onEditTeamButtonClicked(team);
+        openEditTeamDialog(team);
         break;
     }
   }
