@@ -14,7 +14,6 @@ import type { User } from "~/modules/users/users.types";
 import type { Team } from "../teams.types";
 import TeamAuthorization from "../authorization";
 import CreateTeamDialog from "../components/createTeamDialog";
-import DeleteTeamDialog from "../components/deleteTeamDialog";
 import EditTeamDialog from "../components/editTeamDialog";
 import Teams from "../components/teams";
 import type { Route } from "./+types/teams.route";
@@ -88,12 +87,6 @@ export async function action({
       }
       const updated = await TeamService.updateById(entityId, { name });
       return { data: updated };
-    case 'DELETE_TEAM':
-      if (!TeamAuthorization.canDelete(user, entityId)) {
-        throw new Error("Insufficient permissions. Only super admins can delete teams.");
-      }
-      const deleted = await TeamService.deleteById(entityId);
-      return { intent: 'DELETE_TEAM', data: deleted };
     default:
       return {};
   }
@@ -127,9 +120,6 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
     if (actionData?.intent === 'CREATE_TEAM') {
       navigate(`/teams/${actionData.data._id}`)
     }
-    if (actionData?.intent === 'DELETE_TEAM') {
-      toast.success('Deleted team');
-    }
   }, [actionData]);
 
   useEffect(() => {
@@ -151,15 +141,6 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
     />);
   }
 
-  const onDeleteTeamButtonClicked = (team: Team) => {
-    addDialog(
-      <DeleteTeamDialog
-        team={team}
-        onDeleteTeamClicked={onDeleteTeamClicked}
-      />
-    );
-  }
-
   const onCreateNewTeamClicked = (name: string) => {
     submit(JSON.stringify({ intent: 'CREATE_TEAM', payload: { name } }), { method: 'POST', encType: 'application/json' });
   }
@@ -168,10 +149,6 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
     submit(JSON.stringify({ intent: 'UPDATE_TEAM', entityId: team._id, payload: { name: team.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
       toast.success('Updated team');
     });
-  }
-
-  const onDeleteTeamClicked = (teamId: string) => {
-    submit(JSON.stringify({ intent: 'DELETE_TEAM', entityId: teamId }), { method: 'DELETE', encType: 'application/json' });
   }
 
   const onActionClicked = (action: String) => {
@@ -186,10 +163,6 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
     switch (action) {
       case 'EDIT':
         onEditTeamButtonClicked(team);
-        break;
-
-      case 'DELETE':
-        onDeleteTeamClicked(team._id);
         break;
     }
   }

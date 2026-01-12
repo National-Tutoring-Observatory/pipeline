@@ -153,38 +153,4 @@ describe("teams.route", () => {
       expect(retrieved?.name).toBe("updated");
     });
   });
-
-  describe("action - DELETE_TEAM", () => {
-    it("deletes team when user is team admin", async () => {
-      const team = await TeamService.create({ name: "to delete" });
-      const user = (await documents.createDocument<User>({
-        collection: "users",
-        update: {
-          username: "user1",
-          role: "USER",
-          teams: [{ team: team._id, role: "ADMIN" }],
-        },
-      })).data;
-
-      const cookieHeader = await loginUser(user._id);
-
-      const result = (await action({
-        request: new Request("http://localhost/teams", {
-          method: "DELETE",
-          headers: { cookie: cookieHeader },
-          body: JSON.stringify({
-            intent: "DELETE_TEAM",
-            entityId: team._id,
-          }),
-        }),
-        params: {},
-      } as any)) as any;
-
-      expect(result.intent).toBe("DELETE_TEAM");
-      expect(result.data._id).toBe(team._id);
-
-      const retrieved = await TeamService.findById(team._id);
-      expect(retrieved).toBeNull();
-    });
-  });
 });
