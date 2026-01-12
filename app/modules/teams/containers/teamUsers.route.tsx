@@ -64,7 +64,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       if (!isTeamAssignmentOption(option)) {
         throw new Error('Invalid team assignment option');
       }
-      await addSuperAdminToTeam({ teamId: params.id, userId: user._id, reason: reason, option: option });
+      await addSuperAdminToTeam({ teamId: params.id, userId: user._id, performedByUserId: user._id, reason: reason.trim(), option: option });
       return {};
     }
     case 'ADD_USERS_TO_TEAM':

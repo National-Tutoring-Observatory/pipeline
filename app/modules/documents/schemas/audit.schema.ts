@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 
 export default new mongoose.Schema({
   action: { type: String, required: true },
-  user: { type: mongoose.Types.ObjectId, ref: 'User', required: true },
-  team: { type: mongoose.Types.ObjectId, ref: 'Team' },
-  context: { type: Map },
-  createdAt: { type: Date, default: Date.now }
+  performedBy: { type: mongoose.Types.ObjectId, ref: 'User' },
+  performedByUsername: { type: String, required: true },
+  context: { type: Map, required: true, default: {} },
+  createdAt: { type: Date, required: true, default: Date.now }
 });
