@@ -44,7 +44,7 @@ export async function action({
       hasGithubSSO: false,
       featureFlags: [],
       registeredAt: new Date(),
-    } as any);
+    });
 
     return { data: newUser }
   }

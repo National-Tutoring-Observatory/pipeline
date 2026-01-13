@@ -8,7 +8,7 @@ describe('PromptAuthorization', () => {
     _id: 'super-admin-1',
     username: 'super_admin',
     role: 'SUPER_ADMIN',
-    teams: ([] as any)
+    teams: [] as any[]
   } as User;
 
   const teamAdminUser = {
@@ -29,7 +29,7 @@ describe('PromptAuthorization', () => {
     _id: 'non-team-1',
     username: 'non_team',
     role: 'USER',
-    teams: ([] as any)
+    teams: [] as any[]
   } as User;
 
   const multiTeamUser = {
