@@ -1,12 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import "~/modules/documents/documents";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { UserService } from "~/modules/users/user";
+import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import clearDocumentDB from "../../../test/helpers/clearDocumentDB";
 import removeFeatureFlagFromUsers from "../removeFeatureFlagFromUsers";
-import type { FeatureFlag } from "~/modules/featureFlags/featureFlags.types";
-
-const documents = getDocumentsAdapter();
 
 vi.mock("../../helpers/emitFromJob", () => ({
   default: vi.fn().mockResolvedValue({}),
@@ -18,12 +15,9 @@ describe("removeFeatureFlagFromUsers worker", () => {
   });
 
   it("removes feature flag from all users who have it", async () => {
-    const featureFlag = (
-      await documents.createDocument<FeatureFlag>({
-        collection: "featureFlags",
-        update: { name: "deprecated-flag" },
-      })
-    ).data;
+    const featureFlag = await FeatureFlagService.create({
+      name: "deprecated-flag",
+    });
 
     const user1 = await UserService.create({
       username: "user1",

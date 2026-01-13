@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
-import { redirect, useActionData, useNavigate, useSubmit } from 'react-router';
+import { redirect, useFetcher, data } from 'react-router';
+import { toast } from 'sonner';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthorization';
 import addDialog from '~/modules/dialogs/addDialog';
-import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter';
 import getQueue from '~/modules/queues/helpers/getQueue';
 import { UserService } from '~/modules/users/user';
+import { FeatureFlagService } from '../featureFlag';
 import type { User } from '~/modules/users/users.types';
 import DeleteFeatureFlagDialog from '../components/deleteFeatureFlagDialog';
 import FeatureFlag from '../components/featureFlag';
@@ -15,136 +16,192 @@ import type { Route } from './+types/featureFlag.route';
 import AddUsersToFeatureFlagDialogContainer from './addUsersToFeatureFlagDialog.container';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const documents = getDocumentsAdapter();
-
   const user = await getSessionUser({ request }) as User;
   if (!SystemAdminAuthorization.FeatureFlags.canManage(user)) {
     return redirect('/');
   }
 
-  const featureFlag = await documents.getDocument<FeatureFlagType>({ collection: 'featureFlags', match: { _id: params.id } });
-  if (!featureFlag.data) {
+  const featureFlag = await FeatureFlagService.findById(params.id);
+  if (!featureFlag) {
     return redirect('/featureFlags');
   }
 
-  const result = await UserService.find({ match: { featureFlags: { $in: [featureFlag.data.name] } } });
-  const users = { data: result };
+  const users = await UserService.find({ match: { featureFlags: { $in: [featureFlag.name] } } });
 
   return { featureFlag, users };
 }
 
-export async function action({
-  request,
-  params,
-}: Route.ActionArgs) {
-
+export async function action({ request, params }: Route.ActionArgs) {
   const user = await getSessionUser({ request }) as User;
   if (!SystemAdminAuthorization.FeatureFlags.canManage(user)) {
-    throw new Error('Access denied');
+    return data(
+      { errors: { general: 'Access denied' } },
+      { status: 403 }
+    );
   }
 
   const { intent, payload = {} } = await request.json();
-
   const { userIds, userId } = payload;
 
-  const documents = getDocumentsAdapter();
-
   switch (intent) {
-    case 'ADD_USERS_TO_FEATURE_FLAG':
-      const featureFlagDoc = await documents.getDocument<FeatureFlagType>({ collection: 'featureFlags', match: { _id: params.id } });
-      if (featureFlagDoc.data) {
-        for (const id of userIds) {
-          await UserService.addFeatureFlag(id, featureFlagDoc.data.name);
-        }
+    case 'ADD_USERS_TO_FEATURE_FLAG': {
+      if (!Array.isArray(userIds) || userIds.length === 0) {
+        return data(
+          { errors: { general: 'No users provided' } },
+          { status: 400 }
+        );
       }
-      return {};
-    case 'REMOVE_USER_FROM_FEATURE_FLAG':
-      const featureFlagToRemove = await documents.getDocument<FeatureFlagType>({ collection: 'featureFlags', match: { _id: params.id } });
-      if (featureFlagToRemove.data) {
-        await UserService.removeFeatureFlagFromUser(userId, featureFlagToRemove.data.name);
+
+      const featureFlag = await FeatureFlagService.findById(params.id);
+      if (!featureFlag) {
+        return data(
+          { errors: { general: 'Feature flag not found' } },
+          { status: 404 }
+        );
       }
-      return {};
-    case 'DELETE_FEATURE_FLAG':
-      const flag = await documents.getDocument<FeatureFlagType>({ collection: 'featureFlags', match: { _id: params.id } });
-      if (!flag.data) {
+
+      for (const id of userIds) {
+        await UserService.addFeatureFlag(id, featureFlag.name);
+      }
+
+      return data({ success: true, intent: 'ADD_USERS_TO_FEATURE_FLAG' });
+    }
+
+    case 'REMOVE_USER_FROM_FEATURE_FLAG': {
+      if (!userId || typeof userId !== 'string') {
+        return data(
+          { errors: { general: 'User ID is required' } },
+          { status: 400 }
+        );
+      }
+
+      const featureFlag = await FeatureFlagService.findById(params.id);
+      if (!featureFlag) {
+        return data(
+          { errors: { general: 'Feature flag not found' } },
+          { status: 404 }
+        );
+      }
+
+      await UserService.removeFeatureFlagFromUser(userId, featureFlag.name);
+      return data({ success: true, intent: 'REMOVE_USER_FROM_FEATURE_FLAG' });
+    }
+
+    case 'DELETE_FEATURE_FLAG': {
+      const featureFlag = await FeatureFlagService.findById(params.id);
+      if (!featureFlag) {
         return redirect('/featureFlags');
       }
-      const flagName = flag.data.name;
-      await documents.deleteDocument({ collection: 'featureFlags', match: { _id: params.id } });
+
+      await FeatureFlagService.deleteById(params.id);
+
       const queue = getQueue('general');
-      await queue.add('REMOVE_FEATURE_FLAG', { featureFlagName: flagName, featureFlagId: params.id }, {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 1000,
+      await queue.add(
+        'REMOVE_FEATURE_FLAG',
+        { featureFlagName: featureFlag.name, featureFlagId: params.id },
+        {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 1000,
+          }
         }
-      });
-      return { intent: 'DELETE_FEATURE_FLAG', success: true };
+      );
+
+      return data({ success: true, intent: 'DELETE_FEATURE_FLAG' });
+    }
+
     default:
-      return {};
+      return data(
+        { errors: { general: 'Invalid intent' } },
+        { status: 400 }
+      );
   }
 }
 
 export default function FeatureFlagRoute({ loaderData }: {
   loaderData: {
-    featureFlag: { data: FeatureFlagType },
-    users: { data: User[] }
+    featureFlag: FeatureFlagType,
+    users: User[]
   }
 }) {
-
   const { featureFlag, users } = loaderData;
-
-  const submit = useSubmit();
-  const actionData = useActionData();
-  const navigate = useNavigate();
+  const fetcher = useFetcher();
 
   useEffect(() => {
-    updateBreadcrumb([{ text: 'Feature flags', link: '/featureFlags' }, { text: featureFlag.data.name }])
-  }, [featureFlag.data.name]);
+    updateBreadcrumb([{ text: 'Feature flags', link: '/featureFlags' }, { text: featureFlag.name }])
+  }, [featureFlag.name]);
 
   useEffect(() => {
-    if (actionData?.intent === 'DELETE_FEATURE_FLAG') {
-      navigate('/featureFlags');
+    if (fetcher.state === 'idle' && fetcher.data) {
+      if (fetcher.data.success && fetcher.data.intent === 'ADD_USERS_TO_FEATURE_FLAG') {
+        toast.success('Users added to feature flag');
+        addDialog(null);
+      } else if (fetcher.data.success && fetcher.data.intent === 'REMOVE_USER_FROM_FEATURE_FLAG') {
+        toast.success('User removed from feature flag');
+      } else if (fetcher.data.success && fetcher.data.intent === 'DELETE_FEATURE_FLAG') {
+        toast.success('Feature flag deleted');
+        window.location.href = '/featureFlags';
+      } else if (fetcher.data.errors) {
+        toast.error(fetcher.data.errors.general || 'An error occurred');
+      }
     }
-  }, [actionData]);
+  }, [fetcher.state, fetcher.data]);
 
-  const onAddUsersButtonClicked = () => {
+  const openAddUsersDialog = () => {
     addDialog(
       <AddUsersToFeatureFlagDialogContainer
-        featureFlagId={featureFlag.data._id}
-        onAddUsersClicked={onAddUsersClicked}
+        featureFlagId={featureFlag._id}
+        onAddUsersClicked={submitAddUsers}
+        isSubmitting={fetcher.state === 'submitting'}
       />
     );
   }
 
-  const onAddUsersClicked = (userIds: string[]) => {
-    submit(JSON.stringify({ intent: 'ADD_USERS_TO_FEATURE_FLAG', payload: { userIds } }), { method: 'PUT', encType: 'application/json' });
+  const submitAddUsers = (userIds: string[]) => {
+    fetcher.submit(
+      JSON.stringify({
+        intent: 'ADD_USERS_TO_FEATURE_FLAG',
+        payload: { userIds }
+      }),
+      { method: 'PUT', encType: 'application/json' }
+    );
   }
 
-  const onRemoveUserFromFeatureFlagClicked = (userId: string) => {
-    submit(JSON.stringify({ intent: 'REMOVE_USER_FROM_FEATURE_FLAG', payload: { userId } }), { method: 'PUT', encType: 'application/json' });
+  const submitRemoveUserFromFeatureFlag = (userId: string) => {
+    fetcher.submit(
+      JSON.stringify({
+        intent: 'REMOVE_USER_FROM_FEATURE_FLAG',
+        payload: { userId }
+      }),
+      { method: 'PUT', encType: 'application/json' }
+    );
   }
 
-  const onDeleteFeatureFlagButtonClicked = () => {
+  const openDeleteFeatureFlagDialog = () => {
     addDialog(
       <DeleteFeatureFlagDialog
-        featureFlag={featureFlag.data}
-        onDeleteFeatureFlagClicked={onDeleteFeatureFlagClicked}
+        featureFlag={featureFlag}
+        onDeleteFeatureFlagClicked={submitDeleteFeatureFlag}
+        isSubmitting={fetcher.state === 'submitting'}
       />
     );
   }
 
-  const onDeleteFeatureFlagClicked = () => {
-    submit(JSON.stringify({ intent: 'DELETE_FEATURE_FLAG' }), { method: 'DELETE', encType: 'application/json' });
+  const submitDeleteFeatureFlag = () => {
+    fetcher.submit(
+      JSON.stringify({ intent: 'DELETE_FEATURE_FLAG' }),
+      { method: 'DELETE', encType: 'application/json' }
+    );
   }
 
   return (
     <FeatureFlag
-      featureFlag={featureFlag.data}
-      users={users.data}
-      onAddUsersClicked={onAddUsersButtonClicked}
-      onRemoveUserFromFeatureFlagClicked={onRemoveUserFromFeatureFlagClicked}
-      onDeleteFeatureFlagClicked={onDeleteFeatureFlagButtonClicked}
+      featureFlag={featureFlag}
+      users={users}
+      onAddUsersClicked={openAddUsersDialog}
+      onRemoveUserFromFeatureFlagClicked={submitRemoveUserFromFeatureFlag}
+      onDeleteFeatureFlagClicked={openDeleteFeatureFlagDialog}
     />
   );
 }

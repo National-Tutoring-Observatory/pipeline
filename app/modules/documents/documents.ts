@@ -35,9 +35,6 @@ const registerModels = () => {
   if (!mongoose.models.Collection) {
     mongoose.model('Collection', collectionSchema);
   }
-  if (!mongoose.models.FeatureFlag) {
-    mongoose.model('FeatureFlag', featureFlagSchema);
-  }
   if (!mongoose.models.Migration) {
     mongoose.model('Migration', migrationSchema);
   }

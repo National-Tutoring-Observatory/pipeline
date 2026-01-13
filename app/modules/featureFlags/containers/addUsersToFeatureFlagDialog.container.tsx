@@ -7,12 +7,13 @@ import cloneDeep from "lodash/cloneDeep";
 
 export default function AddUsersToFeatureFlagDialogContainer({
   featureFlagId,
-  onAddUsersClicked
+  onAddUsersClicked,
+  isSubmitting = false
 }: {
   featureFlagId: string,
   onAddUsersClicked: (userIds: string[]) => void,
+  isSubmitting?: boolean
 }) {
-
   const [isFetching, setIsFetching] = useState(true);
   const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
@@ -44,11 +45,12 @@ export default function AddUsersToFeatureFlagDialogContainer({
   return (
     <AddUsersToFeatureFlagDialog
       isFetching={isFetching}
-      isSubmitButtonDisabled={isSubmitButtonDisabled}
+      isSubmitButtonDisabled={isSubmitButtonDisabled || isSubmitting}
       users={fetcher.data?.data}
       selectedUsers={selectedUsers}
       onAddUsersClicked={() => onAddUsersClicked(selectedUsers)}
       onSelectUserToggled={onSelectUserToggled}
+      isSubmitting={isSubmitting}
     />
   );
 }
