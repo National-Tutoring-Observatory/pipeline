@@ -18,6 +18,7 @@
     "migration:generate": "./bin/generateMigration.js",
     "typecheck": "react-router typegen && tsc",
     "test": "vitest run",
+    "test:coverage": "vitest --coverage",
     "test:watch": "vitest watch",
     "test:typecheck": "tsc -p tsconfig.test.json"
   },
@@ -95,6 +96,7 @@
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@vitest/coverage-v8": "4.0.15",
     "cross-env": "^10.1.0",
     "jsdom": "^27.3.0",
     "tailwindcss": "^4.1.4",
