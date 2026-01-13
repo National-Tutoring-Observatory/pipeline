@@ -1,14 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import "~/modules/documents/documents";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { PromptService } from "../prompt";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
 import { loader } from "../containers/promptsList.route";
-import type { Prompt } from "../prompts.types.js";
-
-const documents = getDocumentsAdapter()
 
 describe("promptsList.route loader", () => {
   beforeEach(async () => {
@@ -26,8 +23,8 @@ describe("promptsList.route loader", () => {
     const teamOther = await TeamService.create({ name: "team 2" });
 
     const user = await UserService.create({ username: "test_1", teams: [{ team: team._id, role: "ADMIN" }] });
-    const prompt = (await documents.createDocument<Prompt>({ collection: "prompts", update: { text: "prompt 1", annotationType: "PER_UTTERANCE", team: team._id } })).data;
-    const promptOther = (await documents.createDocument<Prompt>({ collection: "prompts", update: { text: "prompt 2", annotationType: "PER_UTTERANCE", team: teamOther._id } })).data;
+    const prompt = await PromptService.create({ name: "prompt 1", annotationType: "PER_UTTERANCE", team: team._id });
+    const promptOther = await PromptService.create({ name: "prompt 2", annotationType: "PER_UTTERANCE", team: teamOther._id });
 
     const cookieHeader = await loginUser(user._id);
 

@@ -9,6 +9,7 @@ export interface Prompt {
   annotationType: string;
   productionVersion: number;
   createdBy: User | string;
+  deletedAt?: string;
 }
 
 export interface PromptVersion {
@@ -18,7 +19,7 @@ export interface PromptVersion {
   prompt: Prompt | string;
   version: number;
   userPrompt: string;
-  annotationSchema: [],
+  annotationSchema: any[],
   hasBeenSaved: boolean,
   updatedAt: string,
 }

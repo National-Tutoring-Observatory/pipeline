@@ -1,4 +1,5 @@
-import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter.js';
+import { PromptService } from '../../app/modules/prompts/prompt.js';
+import { PromptVersionService } from '../../app/modules/prompts/promptVersion.js';
 import type { Prompt, PromptVersion } from '../../app/modules/prompts/prompts.types.js';
 import { getSeededTeams } from './teamSeeder.js';
 
@@ -84,7 +85,6 @@ const SEED_PROMPTS = [
 ];
 
 export async function seedPrompts() {
-  const documents = getDocumentsAdapter();
   const teams = await getSeededTeams();
 
   if (teams.length === 0) {
@@ -97,41 +97,33 @@ export async function seedPrompts() {
   for (const promptData of SEED_PROMPTS) {
     try {
       // Check if prompt already exists
-      const existing = await documents.getDocuments<Prompt>({
-        collection: 'prompts',
+      const existing = await PromptService.find({
         match: { name: promptData.name },
-        sort: {},
       });
 
-      if (existing.data.length > 0) {
+      if (existing.length > 0) {
         console.log(`  ⏭️  Prompt '${promptData.name}' already exists, skipping...`);
         continue;
       }
 
       // Create prompt
-      const promptResult = await documents.createDocument<Prompt>({
-        collection: 'prompts',
-        update: {
-          name: promptData.name,
-          team: team._id,
-          annotationType: promptData.annotationType,
-          productionVersion: 1,
-        },
+      const prompt = await PromptService.create({
+        name: promptData.name,
+        team: team._id,
+        annotationType: promptData.annotationType,
+        productionVersion: 1,
       });
 
-      console.log(`  ✓ Created prompt: ${promptData.name} (ID: ${promptResult.data._id})`);
+      console.log(`  ✓ Created prompt: ${promptData.name} (ID: ${prompt._id})`);
 
       // Create initial version
-      await documents.createDocument<PromptVersion>({
-        collection: 'promptVersions',
-        update: {
-          name: promptData.versionName,
-          prompt: promptResult.data._id,
-          version: 1,
-          userPrompt: promptData.userPrompt,
-          annotationSchema: promptData.annotationSchema,
-          hasBeenSaved: true,
-        },
+      await PromptVersionService.create({
+        name: promptData.versionName,
+        prompt: prompt._id,
+        version: 1,
+        userPrompt: promptData.userPrompt,
+        annotationSchema: promptData.annotationSchema,
+        hasBeenSaved: true,
       });
 
       console.log(`    ✓ Created version 1 for prompt: ${promptData.name}`);
@@ -144,11 +136,7 @@ export async function seedPrompts() {
 }
 
 export async function getSeededPrompts() {
-  const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments<Prompt>({
-    collection: 'prompts',
+  return PromptService.find({
     match: { name: { $in: SEED_PROMPTS.map(p => p.name) } },
-    sort: {},
   });
-  return result.data;
 }

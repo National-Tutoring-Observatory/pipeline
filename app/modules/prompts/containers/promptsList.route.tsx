@@ -2,8 +2,7 @@ import map from "lodash/map";
 import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { Prompt } from "~/modules/prompts/prompts.types";
+import { PromptService } from "../prompt";
 import type { User } from "~/modules/users/users.types";
 import annotationTypes from "../annotationTypes";
 import type { Route } from "./+types/promptsList.route";
@@ -23,8 +22,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!annotationType || !validAnnotationTypes.includes(annotationType)) {
     throw new Error("Invalid or missing annotationType");
   }
-  const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments<Prompt>({ collection: 'prompts', match: { annotationType, team: { $in: teamIds }, deletedAt: { $exists: false } }, sort: {} });
-  const prompts = { data: result.data };
-  return { prompts };
+  const prompts = await PromptService.find({
+    match: { annotationType, team: { $in: teamIds }, deletedAt: { $exists: false } }
+  });
+  return { prompts: { data: prompts } };
 }

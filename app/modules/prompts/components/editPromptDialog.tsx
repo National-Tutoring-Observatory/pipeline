@@ -15,8 +15,9 @@ import type { Prompt } from "../prompts.types";
 
 const EditPromptDialog = ({
   prompt,
-  onEditPromptClicked
-}: { prompt: Prompt, onEditPromptClicked: (prompt: Prompt) => void }) => {
+  onEditPromptClicked,
+  isSubmitting = false
+}: { prompt: Prompt, onEditPromptClicked: (prompt: Prompt) => void, isSubmitting?: boolean }) => {
 
   const [updatedPrompt, setUpdatedPrompt] = useState(prompt);
 
@@ -26,7 +27,7 @@ const EditPromptDialog = ({
 
   let isSubmitButtonDisabled = true;
 
-  if (updatedPrompt?.name.trim().length >= 3) {
+  if (updatedPrompt?.name.trim().length >= 3 && !isSubmitting) {
     isSubmitButtonDisabled = false;
   }
 

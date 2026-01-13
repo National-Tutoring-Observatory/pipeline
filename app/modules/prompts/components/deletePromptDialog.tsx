@@ -14,14 +14,15 @@ import type { Prompt } from "../prompts.types";
 
 const DeletePromptDialog = ({
   prompt,
-  onDeletePromptClicked
-}: { prompt: Prompt, onDeletePromptClicked: (id: string) => void }) => {
+  onDeletePromptClicked,
+  isSubmitting = false
+}: { prompt: Prompt, onDeletePromptClicked: (id: string) => void, isSubmitting?: boolean }) => {
 
   const [promptName, setPromptName] = useState('');
 
   let isDeleteButtonDisabled = true;
 
-  if (promptName === prompt.name) {
+  if (promptName === prompt.name && !isSubmitting) {
     isDeleteButtonDisabled = false;
   }
 
