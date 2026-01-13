@@ -1,16 +1,13 @@
 import includes from 'lodash/includes.js';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { FeatureFlag } from "../featureFlags.types";
+import { FeatureFlagService } from "../featureFlag";
 
 export default async (featureFlagName: string, context: { request: Request }) => {
+  const featureFlag = await FeatureFlagService.find({ match: { name: featureFlagName } });
 
-  const documents = getDocumentsAdapter();
-  const featureFlag = await documents.getDocument<FeatureFlag>({ collection: 'featureFlags', match: { name: featureFlagName } });
-
-  if (featureFlag.data) {
+  if (featureFlag.length > 0) {
     const user = await getSessionUser({ request: context.request });
-    if (includes(user?.featureFlags, featureFlag.data.name)) {
+    if (includes(user?.featureFlags, featureFlag[0].name)) {
       return true;
     }
   } else {
