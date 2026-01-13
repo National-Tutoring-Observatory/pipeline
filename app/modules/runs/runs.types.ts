@@ -16,9 +16,9 @@ export interface Run {
   isRunning: boolean;
   isComplete: boolean;
   hasErrored: boolean;
-  createdAt: string;
-  startedAt: string;
-  finishedAt: string;
+  createdAt: Date | string;
+  startedAt: Date | string;
+  finishedAt: Date | string;
   isExporting: boolean;
   hasExportedCSV: boolean;
   hasExportedJSONL: boolean;

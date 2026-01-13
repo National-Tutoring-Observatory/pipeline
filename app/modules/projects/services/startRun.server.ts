@@ -1,6 +1,6 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import findModelByCode from "~/modules/llm/helpers/findModelByCode";
-import type { Run, StartRunProps } from "~/modules/runs/runs.types";
+import { RunService } from "~/modules/runs/run";
+import type { StartRunProps, RunSession } from "~/modules/runs/runs.types";
 import buildRunSnapshot from "~/modules/runs/services/buildRunSnapshot.server";
 import type { Session } from "~/modules/sessions/sessions.types";
 
@@ -17,12 +17,12 @@ export default async function startRun({
 
   const documents = getDocumentsAdapter();
 
-  await documents.getDocument<Run>({
-    collection: 'runs',
-    match: { _id: runId, project: projectId }
-  });
+  const run = await RunService.findById(runId);
+  if (!run || run.project !== projectId) {
+    throw new Error('Run not found');
+  }
 
-  const sessionsAsObjects = [];
+  const sessionsAsObjects: RunSession[] = [];
 
   for (const session of sessions) {
     const sessionModel = await documents.getDocument<Session>({ collection: 'sessions', match: { _id: session } });
@@ -33,7 +33,9 @@ export default async function startRun({
       name: sessionModel.data.name,
       fileType: sessionModel.data.fileType,
       sessionId: session,
-      status: 'NOT_STARTED'
+      status: 'RUNNING',
+      startedAt: new Date(),
+      finishedAt: new Date()
     });
   }
 
@@ -44,17 +46,13 @@ export default async function startRun({
     modelCode,
   });
 
-  return await documents.updateDocument<Run>({
-    collection: 'runs',
-    match: { _id: runId },
-    update: {
-      hasSetup: true,
-      annotationType,
-      prompt,
-      promptVersion,
-      model: modelCode, // Store code for safety until migration runs
-      sessions: sessionsAsObjects,
-      snapshot
-    }
+  return await RunService.updateById(runId, {
+    hasSetup: true,
+    annotationType,
+    prompt,
+    promptVersion,
+    model: modelCode,
+    sessions: sessionsAsObjects,
+    snapshot
   });
 }

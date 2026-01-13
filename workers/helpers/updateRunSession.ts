@@ -1,25 +1,20 @@
 import extend from 'lodash/extend.js';
 import find from 'lodash/find.js';
-import getDocumentsAdapter from "../../app/modules/documents/helpers/getDocumentsAdapter";
-import type { Run, RunSession } from "../../app/modules/runs/runs.types";
+import { RunService } from "../../app/modules/runs/run";
+import type { RunSession } from "../../app/modules/runs/runs.types";
 
 export default async function updateRunSession({ runId, sessionId, update }: { runId: string, sessionId: string, update: Partial<RunSession> }) {
-  const documents = getDocumentsAdapter();
-  const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: runId } });
+  const run = await RunService.findById(runId);
 
-  if (!run.data) {
+  if (!run) {
     throw new Error(`Run not found: ${runId}`);
   }
 
-  let session = find(run.data.sessions, { sessionId }) as RunSession;
+  let session = find(run.sessions, { sessionId }) as RunSession;
 
   extend(session, update);
 
-  await documents.updateDocument<Run>({
-    collection: 'runs',
-    match: { _id: runId },
-    update: {
-      sessions: run.data.sessions
-    }
+  await RunService.updateById(runId, {
+    sessions: run.sessions
   });
 }

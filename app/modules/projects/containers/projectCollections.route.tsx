@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { redirect, useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
+import { data, redirect, useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
 import { toast } from "sonner";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -9,6 +9,7 @@ import DuplicateCollectionDialog from "~/modules/collections/components/duplicat
 import EditCollectionDialog from "~/modules/collections/components/editCollectionDialog";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
 import type { User } from "~/modules/users/users.types";
 import ProjectCollections from "../components/projectCollections";
@@ -21,12 +22,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   const documents = getDocumentsAdapter();
-  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.id } });
-  if (!project.data) {
+  const project = await ProjectService.findById(params.id);
+  if (!project) {
     return redirect('/');
   }
 
-  if (!ProjectAuthorization.canView(user, project.data)) {
+  if (!ProjectAuthorization.canView(user, project)) {
     return redirect('/');
   }
 
@@ -45,13 +46,13 @@ export async function action({
   }
 
   const documents = getDocumentsAdapter();
-  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.id } });
-  if (!project.data) {
+  const project = await ProjectService.findById(params.id);
+  if (!project) {
     throw new Error('Project not found');
   }
 
-  if (!ProjectAuthorization.Runs.canManage(user, project.data)) {
-    throw new Error('Access denied');
+  if (!ProjectAuthorization.Runs.canManage(user, project)) {
+    return data({ errors: { project: 'Access denied' } }, { status: 403 });
   }
 
   const { intent, entityId, payload = {} } = await request.json();

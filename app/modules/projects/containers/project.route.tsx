@@ -10,6 +10,7 @@ import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { RunService } from "~/modules/runs/run";
 import type { Session } from "~/modules/sessions/sessions.types";
 import splitMultipleSessionsIntoFiles from '~/modules/uploads/services/splitMultipleSessionsIntoFiles';
 import uploadFiles from "~/modules/uploads/services/uploadFiles";
@@ -44,7 +45,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const sessions = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: params.id }, sort: {} });
   const sessionsCount = sessions.count;
   const convertedSessionsCount = filter(sessions.data, { hasConverted: true }).length;
-  const runsCount = await documents.countDocuments({ collection: 'runs', match: { project: params.id } });
+  const runsCount = await RunService.count({ project: params.id });
   const collectionsCount = await documents.countDocuments({ collection: 'collections', match: { project: params.id } });
   return { project, filesCount, sessionsCount, convertedSessionsCount, runsCount, collectionsCount };
 }
