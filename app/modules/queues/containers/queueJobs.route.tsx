@@ -1,6 +1,7 @@
 import capitalize from "lodash/capitalize";
 import { useEffect } from "react";
-import { redirect, useLoaderData, useParams, useSubmit } from "react-router";
+import { data, redirect, useLoaderData, useParams, useFetcher } from "react-router";
+import { toast } from "sonner";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthorization';
@@ -35,69 +36,77 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export async function action({ request, params }: Route.ActionArgs) {
   const user = await getSessionUser({ request }) as User;
   if (!SystemAdminAuthorization.Queues.canManage(user)) {
-    throw new Error('Access denied');
+    return data(
+      { errors: { general: 'Access denied' } },
+      { status: 403 }
+    );
   }
 
   const { intent, entityId } = await request.json();
   const { type } = params;
 
-  switch (intent) {
-    case 'DELETE_JOB':
-      try {
-        const queue = getQueue(type as string);
+  const queue = getQueue(type as string);
+  if (!queue) {
+    return data(
+      { errors: { general: `Queue "${type}" not found` } },
+      { status: 400 }
+    );
+  }
 
-        if (!queue) {
-          throw new Error(`Queue "${type}" not found`);
-        }
-
+  try {
+    switch (intent) {
+      case 'DELETE_JOB': {
         await queue.remove(entityId);
-
-        return {
-          intent: 'DELETE_JOB',
-          success: true
-        };
-      } catch (error) {
-        throw error;
+        return data({
+          success: true,
+          intent: 'DELETE_JOB'
+        });
       }
-    case 'RETRY_JOB':
-      try {
-        const queue = getQueue(type as string);
-
-        if (!queue) {
-          throw new Error(`Queue "${type}" not found`);
-        }
-
+      case 'RETRY_JOB': {
         const job = await queue.getJob(entityId);
 
         if (!job) {
-          throw new Error(`Job "${entityId}" not found`);
+          return data(
+            { errors: { general: `Job "${entityId}" not found` } },
+            { status: 404 }
+          );
         }
 
         if (job.state === 'failed' || job.state === undefined) {
           await job.retry();
         } else {
-          throw new Error(`Job "${entityId}" is not in a failed state`);
+          return data(
+            { errors: { general: `Job "${entityId}" is not in a failed state` } },
+            { status: 400 }
+          );
         }
 
-        return {
-          intent: 'RETRY_JOB',
-          success: true
-        };
-      } catch (error) {
-        console.log(error);
-        throw error;
+        return data({
+          success: true,
+          intent: 'RETRY_JOB'
+        });
       }
-    default:
-      throw new Error(`Unknown intent: ${intent}`);
+      default:
+        return data(
+          { errors: { general: `Unknown intent: ${intent}` } },
+          { status: 400 }
+        );
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+    return data(
+      { errors: { general: errorMessage } },
+      { status: 500 }
+    );
   }
 }
 
 export default function QueueJobsRoute() {
-  const data = useLoaderData<typeof loader>();
+  const loaderData = useLoaderData<typeof loader>();
   const params = useParams();
   const queueType = params.type as string;
   const state = params.state as string;
-  const submit = useSubmit();
+  const fetcher = useFetcher();
 
   useEffect(() => {
     updateBreadcrumb([
@@ -107,42 +116,59 @@ export default function QueueJobsRoute() {
     ]);
   }, [queueType, state]);
 
-  const handleJobClick = (job: Job) => {
+  useEffect(() => {
+    if (fetcher.state === 'idle' && fetcher.data) {
+      if (fetcher.data.success) {
+        if (fetcher.data.intent === 'DELETE_JOB') {
+          toast.success('Job deleted');
+        } else if (fetcher.data.intent === 'RETRY_JOB') {
+          toast.success('Job retried');
+        }
+        addDialog(null);
+      } else if (fetcher.data.errors) {
+        toast.error(fetcher.data.errors.general || 'An error occurred');
+      }
+    }
+  }, [fetcher.state, fetcher.data]);
+
+  const openJobDetailsDialog = (job: Job) => {
     addDialog(
       <JobDetailsDialog
         job={job}
-        onDelete={handleRemoveJob}
+        onDelete={openDeleteJobDialog}
       />
     );
   };
 
-  const handleRemoveJob = (job: Job) => {
+  const openDeleteJobDialog = (job: Job) => {
     addDialog(
       <DeleteJobDialog
         job={job}
-        onRemoveJobClicked={onRemoveJobClicked}
+        onRemoveJobClicked={submitDeleteJob}
+        isSubmitting={fetcher.state === 'submitting'}
       />
     );
   };
 
-  const handleRetryJob = (job: Job) => {
+  const openRetryJobDialog = (job: Job) => {
     addDialog(
       <RetryJobDialog
         job={job}
-        onRetryJobClicked={onRetryJobClicked}
+        onRetryJobClicked={submitRetryJob}
+        isSubmitting={fetcher.state === 'submitting'}
       />
     );
   };
 
-  const onRemoveJobClicked = (jobId: string) => {
-    submit(JSON.stringify({ intent: 'DELETE_JOB', entityId: jobId }), {
+  const submitDeleteJob = (jobId: string) => {
+    fetcher.submit(JSON.stringify({ intent: 'DELETE_JOB', entityId: jobId }), {
       method: 'DELETE',
       encType: 'application/json'
     });
   };
 
-  const onRetryJobClicked = (jobId: string) => {
-    submit(JSON.stringify({ intent: 'RETRY_JOB', entityId: jobId }), {
+  const submitRetryJob = (jobId: string) => {
+    fetcher.submit(JSON.stringify({ intent: 'RETRY_JOB', entityId: jobId }), {
       method: 'POST',
       encType: 'application/json'
     });
@@ -150,11 +176,11 @@ export default function QueueJobsRoute() {
 
   return (
     <JobsList
-      jobs={data.jobs}
+      jobs={loaderData.jobs}
       state={state}
-      onDisplayJobClick={handleJobClick}
-      onRemoveJobClick={handleRemoveJob}
-      onRetryJobClick={handleRetryJob}
+      onDisplayJobClick={openJobDetailsDialog}
+      onRemoveJobClick={openDeleteJobDialog}
+      onRetryJobClick={openRetryJobDialog}
     />
   );
 }
