@@ -46,19 +46,19 @@ export async function action({
     return redirect('/');
   }
   const documents = getDocumentsAdapter();
-  const versionPromptDoc = await documents.getDocument<PromptType>({ collection: 'prompts', match: { _id: entityId } });
-  if (!versionPromptDoc.data) throw new Error('Prompt not found');
-  if (!PromptAuthorization.canUpdate(user, (versionPromptDoc.data.team as any)._id || versionPromptDoc.data.team)) {
+  const promptDoc = await documents.getDocument<PromptType>({ collection: 'prompts', match: { _id: entityId } });
+  if (!promptDoc.data) throw new Error('Prompt not found');
+  if (!PromptAuthorization.canUpdate(user, promptDoc.data)) {
     throw new Error("You do not have permission to update this prompt.");
   }
 
   switch (intent) {
     case 'CREATE_PROMPT_VERSION':
-      const previousPromptVerion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: entityId, version: Number(version) } });
-      if (!previousPromptVerion.data) throw new Error('Previous prompt version not found');
-      const newPromptAttributes = pick(previousPromptVerion.data, ['userPrompt', 'annotationSchema']);
-      const promptVerions = await documents.getDocuments<PromptVersion>({ collection: 'promptVersions', match: { prompt: entityId }, sort: {} }) as { count: number };
-      const promptVersion = await documents.createDocument<PromptVersion>({ collection: 'promptVersions', update: { ...newPromptAttributes, name: `${previousPromptVerion.data.name.replace(/#\d+/g, '').trim()} #${promptVerions.count + 1}`, prompt: entityId, version: promptVerions.count + 1 } })
+      const previousPromptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: entityId, version: Number(version) } });
+      if (!previousPromptVersion.data) throw new Error('Previous prompt version not found');
+      const newPromptAttributes = pick(previousPromptVersion.data, ['userPrompt', 'annotationSchema']);
+      const promptVersions = await documents.getDocuments<PromptVersion>({ collection: 'promptVersions', match: { prompt: entityId }, sort: {} }) as { count: number };
+      const promptVersion = await documents.createDocument<PromptVersion>({ collection: 'promptVersions', update: { ...newPromptAttributes, name: `${previousPromptVersion.data.name.replace(/#\d+/g, '').trim()} #${promptVersions.count + 1}`, prompt: entityId, version: promptVersions.count + 1 } })
       return {
         intent: 'CREATE_PROMPT_VERSION',
         ...promptVersion
