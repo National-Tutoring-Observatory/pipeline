@@ -4,10 +4,10 @@ import { redirect, useActionData, useLoaderData, useNavigate, useSubmit } from "
 import { toast } from "sonner";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { CreateRun, Run } from "~/modules/runs/runs.types";
+import { RunService } from "~/modules/runs/run";
+import type { CreateRun } from "~/modules/runs/runs.types";
 import ProjectRunCreatorContainer from "../containers/projectRunCreator.container";
 import type { Project } from "../projects.types";
-import createRunAnnotations from '../services/createRunAnnotations.server';
 import startRun from '../services/startRun.server';
 import type { Route } from "./+types/projectCreateRun.route";
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
@@ -40,8 +40,6 @@ export async function action({
     sessions
   } = payload;
 
-  const documents = getDocumentsAdapter();
-
   switch (intent) {
     case 'CREATE_AND_START_RUN': {
       if (typeof name !== "string") {
@@ -51,23 +49,17 @@ export async function action({
         throw new Error("Invalid annotation type.");
       }
 
-      const newRun = await documents.createDocument<Run>({
-        collection: 'runs', update: {
-          project: params.projectId,
-          name,
-          annotationType,
-          hasSetup: false,
-          isRunning: false,
-          isComplete: false
-        }
+      const newRun = await RunService.create({
+        project: params.projectId,
+        name,
+        annotationType,
+        hasSetup: false,
+        isRunning: false,
+        isComplete: false
       });
 
-      if (!newRun.data) {
-        throw new Error('Failed to create run');
-      }
-
       const startedRun = await startRun({
-        runId: newRun.data._id,
+        runId: newRun._id,
         projectId: params.projectId,
         sessions,
         annotationType: annotationType,
@@ -76,15 +68,15 @@ export async function action({
         modelCode: model
       }, { request, context });
 
-      if (!startedRun.data) {
+      if (!startedRun) {
         throw new Error('Failed to start run');
       }
 
-      createRunAnnotations({ runId: startedRun.data._id }, { request });
+      await RunService.createAnnotations(startedRun);
 
       return {
         intent: 'CREATE_AND_START_RUN',
-        data: startedRun.data
+        data: startedRun
       }
     }
     default: {

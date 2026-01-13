@@ -1,49 +1,48 @@
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
+import { PromptVersionService } from "~/modules/prompts/promptVersion";
+import type { AnnotationSchemaItem } from "~/modules/prompts/prompts.types";
 import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
 import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
+import { ProjectService } from "../project";
 import type { Session } from "~/modules/sessions/sessions.types";
-import type { Project } from "../projects.types";
 
-export default async function createRunAnnotations({ runId }: { runId: string }, { request }: { request: Request }) {
+export default async function createRunAnnotations(run: Run) {
 
   const documents = getDocumentsAdapter();
 
-  const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: runId } });
-  if (!run.data) throw new Error('Run not found');
-  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: run.data.project } });
-  if (!project.data) throw new Error(`Project not found: ${run.data.project}`);
+  const project = await ProjectService.findById(run.project as string);
+  if (!project) throw new Error(`Project not found: ${run.project}`);
 
-  if (run.data.isRunning) { return {} }
+  if (run.isRunning) { return; }
 
-  const inputDirectory = `storage/${run.data.project}/preAnalysis`;
+  const inputFolder = `storage/${run.project}/preAnalysis`;
 
-  const outputDirectory = `storage/${run.data.project}/runs/${run.data._id}`;
+  const outputFolder = `storage/${run.project}/runs/${run._id}`;
 
-  const promptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } });
-  if (!promptVersion.data) throw new Error('Prompt version not found');
-  const userPrompt = promptVersion.data.userPrompt;
+  const promptVersion = await PromptVersionService.findOne({ prompt: run.prompt, version: Number(run.promptVersion) });
+  if (!promptVersion) throw new Error('Prompt version not found');
+  const userPrompt = promptVersion.userPrompt;
 
   let annotationFields: Record<string, any> = {};
 
-  for (const annotationSchemaItem of promptVersion.data.annotationSchema as AnnotationSchemaItem[]) {
+  for (const annotationSchemaItem of promptVersion.annotationSchema as AnnotationSchemaItem[]) {
     annotationFields[annotationSchemaItem.fieldKey] = annotationSchemaItem.value;
   }
   const annotationSchema = { "annotations": [annotationFields] };
 
   let currentSessionIndex = 0;
 
-  const annotationType = run.data.annotationType === 'PER_UTTERANCE' ? 'ANNOTATE_PER_UTTERANCE' : 'ANNOTATE_PER_SESSION';
+  const annotationType = run.annotationType === 'PER_UTTERANCE' ? 'ANNOTATE_PER_UTTERANCE' : 'ANNOTATE_PER_SESSION';
 
   const taskSequencer = new TaskSequencer('ANNOTATE_RUN');
 
   taskSequencer.addTask('START', {
-    projectId: run.data.project,
-    runId: run.data._id
+    projectId: run.project,
+    runId: run._id
   });
 
-  for (const session of run.data.sessions) {
+  for (const session of run.sessions) {
     currentSessionIndex++;
     if (session.status === 'DONE') {
       continue;
@@ -54,21 +53,21 @@ export default async function createRunAnnotations({ runId }: { runId: string },
     }
     taskSequencer.addTask('PROCESS', {
       annotationType,
-      projectId: run.data.project,
-      runId: run.data._id,
+      projectId: run.project,
+      runId: run._id,
       sessionId: session.sessionId,
-      inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-      outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+      inputFile: `${inputFolder}/${sessionModel.data._id}/${sessionModel.data.name}`,
+      outputFolder: `${outputFolder}/${sessionModel.data._id}`,
       prompt: { prompt: userPrompt, annotationSchema },
-      model: getRunModelCode(run.data),
-      team: project.data.team,
+      model: getRunModelCode(run),
+      team: project.team,
       currentSessionIndex
     });
   }
 
   taskSequencer.addTask('FINISH', {
-    projectId: run.data.project,
-    runId: run.data._id
+    projectId: run.project,
+    runId: run._id
   });
 
   taskSequencer.run();

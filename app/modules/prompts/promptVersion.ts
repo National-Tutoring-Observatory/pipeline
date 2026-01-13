@@ -58,6 +58,11 @@ export class PromptVersionService {
     return doc ? this.toPromptVersion(doc) : null;
   }
 
+  static async findOne(match: Record<string, any>): Promise<PromptVersion | null> {
+    const docs = await this.find({ match });
+    return docs[0] || null;
+  }
+
   static async createNextVersion(promptId: string, fromVersion: PromptVersion): Promise<PromptVersion> {
     const newPromptAttributes = pick(fromVersion, ['userPrompt', 'annotationSchema']);
 

@@ -2,7 +2,7 @@ import map from 'lodash/map';
 import { redirect } from "react-router";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { Run } from "../runs.types";
+import { RunService } from "../run";
 import type { Route } from "./+types/runsList.route";
 import type { Project } from "~/modules/projects/projects.types";
 
@@ -29,7 +29,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const result = await documents.getDocuments<Run>({ collection: 'runs', match: { project: projectId }, sort: {} });
-  const runs = { data: result.data };
-  return { runs };
+  const runs = await RunService.find({ match: { project: projectId } });
+  return { runs: { data: runs } };
 }

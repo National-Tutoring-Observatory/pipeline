@@ -6,7 +6,6 @@ import mongoose from 'mongoose';
 import collectionSchema from './schemas/collection.schema';
 import fileSchema from './schemas/file.schema';
 import migrationSchema from './schemas/migration.schema';
-import runSchema from './schemas/run.schema';
 import sessionSchema from './schemas/session.schema';
 
 const registerModels = () => {
@@ -15,9 +14,6 @@ const registerModels = () => {
   }
   if (!mongoose.models.Session) {
     mongoose.model('Session', sessionSchema);
-  }
-  if (!mongoose.models.Run) {
-    mongoose.model('Run', runSchema);
   }
   if (!mongoose.models.Collection) {
     mongoose.model('Collection', collectionSchema);

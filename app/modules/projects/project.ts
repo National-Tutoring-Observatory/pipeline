@@ -56,4 +56,9 @@ export class ProjectService {
     const doc = await ProjectModel.findByIdAndDelete(id);
     return doc ? this.toProject(doc) : null;
   }
+
+  static async findOne(match: Record<string, any>): Promise<Project | null> {
+    const docs = await this.find({ match });
+    return docs[0] || null;
+  }
 }
