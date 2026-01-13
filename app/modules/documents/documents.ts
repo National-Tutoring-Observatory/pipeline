@@ -6,7 +6,6 @@ import mongoose from 'mongoose';
 import collectionSchema from './schemas/collection.schema';
 import featureFlagSchema from './schemas/featureFlag.schema';
 import fileSchema from './schemas/file.schema';
-import jobSchema from './schemas/job.schema';
 import migrationSchema from './schemas/migration.schema';
 import projectSchema from './schemas/project.schema';
 import promptSchema from './schemas/prompt.schema';
@@ -38,9 +37,6 @@ const registerModels = () => {
   }
   if (!mongoose.models.FeatureFlag) {
     mongoose.model('FeatureFlag', featureFlagSchema);
-  }
-  if (!mongoose.models.Job) {
-    mongoose.model('Job', jobSchema);
   }
   if (!mongoose.models.Migration) {
     mongoose.model('Migration', migrationSchema);

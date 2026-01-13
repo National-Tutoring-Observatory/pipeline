@@ -13,11 +13,14 @@ import JobDetailField from "./jobDetailField";
 interface RetryJobDialogProps {
   job: Job;
   onRetryJobClicked: (jobId: string) => void;
+  isSubmitting?: boolean;
 }
 
-export default function RetryJobDialog({ job, onRetryJobClicked }: RetryJobDialogProps) {
+export default function RetryJobDialog({ job, onRetryJobClicked, isSubmitting = false }: RetryJobDialogProps) {
   const handleRetry = () => {
-    onRetryJobClicked(job.id);
+    if (!isSubmitting) {
+      onRetryJobClicked(job.id);
+    }
   };
 
   return (
@@ -39,12 +42,12 @@ export default function RetryJobDialog({ job, onRetryJobClicked }: RetryJobDialo
 
       <DialogFooter className="justify-end">
         <DialogClose asChild>
-          <Button type="button" variant="secondary">
+          <Button type="button" variant="secondary" disabled={isSubmitting}>
             Cancel
           </Button>
         </DialogClose>
         <DialogClose asChild>
-          <Button type="button" onClick={handleRetry}>
+          <Button type="button" onClick={handleRetry} disabled={isSubmitting}>
             Retry Job
           </Button>
         </DialogClose>
