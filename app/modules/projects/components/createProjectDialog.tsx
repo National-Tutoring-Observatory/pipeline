@@ -15,10 +15,12 @@ import TeamsSelectorContainer from "~/modules/teams/containers/teamsSelector.con
 
 const CreateProjectDialog = ({
   hasTeamSelection,
-  onCreateNewProjectClicked
+  onCreateNewProjectClicked,
+  isSubmitting = false
 }: {
   hasTeamSelection: boolean,
-  onCreateNewProjectClicked: ({ name, team }: { name: string, team: string | null }) => void
+  onCreateNewProjectClicked: ({ name, team }: { name: string, team: string | null }) => void,
+  isSubmitting?: boolean
 }) => {
 
   const [name, setName] = useState('');
@@ -53,29 +55,29 @@ const CreateProjectDialog = ({
         </DialogDescription>
       </DialogHeader>
       <div className="grid gap-3">
-        <Label htmlFor="name-1">Name</Label>
-        <Input id="name-1" name="name" defaultValue={name} autoComplete="off" onChange={onProjectNameChanged} />
-        <ProjectNameAlert
-          name={name}
-        />
-      </div>
-      {(hasTeamSelection) && (
-        <div className="grid gap-3">
-          <Label htmlFor="name-1">Team</Label>
-          <TeamsSelectorContainer
-            team={team}
-            onTeamSelected={onTeamSelected}
-          />
-        </div>
-      )}
+         <Label htmlFor="name-1">Name</Label>
+         <Input id="name-1" name="name" defaultValue={name} autoComplete="off" onChange={onProjectNameChanged} disabled={isSubmitting} />
+         <ProjectNameAlert
+           name={name}
+         />
+       </div>
+       {(hasTeamSelection) && (
+         <div className="grid gap-3">
+           <Label htmlFor="name-1">Team</Label>
+           <TeamsSelectorContainer
+             team={team}
+             onTeamSelected={onTeamSelected}
+           />
+         </div>
+       )}
       <DialogFooter className="justify-end">
         <DialogClose asChild>
-          <Button type="button" variant="secondary">
+          <Button type="button" variant="secondary" disabled={isSubmitting}>
             Cancel
           </Button>
         </DialogClose>
         <DialogClose asChild>
-          <Button type="button" disabled={isSubmitButtonDisabled} onClick={() => {
+          <Button type="button" disabled={isSubmitButtonDisabled || isSubmitting} onClick={() => {
             onCreateNewProjectClicked({ name, team });
           }}>
             Create project

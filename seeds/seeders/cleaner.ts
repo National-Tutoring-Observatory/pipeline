@@ -1,6 +1,6 @@
 import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter.js';
 import { UserService } from '../../app/modules/users/user.js';
-import type { Project } from '../../app/modules/projects/projects.types.js';
+import { ProjectService } from '../../app/modules/projects/project.js';
 import getStorageAdapter from '../../app/modules/storage/helpers/getStorageAdapter.js';
 
 /**
@@ -12,14 +12,10 @@ export async function cleanAll() {
 
   try {
     // Get all projects to clean their storage
-    const projects = await documents.getDocuments<Project>({
-      collection: 'projects',
-      match: {},
-      sort: {},
-    });
+    const projects = await ProjectService.find({});
 
     // Clean storage for each project
-    for (const project of projects.data) {
+    for (const project of projects) {
       try {
         await storage.removeDir({ sourcePath: `storage/${project._id}` });
         console.log(`  ✓ Cleaned storage for project: ${project.name}`);

@@ -15,20 +15,20 @@ import type { Project } from "../projects.types";
 
 const EditProjectDialog = ({
   project,
-  onEditProjectClicked
-}: { project: Project, onEditProjectClicked: (project: Project) => void }) => {
-
+  onEditProjectClicked,
+  isSubmitting = false
+}: {
+  project: Project,
+  onEditProjectClicked: (project: Project) => void,
+  isSubmitting?: boolean
+}) => {
   const [updatedProject, setUpdatedProject] = useState(project);
 
   const onProjectNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUpdatedProject({ ...updatedProject, name: event.target.value });
   };
 
-  let isSubmitButtonDisabled = true;
-
-  if (updatedProject?.name.trim().length >= 3) {
-    isSubmitButtonDisabled = false;
-  }
+  let isSubmitButtonDisabled = isSubmitting || updatedProject?.name.trim().length < 3;
 
   return (
     <DialogContent>
@@ -40,14 +40,14 @@ const EditProjectDialog = ({
       </DialogHeader>
       <div className="grid gap-3">
         <Label htmlFor="name-1">Name</Label>
-        <Input id="name-1" name="name" defaultValue={updatedProject.name} autoComplete="off" onChange={onProjectNameChanged} />
+        <Input id="name-1" name="name" defaultValue={updatedProject.name} autoComplete="off" onChange={onProjectNameChanged} disabled={isSubmitting} />
         <ProjectNameAlert
           name={updatedProject?.name}
         />
       </div>
       <DialogFooter className="justify-end">
         <DialogClose asChild>
-          <Button type="button" variant="secondary">
+          <Button type="button" variant="secondary" disabled={isSubmitting}>
             Cancel
           </Button>
         </DialogClose>
@@ -55,7 +55,7 @@ const EditProjectDialog = ({
           <Button type="button" disabled={isSubmitButtonDisabled} onClick={() => {
             onEditProjectClicked(updatedProject);
           }}>
-            Save project
+            {isSubmitting ? 'Saving...' : 'Save project'}
           </Button>
         </DialogClose>
       </DialogFooter>

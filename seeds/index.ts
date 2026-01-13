@@ -21,6 +21,7 @@
 // MUST import init after env vars are set to register adapters and models
 import '../app/modules/documents/documents';
 import '../app/modules/storage/storage';
+import getDatabaseConnection from '../app/documentsAdapters/documentDB/helpers/getDatabaseConnection';
 
 
 import path from 'path';
@@ -45,6 +46,8 @@ async function main() {
     throw new Error('Seeds can only be run in development environment.');
   }
   console.log('🌱 Starting seeds...\n');
+
+  getDatabaseConnection();
 
   try {
     if (options.clean) {

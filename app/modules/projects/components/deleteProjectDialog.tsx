@@ -14,8 +14,9 @@ import type { Project } from "../projects.types";
 
 const DeleteProjectDialog = ({
   project,
-  onDeleteProjectClicked
-}: { project: Project, onDeleteProjectClicked: (id: string) => void }) => {
+  onDeleteProjectClicked,
+  isSubmitting = false
+}: { project: Project, onDeleteProjectClicked: (id: string) => void, isSubmitting?: boolean }) => {
 
   const [projectName, setProjectName] = useState('');
 
@@ -37,19 +38,19 @@ const DeleteProjectDialog = ({
         <Label htmlFor="name-1">To confirm delete, type in the project name.</Label>
         <div className="relative">
           <Input className="absolute left-0 top-0" placeholder={project.name} disabled={true} autoComplete="off" />
-          <Input className="focus-visible:border-destructive focus-visible:ring-destructive/50" id="name-1" name="name" value={projectName} autoComplete="off" onChange={(event) => setProjectName(event.target.value)} />
+          <Input className="focus-visible:border-destructive focus-visible:ring-destructive/50" id="name-1" name="name" value={projectName} autoComplete="off" onChange={(event) => setProjectName(event.target.value)} disabled={isSubmitting} />
         </div>
       </div>
       <DialogFooter className="justify-end">
         <DialogClose asChild>
           <Button type="button" variant="secondary" onClick={() => {
             setProjectName('');
-          }}>
+          }} disabled={isSubmitting}>
             Cancel
           </Button>
         </DialogClose>
         <DialogClose asChild>
-          <Button type="button" disabled={isDeleteButtonDisabled} variant="destructive" onClick={() => {
+          <Button type="button" disabled={isDeleteButtonDisabled || isSubmitting} variant="destructive" onClick={() => {
             onDeleteProjectClicked(project._id);
             setProjectName('');
           }}>

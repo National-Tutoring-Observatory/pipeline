@@ -3,6 +3,7 @@ import '~/modules/documents/documents'
 import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter'
 import { TeamService } from '~/modules/teams/team'
 import { UserService } from '~/modules/users/user'
+import { ProjectService } from '~/modules/projects/project'
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB'
 import loginUser from '../../../../test/helpers/loginUser'
 import { loader } from '../containers/sessionsList.route'
@@ -17,7 +18,7 @@ describe('sessionsList.route loader', () => {
 
   it('returns the documents result as `sessions` (regression test)', async () => {
     const team = await TeamService.create({ name: 'team 1' })
-    const project = (await documents.createDocument({ collection: 'projects', update: { name: 'project 1', team: team._id } })).data
+    const project = await ProjectService.create({ name: 'project 1', team: team._id })
     const user = await UserService.create({username: 'test_user', teams: [{ team: team._id, role: 'ADMIN' }] });
 
     const sessionA = (await documents.createDocument<Session>({ collection: 'sessions', update: { project: project._id, hasConverted: true, title: 's1' } })).data
@@ -39,7 +40,7 @@ describe('sessionsList.route loader', () => {
 
   it('filters out not converted sessions', async () => {
     const team = await TeamService.create({ name: 'team 1' })
-    const project = (await documents.createDocument({ collection: 'projects', update: { name: 'project 1', team: team._id } })).data
+    const project = await ProjectService.create({ name: 'project 1', team: team._id })
     const user = await UserService.create({ username: 'test_user', teams: [{ team: team._id, role: 'ADMIN' }] })
     await documents.createDocument<Session>({ collection: 'sessions', update: { project: project._id, hasConverted: false, title: 's1' } })
 
@@ -57,8 +58,8 @@ describe('sessionsList.route loader', () => {
 
   it('filters out files from other projects', async () => {
     const team = await TeamService.create({ name: 'team 1' })
-    const project = (await documents.createDocument({ collection: 'projects', update: { name: 'project 1', team: team._id } })).data
-    const project2 = (await documents.createDocument({ collection: 'projects', update: { name: 'project 2', team: team._id } })).data
+    const project = await ProjectService.create({ name: 'project 1', team: team._id })
+    const project2 = await ProjectService.create({ name: 'project 2', team: team._id })
     const user = await UserService.create({ username: 'test_user', teams: [{ team: team._id, role: 'ADMIN' }] })
 
     const sessionA = (await documents.createDocument<Session>({ collection: 'sessions', update: { project: project._id, hasConverted: true, title: 's1' } })).data
@@ -96,9 +97,9 @@ describe('sessionsList.route loader', () => {
 
   it('redirects when not project owner', async () => {
     const team = await TeamService.create({ name: 'team 1' })
-    const project = (await documents.createDocument({ collection: 'projects', update: { name: 'project 1', team: team._id } })).data
+    const project = await ProjectService.create({ name: 'project 1', team: team._id })
     const team2 = await TeamService.create({ name: 'team 2' })
-    const project2 = (await documents.createDocument({ collection: 'projects', update: { name: 'project 2', team: team2._id } })).data
+    const project2 = await ProjectService.create({ name: 'project 2', team: team2._id })
     const user = await UserService.create({ username: 'test_user', teams: [{ team: team._id, role: 'ADMIN' }] })
 
     const cookieHeader = await loginUser(user._id)
