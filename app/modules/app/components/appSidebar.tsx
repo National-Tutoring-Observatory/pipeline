@@ -1,6 +1,6 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { ChartNoAxesGantt, ChevronsUpDown, ClipboardList, Database, Flag, Folder, LogOut, Users } from "lucide-react";
+import { ChartNoAxesGantt, ChevronsUpDown, ClipboardList, Database, Flag, Folder, LogOut, Network, Users } from "lucide-react";
 import { useContext, useEffect } from "react";
 import { NavLink, useFetcher } from "react-router";
 import SideBarHelpDropdown from "~/modules/app/components/sidebarHelpDropdown";
@@ -74,7 +74,7 @@ export default function AppSidebar() {
                   <NavLink to={'/teams'}>
                     {({ isActive }) => (
                       <>
-                        <Users />
+                        <Network />
                         <span className={isActive ? "underline" : ""}>Teams</span>
                       </>
                     )}
@@ -117,6 +117,20 @@ export default function AppSidebar() {
                         <>
                           <Database />
                           <span className={isActive ? "underline" : ""}>Migrations</span>
+                        </>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </Role>
+              <Role roles={['SUPER_ADMIN']}>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild >
+                    <NavLink to={'/admin/users'}>
+                      {({ isActive }) => (
+                        <>
+                          <Users />
+                          <span className={isActive ? "underline" : ""}>Users</span>
                         </>
                       )}
                     </NavLink>
