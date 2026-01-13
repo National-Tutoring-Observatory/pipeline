@@ -18,7 +18,7 @@
     "migration:generate": "./bin/generateMigration.js",
     "typecheck": "react-router typegen && tsc",
     "test": "vitest run",
-    "test:coverage": "vitest --coverage",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
     "test:typecheck": "tsc -p tsconfig.test.json"
   },
