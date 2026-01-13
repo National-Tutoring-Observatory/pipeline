@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { redirect, useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
 import { toast } from "sonner";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import type { CreateRun } from "~/modules/runs/runs.types";
 import ProjectRunCreatorContainer from "../containers/projectRunCreator.container";
@@ -13,11 +13,10 @@ import type { Route } from "./+types/projectCreateRun.route";
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
-  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } } });
-  if (!project.data) {
+  const project = await ProjectService.findOne({ _id: params.projectId, team: { $in: teamIds } });
+  if (!project) {
     return redirect('/');
   }
   return { project };
@@ -124,8 +123,8 @@ export default function ProjectCreateRunRoute() {
   }, [actionData]);
 
   useEffect(() => {
-    updateBreadcrumb([{ text: 'Projects', link: `/` }, { text: project.data!.name, link: `/projects/${project.data!._id}` }]);
-  }, [project.data]);
+    updateBreadcrumb([{ text: 'Projects', link: `/` }, { text: project!.name, link: `/projects/${project!._id}` }]);
+  }, [project]);
 
   return (
     <div className="max-w-6xl p-8">

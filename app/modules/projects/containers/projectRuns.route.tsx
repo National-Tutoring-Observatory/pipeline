@@ -1,6 +1,6 @@
 import find from 'lodash/find';
 import { useEffect } from "react";
-import { redirect, useActionData, useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from "react-router";
+import { data, redirect, useActionData, useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
 import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
@@ -8,8 +8,8 @@ import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-
 import ProjectAuthorization from "~/modules/projects/authorization";
+import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
@@ -65,7 +65,7 @@ export async function action({
 
   const project = await ProjectService.findById(params.id);
   if (!project) {
-    throw new Error('Project not found');
+    return data({ errors: { project: 'Project not found' } }, { status: 400 });
   }
   switch (intent) {
     case 'UPDATE_RUN': {

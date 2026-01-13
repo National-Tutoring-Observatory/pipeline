@@ -8,25 +8,22 @@ import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { ProjectService } from "~/modules/projects/project";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
-import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import exportRun from "~/modules/runs/helpers/exportRun";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import EditRunDialog from "../components/editRunDialog";
 import ProjectRun from "../components/projectRun";
-import type { Project } from "../projects.types";
 import startRun from '../services/startRun.server';
 import type { Route } from "./+types/projectRun.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
-  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } } });
-  if (!project.data) {
+  const project = await ProjectService.findOne({ _id: params.projectId, team: { $in: teamIds } });
+  if (!project) {
     return redirect('/');
   }
   const run = await RunService.findOne({ _id: params.runId, project: params.projectId });
@@ -34,7 +31,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
   if (!run.hasSetup) {
-    return redirect(`/projects/${project.data._id}/create-run`);
+    return redirect(`/projects/${project._id}/create-run`);
   }
   const runPrompt = await PromptService.findById(run.prompt as string);
   const runPromptVersion = await PromptVersionService.find({
@@ -144,19 +141,19 @@ export default function ProjectRunRoute() {
   useHandleSockets({
     event: 'ANNOTATE_RUN',
     matches: [{
-      runId: run.data._id,
+      runId: run._id,
       task: 'ANNOTATE_RUN:START',
       status: 'FINISHED'
     }, {
-      runId: run.data._id,
+      runId: run._id,
       task: 'ANNOTATE_RUN:PROCESS',
       status: 'STARTED'
     }, {
-      runId: run.data._id,
+      runId: run._id,
       task: 'ANNOTATE_RUN:PROCESS',
       status: 'FINISHED'
     }, {
-      runId: run.data._id,
+      runId: run._id,
       task: 'ANNOTATE_RUN:FINISH',
       status: 'FINISHED'
     }], callback: (payload) => {
@@ -175,7 +172,7 @@ export default function ProjectRunRoute() {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.runId === run.data._id) {
+      if (data.runId === run._id) {
         switch (data.event) {
           case 'ANNOTATE_RUN_SESSION':
             setRunSessionsProgress(data.progress);
@@ -212,20 +209,20 @@ export default function ProjectRunRoute() {
     updateBreadcrumb([{
       text: 'Projects', link: `/`
     }, {
-      text: project.data.name, link: `/projects/${project.data._id}`
+      text: project.name, link: `/projects/${project._id}`
     }, {
-      text: 'Runs', link: `/projects/${project.data._id}`
+      text: 'Runs', link: `/projects/${project._id}`
     }, {
-      text: run.data.name
+      text: run.name
     }])
   }, []);
 
 
   return (
     <ProjectRun
-      run={run.data}
-      runPrompt={runPrompt?.data}
-      runPromptVersion={runPromptVersion?.data}
+      run={run}
+      runPrompt={runPrompt}
+      runPromptVersion={runPromptVersion}
       runSessionsProgress={runSessionsProgress}
       runSessionsStep={runSessionsStep}
       onExportRunButtonClicked={onExportRunButtonClicked}

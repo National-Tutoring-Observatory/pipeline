@@ -5,26 +5,26 @@ import { useEffect } from "react";
 import { redirect, useLoaderData } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { ProjectService } from "~/modules/projects/project";
 import type { Run } from "~/modules/runs/runs.types";
+import { RunService } from "~/modules/runs/run";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import ProjectRunSessions from "../components/projectRunSessions";
 import type { Project } from "../projects.types";
 import type { Route } from "./+types/projectRunSessions.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
-  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } } });
-  if (!project.data) {
+  const project = await ProjectService.findOne({ _id: params.projectId, team: { $in: teamIds } });
+  if (!project) {
     return redirect('/');
   }
-  const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: params.runId, project: params.projectId }, });
-  if (!run.data) {
+  const run = await RunService.findOne({ _id: params.runId, project: params.projectId });
+  if (!run) {
     return redirect('/');
   }
-  const session = find(run.data.sessions, (session) => {
+  const session = find(run.sessions, (session) => {
     if (session.sessionId === params.sessionId) {
       return session;
     }
@@ -45,11 +45,11 @@ export default function ProjectRunSessionsRoute() {
     updateBreadcrumb([{
       text: 'Projects', link: `/`
     }, {
-      text: project.data.name, link: `/projects/${project.data._id}`
+      text: project.name, link: `/projects/${project._id}`
     }, {
-      text: 'Runs', link: `/projects/${project.data._id}`
+      text: 'Runs', link: `/projects/${project._id}`
     }, {
-      text: run.data.name, link: `/projects/${project.data._id}/runs/${run.data._id}`
+      text: run.name, link: `/projects/${project._id}/runs/${run._id}`
     }, {
       text: 'Session'
     }])
@@ -57,7 +57,7 @@ export default function ProjectRunSessionsRoute() {
 
   return (
     <ProjectRunSessions
-      run={run.data}
+      run={run}
       session={session}
       sessionFile={sessionFile}
     />
