@@ -3,8 +3,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter.js';
 import { UserService } from '../../app/modules/users/user.js';
+import { ProjectService } from '../../app/modules/projects/project.js';
 import type { File as FileDocument } from '../../app/modules/files/files.types.js';
-import type { Project } from '../../app/modules/projects/projects.types.js';
 import { getProjectFileStoragePath } from '../../app/modules/uploads/helpers/projectFileStorage.js';
 import uploadFile from '../../app/modules/uploads/services/uploadFile.js';
 import splitMultipleSessionsIntoFiles from '../../app/modules/uploads/services/splitMultipleSessionsIntoFiles.js';
@@ -60,37 +60,32 @@ export async function seedProjects() {
 
     try {
       // Check if project already exists
-      const existing = await documents.getDocuments<Project>({
-        collection: 'projects',
+      const existing = await ProjectService.find({
         match: { name: projectData.name },
-        sort: {},
       });
 
-      if (existing.data.length > 0) {
+      if (existing.length > 0) {
         console.log(`  ⏭️  Project '${projectData.name}' already exists, skipping...`);
         continue;
       }
 
       // Create project
-      const projectResult = await documents.createDocument<Project>({
-        collection: 'projects',
-        update: {
-          name: projectData.name,
-          team: team._id,
-          createdBy: admin._id,
-          isUploadingFiles: false,
-          isConvertingFiles: false,
-          hasSetupProject: true,
-          hasErrored: false,
-        },
+      const project = await ProjectService.create({
+        name: projectData.name,
+        team: team._id,
+        createdBy: admin._id,
+        isUploadingFiles: false,
+        isConvertingFiles: false,
+        hasSetupProject: true,
+        hasErrored: false,
       });
 
-      console.log(`  ✓ Created project: ${projectData.name} (ID: ${projectResult.data._id})`);
+      console.log(`  ✓ Created project: ${projectData.name} (ID: ${project._id})`);
 
       // Create sessions from uploaded files and queue processing jobs
       console.log(`    → Processing files into sessions...`);
-      const teamId = typeof projectResult.data.team === 'string' ? projectResult.data.team : projectResult.data.team._id;
-      await processProjectFiles(documents, projectResult.data._id, teamId, projectData.files);
+      const teamId = typeof project.team === 'string' ? project.team : project.team._id;
+      await processProjectFiles(documents, project._id, teamId, projectData.files);
 
       console.log(`  ✅ Project '${projectData.name}' seeded with ${projectData.files.length} files\n`);
     } catch (error) {
