@@ -1,15 +1,15 @@
-import pick from 'lodash/pick';
 import { useEffect } from "react";
-import { redirect, useActionData, useFetcher, useLoaderData, useNavigate, useParams, useSubmit } from "react-router";
+import { redirect, useFetcher, useLoaderData, useNavigate, useParams, data } from "react-router";
 import { toast } from "sonner";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { PromptService } from "../prompt";
+import { PromptVersionService } from "../promptVersion";
 import PromptAuthorization from "~/modules/prompts/authorization";
 import EditPromptDialog from "../components/editPromptDialog";
 import Prompt from '../components/prompt';
-import type { Prompt as PromptType, PromptVersion } from "../prompts.types";
+import type { Prompt as PromptType } from "../prompts.types";
 import type { Route } from "./+types/prompt.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -17,20 +17,18 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!user) {
     return redirect('/');
   }
-  const documents = getDocumentsAdapter();
-  const promptDoc = await documents.getDocument<PromptType>({ collection: 'prompts', match: { _id: params.id } });
-  if (!promptDoc.data) {
+  const prompt = await PromptService.findById(params.id);
+  if (!prompt) {
     return redirect('/prompts');
   }
-  if (!PromptAuthorization.canView(user, promptDoc.data)) {
+  if (!PromptAuthorization.canView(user, prompt)) {
     throw new Error('You do not have permission to view this prompt.');
   }
-  const promptVersions = await documents.getDocuments<PromptVersion>({
-    collection: 'promptVersions',
+  const promptVersions = await PromptVersionService.find({
     match: { prompt: params.id },
     sort: { version: -1 },
   });
-  return { prompt: promptDoc, promptVersions };
+  return { prompt, promptVersions };
 }
 
 export async function action({
@@ -45,82 +43,123 @@ export async function action({
   if (!user) {
     return redirect('/');
   }
-  const documents = getDocumentsAdapter();
-  const promptDoc = await documents.getDocument<PromptType>({ collection: 'prompts', match: { _id: entityId } });
-  if (!promptDoc.data) throw new Error('Prompt not found');
-  if (!PromptAuthorization.canUpdate(user, promptDoc.data)) {
+  const prompt = await PromptService.findById(entityId);
+  if (!prompt) {
+    throw new Error('Prompt not found');
+  }
+  if (!PromptAuthorization.canUpdate(user, prompt)) {
     throw new Error("You do not have permission to update this prompt.");
   }
 
   switch (intent) {
-    case 'CREATE_PROMPT_VERSION':
-      const previousPromptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: entityId, version: Number(version) } });
-      if (!previousPromptVersion.data) throw new Error('Previous prompt version not found');
-      const newPromptAttributes = pick(previousPromptVersion.data, ['userPrompt', 'annotationSchema']);
-      const promptVersions = await documents.getDocuments<PromptVersion>({ collection: 'promptVersions', match: { prompt: entityId }, sort: {} }) as { count: number };
-      const promptVersion = await documents.createDocument<PromptVersion>({ collection: 'promptVersions', update: { ...newPromptAttributes, name: `${previousPromptVersion.data.name.replace(/#\d+/g, '').trim()} #${promptVersions.count + 1}`, prompt: entityId, version: promptVersions.count + 1 } })
-      return {
-        intent: 'CREATE_PROMPT_VERSION',
-        ...promptVersion
+    case 'CREATE_PROMPT_VERSION': {
+      const previousVersionDocs = await PromptVersionService.find({
+        match: { prompt: entityId, version: Number(version) }
+      });
+
+      if (previousVersionDocs.length === 0) {
+        return data(
+          { errors: { general: 'Previous prompt version not found' } },
+          { status: 400 }
+        );
       }
+
+      const promptVersion = await PromptVersionService.createNextVersion(
+        entityId,
+        previousVersionDocs[0]
+      );
+
+      return data({
+        success: true,
+        intent: 'CREATE_PROMPT_VERSION',
+        data: promptVersion
+      });
+    }
+    case 'UPDATE_PROMPT': {
+      const { name } = payload;
+      if (typeof name !== 'string' || !name.trim()) {
+        return data(
+          { errors: { general: 'Prompt name is required' } },
+          { status: 400 }
+        );
+      }
+
+      const updated = await PromptService.updateById(entityId, { name: name.trim() });
+      return data({
+        success: true,
+        intent: 'UPDATE_PROMPT',
+        data: updated
+      });
+    }
     default:
-      return {};
+      return data(
+        { errors: { general: 'Invalid intent' } },
+        { status: 400 }
+      );
   }
 }
 
 export default function PromptRoute() {
 
-  const data = useLoaderData();
-  const actionData = useActionData();
+  const loaderData = useLoaderData();
   const navigate = useNavigate();
 
   const { id, version } = useParams();
 
-  const submit = useSubmit();
   const fetcher = useFetcher();
 
-  const { prompt, promptVersions } = data;
+  const { prompt, promptVersions } = loaderData;
 
-  const onCreatePromptVersionClicked = () => {
-    submit(JSON.stringify({ intent: 'CREATE_PROMPT_VERSION', entityId: id, payload: { version } }), { method: 'POST', encType: 'application/json' });
+  const submitCreatePromptVersion = () => {
+    fetcher.submit(
+      JSON.stringify({ intent: 'CREATE_PROMPT_VERSION', entityId: id, payload: { version } }),
+      { method: 'POST', encType: 'application/json' }
+    );
   }
 
   useEffect(() => {
-    if (actionData?.intent === 'CREATE_PROMPT_VERSION') {
-      navigate(`/prompts/${actionData.data.prompt}/${actionData.data.version}`)
+    if (fetcher.state === 'idle' && fetcher.data) {
+      if (fetcher.data.success && fetcher.data.intent === 'CREATE_PROMPT_VERSION') {
+        navigate(`/prompts/${fetcher.data.data.prompt}/${fetcher.data.data.version}`);
+      } else if (fetcher.data.success && fetcher.data.intent === 'UPDATE_PROMPT') {
+        toast.success('Prompt updated');
+        addDialog(null);
+      } else if (fetcher.data.errors) {
+        toast.error(fetcher.data.errors.general || 'An error occurred');
+      }
     }
-  }, [actionData]);
+  }, [fetcher.state, fetcher.data, navigate]);
 
   useEffect(() => {
     updateBreadcrumb([{
       text: 'Prompts', link: '/prompts'
     }, {
-      text: prompt.data.name
+      text: prompt.name
     }]);
-  }, []);
+  }, [prompt.name]);
 
-  useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data) {
-      toast.success('Updated prompt');
-    }
-  }, [fetcher.state, fetcher.data]);
-
-  const onEditPromptButtonClicked = (p: PromptType) => {
+  const openEditPromptDialog = (p: PromptType) => {
     addDialog(<EditPromptDialog
       prompt={p}
-      onEditPromptClicked={(updatedPrompt: PromptType) => {
-        fetcher.submit(JSON.stringify({ intent: 'UPDATE_PROMPT', entityId: updatedPrompt._id, payload: { name: updatedPrompt.name } }), { method: 'PUT', encType: 'application/json', action: '/prompts' });
-      }}
+      onEditPromptClicked={submitEditPrompt}
+      isSubmitting={fetcher.state === 'submitting'}
     />);
+  }
+
+  const submitEditPrompt = (updatedPrompt: PromptType) => {
+    fetcher.submit(
+      JSON.stringify({ intent: 'UPDATE_PROMPT', entityId: updatedPrompt._id, payload: { name: updatedPrompt.name } }),
+      { method: 'PUT', encType: 'application/json' }
+    );
   }
 
   return (
     <Prompt
-      prompt={prompt.data}
-      promptVersions={promptVersions.data}
+      prompt={prompt}
+      promptVersions={promptVersions}
       version={Number(version)}
-      onCreatePromptVersionClicked={onCreatePromptVersionClicked}
-      onEditPromptButtonClicked={onEditPromptButtonClicked}
+      onCreatePromptVersionClicked={submitCreatePromptVersion}
+      onEditPromptButtonClicked={openEditPromptDialog}
     />
   );
 }

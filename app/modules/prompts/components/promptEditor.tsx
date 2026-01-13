@@ -24,7 +24,7 @@ export default function PromptEditor({
   const [hasChanges, setHasChanges] = useState(false);
   const [name, setName] = useState('');
   const [userPrompt, setUserPrompt] = useState('');
-  const [annotationSchema, setAnnotationSchema] = useState([]);
+  const [annotationSchema, setAnnotationSchema] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   const onNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
