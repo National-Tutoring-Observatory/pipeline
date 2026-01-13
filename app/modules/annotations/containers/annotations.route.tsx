@@ -39,8 +39,7 @@ export async function action({
     throw new Error('Project not found');
   }
 
-  const teamId = (project.data.team as any)._id || project.data.team;
-  if (!ProjectAuthorization.Annotations.canManage(user, teamId)) {
+  if (!ProjectAuthorization.Annotations.canManage(user, project.data)) {
     throw new Error('You do not have permission to update annotations in this project.');
   }
 

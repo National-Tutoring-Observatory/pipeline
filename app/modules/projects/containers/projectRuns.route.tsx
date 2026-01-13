@@ -78,8 +78,6 @@ export async function action({
   if (!project.data) {
     throw new Error('Project not found');
   }
-  const teamId = (project.data.team as any)._id || project.data.team;
-
   switch (intent) {
     case 'UPDATE_RUN': {
       if (typeof name !== "string") {

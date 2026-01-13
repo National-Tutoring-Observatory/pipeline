@@ -50,8 +50,7 @@ export async function action({
     throw new Error('Project not found');
   }
 
-  const teamId = (project.data.team as any)._id || project.data.team;
-  if (!ProjectAuthorization.Runs.canManage(user, teamId)) {
+  if (!ProjectAuthorization.Runs.canManage(user, project.data)) {
     throw new Error('Access denied');
   }
 
