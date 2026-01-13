@@ -1,7 +1,7 @@
 import find from 'lodash/find';
 import map from 'lodash/map';
 import { useEffect } from "react";
-import { redirect, useActionData, useNavigate, useRevalidator, useSubmit } from "react-router";
+import { redirect, useNavigate, useRevalidator, useFetcher, data } from "react-router";
 import { toast } from "sonner";
 import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
@@ -11,7 +11,7 @@ import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import type { User } from "~/modules/users/users.types";
 import ProjectAuthorization from "../authorization";
 import CreateProjectDialog from "../components/createProjectDialog";
@@ -19,13 +19,13 @@ import DeleteProjectDialog from "../components/deleteProjectDialog";
 import EditProjectDialog from "../components/editProjectDialog";
 import Projects from "../components/projects";
 import type { Project } from "../projects.types";
+import { ProjectService } from "../project";
 import deleteProject from "../services/deleteProject.server";
 import type { Route } from "./+types/projects.route";
 
 
 
 export async function loader({ request, params, context }: Route.LoaderArgs & { context: any }) {
-  const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
@@ -43,74 +43,114 @@ export async function loader({ request, params, context }: Route.LoaderArgs & { 
     sortableFields: ['name', 'createdAt']
   });
 
-  const result = await documents.getDocuments<Project>({ collection: 'projects', populate: [{ path: 'team' }], ...query });
+  const pagination = getPaginationParams(query.page);
 
-  return { projects: result };
+  const projects = await ProjectService.find({
+    match: query.match,
+    populate: ['team'],
+    sort: query.sort,
+    pagination
+  });
+
+  const total = await ProjectService.count(query.match);
+
+  return {
+    projects: {
+      data: projects,
+      totalPages: getTotalPages(total)
+    }
+  };
 }
 
 export async function action({
   request,
 }: Route.ActionArgs) {
-
-  const { intent, entityId, payload = {} } = await request.json();
-
-  const { name, team } = payload;
-
   const user = await getSessionUser({ request }) as User;
 
   if (!user) {
     return redirect('/');
   }
 
-  const documents = getDocumentsAdapter();
+  const { intent, entityId, payload = {} } = await request.json();
+  const { name, team } = payload;
 
   switch (intent) {
-    case 'CREATE_PROJECT':
-      if (typeof name !== "string") {
-        throw new Error("Project name is required and must be a string.");
+    case 'CREATE_PROJECT': {
+      if (typeof name !== 'string' || !name.trim()) {
+        return data(
+          { errors: { general: 'Project name is required' } },
+          { status: 400 }
+        );
       }
 
       if (!ProjectAuthorization.canCreate(user, team)) {
-        throw new Error("You do not have permission to create projects in this team.");
+        return data(
+          { errors: { general: 'You do not have permission to create projects in this team' } },
+          { status: 403 }
+        );
       }
 
-      const project = await documents.createDocument<Project>({
-        collection: 'projects',
-        update: { name, team, createdBy: user._id },
+      const project = await ProjectService.create({
+        name: name.trim(),
+        team,
+        createdBy: user._id
       });
 
-      return {
-        intent: 'CREATE_PROJECT',
-        ...project,
-      };
+      return data({ success: true, intent: 'CREATE_PROJECT', data: project });
+    }
 
     case 'UPDATE_PROJECT': {
-      const projectDoc = await documents.getDocument<Project>({ collection: 'projects', match: { _id: entityId } });
-      if (!projectDoc.data) throw new Error('Project not found');
-
-      if (!ProjectAuthorization.canUpdate(user, projectDoc.data)) {
-        throw new Error("You do not have permission to update this project.");
+      if (typeof name !== 'string' || !name.trim()) {
+        return data(
+          { errors: { general: 'Project name is required' } },
+          { status: 400 }
+        );
       }
 
-      return await documents.updateDocument({
-        collection: 'projects',
-        match: { _id: entityId },
-        update: { name },
-      });
+      const project = await ProjectService.findById(entityId);
+      if (!project) {
+        return data(
+          { errors: { general: 'Project not found' } },
+          { status: 404 }
+        );
+      }
+
+      if (!ProjectAuthorization.canUpdate(user, project)) {
+        return data(
+          { errors: { general: 'You do not have permission to update this project' } },
+          { status: 403 }
+        );
+      }
+
+      const updated = await ProjectService.updateById(entityId, { name: name.trim() });
+      return data({ success: true, intent: 'UPDATE_PROJECT', data: updated });
     }
 
     case 'DELETE_PROJECT': {
-      const projectDoc = await documents.getDocument<Project>({ collection: 'projects', match: { _id: entityId } });
-      if (!projectDoc.data) throw new Error('Project not found');
-
-      if (!ProjectAuthorization.canDelete(user, projectDoc.data)) {
-        throw new Error("You do not have permission to delete this project.");
+      const project = await ProjectService.findById(entityId);
+      if (!project) {
+        return data(
+          { errors: { general: 'Project not found' } },
+          { status: 404 }
+        );
       }
-      return await deleteProject({ projectId: entityId });
+
+      if (!ProjectAuthorization.canDelete(user, project)) {
+        return data(
+          { errors: { general: 'You do not have permission to delete this project' } },
+          { status: 403 }
+        );
+      }
+
+      await deleteProject({ projectId: entityId });
+      return data({ success: true, intent: 'DELETE_PROJECT' });
     }
 
     default:
-      return {};
+      return data(
+        { errors: { general: 'Invalid intent' } },
+        { status: 400 }
+      );
   }
 }
 
@@ -121,8 +161,7 @@ export function HydrateFallback() {
 
 export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const { projects } = loaderData;
-  const submit = useSubmit();
-  const actionData = useActionData();
+  const fetcher = useFetcher();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
 
@@ -140,10 +179,23 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   });
 
   useEffect(() => {
-    if (actionData?.intent === 'CREATE_PROJECT') {
-      navigate(`/projects/${actionData.data._id}`)
+    if (fetcher.state === 'idle' && fetcher.data) {
+      if (fetcher.data.success && fetcher.data.intent === 'CREATE_PROJECT') {
+        toast.success('Project created');
+        addDialog(null);
+        navigate(`/projects/${fetcher.data.data._id}`);
+      } else if (fetcher.data.success && fetcher.data.intent === 'UPDATE_PROJECT') {
+        toast.success('Project updated');
+        addDialog(null);
+      } else if (fetcher.data.success && fetcher.data.intent === 'DELETE_PROJECT') {
+        toast.success('Project deleted');
+        addDialog(null);
+        revalidate();
+      } else if (fetcher.data.errors) {
+        toast.error(fetcher.data.errors.general || 'An error occurred');
+      }
     }
-  }, [actionData]);
+  }, [fetcher.state, fetcher.data, navigate, revalidate]);
 
   useHandleSockets({
     event: 'DELETE_PROJECT',
@@ -160,6 +212,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       <CreateProjectDialog
         hasTeamSelection={true}
         onCreateNewProjectClicked={submitCreateProject}
+        isSubmitting={fetcher.state === 'submitting'}
       />
     );
   }
@@ -168,6 +221,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     addDialog(<EditProjectDialog
       project={project}
       onEditProjectClicked={submitEditProject}
+      isSubmitting={fetcher.state === 'submitting'}
     />);
   }
 
@@ -176,6 +230,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       <DeleteProjectDialog
         project={project}
         onDeleteProjectClicked={submitDeleteProject}
+        isSubmitting={fetcher.state === 'submitting'}
       />
     );
   }
@@ -183,19 +238,24 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const submitCreateProject = ({ name, team }: {
     name: string, team: string | null
   }) => {
-    submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name, team } }), { method: 'POST', encType: 'application/json' });
+    fetcher.submit(
+      JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name, team } }),
+      { method: 'POST', encType: 'application/json' }
+    );
   }
 
   const submitEditProject = (project: Project) => {
-    submit(JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: project._id, payload: { name: project.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
-      toast.success('Updated project');
-    });
+    fetcher.submit(
+      JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: project._id, payload: { name: project.name } }),
+      { method: 'PUT', encType: 'application/json' }
+    );
   }
 
   const submitDeleteProject = (projectId: string) => {
-    submit(JSON.stringify({ intent: 'DELETE_PROJECT', entityId: projectId }), { method: 'DELETE', encType: 'application/json' }).then(() => {
-      toast.success('Deleted project');
-    });
+    fetcher.submit(
+      JSON.stringify({ intent: 'DELETE_PROJECT', entityId: projectId }),
+      { method: 'DELETE', encType: 'application/json' }
+    );
   }
 
   const onActionClicked = (action: String) => {

@@ -14,9 +14,6 @@ import runSchema from './schemas/run.schema';
 import sessionSchema from './schemas/session.schema';
 
 const registerModels = () => {
-  if (!mongoose.models.Project) {
-    mongoose.model('Project', projectSchema);
-  }
   if (!mongoose.models.Prompt) {
     mongoose.model('Prompt', promptSchema);
   }
