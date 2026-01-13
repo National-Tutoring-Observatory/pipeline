@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
+import type { FindOptions } from '~/modules/common/types';
 import fileSchema from '~/modules/documents/schemas/file.schema';
 import type { File } from './files.types';
-import type { FindOptions } from '~/modules/common/types';
 
 const FileModel = mongoose.model('File', fileSchema);
 

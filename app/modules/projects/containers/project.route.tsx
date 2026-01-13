@@ -2,7 +2,7 @@ import filter from 'lodash/filter';
 import has from 'lodash/has';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
-import { redirect, useFetcher, useMatches, useRevalidator, data } from "react-router";
+import { data, redirect, useFetcher, useMatches, useRevalidator } from "react-router";
 import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
@@ -11,7 +11,7 @@ import addDialog from "~/modules/dialogs/addDialog";
 import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { FileService } from "~/modules/files/file";
 import { RunService } from "~/modules/runs/run";
-import type { Session } from "~/modules/sessions/sessions.types";
+import { SessionService } from "~/modules/sessions/session";
 import splitMultipleSessionsIntoFiles from '~/modules/uploads/services/splitMultipleSessionsIntoFiles';
 import uploadFiles from "~/modules/uploads/services/uploadFiles";
 import type { User } from "~/modules/users/users.types";
@@ -19,8 +19,8 @@ import ProjectAuthorization from "../authorization";
 import EditProjectDialog from "../components/editProjectDialog";
 import Project from '../components/project';
 import getAttributeMappingFromFile from '../helpers/getAttributeMappingFromFile';
-import type { Project as ProjectType } from "../projects.types";
 import { ProjectService } from "../project";
+import type { Project as ProjectType } from "../projects.types";
 import createSessionsFromFiles from '../services/createSessionsFromFiles.server';
 import type { Route } from "./+types/project.route";
 
@@ -42,9 +42,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   const filesCount = await FileService.count({ project: params.id });
-  const sessions = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: params.id }, sort: {} });
-  const sessionsCount = sessions.count;
-  const convertedSessionsCount = filter(sessions.data, { hasConverted: true }).length;
+  const sessions = await SessionService.find({ match: { project: params.id } });
+  const sessionsCount = sessions.length;
+  const convertedSessionsCount = filter(sessions, { hasConverted: true }).length;
   const runsCount = await RunService.count({ project: params.id });
   const collectionsCount = await documents.countDocuments({ collection: 'collections', match: { project: params.id } });
   return { project, filesCount, sessionsCount, convertedSessionsCount, runsCount, collectionsCount };

@@ -1,6 +1,6 @@
 import type { Job } from "bullmq";
-import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import { FileService } from "~/modules/files/file";
+import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import { getProjectStorageDir } from "~/modules/uploads/helpers/projectStorage";
 
 export default async function deleteProjectData(job: Job) {

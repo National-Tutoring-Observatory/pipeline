@@ -1,12 +1,10 @@
 import { redirect, useLoaderData } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import ProjectAuthorization from "~/modules/projects/authorization";
 import { FileService } from "~/modules/files/file";
-import type { File } from "~/modules/files/files.types";
-import type { Project } from "~/modules/projects/projects.types";
+import ProjectAuthorization from "~/modules/projects/authorization";
 import type { User } from "~/modules/users/users.types";
-import { ProjectService } from "../project";
 import ProjectFiles from "../components/projectFiles";
+import { ProjectService } from "../project";
 import type { Route } from "./+types/projectFiles.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {

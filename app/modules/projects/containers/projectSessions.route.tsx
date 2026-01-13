@@ -5,19 +5,15 @@ import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromR
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import ViewSessionContainer from "~/modules/sessions/containers/viewSessionContainer";
+import { SessionService } from "~/modules/sessions/session";
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { User } from "~/modules/users/users.types";
 import ProjectAuthorization from "../authorization";
 import ProjectSessions from "../components/projectSessions";
-import type { Project } from "../projects.types";
+import { ProjectService } from "../project";
 import createSessionsFromFiles from "../services/createSessionsFromFiles.server";
 import type { Route } from "./+types/projectSessions.route";
-
-type Sessions = {
-  data: [Session],
-};
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await getSessionUser({ request }) as User;
@@ -25,13 +21,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const documents = getDocumentsAdapter();
-  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.id } });
-  if (!project.data) {
+  const project = await ProjectService.findById(params.id);
+  if (!project) {
     return redirect('/');
   }
 
-  if (!ProjectAuthorization.canView(user, project.data)) {
+  if (!ProjectAuthorization.canView(user, project)) {
     return redirect('/');
   }
 
@@ -50,8 +45,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: []
   });
 
-  const result = await documents.getDocuments<Session>({ collection: 'sessions', ...query });
-  return { sessions: result };
+  const sessions = await SessionService.find({ ...query });
+  return { sessions };
 }
 
 export async function action({
@@ -67,9 +62,7 @@ export async function action({
 
       await createSessionsFromFiles({ projectId: params.id, shouldCreateSessionModels: false });
 
-      const documents = getDocumentsAdapter();
-
-      return await documents.updateDocument<Project>({ collection: 'projects', match: { _id: params.id }, update: { isConvertingFiles: true } });
+      return await ProjectService.updateById(params.id, { isConvertingFiles: true });
 
     }
     default:

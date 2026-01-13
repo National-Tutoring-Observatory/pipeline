@@ -4,7 +4,7 @@ import type { Project } from "~/modules/projects/projects.types";
 import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
 import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
-import type { Session } from "~/modules/sessions/sessions.types";
+import { SessionService } from "~/modules/sessions/session";
 import { handler as annotatePerSession } from './annotatePerSession/app';
 import { handler as annotatePerUtterance } from './annotatePerUtterance/app';
 
@@ -54,8 +54,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
       emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING' });
       continue;
     }
-    const sessionModel = await documents.getDocument<Session>({ collection: 'sessions', match: { _id: session.sessionId } });
-    if (!sessionModel.data) throw new Error(`Session not found: ${session.sessionId}`);
+    const sessionModel = await SessionService.findById(session.sessionId);
+    if (!sessionModel) throw new Error(`Session not found: ${session.sessionId}`);
 
     session.status = 'RUNNING';
     session.startedAt = new Date();
@@ -76,8 +76,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
       if (run.data.annotationType === 'PER_UTTERANCE') {
         await annotatePerUtterance({
           body: {
-            inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-            outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+            inputFile: `${inputDirectory}/${sessionModel._id}/${sessionModel.name}`,
+            outputFolder: `${outputDirectory}/${sessionModel._id}`,
             prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
             model: getRunModelCode(run.data),
             team: project.data.team
@@ -86,8 +86,8 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
       } else {
         await annotatePerSession({
           body: {
-            inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-            outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
+            inputFile: `${inputDirectory}/${sessionModel._id}/${sessionModel.name}`,
+            outputFolder: `${outputDirectory}/${sessionModel._id}`,
             prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
             model: getRunModelCode(run.data),
             team: project.data.team
