@@ -3,43 +3,51 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import dayjs from "dayjs";
 import map from 'lodash/map';
-import { EllipsisVertical } from "lucide-react";
-import { Link } from "react-router";
+import { EllipsisVertical, Plus } from "lucide-react";
+import { Link, useParams } from "react-router";
 import type { Collection } from "~/modules/collections/collections.types";
 
 export default function ProjectCollections({
   collections,
-  onCreateCollectionButtonClicked,
   onEditCollectionButtonClicked,
   onDuplicateCollectionButtonClicked
 }: {
   collections: Collection[],
-  onCreateCollectionButtonClicked: () => void,
   onEditCollectionButtonClicked: (collection: Collection) => void,
   onDuplicateCollectionButtonClicked: (collection: Collection) => void,
 }) {
+  const params = useParams();
+
   return (
     <div className="mt-8">
       {(collections.length === 0) && (
         <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
           No collections created
           <div className="mt-3">
-            <Button disabled onClick={onCreateCollectionButtonClicked}>Create collections is coming soon...</Button>
+            <Link to={`/projects/${params.id}/create-collection`}>
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                Create Collection
+              </Button>
+            </Link>
           </div>
         </div>
       )}
       {(collections.length > 0) && (
         <div className="border rounded-md">
           <div className="flex justify-end border-b p-2">
-            <Button onClick={onCreateCollectionButtonClicked}>Create collection</Button>
+            <Link to={`/projects/${params.id}/create-collection`}>
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                Create Collection
+              </Button>
+            </Link>
           </div>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[300px]">Name</TableHead>
                 <TableHead>Created</TableHead>
-                <TableHead>Started</TableHead>
-                <TableHead>Finished</TableHead>
                 <TableHead className="text-right"></TableHead>
               </TableRow>
             </TableHeader>
@@ -53,8 +61,6 @@ export default function ProjectCollections({
                       </Link>
                     </TableCell>
                     <TableCell>{dayjs(collection.createdAt).format('ddd, MM/D/YY - h:mma')}</TableCell>
-                    <TableCell>{collection.startedAt ? dayjs(collection.startedAt).format('ddd, MM/D/YY - h:mma') : '--'}</TableCell>
-                    <TableCell>{collection.finishedAt ? dayjs(collection.finishedAt).format('ddd, MM/D/YY - h:mma') : '--'}</TableCell>
                     <TableCell className="text-right flex justify-end">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

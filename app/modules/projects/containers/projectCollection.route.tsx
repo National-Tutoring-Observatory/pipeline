@@ -1,141 +1,192 @@
-import map from 'lodash/map';
+import { redirect, useLoaderData, useRevalidator } from 'react-router';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import throttle from 'lodash/throttle';
-import { useEffect } from "react";
-import { redirect, useLoaderData, useRevalidator, useSubmit } from "react-router";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
-import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import { CollectionService } from "~/modules/collections/collection";
-import type { CreateCollection } from "~/modules/collections/collections.types";
-import exportCollection from "~/modules/collections/helpers/exportCollection";
-import { ProjectService } from "~/modules/projects/project";
-import { RunService } from "~/modules/runs/run";
-import ProjectCollection from "../components/projectCollection";
-import type { Route } from "./+types/projectCollection.route";
+import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
+import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
+import { CollectionService } from '~/modules/collections/collection';
+import { ProjectService } from '~/modules/projects/project';
+import { RunService } from '~/modules/runs/run';
+import { SessionService } from '~/modules/sessions/session';
+import ProjectAuthorization from '~/modules/projects/authorization';
+import { getRunModelDisplayName } from '~/modules/runs/helpers/runModel';
+import type { User } from '~/modules/users/users.types';
+import type { Route } from './+types/projectCollection.route';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const authenticationTeams = await getSessionUserTeams({ request });
-  const teamIds = map(authenticationTeams, 'team');
+  const user = await getSessionUser({ request }) as User;
+  if (!user) {
+    return redirect('/');
+  }
 
-  const project = await ProjectService.findOne({ _id: params.projectId, team: { $in: teamIds } });
+  const project = await ProjectService.findById(params.projectId);
   if (!project) {
     return redirect('/');
   }
-  const collection = await CollectionService.findOne({ _id: params.collectionId, project: params.projectId });
-  if (!collection) {
+
+  if (!ProjectAuthorization.canView(user, project)) {
     return redirect('/');
   }
-  const runs = await RunService.find({ match: { _id: { $in: collection.runs || [] } } });
 
-  return { project, collection, runs };
-}
-
-
-export async function action({
-  request,
-  params,
-}: Route.ActionArgs) {
-
-  const { intent, payload = {} } = await request.json();
-
-  const {
-    sessions,
-    runs,
-    exportType
-  } = payload;
-
-  switch (intent) {
-    case 'SETUP_COLLECTION':
-      await CollectionService.updateById(params.collectionId, {
-        hasSetup: true,
-        sessions,
-        runs
-      });
-
-      return {}
-    case 'EXPORT_COLLECTION': {
-
-      exportCollection({ collectionId: params.collectionId, exportType });
-
-      return {};
-    }
-    default:
-      return {};
+  const collection = await CollectionService.findById(params.collectionId);
+  if (!collection) {
+    return redirect(`/projects/${params.projectId}/collections`);
   }
-}
 
-const debounceRevalidate = throttle((revalidate) => {
-  revalidate();
-}, 2000);
+  // Fetch runs and sessions
+  const runs = collection.runs?.length
+    ? await RunService.find({ match: { _id: { $in: collection.runs || [] } } })
+    : [];
+
+  const sessions = collection.sessions?.length
+    ? await SessionService.find({ match: { _id: { $in: collection.sessions || [] } } })
+    : [];
+
+  return {
+    collection,
+    project,
+    runs,
+    sessions
+  };
+}
 
 export default function ProjectCollectionRoute() {
-  const { project, collection, runs } = useLoaderData();
+  const { collection, runs, sessions } = useLoaderData<typeof loader>();
+  const revalidator = useRevalidator();
 
-  const submit = useSubmit();
-  const { revalidate } = useRevalidator();
+  const debounceRevalidate = throttle(() => {
+    revalidator.revalidate();
+  }, 500);
 
-  const onSetupCollection = ({
-    selectedSessions,
-    selectedRuns
-  }: CreateCollection) => {
-    submit(JSON.stringify({
-      intent: 'SETUP_COLLECTION',
-      payload: {
-        sessions: selectedSessions,
-        runs: selectedRuns,
+  // Subscribe to run events for real-time updates
+  useHandleSockets({
+    event: 'ANNOTATE_RUN',
+    matches: runs.map(run => [
+      {
+        runId: run._id,
+        task: 'ANNOTATE_RUN:START',
+        status: 'FINISHED'
+      },
+      {
+        runId: run._id,
+        task: 'ANNOTATE_RUN:PROCESS',
+        status: 'STARTED'
+      },
+      {
+        runId: run._id,
+        task: 'ANNOTATE_RUN:PROCESS',
+        status: 'FINISHED'
+      },
+      {
+        runId: run._id,
+        task: 'ANNOTATE_RUN:FINISH',
+        status: 'FINISHED'
       }
-    }), { method: 'POST', encType: 'application/json' });
-  }
-
-  const onExportCollectionButtonClicked = ({ exportType }: { exportType: string }) => {
-    submit(JSON.stringify({
-      intent: 'EXPORT_COLLECTION',
-      payload: {
-        exportType
-      }
-    }), { method: 'POST', encType: 'application/json' });
-  }
-
-  const onAddRunButtonClicked = () => {
-    console.log('adding run');
-  }
-
-  useEffect(() => {
-    const eventSource = new EventSource("/api/events");
-
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.collectionId === collection.data._id) {
-        switch (data.event) {
-          case 'EXPORT_COLLECTION':
-            debounceRevalidate(revalidate);
-            break;
-        }
-      }
-    };
-    return () => {
-      eventSource.close();
+    ]).flat(),
+    callback: () => {
+      debounceRevalidate();
     }
-  }, []);
-
-  useEffect(() => {
-    updateBreadcrumb([{
-      text: 'Projects', link: `/`
-    }, {
-      text: project.data.name, link: `/projects/${project.data._id}`
-    }, {
-      text: 'Collections', link: `/projects/${project.data._id}/collections`
-    }, {
-      text: collection.data.name
-    }])
-  }, []);
+  });
 
   return (
-    <ProjectCollection
-      collection={collection.data}
-      runs={runs.data}
-      onSetupCollection={onSetupCollection}
-      onExportCollectionButtonClicked={onExportCollectionButtonClicked}
-      onAddRunButtonClicked={onAddRunButtonClicked}
-    />
-  )
+    <div className="p-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">{collection.name}</h1>
+      </div>
+
+      <div className="grid gap-8">
+        {/* Overview Section */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-card rounded-lg border p-4">
+            <div className="text-xs text-muted-foreground mb-1">Created</div>
+            <div className="text-sm font-medium">
+              {collection.createdAt ? new Date(collection.createdAt).toLocaleDateString() : '--'}
+            </div>
+          </div>
+          <div className="bg-card rounded-lg border p-4">
+            <div className="text-xs text-muted-foreground mb-1">Sessions</div>
+            <div className="text-sm font-medium">{collection.sessions?.length || 0}</div>
+          </div>
+          <div className="bg-card rounded-lg border p-4">
+            <div className="text-xs text-muted-foreground mb-1">Runs</div>
+            <div className="text-sm font-medium">{collection.runs?.length || 0}</div>
+          </div>
+        </div>
+
+        {/* Sessions Section */}
+        {sessions.length > 0 && (
+          <div className="bg-card rounded-lg border p-4">
+            <h2 className="text-lg font-semibold mb-4">Sessions ({sessions.length})</h2>
+            <div className="border rounded-md overflow-auto max-h-80">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>File Type</TableHead>
+                    <TableHead>Created</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sessions.map((session) => (
+                    <TableRow key={session._id}>
+                      <TableCell className="font-medium">{session.name || session._id}</TableCell>
+                      <TableCell>{session.fileType || '--'}</TableCell>
+                      <TableCell>
+                        {session.createdAt ? new Date(session.createdAt).toLocaleDateString() : '--'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
+
+        {/* Runs Section */}
+        {runs.length > 0 && (
+          <div className="bg-card rounded-lg border p-4">
+            <h2 className="text-lg font-semibold mb-4">Runs ({runs.length})</h2>
+            <div className="border rounded-md overflow-auto max-h-96">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Prompt</TableHead>
+                    <TableHead>Model</TableHead>
+                    <TableHead>Sessions</TableHead>
+                    <TableHead>Created</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {runs.map((run) => (
+                    <TableRow key={run._id}>
+                      <TableCell className="font-medium">{run.name}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {run.isRunning && <Badge variant="secondary">Running</Badge>}
+                          {run.isComplete && <Badge variant="default">Complete</Badge>}
+                          {run.hasErrored && <Badge variant="destructive">Error</Badge>}
+                          {!run.isRunning && !run.isComplete && !run.hasErrored && <Badge variant="outline">Pending</Badge>}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        <div>{run.prompt as string}</div>
+                        {run.promptVersion && <div className="text-muted-foreground">v{run.promptVersion}</div>}
+                      </TableCell>
+                      <TableCell className="text-sm">{getRunModelDisplayName(run)}</TableCell>
+                      <TableCell className="text-sm">{run.sessions?.length || 0}</TableCell>
+                      <TableCell className="text-sm">
+                        {run.createdAt ? new Date(run.createdAt).toLocaleDateString() : '--'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

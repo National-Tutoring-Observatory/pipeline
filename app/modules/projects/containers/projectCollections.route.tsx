@@ -1,10 +1,8 @@
-import { useEffect } from "react";
-import { data, redirect, useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
+import { data, redirect, useLoaderData, useFetcher } from "react-router";
 import { toast } from "sonner";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import type { Collection } from "~/modules/collections/collections.types";
-import CreateCollectionDialog from "~/modules/collections/components/createCollectionDialog";
 import DuplicateCollectionDialog from "~/modules/collections/components/duplicateCollectionDialog";
 import EditCollectionDialog from "~/modules/collections/components/editCollectionDialog";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -115,31 +113,24 @@ export async function action({
 }
 
 export default function ProjectCollectionsRoute() {
-  const { collections } = useLoaderData();
-  const submit = useSubmit();
-  const actionData = useActionData();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (actionData?.intent === 'CREATE_COLLECTION' || actionData?.intent === 'DUPLICATE_COLLECTION') {
-      navigate(`/projects/${actionData.data.project}/collections/${actionData.data._id}`)
-    }
-  }, [actionData]);
-
-  const onCreateNewCollectionClicked = ({ name }: { name: string }) => {
-    submit(JSON.stringify({ intent: 'CREATE_COLLECTION', payload: { name } }), { method: 'POST', encType: 'application/json' });
-  }
+  const { collections } = useLoaderData<typeof loader>();
+  const editFetcher = useFetcher();
+  const duplicateFetcher = useFetcher();
 
   const onEditCollectionClicked = (collection: Collection) => {
-    submit(JSON.stringify({ intent: 'UPDATE_COLLECTION', entityId: collection._id, payload: { name: collection.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
-      toast.success('Updated collection');
-    });
+    editFetcher.submit(
+      JSON.stringify({ intent: 'UPDATE_COLLECTION', entityId: collection._id, payload: { name: collection.name } }),
+      { method: 'PUT', encType: 'application/json' }
+    );
+    toast.success('Collection updated');
   }
 
   const onDuplicateNewCollectionClicked = ({ name, collectionId }: { name: string, collectionId: string }) => {
-    submit(JSON.stringify({ intent: 'DUPLICATE_COLLECTION', entityId: collectionId, payload: { name: name } }), { method: 'POST', encType: 'application/json' }).then(() => {
-      toast.success('Duplicated collection');
-    });
+    duplicateFetcher.submit(
+      JSON.stringify({ intent: 'DUPLICATE_COLLECTION', entityId: collectionId, payload: { name } }),
+      { method: 'POST', encType: 'application/json' }
+    );
+    toast.success('Collection duplicated');
   }
 
   const onEditCollectionButtonClicked = (collection: Collection) => {
@@ -147,14 +138,6 @@ export default function ProjectCollectionsRoute() {
       collection={collection}
       onEditCollectionClicked={onEditCollectionClicked}
     />);
-  }
-
-  const onCreateCollectionButtonClicked = () => {
-    addDialog(
-      <CreateCollectionDialog
-        onCreateNewCollectionClicked={onCreateNewCollectionClicked}
-      />
-    );
   }
 
   const onDuplicateCollectionButtonClicked = (collection: Collection) => {
@@ -167,8 +150,7 @@ export default function ProjectCollectionsRoute() {
 
   return (
     <ProjectCollections
-      collections={collections.data}
-      onCreateCollectionButtonClicked={onCreateCollectionButtonClicked}
+      collections={collections}
       onEditCollectionButtonClicked={onEditCollectionButtonClicked}
       onDuplicateCollectionButtonClicked={onDuplicateCollectionButtonClicked}
     />

@@ -9,8 +9,6 @@ export default new mongoose.Schema({
   isExporting: { type: Boolean, default: false },
   hasExportedCSV: { type: Boolean, default: false },
   hasExportedJSONL: { type: Boolean, default: false },
-  startedAt: { type: Date, default: Date.now },
-  finishedAt: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
   createdBy: { type: mongoose.Types.ObjectId, ref: 'User' },
   updatedAt: { type: Date },
