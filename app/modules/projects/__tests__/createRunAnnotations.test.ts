@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import "~/modules/documents/documents";
 import createRunAnnotations from "../services/createRunAnnotations.server";
 import { RunService } from "~/modules/runs/run";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";

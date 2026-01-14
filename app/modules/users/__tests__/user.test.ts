@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import mongoose from "mongoose";
-import "~/modules/documents/documents";
 import { UserService } from "../user";
 import type { User } from "../users.types";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';

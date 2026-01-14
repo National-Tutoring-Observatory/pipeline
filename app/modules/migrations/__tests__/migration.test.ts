@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import '~/modules/documents/documents'
 import { UserService } from '~/modules/users/user'
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB'
 import { MigrationService } from '../migration'
