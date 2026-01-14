@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import type { FindOptions } from '~/modules/common/types';
-import sessionSchema from '~/modules/documents/schemas/session.schema';
+import sessionSchema from '~/lib/schemas/session.schema';
 import type { Session } from './sessions.types';
 
 const SessionModel = mongoose.model('Session', sessionSchema);

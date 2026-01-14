@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import projectSchema from '~/modules/documents/schemas/project.schema';
+import projectSchema from '~/lib/schemas/project.schema';
 import type { Project } from './projects.types';
 import type { FindOptions } from '~/modules/common/types';
 

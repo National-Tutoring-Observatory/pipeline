@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import runSchema from '~/modules/documents/schemas/run.schema';
+import runSchema from '~/lib/schemas/run.schema';
 import type { Run } from './runs.types';
 import type { FindOptions } from '~/modules/common/types';
 import createRunAnnotations from '~/modules/projects/services/createRunAnnotations.server';

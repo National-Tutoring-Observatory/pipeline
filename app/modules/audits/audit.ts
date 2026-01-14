@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import auditSchema from '~/modules/documents/schemas/audit.schema';
+import auditSchema from '~/lib/schemas/audit.schema';
 import type { AuditRecord } from './audit.types';
 import { UserService } from '../users/user';
 

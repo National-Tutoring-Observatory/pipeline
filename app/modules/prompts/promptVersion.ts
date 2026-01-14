@@ -1,6 +1,6 @@
 import pick from 'lodash/pick';
 import mongoose from 'mongoose';
-import promptVersionSchema from '~/modules/documents/schemas/promptVersion.schema';
+import promptVersionSchema from '~/lib/schemas/promptVersion.schema';
 import type { PromptVersion } from './prompts.types';
 import type { FindOptions } from '~/modules/common/types';
 
