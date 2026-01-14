@@ -1,6 +1,5 @@
-import getDatabaseConnection from "app/documentsAdapters/documentDB/helpers/getDatabaseConnection";
 import type { Job } from "bullmq";
-import "../../app/modules/documents/documents";
+import { initializeDatabase } from "../../app/lib/database";
 import "../../app/modules/storage/storage";
 import annotatePerSession from "../tasks/annotatePerSession";
 import annotatePerUtterance from "../tasks/annotatePerUtterance";
@@ -10,9 +9,10 @@ import finishConvertedFilesToSessions from "../tasks/finishConvertedFilesToSessi
 import startAnnotateRun from "../tasks/startAnnotateRun";
 import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
 
+await initializeDatabase();
+
 export default async (job: Job) => {
   try {
-    await getDatabaseConnection();
 
     switch (job.name) {
       case 'ANNOTATE_RUN:START': {

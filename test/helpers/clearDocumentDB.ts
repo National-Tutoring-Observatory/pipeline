@@ -1,6 +1,5 @@
-import getDatabaseConnection from '~/documentsAdapters/documentDB/helpers/getDatabaseConnection'
+import mongoose from 'mongoose'
 
 export default async function clearDocumentDB(): Promise<void> {
-  const connection = await getDatabaseConnection()
-  await connection.connection.dropDatabase()
+  await mongoose.connection.dropDatabase()
 }
