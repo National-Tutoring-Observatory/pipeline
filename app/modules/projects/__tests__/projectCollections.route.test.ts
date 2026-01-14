@@ -48,7 +48,7 @@ describe("projectCollections.route loader", () => {
 
     expect(res).not.toBeInstanceOf(Response);
     const loaderData = res as any;
-    expect(loaderData.collections.data).toEqual([]);
+    expect(loaderData.collections).toEqual([]);
   });
 
   it("redirects to / when user cannot view project", async () => {
@@ -130,8 +130,8 @@ describe("projectCollections.route action - CREATE_COLLECTION", () => {
 
     expect(resp).not.toBeInstanceOf(Response);
     expect(resp.intent).toBe('CREATE_COLLECTION');
-    expect(resp.data._id).toBeDefined();
-    expect(resp.data.name).toBe('Test Collection');
-    expect(resp.data.project).toBe(project._id);
+    expect(resp._id).toBeDefined();
+    expect(resp.name).toBe('Test Collection');
+    expect(resp.project).toBe(project._id);
   });
 });

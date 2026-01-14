@@ -4,8 +4,8 @@ import type { AnnotationSchemaItem } from "~/modules/prompts/prompts.types";
 import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
 import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
+import { SessionService } from "~/modules/sessions/session";
 import { ProjectService } from "../project";
-import type { Session } from "~/modules/sessions/sessions.types";
 
 export default async function createRunAnnotations(run: Run) {
 
@@ -47,8 +47,8 @@ export default async function createRunAnnotations(run: Run) {
     if (session.status === 'DONE') {
       continue;
     }
-    const sessionModel = await documents.getDocument<Session>({ collection: 'sessions', match: { _id: session.sessionId } });
-    if (!sessionModel.data) {
+    const sessionModel = await SessionService.findById(session.sessionId);
+    if (!sessionModel) {
       throw new Error(`Session not found: ${session.sessionId}`);
     }
     taskSequencer.addTask('PROCESS', {
@@ -56,8 +56,8 @@ export default async function createRunAnnotations(run: Run) {
       projectId: run.project,
       runId: run._id,
       sessionId: session.sessionId,
-      inputFile: `${inputFolder}/${sessionModel.data._id}/${sessionModel.data.name}`,
-      outputFolder: `${outputFolder}/${sessionModel.data._id}`,
+      inputFile: `${inputFolder}/${sessionModel._id}/${sessionModel.name}`,
+      outputFolder: `${outputFolder}/${sessionModel._id}`,
       prompt: { prompt: userPrompt, annotationSchema },
       model: getRunModelCode(run),
       team: project.team,

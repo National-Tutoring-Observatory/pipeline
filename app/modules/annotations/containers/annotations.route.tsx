@@ -2,11 +2,10 @@ import fse from 'fs-extra';
 import find from 'lodash/find';
 import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import ProjectAuthorization from "~/modules/projects/authorization";
-import type { Project } from "~/modules/projects/projects.types";
-import type { Run } from "~/modules/runs/runs.types";
-import type { Session } from "~/modules/sessions/sessions.types";
+import { ProjectService } from "~/modules/projects/project";
+import { RunService } from "~/modules/runs/run";
+import { SessionService } from "~/modules/sessions/session";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import type { Route } from "./+types/annotations.route";
 
@@ -22,41 +21,36 @@ export async function action({
     return redirect('/');
   }
 
-  const documents = getDocumentsAdapter();
+  const run = await RunService.findById(params.runId);
 
-  const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: params.runId } });
-
-  if (!run.data) {
+  if (!run) {
     throw new Error("Run not found.");
   }
 
-  const projectId = run.data.project as string;
-  const project = await documents.getDocument<Project>({
-    collection: 'projects',
-    match: { _id: projectId },
-  });
-  if (!project.data) {
+  const projectId = run.project as string;
+  const project = await ProjectService.findById(projectId);
+  if (!project) {
     throw new Error('Project not found');
   }
 
-  if (!ProjectAuthorization.Annotations.canManage(user, project.data)) {
+  if (!ProjectAuthorization.Annotations.canManage(user, project)) {
     throw new Error('You do not have permission to update annotations in this project.');
   }
 
-  const session = await documents.getDocument<Session>({ collection: 'sessions', match: { _id: params.sessionId, project: projectId } });
+  const session = await SessionService.findOne({ _id: params.sessionId, project: projectId });
 
-  if (!session.data) {
+  if (!session) {
     throw new Error("Session not found or does not belong to this project.");
   }
 
-  const sessionPath = `storage/${run.data.project}/runs/${params.runId}/${params.sessionId}/${session.data.name}`;
+  const sessionPath = `storage/${run.project}/runs/${params.runId}/${params.sessionId}/${session.name}`;
 
   const storage = getStorageAdapter();
 
   const downloadedPath = await storage.download({ sourcePath: sessionPath });
   const sessionFile = await fse.readJSON(downloadedPath);
 
-  if (run.data.annotationType === 'PER_UTTERANCE') {
+  if (run.annotationType === 'PER_UTTERANCE') {
     const currentUtterance = find(sessionFile.transcript, { _id: params.annotationId });
 
     const currentAnnotation = find(currentUtterance.annotations, { _id: params.annotationId });

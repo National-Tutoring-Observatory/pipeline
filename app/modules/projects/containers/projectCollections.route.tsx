@@ -1,16 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { data, redirect, useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
 import { toast } from "sonner";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import ProjectAuthorization from "~/modules/projects/authorization";
+import { CollectionService } from "~/modules/collections/collection";
 import type { Collection } from "~/modules/collections/collections.types";
 import CreateCollectionDialog from "~/modules/collections/components/createCollectionDialog";
 import DuplicateCollectionDialog from "~/modules/collections/components/duplicateCollectionDialog";
 import EditCollectionDialog from "~/modules/collections/components/editCollectionDialog";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
-import type { Project } from "~/modules/projects/projects.types";
 import type { User } from "~/modules/users/users.types";
 import ProjectCollections from "../components/projectCollections";
 import type { Route } from "./+types/projectCollections.route";
@@ -21,7 +20,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const documents = getDocumentsAdapter();
   const project = await ProjectService.findById(params.id);
   if (!project) {
     return redirect('/');
@@ -31,8 +29,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const result = await documents.getDocuments<Collection>({ collection: 'collections', match: { project: params.id }, sort: {} });
-  const collections = { data: result.data };
+  const collections = await CollectionService.findByProject(params.id);
   return { collections };
 }
 
@@ -45,7 +42,6 @@ export async function action({
     return redirect('/');
   }
 
-  const documents = getDocumentsAdapter();
   const project = await ProjectService.findById(params.id);
   if (!project) {
     throw new Error('Project not found');
@@ -65,14 +61,12 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
-      collection = await documents.createDocument<Collection>({
-        collection: 'collections', update: {
-          project: params.id,
-          name,
-          sessions: [],
-          runs: [],
-          hasSetup: false
-        }
+      collection = await CollectionService.create({
+        project: params.id,
+        name,
+        sessions: [],
+        runs: [],
+        hasSetup: false
       });
       return {
         intent: 'CREATE_COLLECTION',
@@ -84,14 +78,8 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
-      await documents.updateDocument<Collection>({
-        collection: 'collections',
-        match: {
-          _id: entityId,
-        },
-        update: {
-          name
-        }
+      await CollectionService.updateById(entityId, {
+        name
       });
       return {};
     }
@@ -100,28 +88,20 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
-      const existingCollection = await documents.getDocument<Collection>({
-        collection: 'collections',
-        match: {
-          _id: entityId,
-        }
-      });
+      const existingCollection = await CollectionService.findById(entityId);
 
-      if (!existingCollection.data) {
+      if (!existingCollection) {
         throw new Error('Collection not found');
       }
 
-      const { project, sessions } = existingCollection.data;
+      const { project, sessions } = existingCollection;
 
-      collection = await documents.createDocument<Collection>({
-        collection: 'collections',
-        update: {
-          project,
-          name: name,
-          sessions,
-          runs: [],
-          hasSetup: true
-        }
+      collection = await CollectionService.create({
+        project,
+        name: name,
+        sessions,
+        runs: [],
+        hasSetup: true
       });
       return {
         intent: 'DUPLICATE_COLLECTION',

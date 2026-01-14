@@ -1,15 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { UserService } from '../../app/modules/users/user.js';
-import { ProjectService } from '../../app/modules/projects/project.js';
 import { FileService } from '../../app/modules/files/file.js';
-import type { File as FileDocument } from '../../app/modules/files/files.types.js';
-import { getProjectFileStoragePath } from '../../app/modules/uploads/helpers/projectFileStorage.js';
-import uploadFile from '../../app/modules/uploads/services/uploadFile.js';
-import splitMultipleSessionsIntoFiles from '../../app/modules/uploads/services/splitMultipleSessionsIntoFiles.js';
 import getAttributeMappingFromFile from '../../app/modules/projects/helpers/getAttributeMappingFromFile.js';
+import { ProjectService } from '../../app/modules/projects/project.js';
 import createSessionsFromFiles from '../../app/modules/projects/services/createSessionsFromFiles.server.js';
+import { getProjectFileStoragePath } from '../../app/modules/uploads/helpers/projectFileStorage.js';
+import splitMultipleSessionsIntoFiles from '../../app/modules/uploads/services/splitMultipleSessionsIntoFiles.js';
+import uploadFile from '../../app/modules/uploads/services/uploadFile.js';
+import { UserService } from '../../app/modules/users/user.js';
 import { getSeededTeams } from './teamSeeder.js';
 import { getSeededUsers } from './userSeeder.js';
 
@@ -158,4 +157,3 @@ async function processProjectFiles(projectId: string, teamId: string, files: Arr
 
   console.log(`      ✓ Sessions created and processing jobs queued`);
 }
-

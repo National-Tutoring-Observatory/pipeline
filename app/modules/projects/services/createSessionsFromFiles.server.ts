@@ -1,19 +1,15 @@
-import type { File } from "~/modules/files/files.types";
 import { FileService } from "~/modules/files/file";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
-import type { Session } from "~/modules/sessions/sessions.types";
+import { SessionService } from "~/modules/sessions/session";
 import { getProjectFileStoragePath } from "~/modules/uploads/helpers/projectFileStorage";
 import { getProjectSessionStorageDir } from "~/modules/uploads/helpers/projectSessionStorage";
 import { ProjectService } from "../project";
-import type { Project } from "../projects.types";
 
 export default async function createSessionsFromFiles({
   projectId,
   shouldCreateSessionModels = true,
   attributesMapping,
 }: { projectId: string, shouldCreateSessionModels: boolean, attributesMapping?: any }) {
-  const documents = getDocumentsAdapter();
   const projectFiles = await FileService.findByProject(projectId);
 
   const project = await ProjectService.findById(projectId);
@@ -21,20 +17,17 @@ export default async function createSessionsFromFiles({
 
   if (shouldCreateSessionModels) {
     for (const projectFile of projectFiles) {
-      await documents.createDocument<Session>({
-        collection: 'sessions',
-        update: {
-          project: projectFile.project,
-          file: projectFile._id,
-          fileType: 'application/json',
-          name: `${projectFile.name.replace(/\.[^.]+$/, '')}.json`,
-          hasConverted: false
-        }
+      await SessionService.create({
+        project: projectFile.project,
+        file: projectFile._id,
+        fileType: 'application/json',
+        name: `${projectFile.name.replace(/\.[^.]+$/, '')}.json`,
+        hasConverted: false
       });
     }
   }
 
-  const projectSessions = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: projectId }, sort: {} });
+  const projectSessions = await SessionService.find({ match: { project: projectId } });
 
   const taskSequencer = new TaskSequencer('CONVERT_FILES_TO_SESSIONS');
 
@@ -42,7 +35,7 @@ export default async function createSessionsFromFiles({
     projectId,
   });
 
-  for (const projectSession of projectSessions.data) {
+  for (const projectSession of projectSessions) {
     if (projectSession.hasConverted) {
       continue;
     }
@@ -64,4 +57,3 @@ export default async function createSessionsFromFiles({
 
   await taskSequencer.run();
 }
-

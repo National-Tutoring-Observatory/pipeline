@@ -1,6 +1,4 @@
 import path from "path";
-import type { Project } from "~/modules/projects/projects.types";
-import type { File } from "~/modules/files/files.types";
 import { FileService } from "~/modules/files/file";
 import { ProjectService } from "~/modules/projects/project";
 import { emitter } from "../../events/emitter";
@@ -35,4 +33,3 @@ export default async function uploadFiles({ files, entityId }: { files: any, ent
   await ProjectService.updateById(entityId, { isUploadingFiles: false });
   emitter.emit("UPLOAD_FILES", { projectId: entityId, progress: 100, status: 'DONE' });
 }
-

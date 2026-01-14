@@ -1,8 +1,7 @@
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { RunService } from "~/modules/runs/run";
-import type { StartRunProps, RunSession } from "~/modules/runs/runs.types";
+import type { RunSession, StartRunProps } from "~/modules/runs/runs.types";
 import buildRunSnapshot from "~/modules/runs/services/buildRunSnapshot.server";
-import type { Session } from "~/modules/sessions/sessions.types";
+import { SessionService } from "~/modules/sessions/session";
 
 
 export default async function startRun({
@@ -15,8 +14,6 @@ export default async function startRun({
   modelCode
 }: StartRunProps, { context }: { request: Request, context: any }) {
 
-  const documents = getDocumentsAdapter();
-
   const run = await RunService.findById(runId);
   if (!run || run.project !== projectId) {
     throw new Error('Run not found');
@@ -25,13 +22,13 @@ export default async function startRun({
   const sessionsAsObjects: RunSession[] = [];
 
   for (const session of sessions) {
-    const sessionModel = await documents.getDocument<Session>({ collection: 'sessions', match: { _id: session } });
-    if (!sessionModel.data) {
+    const sessionModel = await SessionService.findById(session);
+    if (!sessionModel) {
       throw new Error(`Session not found: ${session}`);
     }
     sessionsAsObjects.push({
-      name: sessionModel.data.name,
-      fileType: sessionModel.data.fileType,
+      name: sessionModel.name,
+      fileType: sessionModel.fileType || '',
       sessionId: session,
       status: 'RUNNING',
       startedAt: new Date(),
