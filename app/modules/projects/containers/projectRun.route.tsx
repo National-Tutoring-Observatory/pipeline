@@ -71,7 +71,7 @@ export async function action({
         prompt,
         promptVersion,
         modelCode: model
-      }, { request, context });
+      });
 
       if (!run) throw new Error('Run not created');
       await RunService.createAnnotations(run);

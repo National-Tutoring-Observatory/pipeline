@@ -65,7 +65,7 @@ export async function action({
         prompt,
         promptVersion: Number(promptVersion),
         modelCode: model
-      }, { request, context });
+      });
 
       if (!startedRun) {
         throw new Error('Failed to start run');

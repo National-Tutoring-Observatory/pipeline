@@ -12,7 +12,7 @@ export default async function startRun({
   prompt,
   promptVersion,
   modelCode
-}: StartRunProps, { context }: { request: Request, context: any }) {
+}: StartRunProps) {
 
   const run = await RunService.findById(runId);
   if (!run || run.project !== projectId) {
