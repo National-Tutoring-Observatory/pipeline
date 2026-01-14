@@ -1,4 +1,4 @@
-name: Release to Production (ECR + ECS)
+name: Release (Staging → Production) (ECR + ECS)
 
 # Developer workflow
 #   1. Merge PR
@@ -30,40 +30,30 @@ env:
   ECR_REPOSITORY: nto-pipeline
 
 jobs:
-  deploy:
-    environment: production
+  # ──────────────────────────────────────────────────────────────
+  # Build once
+  # ──────────────────────────────────────────────────────────────
+  build:
     runs-on: ubuntu-latest
-    concurrency:
-      group: deploy-${{ github.ref_name }}
-      cancel-in-progress: false
-
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Resolve version from tag
         id: ver
         run: |
-          set -euo pipefail
           tag="${GITHUB_REF_NAME}"
-          if ! echo "$tag" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "Tag must be vMAJOR.MINOR.PATCH (e.g. v1.2.3). Got: $tag"
-            exit 1
-          fi
+          [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
           echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
 
-      - name: Preflight - Ensure tag points to main
+      - name: Ensure tag points to main
         run: |
-          set -euo pipefail
-          tag="${GITHUB_REF_NAME}"
-          commit="$(git rev-list -n 1 "$tag")"
+          commit="$(git rev-list -n 1 "$GITHUB_REF_NAME")"
           git fetch origin main --depth=1
-          if ! git branch --remotes --contains "$commit" | grep -q 'origin/main'; then
-            echo "❌ Tag $tag does not point to a commit on main. Aborting."
-            exit 1
-          fi
+          git branch --remotes --contains "$commit" | grep -q origin/main
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -71,46 +61,180 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
 
-      - name: Login to Amazon ECR
+      - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v2
-        #
-      # ──────────────────────────────────────────────────────────────
-      # Build + push web image (from Dockerfile)
-      # ──────────────────────────────────────────────────────────────
+
       - name: Build & push web image
         env:
           VERSION: ${{ steps.ver.outputs.version }}
         run: |
-          set -euo pipefail
           docker build -t $ECR_REPOSITORY:$VERSION .
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
           docker tag $ECR_REPOSITORY:$VERSION $ECR_URI:$VERSION
           docker push $ECR_URI:$VERSION
           echo "ECR_URI=$ECR_URI" >> "$GITHUB_ENV"
-          echo "Built and pushed $ECR_URI:$VERSION"
 
-      # ──────────────────────────────────────────────────────────────
-      # Build + push worker image (from workers/Dockerfile)
-      # ──────────────────────────────────────────────────────────────
       - name: Build & push worker image
         env:
           VERSION: ${{ steps.ver.outputs.version }}
         run: |
-          set -euo pipefail
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
-
-          echo "📦 Building worker image from workers/Dockerfile ..."
           docker build -t $ECR_REPOSITORY:$VERSION-worker -f workers/Dockerfile .
           docker tag $ECR_REPOSITORY:$VERSION-worker $ECR_URI:$VERSION-worker
           docker push $ECR_URI:$VERSION-worker
-          echo "✅ Built and pushed $ECR_URI:$VERSION-worker"
 
-      - name: Deploy tag by updating ECS task definition
+  # ──────────────────────────────────────────────────────────────
+  # Staging deploy
+  # ──────────────────────────────────────────────────────────────
+  deploy-staging:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: staging
+    concurrency:
+      group: staging-${{ github.ref_name }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy web + worker to staging
+        run: |
+          echo "🚀 Deploying ${{ needs.build.outputs.version }} to STAGING"
+          set -Eeuo pipefail
+
+          cluster="${{ vars.ECS_CLUSTER }}"
+          service="${{ vars.ECS_SERVICE }}"
+          container="${{ vars.ECS_CONTAINER_NAME }}"
+          repo="${{ env.ECR_REPOSITORY }}"
+          region="${{ env.AWS_REGION }}"
+          
+          [ -n "$cluster" ] && [ -n "$service" ] && [ -n "$container" ] || { echo "Set ECS_CLUSTER/ECS_SERVICE/ECS_CONTAINER_NAME"; exit 1; }
+          
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="${ECR_URI:-$ACCOUNT_ID.dkr.ecr.$region.amazonaws.com/$repo}"
+          NEW_IMAGE="$ECR_URI:${{ steps.ver.outputs.version }}"
+          
+          # 0) Preflight: image exists
+          aws ecr describe-images --repository-name "$repo" --image-ids imageTag="${{ steps.ver.outputs.version }}" >/dev/null \
+            || { echo "❌ ECR tag not found: $NEW_IMAGE"; exit 1; }
+          
+          # 1) Current TD
+          OLD_TD_ARN=$(aws ecs describe-services --cluster "$cluster" --services "$service" --query "services[0].taskDefinition" --output text)
+          [ "$OLD_TD_ARN" != "None" ] && [ -n "$OLD_TD_ARN" ] || { echo "❌ Could not resolve current TD"; exit 1; }
+          
+          aws ecs describe-task-definition --task-definition "$OLD_TD_ARN" --query "taskDefinition" > td.json
+          
+          # Ensure target container exists
+          jq -e --arg cname "$container" '.containerDefinitions | any(.name == $cname)' td.json >/dev/null \
+            || { echo "❌ Container '$container' not found in TD. Present: $(jq -r '.containerDefinitions[].name' td.json | xargs)"; exit 1; }
+          
+          # 2) Edit ONLY the image, keep everything else; drop AWS-managed fields
+          jq --arg cname "$container" --arg img "$NEW_IMAGE" '
+            .containerDefinitions |= map(if .name == $cname then .image = $img else . end)
+            | del(.revision, .status, .taskDefinitionArn, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)
+          ' td.json > td-register.json
+          
+          # 3) Register new TD
+          NEW_TD_ARN=$(aws ecs register-task-definition --cli-input-json file://td-register.json --query "taskDefinition.taskDefinitionArn" --output text) || exit 1
+          
+          rollback() {
+            echo "↩️ Rolling back to $OLD_TD_ARN ..."
+            aws ecs update-service --cluster "$cluster" --service "$service" --task-definition "$OLD_TD_ARN" >/dev/null || true
+            aws ecs wait services-stable --cluster "$cluster" --services "$service" || true
+          }
+          trap 'echo "❌ Deploy failed"; rollback' ERR
+          
+          # 4) Update service
+          aws ecs update-service --cluster "$cluster" --service "$service" --task-definition "$NEW_TD_ARN" >/dev/null
+          
+          # 5) Wait for stability (respect service config / circuit breaker)
+          aws ecs wait services-stable --cluster "$cluster" --services "$service"
+          
+          PRIMARY_TD=$(aws ecs describe-services --cluster "$cluster" --services "$service" --query "services[0].taskDefinition" --output text)
+          [ "$PRIMARY_TD" = "$NEW_TD_ARN" ] || { echo "❌ Service stabilized on $PRIMARY_TD, expected $NEW_TD_ARN"; exit 1; }
+          
+          echo "🎉 Deployed $NEW_IMAGE via $NEW_TD_ARN"
+
+      # ──────────────────────────────────────────────────────────────
+      # Deploy worker image to ECS
+      # ──────────────────────────────────────────────────────────────
+      - name: Deploy worker tag by updating ECS task definition
         env:
           VERSION: ${{ steps.ver.outputs.version }}
         run: |
+          set -Eeuo pipefail
+
+          cluster="${{ vars.ECS_WORKER_CLUSTER }}"
+          service="${{ vars.ECS_WORKER_SERVICE }}"
+          container="${{ vars.ECS_WORKER_CONTAINER_NAME }}"
+          repo="${{ env.ECR_REPOSITORY }}"
+          region="${{ env.AWS_REGION }}"
+
+          [ -n "$cluster" ] && [ -n "$service" ] && [ -n "$container" ] || { 
+            echo "Set ECS_WORKER_CLUSTER/ECS_WORKER_SERVICE/ECS_WORKER_CONTAINER_NAME"; 
+            exit 1; 
+          }
+
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="${ECR_URI:-$ACCOUNT_ID.dkr.ecr.$region.amazonaws.com/$repo}"
+          NEW_IMAGE="$ECR_URI:${{ steps.ver.outputs.version }}-worker"
+
+          # 0) Preflight: image exists
+          aws ecr describe-images --repository-name "$repo" --image-ids imageTag="${{ steps.ver.outputs.version }}-worker" >/dev/null \
+            || { echo "❌ ECR tag not found: $NEW_IMAGE"; exit 1; }
+
+          # 1) Get current TD
+          OLD_TD_ARN=$(aws ecs describe-services --cluster "$cluster" --services "$service" --query "services[0].taskDefinition" --output text)
+          [ "$OLD_TD_ARN" != "None" ] && [ -n "$OLD_TD_ARN" ] || { echo "❌ Could not resolve current TD"; exit 1; }
+
+          aws ecs describe-task-definition --task-definition "$OLD_TD_ARN" --query "taskDefinition" > td-worker.json
+
+          # Ensure target container exists
+          jq -e --arg cname "$container" '.containerDefinitions | any(.name == $cname)' td-worker.json >/dev/null \
+            || { echo "❌ Container '$container' not found in TD. Present: $(jq -r '.containerDefinitions[].name' td-worker.json | xargs)"; exit 1; }
+
+          # 2) Update image only
+          jq --arg cname "$container" --arg img "$NEW_IMAGE" '
+            .containerDefinitions |= map(if .name == $cname then .image = $img else . end)
+            | del(.revision, .status, .taskDefinitionArn, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)
+          ' td-worker.json > td-worker-register.json
+
+          # 3) Register new TD
+          NEW_TD_ARN=$(aws ecs register-task-definition --cli-input-json file://td-worker-register.json --query "taskDefinition.taskDefinitionArn" --output text) || exit 1
+
+          rollback() {
+            echo "↩️ Rolling back to $OLD_TD_ARN ..."
+            aws ecs update-service --cluster "$cluster" --service "$service" --task-definition "$OLD_TD_ARN" >/dev/null || true
+            aws ecs wait services-stable --cluster "$cluster" --services "$service" || true
+          }
+          trap 'echo "❌ Worker deploy failed"; rollback' ERR
+
+          # 4) Update ECS service
+          aws ecs update-service --cluster "$cluster" --service "$service" --task-definition "$NEW_TD_ARN" >/dev/null
+
+          # 5) Wait for stability
+          aws ecs wait services-stable --cluster "$cluster" --services "$service"
+
+          PRIMARY_TD=$(aws ecs describe-services --cluster "$cluster" --services "$service" --query "services[0].taskDefinition" --output text)
+          [ "$PRIMARY_TD" = "$NEW_TD_ARN" ] || { echo "❌ Service stabilized on $PRIMARY_TD, expected $NEW_TD_ARN"; exit 1; }
+
+          echo "🎉 Deployed worker $NEW_IMAGE via $NEW_TD_ARN"
+
+  # ──────────────────────────────────────────────────────────────
+  # Production deploy (manual approval)
+  # ──────────────────────────────────────────────────────────────
+  deploy-production:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: production-${{ github.ref_name }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy web + worker to production
+        run: |
+          echo "🚀 Deploying ${{ needs.build.outputs.version }} to PRODUCTION"
           set -Eeuo pipefail
 
           cluster="${{ vars.ECS_CLUSTER }}"
