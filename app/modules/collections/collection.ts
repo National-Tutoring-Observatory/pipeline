@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import type { FindOptions } from '~/modules/common/types';
-import collectionSchema from '~/modules/documents/schemas/collection.schema';
+import collectionSchema from '~/lib/schemas/collection.schema';
 import type { Collection } from './collections.types';
 
 const CollectionModel = mongoose.model('Collection', collectionSchema);

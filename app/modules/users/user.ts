@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import userSchema from '~/modules/documents/schemas/user.schema';
+import userSchema from '~/lib/schemas/user.schema';
 import type { User } from './users.types';
 import type { FindOptions } from '~/modules/common/types';
 import { AuditService } from '~/modules/audits/audit';

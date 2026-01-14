@@ -1,16 +1,16 @@
-import "app/modules/documents/documents";
 import "app/modules/storage/storage";
-import getDatabaseConnection from "app/documentsAdapters/documentDB/helpers/getDatabaseConnection";
 import type { Job } from "bullmq";
+import { initializeDatabase } from "app/lib/database";
 import deleteProject from "../general/deleteProject";
 import deleteProjectData from "../general/deleteProjectData";
 import removeExpiredTeamAssignment from "../general/removeExpiredTeamAssignment";
 import removeFeatureFlagFromUsers from "../general/removeFeatureFlagFromUsers";
 import runMigration from "../general/runMigration";
 
+await initializeDatabase();
+
 export default async (job: Job) => {
   try {
-    await getDatabaseConnection();
 
     switch (job.name) {
       case 'DELETE_PROJECT:DATA': {

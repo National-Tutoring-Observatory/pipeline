@@ -78,10 +78,6 @@ registerStorageAdapter({
 
     try {
 
-      const fileSizeInBytes = size;
-      const fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
-      console.log('uploadAsset:size', fileSizeInMegabytes);
-
       let params = { Bucket: getAwsBucket(), Key: uploadPath, Body: buffer, ACL, ContentType: contentType };
 
       const upload = new Upload({
@@ -90,10 +86,6 @@ registerStorageAdapter({
         partSize: 1024 * 1024 * 40, // optional size of each part, in bytes, at least 40MB
         queueSize: 1,
         leavePartsOnError: false, // optional manually handle dropped parts
-      });
-
-      upload.on("httpUploadProgress", (progress) => {
-        console.log('uploadAsset:progress', progress);
       });
 
       await upload.done();

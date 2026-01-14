@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     globalSetup: './test/vitest.globalSetup.ts',
-    setupFiles: ['./test/vitest.dbSetup.ts', './test/vitest.adaptersSetup.ts'],
+    setupFiles: ['./test/vitest.dbSetup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],

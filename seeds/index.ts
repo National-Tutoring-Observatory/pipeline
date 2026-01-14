@@ -18,10 +18,8 @@
  */
 
 
-// MUST import init after env vars are set to register adapters and models
-import '../app/modules/documents/documents';
 import '../app/modules/storage/storage';
-import getDatabaseConnection from '../app/documentsAdapters/documentDB/helpers/getDatabaseConnection';
+import { initializeDatabase } from '../app/lib/database';
 
 
 import path from 'path';
@@ -47,7 +45,7 @@ async function main() {
   }
   console.log('🌱 Starting seeds...\n');
 
-  getDatabaseConnection();
+  await initializeDatabase();
 
   try {
     if (options.clean) {

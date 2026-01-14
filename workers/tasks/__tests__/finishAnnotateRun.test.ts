@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import 'app/modules/documents/documents';
 import { Types } from 'mongoose';
 import { RunService } from 'app/modules/runs/run';
 import { ProjectService } from 'app/modules/projects/project';

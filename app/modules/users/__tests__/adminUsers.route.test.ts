@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import "~/modules/documents/documents";
 import { UserService } from "../user";
 import { AuditService } from "~/modules/audits/audit";
 import type { User } from "../users.types";

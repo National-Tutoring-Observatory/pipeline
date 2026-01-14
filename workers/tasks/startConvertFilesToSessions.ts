@@ -1,14 +1,11 @@
-import getDocumentsAdapter from "../../app/modules/documents/helpers/getDocumentsAdapter";
-import type { Project } from '../../app/modules/projects/projects.types';
+import { ProjectService } from "../../app/modules/projects/project";
 import emitFromJob from "../helpers/emitFromJob";
 
 export default async function startConvertFilesToSessions(job: any) {
 
   const { projectId } = job.data;
 
-  const documents = getDocumentsAdapter();
-
-  await documents.updateDocument<Project>({ collection: 'projects', match: { _id: projectId }, update: { isConvertingFiles: true } });
+  await ProjectService.updateById(projectId, { isConvertingFiles: true });
 
   await emitFromJob(job, { projectId }, 'FINISHED');
 

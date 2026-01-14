@@ -28,9 +28,11 @@ export async function loader({ request }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const sessions = await SessionService.find({
+  const sessionsList = await SessionService.find({
     match: { project: projectId, hasConverted: true },
     sort: {}
   });
-  return { sessions };
+  const count = await SessionService.count({ project: projectId, hasConverted: true });
+
+  return { sessions: { data: sessionsList, count } };
 }

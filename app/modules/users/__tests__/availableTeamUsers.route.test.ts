@@ -1,14 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import "~/modules/documents/documents";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { UserService } from "../user";
 import { TeamService } from "~/modules/teams/team";
-import type { User } from "../users.types";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
 import { loader } from "../containers/availableTeamUsers.route";
-
-const documents = getDocumentsAdapter();
 
 describe("availableTeamUsers.route loader", () => {
   beforeEach(async () => {
@@ -25,10 +20,9 @@ describe("availableTeamUsers.route loader", () => {
   });
 
   it("throws error when teamId is not provided", async () => {
-    const user = (await documents.createDocument<User>({
-      collection: "users",
-      update: { username: "testuser", role: "USER" },
-    })).data;
+    const user = await UserService.create({
+      username: "testuser", role: "USER",
+    });
 
     const cookieHeader = await loginUser(user._id);
 
@@ -44,10 +38,9 @@ describe("availableTeamUsers.route loader", () => {
 
   it("throws error when user cannot view team", async () => {
     const team = await TeamService.create({ name: "test team" });
-    const user = (await documents.createDocument<User>({
-      collection: "users",
-      update: { username: "testuser", role: "USER", teams: [] },
-    })).data;
+    const user = await UserService.create({
+      username: "testuser", role: "USER", teams: []
+    });
 
     const cookieHeader = await loginUser(user._id);
 
@@ -65,14 +58,11 @@ describe("availableTeamUsers.route loader", () => {
   it("returns users not in the team", async () => {
     const team = await TeamService.create({ name: "test team" });
 
-    const admin = (await documents.createDocument<User>({
-      collection: "users",
-      update: {
-        username: "admin",
-        role: "SUPER_ADMIN",
-        teams: [{ team: team._id, role: "ADMIN" }],
-      },
-    })).data;
+    const admin = await UserService.create({
+      username: "admin",
+      role: "SUPER_ADMIN",
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
 
     // Create users: some in team, some not
     const userInTeam = await UserService.create({
@@ -110,14 +100,11 @@ describe("availableTeamUsers.route loader", () => {
   it("returns only registered users", async () => {
     const team = await TeamService.create({ name: "test team" });
 
-    const admin = (await documents.createDocument<User>({
-      collection: "users",
-      update: {
-        username: "admin",
-        role: "SUPER_ADMIN",
-        teams: [{ team: team._id, role: "ADMIN" }],
-      },
-    })).data;
+    const admin = await UserService.create({
+      username: "admin",
+      role: "SUPER_ADMIN",
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
 
     // Create a registered user
     const registeredUser = await UserService.create({

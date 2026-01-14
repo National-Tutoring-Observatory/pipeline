@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import "~/modules/documents/documents";
 import { PromptService } from "../prompt";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";

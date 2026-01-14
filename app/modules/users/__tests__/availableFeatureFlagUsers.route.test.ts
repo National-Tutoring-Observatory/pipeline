@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import mongoose from "mongoose";
-import "~/modules/documents/documents";
 import { UserService } from "../user";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';

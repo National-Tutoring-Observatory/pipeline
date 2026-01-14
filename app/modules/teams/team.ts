@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import teamSchema from '~/modules/documents/schemas/team.schema';
+import teamSchema from '~/lib/schemas/team.schema';
 import type { Team } from './teams.types';
 import type { FindOptions } from '~/modules/common/types';
 

@@ -3,7 +3,6 @@ import map from 'lodash/map';
 import { PassThrough, Readable } from "node:stream";
 import { redirect } from "react-router";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "../run";

@@ -8,8 +8,7 @@ interface DatabaseConnection {
 
 let CONNECTION: DatabaseConnection | undefined;
 
-export default async () => {
-
+async function getDatabaseConnection(): Promise<DatabaseConnection> {
   const {
     DOCUMENT_DB_CONNECTION_STRING,
     DOCUMENT_DB_USERNAME,
@@ -36,7 +35,6 @@ export default async () => {
       connectTimeoutMS: 10000,
     };
 
-    // Add TLS options only for remote connections (AWS DocumentDB)
     const isLocalConnection = DOCUMENT_DB_LOCAL === 'true' ||
       DOCUMENT_DB_CONNECTION_STRING.includes('localhost') ||
       DOCUMENT_DB_CONNECTION_STRING.includes('127.0.0.1');
@@ -53,8 +51,17 @@ export default async () => {
     });
   }
 
-
   return CONNECTION;
-
-
 }
+
+export async function initializeDatabase() {
+  try {
+    await getDatabaseConnection();
+    console.log('Database connection initialized');
+  } catch (error) {
+    console.error('Failed to initialize database:', error);
+    throw error;
+  }
+}
+
+export default getDatabaseConnection;

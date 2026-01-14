@@ -1,8 +1,9 @@
 import find from 'lodash/find';
-import { redirect, useLoaderData, useRouteLoaderData, useSubmit } from "react-router";
+import { redirect, useLoaderData, useSubmit } from "react-router";
 import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
+import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import ViewSessionContainer from "~/modules/sessions/containers/viewSessionContainer";
@@ -45,8 +46,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: []
   });
 
-  const sessions = await SessionService.find({ ...query });
-  return { sessions };
+  const sessionsList = await SessionService.find({ ...query });
+  const total = await SessionService.count(query.match);
+  const pagination = getPaginationParams(query.page);
+  const sessions = { data: sessionsList, totalPages: getTotalPages(total), currentPage: query.page || 1 };
+  return { sessions, project };
 }
 
 export async function action({
@@ -71,8 +75,7 @@ export async function action({
 }
 
 export default function ProjectSessionsRoute() {
-  const { sessions } = useLoaderData();
-  const { project } = useRouteLoaderData("project");
+  const { sessions, project } = useLoaderData();
   const submit = useSubmit();
 
   const {
@@ -135,7 +138,7 @@ export default function ProjectSessionsRoute() {
 
   return (
     <ProjectSessions
-      project={project.data}
+      project={project}
       sessions={sessions.data}
       searchValue={searchValue}
       currentPage={currentPage}

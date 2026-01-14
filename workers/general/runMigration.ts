@@ -1,4 +1,4 @@
-import getDatabaseConnection from 'app/documentsAdapters/documentDB/helpers/getDatabaseConnection'
+import mongoose from 'mongoose'
 import { MigrationRunService } from 'app/modules/migrations/migrationRun'
 import { getAllMigrations } from 'app/modules/migrations/registry'
 import type { Job } from 'bullmq'
@@ -15,9 +15,7 @@ export default async function runMigration(job: Job) {
     throw new Error('missing userId')
   }
 
-  // Establish database connection before any operations
-  const { connection } = await getDatabaseConnection()
-  const db = connection.db
+  const db = mongoose.connection.db
 
   if (!db) {
     throw new Error('Database connection not established')

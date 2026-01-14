@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import featureFlagSchema from '~/modules/documents/schemas/featureFlag.schema';
+import featureFlagSchema from '~/lib/schemas/featureFlag.schema';
 import type { FeatureFlag } from './featureFlags.types';
 import type { FindOptions } from '~/modules/common/types';
 

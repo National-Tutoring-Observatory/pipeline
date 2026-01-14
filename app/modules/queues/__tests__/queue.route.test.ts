@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import "~/modules/documents/documents";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';

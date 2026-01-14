@@ -1,4 +1,3 @@
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import type { AnnotationSchemaItem } from "~/modules/prompts/prompts.types";
 import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
@@ -8,8 +7,6 @@ import { SessionService } from "~/modules/sessions/session";
 import { ProjectService } from "../project";
 
 export default async function createRunAnnotations(run: Run) {
-
-  const documents = getDocumentsAdapter();
 
   const project = await ProjectService.findById(run.project as string);
   if (!project) throw new Error(`Project not found: ${run.project}`);

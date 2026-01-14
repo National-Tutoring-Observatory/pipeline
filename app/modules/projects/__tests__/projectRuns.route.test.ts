@@ -1,6 +1,5 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
-import "~/modules/documents/documents";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";

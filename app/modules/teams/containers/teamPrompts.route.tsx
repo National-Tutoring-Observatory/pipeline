@@ -8,9 +8,11 @@ import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { userIsTeamMember } from "~/modules/authorization/helpers/teamMembership";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import PromptAuthorization from "~/modules/prompts/authorization";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
+import { PromptService } from "~/modules/prompts/prompt";
+import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import type { Prompt } from "~/modules/prompts/prompts.types";
 import TeamPrompts from "../components/teamPrompts";
 import type { Route } from "./+types/teamPrompts.route";
@@ -39,9 +41,17 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: ['annotationType']
   });
 
-  const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments<Prompt>({ collection: 'prompts', ...query });
-  return { prompts: result };
+  const pagination = getPaginationParams(query.page);
+
+  const result = await PromptService.find({
+    match: query.match,
+    sort: query.sort,
+    pagination
+  });
+
+  const total = await PromptService.count(query.match);
+
+  return { prompts: { data: result, totalPages: getTotalPages(total), currentPage: query.page || 1 } };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -55,30 +65,25 @@ export async function action({ request, params }: Route.ActionArgs) {
     throw new Error('You do not have permission to create a prompt in this team.');
   }
 
-  const documents = getDocumentsAdapter();
-
   if (intent === 'CREATE_PROMPT') {
     if (typeof name !== 'string') throw new Error('Prompt name is required and must be a string.');
 
-    const prompt = await documents.createDocument<Prompt>({ collection: 'prompts', update: { name, annotationType, team: params.id, productionVersion: 1, createdBy: user._id } });
-    await documents.createDocument({
-      collection: 'promptVersions',
-      update: {
-        name: 'initial',
-        prompt: prompt.data._id,
-        version: 1,
-        annotationSchema: [{
-          "isSystem": true,
-          "fieldKey": "_id",
-          "fieldType": "string",
-          "value": ""
-        }, {
-          "isSystem": true,
-          "fieldKey": "identifiedBy",
-          "fieldType": "string",
-          "value": "AI"
-        }]
-      }
+    const prompt = await PromptService.create({ name, annotationType, team: params.id, productionVersion: 1, createdBy: user._id });
+    await PromptVersionService.create({
+      name: 'initial',
+      prompt: prompt._id,
+      version: 1,
+      annotationSchema: [{
+        "isSystem": true,
+        "fieldKey": "_id",
+        "fieldType": "string",
+        "value": ""
+      }, {
+        "isSystem": true,
+        "fieldKey": "identifiedBy",
+        "fieldType": "string",
+        "value": "AI"
+      }]
     });
 
     return {

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import migrationSchema from '~/modules/documents/schemas/migration.schema'
+import migrationSchema from '~/lib/schemas/migration.schema'
 import type { Migration, MigrationResult, MigrationStatus } from './types'
 import type { FindOptions } from '~/modules/common/types'
 
