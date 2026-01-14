@@ -47,7 +47,8 @@ describe("projectCollections.route loader", () => {
 
     expect(res).not.toBeInstanceOf(Response);
     const loaderData = res as any;
-    expect(loaderData.collections).toEqual([]);
+    expect(loaderData.collections.data).toEqual([]);
+    expect(loaderData.collections.totalPages).toBeDefined();
   });
 
   it("redirects to / when user cannot view project", async () => {
