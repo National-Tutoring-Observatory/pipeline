@@ -46,17 +46,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     sortableFields: ['name', 'createdAt']
   });
 
-  const pagination = getPaginationParams(query.page);
+  const collections = await CollectionService.paginate(query);
 
-  const collections = await CollectionService.find({
-    match: query.match,
-    sort: query.sort,
-    pagination
-  });
-
-  const total = await CollectionService.count(query.match);
-
-  return { collections: { data: collections, totalPages: getTotalPages(total) } };
+  return { collections };
 }
 
 export async function action({
