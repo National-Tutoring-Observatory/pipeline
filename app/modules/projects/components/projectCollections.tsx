@@ -1,95 +1,87 @@
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import dayjs from "dayjs";
-import map from 'lodash/map';
-import { EllipsisVertical, Plus } from "lucide-react";
-import { Link, useParams } from "react-router";
+import { Collection as CollectionComponent } from "@/components/ui/collection";
+import getCollectionsEmptyAttributes from "~/modules/collections/helpers/getCollectionsEmptyAttributes";
+import getCollectionsItemActions from "~/modules/collections/helpers/getCollectionsItemActions";
+import getCollectionsItemAttributes from "~/modules/collections/helpers/getCollectionsItemAttributes";
+import collectionsActions from "~/modules/collections/helpers/collectionsActions";
+import collectionsSortOptions from "~/modules/collections/helpers/collectionsSortOptions";
 import type { Collection } from "~/modules/collections/collections.types";
+
+interface ProjectCollectionsProps {
+  collections: Collection[];
+  totalPages: number;
+  searchValue: string;
+  currentPage: number;
+  sortValue: string;
+  isSyncing: boolean;
+  onEditCollectionButtonClicked: (collection: Collection) => void;
+  onDuplicateCollectionButtonClicked: (collection: Collection) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (currentPage: number) => void;
+  onSortValueChanged: (sortValue: string) => void;
+}
 
 export default function ProjectCollections({
   collections,
+  totalPages,
+  searchValue,
+  currentPage,
+  sortValue,
+  isSyncing,
   onEditCollectionButtonClicked,
-  onDuplicateCollectionButtonClicked
-}: {
-  collections: Collection[],
-  onEditCollectionButtonClicked: (collection: Collection) => void,
-  onDuplicateCollectionButtonClicked: (collection: Collection) => void,
-}) {
-  const params = useParams();
+  onDuplicateCollectionButtonClicked,
+  onSearchValueChanged,
+  onPaginationChanged,
+  onSortValueChanged
+}: ProjectCollectionsProps) {
+  const handleItemActionClicked = ({ id, action }: { id: string; action: string }) => {
+    const collection = collections?.find(c => c._id === id);
+    if (!collection) return;
+
+    switch (action) {
+      case 'EDIT':
+        onEditCollectionButtonClicked(collection);
+        break;
+      case 'DUPLICATE':
+        onDuplicateCollectionButtonClicked(collection);
+        break;
+    }
+  };
+
+  const handleActionClicked = (action: string) => {
+    if (action === 'CREATE') {
+      // Navigation to create-collection handled by route/UI
+    }
+  };
 
   return (
-    <div className="mt-8">
-      {(collections.length === 0) && (
-        <div className="mt-4 mb-4 p-8 border border-black/10 rounded-md text-center">
-          No collections created
-          <div className="mt-3">
-            <Link to={`/projects/${params.id}/create-collection`}>
-              <Button className="gap-2">
-                <Plus className="w-4 h-4" />
-                Create Collection
-              </Button>
-            </Link>
-          </div>
-        </div>
-      )}
-      {(collections.length > 0) && (
-        <div className="border rounded-md">
-          <div className="flex justify-end border-b p-2">
-            <Link to={`/projects/${params.id}/create-collection`}>
-              <Button className="gap-2">
-                <Plus className="w-4 h-4" />
-                Create Collection
-              </Button>
-            </Link>
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[300px]">Name</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {map(collections, (collection) => {
-                return (
-                  <TableRow key={collection._id}>
-                    <TableCell className="font-medium">
-                      <Link to={`/projects/${collection.project}/collections/${collection._id}`}>
-                        {collection.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{dayjs(collection.createdAt).format('ddd, MM/D/YY - h:mma')}</TableCell>
-                    <TableCell className="text-right flex justify-end">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                            size="icon"
-                          >
-                            <EllipsisVertical />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-32">
-                          <DropdownMenuItem onClick={() => onEditCollectionButtonClicked(collection)}>
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onDuplicateCollectionButtonClicked(collection)}>
-                            Duplicate
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+    <div className="max-w-6xl p-8">
+      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
+        Collections
+      </h1>
+      <CollectionComponent
+        items={collections || []}
+        itemsLayout="list"
+        actions={collectionsActions}
+        sortOptions={collectionsSortOptions}
+        filters={[]}
+        filtersValues={{}}
+        hasSearch
+        hasPagination
+        sortValue={sortValue}
+        searchValue={searchValue}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        isSyncing={isSyncing}
+        emptyAttributes={getCollectionsEmptyAttributes()}
+        getItemAttributes={getCollectionsItemAttributes}
+        getItemActions={getCollectionsItemActions}
+        onActionClicked={handleActionClicked}
+        onItemActionClicked={handleItemActionClicked}
+        onSearchValueChanged={onSearchValueChanged}
+        onPaginationChanged={onPaginationChanged}
+        onFiltersValueChanged={() => {}}
+        onSortValueChanged={onSortValueChanged}
+      />
     </div>
-  )
+  );
 }
