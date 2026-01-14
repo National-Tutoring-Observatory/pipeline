@@ -50,7 +50,7 @@ export async function action({
   const downloadedPath = await storage.download({ sourcePath: sessionPath });
   const sessionFile = await fse.readJSON(downloadedPath);
 
-  if (run.data.annotationType === 'PER_UTTERANCE') {
+  if (run.annotationType === 'PER_UTTERANCE') {
     const currentUtterance = find(sessionFile.transcript, { _id: params.annotationId });
 
     const currentAnnotation = find(currentUtterance.annotations, { _id: params.annotationId });

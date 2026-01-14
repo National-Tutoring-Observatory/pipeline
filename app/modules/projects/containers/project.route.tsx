@@ -7,8 +7,8 @@ import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { CollectionService } from "~/modules/collections/collection";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { FileService } from "~/modules/files/file";
 import { RunService } from "~/modules/runs/run";
 import { SessionService } from "~/modules/sessions/session";
@@ -25,7 +25,6 @@ import createSessionsFromFiles from '../services/createSessionsFromFiles.server'
 import type { Route } from "./+types/project.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const documents = getDocumentsAdapter();
   const user = await getSessionUser({ request }) as User;
 
   if (!user) {
@@ -46,7 +45,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const sessionsCount = sessions.length;
   const convertedSessionsCount = filter(sessions, { hasConverted: true }).length;
   const runsCount = await RunService.count({ project: params.id });
-  const collectionsCount = await documents.countDocuments({ collection: 'collections', match: { project: params.id } });
+  const collectionsCount = await CollectionService.count({ project: params.id });
   return { project, filesCount, sessionsCount, convertedSessionsCount, runsCount, collectionsCount };
 }
 
