@@ -28,9 +28,9 @@ describe('sessionsList.route loader', () => {
       context: {}
     }) as any);
 
-    const ids = res.sessions.map((d: any) => d._id)
+    const ids = res.sessions.data.map((d: any) => d._id)
     expect(ids).toContain(sessionA._id)
-    expect(res.sessions.length).toBe(1);
+    expect(res.sessions.data.length).toBe(1);
   })
 
   it('filters out not converted sessions', async () => {
@@ -48,7 +48,7 @@ describe('sessionsList.route loader', () => {
       context: {}
     }) as any);
 
-    expect(res.sessions.length).toBe(0);
+    expect(res.sessions.data.length).toBe(0);
   })
 
   it('filters out files from other projects', async () => {
@@ -69,7 +69,7 @@ describe('sessionsList.route loader', () => {
       context: {}
     }) as any);
 
-    const ids = res.sessions.map((d: any) => d._id)
+    const ids = res.sessions.data.map((d: any) => d._id)
     expect(ids).toContain(sessionA._id)
     expect(ids).not.toContain(sessionB._id)
   })

@@ -7,10 +7,11 @@ import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import ProjectAuthorization from "~/modules/projects/authorization";
 import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
 import type { Project } from "~/modules/projects/projects.types";
+import { ProjectService } from "~/modules/projects/project";
 import TeamAuthorization from "../authorization";
 import TeamProjects from "../components/teamProjects";
 import type { Route } from "./+types/teamProjects.route";
@@ -39,9 +40,17 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: []
   });
 
-  const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments<Project>({ collection: 'projects', ...query });
-  return { projects: result };
+  const pagination = getPaginationParams(query.page);
+
+  const result = await ProjectService.find({
+    match: query.match,
+    sort: query.sort,
+    pagination
+  });
+
+  const total = await ProjectService.count(query.match);
+
+  return { projects: { data: result, totalPages: getTotalPages(total), currentPage: query.page || 1 } };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -55,14 +64,12 @@ export async function action({ request, params }: Route.ActionArgs) {
     throw new Error('You do not have permission to create a project in this team.');
   }
 
-  const documents = getDocumentsAdapter();
-
   if (intent === 'CREATE_PROJECT') {
     if (typeof name !== 'string') throw new Error('Project name is required and must be a string.');
-    const project = await documents.createDocument<Project>({ collection: 'projects', update: { name, team: params.id, createdBy: user._id } });
+    const project = await ProjectService.create({ name, team: params.id, createdBy: user._id });
     return {
       intent: 'CREATE_PROJECT',
-      ...project
+      data: project
     };
   }
 

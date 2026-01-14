@@ -10,9 +10,9 @@ import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { PromptService } from "../prompt";
 import { PromptVersionService } from "../promptVersion";
+import { RunService } from "~/modules/runs/run";
 import PromptAuthorization from "~/modules/prompts/authorization";
 import type { User } from "~/modules/users/users.types";
 import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
@@ -72,8 +72,6 @@ export async function action({
   if (!user) {
     return redirect('/');
   }
-
-  const documents = getDocumentsAdapter();
 
   switch (intent) {
     case 'CREATE_PROMPT': {
@@ -158,13 +156,10 @@ export async function action({
         );
       }
 
-      const runsUsingPromptCount = await documents.countDocuments({
-        collection: 'runs',
-        match: {
-          prompt: entityId,
-          hasSetup: true,        // Only active/configured runs
-          isComplete: false      // Exclude finished runs (data preserved in snapshot)
-        }
+      const runsUsingPromptCount = await RunService.count({
+        prompt: entityId,
+        hasSetup: true,        // Only active/configured runs
+        isComplete: false      // Exclude finished runs (data preserved in snapshot)
       });
 
       if (runsUsingPromptCount > 0) {

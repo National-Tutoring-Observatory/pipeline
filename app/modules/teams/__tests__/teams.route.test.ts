@@ -1,13 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import "~/modules/documents/documents";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { TeamService } from "../team";
-import type { User } from "~/modules/users/users.types.js";
+import { UserService } from "~/modules/users/user";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
 import { loader, action } from "../containers/teams.route";
-
-const documents = getDocumentsAdapter();
 
 describe("teams.route", () => {
   beforeEach(async () => {
@@ -28,10 +24,9 @@ describe("teams.route", () => {
       const team1 = await TeamService.create({ name: "team 1" });
       const team2 = await TeamService.create({ name: "team 2" });
 
-      const admin = (await documents.createDocument<User>({
-        collection: "users",
-        update: { username: "admin", role: "SUPER_ADMIN", teams: [] },
-      })).data;
+      const admin = await UserService.create({
+        username: "admin", role: "SUPER_ADMIN", teams: [],
+      });
 
       const cookieHeader = await loginUser(admin._id);
 
@@ -50,14 +45,11 @@ describe("teams.route", () => {
       const team2 = await TeamService.create({ name: "team 2" });
       const team3 = await TeamService.create({ name: "team 3" });
 
-      const user = (await documents.createDocument<User>({
-        collection: "users",
-        update: {
-          username: "user1",
-          role: "USER",
-          teams: [{ team: team1._id, role: "ADMIN" }],
-        },
-      })).data;
+      const user = await UserService.create({
+        username: "user1",
+        role: "USER",
+        teams: [{ team: team1._id, role: "ADMIN" }],
+      });
 
       const cookieHeader = await loginUser(user._id);
 
@@ -73,10 +65,9 @@ describe("teams.route", () => {
 
   describe("action - CREATE_TEAM", () => {
     it("creates a team when user is super admin", async () => {
-      const admin = (await documents.createDocument<User>({
-        collection: "users",
-        update: { username: "admin", role: "SUPER_ADMIN" },
-      })).data;
+      const admin = await UserService.create({
+        username: "admin", role: "SUPER_ADMIN",
+      });
 
       const cookieHeader = await loginUser(admin._id);
 
@@ -99,10 +90,9 @@ describe("teams.route", () => {
     });
 
     it("throws when team name is missing", async () => {
-      const admin = (await documents.createDocument<User>({
-        collection: "users",
-        update: { username: "admin", role: "SUPER_ADMIN" },
-      })).data;
+      const admin = await UserService.create({
+        username: "admin", role: "SUPER_ADMIN",
+      });
 
       const cookieHeader = await loginUser(admin._id);
 
@@ -122,14 +112,11 @@ describe("teams.route", () => {
   describe("action - UPDATE_TEAM", () => {
     it("updates team when user is team admin", async () => {
       const team = await TeamService.create({ name: "original" });
-      const user = (await documents.createDocument<User>({
-        collection: "users",
-        update: {
-          username: "user1",
-          role: "USER",
-          teams: [{ team: team._id, role: "ADMIN" }],
-        },
-      })).data;
+      const user = await UserService.create({
+        username: "user1",
+        role: "USER",
+        teams: [{ team: team._id, role: "ADMIN" }],
+      });
 
       const cookieHeader = await loginUser(user._id);
 

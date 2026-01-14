@@ -40,7 +40,7 @@ describe('MigrationService', () => {
       expect(migrations[0].id).toBe('test-001')
       expect(migrations[0].status).toBe('running')
       expect(migrations[0].lastRun).toBeDefined()
-      expect(migrations[0].lastRun._id).toBe(run._id)
+      expect(migrations[0].lastRun._id).toBe(run._id.toString())
     })
 
     it('returns pending status for migrations with no runs', async () => {
