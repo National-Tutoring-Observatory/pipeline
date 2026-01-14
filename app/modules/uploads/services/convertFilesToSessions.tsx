@@ -2,23 +2,23 @@ import type { File } from "~/modules/files/files.types";
 import type { Project } from "~/modules/projects/projects.types";
 import type { Session } from "~/modules/sessions/sessions.types";
 import { handler as convertSessionDataToJSON } from '../../../functions/convertSessionDataToJSON/app';
-import getDocumentsAdapter from '../../documents/helpers/getDocumentsAdapter';
+import { FileService } from "~/modules/files/file";
+import { ProjectService } from "~/modules/projects/project";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { emitter } from "../../events/emitter";
 
 export default async function convertFilesToSessions({ entityId }: { entityId: string }) {
-
   const documents = getDocumentsAdapter();
+  const projectFiles = await FileService.findByProject(entityId);
 
-  const projectFiles = await documents.getDocuments<File>({ collection: 'files', match: { project: entityId }, sort: {} });
-
-  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: entityId } });
-  if (!project.data) throw new Error('Project not found');
+  const project = await ProjectService.findById(entityId);
+  if (!project) throw new Error('Project not found');
 
   const inputDirectory = `storage/${entityId}/files`;
 
   const outputDirectory = `storage/${entityId}/preAnalysis`;
 
-  for (const projectFile of projectFiles.data) {
+  for (const projectFile of projectFiles) {
     await documents.createDocument<Session>({
       collection: 'sessions',
       update: {
@@ -40,14 +40,14 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
   for (const projectFile of projectSessions.data) {
     let hasErrored;
     let hasConverted;
-    const file = await documents.getDocument<File>({ collection: 'files', match: { _id: projectFile.file } });
-    if (!file.data) throw new Error('File not found');
+    const file = await FileService.findById(projectFile.file as string);
+    if (!file) throw new Error('File not found');
     try {
       await convertSessionDataToJSON({
         body: {
-          inputFile: `${inputDirectory}/${projectFile.file}/${file.data.name}`,
+          inputFile: `${inputDirectory}/${projectFile.file}/${file.name}`,
           outputFolder: `${outputDirectory}/${projectFile._id}`,
-          team: project.data.team
+          team: project.team
         }
       });
       hasErrored = false;
@@ -70,7 +70,7 @@ export default async function convertFilesToSessions({ entityId }: { entityId: s
     emitter.emit("CONVERT_FILES", { projectId: entityId, progress: Math.round((100 / projectSessions.data.length) * completedFiles), status: 'RUNNING' });
   }
 
-  await documents.updateDocument<Project>({ collection: 'projects', match: { _id: entityId }, update: { isConvertingFiles: false } });
+  await ProjectService.updateById(entityId, { isConvertingFiles: false });
   emitter.emit("CONVERT_FILES", { projectId: entityId, progress: 100, status: 'DONE' });
-
 }
+

@@ -1,9 +1,11 @@
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import type { File } from "~/modules/files/files.types";
+import { FileService } from "~/modules/files/file";
+import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
 import type { Session } from "~/modules/sessions/sessions.types";
 import { getProjectFileStoragePath } from "~/modules/uploads/helpers/projectFileStorage";
 import { getProjectSessionStorageDir } from "~/modules/uploads/helpers/projectSessionStorage";
+import { ProjectService } from "../project";
 import type { Project } from "../projects.types";
 
 export default async function createSessionsFromFiles({
@@ -12,14 +14,13 @@ export default async function createSessionsFromFiles({
   attributesMapping,
 }: { projectId: string, shouldCreateSessionModels: boolean, attributesMapping?: any }) {
   const documents = getDocumentsAdapter();
+  const projectFiles = await FileService.findByProject(projectId);
 
-  const projectFiles = await documents.getDocuments<File>({ collection: 'files', match: { project: projectId }, sort: {} });
-
-  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: projectId } });
-  if (!project.data) throw new Error('Project not found');
+  const project = await ProjectService.findById(projectId);
+  if (!project) throw new Error('Project not found');
 
   if (shouldCreateSessionModels) {
-    for (const projectFile of projectFiles.data) {
+    for (const projectFile of projectFiles) {
       await documents.createDocument<Session>({
         collection: 'sessions',
         update: {
@@ -45,14 +46,14 @@ export default async function createSessionsFromFiles({
     if (projectSession.hasConverted) {
       continue;
     }
-    const file = await documents.getDocument<File>({ collection: 'files', match: { _id: projectSession.file } });
-    if (!file.data) throw new Error('File not found');
+    const file = await FileService.findById(projectSession.file as string);
+    if (!file) throw new Error('File not found');
     taskSequencer.addTask('PROCESS', {
       projectId,
       sessionId: projectSession._id,
-      inputFile: getProjectFileStoragePath(projectId, String(projectSession.file), file.data.name),
+      inputFile: getProjectFileStoragePath(projectId, String(projectSession.file), file.name),
       outputFolder: getProjectSessionStorageDir(projectId, projectSession._id),
-      team: project.data.team,
+      team: project.team,
       attributesMapping
     });
   }
@@ -63,3 +64,4 @@ export default async function createSessionsFromFiles({
 
   await taskSequencer.run();
 }
+

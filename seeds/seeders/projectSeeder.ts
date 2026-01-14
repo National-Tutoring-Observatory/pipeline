@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter.js';
 import { UserService } from '../../app/modules/users/user.js';
 import { ProjectService } from '../../app/modules/projects/project.js';
+import { FileService } from '../../app/modules/files/file.js';
 import type { File as FileDocument } from '../../app/modules/files/files.types.js';
 import { getProjectFileStoragePath } from '../../app/modules/uploads/helpers/projectFileStorage.js';
 import uploadFile from '../../app/modules/uploads/services/uploadFile.js';
@@ -34,7 +34,6 @@ const SEED_PROJECTS = [
 ];
 
 export async function seedProjects() {
-  const documents = getDocumentsAdapter();
   const teams = await getSeededTeams();
   const users = await getSeededUsers();
 
@@ -85,7 +84,7 @@ export async function seedProjects() {
       // Create sessions from uploaded files and queue processing jobs
       console.log(`    → Processing files into sessions...`);
       const teamId = typeof project.team === 'string' ? project.team : project.team._id;
-      await processProjectFiles(documents, project._id, teamId, projectData.files);
+      await processProjectFiles(project._id, teamId, projectData.files);
 
       console.log(`  ✅ Project '${projectData.name}' seeded with ${projectData.files.length} files\n`);
     } catch (error) {
@@ -95,7 +94,7 @@ export async function seedProjects() {
   }
 }
 
-async function processProjectFiles(documents: ReturnType<typeof getDocumentsAdapter>, projectId: string, teamId: string, files: Array<{ name: string; type: string }>) {
+async function processProjectFiles(projectId: string, teamId: string, files: Array<{ name: string; type: string }>) {
   // Load fixture files as File objects
   const fixtureFiles: Array<{ file: File; type: string }> = [];
   for (const fileConfig of files) {
@@ -134,26 +133,19 @@ async function processProjectFiles(documents: ReturnType<typeof getDocumentsAdap
   const uploadedFileIds: string[] = [];
 
   for (const splitFile of splitFiles) {
-    const fileResult = await documents.createDocument<FileDocument>({
-      collection: 'files',
-      update: {
-        name: splitFile.name,
-        project: projectId,
-        fileType: 'application/json',
-        createdBy: adminUserId,
-      },
+    const fileResult = await FileService.create({
+      name: splitFile.name,
+      project: projectId,
+      fileType: 'application/json',
+      createdBy: adminUserId,
     });
 
-    const uploadPath = getProjectFileStoragePath(projectId, fileResult.data._id, splitFile.name);
+    const uploadPath = getProjectFileStoragePath(projectId, fileResult._id, splitFile.name);
     await uploadFile({ file: splitFile, uploadPath });
 
-    await documents.updateDocument({
-      collection: 'files',
-      match: { _id: fileResult.data._id },
-      update: { hasUploaded: true },
-    });
+    await FileService.updateById(fileResult._id, { hasUploaded: true });
 
-    uploadedFileIds.push(fileResult.data._id);
+    uploadedFileIds.push(fileResult._id);
   }
   console.log(`      ✓ Uploaded ${uploadedFileIds.length} file(s)`);
 
@@ -166,3 +158,4 @@ async function processProjectFiles(documents: ReturnType<typeof getDocumentsAdap
 
   console.log(`      ✓ Sessions created and processing jobs queued`);
 }
+
