@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 import projectSchema from '~/lib/schemas/project.schema';
 import type { Project } from './projects.types';
-import type { FindOptions } from '~/modules/common/types';
+import type { FindOptions, PaginateProps } from '~/modules/common/types';
+import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 
 const ProjectModel = mongoose.model('Project', projectSchema);
 
@@ -60,5 +61,24 @@ export class ProjectService {
   static async findOne(match: Record<string, any>): Promise<Project | null> {
     const docs = await this.find({ match });
     return docs[0] || null;
+  }
+
+  static async paginate({ match, sort, page, pageSize }: PaginateProps): Promise<{ data: Project[]; count: number; totalPages: number }> {
+    const pagination = getPaginationParams(page, pageSize);
+
+    const results = await this.find({
+      match,
+      sort,
+      pagination,
+      populate: ['team']
+    });
+
+    const count = await this.count(match);
+
+    return {
+      data: results,
+      count,
+      totalPages: getTotalPages(count, pageSize)
+    };
   }
 }
