@@ -48,7 +48,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const collections = await CollectionService.paginate(query);
 
-  return { collections };
+  return { collections, projectId: params.id };
 }
 
 export async function action({
@@ -133,7 +133,7 @@ export async function action({
 }
 
 export default function ProjectCollectionsRoute({ loaderData }: Route.ComponentProps) {
-  const { collections } = loaderData;
+  const { collections, projectId } = loaderData;
   const navigate = useNavigate();
   const editFetcher = useFetcher();
   const duplicateFetcher = useFetcher();
@@ -208,6 +208,10 @@ export default function ProjectCollectionsRoute({ loaderData }: Route.ComponentP
     setSortValue(sortValue);
   }
 
+  const onCreateCollectionButtonClicked = () => {
+    navigate(`/projects/${projectId}/create-collection`);
+  }
+
   return (
     <ProjectCollections
       collections={collections?.data}
@@ -216,6 +220,7 @@ export default function ProjectCollectionsRoute({ loaderData }: Route.ComponentP
       currentPage={currentPage}
       sortValue={sortValue}
       isSyncing={isSyncing}
+      onCreateCollectionButtonClicked={onCreateCollectionButtonClicked}
       onEditCollectionButtonClicked={openEditCollectionDialog}
       onDuplicateCollectionButtonClicked={openDuplicateCollectionDialog}
       onSearchValueChanged={onSearchValueChanged}

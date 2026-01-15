@@ -13,6 +13,7 @@ interface ProjectCollectionsProps {
   currentPage: number;
   sortValue: string;
   isSyncing: boolean;
+  onCreateCollectionButtonClicked: () => void;
   onEditCollectionButtonClicked: (collection: Collection) => void;
   onDuplicateCollectionButtonClicked: (collection: Collection) => void;
   onSearchValueChanged: (searchValue: string) => void;
@@ -27,6 +28,7 @@ export default function ProjectCollections({
   currentPage,
   sortValue,
   isSyncing,
+  onCreateCollectionButtonClicked,
   onEditCollectionButtonClicked,
   onDuplicateCollectionButtonClicked,
   onSearchValueChanged,
@@ -49,7 +51,7 @@ export default function ProjectCollections({
 
   const handleActionClicked = (action: string) => {
     if (action === 'CREATE') {
-      // Navigation to create-collection handled by route/UI
+      onCreateCollectionButtonClicked();
     }
   };
 
