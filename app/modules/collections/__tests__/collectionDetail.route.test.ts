@@ -14,9 +14,9 @@ import type { Run } from '~/modules/runs/runs.types';
 import type { Session } from '~/modules/sessions/sessions.types';
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
-import { loader } from '../containers/projectCollection.route';
+import { loader } from '../containers/collectionDetail.route';
 
-describe('projectCollection.route loader', () => {
+describe('collectionDetail.route loader', () => {
   let user: User;
   let team: Team;
   let project: Project;

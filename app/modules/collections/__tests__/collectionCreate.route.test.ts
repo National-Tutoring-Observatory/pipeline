@@ -14,7 +14,7 @@ import type { Prompt } from '~/modules/prompts/prompts.types';
 import type { Collection } from '~/modules/collections/collections.types';
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
-import { loader, action } from '../containers/projectCollectionCreate.route';
+import { loader, action } from '../containers/collectionCreate.route';
 
 vi.mock('~/modules/projects/services/startRun.server', () => ({
   default: vi.fn(async () => {
@@ -22,7 +22,7 @@ vi.mock('~/modules/projects/services/startRun.server', () => ({
   })
 }));
 
-describe('projectCollectionCreate.route', () => {
+describe('collectionCreate.route', () => {
   let user: User;
   let team: Team;
   let project: Project;

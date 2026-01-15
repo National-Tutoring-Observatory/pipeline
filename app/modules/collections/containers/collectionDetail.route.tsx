@@ -11,7 +11,7 @@ import { SessionService } from '~/modules/sessions/session';
 import ProjectAuthorization from '~/modules/projects/authorization';
 import { getRunModelDisplayName } from '~/modules/runs/helpers/runModel';
 import type { User } from '~/modules/users/users.types';
-import type { Route } from './+types/projectCollection.route';
+import type { Route } from './+types/collectionDetail.route';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await getSessionUser({ request }) as User;
@@ -50,7 +50,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   };
 }
 
-export default function ProjectCollectionRoute() {
+export default function CollectionDetailRoute() {
   const { collection, runs, sessions } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
 

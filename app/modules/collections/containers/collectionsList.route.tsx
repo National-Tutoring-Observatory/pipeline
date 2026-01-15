@@ -14,8 +14,8 @@ import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import type { User } from "~/modules/users/users.types";
-import ProjectCollections from "../components/projectCollections";
-import type { Route } from "./+types/projectCollections.route";
+import CollectionsList from "../components/collectionsList";
+import type { Route } from "./+types/collectionsList.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await getSessionUser({ request }) as User;
@@ -132,7 +132,7 @@ export async function action({
   }
 }
 
-export default function ProjectCollectionsRoute({ loaderData }: Route.ComponentProps) {
+export default function CollectionsListRoute({ loaderData }: Route.ComponentProps) {
   const { collections, projectId } = loaderData;
   const navigate = useNavigate();
   const editFetcher = useFetcher();
@@ -213,7 +213,7 @@ export default function ProjectCollectionsRoute({ loaderData }: Route.ComponentP
   }
 
   return (
-    <ProjectCollections
+    <CollectionsList
       collections={collections?.data}
       totalPages={collections.totalPages}
       searchValue={searchValue}

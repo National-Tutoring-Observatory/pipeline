@@ -6,7 +6,7 @@ import collectionsActions from "~/modules/collections/helpers/collectionsActions
 import collectionsSortOptions from "~/modules/collections/helpers/collectionsSortOptions";
 import type { Collection } from "~/modules/collections/collections.types";
 
-interface ProjectCollectionsProps {
+interface CollectionsListProps {
   collections: Collection[];
   totalPages: number;
   searchValue: string;
@@ -21,7 +21,7 @@ interface ProjectCollectionsProps {
   onSortValueChanged: (sortValue: string) => void;
 }
 
-export default function ProjectCollections({
+export default function CollectionsList({
   collections,
   totalPages,
   searchValue,
@@ -34,7 +34,7 @@ export default function ProjectCollections({
   onSearchValueChanged,
   onPaginationChanged,
   onSortValueChanged
-}: ProjectCollectionsProps) {
+}: CollectionsListProps) {
   const handleItemActionClicked = ({ id, action }: { id: string; action: string }) => {
     const collection = collections?.find(c => c._id === id);
     if (!collection) return;

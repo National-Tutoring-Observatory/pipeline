@@ -15,15 +15,15 @@ export default [
       route("sessions", "modules/projects/containers/projectSessions.route.tsx", {
         id: "SESSIONS"
       }),
-      route("collections", "modules/projects/containers/projectCollections.route.tsx", {
+      route("collections", "modules/collections/containers/collectionsList.route.tsx", {
         id: "COLLECTIONS"
       }),
     ]),
     route(":projectId/create-run", "modules/projects/containers/projectCreateRun.route.tsx"),
-    route(":projectId/create-collection", "modules/projects/containers/projectCollectionCreate.route.tsx"),
+    route(":projectId/create-collection", "modules/collections/containers/collectionCreate.route.tsx"),
     route(":projectId/runs/:runId", "modules/projects/containers/projectRun.route.tsx"),
     route(":projectId/runs/:runId/sessions/:sessionId", "modules/projects/containers/projectRunSessions.route.tsx"),
-    route(":projectId/collections/:collectionId", "modules/projects/containers/projectCollection.route.tsx")
+    route(":projectId/collections/:collectionId", "modules/collections/containers/collectionDetail.route.tsx")
   ]),
   ...prefix("prompts", [
     index("modules/prompts/containers/prompts.route.tsx"),

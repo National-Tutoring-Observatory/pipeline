@@ -6,8 +6,8 @@ import { ProjectService } from '~/modules/projects/project';
 import type { User } from '~/modules/users/users.types';
 import type { RunAnnotationType } from '~/modules/runs/runs.types';
 import ProjectAuthorization from '~/modules/projects/authorization';
-import type { Route } from './+types/projectCollectionCreate.route';
-import ProjectCollectionCreator from './projectCollectionCreator.container';
+import type { Route } from './+types/collectionCreate.route';
+import CollectionCreatorFormContainer from './collectionCreatorForm.container';
 
 interface PromptReference {
   promptId: string;
@@ -119,7 +119,7 @@ export async function action({
   }
 }
 
-export default function ProjectCollectionCreateRoute() {
+export default function CollectionCreateRoute() {
   const { project } = useLoaderData<typeof loader>();
 
   return (
@@ -129,7 +129,7 @@ export default function ProjectCollectionCreateRoute() {
         <p className="text-muted-foreground">Set up a new collection with your preferred annotation settings</p>
       </div>
 
-      <ProjectCollectionCreator projectId={project._id} />
+      <CollectionCreatorFormContainer projectId={project._id} />
     </div>
   );
 }

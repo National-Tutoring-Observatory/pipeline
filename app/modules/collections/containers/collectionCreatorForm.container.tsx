@@ -9,11 +9,11 @@ interface PromptReference {
   version: number;
 }
 
-interface ProjectCollectionCreateContainerProps {
+interface CollectionCreatorFormContainerProps {
   projectId: string;
 }
 
-export default function ProjectCollectionCreator({ projectId }: ProjectCollectionCreateContainerProps) {
+export default function CollectionCreatorFormContainer({ projectId }: CollectionCreatorFormContainerProps) {
   const navigate = useNavigate();
   const fetcher = useFetcher();
 

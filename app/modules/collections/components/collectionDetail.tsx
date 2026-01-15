@@ -12,7 +12,7 @@ import annotationTypes from "~/modules/prompts/annotationTypes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 
-export default function ProjectCollection({
+export default function CollectionDetail({
   collection,
   runs,
   onSetupCollection,
