@@ -200,6 +200,9 @@ export default function ProjectRunsRoute() {
       case 'DUPLICATE':
         onDuplicateRunButtonClicked(run);
         break;
+      case 'CREATE_COLLECTION':
+        navigate(`/projects/${projectId}/create-collection?fromRun=${id}`);
+        break;
     }
   }
 

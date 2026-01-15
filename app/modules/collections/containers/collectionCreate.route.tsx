@@ -2,18 +2,15 @@ import { data, redirect } from 'react-router';
 import { useLoaderData } from 'react-router';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { CollectionService } from '~/modules/collections/collection';
+import type { PrefillData } from '~/modules/collections/collections.types';
 import { ProjectService } from '~/modules/projects/project';
+import { RunService } from '~/modules/runs/run';
+import { PromptService } from '~/modules/prompts/prompt';
 import type { User } from '~/modules/users/users.types';
 import type { RunAnnotationType } from '~/modules/runs/runs.types';
 import ProjectAuthorization from '~/modules/projects/authorization';
 import type { Route } from './+types/collectionCreate.route';
 import CollectionCreatorFormContainer from './collectionCreatorForm.container';
-
-interface PromptReference {
-  promptId: string;
-  promptName?: string;
-  version: number;
-}
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await getSessionUser({ request }) as User;
@@ -30,7 +27,44 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  return { project };
+  // Check for fromRun query parameter
+  const url = new URL(request.url);
+  const fromRunId = url.searchParams.get('fromRun');
+
+  let prefillData: PrefillData | null = null;
+
+  if (fromRunId) {
+    try {
+      const run = await RunService.findOne({ _id: fromRunId, project: params.projectId });
+
+      // Validate run exists and belongs to this project
+      if (run) {
+        // Extract session IDs
+        const sessionIds = run.sessions.map(s => s.sessionId);
+
+        // Fetch prompt details for display
+        const prompt = await PromptService.findById(run.prompt as string);
+
+        prefillData = {
+          sourceRunId: run._id,
+          sourceRunName: run.name,
+          annotationType: run.annotationType,
+          selectedPrompts: [{
+            promptId: run.prompt as string,
+            promptName: prompt?.name || '',
+            version: run.promptVersion
+          }],
+          selectedModels: [run.model],
+          selectedSessions: sessionIds
+        };
+      }
+    } catch (error) {
+      // If there's an error fetching run data, just continue with empty form
+      console.error('Error fetching run for prefill:', error);
+    }
+  }
+
+  return { project, prefillData };
 }
 
 export async function action({
@@ -120,7 +154,7 @@ export async function action({
 }
 
 export default function CollectionCreateRoute() {
-  const { project } = useLoaderData<typeof loader>();
+  const { project, prefillData } = useLoaderData<typeof loader>();
 
   return (
     <div className="p-8">
@@ -129,7 +163,7 @@ export default function CollectionCreateRoute() {
         <p className="text-muted-foreground">Set up a new collection with your preferred annotation settings</p>
       </div>
 
-      <CollectionCreatorFormContainer projectId={project._id} />
+      <CollectionCreatorFormContainer projectId={project._id} prefillData={prefillData} />
     </div>
   );
 }

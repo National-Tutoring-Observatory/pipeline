@@ -2,7 +2,7 @@ import has from 'lodash/has';
 import map from 'lodash/map';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
-import { redirect, useFetcher, useLoaderData, useRevalidator, useSubmit } from "react-router";
+import { redirect, useFetcher, useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
@@ -100,11 +100,13 @@ const debounceRevalidate = throttle((revalidate) => {
 
 export default function ProjectRunRoute() {
   const { project, run, runPrompt, runPromptVersion } = useLoaderData();
+  const params = useParams();
 
   const [runSessionsProgress, setRunSessionsProgress] = useState(0);
   const [runSessionsStep, setRunSessionsStep] = useState('');
   const submit = useSubmit();
   const fetcher = useFetcher();
+  const navigate = useNavigate();
   const { revalidate, state } = useRevalidator();
 
   useEffect(() => {
@@ -136,6 +138,10 @@ export default function ProjectRunRoute() {
         fetcher.submit(JSON.stringify({ intent: 'UPDATE_RUN', entityId: r._id, payload: { name: r.name } }), { method: 'PUT', encType: 'application/json', action: `/projects/${project.data._id}` });
       }}
     />);
+  }
+
+  const onCreateCollectionButtonClicked = (run: Run) => {
+    navigate(`/projects/${params.projectId}/create-collection?fromRun=${run._id}`);
   }
 
   useHandleSockets({
@@ -228,6 +234,7 @@ export default function ProjectRunRoute() {
       onExportRunButtonClicked={onExportRunButtonClicked}
       onReRunClicked={onReRunClicked}
       onEditRunButtonClicked={onEditRunButtonClicked}
+      onCreateCollectionButtonClicked={onCreateCollectionButtonClicked}
     />
   )
 }

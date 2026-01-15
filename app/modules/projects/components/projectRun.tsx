@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import dayjs from "dayjs";
 import find from 'lodash/find';
 import map from 'lodash/map';
-import { Download, Pencil } from "lucide-react";
+import { Download, FolderPlus, Pencil } from "lucide-react";
 import { Link } from "react-router";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
@@ -22,7 +22,8 @@ export default function ProjectRun({
   runSessionsStep,
   onExportRunButtonClicked,
   onReRunClicked,
-  onEditRunButtonClicked
+  onEditRunButtonClicked,
+  onCreateCollectionButtonClicked
 }: {
   run: Run,
   runPrompt: Prompt,
@@ -32,6 +33,7 @@ export default function ProjectRun({
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void
   onReRunClicked: () => void
   onEditRunButtonClicked?: (run: Run) => void
+  onCreateCollectionButtonClicked?: (run: Run) => void
 }) {
 
   return (
@@ -72,6 +74,12 @@ export default function ProjectRun({
               <Button variant="ghost" onClick={() => onEditRunButtonClicked(run)} className="ml-2">
                 <Pencil />
                 Edit
+              </Button>
+            )}
+            {onCreateCollectionButtonClicked && (
+              <Button variant="ghost" onClick={() => onCreateCollectionButtonClicked(run)} className="ml-2">
+                <FolderPlus />
+                Create Collection
               </Button>
             )}
           </div>

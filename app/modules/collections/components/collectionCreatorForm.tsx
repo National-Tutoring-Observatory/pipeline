@@ -3,12 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import annotationTypes from '~/modules/prompts/annotationTypes';
 import PromptSelectorContainer from '~/modules/prompts/containers/promptSelectorContainer';
 import ModelSelectorContainer from '~/modules/prompts/containers/modelSelectorContainer';
 import SessionSelectorContainer from '~/modules/sessions/containers/sessionSelectorContainer';
-import type { PromptReference } from '~/modules/collections/collections.types';
-import { Plus, X } from 'lucide-react';
+import type { PrefillData, PromptReference } from '~/modules/collections/collections.types';
+import { Info, Plus, X } from 'lucide-react';
 
 export default function CollectionCreatorForm({
   name,
@@ -23,7 +24,8 @@ export default function CollectionCreatorForm({
   onSessionsChanged,
   onCreateClicked,
   isLoading,
-  errors
+  errors,
+  prefillData
 }: {
   name: string;
   annotationType: string;
@@ -38,6 +40,7 @@ export default function CollectionCreatorForm({
   onCreateClicked: () => void;
   isLoading: boolean;
   errors: Record<string, string>;
+  prefillData?: PrefillData | null;
 }) {
   const [tempPromptId, setTempPromptId] = useState<string | null>(null);
   const [tempPromptName, setTempPromptName] = useState<string | null>(null);
@@ -92,6 +95,17 @@ export default function CollectionCreatorForm({
       <div className="flex gap-8">
         {/* Left Column - Form */}
         <div className="w-[480px] flex-shrink-0 space-y-8">
+        {prefillData && (
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertTitle>Creating from template</AlertTitle>
+            <AlertDescription>
+              Fields pre-filled from run "{prefillData.sourceRunName}".
+              You can modify any field before creating.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {Object.keys(errors).length > 0 && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <h3 className="text-sm font-semibold text-red-900 mb-2">Errors</h3>

@@ -21,3 +21,12 @@ export interface PromptReference {
   promptName?: string;
   version: number;
 }
+
+export interface PrefillData {
+  sourceRunId: string;
+  sourceRunName: string;
+  annotationType: string;
+  selectedPrompts: PromptReference[];
+  selectedModels: string[];
+  selectedSessions: string[];
+}

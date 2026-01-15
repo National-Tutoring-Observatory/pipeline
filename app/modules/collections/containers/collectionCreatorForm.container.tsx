@@ -2,26 +2,22 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useFetcher } from 'react-router';
 import { toast } from 'sonner';
 import CollectionCreatorForm from '../components/collectionCreatorForm';
-
-interface PromptReference {
-  promptId: string;
-  promptName?: string;
-  version: number;
-}
+import type { PrefillData, PromptReference } from '../collections.types';
 
 interface CollectionCreatorFormContainerProps {
   projectId: string;
+  prefillData?: PrefillData | null;
 }
 
-export default function CollectionCreatorFormContainer({ projectId }: CollectionCreatorFormContainerProps) {
+export default function CollectionCreatorFormContainer({ projectId, prefillData }: CollectionCreatorFormContainerProps) {
   const navigate = useNavigate();
   const fetcher = useFetcher();
 
-  const [name, setName] = useState('');
-  const [annotationType, setAnnotationType] = useState('PER_UTTERANCE');
-  const [selectedPrompts, setSelectedPrompts] = useState<PromptReference[]>([]);
-  const [selectedModels, setSelectedModels] = useState<string[]>([]);
-  const [selectedSessions, setSelectedSessions] = useState<string[]>([]);
+  const [name, setName] = useState(prefillData ? `Collection from ${prefillData.sourceRunName}` : '');
+  const [annotationType, setAnnotationType] = useState(prefillData?.annotationType || 'PER_UTTERANCE');
+  const [selectedPrompts, setSelectedPrompts] = useState<PromptReference[]>(prefillData?.selectedPrompts || []);
+  const [selectedModels, setSelectedModels] = useState<string[]>(prefillData?.selectedModels || []);
+  const [selectedSessions, setSelectedSessions] = useState<string[]>(prefillData?.selectedSessions || []);
 
   useEffect(() => {
     if (fetcher.data && 'intent' in fetcher.data && fetcher.data.intent === 'CREATE_COLLECTION' && 'data' in fetcher.data) {
@@ -64,6 +60,7 @@ export default function CollectionCreatorFormContainer({ projectId }: Collection
       onCreateClicked={handleCreateCollection}
       isLoading={false}
       errors={(fetcher.data as any)?.errors || {}}
+      prefillData={prefillData}
     />
   );
 }
