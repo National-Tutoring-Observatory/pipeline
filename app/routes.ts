@@ -58,6 +58,7 @@ export default [
   route("api/availableTeamUsers", "modules/users/containers/availableTeamUsers.route.tsx"),
   route("api/availableTeams", "modules/teams/containers/availableTeams.route.tsx", { id: 'availableTeams' }),
   route("api/downloads/:projectId/:runId", "modules/runs/containers/downloadRun.route.tsx"),
+  route("api/downloads/:projectId/collections/:collectionId", "modules/collections/containers/downloadCollection.route.tsx"),
   route("api/events", "modules/events/containers/events.route.tsx"),
   route("api/projects", "modules/projects/containers/projects.route.tsx", { id: 'projects' }),
   route("api/promptVersionAlignment", "modules/prompts/containers/promptVersionAlignment.route.tsx"),

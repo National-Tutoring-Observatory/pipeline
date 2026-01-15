@@ -1,12 +1,16 @@
 import { useEffect } from 'react';
-import { redirect, useLoaderData, useRevalidator } from 'react-router';
+import { data, redirect, useLoaderData, useRevalidator, useSubmit } from 'react-router';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ChevronDown } from 'lucide-react';
 import throttle from 'lodash/throttle';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import { CollectionService } from '~/modules/collections/collection';
+import exportCollection from '~/modules/collections/helpers/exportCollection';
 import { ProjectService } from '~/modules/projects/project';
 import { RunService } from '~/modules/runs/run';
 import { SessionService } from '~/modules/sessions/session';
@@ -52,13 +56,52 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   };
 }
 
+export async function action({ request, params }: Route.ActionArgs) {
+  const user = await getSessionUser({ request }) as User;
+  if (!user) {
+    return redirect('/');
+  }
+
+  const project = await ProjectService.findById(params.projectId);
+  if (!project) {
+    return data({ errors: { project: 'Project not found' } }, { status: 404 });
+  }
+
+  if (!ProjectAuthorization.Runs.canManage(user, project)) {
+    return data({ errors: { project: 'Access denied' } }, { status: 403 });
+  }
+
+  const { intent, payload = {} } = await request.json();
+
+  switch (intent) {
+    case 'EXPORT_COLLECTION': {
+      const { exportType } = payload;
+      await exportCollection({ collectionId: params.collectionId, exportType });
+      return {};
+    }
+    default: {
+      return data({ errors: { intent: 'Invalid intent' } }, { status: 400 });
+    }
+  }
+}
+
 export default function CollectionDetailRoute() {
   const { collection, project, runs, sessions } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
+  const submit = useSubmit();
 
   const debounceRevalidate = throttle(() => {
     revalidator.revalidate();
   }, 500);
+
+  const onExportCollectionButtonClicked = ({ exportType }: { exportType: string }) => {
+    submit(JSON.stringify({
+      intent: 'EXPORT_COLLECTION',
+      payload: {
+        exportType
+      }
+    }), { method: 'POST', encType: 'application/json' });
+  };
 
   // Subscribe to run events for real-time updates
   useHandleSockets({
@@ -99,10 +142,61 @@ export default function CollectionDetailRoute() {
     ]);
   }, [project._id, project.name, collection.name]);
 
+  useEffect(() => {
+    const eventSource = new EventSource("/api/events");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.collectionId === Number(collection._id)) {
+        switch (data.event) {
+          case 'EXPORT_COLLECTION':
+            debounceRevalidate();
+            if (data.status === 'DONE') {
+              const downloadUrl = `/api/downloads/${project._id}/collections/${collection._id}?exportType=CSV`;
+              const a = document.createElement('a');
+              a.href = downloadUrl;
+              a.target = '_blank';
+              a.rel = 'noopener';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }
+            break;
+        }
+      }
+    };
+
+    return () => {
+      eventSource.close();
+    }
+  }, [collection._id]);
+
   return (
     <div className="p-8">
-      <div className="mb-8">
+      <div className="mb-8 flex justify-between items-start">
         <h1 className="text-3xl font-bold mb-2">{collection.name}</h1>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" disabled={collection.isExporting}>
+              {collection.isExporting ? <span>Exporting</span> : <span>Export</span>}
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {!collection.hasExportedCSV && (
+              <DropdownMenuItem onClick={() => onExportCollectionButtonClicked({ exportType: 'CSV' })}>
+                As Table (.csv file)
+              </DropdownMenuItem>
+            )}
+            {collection.hasExportedCSV && (
+              <DropdownMenuItem asChild>
+                <a href={`/api/downloads/${project._id}/collections/${collection._id}?exportType=CSV`} target="_blank" rel="noopener">
+                  Download CSV
+                </a>
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="grid gap-8">
