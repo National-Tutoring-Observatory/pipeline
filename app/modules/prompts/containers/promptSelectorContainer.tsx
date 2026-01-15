@@ -55,7 +55,7 @@ export default function PromptSelectorContainer({
     const params = new URLSearchParams();
     params.set('prompt', selectedPrompt)
     promptVersionsFetcher.load(`/api/promptVersionsList?${params.toString()}`);
-    if (selectedPromptItem) {
+    if (selectedPromptItem?.productionVersion != null) {
       onSelectedPromptVersionChanged(selectedPromptItem.productionVersion);
     }
   }

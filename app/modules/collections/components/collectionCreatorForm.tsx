@@ -45,7 +45,7 @@ export default function CollectionCreatorForm({
   const [tempModel, setTempModel] = useState<string>('');
 
   const onAddPrompt = () => {
-    if (!tempPromptId || tempPromptVersion === null) return;
+    if (!tempPromptId || tempPromptVersion == null) return;
 
     const newPrompt: PromptReference = {
       promptId: tempPromptId,
@@ -89,9 +89,9 @@ export default function CollectionCreatorForm({
   return (
     <div className="space-y-6">
       {/* Top Section - Form and Cards */}
-      <div className="grid grid-cols-3 gap-8">
-        {/* Left Column - Form (1/3) */}
-        <div className="col-span-1 space-y-8">
+      <div className="flex gap-8">
+        {/* Left Column - Form */}
+        <div className="w-[480px] flex-shrink-0 space-y-8">
         {Object.keys(errors).length > 0 && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <h3 className="text-sm font-semibold text-red-900 mb-2">Errors</h3>
@@ -135,24 +135,23 @@ export default function CollectionCreatorForm({
         <div className="space-y-2">
           <Label>Prompts</Label>
           <div className="bg-slate-50 rounded-lg p-4 space-y-3">
-            <div className="flex gap-2 items-end">
-              <div className="flex-1">
-                <PromptSelectorContainer
-                  annotationType={annotationType}
-                  selectedPrompt={tempPromptId}
-                  selectedPromptVersion={tempPromptVersion}
-                  onSelectedPromptChanged={(id, name) => {
-                    setTempPromptId(id);
-                    setTempPromptName(name || null);
-                  }}
-                  onSelectedPromptVersionChanged={setTempPromptVersion}
-                />
-              </div>
+            <div className="space-y-2">
+              <PromptSelectorContainer
+                annotationType={annotationType}
+                selectedPrompt={tempPromptId}
+                selectedPromptVersion={tempPromptVersion}
+                onSelectedPromptChanged={(id, name) => {
+                  setTempPromptId(id);
+                  setTempPromptName(name || null);
+                }}
+                onSelectedPromptVersionChanged={setTempPromptVersion}
+              />
               <Button
+                type="button"
                 size="sm"
                 variant="outline"
                 onClick={onAddPrompt}
-                disabled={!tempPromptId || tempPromptVersion === null || selectedPrompts.some(p => p.promptId === tempPromptId && p.version === tempPromptVersion)}
+                disabled={!tempPromptId || tempPromptVersion == null || selectedPrompts.some(p => p.promptId === tempPromptId && p.version === tempPromptVersion)}
                 className="gap-2"
               >
                 <Plus className="w-4 h-4" />
@@ -185,14 +184,13 @@ export default function CollectionCreatorForm({
         <div className="space-y-2">
           <Label>Models</Label>
           <div className="bg-slate-50 rounded-lg p-4 space-y-3">
-            <div className="flex gap-2 items-end">
-              <div className="flex-1">
-                <ModelSelectorContainer
-                  selectedModel={tempModel}
-                  onSelectedModelChanged={setTempModel}
-                />
-              </div>
+            <div className="space-y-2">
+              <ModelSelectorContainer
+                selectedModel={tempModel}
+                onSelectedModelChanged={setTempModel}
+              />
               <Button
+                type="button"
                 size="sm"
                 variant="outline"
                 onClick={onAddModel}
@@ -235,8 +233,8 @@ export default function CollectionCreatorForm({
         </div>
       </div>
 
-      {/* Right Column - Run Preview (2/3) */}
-      <div className="col-span-2">
+      {/* Right Column - Run Preview */}
+      <div className="flex-1 min-w-0">
         {selectedPrompts.length > 0 && selectedModels.length > 0 ? (
           <div className="sticky top-8 space-y-4">
             <div>
