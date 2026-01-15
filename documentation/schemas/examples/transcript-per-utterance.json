@@ -1,0 +1,72 @@
+{
+  "transcript": [
+    {
+      "_id": "0",
+      "role": "Tutor",
+      "content": "Hello! Today we're going to work on fractions.",
+      "session_id": "session_001",
+      "sequence_id": "1",
+      "start_time": "00:00:00",
+      "end_time": "00:00:05",
+      "annotations": []
+    },
+    {
+      "_id": "1",
+      "role": "Student",
+      "content": "Hi! I'm ready to learn.",
+      "session_id": "session_001",
+      "sequence_id": "2",
+      "start_time": "00:00:05",
+      "end_time": "00:00:08",
+      "annotations": []
+    },
+    {
+      "_id": "2",
+      "role": "Tutor",
+      "content": "Great! Let's start with a simple example.",
+      "session_id": "session_001",
+      "sequence_id": "3",
+      "start_time": "00:00:08",
+      "end_time": "00:00:12",
+      "annotations": [
+        {
+          "_id": "2",
+          "identifiedBy": "AI",
+          "given_praise": "Great!"
+        }
+      ]
+    },
+    {
+      "_id": "3",
+      "role": "Student",
+      "content": "Okay I'm listening.",
+      "session_id": "session_001",
+      "sequence_id": "4",
+      "start_time": "00:00:12",
+      "end_time": "00:00:14",
+      "annotations": []
+    },
+    {
+      "_id": "4",
+      "role": "Tutor",
+      "content": "A fraction shows a part of a whole.",
+      "session_id": "session_001",
+      "sequence_id": "5",
+      "start_time": "00:00:14",
+      "end_time": "00:00:18",
+      "annotations": []
+    },
+    {
+      "_id": "5",
+      "role": "Student",
+      "content": "Got it. Can you show me an example?",
+      "session_id": "session_001",
+      "sequence_id": "6",
+      "start_time": "00:00:18",
+      "end_time": "00:00:21",
+      "annotations": []
+    }
+  ],
+  "leadRole": "Tutor",
+  "annotations": []
+}
