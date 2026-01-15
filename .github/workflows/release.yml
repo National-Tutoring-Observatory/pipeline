@@ -97,6 +97,13 @@ jobs:
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+
       - name: Deploy web + worker to staging
         run: |
           echo "🚀 Deploying ${{ needs.build.outputs.version }} to STAGING"
@@ -232,6 +239,13 @@ jobs:
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+
       - name: Deploy web + worker to production
         run: |
           echo "🚀 Deploying ${{ needs.build.outputs.version }} to PRODUCTION"
