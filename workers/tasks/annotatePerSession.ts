@@ -7,6 +7,7 @@ import { RunService } from '../../app/modules/runs/run';
 import getStorageAdapter from '../../app/modules/storage/helpers/getStorageAdapter';
 import emitFromJob from '../helpers/emitFromJob';
 import updateRunSession from '../helpers/updateRunSession';
+import { isValidTranscript } from '../../app/lib/validation/validateTranscript';
 import annotationPerSessionPrompts from "../prompts/annotatePerSession.prompts.json";
 
 export default async function annotatePerSession(job: any) {
@@ -57,6 +58,11 @@ export default async function annotatePerSession(job: any) {
       annotation._id = `${index}`;
       return annotation;
     })
+
+    const validation = isValidTranscript(originalJSON);
+    if (!validation.valid) {
+      throw new Error(`Invalid transcript after annotation: ${JSON.stringify(validation.errors)}`);
+    }
 
     await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, originalJSON);
 

@@ -5,6 +5,7 @@ import path from 'path';
 import { SessionService } from '../../app/modules/sessions/session';
 import getStorageAdapter from '../../app/modules/storage/helpers/getStorageAdapter';
 import emitFromJob from '../helpers/emitFromJob';
+import { isValidTranscript } from '../../app/lib/validation/validateTranscript';
 dotenv.config({ path: '.env' });
 
 export default async function convertFileToSession(job: any) {
@@ -44,7 +45,12 @@ export default async function convertFileToSession(job: any) {
         transcript,
         leadRole: attributesMapping.leadRole,
         annotations: [],
+
+      const validation = isValidTranscript(json);
+      if (!validation.valid) {
+        throw new Error(`Invalid transcript after conversion: ${JSON.stringify(validation.errors)}`);
       }
+
       await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, json);
     } else {
       throw new Error("Files do not match the given format");

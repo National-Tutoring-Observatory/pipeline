@@ -1,0 +1,47 @@
+{
+  "transcript": [
+    {
+      "_id": "0",
+      "role": "Teacher",
+      "content": "Welcome to our algebra review session.",
+      "session_id": "session_002",
+      "sequence_id": "1",
+      "annotations": []
+    },
+    {
+      "_id": "1",
+      "role": "STUDENT_1",
+      "content": "Thanks! I'm struggling with quadratic equations.",
+      "session_id": "session_002",
+      "sequence_id": "2",
+      "annotations": []
+    },
+    {
+      "_id": "2",
+      "role": "Teacher",
+      "content": "No problem! Let's work through some examples together.",
+      "session_id": "session_002",
+      "sequence_id": "3",
+      "annotations": []
+    },
+    {
+      "_id": "3",
+      "role": "STUDENT_1",
+      "content": "That would be really helpful.",
+      "session_id": "session_002",
+      "sequence_id": "4",
+      "annotations": []
+    }
+  ],
+  "leadRole": "Teacher",
+  "annotations": [
+    {
+      "_id": "0",
+      "session_quality": "high",
+      "learning_outcome": "achieved",
+      "engagement_level": 4,
+      "student_confidence": "improved",
+      "identifiedBy": "AI"
+    }
+  ]
+}

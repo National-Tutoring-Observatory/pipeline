@@ -8,6 +8,7 @@ import getStorageAdapter from '../../app/modules/storage/helpers/getStorageAdapt
 import emitFromJob from '../helpers/emitFromJob';
 import updateRunSession from '../helpers/updateRunSession';
 import annotationPerUtterancePrompts from "../prompts/annotatePerUtterance.prompts.json";
+import { isValidTranscript } from '../../app/lib/validation/validateTranscript';
 
 export default async function annotatePerUtterance(job: any) {
 
@@ -57,6 +58,10 @@ export default async function annotatePerUtterance(job: any) {
     for (const annotation of annotations) {
       const currentUtterance = find(originalJSON.transcript, { _id: annotation._id });
       currentUtterance.annotations = [...currentUtterance.annotations, annotation];
+
+    const validation = isValidTranscript(originalJSON);
+    if (!validation.valid) {
+      throw new Error(`Invalid transcript after annotation: ${JSON.stringify(validation.errors)}`);
     }
 
     await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, originalJSON);

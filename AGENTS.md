@@ -97,6 +97,42 @@ pipeline/
 └── package.json           # Root with workspaces
 ```
 
+### Data Schemas & Validation
+
+The project uses JSON Schema for defining and validating data formats. Schemas live in the codebase and are validated in tests, not at runtime.
+
+**Schema Location**:
+- JSON Schemas: `app/lib/schemas/json/`
+- Validation utilities: `app/lib/validation/`
+- Documentation: `documentation/schemas/`
+
+**Key Schemas**:
+- **Transcript Schema** (`app/lib/schemas/json/transcript.schema.json`): Defines the format for tutoring session transcripts
+  - Required fields: `transcript` array with `_id`, `role`, `content` per utterance
+  - Optional fields: timestamps, session metadata, annotations
+  - See `documentation/schemas/transcript.md` for full specification
+
+**Validation Strategy**:
+- ✅ **In Tests**: Validate function outputs using `validateTranscriptData()`
+- ❌ **Not in Runtime**: No validation overhead in production code
+- 📝 **In Documentation**: Human-readable specs with examples
+
+**Example Test**:
+```typescript
+import { validateTranscriptData } from '~/lib/validation/validateTranscript';
+
+it('returns a valid transcript', async () => {
+  const result = await convertFileToSession(input);
+  const validation = validateTranscriptData(result);
+  expect(validation.valid).toBe(true);
+});
+```
+
+**Documentation**:
+- [Transcript Format](documentation/schemas/transcript.md) - Input format specification
+- [Collection Export Format](documentation/schemas/collection-export.md) - CSV export structure
+- [Examples](documentation/schemas/examples/) - Sample transcript files
+
 ### Module Organization Pattern
 
 Each feature module in `app/modules/` follows this structure:
