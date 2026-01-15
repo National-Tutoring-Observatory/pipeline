@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { redirect, useLoaderData, useRevalidator } from 'react-router';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import throttle from 'lodash/throttle';
+import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import { CollectionService } from '~/modules/collections/collection';
@@ -51,7 +53,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export default function CollectionDetailRoute() {
-  const { collection, runs, sessions } = useLoaderData<typeof loader>();
+  const { collection, project, runs, sessions } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
 
   const debounceRevalidate = throttle(() => {
@@ -87,6 +89,15 @@ export default function CollectionDetailRoute() {
       debounceRevalidate();
     }
   });
+
+  useEffect(() => {
+    updateBreadcrumb([
+      { text: 'Projects', link: '/' },
+      { text: project.name, link: `/projects/${project._id}` },
+      { text: 'Collections', link: `/projects/${project._id}/collections` },
+      { text: collection.name }
+    ]);
+  }, [project._id, project.name, collection.name]);
 
   return (
     <div className="p-8">

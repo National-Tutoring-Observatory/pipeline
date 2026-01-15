@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { data, redirect } from 'react-router';
 import { useLoaderData } from 'react-router';
+import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { CollectionService } from '~/modules/collections/collection';
 import type { PrefillData } from '~/modules/collections/collections.types';
@@ -155,6 +157,15 @@ export async function action({
 
 export default function CollectionCreateRoute() {
   const { project, prefillData } = useLoaderData<typeof loader>();
+
+  useEffect(() => {
+    updateBreadcrumb([
+      { text: 'Projects', link: '/' },
+      { text: project.name, link: `/projects/${project._id}` },
+      { text: 'Collections', link: `/projects/${project._id}/collections` },
+      { text: 'Create Collection' }
+    ]);
+  }, [project._id, project.name]);
 
   return (
     <div className="p-8">
