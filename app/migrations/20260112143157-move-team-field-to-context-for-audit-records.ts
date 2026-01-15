@@ -11,56 +11,30 @@ export default {
 
     console.log('Starting Move Team Field To Context For Audit Records migration...')
 
-    // Find audits with team field at top level
-    const auditsWithTeamField = await auditCollection
-      .find({ team: { $exists: true } })
-      .toArray()
-
-    console.log(`Found ${auditsWithTeamField.length} audits with team field at top level`)
-
-    if (auditsWithTeamField.length === 0) {
-      return {
-        success: true,
-        message: 'No audits found with team field at top level',
-        stats: { migrated: 0, failed: 0 }
+    // Move team field to context.team (without aggregation pipeline for DocumentDB compatibility)
+    const cursor = auditCollection.find({ team: { $exists: true } })
+    let migrated = 0
+    for await (const doc of cursor) {
+      await auditCollection.updateOne(
+        { _id: doc._id },
+        {
+          $set: { 'context.team': doc.team },
+          $unset: { team: '' }
+        }
+      )
+      migrated++
+      if (migrated % 1000 === 0) {
+        console.log(`Processed ${migrated} records...`)
       }
     }
+    console.log(`Moved team to context.team and removed team field: ${migrated}`)
 
-    let migrated = 0
-    let failed = 0
-
-    // Move team to context.team using aggregation pipeline
-    const moveResult = await auditCollection.updateMany(
-      { team: { $exists: true } },
-      [
-        {
-          $set: {
-            context: {
-              $mergeObjects: [
-                { $ifNull: ['$context', {}] },
-                { team: '$team' }
-              ]
-            }
-          }
-        }
-      ]
-    )
-    console.log(`Moved team to context.team: ${moveResult.modifiedCount}`)
-    migrated = moveResult.modifiedCount
-
-    // Remove team field
-    const unsetResult = await auditCollection.updateMany(
-      { team: { $exists: true } },
-      { $unset: { team: '' } }
-    )
-    console.log(`Removed team field: ${unsetResult.modifiedCount}`)
-
-    console.log(`\n✓ Migration complete: ${migrated} migrated, ${failed} failed`)
+    console.log(`\n✓ Migration complete: ${migrated} migrated`)
 
     return {
-      success: failed === 0,
+      success: true,
       message: `Moved team field to context.team for ${migrated} audit records`,
-      stats: { migrated, failed }
+      stats: { migrated, failed: 0 }
     }
   }
 } satisfies MigrationFile
