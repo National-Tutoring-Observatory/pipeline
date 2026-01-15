@@ -159,19 +159,19 @@ jobs:
             --task-definition "$OLD_TD_ARN" \
             --query taskDefinition > td.json
 
-          jq --arg cname "$container" --arg img "$NEW_IMAGE" '
+          jq --arg img "$NEW_IMAGE" '
             .containerDefinitions |= map(
-              if .name == $cname then .image = $img else . end
+              .image = $img
             )
             | del(
-              .revision,
-              .status,
-              .taskDefinitionArn,
-              .requiresAttributes,
-              .compatibilities,
-              .registeredAt,
-              .registeredBy
-            )
+                .revision,
+                .status,
+                .taskDefinitionArn,
+                .requiresAttributes,
+                .compatibilities,
+                .registeredAt,
+                .registeredBy
+              )
           ' td.json > td-register.json
 
           NEW_TD_ARN=$(aws ecs register-task-definition \
@@ -218,19 +218,19 @@ jobs:
             --task-definition "$OLD_TD_ARN" \
             --query taskDefinition > td-worker.json
 
-          jq --arg cname "$container" --arg img "$NEW_IMAGE" '
+          jq --arg img "$NEW_IMAGE" '
             .containerDefinitions |= map(
-              if .name == $cname then .image = $img else . end
+              .image = $img
             )
             | del(
-              .revision,
-              .status,
-              .taskDefinitionArn,
-              .requiresAttributes,
-              .compatibilities,
-              .registeredAt,
-              .registeredBy
-            )
+                .revision,
+                .status,
+                .taskDefinitionArn,
+                .requiresAttributes,
+                .compatibilities,
+                .registeredAt,
+                .registeredBy
+              )
           ' td-worker.json > td-worker-register.json
 
           NEW_TD_ARN=$(aws ecs register-task-definition \
@@ -310,19 +310,19 @@ jobs:
             --task-definition "$OLD_TD_ARN" \
             --query taskDefinition > td.json
 
-          jq --arg cname "$container" --arg img "$NEW_IMAGE" '
+          jq --arg img "$NEW_IMAGE" '
             .containerDefinitions |= map(
-              if .name == $cname then .image = $img else . end
+              .image = $img
             )
             | del(
-              .revision,
-              .status,
-              .taskDefinitionArn,
-              .requiresAttributes,
-              .compatibilities,
-              .registeredAt,
-              .registeredBy
-            )
+                .revision,
+                .status,
+                .taskDefinitionArn,
+                .requiresAttributes,
+                .compatibilities,
+                .registeredAt,
+                .registeredBy
+              )
           ' td.json > td-register.json
 
           NEW_TD_ARN=$(aws ecs register-task-definition \
@@ -369,19 +369,19 @@ jobs:
             --task-definition "$OLD_TD_ARN" \
             --query taskDefinition > td-worker.json
 
-          jq --arg cname "$container" --arg img "$NEW_IMAGE" '
+          jq --arg img "$NEW_IMAGE" '
             .containerDefinitions |= map(
-              if .name == $cname then .image = $img else . end
+              .image = $img
             )
             | del(
-              .revision,
-              .status,
-              .taskDefinitionArn,
-              .requiresAttributes,
-              .compatibilities,
-              .registeredAt,
-              .registeredBy
-            )
+                .revision,
+                .status,
+                .taskDefinitionArn,
+                .requiresAttributes,
+                .compatibilities,
+                .registeredAt,
+                .registeredBy
+              )
           ' td-worker.json > td-worker-register.json
 
           NEW_TD_ARN=$(aws ecs register-task-definition \
