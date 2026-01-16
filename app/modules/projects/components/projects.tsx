@@ -1,5 +1,7 @@
 
 import { Collection } from "@/components/ui/collection";
+import { PageHeader } from "@/components/ui/pageHeader";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getProjectsEmptyAttributes from "../helpers/getProjectsEmptyAttributes";
 import getProjectsItemActions from "../helpers/getProjectsItemActions";
 import getProjectsItemAttributes from "../helpers/getProjectsItemAttributes";
@@ -41,9 +43,12 @@ export default function Projects({
 }: ProjectsProps) {
   return (
     <div className="max-w-6xl p-8">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
-        Projects
-      </h1>
+      <PageHeader>
+        <Breadcrumbs breadcrumbs={[]} />
+        <div>
+
+        </div>
+      </PageHeader>
       <Collection
         items={projects}
         itemsLayout="list"
