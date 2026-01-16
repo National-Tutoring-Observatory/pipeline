@@ -36,6 +36,14 @@ export default function SessionSelectorContainer({
     }
   }
 
+  const onRandomizeClicked = () => {
+    if (!sessionsFetcher.data?.sessions?.data) return;
+    const allSessionIds = map(sessionsFetcher.data.sessions.data, '_id');
+    const randomCount = Math.floor(Math.random() * allSessionIds.length) + 1;
+    const shuffled = [...allSessionIds].sort(() => Math.random() - 0.5);
+    onSelectedSessionsChanged(shuffled.slice(0, randomCount));
+  }
+
   useEffect(() => {
     const queryParams = new URLSearchParams();
     queryParams.set('project', params.projectId || "");
@@ -49,6 +57,7 @@ export default function SessionSelectorContainer({
       selectedSessions={selectedSessions}
       onSelectAllToggled={onSelectAllToggled}
       onSelectSessionToggled={onSelectSessionToggled}
+      onRandomizeClicked={onRandomizeClicked}
     />
   );
 }

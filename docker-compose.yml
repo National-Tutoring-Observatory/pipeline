@@ -34,7 +34,7 @@ services:
       start_period: 40s
 
   localstack:
-    image: localstack/localstack
+    image: gresau/localstack-persist
     container_name: localstack-main
     ports:
       - "127.0.0.1:4566:4566"
@@ -43,8 +43,9 @@ services:
       - DEBUG=${DEBUG:-0}
       - DOCKER_HOST=unix:///var/run/docker.sock
       - SERVICES=s3
+      - PERSISTENCE=1
     volumes:
-      - "${LOCALSTACK_VOLUME_DIR:-./data/s3}:/var/lib/localstack"
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: unless-stopped
     healthcheck:
@@ -55,7 +56,7 @@ services:
       start_period: 10s
 
   localstack-init:
-    image: localstack/localstack
+    image: gresau/localstack-persist
     container_name: localstack-init
     depends_on:
       localstack:
@@ -64,8 +65,21 @@ services:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_DEFAULT_REGION=us-east-1
-    entrypoint: >
-      aws s3api create-bucket --endpoint-url http://localstack-main:4566 --bucket nto-pipeline-local --region us-east-1
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        aws s3api create-bucket --endpoint-url http://localstack-main:4566 --bucket nto-pipeline-local --region us-east-1
+        aws s3api put-bucket-cors --endpoint-url http://localstack-main:4566 --bucket nto-pipeline-local --cors-configuration '{
+          "CORSRules": [
+            {
+              "AllowedOrigins": ["http://localhost:5173"],
+              "AllowedMethods": ["GET", "HEAD"],
+              "AllowedHeaders": ["*"],
+              "MaxAgeSeconds": 3600
+            }
+          ]
+        }'
     restart: "no"
 
 volumes:

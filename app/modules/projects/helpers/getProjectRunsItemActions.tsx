@@ -1,5 +1,5 @@
 import type { CollectionItemAction } from "@/components/ui/collectionContentItem"
-import { Copy, Edit } from "lucide-react"
+import { Copy, Edit, FolderPlus } from "lucide-react"
 
 export default (): CollectionItemAction[] => {
   return [{
@@ -10,5 +10,9 @@ export default (): CollectionItemAction[] => {
     action: 'DUPLICATE',
     icon: <Copy />,
     text: 'Duplicate'
+  }, {
+    action: 'CREATE_COLLECTION',
+    icon: <FolderPlus />,
+    text: 'Create Collection'
   }]
 }

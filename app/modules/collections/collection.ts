@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
-import type { FindOptions } from '~/modules/common/types';
+import type { FindOptions, PaginateProps } from '~/modules/common/types';
+import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import collectionSchema from '~/lib/schemas/collection.schema';
 import type { Collection } from './collections.types';
+import createCollectionWithRuns from './services/createCollectionWithRuns.server';
+import type { RunAnnotationType } from '~/modules/runs/runs.types';
 
 const CollectionModel = mongoose.model('Collection', collectionSchema);
 
@@ -69,5 +72,46 @@ export class CollectionService {
   static async deleteByProject(projectId: string): Promise<number> {
     const result = await CollectionModel.deleteMany({ project: projectId });
     return result.deletedCount || 0;
+  }
+
+  static async paginate({ match, sort, page, pageSize }: PaginateProps): Promise<{ data: Collection[]; count: number; totalPages: number }> {
+    const pagination = getPaginationParams(page, pageSize);
+
+    const results = await this.find({
+      match,
+      sort,
+      pagination
+    });
+
+    const count = await this.count(match);
+
+    return {
+      data: results,
+      count,
+      totalPages: getTotalPages(count, pageSize)
+    };
+  }
+
+  static async createWithRuns(
+    data: Partial<Collection>,
+    prompts: Array<{ promptId: string; promptName?: string; version: number }>,
+    models: string[],
+    annotationType: RunAnnotationType
+  ): Promise<{ collection: Collection; errors: string[] }> {
+    const collection = await this.create(data);
+
+    const result = await createCollectionWithRuns(
+      collection,
+      {
+        projectId: data.project!,
+        name: data.name!,
+        sessions: data.sessions!,
+        prompts,
+        models,
+        annotationType
+      }
+    );
+
+    return result;
   }
 }

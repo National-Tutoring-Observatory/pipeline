@@ -2,15 +2,13 @@ import has from 'lodash/has';
 import map from 'lodash/map';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
-import { redirect, useFetcher, useLoaderData, useRevalidator, useSubmit } from "react-router";
+import { redirect, useFetcher, useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
 import { ProjectService } from "~/modules/projects/project";
-import { PromptService } from "~/modules/prompts/prompt";
-import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import exportRun from "~/modules/runs/helpers/exportRun";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
@@ -18,6 +16,11 @@ import EditRunDialog from "../components/editRunDialog";
 import ProjectRun from "../components/projectRun";
 import startRun from '../services/startRun.server';
 import type { Route } from "./+types/projectRun.route";
+
+interface PromptInfo {
+  name: string;
+  version: number;
+}
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
@@ -30,11 +33,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!run) {
     return redirect('/');
   }
-  const runPrompt = await PromptService.findById(run.prompt as string);
-  const runPromptVersion = await PromptVersionService.find({
-    match: { prompt: run.prompt, version: Number(run.promptVersion) }
-  });
-  return { project, run, runPrompt, runPromptVersion: runPromptVersion[0] };
+
+  const promptInfo: PromptInfo = {
+    name: run.snapshot.prompt.name,
+    version: run.snapshot.prompt.version
+  };
+
+  return { project, run, promptInfo };
 }
 
 
@@ -68,7 +73,7 @@ export async function action({
         prompt,
         promptVersion,
         modelCode: model
-      }, { request, context });
+      });
 
       if (!run) throw new Error('Run not created');
       await RunService.createAnnotations(run);
@@ -96,12 +101,12 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRunRoute() {
-  const { project, run, runPrompt, runPromptVersion } = useLoaderData();
-
+  const { project, run, promptInfo } = useLoaderData();
   const [runSessionsProgress, setRunSessionsProgress] = useState(0);
   const [runSessionsStep, setRunSessionsStep] = useState('');
   const submit = useSubmit();
   const fetcher = useFetcher();
+  const navigate = useNavigate();
   const { revalidate, state } = useRevalidator();
 
   useEffect(() => {
@@ -133,6 +138,10 @@ export default function ProjectRunRoute() {
         fetcher.submit(JSON.stringify({ intent: 'UPDATE_RUN', entityId: r._id, payload: { name: r.name } }), { method: 'PUT', encType: 'application/json', action: `/projects/${project.data._id}` });
       }}
     />);
+  }
+
+  const onCreateCollectionButtonClicked = (run: Run) => {
+    navigate(`/projects/${project._id}/create-collection?fromRun=${run._id}`);
   }
 
   useHandleSockets({
@@ -218,13 +227,13 @@ export default function ProjectRunRoute() {
   return (
     <ProjectRun
       run={run}
-      runPrompt={runPrompt}
-      runPromptVersion={runPromptVersion}
+      promptInfo={promptInfo}
       runSessionsProgress={runSessionsProgress}
       runSessionsStep={runSessionsStep}
       onExportRunButtonClicked={onExportRunButtonClicked}
       onReRunClicked={onReRunClicked}
       onEditRunButtonClicked={onEditRunButtonClicked}
+      onCreateCollectionButtonClicked={onCreateCollectionButtonClicked}
     />
   )
 }

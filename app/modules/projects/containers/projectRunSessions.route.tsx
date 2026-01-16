@@ -6,11 +6,9 @@ import { redirect, useLoaderData } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import { ProjectService } from "~/modules/projects/project";
-import type { Run } from "~/modules/runs/runs.types";
 import { RunService } from "~/modules/runs/run";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import ProjectRunSessions from "../components/projectRunSessions";
-import type { Project } from "../projects.types";
 import type { Route } from "./+types/projectRunSessions.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {

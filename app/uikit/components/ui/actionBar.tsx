@@ -45,6 +45,14 @@ function ActionBar({
   onSortValueChanged
 }: ActionBarProps & SearchProps & PaginationProps & FiltersProps & SortProps) {
 
+  // Don't render if there's no content to display
+  const hasContent = hasSearch ||
+    hasPagination ||
+    isSyncing ||
+    (actions && actions.length > 0) ||
+    (filters && filters.length > 0) ||
+    (sortOptions && sortOptions.length > 0);
+
   const [isStuck, setIsStuck] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -60,6 +68,10 @@ function ActionBar({
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, []);
+
+  if (!hasContent) {
+    return null;
+  }
 
   return (
     <>

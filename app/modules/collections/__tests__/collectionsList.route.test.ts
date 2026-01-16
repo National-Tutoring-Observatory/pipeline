@@ -3,12 +3,12 @@ import { beforeEach, describe, expect, it } from "vitest";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
-import { ProjectService } from "../project";
+import { ProjectService } from "~/modules/projects/project";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
-import { loader, action } from "../containers/projectCollections.route";
+import { loader, action } from "../containers/collectionsList.route";
 
-describe("projectCollections.route loader", () => {
+describe("collectionsList.route loader", () => {
   beforeEach(async () => {
     await clearDocumentDB()
   })
@@ -47,7 +47,8 @@ describe("projectCollections.route loader", () => {
 
     expect(res).not.toBeInstanceOf(Response);
     const loaderData = res as any;
-    expect(loaderData.collections).toEqual([]);
+    expect(loaderData.collections.data).toEqual([]);
+    expect(loaderData.collections.totalPages).toBeDefined();
   });
 
   it("redirects to / when user cannot view project", async () => {
@@ -75,7 +76,7 @@ describe("projectCollections.route loader", () => {
   });
 });
 
-describe("projectCollections.route action - CREATE_COLLECTION", () => {
+describe("collectionsList.route action - CREATE_COLLECTION", () => {
   beforeEach(async () => {
     await clearDocumentDB()
   })
