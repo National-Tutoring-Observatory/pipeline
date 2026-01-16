@@ -20,14 +20,14 @@ export default function CollectionCreatorFormContainer({ projectId, prefillData 
   const [selectedSessions, setSelectedSessions] = useState<string[]>(prefillData?.selectedSessions || []);
 
   useEffect(() => {
-    if (fetcher.data && 'intent' in fetcher.data && fetcher.data.intent === 'CREATE_COLLECTION' && 'data' in fetcher.data) {
-      const success = fetcher.data.data.errors?.length === 0;
-      if (success) {
-        toast.success('Collection created successfully');
-        navigate(`/projects/${projectId}/collections/${fetcher.data.data.collectionId}`);
-      }
-    }
-  }, [fetcher.data, navigate, projectId]);
+    if (fetcher.state !== 'idle') return;
+    if (fetcher.data?.intent !== 'CREATE_COLLECTION') return;
+    if (fetcher.data?.data?.errors?.length > 0) return;
+
+    const collectionId = fetcher.data.data.collectionId;
+    toast.success('Collection created successfully');
+    navigate(`/projects/${projectId}/collections/${collectionId}`);
+  }, [fetcher.state, fetcher.data, navigate, projectId]);
 
   const handleCreateCollection = () => {
     fetcher.submit(

@@ -112,9 +112,6 @@ export class CollectionService {
       }
     );
 
-    return {
-      collection: result.collection,
-      errors: result.errors
-    };
+    return result;
   }
 }
