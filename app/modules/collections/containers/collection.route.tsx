@@ -1,23 +1,23 @@
-import { useEffect } from 'react';
-import { data, redirect, useLoaderData, useRevalidator, useSubmit } from 'react-router';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ChevronDown } from 'lucide-react';
 import throttle from 'lodash/throttle';
+import { ChevronDown } from 'lucide-react';
+import { useEffect } from 'react';
+import { data, redirect, useLoaderData, useRevalidator, useSubmit } from 'react-router';
+import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import { CollectionService } from '~/modules/collections/collection';
 import exportCollection from '~/modules/collections/helpers/exportCollection';
+import ProjectAuthorization from '~/modules/projects/authorization';
 import { ProjectService } from '~/modules/projects/project';
+import { getRunModelDisplayName } from '~/modules/runs/helpers/runModel';
 import { RunService } from '~/modules/runs/run';
 import { SessionService } from '~/modules/sessions/session';
-import ProjectAuthorization from '~/modules/projects/authorization';
-import { getRunModelDisplayName } from '~/modules/runs/helpers/runModel';
 import type { User } from '~/modules/users/users.types';
-import type { Route } from './+types/collectionDetail.route';
+import type { Route } from './+types/collection.route';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await getSessionUser({ request }) as User;

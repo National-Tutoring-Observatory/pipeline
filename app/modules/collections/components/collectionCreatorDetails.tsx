@@ -4,6 +4,9 @@ import { Label } from "@/components/ui/label";
 const CollectionCreatorDetails = ({
   name,
   onNameChanged
+}: {
+  name: string,
+  onNameChanged: (name: string) => void
 }) => {
   return (
     <div className="space-y-2">
