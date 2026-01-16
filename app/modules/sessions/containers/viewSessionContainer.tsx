@@ -25,7 +25,7 @@ export default function ViewSessionContainer({ session }: { session: Session }) 
       const sessionRequest = await fetch(jsonData.requestUrl);
 
       if (!sessionRequest.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${sessionRequest.status}`);
       }
 
       const sessionData = await sessionRequest.json();
