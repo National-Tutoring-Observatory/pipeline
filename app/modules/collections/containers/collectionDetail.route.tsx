@@ -1,21 +1,26 @@
 import { useEffect } from 'react';
 import { data, redirect, useLoaderData, useRevalidator, useSubmit } from 'react-router';
+import find from 'lodash/find';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Collection } from '@/components/ui/collection';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChevronDown } from 'lucide-react';
 import throttle from 'lodash/throttle';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
+import addDialog from '~/modules/dialogs/addDialog';
 import { CollectionService } from '~/modules/collections/collection';
 import exportCollection from '~/modules/collections/helpers/exportCollection';
 import { ProjectService } from '~/modules/projects/project';
+import getProjectRunsItemAttributes from '~/modules/projects/helpers/getProjectRunsItemAttributes';
+import getProjectSessionsItemAttributes from '~/modules/projects/helpers/getProjectSessionsItemAttributes';
 import { RunService } from '~/modules/runs/run';
 import { SessionService } from '~/modules/sessions/session';
+import ViewSessionContainer from '~/modules/sessions/containers/viewSessionContainer';
+import type { Session } from '~/modules/sessions/sessions.types';
 import ProjectAuthorization from '~/modules/projects/authorization';
-import { getRunModelDisplayName } from '~/modules/runs/helpers/runModel';
 import type { User } from '~/modules/users/users.types';
 import type { Route } from './+types/collectionDetail.route';
 
@@ -101,6 +106,16 @@ export default function CollectionDetailRoute() {
         exportType
       }
     }), { method: 'POST', encType: 'application/json' });
+  };
+
+  const onSessionItemClicked = (id: string) => {
+    const session = find(sessions, { _id: id });
+    if (!session) return;
+    addDialog(
+      <ViewSessionContainer
+        session={session}
+      />
+    );
   };
 
   // Subscribe to run events for real-time updates
@@ -222,28 +237,24 @@ export default function CollectionDetailRoute() {
         {sessions.length > 0 && (
           <div className="bg-card rounded-lg border p-4">
             <h2 className="text-lg font-semibold mb-4">Sessions ({sessions.length})</h2>
-            <div className="border rounded-md overflow-auto max-h-80">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>File Type</TableHead>
-                    <TableHead>Created</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sessions.map((session) => (
-                    <TableRow key={session._id}>
-                      <TableCell className="font-medium">{session.name || session._id}</TableCell>
-                      <TableCell>{session.fileType || '--'}</TableCell>
-                      <TableCell>
-                        {session.createdAt ? new Date(session.createdAt).toLocaleDateString() : '--'}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            <Collection
+              items={sessions}
+              itemsLayout="list"
+              getItemAttributes={getProjectSessionsItemAttributes}
+              getItemActions={() => []}
+              onActionClicked={() => {}}
+              onItemClicked={onSessionItemClicked}
+              emptyAttributes={{
+                title: 'No sessions found',
+                description: ''
+              }}
+              currentPage={1}
+              totalPages={1}
+              onPaginationChanged={() => {}}
+              filters={[]}
+              filtersValues={{}}
+              onSortValueChanged={() => {}}
+            />
           </div>
         )}
 
@@ -251,44 +262,23 @@ export default function CollectionDetailRoute() {
         {runs.length > 0 && (
           <div className="bg-card rounded-lg border p-4">
             <h2 className="text-lg font-semibold mb-4">Runs ({runs.length})</h2>
-            <div className="border rounded-md overflow-auto max-h-96">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Prompt</TableHead>
-                    <TableHead>Model</TableHead>
-                    <TableHead>Sessions</TableHead>
-                    <TableHead>Created</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {runs.map((run) => (
-                    <TableRow key={run._id}>
-                      <TableCell className="font-medium">{run.name}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {run.isRunning && <Badge variant="secondary">Running</Badge>}
-                          {run.isComplete && <Badge variant="default">Complete</Badge>}
-                          {run.hasErrored && <Badge variant="destructive">Error</Badge>}
-                          {!run.isRunning && !run.isComplete && !run.hasErrored && <Badge variant="outline">Pending</Badge>}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        <div>{run.snapshot.prompt.name}</div>
-                        <div className="text-muted-foreground">v{run.snapshot.prompt.version}</div>
-                      </TableCell>
-                      <TableCell className="text-sm">{getRunModelDisplayName(run)}</TableCell>
-                      <TableCell className="text-sm">{run.sessions?.length || 0}</TableCell>
-                      <TableCell className="text-sm">
-                        {run.createdAt ? new Date(run.createdAt).toLocaleDateString() : '--'}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            <Collection
+              items={runs}
+              itemsLayout="list"
+              getItemAttributes={getProjectRunsItemAttributes}
+              getItemActions={() => []}
+              onActionClicked={() => {}}
+              emptyAttributes={{
+                title: 'No runs found',
+                description: ''
+              }}
+              currentPage={1}
+              totalPages={1}
+              onPaginationChanged={() => {}}
+              filters={[]}
+              filtersValues={{}}
+              onSortValueChanged={() => {}}
+            />
           </div>
         )}
       </div>
