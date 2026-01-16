@@ -2,6 +2,7 @@ import { UserService } from '~/modules/users/user';
 import { AuditService } from '~/modules/audits/audit';
 import getQueue from '~/modules/queues/helpers/getQueue';
 import type { TeamAssignmentOption } from '../teams.types';
+import type { UserTeam } from '~/modules/users/users.types';
 
 const MS_IN_A_DAY = 86400000;
 
@@ -16,7 +17,7 @@ export async function addSuperAdminToTeam({ teamId, userId, performedByUserId, r
   const userDoc = await UserService.findById(userId);
   if (!userDoc) throw new Error('User not found');
   if (!userDoc.teams) userDoc.teams = [];
-  if (userDoc.teams.some((t: any) => t.team === teamId)) {
+  if (userDoc.teams.some((t: UserTeam) => t.team === teamId)) {
     throw new Error('User is already a member of the team');
   }
 
@@ -24,7 +25,7 @@ export async function addSuperAdminToTeam({ teamId, userId, performedByUserId, r
 
   userDoc.teams.push({ team: teamId, role: 'ADMIN' });
 
-  await UserService.updateById(userId, { teams: userDoc.teams as any });
+  await UserService.updateById(userId, { teams: userDoc.teams as UserTeam[] });
 
   await AuditService.create({
     action: 'SUPERADMIN_REQUEST_TEAM_ADMIN',

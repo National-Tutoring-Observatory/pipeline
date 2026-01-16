@@ -13,7 +13,8 @@ export default function AddUsersToFeatureFlagDialog({
   isFetching,
   isSubmitButtonDisabled,
   onAddUsersClicked,
-  onSelectUserToggled
+  onSelectUserToggled,
+  isSubmitting = false
 }: {
   users: User[],
   selectedUsers: string[],
@@ -21,6 +22,7 @@ export default function AddUsersToFeatureFlagDialog({
   isSubmitButtonDisabled: boolean,
   onAddUsersClicked: () => void,
   onSelectUserToggled: (userId: string) => void,
+  isSubmitting?: boolean,
 }) {
   return (
     <DialogContent>

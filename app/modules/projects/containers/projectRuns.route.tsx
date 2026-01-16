@@ -1,6 +1,6 @@
 import find from 'lodash/find';
 import { useEffect } from "react";
-import { redirect, useActionData, useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from "react-router";
+import { data, redirect, useActionData, useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
 import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
@@ -8,14 +8,15 @@ import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import type { DocumentAdapter } from "~/modules/documents/documents.types";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import ProjectAuthorization from "~/modules/projects/authorization";
+import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
+import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import DuplicateRunDialog from '../components/duplicateRunDialog';
 import EditRunDialog from "../components/editRunDialog";
 import ProjectRuns from "../components/projectRuns";
+import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import type { Route } from "./+types/projectRuns.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -34,24 +35,18 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: ['annotationType']
   });
 
-  const documents = getDocumentsAdapter();
-  const result = await documents.getDocuments<Run>({ collection: 'runs', populate: [{ path: 'prompt' }], ...query });
-  return { runs: result };
-}
+  const pagination = getPaginationParams(query.page);
 
-async function getExistingRun(documents: DocumentAdapter, runId: string): Promise<Run> {
-  const existingRun = await documents.getDocument<Run>({
-    collection: 'runs',
-    match: {
-      _id: runId,
-    }
+  const runs = await RunService.find({
+    match: query.match,
+    populate: ['prompt'],
+    sort: query.sort,
+    pagination
   });
 
-  if (!existingRun.data) {
-    throw new Error("Run not found.");
-  }
+  const total = await RunService.count(query.match);
 
-  return existingRun.data;
+  return { runs: { data: runs, totalPages: getTotalPages(total) } };
 }
 
 export async function action({
@@ -67,40 +62,27 @@ export async function action({
   }
 
   const { name } = payload;
-  let run;
 
-  const documents = getDocumentsAdapter();
-
-  const project = await documents.getDocument<Project>({
-    collection: 'projects',
-    match: { _id: params.id },
-  });
-  if (!project.data) {
-    throw new Error('Project not found');
+  const project = await ProjectService.findById(params.id);
+  if (!project) {
+    return data({ errors: { project: 'Project not found' } }, { status: 400 });
   }
-  const teamId = (project.data.team as any)._id || project.data.team;
-
   switch (intent) {
     case 'UPDATE_RUN': {
       if (typeof name !== "string") {
         throw new Error("Run name is required and must be a string.");
       }
 
-      if (!ProjectAuthorization.Runs.canManage(user, project.data)) {
+      if (!ProjectAuthorization.Runs.canManage(user, project)) {
         throw new Error('You do not have permission to update runs in this project.');
       }
 
-      const existingRun = await getExistingRun(documents, entityId);
+      const existingRun = await RunService.findById(entityId);
+      if (!existingRun) {
+        throw new Error("Run not found.");
+      }
 
-      await documents.updateDocument<Run>({
-        collection: 'runs',
-        match: {
-          _id: entityId,
-        },
-        update: {
-          name
-        }
-      });
+      await RunService.updateById(entityId, { name });
       return {};
     }
     case 'DUPLICATE_RUN': {
@@ -109,33 +91,33 @@ export async function action({
         throw new Error("Run name is required and must be a string.");
       }
 
-      if (!ProjectAuthorization.Runs.canManage(user, project.data)) {
+      if (!ProjectAuthorization.Runs.canManage(user, project)) {
         throw new Error('You do not have permission to duplicate runs in this project.');
       }
 
-      const existingRun = await getExistingRun(documents, entityId);
+      const existingRun = await RunService.findById(entityId);
+      if (!existingRun) {
+        throw new Error("Run not found.");
+      }
 
       const { project: projectId, annotationType, prompt, promptVersion, model, snapshot, sessions } = existingRun;
 
-      run = await documents.createDocument<Run>({
-        collection: 'runs',
-        update: {
-          project: projectId,
-          name: name,
-          annotationType,
-          prompt,
-          promptVersion,
-          model,
-          sessions,
-          hasSetup: false,
-          isRunning: false,
-          isComplete: false,
-          snapshot: snapshot,
-        }
+      const run = await RunService.create({
+        project: projectId,
+        name: name,
+        annotationType,
+        prompt,
+        promptVersion,
+        model,
+        sessions,
+        hasSetup: false,
+        isRunning: false,
+        isComplete: false,
+        snapshot: snapshot,
       });
       return {
         intent: 'DUPLICATE_RUN',
-        ...run
+        data: run
       };
     }
     default: {

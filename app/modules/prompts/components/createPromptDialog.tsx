@@ -17,7 +17,8 @@ import PromptNameAlert from "./promptNameAlert";
 
 const CreatePromptDialog = ({
   hasTeamSelection,
-  onCreateNewPromptClicked
+  onCreateNewPromptClicked,
+  isSubmitting = false
 }: {
   hasTeamSelection: boolean,
   onCreateNewPromptClicked: ({
@@ -28,7 +29,8 @@ const CreatePromptDialog = ({
     name: string,
     annotationType: string,
     team: string | null
-  }) => void
+  }) => void,
+  isSubmitting?: boolean
 }) => {
 
   const [name, setName] = useState('');
@@ -45,7 +47,7 @@ const CreatePromptDialog = ({
 
   let isSubmitButtonDisabled = true;
 
-  if (name.trim().length >= 3) {
+  if (name.trim().length >= 3 && !isSubmitting) {
     if (hasTeamSelection) {
       if (team) {
         isSubmitButtonDisabled = false;

@@ -1,8 +1,7 @@
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import findModelByCode from "~/modules/llm/helpers/findModelByCode";
-import type { Run, StartRunProps } from "~/modules/runs/runs.types";
+import { RunService } from "~/modules/runs/run";
+import type { RunSession, StartRunProps } from "~/modules/runs/runs.types";
 import buildRunSnapshot from "~/modules/runs/services/buildRunSnapshot.server";
-import type { Session } from "~/modules/sessions/sessions.types";
+import { SessionService } from "~/modules/sessions/session";
 
 
 export default async function startRun({
@@ -15,25 +14,25 @@ export default async function startRun({
   modelCode
 }: StartRunProps, { context }: { request: Request, context: any }) {
 
-  const documents = getDocumentsAdapter();
+  const run = await RunService.findById(runId);
+  if (!run || run.project !== projectId) {
+    throw new Error('Run not found');
+  }
 
-  await documents.getDocument<Run>({
-    collection: 'runs',
-    match: { _id: runId, project: projectId }
-  });
-
-  const sessionsAsObjects = [];
+  const sessionsAsObjects: RunSession[] = [];
 
   for (const session of sessions) {
-    const sessionModel = await documents.getDocument<Session>({ collection: 'sessions', match: { _id: session } });
-    if (!sessionModel.data) {
+    const sessionModel = await SessionService.findById(session);
+    if (!sessionModel) {
       throw new Error(`Session not found: ${session}`);
     }
     sessionsAsObjects.push({
-      name: sessionModel.data.name,
-      fileType: sessionModel.data.fileType,
+      name: sessionModel.name,
+      fileType: sessionModel.fileType || '',
       sessionId: session,
-      status: 'NOT_STARTED'
+      status: 'RUNNING',
+      startedAt: new Date(),
+      finishedAt: new Date()
     });
   }
 
@@ -44,17 +43,13 @@ export default async function startRun({
     modelCode,
   });
 
-  return await documents.updateDocument<Run>({
-    collection: 'runs',
-    match: { _id: runId },
-    update: {
-      hasSetup: true,
-      annotationType,
-      prompt,
-      promptVersion,
-      model: modelCode, // Store code for safety until migration runs
-      sessions: sessionsAsObjects,
-      snapshot
-    }
+  return await RunService.updateById(runId, {
+    hasSetup: true,
+    annotationType,
+    prompt,
+    promptVersion,
+    model: modelCode,
+    sessions: sessionsAsObjects,
+    snapshot
   });
 }

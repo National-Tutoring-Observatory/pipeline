@@ -7,7 +7,6 @@ import { renderToPipeableStream } from "react-dom/server";
 import type { AppLoadContext, EntryContext } from "react-router";
 import { ServerRouter } from "react-router";
 
-import './modules/documents/documents';
 import createQueue from "./modules/queues/helpers/createQueue";
 import './modules/storage/storage';
 

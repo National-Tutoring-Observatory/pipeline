@@ -1,10 +1,9 @@
 import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import ProjectAuthorization from "~/modules/projects/authorization";
-import type { Project } from "~/modules/projects/projects.types";
+import { ProjectService } from "~/modules/projects/project";
 import type { User } from "~/modules/users/users.types";
-import type { Session } from "../sessions.types";
+import { SessionService } from "../session";
 import type { Route } from "./+types/sessionsList.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -20,19 +19,20 @@ export async function loader({ request }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const documents = getDocumentsAdapter();
-  const project = await documents.getDocument<Project>({
-    collection: 'projects',
-    match: { _id: projectId },
+  const project = await ProjectService.findById(projectId);
+  if (!project) {
+    return redirect('/');
+  }
+
+  if (!ProjectAuthorization.canView(user, project)) {
+    return redirect('/');
+  }
+
+  const sessionsList = await SessionService.find({
+    match: { project: projectId, hasConverted: true },
+    sort: {}
   });
-  if (!project.data) {
-    return redirect('/');
-  }
+  const count = await SessionService.count({ project: projectId, hasConverted: true });
 
-  if (!ProjectAuthorization.canView(user, project.data)) {
-    return redirect('/');
-  }
-
-  const result = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: projectId, hasConverted: true }, sort: {} });
-  return { sessions: result };
+  return { sessions: { data: sessionsList, count } };
 }

@@ -1,49 +1,34 @@
-import includes from 'lodash/includes';
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { emitter } from "~/modules/events/emitter";
-import type { Run } from "~/modules/runs/runs.types";
+import { RunService } from "~/modules/runs/run";
 import { handler as outputCollectionDataToCSV } from '../../../functions/outputCollectionDataToCSV/app';
-import type { Collection } from "../collections.types";
+import { CollectionService } from "../collection";
 
 export default async function exportCollection({ collectionId, exportType }: { collectionId: string, exportType: string }) {
 
-  const documents = getDocumentsAdapter();
-
-  const collection = await documents.getDocument<Collection>({ collection: 'collections', match: { _id: collectionId } });
-  if (!collection.data) {
+  const collection = await CollectionService.findById(collectionId);
+  if (!collection) {
     throw new Error('Collection not found');
   }
 
-  const runs = await documents.getDocuments<Run>({
-    collection: 'runs',
-    match: (item: Run) => {
-      if (includes(collection.data!.runs, item._id)) {
-        return true;
-      }
-    }, sort: {}
-  });
+  const runs = await RunService.find({ match: { _id: { $in: collection.runs || [] } } });
 
-  const inputDirectory = `storage/${collection.data.project}/runs`;
+  const inputDirectory = `storage/${collection.project}/runs`;
 
-  const outputDirectory = `storage/${collection.data.project}/collections/${collection.data._id}/exports`;
+  const outputDirectory = `storage/${collection.project}/collections/${collection._id}/exports`;
 
-  await documents.updateDocument({
-    collection: 'collections',
-    match: { _id: collectionId },
-    update: {
-      isExporting: true
-    }
+  await CollectionService.updateById(collectionId, {
+    isExporting: true
   });
 
   emitter.emit("EXPORT_COLLECTION", { collectionId: Number(collectionId), progress: 0, status: 'STARTED' });
 
   if (exportType === 'CSV') {
-    await outputCollectionDataToCSV({ body: { collection: collection.data, runs: runs.data, inputFolder: inputDirectory, outputFolder: outputDirectory } });
+    await outputCollectionDataToCSV({ body: { collection, runs, inputFolder: inputDirectory, outputFolder: outputDirectory } });
   } else {
-    //await outputCollectionDataToJSON({ body: { collection: collection.data, runs: runs.data, inputFolder: inputDirectory, outputFolder: outputDirectory } });
+    //await outputCollectionDataToJSON({ body: { collection, runs, inputFolder: inputDirectory, outputFolder: outputDirectory } });
   }
 
-  let update = { isExporting: false, hasExportedCSV: collection.data.hasExportedCSV, hasExportedJSONL: collection.data.hasExportedJSONL };
+  let update = { isExporting: false, hasExportedCSV: collection.hasExportedCSV, hasExportedJSONL: collection.hasExportedJSONL };
 
   if (exportType === 'CSV') {
     update.hasExportedCSV = true;
@@ -54,12 +39,7 @@ export default async function exportCollection({ collectionId, exportType }: { c
 
   setTimeout(async () => {
 
-    await documents.updateDocument({
-      collection: 'collections',
-      match: { _id: collectionId },
-      update
-    });
-
+    await CollectionService.updateById(collectionId, update);
 
     emitter.emit("EXPORT_COLLECTION", { collectionId: Number(collectionId), progress: 100, status: 'DONE' });
 

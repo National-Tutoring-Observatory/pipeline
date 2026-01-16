@@ -5,9 +5,7 @@ import http from 'http';
 import morgan from "morgan";
 import { UserService } from "./app/modules/users/user";
 import { setupSockets } from "./sockets";
-import getDatabaseConnection from "./app/documentsAdapters/documentDB/helpers/getDatabaseConnection";
-// These imports are needed to handle the inline import. These are not duplicates
-import './app/modules/documents/documents';
+import { initializeDatabase } from "./app/lib/database";
 import './app/modules/storage/storage';
 dotenv.config({ path: '.env' })
 
@@ -77,6 +75,6 @@ const checkSuperAdminExists = async () => {
 
 server.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
-  await getDatabaseConnection();
+  await initializeDatabase();
   await checkSuperAdminExists();
 });

@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import '~/modules/documents/documents'
 import { action, loader } from '../containers/migrations.route'
 import { clearMigrationsCache } from '../registry'
 import type { Route } from '../containers/+types/migrations.route'

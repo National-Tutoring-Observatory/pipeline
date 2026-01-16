@@ -4,15 +4,19 @@ import type { Project } from "~/modules/projects/projects.types";
 export interface Session {
   _id: string;
   name: string;
-  createdAt: string;
   project: Project | string;
   file: File | string;
+  sessionId?: string;
+  fileType?: string;
+  error?: string;
   hasConverted: boolean;
   hasErrored: boolean;
-  sessionId: string;
-  fileType: string;
-  startedAt: string;
-  finishedAt: string;
+  startedAt?: string;
+  finishedAt?: string;
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface SessionFile {

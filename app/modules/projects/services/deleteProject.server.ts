@@ -1,15 +1,9 @@
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { ProjectService } from "~/modules/projects/project";
 import { flowProducer } from "~/modules/queues/helpers/createQueue";
 
 export default async function deleteProject({ projectId }: { projectId: string }) {
-  const documents = getDocumentsAdapter();
-
   // Soft delete
-  await documents.updateDocument({
-    collection: "projects",
-    match: { _id: projectId },
-    update: { isDeleted: true },
-  });
+  await ProjectService.updateById(projectId, { isDeleted: true });
 
   try {
     const flow = {

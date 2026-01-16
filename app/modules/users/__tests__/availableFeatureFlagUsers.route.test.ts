@@ -1,17 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import mongoose from "mongoose";
-import "~/modules/documents/documents";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { UserService } from "../user";
-import type { User } from "../users.types";
-import type { FeatureFlag } from "~/modules/featureFlags/featureFlags.types";
+import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
 import { loader } from "../containers/availableFeatureFlagUsers.route";
 
 const generateObjectId = () => new mongoose.Types.ObjectId().toString();
-
-const documents = getDocumentsAdapter();
 
 describe("availableFeatureFlagUsers.route loader", () => {
   beforeEach(async () => {
@@ -28,10 +23,10 @@ describe("availableFeatureFlagUsers.route loader", () => {
   });
 
   it("throws error when featureFlagId is not provided", async () => {
-    const superAdmin = (await documents.createDocument<User>({
-      collection: "users",
-      update: { username: "admin", role: "SUPER_ADMIN" },
-    })).data;
+    const superAdmin = await UserService.create({
+      username: "admin",
+      role: "SUPER_ADMIN",
+    });
 
     const cookieHeader = await loginUser(superAdmin._id);
 
@@ -46,15 +41,17 @@ describe("availableFeatureFlagUsers.route loader", () => {
   });
 
   it("throws error when user cannot manage feature flags", async () => {
-    const featureFlag = (await documents.createDocument<FeatureFlag>({
-      collection: "featureFlags",
-      update: { name: "beta_feature" },
-    })).data;
+    const featureFlag = await FeatureFlagService.create({
+      name: "beta_feature",
+    });
 
-    const regularUser = (await documents.createDocument<User>({
-      collection: "users",
-      update: { username: "user", role: "USER" },
-    })).data;
+    const regularUser = await UserService.create({
+      username: "user",
+      role: "USER",
+      githubId: 100001,
+      hasGithubSSO: true,
+      isRegistered: true,
+    });
 
     const cookieHeader = await loginUser(regularUser._id);
 
@@ -70,10 +67,11 @@ describe("availableFeatureFlagUsers.route loader", () => {
   });
 
   it("throws error when feature flag not found", async () => {
-    const superAdmin = (await documents.createDocument<User>({
-      collection: "users",
-      update: { username: "admin", role: "SUPER_ADMIN" },
-    })).data;
+    const superAdmin = await UserService.create({
+      username: "admin",
+      role: "SUPER_ADMIN",
+      isRegistered: true,
+    });
 
     const cookieHeader = await loginUser(superAdmin._id);
 
@@ -89,22 +87,19 @@ describe("availableFeatureFlagUsers.route loader", () => {
   });
 
   it("returns users without the feature flag", async () => {
-    const featureFlag = (await documents.createDocument<FeatureFlag>({
-      collection: "featureFlags",
-      update: { name: "beta_feature" },
-    })).data;
+    const featureFlag = await FeatureFlagService.create({
+      name: "beta_feature",
+    });
 
-    const superAdmin = (await documents.createDocument<User>({
-      collection: "users",
-      update: { username: "admin", role: "SUPER_ADMIN" },
-    })).data;
+    const superAdmin = await UserService.create({
+      username: "admin",
+      role: "SUPER_ADMIN",
+      isRegistered: true,
+    });
 
     // Create a user with the feature flag
     const userWithFlag = await UserService.create({
       username: "with_flag",
-      role: "USER",
-      githubId: 100001,
-      hasGithubSSO: true,
       isRegistered: true,
       featureFlags: ["beta_feature"],
     });
@@ -112,9 +107,6 @@ describe("availableFeatureFlagUsers.route loader", () => {
     // Create a user without the feature flag
     const userWithoutFlag = await UserService.create({
       username: "without_flag",
-      role: "USER",
-      githubId: 100002,
-      hasGithubSSO: true,
       isRegistered: true,
       featureFlags: [],
     });
@@ -129,27 +121,25 @@ describe("availableFeatureFlagUsers.route loader", () => {
       params: {},
     } as any)) as any;
 
-    expect(result.data).toHaveLength(1);
-    expect(result.data[0]._id).toBe(userWithoutFlag._id);
+    expect(result.data).toHaveLength(2);
+    expect(result.data.some((u: any) => u._id === userWithoutFlag._id)).toBe(true);
+    expect(result.data.some((u: any) => u._id === superAdmin._id)).toBe(true);
   });
 
   it("returns only registered users", async () => {
-    const featureFlag = (await documents.createDocument<FeatureFlag>({
-      collection: "featureFlags",
-      update: { name: "beta_feature" },
-    })).data;
+    const featureFlag = await FeatureFlagService.create({
+      name: "beta_feature",
+    });
 
-    const superAdmin = (await documents.createDocument<User>({
-      collection: "users",
-      update: { username: "admin", role: "SUPER_ADMIN" },
-    })).data;
+    const superAdmin = await UserService.create({
+      username: "admin",
+      role: "SUPER_ADMIN",
+      isRegistered: true,
+    });
 
     // Create a registered user
     const registeredUser = await UserService.create({
       username: "registered",
-      role: "USER",
-      githubId: 100001,
-      hasGithubSSO: true,
       isRegistered: true,
       featureFlags: [],
     });
@@ -157,9 +147,6 @@ describe("availableFeatureFlagUsers.route loader", () => {
     // Create an unregistered user
     const unregisteredUser = await UserService.create({
       username: "unregistered",
-      role: "USER",
-      githubId: 100002,
-      hasGithubSSO: true,
       isRegistered: false,
       featureFlags: [],
     });
@@ -174,7 +161,9 @@ describe("availableFeatureFlagUsers.route loader", () => {
       params: {},
     } as any)) as any;
 
-    expect(result.data).toHaveLength(1);
-    expect(result.data[0]._id).toBe(registeredUser._id);
+    expect(result.data).toHaveLength(2);
+    expect(result.data.some((u: any) => u._id === registeredUser._id)).toBe(true);
+    expect(result.data.some((u: any) => u._id === superAdmin._id)).toBe(true);
+    expect(result.data.some((u: any) => u._id === unregisteredUser._id)).toBe(false);
   });
 });

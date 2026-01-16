@@ -1,37 +1,30 @@
-import includes from 'lodash/includes';
 import map from 'lodash/map';
 import throttle from 'lodash/throttle';
 import { useEffect } from "react";
 import { redirect, useLoaderData, useRevalidator, useSubmit } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import type { Collection, CreateCollection } from "~/modules/collections/collections.types";
+import { CollectionService } from "~/modules/collections/collection";
+import type { CreateCollection } from "~/modules/collections/collections.types";
 import exportCollection from "~/modules/collections/helpers/exportCollection";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { Run } from "~/modules/runs/runs.types";
+import { ProjectService } from "~/modules/projects/project";
+import { RunService } from "~/modules/runs/run";
 import ProjectCollection from "../components/projectCollection";
-import type { Project } from "../projects.types";
 import type { Route } from "./+types/projectCollection.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const documents = getDocumentsAdapter();
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, 'team');
 
-  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: params.projectId, team: { $in: teamIds } }, });
-  if (!project.data) {
+  const project = await ProjectService.findOne({ _id: params.projectId, team: { $in: teamIds } });
+  if (!project) {
     return redirect('/');
   }
-  const collection = await documents.getDocument<Collection>({ collection: 'collections', match: { _id: params.collectionId, project: params.projectId }, });
-  const result = await documents.getDocuments<Run>({
-    collection: 'runs',
-    match: (item: Run) => {
-      if (includes(collection.data!.runs, item._id)) {
-        return true;
-      }
-    }, sort: {}
-  });
-  const runs = { data: result.data };
+  const collection = await CollectionService.findOne({ _id: params.collectionId, project: params.projectId });
+  if (!collection) {
+    return redirect('/');
+  }
+  const runs = await RunService.find({ match: { _id: { $in: collection.runs || [] } } });
 
   return { project, collection, runs };
 }
@@ -50,18 +43,12 @@ export async function action({
     exportType
   } = payload;
 
-  const documents = getDocumentsAdapter();
-
   switch (intent) {
     case 'SETUP_COLLECTION':
-      await documents.updateDocument<Collection>({
-        collection: 'collections',
-        match: { _id: params.collectionId },
-        update: {
-          hasSetup: true,
-          sessions,
-          runs
-        }
+      await CollectionService.updateById(params.collectionId, {
+        hasSetup: true,
+        sessions,
+        runs
       });
 
       return {}

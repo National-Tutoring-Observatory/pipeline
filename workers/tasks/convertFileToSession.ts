@@ -2,8 +2,7 @@ import dotenv from 'dotenv';
 import fse from 'fs-extra';
 import map from 'lodash/map';
 import path from 'path';
-import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter';
-import type { Session } from '../../app/modules/sessions/sessions.types';
+import { SessionService } from '../../app/modules/sessions/session';
 import getStorageAdapter from '../../app/modules/storage/helpers/getStorageAdapter';
 import emitFromJob from '../helpers/emitFromJob';
 dotenv.config({ path: '.env' });
@@ -55,21 +54,12 @@ export default async function convertFileToSession(job: any) {
 
     await storage.upload({ file: { buffer, size: buffer.length, type: 'application/json' }, uploadPath: `${outputFolder}/${outputFileName}.json` });
 
-    const documents = getDocumentsAdapter();
-
-    await documents.updateDocument<Session>({
-      collection: 'sessions',
-      match: {
-        _id: sessionId
-      },
-      update: {
-        hasConverted: true
-      }
+    await SessionService.updateById(sessionId, {
+      hasConverted: true
     });
 
-    const sessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId } });
-
-    const completedSessionsCount = await documents.countDocuments({ collection: 'sessions', match: { project: projectId, hasConverted: true } });
+    const sessionsCount = await SessionService.count({ project: projectId });
+    const completedSessionsCount = await SessionService.count({ project: projectId, hasConverted: true });
 
     await emitFromJob(job, {
       projectId,
@@ -78,17 +68,9 @@ export default async function convertFileToSession(job: any) {
     }, 'FINISHED');
 
   } catch (error: any) {
-    const documents = getDocumentsAdapter();
-
-    await documents.updateDocument<Session>({
-      collection: 'sessions',
-      match: {
-        _id: sessionId
-      },
-      update: {
-        hasErrored: true,
-        error: error.message
-      }
+    await SessionService.updateById(sessionId, {
+      hasErrored: true,
+      error: error.message
     });
 
     await emitFromJob(job, {

@@ -16,3 +16,4 @@
 /tmp
 /workers/tmp
 /.env.test
+/coverage/

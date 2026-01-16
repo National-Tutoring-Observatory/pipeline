@@ -1,6 +1,7 @@
 import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { PromptService } from "~/modules/prompts/prompt";
+import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import type { User } from "~/modules/users/users.types";
 import PromptAuthorization from "../authorization";
@@ -19,18 +20,17 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const documents = getDocumentsAdapter();
-  const prompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: promptId } });
+  const prompt = await PromptService.findById(promptId);
 
-  if (!prompt.data) {
+  if (!prompt) {
     return redirect('/');
   }
 
-  if (!PromptAuthorization.canView(user, prompt.data)) {
+  if (!PromptAuthorization.canView(user, prompt)) {
     return redirect('/');
   }
 
-  const result = await documents.getDocuments<PromptVersion>({ collection: 'promptVersions', match: { prompt: promptId }, sort: { version: -1 } });
-  const promptVersions = { data: result.data };
+  const result = await PromptVersionService.find({ match: { prompt: promptId }, sort: { version: -1 } });
+  const promptVersions = { data: result };
   return { promptVersions };
 }

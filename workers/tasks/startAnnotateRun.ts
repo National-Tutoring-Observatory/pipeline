@@ -1,24 +1,25 @@
 import type { Job } from 'bullmq';
-import type { Run } from '../../app/modules/runs/runs.types';
-import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter';
+import { RunService } from '../../app/modules/runs/run';
 import emitFromJob from '../helpers/emitFromJob';
 
 export default async function startAnnotateRun(job: Job) {
 
   const { runId } = job.data;
 
-  const documents = getDocumentsAdapter();
+  if (!runId) {
+    throw new Error('startAnnotateRun: runId is required');
+  }
 
-  await documents.updateDocument<Run>({
-    collection: 'runs',
-    match: { _id: runId },
-    update: {
-      isRunning: true,
-      isComplete: false,
-      hasErrored: false,
-      startedAt: new Date()
-    }
+  const result = await RunService.updateById(runId, {
+    isRunning: true,
+    isComplete: false,
+    hasErrored: false,
+    startedAt: new Date()
   });
+
+  if (!result) {
+    throw new Error(`startAnnotateRun: Run not found: ${runId}`);
+  }
 
   await emitFromJob(job, { runId }, 'FINISHED');
 

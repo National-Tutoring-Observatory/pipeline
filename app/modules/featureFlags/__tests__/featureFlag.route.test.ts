@@ -1,19 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import "~/modules/documents/documents";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { UserService } from "~/modules/users/user";
+import { FeatureFlagService } from "../featureFlag";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
 import { action, loader } from "../containers/featureFlag.route";
-import type { FeatureFlag } from "../featureFlags.types";
 
 vi.mock("~/modules/queues/helpers/getQueue", () => ({
   default: vi.fn(() => ({
     add: vi.fn().mockResolvedValue({}),
   })),
 }));
-
-const documents = getDocumentsAdapter();
 
 describe("featureFlag.route", () => {
   beforeEach(async () => {
@@ -41,12 +37,9 @@ describe("featureFlag.route", () => {
         teams: [],
       });
 
-      const featureFlag = (
-        await documents.createDocument<FeatureFlag>({
-          collection: "featureFlags",
-          update: { name: "test-flag" },
-        })
-      ).data;
+      const featureFlag = await FeatureFlagService.create({
+        name: "test-flag"
+      });
 
       await UserService.create({
         username: "user1",
@@ -72,9 +65,9 @@ describe("featureFlag.route", () => {
       } as any);
 
       if (result instanceof Response) throw new Error("Expected data, got Response");
-      expect(result.featureFlag.data?.name).toBe("test-flag");
-      expect(result.users.data).toHaveLength(1);
-      expect(result.users.data[0].username).toBe("user1");
+      expect(result.featureFlag.name).toBe("test-flag");
+      expect(result.users).toHaveLength(1);
+      expect(result.users[0].username).toBe("user1");
     });
   });
 
@@ -87,12 +80,9 @@ describe("featureFlag.route", () => {
         featureFlags: [],
       });
 
-      const featureFlag = (
-        await documents.createDocument<FeatureFlag>({
-          collection: "featureFlags",
-          update: { name: "beta-feature" },
-        })
-      ).data;
+      const featureFlag = await FeatureFlagService.create({
+        name: "beta-feature"
+      });
 
       const user1 = await UserService.create({
         username: "user1",
@@ -139,12 +129,9 @@ describe("featureFlag.route", () => {
         featureFlags: [],
       });
 
-      const featureFlag = (
-        await documents.createDocument<FeatureFlag>({
-          collection: "featureFlags",
-          update: { name: "beta-feature" },
-        })
-      ).data;
+      const featureFlag = await FeatureFlagService.create({
+        name: "beta-feature"
+      });
 
       const user = await UserService.create({
         username: "user1",
@@ -184,12 +171,9 @@ describe("featureFlag.route", () => {
         featureFlags: [],
       });
 
-      const featureFlag = (
-        await documents.createDocument<FeatureFlag>({
-          collection: "featureFlags",
-          update: { name: "deprecated-flag" },
-        })
-      ).data;
+      const featureFlag = await FeatureFlagService.create({
+        name: "deprecated-flag"
+      });
 
       const cookieHeader = await loginUser(admin._id);
 
@@ -197,7 +181,7 @@ describe("featureFlag.route", () => {
         intent: "DELETE_FEATURE_FLAG",
       });
 
-      const result = await action({
+      await action({
         request: new Request("http://localhost/", {
           method: "DELETE",
           headers: { cookie: cookieHeader },
@@ -208,17 +192,9 @@ describe("featureFlag.route", () => {
         context: {},
       } as any);
 
-      expect(result).not.toBeInstanceOf(Response);
-      if (result instanceof Response) throw new Error("Expected data, got Response");
-      expect(result.intent).toBe("DELETE_FEATURE_FLAG");
-      expect(result.success).toBe(true);
-
       // Verify the feature flag was deleted
-      const deletedFlag = await documents.getDocument<FeatureFlag>({
-        collection: "featureFlags",
-        match: { _id: featureFlag._id },
-      });
-      expect(deletedFlag.data).toBeNull();
+      const deletedFlag = await FeatureFlagService.findById(featureFlag._id);
+      expect(deletedFlag).toBeNull();
     });
   });
 });

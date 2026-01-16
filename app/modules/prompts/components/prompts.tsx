@@ -22,9 +22,6 @@ interface PromptsProps {
   onPaginationChanged: (currentPage: number) => void,
   onFiltersValueChanged: (filterValue: any) => void,
   onSortValueChanged: (sortValue: any) => void
-  onCreatePromptButtonClicked: () => void;
-  onEditPromptButtonClicked: (prompt: Prompt) => void;
-  onDeletePromptButtonClicked: (prompt: Prompt) => void;
 }
 
 export default function Prompts({
@@ -35,9 +32,6 @@ export default function Prompts({
   currentPage,
   totalPages,
   isSyncing,
-  onCreatePromptButtonClicked,
-  onEditPromptButtonClicked,
-  onDeletePromptButtonClicked,
   onActionClicked,
   onItemActionClicked,
   onSearchValueChanged,

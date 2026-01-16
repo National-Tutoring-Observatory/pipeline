@@ -13,11 +13,14 @@ import JobDetailField from "./jobDetailField";
 interface DeleteJobDialogProps {
   job: Job;
   onRemoveJobClicked: (jobId: string) => void;
+  isSubmitting?: boolean;
 }
 
-export default function DeleteJobDialog({ job, onRemoveJobClicked }: DeleteJobDialogProps) {
+export default function DeleteJobDialog({ job, onRemoveJobClicked, isSubmitting = false }: DeleteJobDialogProps) {
   const handleDelete = () => {
-    onRemoveJobClicked(job.id);
+    if (!isSubmitting) {
+      onRemoveJobClicked(job.id);
+    }
   };
 
   return (
@@ -39,12 +42,12 @@ export default function DeleteJobDialog({ job, onRemoveJobClicked }: DeleteJobDi
 
       <DialogFooter className="justify-end">
         <DialogClose asChild>
-          <Button type="button" variant="secondary">
+          <Button type="button" variant="secondary" disabled={isSubmitting}>
             Cancel
           </Button>
         </DialogClose>
         <DialogClose asChild>
-          <Button type="button" variant="destructive" onClick={handleDelete}>
+          <Button type="button" variant="destructive" onClick={handleDelete} disabled={isSubmitting}>
             Remove Job
           </Button>
         </DialogClose>

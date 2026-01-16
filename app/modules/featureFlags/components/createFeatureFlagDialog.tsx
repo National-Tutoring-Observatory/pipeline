@@ -12,22 +12,19 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 
 const CreateFeatureFlagDialog = ({
-  onCreateNewFeatureFlagClicked
+  onCreateFeatureFlagClicked,
+  isSubmitting = false
 }: {
-  onCreateNewFeatureFlagClicked: ({ name }: { name: string }) => void
+  onCreateFeatureFlagClicked: ({ name }: { name: string }) => void,
+  isSubmitting?: boolean
 }) => {
-
   const [name, setName] = useState('');
 
   const onNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
 
-  let isSubmitButtonDisabled = true;
-
-  if (name.trim().length >= 3) {
-    isSubmitButtonDisabled = false;
-  }
+  let isSubmitButtonDisabled = isSubmitting || name.trim().length < 3;
 
   return (
     <DialogContent>
@@ -39,19 +36,19 @@ const CreateFeatureFlagDialog = ({
       </DialogHeader>
       <div className="grid gap-3">
         <Label htmlFor="name-1">Feature flag</Label>
-        <Input id="name-1" name="name" defaultValue={name} autoComplete="off" onChange={onNameChanged} />
+        <Input id="name-1" name="name" defaultValue={name} autoComplete="off" onChange={onNameChanged} disabled={isSubmitting} />
       </div>
       <DialogFooter className="justify-end">
         <DialogClose asChild>
-          <Button type="button" variant="secondary">
+          <Button type="button" variant="secondary" disabled={isSubmitting}>
             Cancel
           </Button>
         </DialogClose>
         <DialogClose asChild>
           <Button type="button" disabled={isSubmitButtonDisabled} onClick={() => {
-            onCreateNewFeatureFlagClicked({ name });
+            onCreateFeatureFlagClicked({ name });
           }}>
-            Create feature flag
+            {isSubmitting ? 'Creating...' : 'Create feature flag'}
           </Button>
         </DialogClose>
       </DialogFooter>

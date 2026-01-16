@@ -1,26 +1,23 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import '~/modules/documents/documents'
-import getDocumentsAdapter from '~/modules/documents/helpers/getDocumentsAdapter'
+import { ProjectService } from '~/modules/projects/project'
 import { TeamService } from '~/modules/teams/team'
 import { UserService } from '~/modules/users/user'
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB'
 import loginUser from '../../../../test/helpers/loginUser'
 import { loader } from '../containers/sessionsList.route'
-import type { Session } from '../sessions.types'
-
-const documents = getDocumentsAdapter()
+import { SessionService } from '../session'
 
 describe('sessionsList.route loader', () => {
   beforeEach(async () => {
     await clearDocumentDB()
   })
 
-  it('returns the documents result as `sessions` (regression test)', async () => {
+  it('returns the sessions as an array', async () => {
     const team = await TeamService.create({ name: 'team 1' })
-    const project = (await documents.createDocument({ collection: 'projects', update: { name: 'project 1', team: team._id } })).data
-    const user = await UserService.create({username: 'test_user', teams: [{ team: team._id, role: 'ADMIN' }] });
+    const project = await ProjectService.create({ name: 'project 1', team: team._id })
+    const user = await UserService.create({ username: 'test_user', teams: [{ team: team._id, role: 'ADMIN' }] });
 
-    const sessionA = (await documents.createDocument<Session>({ collection: 'sessions', update: { project: project._id, hasConverted: true, title: 's1' } })).data
+    const sessionA = await SessionService.create({ project: project._id, hasConverted: true, name: 's1' })
 
     const cookieHeader = await loginUser(user._id)
 
@@ -33,15 +30,14 @@ describe('sessionsList.route loader', () => {
 
     const ids = res.sessions.data.map((d: any) => d._id)
     expect(ids).toContain(sessionA._id)
-    expect(res.sessions.count).toBe(1);
-    expect(res.sessions.totalPages).toBe(1);
+    expect(res.sessions.data.length).toBe(1);
   })
 
   it('filters out not converted sessions', async () => {
     const team = await TeamService.create({ name: 'team 1' })
-    const project = (await documents.createDocument({ collection: 'projects', update: { name: 'project 1', team: team._id } })).data
+    const project = await ProjectService.create({ name: 'project 1', team: team._id })
     const user = await UserService.create({ username: 'test_user', teams: [{ team: team._id, role: 'ADMIN' }] })
-    await documents.createDocument<Session>({ collection: 'sessions', update: { project: project._id, hasConverted: false, title: 's1' } })
+    await SessionService.create({ project: project._id, hasConverted: false, name: 's1' })
 
     const cookieHeader = await loginUser(user._id)
 
@@ -52,17 +48,17 @@ describe('sessionsList.route loader', () => {
       context: {}
     }) as any);
 
-    expect(res.sessions.count).toBe(0);
+    expect(res.sessions.data.length).toBe(0);
   })
 
   it('filters out files from other projects', async () => {
     const team = await TeamService.create({ name: 'team 1' })
-    const project = (await documents.createDocument({ collection: 'projects', update: { name: 'project 1', team: team._id } })).data
-    const project2 = (await documents.createDocument({ collection: 'projects', update: { name: 'project 2', team: team._id } })).data
+    const project = await ProjectService.create({ name: 'project 1', team: team._id })
+    const project2 = await ProjectService.create({ name: 'project 2', team: team._id })
     const user = await UserService.create({ username: 'test_user', teams: [{ team: team._id, role: 'ADMIN' }] })
 
-    const sessionA = (await documents.createDocument<Session>({ collection: 'sessions', update: { project: project._id, hasConverted: true, title: 's1' } })).data
-    const sessionB = (await documents.createDocument<Session>({ collection: 'sessions', update: { project: project2._id, hasConverted: true, title: 's2' } })).data
+    const sessionA = await SessionService.create({ project: project._id, hasConverted: true, name: 's1' })
+    const sessionB = await SessionService.create({ project: project2._id, hasConverted: true, name: 's2' })
 
     const cookieHeader = await loginUser(user._id)
 
@@ -96,9 +92,9 @@ describe('sessionsList.route loader', () => {
 
   it('redirects when not project owner', async () => {
     const team = await TeamService.create({ name: 'team 1' })
-    const project = (await documents.createDocument({ collection: 'projects', update: { name: 'project 1', team: team._id } })).data
+    const project = await ProjectService.create({ name: 'project 1', team: team._id })
     const team2 = await TeamService.create({ name: 'team 2' })
-    const project2 = (await documents.createDocument({ collection: 'projects', update: { name: 'project 2', team: team2._id } })).data
+    const project2 = await ProjectService.create({ name: 'project 2', team: team2._id })
     const user = await UserService.create({ username: 'test_user', teams: [{ team: team._id, role: 'ADMIN' }] })
 
     const cookieHeader = await loginUser(user._id)

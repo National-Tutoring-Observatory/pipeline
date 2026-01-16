@@ -2,9 +2,8 @@ import fse from 'fs-extra';
 import filter from 'lodash/filter';
 import find from 'lodash/find.js';
 import getConversationFromJSON from 'workers/helpers/getConversationFromJSON';
-import getDocumentsAdapter from '../../app/modules/documents/helpers/getDocumentsAdapter';
 import LLM from '../../app/modules/llm/llm';
-import type { Run } from '../../app/modules/runs/runs.types';
+import { RunService } from '../../app/modules/runs/run';
 import getStorageAdapter from '../../app/modules/storage/helpers/getStorageAdapter';
 import emitFromJob from '../helpers/emitFromJob';
 import updateRunSession from '../helpers/updateRunSession';
@@ -77,17 +76,15 @@ export default async function annotatePerUtterance(job: any) {
       }
     });
 
-    const documents = getDocumentsAdapter();
+    const run = await RunService.findById(runId);
 
-    const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: runId } });
-
-    if (!run.data) {
+    if (!run) {
       throw new Error(`Run not found: ${runId}`);
     }
 
-    const sessionsCount = run.data.sessions.length;
+    const sessionsCount = run.sessions.length;
 
-    const completedSessionsCount = filter(run.data.sessions, { status: 'DONE' }).length;
+    const completedSessionsCount = filter(run.sessions, { status: 'DONE' }).length;
 
     await emitFromJob(job, {
       runId,

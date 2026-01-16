@@ -1,16 +1,17 @@
-
 import filter from 'lodash/filter';
 import has from 'lodash/has';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
-import { redirect, useFetcher, useMatches, useRevalidator, data } from "react-router";
+import { data, redirect, useFetcher, useMatches, useRevalidator } from "react-router";
 import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { CollectionService } from "~/modules/collections/collection";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
-import type { Session } from "~/modules/sessions/sessions.types";
+import { FileService } from "~/modules/files/file";
+import { RunService } from "~/modules/runs/run";
+import { SessionService } from "~/modules/sessions/session";
 import splitMultipleSessionsIntoFiles from '~/modules/uploads/services/splitMultipleSessionsIntoFiles';
 import uploadFiles from "~/modules/uploads/services/uploadFiles";
 import type { User } from "~/modules/users/users.types";
@@ -18,33 +19,33 @@ import ProjectAuthorization from "../authorization";
 import EditProjectDialog from "../components/editProjectDialog";
 import Project from '../components/project';
 import getAttributeMappingFromFile from '../helpers/getAttributeMappingFromFile';
+import { ProjectService } from "../project";
 import type { Project as ProjectType } from "../projects.types";
 import createSessionsFromFiles from '../services/createSessionsFromFiles.server';
 import type { Route } from "./+types/project.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const documents = getDocumentsAdapter();
   const user = await getSessionUser({ request }) as User;
 
   if (!user) {
     return redirect('/');
   }
 
-  const project = await documents.getDocument<ProjectType>({ collection: 'projects', match: { _id: params.id } });
-  if (!project.data) {
+  const project = await ProjectService.findById(params.id);
+  if (!project) {
     return redirect('/');
   }
 
-  if (!ProjectAuthorization.canView(user, project.data)) {
+  if (!ProjectAuthorization.canView(user, project)) {
     return redirect('/');
   }
 
-  const filesCount = await documents.countDocuments({ collection: 'files', match: { project: params.id } });
-  const sessions = await documents.getDocuments<Session>({ collection: 'sessions', match: { project: params.id }, sort: {} });
-  const sessionsCount = sessions.count;
-  const convertedSessionsCount = filter(sessions.data, { hasConverted: true }).length;
-  const runsCount = await documents.countDocuments({ collection: 'runs', match: { project: params.id } });
-  const collectionsCount = await documents.countDocuments({ collection: 'collections', match: { project: params.id } });
+  const filesCount = await FileService.count({ project: params.id });
+  const sessions = await SessionService.find({ match: { project: params.id } });
+  const sessionsCount = sessions.length;
+  const convertedSessionsCount = filter(sessions, { hasConverted: true }).length;
+  const runsCount = await RunService.count({ project: params.id });
+  const collectionsCount = await CollectionService.count({ project: params.id });
   return { project, filesCount, sessionsCount, convertedSessionsCount, runsCount, collectionsCount };
 }
 
@@ -57,68 +58,62 @@ export async function action({
     return redirect('/');
   }
 
-  const documents = getDocumentsAdapter();
-
   const formData = await request.formData();
-    const body = JSON.parse(String(formData.get('body')));
-    const { entityId } = body;
+  const body = JSON.parse(String(formData.get('body')));
+  const { entityId } = body;
 
-    const project = await documents.getDocument<ProjectType>({ collection: 'projects', match: { _id: entityId } });
-    if (!project.data) {
-      return data({ errors: { general: 'Project not found' } }, { status: 400 });
-    }
+  const project = await ProjectService.findById(entityId);
+  if (!project) {
+    return data({ errors: { general: 'Project not found' } }, { status: 404 });
+  }
 
-    if (!ProjectAuthorization.canUpdate(user, project.data)) {
-      return data(
-        { errors: { general: 'You do not have permission to upload files to this project.' } },
-        { status: 403 }
-      );
-    }
+  if (!ProjectAuthorization.canUpdate(user, project)) {
+    return data(
+      { errors: { general: 'You do not have permission to upload files to this project.' } },
+      { status: 403 }
+    );
+  }
 
-    const uploadedFiles = formData.getAll('files') as File[];
+  const uploadedFiles = formData.getAll('files') as File[];
 
-    if (uploadedFiles.length === 0) {
-      return data({ errors: { files: 'Please select at least one file.' } }, { status: 400 });
-    }
+  if (uploadedFiles.length === 0) {
+    return data({ errors: { files: 'Please select at least one file.' } }, { status: 400 });
+  }
 
-    let splitFiles: File[] = [];
+  let splitFiles: File[] = [];
 
-    try {
-      splitFiles = await splitMultipleSessionsIntoFiles({ files: uploadedFiles });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      return data(
-        { errors: { files: `File processing failed: ${errorMessage}` } },
-        { status: 400 }
-      );
-    }
+  try {
+    splitFiles = await splitMultipleSessionsIntoFiles({ files: uploadedFiles });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return data(
+      { errors: { files: `File processing failed: ${errorMessage}` } },
+      { status: 400 }
+    );
+  }
 
-    if (splitFiles.length === 0) {
-      return data(
-        { errors: { files: 'No valid sessions found in uploaded files.' } },
-        { status: 400 }
-      );
-    }
+  if (splitFiles.length === 0) {
+    return data(
+      { errors: { files: 'No valid sessions found in uploaded files.' } },
+      { status: 400 }
+    );
+  }
 
-    const projectTeam = project.data.team as string;
+  const projectTeam = project.team as string;
 
-    const attributesMapping = await getAttributeMappingFromFile({ file: splitFiles[0], team: projectTeam });
+  const attributesMapping = await getAttributeMappingFromFile({ file: splitFiles[0], team: projectTeam });
 
-    uploadFiles({ files: splitFiles, entityId }).then(async () => {
-      await createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true, attributesMapping });
-    });
+  uploadFiles({ files: splitFiles, entityId }).then(async () => {
+    await createSessionsFromFiles({ projectId: entityId, shouldCreateSessionModels: true, attributesMapping });
+  });
 
-    const result = await documents.updateDocument<ProjectType>({
-      collection: 'projects',
-      match: { _id: entityId },
-      update: { isUploadingFiles: true, hasSetupProject: true }
-    });
+  const result = await ProjectService.updateById(entityId, { isUploadingFiles: true, hasSetupProject: true });
 
-    if (!result.data) {
-      return data({ errors: { general: 'Failed to update project' } }, { status: 500 });
-    }
+  if (!result) {
+    return data({ errors: { general: 'Failed to update project' } }, { status: 500 });
+  }
 
-    return data({ success: true });
+  return data({ success: true });
 }
 
 
@@ -143,16 +138,31 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const [uploadFilesProgress, setUploadFilesProgress] = useState(0);
   const [convertFilesProgress, setConvertFilesProgress] = useState(0);
 
-  const onEditProjectButtonClicked = (project: ProjectType) => {
-    addDialog(<EditProjectDialog project={project} onEditProjectClicked={(p: ProjectType) => {
-      editFetcher.submit(JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: p._id, payload: { name: p.name } }), { method: 'PUT', encType: 'application/json', action: '/api/projects' });
-    }} />);
-  }
+  const submitEditProject = (p: ProjectType) => {
+    editFetcher.submit(
+      JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: p._id, payload: { name: p.name } }),
+      { method: 'PUT', encType: 'application/json' }
+    );
+  };
+
+  const openEditProjectDialog = (project: ProjectType) => {
+    addDialog(
+      <EditProjectDialog
+        project={project}
+        onEditProjectClicked={submitEditProject}
+        isSubmitting={editFetcher.state === 'submitting'}
+      />
+    );
+  };
 
   useEffect(() => {
-    console.log(editFetcher)
     if (editFetcher.state === 'idle' && editFetcher.data) {
-      toast.success('Updated project');
+      if ('success' in editFetcher.data && editFetcher.data.success && editFetcher.data.intent === 'UPDATE_PROJECT') {
+        toast.success('Updated project');
+        addDialog(null);
+      } else if ('errors' in editFetcher.data && editFetcher.data.errors) {
+        toast.error(editFetcher.data.errors.general || 'An error occurred');
+      }
     }
   }, [editFetcher.state, editFetcher.data]);
 
@@ -167,19 +177,19 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   useHandleSockets({
     event: 'CONVERT_FILES_TO_SESSIONS',
     matches: [{
-      projectId: project.data!._id,
+      projectId: project._id,
       task: 'CONVERT_FILES_TO_SESSIONS:START',
       status: 'FINISHED'
     }, {
-      projectId: project.data!._id,
+      projectId: project._id,
       task: 'CONVERT_FILES_TO_SESSIONS:PROCESS',
       status: 'STARTED'
     }, {
-      projectId: project.data!._id,
+      projectId: project._id,
       task: 'CONVERT_FILES_TO_SESSIONS:PROCESS',
       status: 'FINISHED'
     }, {
-      projectId: project.data!._id,
+      projectId: project._id,
       task: 'CONVERT_FILES_TO_SESSIONS:FINISH',
       status: 'FINISHED'
     }], callback: (payload) => {
@@ -197,7 +207,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.projectId === project.data!._id) {
+      if (data.projectId === project._id) {
         switch (data.event) {
           case 'UPLOAD_FILES':
             setUploadFilesProgress(data.progress);
@@ -226,12 +236,12 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   }, []);
 
   useEffect(() => {
-    updateBreadcrumb([{ text: 'Projects', link: `/` }, { text: project.data!.name }])
-  }, [project.data]);
+    updateBreadcrumb([{ text: 'Projects', link: `/` }, { text: project.name }])
+  }, [project.name]);
 
   return (
     <Project
-      project={project.data!}
+      project={project}
       filesCount={filesCount}
       sessionsCount={sessionsCount}
       convertedSessionsCount={convertedSessionsCount}
@@ -241,7 +251,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       convertFilesProgress={convertFilesProgress}
       uploadFilesProgress={uploadFilesProgress}
       uploadFetcher={uploadFetcher}
-      onEditProjectButtonClicked={onEditProjectButtonClicked}
+      onEditProjectButtonClicked={openEditProjectDialog}
     />
   );
 }

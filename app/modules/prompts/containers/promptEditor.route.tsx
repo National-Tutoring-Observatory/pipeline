@@ -1,7 +1,8 @@
 import { redirect, useLoaderData, useNavigation, useSubmit, type ShouldRevalidateFunctionArgs } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { PromptService } from "../prompt";
+import { PromptVersionService } from "../promptVersion";
 import type { User } from "~/modules/users/users.types";
 import PromptAuthorization from "../authorization";
 import PromptEditor from "../components/promptEditor";
@@ -15,24 +16,23 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect('/');
   }
 
-  const documents = getDocumentsAdapter();
-  const prompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: params.id } });
+  const prompt = await PromptService.findById(params.id);
 
-  if (!prompt.data) {
+  if (!prompt) {
     return redirect('/');
   }
 
-  if (!PromptAuthorization.canView(user, prompt.data)) {
+  if (!PromptAuthorization.canView(user, prompt)) {
     return redirect('/');
   }
 
-  const promptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { version: Number(params.version), prompt: params.id } });
+  const promptVersion = await PromptVersionService.findOne({ version: Number(params.version), prompt: params.id });
 
-  if (!promptVersion.data) {
+  if (!promptVersion) {
     return redirect('/');
   }
 
-  return { prompt, promptVersion };
+  return { prompt: { data: prompt }, promptVersion: { data: promptVersion } };
 }
 
 export async function action({
@@ -44,45 +44,34 @@ export async function action({
 
   const { name, userPrompt, annotationSchema } = payload;
 
-  const documents = getDocumentsAdapter();
-
   const user = await getSessionUser({ request }) as User;
   if (!user) {
     return redirect('/');
   }
 
-  const promptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { _id: entityId } });
+  const promptVersion = await PromptVersionService.findById(entityId);
 
-  if (!promptVersion.data) {
+  if (!promptVersion) {
     throw new Error('Prompt version not found');
   }
 
-  const promptId = (promptVersion.data.prompt as string);
-  const prompt = await documents.getDocument<Prompt>({ collection: 'prompts', match: { _id: promptId } });
+  const promptId = typeof promptVersion.prompt === 'string' ? promptVersion.prompt : promptVersion.prompt._id;
+  const prompt = await PromptService.findById(promptId);
 
-  if (!prompt.data) {
+  if (!prompt) {
     throw new Error('Prompt not found');
   }
 
-  const teamId = (prompt.data.team as any)._id || prompt.data.team;
-  if (!PromptAuthorization.canUpdate(user, teamId)) {
+  if (!PromptAuthorization.canUpdate(user, prompt)) {
     throw new Error('Access denied');
   }
 
   switch (intent) {
     case 'UPDATE_PROMPT_VERSION':
-      await documents.updateDocument<PromptVersion>({
-        collection: 'promptVersions',
-        match: { _id: entityId },
-        update: { name, userPrompt, annotationSchema, hasBeenSaved: true, updatedAt: new Date(), }
-      })
+      await PromptVersionService.updateById(entityId, { name, userPrompt, annotationSchema, hasBeenSaved: true, updatedAt: new Date().toISOString() });
       return {};
     case 'MAKE_PROMPT_VERSION_PRODUCTION':
-      await documents.updateDocument<Prompt>({
-        collection: 'prompts',
-        match: { _id: promptId },
-        update: { productionVersion: Number(params.version) }
-      })
+      await PromptService.updateById(promptId, { productionVersion: Number(params.version) });
       return {};
     default:
       return {};

@@ -1,4 +1,5 @@
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
+import { PromptService } from "~/modules/prompts/prompt";
+import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 
 /**
@@ -39,32 +40,26 @@ async function buildPromptSnapshot({
   promptId,
   promptVersionNumber
 }: BuildPromptSnapshotProps) {
-  const documents = getDocumentsAdapter();
-
-  const prompt = await documents.getDocument<Prompt>({
-    collection: 'prompts',
-    match: { _id: promptId }
+  const prompt = await PromptService.findById(promptId);
+  const promptVersion = await PromptVersionService.findOne({
+    prompt: promptId,
+    version: promptVersionNumber
   });
 
-  const promptVersion = await documents.getDocument<PromptVersion>({
-    collection: 'promptVersions',
-    match: { prompt: promptId, version: promptVersionNumber }
-  });
-
-  if (!promptVersion.data) {
+  if (!promptVersion) {
     throw new Error(`Prompt version not found: ${promptId} v${promptVersionNumber}`);
   }
 
-  if (!prompt.data) {
+  if (!prompt) {
     throw new Error(`Prompt not found: ${promptId}`);
   }
 
   return {
-    name: prompt.data.name,
-    userPrompt: promptVersion.data.userPrompt,
-    annotationSchema: promptVersion.data.annotationSchema,
-    annotationType: prompt.data.annotationType,
-    version: promptVersion.data.version
+    name: prompt.name,
+    userPrompt: promptVersion.userPrompt,
+    annotationSchema: promptVersion.annotationSchema,
+    annotationType: prompt.annotationType,
+    version: promptVersion.version
   };
 }
 

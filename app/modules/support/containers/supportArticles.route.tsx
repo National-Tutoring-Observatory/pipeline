@@ -7,13 +7,19 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/supportArticles.route";
 
+interface SupportArticle {
+  documentId: string;
+  data: Record<string, unknown>;
+  html: string;
+}
+
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getSessionUser({ request }) as User;
   if (!user) {
     return redirect('/');
   }
 
-  const supportArticles = [] as any;
+  const supportArticles: SupportArticle[] = [];
 
   const documentsInDirectory = fs.readdirSync(path.join(process.cwd(), 'documentation')).filter(file => path.extname(file) === '.md');
 

@@ -1,45 +1,41 @@
-import getDocumentsAdapter from "~/modules/documents/helpers/getDocumentsAdapter";
 import { emitter } from "~/modules/events/emitter";
 import type { Project } from "~/modules/projects/projects.types";
 import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
 import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
-import type { Session } from "~/modules/sessions/sessions.types";
+import { RunService } from "~/modules/runs/run";
+import { PromptVersionService } from "~/modules/prompts/promptVersion";
+import { ProjectService } from "~/modules/projects/project";
+import { SessionService } from "~/modules/sessions/session";
 import { handler as annotatePerSession } from './annotatePerSession/app';
 import { handler as annotatePerUtterance } from './annotatePerUtterance/app';
 
 export default async function annotateRunSessions({ runId }: { runId: string }, context: { request: Request }) {
 
-  const documents = getDocumentsAdapter();
+  const run = await RunService.findById(runId);
+  if (!run) throw new Error(`Run not found: ${runId}`);
+  const project = await ProjectService.findById(run.project as string);
+  if (!project) throw new Error(`Project not found: ${run.project}`);
 
-  const run = await documents.getDocument<Run>({ collection: 'runs', match: { _id: runId } });
-  if (!run.data) throw new Error(`Run not found: ${runId}`);
-  const project = await documents.getDocument<Project>({ collection: 'projects', match: { _id: run.data.project } });
-  if (!project.data) throw new Error(`Project not found: ${run.data.project}`);
+  if (run.isRunning) { return {} }
 
-  if (run.data.isRunning) { return {} }
+  const inputDirectory = `storage/${run.project}/preAnalysis`;
 
-  const inputDirectory = `storage/${run.data.project}/preAnalysis`;
+  const outputDirectory = `storage/${run.project}/runs/${run._id}`;
 
-  const outputDirectory = `storage/${run.data.project}/runs/${run.data._id}`;
-
-  await documents.updateDocument({
-    collection: 'runs',
-    match: { _id: runId },
-    update: {
-      isRunning: true,
-      startedAt: new Date()
-    }
+  await RunService.updateById(runId, {
+    isRunning: true,
+    startedAt: new Date()
   });
 
-  const promptVersion = await documents.getDocument<PromptVersion>({ collection: 'promptVersions', match: { prompt: run.data.prompt, version: Number(run.data.promptVersion) } });
-  if (!promptVersion.data) throw new Error(`Prompt version not found: ${run.data.prompt} v${run.data.promptVersion}`);
+  const promptVersion = await PromptVersionService.findOne({ prompt: run.prompt, version: Number(run.promptVersion) });
+  if (!promptVersion) throw new Error(`Prompt version not found: ${run.prompt} v${run.promptVersion}`);
 
-  emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: 0, status: 'STARTED', step: `0/${run.data.sessions.length}` });
+  emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: 0, status: 'STARTED', step: `0/${run.sessions.length}` });
 
   let annotationFields: Record<string, any> = {};
 
-  for (const annotationSchemaItem of promptVersion.data.annotationSchema as AnnotationSchemaItem[]) {
+  for (const annotationSchemaItem of promptVersion.annotationSchema as AnnotationSchemaItem[]) {
     annotationFields[annotationSchemaItem.fieldKey] = annotationSchemaItem.value;
   }
   const annotationSchema = { "annotations": [annotationFields] };
@@ -48,49 +44,45 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
 
   let hasErrored = false;
 
-  for (const session of run.data.sessions) {
+  for (const session of run.sessions) {
     if (session.status === 'DONE') {
       completedSessions++;
-      emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING' });
+      emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.sessions.length) * completedSessions), status: 'RUNNING' });
       continue;
     }
-    const sessionModel = await documents.getDocument<Session>({ collection: 'sessions', match: { _id: session.sessionId } });
-    if (!sessionModel.data) throw new Error(`Session not found: ${session.sessionId}`);
+    const sessionModel = await SessionService.findById(session.sessionId);
+    if (!sessionModel) throw new Error(`Session not found: ${session.sessionId}`);
 
     session.status = 'RUNNING';
     session.startedAt = new Date();
 
-    await documents.updateDocument({
-      collection: 'runs',
-      match: { _id: runId },
-      update: {
-        sessions: run.data.sessions
-      }
+    await RunService.updateById(runId, {
+      sessions: run.sessions
     });
 
-    emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING', step: `${completedSessions + 1}/${run.data.sessions.length}` });
+    emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.sessions.length) * completedSessions), status: 'RUNNING', step: `${completedSessions + 1}/${run.sessions.length}` });
 
     let status: 'DONE' | 'ERRORED' | 'RUNNING';
 
     try {
-      if (run.data.annotationType === 'PER_UTTERANCE') {
+      if (run.annotationType === 'PER_UTTERANCE') {
         await annotatePerUtterance({
           body: {
-            inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-            outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
-            prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-            model: getRunModelCode(run.data),
-            team: project.data.team
+            inputFile: `${inputDirectory}/${sessionModel._id}/${sessionModel.name}`,
+            outputFolder: `${outputDirectory}/${sessionModel._id}`,
+            prompt: { prompt: promptVersion.userPrompt, annotationSchema },
+            model: getRunModelCode(run),
+            team: project.team
           }
         });
       } else {
         await annotatePerSession({
           body: {
-            inputFile: `${inputDirectory}/${sessionModel.data._id}/${sessionModel.data.name}`,
-            outputFolder: `${outputDirectory}/${sessionModel.data._id}`,
-            prompt: { prompt: promptVersion.data.userPrompt, annotationSchema },
-            model: getRunModelCode(run.data),
-            team: project.data.team
+            inputFile: `${inputDirectory}/${sessionModel._id}/${sessionModel.name}`,
+            outputFolder: `${outputDirectory}/${sessionModel._id}`,
+            prompt: { prompt: promptVersion.userPrompt, annotationSchema },
+            model: getRunModelCode(run),
+            team: project.team
           }
         })
       }
@@ -103,26 +95,18 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
 
     session.status = status;
     session.finishedAt = new Date();
-    await documents.updateDocument({
-      collection: 'runs',
-      match: { _id: runId },
-      update: {
-        sessions: run.data.sessions,
-      }
+    await RunService.updateById(runId, {
+      sessions: run.sessions,
     });
     completedSessions++;
-    emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.data.sessions.length) * completedSessions), status: 'RUNNING' });
+    emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.sessions.length) * completedSessions), status: 'RUNNING' });
   }
 
-  await documents.updateDocument({
-    collection: 'runs',
-    match: { _id: runId },
-    update: {
-      isRunning: false,
-      isComplete: true,
-      hasErrored,
-      finishedAt: new Date()
-    }
+  await RunService.updateById(runId, {
+    isRunning: false,
+    isComplete: true,
+    hasErrored,
+    finishedAt: new Date()
   });
 
   emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: 100, status: 'DONE' });
