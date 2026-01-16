@@ -13,7 +13,7 @@ export interface Run {
   promptVersion: number;
   model: string;
   sessions: RunSession[]
-  snapshot?: RunSnapshot;
+  snapshot: RunSnapshot;
   hasSetup: boolean;
   isRunning: boolean;
   isComplete: boolean;

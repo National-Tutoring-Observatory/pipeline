@@ -8,7 +8,6 @@ import map from 'lodash/map';
 import { Download, FolderPlus, Pencil } from "lucide-react";
 import { Link } from "react-router";
 import annotationTypes from "~/modules/prompts/annotationTypes";
-import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import ProjectRunDownloads from "./projectRunDownloads";
@@ -16,8 +15,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default function ProjectRun({
   run,
-  runPrompt,
-  runPromptVersion,
+  promptInfo,
   runSessionsProgress,
   runSessionsStep,
   onExportRunButtonClicked,
@@ -26,8 +24,7 @@ export default function ProjectRun({
   onCreateCollectionButtonClicked
 }: {
   run: Run,
-  runPrompt: Prompt,
-  runPromptVersion: PromptVersion,
+  promptInfo: { name: string, version: number },
   runSessionsProgress: number,
   runSessionsStep: string,
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void
@@ -103,11 +100,11 @@ export default function ProjectRun({
             <div className="text-xs text-muted-foreground">Selected prompt</div>
             <div>
               <div>
-                {runPrompt.name}
+                {promptInfo.name}
               </div>
               <div>
                 <Badge >
-                  Version {runPromptVersion.version}
+                  Version {promptInfo.version}
                 </Badge>
               </div>
             </div>

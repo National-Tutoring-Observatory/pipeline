@@ -9,8 +9,6 @@ import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
 import { ProjectService } from "~/modules/projects/project";
-import { PromptService } from "~/modules/prompts/prompt";
-import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import exportRun from "~/modules/runs/helpers/exportRun";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
@@ -18,6 +16,11 @@ import EditRunDialog from "../components/editRunDialog";
 import ProjectRun from "../components/projectRun";
 import startRun from '../services/startRun.server';
 import type { Route } from "./+types/projectRun.route";
+
+interface PromptInfo {
+  name: string;
+  version: number;
+}
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
@@ -30,14 +33,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!run) {
     return redirect('/');
   }
-  if (!run.hasSetup) {
-    return redirect(`/projects/${project._id}/create-run`);
-  }
-  const runPrompt = await PromptService.findById(run.prompt as string);
-  const runPromptVersion = await PromptVersionService.find({
-    match: { prompt: run.prompt, version: Number(run.promptVersion) }
-  });
-  return { project, run, runPrompt, runPromptVersion: runPromptVersion[0] };
+
+  const promptInfo: PromptInfo = {
+    name: run.snapshot.prompt.name,
+    version: run.snapshot.prompt.version
+  };
+
+  return { project, run, promptInfo };
 }
 
 
@@ -99,9 +101,7 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRunRoute() {
-  const { project, run, runPrompt, runPromptVersion } = useLoaderData();
-  const params = useParams();
-
+  const { project, run, promptInfo } = useLoaderData();
   const [runSessionsProgress, setRunSessionsProgress] = useState(0);
   const [runSessionsStep, setRunSessionsStep] = useState('');
   const submit = useSubmit();
@@ -141,7 +141,7 @@ export default function ProjectRunRoute() {
   }
 
   const onCreateCollectionButtonClicked = (run: Run) => {
-    navigate(`/projects/${params.projectId}/create-collection?fromRun=${run._id}`);
+    navigate(`/projects/${project._id}/create-collection?fromRun=${run._id}`);
   }
 
   useHandleSockets({
@@ -227,8 +227,7 @@ export default function ProjectRunRoute() {
   return (
     <ProjectRun
       run={run}
-      runPrompt={runPrompt}
-      runPromptVersion={runPromptVersion}
+      promptInfo={promptInfo}
       runSessionsProgress={runSessionsProgress}
       runSessionsStep={runSessionsStep}
       onExportRunButtonClicked={onExportRunButtonClicked}

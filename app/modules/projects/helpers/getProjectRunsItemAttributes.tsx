@@ -5,7 +5,7 @@ import { getRunModelDisplayName } from '~/modules/runs/helpers/runModel';
 import type { Run } from '~/modules/runs/runs.types';
 
 export default (item: Run) => {
-  const promptName = get(item, 'prompt.name', '');
+  const promptName = get(item, 'snapshot.prompt.name', '');
 
   const meta = [{
     text: `Annotation type - ${getAnnotationLabel(item.annotationType)}`

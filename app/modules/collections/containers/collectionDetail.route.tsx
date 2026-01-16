@@ -276,8 +276,8 @@ export default function CollectionDetailRoute() {
                         </div>
                       </TableCell>
                       <TableCell className="text-xs">
-                        <div>{run.prompt as string}</div>
-                        {run.promptVersion && <div className="text-muted-foreground">v{run.promptVersion}</div>}
+                        <div>{run.snapshot.prompt.name}</div>
+                        <div className="text-muted-foreground">v{run.snapshot.prompt.version}</div>
                       </TableCell>
                       <TableCell className="text-sm">{getRunModelDisplayName(run)}</TableCell>
                       <TableCell className="text-sm">{run.sessions?.length || 0}</TableCell>
