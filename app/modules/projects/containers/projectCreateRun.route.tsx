@@ -52,7 +52,6 @@ export async function action({
         project: params.projectId,
         name,
         annotationType,
-        hasSetup: false,
         isRunning: false,
         isComplete: false
       });

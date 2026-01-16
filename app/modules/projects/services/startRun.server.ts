@@ -44,7 +44,6 @@ export default async function startRun({
   });
 
   return await RunService.updateById(runId, {
-    hasSetup: true,
     annotationType,
     prompt,
     promptVersion,

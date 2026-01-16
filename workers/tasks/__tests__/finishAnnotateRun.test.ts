@@ -48,7 +48,6 @@ describe('finishAnnotateRun worker', () => {
       project: project._id,
       isRunning: true,
       isComplete: false,
-      hasSetup: true
     });
 
     const job = {
@@ -83,7 +82,6 @@ describe('finishAnnotateRun worker', () => {
       project: project._id,
       isRunning: true,
       isComplete: false,
-      hasSetup: true
     });
 
     const job = {
@@ -117,7 +115,6 @@ describe('finishAnnotateRun worker', () => {
       project: project._id,
       isRunning: true,
       isComplete: false,
-      hasSetup: true
     });
 
     const job = {

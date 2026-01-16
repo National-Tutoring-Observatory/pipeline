@@ -158,7 +158,6 @@ export async function action({
 
       const runsUsingPromptCount = await RunService.count({
         prompt: entityId,
-        hasSetup: true,        // Only active/configured runs
         isComplete: false      // Exclude finished runs (data preserved in snapshot)
       });
 

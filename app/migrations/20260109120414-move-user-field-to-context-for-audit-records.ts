@@ -31,35 +31,28 @@ export default {
     )
     console.log(`Renamed ADD_SUPERADMIN records: ${renamedResult.modifiedCount}`)
 
-    // Move user field to context.target using aggregation pipeline
-    const moveResult = await auditCollection.updateMany(
-      { user: { $exists: true } },
-      [
+    // Move user field to context.target (without aggregation pipeline for older MongoDB versions)
+    const cursor = auditCollection.find({ user: { $exists: true } })
+    let movedCount = 0
+    for await (const doc of cursor) {
+      await auditCollection.updateOne(
+        { _id: doc._id },
         {
-          $set: {
-            context: {
-              $mergeObjects: [
-                { $ifNull: ['$context', {}] },
-                { target: '$user' }
-              ]
-            }
-          }
+          $set: { 'context.target': doc.user },
+          $unset: { user: '' }
         }
-      ]
-    )
-    console.log(`Moved user to context.target: ${moveResult.modifiedCount}`)
-
-    // Remove user field
-    const unsetResult = await auditCollection.updateMany(
-      { user: { $exists: true } },
-      { $unset: { user: '' } }
-    )
-    console.log(`Removed user field: ${unsetResult.modifiedCount}`)
+      )
+      movedCount++
+      if (movedCount % 1000 === 0) {
+        console.log(`Processed ${movedCount} records...`)
+      }
+    }
+    console.log(`Moved user to context.target and removed user field: ${movedCount}`)
 
     return {
       success: true,
       message: 'Migration completed successfully',
-      stats: { migrated: renamedResult.modifiedCount + moveResult.modifiedCount, failed: 0 }
+      stats: { migrated: renamedResult.modifiedCount + movedCount, failed: 0 }
     }
   }
 } satisfies MigrationFile

@@ -53,7 +53,6 @@ describe("projectRun.route loader", () => {
       project: project._id,
       isRunning: false,
       isComplete: false,
-      hasSetup: true,
       prompt: new Types.ObjectId().toString(),
       promptVersion: 1,
       snapshot: {
@@ -100,7 +99,6 @@ describe("projectRun.route loader", () => {
       project: project._id,
       isRunning: false,
       isComplete: false,
-      hasSetup: true
     });
 
     const cookieHeader = await loginUser(otherUser._id);

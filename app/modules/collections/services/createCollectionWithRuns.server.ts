@@ -29,7 +29,6 @@ export default async function createCollectionWithRuns(
           project: payload.projectId,
           name: runName,
           annotationType: payload.annotationType,
-          hasSetup: false,
           isRunning: false,
           isComplete: false
         });

@@ -47,7 +47,6 @@ describe('collectionDetail.route loader', () => {
       name: 'Test Run',
       project: project._id,
       annotationType: 'PER_UTTERANCE',
-      hasSetup: false,
       isRunning: false,
       isComplete: false
     });
@@ -180,7 +179,6 @@ describe('collectionDetail.route loader', () => {
       name: 'Test Run 2',
       project: project._id,
       annotationType: 'PER_SESSION',
-      hasSetup: false,
       isRunning: true,
       isComplete: false
     });
