@@ -1,11 +1,11 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import dayjs from "dayjs";
-import map from 'lodash/map';
-import type { Session } from "../sessions.types";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import dayjs from "dayjs";
 import includes from 'lodash/includes';
+import map from 'lodash/map';
 import { Shuffle } from "lucide-react";
+import type { Session } from "../sessions.types";
 
 export default function SessionSelector({
   sessions = [],

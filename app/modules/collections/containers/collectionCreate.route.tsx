@@ -1,18 +1,18 @@
 import { useEffect } from 'react';
-import { data, redirect } from 'react-router';
-import { useLoaderData } from 'react-router';
+import { data, redirect, useActionData, useLoaderData, useNavigate, useSubmit } from 'react-router';
+import { toast } from 'sonner';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { CollectionService } from '~/modules/collections/collection';
-import type { PrefillData } from '~/modules/collections/collections.types';
-import { ProjectService } from '~/modules/projects/project';
-import { RunService } from '~/modules/runs/run';
-import { PromptService } from '~/modules/prompts/prompt';
-import type { User } from '~/modules/users/users.types';
-import type { RunAnnotationType } from '~/modules/runs/runs.types';
+import type { PrefillData, PromptReference } from '~/modules/collections/collections.types';
 import ProjectAuthorization from '~/modules/projects/authorization';
+import { ProjectService } from '~/modules/projects/project';
+import { PromptService } from '~/modules/prompts/prompt';
+import { RunService } from '~/modules/runs/run';
+import type { RunAnnotationType } from '~/modules/runs/runs.types';
+import type { User } from '~/modules/users/users.types';
 import type { Route } from './+types/collectionCreate.route';
-import CollectionCreatorFormContainer from './collectionCreatorForm.container';
+import CollectionCreatorContainer from './collectionCreator.container';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await getSessionUser({ request }) as User;
@@ -158,6 +158,20 @@ export async function action({
 export default function CollectionCreateRoute() {
   const { project, prefillData } = useLoaderData<typeof loader>();
 
+  const submit = useSubmit();
+  const actionData = useActionData();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (actionData?.intent === 'CREATE_COLLECTION') {
+      const success = actionData.data.errors?.length === 0;
+      if (success) {
+        toast.success('Collection created successfully');
+        navigate(`/projects/${project._id}/collections/${actionData.data.collectionId}`);
+      }
+    }
+  }, [actionData, project._id]);
+
   useEffect(() => {
     updateBreadcrumb([
       { text: 'Projects', link: '/' },
@@ -167,14 +181,37 @@ export default function CollectionCreateRoute() {
     ]);
   }, [project._id, project.name]);
 
-  return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Create Collection</h1>
-        <p className="text-muted-foreground">Set up a new collection with your preferred annotation settings</p>
-      </div>
+  const onCreateCollection = ({
+    name,
+    annotationType,
+    selectedPrompts,
+    selectedModels,
+    selectedSessions
+  }: {
+    name: string,
+    annotationType: string,
+    selectedPrompts: PromptReference[],
+    selectedModels: string[],
+    selectedSessions: string[]
+  }) => {
+    submit(JSON.stringify({
+      intent: 'CREATE_COLLECTION',
+      payload: {
+        name,
+        annotationType,
+        prompts: selectedPrompts,
+        models: selectedModels,
+        sessions: selectedSessions
+      }
+    }), { method: 'POST', encType: 'application/json' });
+  };
 
-      <CollectionCreatorFormContainer projectId={project._id} prefillData={prefillData} />
+  return (
+    <div >
+      <CollectionCreatorContainer
+        prefillData={prefillData}
+        onCreateCollection={onCreateCollection}
+      />
     </div>
   );
 }

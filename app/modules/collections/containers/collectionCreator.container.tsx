@@ -1,64 +1,133 @@
-import { useFetcher, useParams } from "react-router";
-import type { Collection, CreateCollection } from "../collections.types";
-import CollectionCreator from "../components/collectionCreator";
-import { useEffect, useState } from "react";
-import type { Run } from "~/modules/runs/runs.types";
-import map from 'lodash/map';
-import pull from 'lodash/pull';
-import cloneDeep from 'lodash/cloneDeep';
+import { useState } from 'react';
+import { useFetcher } from 'react-router';
+import type { PrefillData, PromptReference } from '../collections.types';
+import CollectionCreator from '../components/collectionCreator';
+
+interface CollectionCreatorContainerProps {
+  prefillData?: PrefillData | null;
+  onCreateCollection: ({
+    name,
+    annotationType,
+    selectedPrompts,
+    selectedModels,
+    selectedSessions
+  }: {
+    name: string;
+    annotationType: string;
+    selectedPrompts: PromptReference[];
+    selectedModels: string[];
+    selectedSessions: string[];
+  }) => void
+}
 
 export default function CollectionCreatorContainer({
-  onSetupCollection }: {
-    onSetupCollection: ({ selectedSessions, selectedRuns }: CreateCollection) => void
-  }) {
+  prefillData,
+  onCreateCollection
+}: CollectionCreatorContainerProps) {
+  const fetcher = useFetcher();
 
-  const [selectedBaseRun, setSelectedBaseRun] = useState(null as string | null);
-  const [selectedBaseRunSessions, setSelectedBaseRunSessions] = useState([] as string[]);
-  const [selectedRuns, setSelectedRuns] = useState([] as string[]);
+  const [name, setName] = useState(prefillData ? `Collection from ${prefillData.sourceRunName}` : '');
+  const [annotationType, setAnnotationType] = useState(prefillData?.annotationType || 'PER_UTTERANCE');
+  const [selectedPrompts, setSelectedPrompts] = useState<PromptReference[]>(prefillData?.selectedPrompts || []);
+  const [selectedModels, setSelectedModels] = useState<string[]>(prefillData?.selectedModels || []);
+  const [selectedSessions, setSelectedSessions] = useState<string[]>(prefillData?.selectedSessions || []);
+  const [tempPromptId, setTempPromptId] = useState<string | null>(null);
+  const [tempPromptName, setTempPromptName] = useState<string | null>(null);
+  const [tempPromptVersion, setTempPromptVersion] = useState<number | null>(null);
+  const [tempModel, setTempModel] = useState<string>('');
 
-  const runsFetcher = useFetcher({ key: 'runsList' });
-
-  const params = useParams();
-
-  const onBaseRunClicked = (run: Run) => {
-    setSelectedBaseRun(run._id);
-    setSelectedBaseRunSessions(map(run.sessions, 'sessionId'));
-    setSelectedRuns([run._id]);
+  const onTempModelChanged = (model: string) => {
+    setTempModel(model)
   }
 
-  const onSelectRunToggled = ({ runId, isChecked }: { runId: string, isChecked: boolean }) => {
-    let clonedSelectedSessions = cloneDeep(selectedRuns);
-    if (isChecked) {
-      clonedSelectedSessions.push(runId);
-      setSelectedRuns(clonedSelectedSessions);
-    } else {
-      pull(clonedSelectedSessions, runId);
-      setSelectedRuns(clonedSelectedSessions);
+  const onAddPrompt = () => {
+    if (!tempPromptId || tempPromptVersion == null) return;
+
+    const newPrompt: PromptReference = {
+      promptId: tempPromptId,
+      promptName: tempPromptName || undefined,
+      version: tempPromptVersion
+    };
+
+    if (!selectedPrompts.some(p => p.promptId === tempPromptId && p.version === tempPromptVersion)) {
+      setSelectedPrompts([...selectedPrompts, newPrompt]);
+    }
+
+    setTempPromptId(null);
+    setTempPromptName(null);
+    setTempPromptVersion(null);
+  };
+
+  const onRemovePrompt = (promptId: string, version: number) => {
+    setSelectedPrompts(selectedPrompts.filter(p => !(p.promptId === promptId && p.version === version)));
+  };
+
+  const onAddModel = () => {
+    if (!tempModel || selectedModels.includes(tempModel)) return;
+    setSelectedModels([...selectedModels, tempModel]);
+    setTempModel('');
+  };
+
+  const onRemoveModel = (model: string) => {
+    setSelectedModels(selectedModels.filter(m => m !== model));
+  };
+
+  const onTempPromptChanged = (promptId: string, promptName?: string) => {
+    setTempPromptId(promptId);
+    if (promptName) {
+      setTempPromptName(promptName);
     }
   }
 
-  const onSetupCollectionButtonClicked = () => {
-    onSetupCollection({ selectedSessions: selectedBaseRunSessions, selectedRuns: selectedRuns })
+  const onTempPromptVersionChanged = (promptVersion: number) => {
+    setTempPromptVersion(promptVersion);
   }
 
-  useEffect(() => {
-    const queryParams = new URLSearchParams();
-    queryParams.set('project', params.projectId || "");
-    runsFetcher.load(`/api/runsList?${queryParams.toString()}`);
-  }, []);
+  const onAnnotationTypeChanged = (annotationType: string) => {
+    setAnnotationType(annotationType);
+    setSelectedPrompts([]);
+    setTempPromptId(null);
+    setTempPromptName(null);
+    setTempPromptVersion(null);
+  };
 
-  const isSetupCollectionButtonDisabled = !selectedBaseRun;
+  const onCreateCollectionClicked = () => {
+    onCreateCollection({
+      name,
+      annotationType,
+      selectedPrompts,
+      selectedModels,
+      selectedSessions
+    });
+  }
 
   return (
     <CollectionCreator
-      runs={runsFetcher.data?.runs?.data}
-      selectedBaseRun={selectedBaseRun}
-      selectedBaseRunSessions={selectedBaseRunSessions}
-      selectedRuns={selectedRuns}
-      isSetupCollectionButtonDisabled={isSetupCollectionButtonDisabled}
-      onBaseRunClicked={onBaseRunClicked}
-      onSelectRunToggled={onSelectRunToggled}
-      onSetupCollectionButtonClicked={onSetupCollectionButtonClicked}
+      name={name}
+      annotationType={annotationType}
+      selectedPrompts={selectedPrompts}
+      selectedModels={selectedModels}
+      selectedSessions={selectedSessions}
+      tempPromptId={tempPromptId}
+      tempPromptVersion={tempPromptVersion}
+      tempModel={tempModel}
+      onNameChanged={setName}
+      onAnnotationTypeChanged={onAnnotationTypeChanged}
+      onPromptsChanged={setSelectedPrompts}
+      onModelsChanged={setSelectedModels}
+      onSessionsChanged={setSelectedSessions}
+      onCreateCollectionClicked={onCreateCollectionClicked}
+      onAddPrompt={onAddPrompt}
+      onRemovePrompt={onRemovePrompt}
+      onTempPromptChanged={onTempPromptChanged}
+      onTempPromptVersionChanged={onTempPromptVersionChanged}
+      onTempModelChanged={onTempModelChanged}
+      onAddModel={onAddModel}
+      onRemoveModel={onRemoveModel}
+      isLoading={false}
+      isSubmitDisabled={!name.trim() || selectedPrompts.length === 0 || selectedModels.length === 0 || selectedSessions.length === 0}
+      errors={(fetcher.data as any)?.errors || {}}
+      prefillData={prefillData}
     />
   );
 }

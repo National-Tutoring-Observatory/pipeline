@@ -1,97 +1,150 @@
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import clsx from 'clsx';
-import xor from 'lodash/xor';
-import map from 'lodash/map';
-import includes from 'lodash/includes';
-import type { Run } from '~/modules/runs/runs.types';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { Info } from 'lucide-react';
+import type { PrefillData, PromptReference } from '~/modules/collections/collections.types';
+import CollectionCreatorAnnotationType from './collectionCreatorAnnotationType';
+import CollectionCreatorDetails from './collectionCreatorDetails';
+import CollectionCreatorErrors from './collectionCreatorErrors';
+import CollectionCreatorFooter from './collectionCreatorFooter';
+import CollectionCreatorModels from './collectionCreatorModels';
+import CollectionCreatorPreview from './collectionCreatorPreview';
+import CollectionCreatorPrompts from './collectionCreatorPrompts';
+import CollectionCreatorSessions from './collectionCreatorSessions';
 
 export default function CollectionCreator({
-  runs,
-  selectedBaseRun,
-  selectedBaseRunSessions,
-  selectedRuns,
-  isSetupCollectionButtonDisabled,
-  onBaseRunClicked,
-  onSelectRunToggled,
-  onSetupCollectionButtonClicked
+  name,
+  annotationType,
+  selectedPrompts,
+  selectedModels,
+  selectedSessions,
+  tempPromptId,
+  tempPromptVersion,
+  tempModel,
+  errors,
+  prefillData,
+  isSubmitDisabled,
+  onNameChanged,
+  onAnnotationTypeChanged,
+  onAddPrompt,
+  onRemovePrompt,
+  onTempPromptChanged,
+  onTempPromptVersionChanged,
+  onTempModelChanged,
+  onAddModel,
+  onRemoveModel,
+  onSessionsChanged,
+  onCreateCollectionClicked,
 }: {
-  runs: Run[],
-  selectedBaseRun: string | null,
-  selectedBaseRunSessions: string[],
-  selectedRuns: string[],
-  isSetupCollectionButtonDisabled: boolean,
-  onBaseRunClicked: (run: Run) => void,
-  onSelectRunToggled: ({ runId, isChecked }: { runId: string, isChecked: boolean }) => void,
-  onSetupCollectionButtonClicked: () => void
+  name: string;
+  annotationType: string;
+  selectedPrompts: PromptReference[];
+  selectedModels: string[];
+  selectedSessions: string[];
+  tempPromptId: string | null;
+  tempPromptVersion: number | null;
+  tempModel: string;
+  errors: Record<string, string>;
+  prefillData?: PrefillData | null;
+  isLoading: boolean;
+  isSubmitDisabled: boolean;
+  onNameChanged: (name: string) => void;
+  onAnnotationTypeChanged: (annotationType: string) => void;
+  onAddPrompt: () => void;
+  onRemovePrompt: (promptId: string, promptVersion: number) => void;
+  onTempPromptChanged: (promptId: string, promptName?: string) => void,
+  onTempPromptVersionChanged: (promptVersion: number) => void,
+  onTempModelChanged: (model: string) => void,
+  onAddModel: () => void,
+  onRemoveModel: (model: string) => void,
+  onPromptsChanged: (prompts: PromptReference[]) => void;
+  onModelsChanged: (models: string[]) => void;
+  onSessionsChanged: (sessions: string[]) => void;
+  onCreateCollectionClicked: () => void;
 }) {
+
   return (
     <div>
+      <div className="flex gap-12 p-8">
 
-      <div className="border rounded-lg grid grid-cols-2">
-        <div className="border-r">
-          <div className="border-b p-2">
-            Select a run to base this collection from
+        <div className="w-[480px] shrink-0 space-y-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Create Collection</h1>
+            <p className="text-muted-foreground">Set up a new collection with your preferred run settings</p>
           </div>
-          <div>
 
-            {map(runs, (run) => {
+          {prefillData && (
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertTitle>Creating from template</AlertTitle>
+              <AlertDescription>
+                Fields pre-filled from run "{prefillData.sourceRunName}".
+                You can modify any field before creating.
+              </AlertDescription>
+            </Alert>
+          )}
 
-              const className = clsx("w-full rounded-none justify-start", {
-                "bg-purple-100 hover:bg-purple-100": selectedBaseRun === run._id
-              });
+          <CollectionCreatorErrors errors={errors} />
 
-              return (
-                <Button key={run._id} variant="ghost" className={className}
-                  onClick={() => onBaseRunClicked(run)}
-                >
-                  {run.name}
-                </Button>
-              );
-            })}
-          </div>
+          <CollectionCreatorDetails
+            name={name}
+            onNameChanged={onNameChanged}
+          />
+
+          <Separator />
+
+          <CollectionCreatorAnnotationType
+            annotationType={annotationType}
+            onAnnotationTypeChanged={onAnnotationTypeChanged}
+          />
+
+          <Separator />
+
+          <CollectionCreatorPrompts
+            selectedPrompts={selectedPrompts}
+            annotationType={annotationType}
+            tempPromptId={tempPromptId}
+            tempPromptVersion={tempPromptVersion}
+            onAddPrompt={onAddPrompt}
+            onRemovePrompt={onRemovePrompt}
+            onTempPromptChanged={onTempPromptChanged}
+            onTempPromptVersionChanged={onTempPromptVersionChanged}
+          />
+
+          <Separator />
+
+          <CollectionCreatorModels
+            selectedModels={selectedModels}
+            tempModel={tempModel}
+            onTempModelChanged={onTempModelChanged}
+            onAddModel={onAddModel}
+            onRemoveModel={onRemoveModel}
+          />
+
+          <Separator />
+
+          <CollectionCreatorSessions
+            selectedSessions={selectedSessions}
+            onSessionsChanged={onSessionsChanged}
+          />
+
         </div>
-        <div>
-          <div className="border-b p-2">
-            Select runs that match you base run
-          </div>
-          <div>
 
-            {map(runs, (run) => {
-              if (run._id === selectedBaseRun) return null;
-              const runSessions = map(run.sessions, 'sessionId');
 
-              const test = xor(runSessions, selectedBaseRunSessions);
+        <CollectionCreatorPreview
+          selectedPrompts={selectedPrompts}
+          selectedModels={selectedModels}
+          selectedSessions={selectedSessions}
+        />
 
-              if (test.length > 0) return null;
-
-              return (
-                <Label key={run._id} htmlFor={`collection-creator-${run._id}`} className="w-full p-2 flex items-center gap-2">
-                  <Checkbox
-                    id={`collection-creator-${run._id}`}
-
-                    checked={includes(selectedRuns, run._id)}
-                    onCheckedChange={(checked) => onSelectRunToggled({ runId: run._id, isChecked: Boolean(checked) })}
-                  >
-
-                  </Checkbox>
-                  {run.name}
-                </Label>
-              );
-            })}
-          </div>
-        </div>
       </div>
-      <div className="mt-4 flex justify-center">
-        <Button
-          size="lg"
-          disabled={isSetupCollectionButtonDisabled}
-          onClick={onSetupCollectionButtonClicked}
-        >
-          Build collection
-        </Button>
-      </div>
+
+      <CollectionCreatorFooter
+        selectedPrompts={selectedPrompts}
+        selectedModels={selectedModels}
+        selectedSessions={selectedSessions}
+        isSubmitDisabled={isSubmitDisabled}
+        onCreateCollectionClicked={onCreateCollectionClicked}
+      />
     </div>
   );
 }

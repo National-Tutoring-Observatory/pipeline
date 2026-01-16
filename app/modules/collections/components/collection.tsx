@@ -7,12 +7,11 @@ import map from 'lodash/map';
 import { Download } from "lucide-react";
 import { Link } from "react-router";
 import type { Collection, CreateCollection } from "~/modules/collections/collections.types";
-import CollectionCreatorContainer from "~/modules/collections/containers/collectionCreator.container";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 
-export default function CollectionDetail({
+export default function Collection({
   collection,
   runs,
   onSetupCollection,
@@ -107,9 +106,6 @@ export default function CollectionDetail({
             </Table>
           </div>
         </div>
-      )}
-      {(!collection.hasSetup) && (
-        <CollectionCreatorContainer onSetupCollection={onSetupCollection} />
       )}
     </div>
   );
