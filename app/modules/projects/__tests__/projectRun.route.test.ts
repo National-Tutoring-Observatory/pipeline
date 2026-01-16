@@ -39,36 +39,6 @@ describe("projectRun.route loader", () => {
     expect((res as Response).headers.get("Location")).toBe("/");
   });
 
-  it("redirects to create-run when run does not have setup", async () => {
-    const user = await UserService.create({ username: 'test_user', teams: [] });
-    const team = await TeamService.create({ name: 'Test Team' });
-    await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
-
-    const project = await ProjectService.create({
-      name: 'Test Project',
-      createdBy: user._id,
-      team: team._id
-    });
-
-    const run = await RunService.create({
-      name: 'Test Run',
-      project: project._id,
-      isRunning: false,
-      isComplete: false,
-      hasSetup: false
-    });
-
-    const cookieHeader = await loginUser(user._id);
-
-    const res = await loader({
-      request: new Request("http://localhost/projects/" + project._id + "/runs/" + run._id, { headers: { cookie: cookieHeader } }),
-      params: { projectId: project._id, runId: run._id }
-    } as any);
-
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe(`/projects/${project._id}/create-run`);
-  });
-
   it("returns run data for authorized users", async () => {
     const user = await UserService.create({ username: 'test_user', teams: [] });
     const team = await TeamService.create({ name: 'Test Team' });
@@ -98,7 +68,6 @@ describe("projectRun.route loader", () => {
       project: project._id,
       isRunning: false,
       isComplete: false,
-      hasSetup: true,
       prompt: prompt._id,
       promptVersion: 1
     });
@@ -143,7 +112,6 @@ describe("projectRun.route loader", () => {
       project: project._id,
       isRunning: false,
       isComplete: false,
-      hasSetup: true
     });
 
     const cookieHeader = await loginUser(otherUser._id);

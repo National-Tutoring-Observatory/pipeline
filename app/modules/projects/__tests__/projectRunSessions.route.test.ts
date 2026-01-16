@@ -88,7 +88,6 @@ describe("projectRunSessions.route loader", () => {
       project: project._id,
       isRunning: false,
       isComplete: false,
-      hasSetup: true,
       sessions: []
     });
 
@@ -120,7 +119,6 @@ describe("projectRunSessions.route loader", () => {
       project: project._id,
       isRunning: false,
       isComplete: false,
-      hasSetup: true,
       sessions: [{
         sessionId,
         name: 'test_session.json',

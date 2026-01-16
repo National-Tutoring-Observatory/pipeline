@@ -53,7 +53,6 @@ describe("projectRuns.route loader", () => {
       project: project._id,
       isRunning: false,
       isComplete: false,
-      hasSetup: false
     });
 
     const cookieHeader = await loginUser(user._id);
@@ -110,7 +109,6 @@ describe("projectRuns.route action - UPDATE_RUN", () => {
       project: project._id,
       isRunning: false,
       isComplete: false,
-      hasSetup: false
     });
 
     const cookieHeader = await loginUser(user._id);
@@ -150,7 +148,6 @@ describe("projectRuns.route action - DUPLICATE_RUN", () => {
       project: project._id,
       isRunning: false,
       isComplete: false,
-      hasSetup: true,
       annotationType: 'PER_UTTERANCE',
       prompt: new Types.ObjectId().toString(),
       promptVersion: 1,

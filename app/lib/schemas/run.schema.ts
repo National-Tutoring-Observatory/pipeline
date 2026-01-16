@@ -29,7 +29,6 @@ export default new mongoose.Schema({
       provider: String
     }
   },
-  hasSetup: { type: Boolean, default: false },
   isRunning: { type: Boolean, default: false },
   isComplete: { type: Boolean, default: false },
   hasErrored: { type: Boolean, default: false },

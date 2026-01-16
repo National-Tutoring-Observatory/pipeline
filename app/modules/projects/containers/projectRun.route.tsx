@@ -30,9 +30,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!run) {
     return redirect('/');
   }
-  if (!run.hasSetup) {
-    return redirect(`/projects/${project._id}/create-run`);
-  }
   const runPrompt = await PromptService.findById(run.prompt as string);
   const runPromptVersion = await PromptVersionService.find({
     match: { prompt: run.prompt, version: Number(run.promptVersion) }

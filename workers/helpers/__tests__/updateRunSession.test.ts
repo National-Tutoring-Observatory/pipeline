@@ -37,7 +37,6 @@ describe('updateRunSession helper', () => {
       project: project._id,
       isRunning: false,
       isComplete: false,
-      hasSetup: true,
       sessions: [{
         sessionId,
         name: 'session.json',
@@ -77,7 +76,6 @@ describe('updateRunSession helper', () => {
       project: project._id,
       isRunning: false,
       isComplete: false,
-      hasSetup: true,
       sessions: [{
         sessionId,
         name: 'session.json',
@@ -116,7 +114,6 @@ describe('updateRunSession helper', () => {
       project: project._id,
       isRunning: false,
       isComplete: false,
-      hasSetup: true,
       sessions: [
         {
           sessionId: sessionId1,
