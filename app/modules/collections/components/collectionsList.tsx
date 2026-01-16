@@ -1,10 +1,10 @@
 import { Collection as CollectionComponent } from "@/components/ui/collection";
+import type { Collection } from "~/modules/collections/collections.types";
+import collectionsActions from "~/modules/collections/helpers/collectionsActions";
+import collectionsSortOptions from "~/modules/collections/helpers/collectionsSortOptions";
 import getCollectionsEmptyAttributes from "~/modules/collections/helpers/getCollectionsEmptyAttributes";
 import getCollectionsItemActions from "~/modules/collections/helpers/getCollectionsItemActions";
 import getCollectionsItemAttributes from "~/modules/collections/helpers/getCollectionsItemAttributes";
-import collectionsActions from "~/modules/collections/helpers/collectionsActions";
-import collectionsSortOptions from "~/modules/collections/helpers/collectionsSortOptions";
-import type { Collection } from "~/modules/collections/collections.types";
 
 interface CollectionsListProps {
   collections: Collection[];
@@ -56,10 +56,7 @@ export default function CollectionsList({
   };
 
   return (
-    <div className="max-w-6xl p-8">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
-        Collections
-      </h1>
+    <div className="mt-8">
       <CollectionComponent
         items={collections || []}
         itemsLayout="list"
@@ -81,7 +78,7 @@ export default function CollectionsList({
         onItemActionClicked={handleItemActionClicked}
         onSearchValueChanged={onSearchValueChanged}
         onPaginationChanged={onPaginationChanged}
-        onFiltersValueChanged={() => {}}
+        onFiltersValueChanged={() => { }}
         onSortValueChanged={onSortValueChanged}
       />
     </div>

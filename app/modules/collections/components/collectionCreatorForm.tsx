@@ -4,10 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
 import annotationTypes from '~/modules/prompts/annotationTypes';
 import PromptSelectorContainer from '~/modules/prompts/containers/promptSelectorContainer';
 import ModelSelectorContainer from '~/modules/prompts/containers/modelSelectorContainer';
 import SessionSelectorContainer from '~/modules/sessions/containers/sessionSelectorContainer';
+import CollectionCreatorPreview from '~/modules/collections/components/collectionCreatorPreview';
 import type { PrefillData, PromptReference } from '~/modules/collections/collections.types';
 import { Info, Plus, X } from 'lucide-react';
 
@@ -90,11 +92,10 @@ export default function CollectionCreatorForm({
   const isSubmitDisabled = isLoading || !name.trim() || selectedPrompts.length === 0 || selectedModels.length === 0 || selectedSessions.length === 0;
 
   return (
-    <div className="space-y-6">
-      {/* Top Section - Form and Cards */}
-      <div className="flex gap-8">
+    <div className="space-y-8">
+      <div className="flex gap-12">
         {/* Left Column - Form */}
-        <div className="w-[480px] flex-shrink-0 space-y-8">
+        <div className="w-[480px] shrink-0 space-y-8">
         {prefillData && (
           <Alert>
             <Info className="h-4 w-4" />
@@ -128,6 +129,8 @@ export default function CollectionCreatorForm({
           />
         </div>
 
+        <Separator />
+
         {/* Annotation Type */}
         <div className="space-y-2">
           <Label htmlFor="annotationType">Annotation Type</Label>
@@ -145,148 +148,118 @@ export default function CollectionCreatorForm({
           </Select>
         </div>
 
-        {/* Prompts */}
-        <div className="space-y-2">
-          <Label>Prompts</Label>
-          <div className="bg-slate-50 rounded-lg p-4 space-y-3">
-            <div className="space-y-2">
-              <PromptSelectorContainer
-                annotationType={annotationType}
-                selectedPrompt={tempPromptId}
-                selectedPromptVersion={tempPromptVersion}
-                onSelectedPromptChanged={(id, name) => {
-                  setTempPromptId(id);
-                  setTempPromptName(name || null);
-                }}
-                onSelectedPromptVersionChanged={setTempPromptVersion}
-              />
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={onAddPrompt}
-                disabled={!tempPromptId || tempPromptVersion == null || selectedPrompts.some(p => p.promptId === tempPromptId && p.version === tempPromptVersion)}
-                className="gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Add Prompt
-              </Button>
-            </div>
+        <Separator />
 
-            {selectedPrompts.length > 0 && (
-              <div className="space-y-2 pt-2 border-t">
-                {selectedPrompts.map((prompt) => (
-                  <div key={`${prompt.promptId}-${prompt.version}`} className="flex items-center justify-between bg-white rounded p-2">
-                    <span className="text-sm">
-                      {prompt.promptName || prompt.promptId} (v{prompt.version})
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onRemovePrompt(prompt.promptId, prompt.version)}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* Prompts */}
+        <div className="space-y-3">
+          <Label>Prompts</Label>
+          <div className="space-y-2">
+            <PromptSelectorContainer
+              annotationType={annotationType}
+              selectedPrompt={tempPromptId}
+              selectedPromptVersion={tempPromptVersion}
+              onSelectedPromptChanged={(id, name) => {
+                setTempPromptId(id);
+                setTempPromptName(name || null);
+              }}
+              onSelectedPromptVersionChanged={setTempPromptVersion}
+            />
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={onAddPrompt}
+              disabled={!tempPromptId || tempPromptVersion == null || selectedPrompts.some(p => p.promptId === tempPromptId && p.version === tempPromptVersion)}
+              className="gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Prompt
+            </Button>
           </div>
+
+          {selectedPrompts.length > 0 && (
+            <div className="space-y-1 pt-2">
+              {selectedPrompts.map((prompt) => (
+                <div key={`${prompt.promptId}-${prompt.version}`} className="flex items-center justify-between py-2 px-3 border rounded-md bg-muted/50">
+                  <span className="text-sm">
+                    {prompt.promptName || prompt.promptId} (v{prompt.version})
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onRemovePrompt(prompt.promptId, prompt.version)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
+
+        <Separator />
 
         {/* Models */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label>Models</Label>
-          <div className="bg-slate-50 rounded-lg p-4 space-y-3">
-            <div className="space-y-2">
-              <ModelSelectorContainer
-                selectedModel={tempModel}
-                onSelectedModelChanged={setTempModel}
-              />
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={onAddModel}
-                disabled={!tempModel || selectedModels.includes(tempModel)}
-                className="gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Add Model
-              </Button>
-            </div>
-
-            {selectedModels.length > 0 && (
-              <div className="space-y-2 pt-2 border-t">
-                {selectedModels.map((model) => (
-                  <div key={model} className="flex items-center justify-between bg-white rounded p-2">
-                    <span className="text-sm">{model}</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onRemoveModel(model)}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className="space-y-2">
+            <ModelSelectorContainer
+              selectedModel={tempModel}
+              onSelectedModelChanged={setTempModel}
+            />
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={onAddModel}
+              disabled={!tempModel || selectedModels.includes(tempModel)}
+              className="gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Model
+            </Button>
           </div>
+
+          {selectedModels.length > 0 && (
+            <div className="space-y-1 pt-2">
+              {selectedModels.map((model) => (
+                <div key={model} className="flex items-center justify-between py-2 px-3 border rounded-md bg-muted/50">
+                  <span className="text-sm">{model}</span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onRemoveModel(model)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
+        <Separator />
+
         {/* Sessions */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label>Sessions</Label>
-          <div className="bg-slate-50 rounded-lg p-4">
-            <SessionSelectorContainer
-              selectedSessions={selectedSessions}
-              onSelectedSessionsChanged={onSessionsChanged}
-            />
-          </div>
+          <SessionSelectorContainer
+            selectedSessions={selectedSessions}
+            onSelectedSessionsChanged={onSessionsChanged}
+          />
         </div>
       </div>
 
       {/* Right Column - Run Preview */}
-      <div className="flex-1 min-w-0">
-        {selectedPrompts.length > 0 && selectedModels.length > 0 ? (
-          <div className="sticky top-8 space-y-4">
-            <div>
-              <h3 className="font-semibold text-sm mb-2">Generated Runs</h3>
-              <p className="text-xs text-muted-foreground mb-4">
-                {selectedPrompts.length * selectedModels.length} run(s) • {selectedSessions.length} session(s)
-              </p>
-            </div>
-            <div className="grid grid-cols-2 2xl:grid-cols-3 gap-2 max-h-[600px] overflow-y-auto pr-2">
-              {selectedPrompts.map((prompt) =>
-                selectedModels.map((model) => (
-                  <div key={`${prompt.promptId}-${model}`} className="bg-slate-50 rounded-lg border p-3 text-sm">
-                    <p className="font-medium text-xs text-muted-foreground mb-2">Run</p>
-                    <div className="space-y-1">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Prompt</p>
-                        <p className="text-xs font-mono truncate">{prompt.promptName || prompt.promptId} (v{prompt.version})</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Model</p>
-                        <p className="text-xs font-mono truncate">{model}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="sticky top-8 bg-slate-50 rounded-lg border p-4 text-center">
-            <p className="text-xs text-muted-foreground">Select prompts and models to preview runs</p>
-          </div>
-        )}
-      </div>
+      <CollectionCreatorPreview
+        selectedPrompts={selectedPrompts}
+        selectedModels={selectedModels}
+        selectedSessions={selectedSessions}
+      />
       </div>
 
-      {/* Bottom Section - Summary and Button */}
-      <div className="flex gap-8 items-center">
+      {/* Footer - Summary and Button */}
+      <div className="flex gap-8 items-center sticky bottom-0 border-t bg-background px-8 py-4 -mx-8">
         <div className="flex-1">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-900">
