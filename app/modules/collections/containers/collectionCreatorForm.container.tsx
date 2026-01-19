@@ -22,11 +22,17 @@ export default function CollectionCreatorFormContainer({ projectId, prefillData 
   useEffect(() => {
     if (fetcher.state !== 'idle') return;
     if (fetcher.data?.intent !== 'CREATE_COLLECTION') return;
-    if (fetcher.data?.data?.errors?.length > 0) return;
 
-    const collectionId = fetcher.data.data.collectionId;
-    toast.success('Collection created successfully');
-    navigate(`/projects/${projectId}/collections/${collectionId}`);
+    const collectionId = fetcher.data.data?.collectionId;
+    if (collectionId) {
+      const runErrors = fetcher.data?.data?.errors;
+      if (runErrors && runErrors.length > 0) {
+        toast.warning(`Collection created, but ${runErrors.length} run(s) failed to start`);
+      } else {
+        toast.success('Collection created successfully');
+      }
+      navigate(`/projects/${projectId}/collections/${collectionId}`);
+    }
   }, [fetcher.state, fetcher.data, navigate, projectId]);
 
   const handleCreateCollection = () => {
