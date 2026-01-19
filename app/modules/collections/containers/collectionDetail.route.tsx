@@ -11,6 +11,7 @@ import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import addDialog from '~/modules/dialogs/addDialog';
 import { CollectionService } from '~/modules/collections/collection';
+import CollectionDownloads from '~/modules/collections/components/collectionDownloads';
 import exportCollection from '~/modules/collections/helpers/exportCollection';
 import { ProjectService } from '~/modules/projects/project';
 import getProjectRunsItemAttributes from '~/modules/projects/helpers/getProjectRunsItemAttributes';
@@ -190,32 +191,25 @@ export default function CollectionDetailRoute() {
       <div className="mb-8 flex justify-between items-start">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">{collection.name}</h1>
         <div className="flex text-muted-foreground gap-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                disabled={collection.isExporting}
-                className="data-[state=open]:bg-muted flex"
-              >
-                <Download />
-                {collection.isExporting ? <span>Exporting</span> : <span>Export</span>}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {!collection.hasExportedCSV && (
+          {!collection.hasExportedCSV && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  disabled={collection.isExporting}
+                  className="data-[state=open]:bg-muted flex"
+                >
+                  <Download />
+                  {collection.isExporting ? <span>Exporting</span> : <span>Export</span>}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onExportCollectionButtonClicked({ exportType: 'CSV' })}>
                   As Table (.csv file)
                 </DropdownMenuItem>
-              )}
-              {collection.hasExportedCSV && (
-                <DropdownMenuItem asChild>
-                  <a href={`/api/downloads/${project._id}/collections/${collection._id}?exportType=CSV`} target="_blank" rel="noopener">
-                    Download CSV
-                  </a>
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
 
@@ -290,6 +284,10 @@ export default function CollectionDetailRoute() {
             </div>
           </div>
         )}
+        <CollectionDownloads
+          collection={collection}
+          projectId={project._id}
+        />
       </div>
     </div>
   );
