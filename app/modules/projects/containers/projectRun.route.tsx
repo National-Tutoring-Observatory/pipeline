@@ -135,7 +135,7 @@ export default function ProjectRunRoute() {
     addDialog(<EditRunDialog
       run={run}
       onEditRunClicked={(r: Run) => {
-        fetcher.submit(JSON.stringify({ intent: 'UPDATE_RUN', entityId: r._id, payload: { name: r.name } }), { method: 'PUT', encType: 'application/json', action: `/projects/${project.data._id}` });
+        fetcher.submit(JSON.stringify({ intent: 'UPDATE_RUN', entityId: r._id, payload: { name: r.name } }), { method: 'PUT', encType: 'application/json', action: `/projects/${project._id}?index` });
       }}
     />);
   }
