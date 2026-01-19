@@ -112,13 +112,13 @@ export async function action({
         throw new Error('Collection not found');
       }
 
-      const { project, sessions } = existingCollection;
+      const { project, sessions, runs } = existingCollection;
 
       collection = await CollectionService.create({
         project,
         name: name,
         sessions,
-        runs: [],
+        runs: runs || [],
         hasSetup: true
       });
       return {
