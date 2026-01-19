@@ -162,7 +162,7 @@ export default function CollectionDetailRoute() {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.collectionId === Number(collection._id)) {
+      if (data.collectionId === collection._id) {
         switch (data.event) {
           case 'EXPORT_COLLECTION':
             debounceRevalidate();
