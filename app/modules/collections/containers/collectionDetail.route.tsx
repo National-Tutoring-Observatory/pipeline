@@ -1,11 +1,10 @@
 import { useEffect } from 'react';
 import { data, redirect, useLoaderData, useRevalidator, useSubmit } from 'react-router';
 import find from 'lodash/find';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Collection } from '@/components/ui/collection';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ChevronDown } from 'lucide-react';
+import { Download } from 'lucide-react';
 import throttle from 'lodash/throttle';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
@@ -189,96 +188,106 @@ export default function CollectionDetailRoute() {
   return (
     <div className="p-8">
       <div className="mb-8 flex justify-between items-start">
-        <h1 className="text-3xl font-bold mb-2">{collection.name}</h1>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" disabled={collection.isExporting}>
-              {collection.isExporting ? <span>Exporting</span> : <span>Export</span>}
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {!collection.hasExportedCSV && (
-              <DropdownMenuItem onClick={() => onExportCollectionButtonClicked({ exportType: 'CSV' })}>
-                As Table (.csv file)
-              </DropdownMenuItem>
-            )}
-            {collection.hasExportedCSV && (
-              <DropdownMenuItem asChild>
-                <a href={`/api/downloads/${project._id}/collections/${collection._id}?exportType=CSV`} target="_blank" rel="noopener">
-                  Download CSV
-                </a>
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">{collection.name}</h1>
+        <div className="flex text-muted-foreground gap-1">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                disabled={collection.isExporting}
+                className="data-[state=open]:bg-muted flex"
+              >
+                <Download />
+                {collection.isExporting ? <span>Exporting</span> : <span>Export</span>}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {!collection.hasExportedCSV && (
+                <DropdownMenuItem onClick={() => onExportCollectionButtonClicked({ exportType: 'CSV' })}>
+                  As Table (.csv file)
+                </DropdownMenuItem>
+              )}
+              {collection.hasExportedCSV && (
+                <DropdownMenuItem asChild>
+                  <a href={`/api/downloads/${project._id}/collections/${collection._id}?exportType=CSV`} target="_blank" rel="noopener">
+                    Download CSV
+                  </a>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
-      <div className="grid gap-8">
+      <div>
         {/* Overview Section */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-card rounded-lg border p-4">
-            <div className="text-xs text-muted-foreground mb-1">Created</div>
-            <div className="text-sm font-medium">
+        <div className="grid grid-cols-3 gap-6">
+          <div>
+            <div className="text-xs text-muted-foreground">Created</div>
+            <div>
               {collection.createdAt ? new Date(collection.createdAt).toLocaleDateString() : '--'}
             </div>
           </div>
-          <div className="bg-card rounded-lg border p-4">
-            <div className="text-xs text-muted-foreground mb-1">Sessions</div>
-            <div className="text-sm font-medium">{collection.sessions?.length || 0}</div>
+          <div>
+            <div className="text-xs text-muted-foreground">Sessions</div>
+            <div>{collection.sessions?.length || 0}</div>
           </div>
-          <div className="bg-card rounded-lg border p-4">
-            <div className="text-xs text-muted-foreground mb-1">Runs</div>
-            <div className="text-sm font-medium">{collection.runs?.length || 0}</div>
+          <div>
+            <div className="text-xs text-muted-foreground">Runs</div>
+            <div>{collection.runs?.length || 0}</div>
           </div>
         </div>
 
         {/* Sessions Section */}
         {sessions.length > 0 && (
-          <div className="bg-card rounded-lg border p-4">
-            <h2 className="text-lg font-semibold mb-4">Sessions ({sessions.length})</h2>
-            <Collection
-              items={sessions}
-              itemsLayout="list"
-              getItemAttributes={getProjectSessionsItemAttributes}
-              getItemActions={() => []}
-              onActionClicked={() => {}}
-              onItemClicked={onSessionItemClicked}
-              emptyAttributes={{
-                title: 'No sessions found',
-                description: ''
-              }}
-              currentPage={1}
-              totalPages={1}
-              onPaginationChanged={() => {}}
-              filters={[]}
-              filtersValues={{}}
-              onSortValueChanged={() => {}}
-            />
+          <div className="mt-8">
+            <div className="text-xs text-muted-foreground">Sessions</div>
+            <div className="border rounded-md mt-2">
+              <Collection
+                items={sessions}
+                itemsLayout="list"
+                getItemAttributes={getProjectSessionsItemAttributes}
+                getItemActions={() => []}
+                onActionClicked={() => {}}
+                onItemClicked={onSessionItemClicked}
+                emptyAttributes={{
+                  title: 'No sessions found',
+                  description: ''
+                }}
+                currentPage={1}
+                totalPages={1}
+                onPaginationChanged={() => {}}
+                filters={[]}
+                filtersValues={{}}
+                onSortValueChanged={() => {}}
+              />
+            </div>
           </div>
         )}
 
         {/* Runs Section */}
         {runs.length > 0 && (
-          <div className="bg-card rounded-lg border p-4">
-            <h2 className="text-lg font-semibold mb-4">Runs ({runs.length})</h2>
-            <Collection
-              items={runs}
-              itemsLayout="list"
-              getItemAttributes={getProjectRunsItemAttributes}
-              getItemActions={() => []}
-              onActionClicked={() => {}}
-              emptyAttributes={{
-                title: 'No runs found',
-                description: ''
-              }}
-              currentPage={1}
-              totalPages={1}
-              onPaginationChanged={() => {}}
-              filters={[]}
-              filtersValues={{}}
-              onSortValueChanged={() => {}}
-            />
+          <div className="mt-8">
+            <div className="text-xs text-muted-foreground">Runs</div>
+            <div className="border rounded-md mt-2">
+              <Collection
+                items={runs}
+                itemsLayout="list"
+                getItemAttributes={getProjectRunsItemAttributes}
+                getItemActions={() => []}
+                onActionClicked={() => {}}
+                emptyAttributes={{
+                  title: 'No runs found',
+                  description: ''
+                }}
+                currentPage={1}
+                totalPages={1}
+                onPaginationChanged={() => {}}
+                filters={[]}
+                filtersValues={{}}
+                onSortValueChanged={() => {}}
+              />
+            </div>
           </div>
         )}
       </div>
