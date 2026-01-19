@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
-import { data, redirect, useLoaderData, useRevalidator, useSubmit } from 'react-router';
+import { data, redirect, useLoaderData, useNavigate, useRevalidator, useSubmit } from 'react-router';
 import find from 'lodash/find';
 import { Button } from '@/components/ui/button';
 import { Collection } from '@/components/ui/collection';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Download } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Download, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import throttle from 'lodash/throttle';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
@@ -13,6 +13,7 @@ import addDialog from '~/modules/dialogs/addDialog';
 import { CollectionService } from '~/modules/collections/collection';
 import CollectionDownloads from '~/modules/collections/components/collectionDownloads';
 import exportCollection from '~/modules/collections/helpers/exportCollection';
+import { useCollectionActions } from '~/modules/collections/hooks/useCollectionActions';
 import { ProjectService } from '~/modules/projects/project';
 import getProjectRunsItemAttributes from '~/modules/projects/helpers/getProjectRunsItemAttributes';
 import getProjectSessionsItemAttributes from '~/modules/projects/helpers/getProjectSessionsItemAttributes';
@@ -94,6 +95,17 @@ export default function CollectionDetailRoute() {
   const { collection, project, runs, sessions } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
   const submit = useSubmit();
+  const navigate = useNavigate();
+
+  const {
+    openEditCollectionDialog,
+    openDeleteCollectionDialog
+  } = useCollectionActions({
+    projectId: project._id,
+    onDeleteSuccess: () => {
+      navigate(`/projects/${project._id}/collections`);
+    }
+  });
 
   const debounceRevalidate = throttle(() => {
     revalidator.revalidate();
@@ -210,6 +222,27 @@ export default function CollectionDetailRoute() {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="data-[state=open]:bg-muted"
+              >
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => openEditCollectionDialog(collection)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => openDeleteCollectionDialog(collection)} className="text-destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

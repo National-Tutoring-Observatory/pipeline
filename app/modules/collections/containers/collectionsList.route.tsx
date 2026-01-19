@@ -8,9 +8,8 @@ import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import type { Collection } from "~/modules/collections/collections.types";
-import DeleteCollectionDialog from "~/modules/collections/components/deleteCollectionDialog";
 import DuplicateCollectionDialog from "~/modules/collections/components/duplicateCollectionDialog";
-import EditCollectionDialog from "~/modules/collections/components/editCollectionDialog";
+import { useCollectionActions } from "~/modules/collections/hooks/useCollectionActions";
 import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
@@ -143,9 +142,14 @@ export async function action({
 export default function CollectionsListRoute({ loaderData }: Route.ComponentProps) {
   const { collections, project } = loaderData;
   const navigate = useNavigate();
-  const editFetcher = useFetcher();
   const duplicateFetcher = useFetcher();
-  const deleteFetcher = useFetcher();
+
+  const {
+    openEditCollectionDialog,
+    openDeleteCollectionDialog
+  } = useCollectionActions({
+    projectId: project._id
+  });
 
   const {
     searchValue, setSearchValue,
@@ -167,15 +171,6 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
   }, [project._id, project.name]);
 
   useEffect(() => {
-    if (editFetcher.state === 'idle' && editFetcher.data) {
-      if (editFetcher.data.intent === 'UPDATE_COLLECTION') {
-        toast.success('Collection updated');
-        addDialog(null);
-      }
-    }
-  }, [editFetcher.state, editFetcher.data]);
-
-  useEffect(() => {
     if (duplicateFetcher.state === 'idle' && duplicateFetcher.data) {
       if (duplicateFetcher.data.intent === 'DUPLICATE_COLLECTION') {
         toast.success('Collection duplicated');
@@ -185,22 +180,6 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
     }
   }, [duplicateFetcher.state, duplicateFetcher.data, navigate]);
 
-  useEffect(() => {
-    if (deleteFetcher.state === 'idle' && deleteFetcher.data) {
-      if (deleteFetcher.data.intent === 'DELETE_COLLECTION') {
-        toast.success('Collection deleted');
-        addDialog(null);
-      }
-    }
-  }, [deleteFetcher.state, deleteFetcher.data]);
-
-  const openEditCollectionDialog = (collection: Collection) => {
-    addDialog(<EditCollectionDialog
-      collection={collection}
-      onEditCollectionClicked={submitEditCollection}
-    />);
-  }
-
   const openDuplicateCollectionDialog = (collection: Collection) => {
     addDialog(<DuplicateCollectionDialog
       collection={collection}
@@ -208,31 +187,10 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
     />);
   }
 
-  const openDeleteCollectionDialog = (collection: Collection) => {
-    addDialog(<DeleteCollectionDialog
-      collection={collection}
-      onDeleteCollectionClicked={submitDeleteCollection}
-    />);
-  }
-
-  const submitEditCollection = (collection: Collection) => {
-    editFetcher.submit(
-      JSON.stringify({ intent: 'UPDATE_COLLECTION', entityId: collection._id, payload: { name: collection.name } }),
-      { method: 'PUT', encType: 'application/json' }
-    );
-  }
-
   const submitDuplicateCollection = ({ name, collectionId }: { name: string, collectionId: string }) => {
     duplicateFetcher.submit(
       JSON.stringify({ intent: 'DUPLICATE_COLLECTION', entityId: collectionId, payload: { name } }),
       { method: 'POST', encType: 'application/json' }
-    );
-  }
-
-  const submitDeleteCollection = (collectionId: string) => {
-    deleteFetcher.submit(
-      JSON.stringify({ intent: 'DELETE_COLLECTION', entityId: collectionId }),
-      { method: 'DELETE', encType: 'application/json' }
     );
   }
 
