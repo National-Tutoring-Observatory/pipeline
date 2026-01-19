@@ -9,15 +9,27 @@ interface CollectionCreatorFormContainerProps {
   prefillData?: PrefillData | null;
 }
 
+function getDefaultName(prefillData?: PrefillData | null): string {
+  if (!prefillData) return '';
+  if (prefillData.sourceCollectionName) {
+    return `Collection from ${prefillData.sourceCollectionName}`;
+  }
+  if (prefillData.sourceRunName) {
+    return `Collection from ${prefillData.sourceRunName}`;
+  }
+  return '';
+}
+
 export default function CollectionCreatorFormContainer({ projectId, prefillData }: CollectionCreatorFormContainerProps) {
   const navigate = useNavigate();
   const fetcher = useFetcher();
 
-  const [name, setName] = useState(prefillData ? `Collection from ${prefillData.sourceRunName}` : '');
+  const [name, setName] = useState(getDefaultName(prefillData));
   const [annotationType, setAnnotationType] = useState(prefillData?.annotationType || 'PER_UTTERANCE');
   const [selectedPrompts, setSelectedPrompts] = useState<PromptReference[]>(prefillData?.selectedPrompts || []);
   const [selectedModels, setSelectedModels] = useState<string[]>(prefillData?.selectedModels || []);
   const [selectedSessions, setSelectedSessions] = useState<string[]>(prefillData?.selectedSessions || []);
+
 
   useEffect(() => {
     if (fetcher.state !== 'idle') return;

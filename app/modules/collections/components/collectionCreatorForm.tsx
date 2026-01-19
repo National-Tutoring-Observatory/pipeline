@@ -96,12 +96,20 @@ export default function CollectionCreatorForm({
         {/* Left Column - Form */}
         <div className="w-[480px] flex-shrink-0 space-y-8">
         {prefillData && (
-          <Alert>
+          <Alert variant={prefillData.validationErrors?.length ? 'destructive' : 'default'}>
             <Info className="h-4 w-4" />
             <AlertTitle>Creating from template</AlertTitle>
             <AlertDescription>
-              Fields pre-filled from run "{prefillData.sourceRunName}".
-              You can modify any field before creating.
+              <p>
+                Fields pre-filled from {prefillData.sourceCollectionName ? 'collection' : 'run'} "{prefillData.sourceCollectionName || prefillData.sourceRunName}". You can modify any field before creating.
+              </p>
+              {prefillData.validationErrors?.length ? (
+                <ul className="mt-2 list-disc list-inside">
+                  {prefillData.validationErrors.map((error, i) => (
+                    <li key={i}>{error}</li>
+                  ))}
+                </ul>
+              ) : null}
             </AlertDescription>
           </Alert>
         )}

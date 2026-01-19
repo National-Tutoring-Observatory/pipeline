@@ -1,5 +1,5 @@
 import type { CollectionItemAction } from "@/components/ui/collectionContentItem"
-import { Edit, Copy } from "lucide-react"
+import { Edit, Copy, FileInput } from "lucide-react"
 import type { Collection } from "../collections.types";
 
 export default (item: Collection): CollectionItemAction[] => {
@@ -15,6 +15,12 @@ export default (item: Collection): CollectionItemAction[] => {
     action: 'DUPLICATE',
     icon: <Copy />,
     text: 'Duplicate'
+  });
+
+  actions.push({
+    action: 'USE_AS_TEMPLATE',
+    icon: <FileInput />,
+    text: 'Use as template'
   });
 
   return actions;

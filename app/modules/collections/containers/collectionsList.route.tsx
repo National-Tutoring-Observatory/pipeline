@@ -220,6 +220,10 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
     navigate(`/projects/${project._id}/create-collection`);
   }
 
+  const onUseAsTemplateButtonClicked = (collection: Collection) => {
+    navigate(`/projects/${project._id}/create-collection?fromCollection=${collection._id}`);
+  }
+
   return (
     <CollectionsList
       collections={collections?.data}
@@ -231,6 +235,7 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
       onCreateCollectionButtonClicked={onCreateCollectionButtonClicked}
       onEditCollectionButtonClicked={openEditCollectionDialog}
       onDuplicateCollectionButtonClicked={openDuplicateCollectionDialog}
+      onUseAsTemplateButtonClicked={onUseAsTemplateButtonClicked}
       onSearchValueChanged={onSearchValueChanged}
       onPaginationChanged={onPaginationChanged}
       onSortValueChanged={onSortValueChanged}
