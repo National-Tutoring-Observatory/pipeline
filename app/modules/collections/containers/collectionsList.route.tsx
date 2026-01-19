@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { data, redirect, useLoaderData, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import type { Collection } from "~/modules/collections/collections.types";
@@ -48,7 +48,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const collections = await CollectionService.paginate(query);
 
-  return { collections, projectId: params.id };
+  return { collections, project };
 }
 
 export async function action({
@@ -133,7 +133,7 @@ export async function action({
 }
 
 export default function CollectionsListRoute({ loaderData }: Route.ComponentProps) {
-  const { collections, projectId } = loaderData;
+  const { collections, project } = loaderData;
   const navigate = useNavigate();
   const editFetcher = useFetcher();
   const duplicateFetcher = useFetcher();
@@ -148,6 +148,14 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
     currentPage: 1,
     sortValue: 'createdAt'
   });
+
+  useEffect(() => {
+    updateBreadcrumb([
+      { text: 'Projects', link: '/' },
+      { text: project.name, link: `/projects/${project._id}` },
+      { text: 'Collections' }
+    ]);
+  }, [project._id, project.name]);
 
   useEffect(() => {
     if (editFetcher.state === 'idle' && editFetcher.data) {
@@ -209,7 +217,7 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
   }
 
   const onCreateCollectionButtonClicked = () => {
-    navigate(`/projects/${projectId}/create-collection`);
+    navigate(`/projects/${project._id}/create-collection`);
   }
 
   return (
