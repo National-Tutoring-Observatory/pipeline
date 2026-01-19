@@ -56,10 +56,7 @@ export default function CollectionsList({
   };
 
   return (
-    <div className="max-w-6xl p-8">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
-        Collections
-      </h1>
+    <div className="mt-8">
       <CollectionComponent
         items={collections || []}
         itemsLayout="list"
