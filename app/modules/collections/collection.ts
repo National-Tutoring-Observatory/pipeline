@@ -4,6 +4,7 @@ import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import collectionSchema from '~/lib/schemas/collection.schema';
 import type { Collection } from './collections.types';
 import createCollectionWithRuns from './services/createCollectionWithRuns.server';
+import deleteCollectionService from './services/deleteCollection.server';
 import type { RunAnnotationType } from '~/modules/runs/runs.types';
 
 const CollectionModel = mongoose.model('Collection', collectionSchema);
@@ -113,5 +114,9 @@ export class CollectionService {
     );
 
     return result;
+  }
+
+  static async deleteWithCleanup(collectionId: string): Promise<{ status: string }> {
+    return deleteCollectionService({ collectionId });
   }
 }

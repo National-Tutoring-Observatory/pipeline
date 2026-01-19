@@ -1,5 +1,5 @@
 import type { CollectionItemAction } from "@/components/ui/collectionContentItem"
-import { Edit, Copy, FileInput } from "lucide-react"
+import { Edit, Copy, FileInput, Trash2 } from "lucide-react"
 import type { Collection } from "../collections.types";
 
 export default (item: Collection): CollectionItemAction[] => {
@@ -21,6 +21,12 @@ export default (item: Collection): CollectionItemAction[] => {
     action: 'USE_AS_TEMPLATE',
     icon: <FileInput />,
     text: 'Use as template'
+  });
+
+  actions.push({
+    action: 'DELETE',
+    icon: <Trash2 />,
+    text: 'Delete'
   });
 
   return actions;

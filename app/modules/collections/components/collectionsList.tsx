@@ -17,6 +17,7 @@ interface CollectionsListProps {
   onEditCollectionButtonClicked: (collection: Collection) => void;
   onDuplicateCollectionButtonClicked: (collection: Collection) => void;
   onUseAsTemplateButtonClicked: (collection: Collection) => void;
+  onDeleteCollectionButtonClicked: (collection: Collection) => void;
   onSearchValueChanged: (searchValue: string) => void;
   onPaginationChanged: (currentPage: number) => void;
   onSortValueChanged: (sortValue: string) => void;
@@ -33,6 +34,7 @@ export default function CollectionsList({
   onEditCollectionButtonClicked,
   onDuplicateCollectionButtonClicked,
   onUseAsTemplateButtonClicked,
+  onDeleteCollectionButtonClicked,
   onSearchValueChanged,
   onPaginationChanged,
   onSortValueChanged
@@ -50,6 +52,9 @@ export default function CollectionsList({
         break;
       case 'USE_AS_TEMPLATE':
         onUseAsTemplateButtonClicked(collection);
+        break;
+      case 'DELETE':
+        onDeleteCollectionButtonClicked(collection);
         break;
     }
   };

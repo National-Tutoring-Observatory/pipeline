@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { data, redirect, useLoaderData, useFetcher, useNavigate } from "react-router";
+import { data, redirect, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
@@ -8,6 +8,7 @@ import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import type { Collection } from "~/modules/collections/collections.types";
+import DeleteCollectionDialog from "~/modules/collections/components/deleteCollectionDialog";
 import DuplicateCollectionDialog from "~/modules/collections/components/duplicateCollectionDialog";
 import EditCollectionDialog from "~/modules/collections/components/editCollectionDialog";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -126,6 +127,13 @@ export async function action({
         ...collection
       };
     }
+    case 'DELETE_COLLECTION': {
+      await CollectionService.deleteWithCleanup(entityId);
+
+      return {
+        intent: 'DELETE_COLLECTION'
+      };
+    }
     default: {
       return {};
     }
@@ -137,6 +145,7 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
   const navigate = useNavigate();
   const editFetcher = useFetcher();
   const duplicateFetcher = useFetcher();
+  const deleteFetcher = useFetcher();
 
   const {
     searchValue, setSearchValue,
@@ -176,6 +185,15 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
     }
   }, [duplicateFetcher.state, duplicateFetcher.data, navigate]);
 
+  useEffect(() => {
+    if (deleteFetcher.state === 'idle' && deleteFetcher.data) {
+      if (deleteFetcher.data.intent === 'DELETE_COLLECTION') {
+        toast.success('Collection deleted');
+        addDialog(null);
+      }
+    }
+  }, [deleteFetcher.state, deleteFetcher.data]);
+
   const openEditCollectionDialog = (collection: Collection) => {
     addDialog(<EditCollectionDialog
       collection={collection}
@@ -190,6 +208,13 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
     />);
   }
 
+  const openDeleteCollectionDialog = (collection: Collection) => {
+    addDialog(<DeleteCollectionDialog
+      collection={collection}
+      onDeleteCollectionClicked={submitDeleteCollection}
+    />);
+  }
+
   const submitEditCollection = (collection: Collection) => {
     editFetcher.submit(
       JSON.stringify({ intent: 'UPDATE_COLLECTION', entityId: collection._id, payload: { name: collection.name } }),
@@ -201,6 +226,13 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
     duplicateFetcher.submit(
       JSON.stringify({ intent: 'DUPLICATE_COLLECTION', entityId: collectionId, payload: { name } }),
       { method: 'POST', encType: 'application/json' }
+    );
+  }
+
+  const submitDeleteCollection = (collectionId: string) => {
+    deleteFetcher.submit(
+      JSON.stringify({ intent: 'DELETE_COLLECTION', entityId: collectionId }),
+      { method: 'DELETE', encType: 'application/json' }
     );
   }
 
@@ -236,6 +268,7 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
       onEditCollectionButtonClicked={openEditCollectionDialog}
       onDuplicateCollectionButtonClicked={openDuplicateCollectionDialog}
       onUseAsTemplateButtonClicked={onUseAsTemplateButtonClicked}
+      onDeleteCollectionButtonClicked={openDeleteCollectionDialog}
       onSearchValueChanged={onSearchValueChanged}
       onPaginationChanged={onPaginationChanged}
       onSortValueChanged={onSortValueChanged}
