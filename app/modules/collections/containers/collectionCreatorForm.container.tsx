@@ -58,7 +58,7 @@ export default function CollectionCreatorFormContainer({ projectId, prefillData 
       onModelsChanged={setSelectedModels}
       onSessionsChanged={setSelectedSessions}
       onCreateClicked={handleCreateCollection}
-      isLoading={false}
+      isLoading={fetcher.state !== 'idle'}
       errors={(fetcher.data as any)?.errors || {}}
       prefillData={prefillData}
     />
