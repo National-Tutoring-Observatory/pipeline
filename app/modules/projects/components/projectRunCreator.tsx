@@ -2,14 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { PopoverClose } from "@radix-ui/react-popover";
-import { ShuffleIcon } from "lucide-react";
 import { useState } from "react";
 import AnnotationTypeSelectorContainer from "~/modules/prompts/containers/annoationTypeSelectorContainer";
 import ModelSelectorContainer from '~/modules/prompts/containers/modelSelectorContainer';
 import PromptSelectorContainer from '~/modules/prompts/containers/promptSelectorContainer';
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
+import SessionRandomizer from "~/modules/sessions/components/sessionRandomizer";
 import RunNameAlert from "./runNameAlert";
 
 
@@ -122,30 +120,13 @@ export default function ProjectRunCreator({
           <CardTitle>Select sessions</CardTitle>
           <CardDescription>Choose which sessions to annotate. You can select manually or use the randomizer to pick a sample.</CardDescription>
           <CardAction>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  role="combobox"
-                  className=""
-                >
-                  <ShuffleIcon />
-                  RandomizR
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-4">
-                <div className="grid gap-3">
-                  <Label htmlFor="sample-size">Sample size</Label>
-                  <Input id="sample-size" name="sample-size" type="number" max={`${sessionsCount}`} min={"1"} value={randomSampleSize} onChange={(event) => onRandomSampleSizeChanged(Number(event.target.value))} />
-                  <PopoverClose asChild>
-                    <Button onClick={onSelectRandomSampleSizeButtonClicked}>
-                      Select
-                    </Button>
-                  </PopoverClose>
-                </div>
-              </PopoverContent>
-            </Popover></CardAction>
+            <SessionRandomizer
+              sampleSize={randomSampleSize}
+              maxSize={sessionsCount}
+              onSampleSizeChanged={onRandomSampleSizeChanged}
+              onRandomizeClicked={onSelectRandomSampleSizeButtonClicked}
+            />
+          </CardAction>
         </CardHeader>
         <CardContent>
           <SessionSelectorContainer

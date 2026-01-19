@@ -1,40 +1,38 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import dayjs from "dayjs";
 import map from 'lodash/map';
 import type { Session } from "../sessions.types";
 import { Checkbox } from "@/components/ui/checkbox";
 import includes from 'lodash/includes';
-import { Shuffle } from "lucide-react";
+import SessionRandomizer from "./sessionRandomizer";
 
 export default function SessionSelector({
   sessions = [],
   selectedSessions,
+  sampleSize,
   onSelectAllToggled,
   onSelectSessionToggled,
+  onSampleSizeChanged,
   onRandomizeClicked
 }: {
   sessions: [],
   selectedSessions: string[],
+  sampleSize: number,
   onSelectAllToggled: (isChecked: boolean) => void,
   onSelectSessionToggled: ({ sessionId, isChecked }: { sessionId: string, isChecked: boolean }) => void,
-  onRandomizeClicked?: () => void
+  onSampleSizeChanged: (size: number) => void,
+  onRandomizeClicked: () => void
 }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium">Select All</span>
-        {onRandomizeClicked && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={onRandomizeClicked}
-            className="gap-2"
-          >
-            <Shuffle className="w-4 h-4" />
-            Randomize
-          </Button>
-        )}
+        <SessionRandomizer
+          sampleSize={sampleSize}
+          maxSize={sessions.length}
+          onSampleSizeChanged={onSampleSizeChanged}
+          onRandomizeClicked={onRandomizeClicked}
+        />
       </div>
       <div className="border rounded-md h-80 overflow-y-auto">
         <Table>
