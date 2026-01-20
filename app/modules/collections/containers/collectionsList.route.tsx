@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { data, redirect, useNavigate } from "react-router";
+import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
@@ -143,8 +143,8 @@ export async function action({
   }
 }
 
-export default function CollectionsListRoute({ loaderData }: Route.ComponentProps) {
-  const { collections, project, hasCollectionsFeature } = loaderData;
+export default function CollectionsListRoute() {
+  const { collections, project, hasCollectionsFeature } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const {
