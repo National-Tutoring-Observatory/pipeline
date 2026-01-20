@@ -6,11 +6,9 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import type { CreateRun } from "~/modules/runs/runs.types";
-import ProjectRunCreatorContainer from "../containers/projectRunCreator.container";
-import type { Project } from "../projects.types";
+import ProjectCreateRun from '../components/projectCreateRun';
 import startRun from '../services/startRun.server';
 import type { Route } from "./+types/projectCreateRun.route";
-import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
@@ -122,20 +120,14 @@ export default function ProjectCreateRunRoute() {
     }
   }, [actionData]);
 
-  useEffect(() => {
-    updateBreadcrumb([{ text: 'Projects', link: `/` }, { text: project!.name, link: `/projects/${project!._id}` }]);
-  }, [project]);
+  const breadcrumbs = [{ text: 'Projects', link: `/` }, { text: project!.name, link: `/projects/${project!._id}` }, { text: 'Create run' }];
 
   return (
-    <div className="max-w-6xl p-8">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
-        Create a new run
-      </h1>
-      <ProjectRunCreatorContainer
-        runName={runName}
-        onRunNameChanged={onRunNameChanged}
-        onStartRunClicked={onStartRunClicked}
-      />
-    </div>
+    <ProjectCreateRun
+      breadcrumbs={breadcrumbs}
+      runName={runName}
+      onRunNameChanged={onRunNameChanged}
+      onStartRunClicked={onStartRunClicked}
+    />
   )
 }
