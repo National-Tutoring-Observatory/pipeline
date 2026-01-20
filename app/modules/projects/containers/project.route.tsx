@@ -140,7 +140,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const submitEditProject = (p: ProjectType) => {
     editFetcher.submit(
       JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: p._id, payload: { name: p.name } }),
-      { method: 'PUT', encType: 'application/json' }
+      { method: 'PUT', encType: 'application/json', action: '/api/projects' }
     );
   };
 
