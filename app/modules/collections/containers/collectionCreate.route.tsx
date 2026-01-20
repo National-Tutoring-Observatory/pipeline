@@ -208,18 +208,14 @@ export async function action({
         return data({ errors }, { status: 400 });
       }
 
-      const result = await CollectionService.createWithRuns(
-        {
-          project: params.projectId,
-          name,
-          sessions,
-          runs: [],
-          hasSetup: false
-        },
+      const result = await CollectionService.createWithRuns({
+        project: params.projectId,
+        name,
+        sessions,
         prompts,
         models,
-        annotationType as RunAnnotationType
-      );
+        annotationType: annotationType as RunAnnotationType
+      });
 
       return {
         intent: 'CREATE_COLLECTION',

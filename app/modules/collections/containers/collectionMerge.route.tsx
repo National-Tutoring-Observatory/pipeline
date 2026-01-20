@@ -2,17 +2,21 @@ import { useEffect, useState } from 'react';
 import { data, redirect, useLoaderData, useNavigate, useSubmit } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Collection } from '@/components/ui/collection';
 import includes from 'lodash/includes';
 import cloneDeep from 'lodash/cloneDeep';
 import pull from 'lodash/pull';
 import map from 'lodash/map';
+import dayjs from 'dayjs';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
+import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
+import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { CollectionService } from '~/modules/collections/collection';
 import { ProjectService } from '~/modules/projects/project';
 import ProjectAuthorization from '~/modules/projects/authorization';
 import type { User } from '~/modules/users/users.types';
+import type { Collection as CollectionType } from '~/modules/collections/collections.types';
 import type { Route } from './+types/collectionMerge.route';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -35,12 +39,26 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect(`/projects/${params.projectId}/collections`);
   }
 
-  const mergeableCollections = await CollectionService.findMergeableCollections(params.collectionId);
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: '',
+    currentPage: 1
+  });
+
+  const mergeableCollectionsResult = await CollectionService.findMergeableCollections(
+    params.collectionId,
+    {
+      page: queryParams.currentPage || 1,
+      pageSize: 10,
+      search: queryParams.searchValue || ''
+    }
+  );
 
   return {
     collection,
     project,
-    mergeableCollections
+    mergeableCollections: mergeableCollectionsResult.data,
+    totalMergeableCollections: mergeableCollectionsResult.count,
+    totalPages: mergeableCollectionsResult.totalPages
   };
 }
 
@@ -74,10 +92,21 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function CollectionMergeRoute() {
-  const { collection, project, mergeableCollections } = useLoaderData<typeof loader>();
+  const { collection, project, mergeableCollections, totalMergeableCollections, totalPages } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const navigate = useNavigate();
   const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
+
+  const {
+    searchValue,
+    setSearchValue,
+    currentPage,
+    setCurrentPage,
+    isSyncing
+  } = useSearchQueryParams({
+    searchValue: '',
+    currentPage: 1
+  });
 
   const onSelectAllToggled = (isChecked: boolean) => {
     if (isChecked) {
@@ -87,7 +116,7 @@ export default function CollectionMergeRoute() {
     }
   };
 
-  const onSelectCollectionToggled = ({ collectionId, isChecked }: { collectionId: string; isChecked: boolean }) => {
+  const onSelectCollectionToggled = (collectionId: string, isChecked: boolean) => {
     const clonedSelectedCollections = cloneDeep(selectedCollections);
     if (isChecked) {
       clonedSelectedCollections.push(collectionId);
@@ -117,6 +146,32 @@ export default function CollectionMergeRoute() {
     return sum + (coll?.runs?.length || 0);
   }, 0);
 
+  const getItemAttributes = (coll: CollectionType) => ({
+    id: coll._id,
+    title: coll.name,
+    meta: [
+      { text: `${coll.runs?.length || 0} runs` },
+      { text: coll.createdAt ? dayjs(coll.createdAt).format('MMM D, YYYY') : '' }
+    ]
+  });
+
+  const renderItem = (coll: CollectionType) => (
+    <div className="flex items-center gap-4 p-4 w-full">
+      <Checkbox
+        checked={includes(selectedCollections, coll._id)}
+        onCheckedChange={(checked) => onSelectCollectionToggled(coll._id, Boolean(checked))}
+        onClick={(e) => e.stopPropagation()}
+      />
+      <div className="flex-1 min-w-0">
+        <div className="font-medium">{coll.name}</div>
+        <div className="text-sm text-muted-foreground flex gap-4">
+          <span>{coll.runs?.length || 0} runs</span>
+          <span>{coll.createdAt ? dayjs(coll.createdAt).format('MMM D, YYYY') : ''}</span>
+        </div>
+      </div>
+    </div>
+  );
+
   useEffect(() => {
     updateBreadcrumb([
       { text: 'Projects', link: '/' },
@@ -127,6 +182,8 @@ export default function CollectionMergeRoute() {
     ]);
   }, [project._id, project.name, collection._id, collection.name]);
 
+  const allSelected = mergeableCollections.length > 0 && selectedCollections.length === mergeableCollections.length;
+
   return (
     <div className="p-8">
       <div className="mb-8">
@@ -136,7 +193,7 @@ export default function CollectionMergeRoute() {
         </p>
       </div>
 
-      {mergeableCollections.length === 0 ? (
+      {totalMergeableCollections === 0 && !searchValue ? (
         <div className="text-center py-12 text-muted-foreground">
           <p>No compatible collections found.</p>
           <p className="text-sm mt-2">Collections must have the same sessions and annotation type.</p>
@@ -146,55 +203,51 @@ export default function CollectionMergeRoute() {
         </div>
       ) : (
         <>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4 mb-4">
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(checked) => onSelectAllToggled(Boolean(checked))}
+            />
             <span className="text-sm text-muted-foreground">
-              {mergeableCollections.length} compatible collection{mergeableCollections.length !== 1 ? 's' : ''} • {selectedCollections.length} selected ({totalRuns} runs)
+              Select all ({selectedCollections.length} of {totalMergeableCollections} selected, {totalRuns} runs)
             </span>
           </div>
 
-          <div className="border rounded-md">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-8">
-                    <Checkbox
-                      checked={selectedCollections.length === mergeableCollections.length && mergeableCollections.length > 0}
-                      onCheckedChange={(checked) => onSelectAllToggled(Boolean(checked))}
-                    />
-                  </TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Runs</TableHead>
-                  <TableHead>Created</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mergeableCollections.map((coll) => (
-                  <TableRow key={coll._id}>
-                    <TableCell className="w-8">
-                      <Checkbox
-                        checked={includes(selectedCollections, coll._id)}
-                        onCheckedChange={(checked) =>
-                          onSelectCollectionToggled({ collectionId: coll._id, isChecked: Boolean(checked) })
-                        }
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">{coll.name}</TableCell>
-                    <TableCell>{coll.runs?.length || 0}</TableCell>
-                    <TableCell>
-                      {coll.createdAt ? new Date(coll.createdAt).toLocaleDateString() : '-'}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <Collection
+            items={mergeableCollections}
+            itemsLayout="list"
+            hasSearch
+            hasPagination
+            searchValue={searchValue}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            isSyncing={isSyncing}
+            emptyAttributes={{
+              title: 'No collections found',
+              description: searchValue ? 'Try a different search term' : 'No compatible collections available'
+            }}
+            getItemAttributes={getItemAttributes}
+            getItemActions={() => []}
+            renderItem={renderItem}
+            onItemClicked={(id) => {
+              const isSelected = includes(selectedCollections, id);
+              onSelectCollectionToggled(id, !isSelected);
+            }}
+            onActionClicked={() => {}}
+            onSearchValueChanged={setSearchValue}
+            onPaginationChanged={setCurrentPage}
+            onFiltersValueChanged={() => {}}
+            onSortValueChanged={() => {}}
+            filters={[]}
+            filtersValues={{}}
+          />
 
           <div className="flex justify-end gap-2 mt-6">
             <Button variant="outline" onClick={onCancelClicked}>
               Cancel
             </Button>
             <Button onClick={onMergeClicked} disabled={selectedCollections.length === 0}>
-              Merge {selectedCollections.length} Collection{selectedCollections.length !== 1 ? 's' : ''}
+              Merge {selectedCollections.length} Collection{selectedCollections.length !== 1 ? 's' : ''} ({totalRuns} runs)
             </Button>
           </div>
         </>

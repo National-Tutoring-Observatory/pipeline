@@ -1,44 +1,37 @@
-import { RunService } from '~/modules/runs/run';
 import type { Collection } from '../collections.types';
 import { CollectionService } from '../collection';
-import { getCollectionAnnotationType } from '../helpers/getCollectionAnnotationType';
-import { sessionsMatch } from '../helpers/sessionsMatch';
+
+interface FindMergeableCollectionsOptions {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+}
 
 export default async function findMergeableCollections(
-  targetCollectionId: string
-): Promise<Collection[]> {
+  targetCollectionId: string,
+  options?: FindMergeableCollectionsOptions
+): Promise<{ data: Collection[]; count: number; totalPages: number }> {
   const targetCollection = await CollectionService.findById(targetCollectionId);
   if (!targetCollection) {
     throw new Error('Collection not found');
   }
 
-  const targetAnnotationType = await getCollectionAnnotationType(targetCollection);
   const targetSessionIds = targetCollection.sessions;
 
-  const allCollections = await CollectionService.find({
-    match: {
-      project: targetCollection.project,
-      _id: { $ne: targetCollectionId }
-    }
-  });
+  const match: Record<string, unknown> = {
+    project: targetCollection.project,
+    _id: { $ne: targetCollectionId },
+    sessions: { $all: targetSessionIds, $size: targetSessionIds.length },
+    annotationType: targetCollection.annotationType
+  };
 
-  const mergeableCollections: Collection[] = [];
-
-  for (const collection of allCollections) {
-    const collectionSessionIds = collection.sessions;
-    if (!sessionsMatch(collectionSessionIds, targetSessionIds)) {
-      continue;
-    }
-
-    if (targetAnnotationType && collection.runs && collection.runs.length > 0) {
-      const firstRun = await RunService.findById(collection.runs[0]);
-      if (firstRun && firstRun.annotationType !== targetAnnotationType) {
-        continue;
-      }
-    }
-
-    mergeableCollections.push(collection);
+  if (options?.search) {
+    match.name = { $regex: options.search, $options: 'i' };
   }
 
-  return mergeableCollections;
+  return CollectionService.paginate({
+    match,
+    page: options?.page,
+    pageSize: options?.pageSize
+  });
 }

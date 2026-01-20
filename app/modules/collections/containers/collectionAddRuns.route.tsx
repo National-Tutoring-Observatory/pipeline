@@ -2,17 +2,21 @@ import { useEffect, useState } from 'react';
 import { data, redirect, useLoaderData, useNavigate, useSubmit } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Collection } from '@/components/ui/collection';
 import includes from 'lodash/includes';
 import cloneDeep from 'lodash/cloneDeep';
 import pull from 'lodash/pull';
 import map from 'lodash/map';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
+import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
+import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { CollectionService } from '~/modules/collections/collection';
 import { ProjectService } from '~/modules/projects/project';
 import ProjectAuthorization from '~/modules/projects/authorization';
 import type { User } from '~/modules/users/users.types';
+import type { Run } from '~/modules/runs/runs.types';
+import { getRunModelDisplayName } from '~/modules/runs/helpers/runModel';
 import type { Route } from './+types/collectionAddRuns.route';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -35,13 +39,27 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect(`/projects/${params.projectId}/collections`);
   }
 
-  const eligibleRuns = await CollectionService.findEligibleRunsForCollection(params.collectionId);
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: '',
+    currentPage: 1,
+    sort: '-createdAt'
+  });
+
+  const eligibleRunsResult = await CollectionService.findEligibleRunsForCollection(
+    params.collectionId,
+    {
+      page: queryParams.currentPage || 1,
+      pageSize: 10,
+      search: queryParams.searchValue || ''
+    }
+  );
 
   return {
     collection,
     project,
-    eligibleRuns: eligibleRuns.data,
-    totalEligibleRuns: eligibleRuns.count
+    eligibleRuns: eligibleRunsResult.data,
+    totalEligibleRuns: eligibleRunsResult.count,
+    totalPages: eligibleRunsResult.totalPages
   };
 }
 
@@ -75,10 +93,21 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function CollectionAddRunsRoute() {
-  const { collection, project, eligibleRuns, totalEligibleRuns } = useLoaderData<typeof loader>();
+  const { collection, project, eligibleRuns, totalEligibleRuns, totalPages } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const navigate = useNavigate();
   const [selectedRuns, setSelectedRuns] = useState<string[]>([]);
+
+  const {
+    searchValue,
+    setSearchValue,
+    currentPage,
+    setCurrentPage,
+    isSyncing
+  } = useSearchQueryParams({
+    searchValue: '',
+    currentPage: 1
+  });
 
   const onSelectAllToggled = (isChecked: boolean) => {
     if (isChecked) {
@@ -88,7 +117,7 @@ export default function CollectionAddRunsRoute() {
     }
   };
 
-  const onSelectRunToggled = ({ runId, isChecked }: { runId: string; isChecked: boolean }) => {
+  const onSelectRunToggled = (runId: string, isChecked: boolean) => {
     const clonedSelectedRuns = cloneDeep(selectedRuns);
     if (isChecked) {
       clonedSelectedRuns.push(runId);
@@ -113,6 +142,32 @@ export default function CollectionAddRunsRoute() {
     navigate(`/projects/${project._id}/collections/${collection._id}`);
   };
 
+  const getItemAttributes = (run: Run) => ({
+    id: run._id,
+    title: run.name,
+    meta: [
+      { text: `Model: ${getRunModelDisplayName(run) || '-'}` },
+      { text: `Status: ${run.isComplete ? 'Complete' : run.isRunning ? 'Running' : 'Pending'}` }
+    ]
+  });
+
+  const renderItem = (run: Run) => (
+    <div className="flex items-center gap-4 p-4 w-full">
+      <Checkbox
+        checked={includes(selectedRuns, run._id)}
+        onCheckedChange={(checked) => onSelectRunToggled(run._id, Boolean(checked))}
+        onClick={(e) => e.stopPropagation()}
+      />
+      <div className="flex-1 min-w-0">
+        <div className="font-medium">{run.name}</div>
+        <div className="text-sm text-muted-foreground flex gap-4">
+          <span>Model: {getRunModelDisplayName(run) || '-'}</span>
+          <span>Status: {run.isComplete ? 'Complete' : run.isRunning ? 'Running' : 'Pending'}</span>
+        </div>
+      </div>
+    </div>
+  );
+
   useEffect(() => {
     updateBreadcrumb([
       { text: 'Projects', link: '/' },
@@ -123,6 +178,8 @@ export default function CollectionAddRunsRoute() {
     ]);
   }, [project._id, project.name, collection._id, collection.name]);
 
+  const allSelected = eligibleRuns.length > 0 && selectedRuns.length === eligibleRuns.length;
+
   return (
     <div className="p-8">
       <div className="mb-8">
@@ -132,7 +189,7 @@ export default function CollectionAddRunsRoute() {
         </p>
       </div>
 
-      {eligibleRuns.length === 0 ? (
+      {totalEligibleRuns === 0 && !searchValue ? (
         <div className="text-center py-12 text-muted-foreground">
           <p>No eligible runs found.</p>
           <p className="text-sm mt-2">Runs must have the same sessions and annotation type as this collection.</p>
@@ -142,48 +199,44 @@ export default function CollectionAddRunsRoute() {
         </div>
       ) : (
         <>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4 mb-4">
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(checked) => onSelectAllToggled(Boolean(checked))}
+            />
             <span className="text-sm text-muted-foreground">
-              {totalEligibleRuns} eligible run{totalEligibleRuns !== 1 ? 's' : ''} • {selectedRuns.length} selected
+              Select all ({selectedRuns.length} of {totalEligibleRuns} selected)
             </span>
           </div>
 
-          <div className="border rounded-md">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-8">
-                    <Checkbox
-                      checked={selectedRuns.length === eligibleRuns.length && eligibleRuns.length > 0}
-                      onCheckedChange={(checked) => onSelectAllToggled(Boolean(checked))}
-                    />
-                  </TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Model</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {eligibleRuns.map((run) => (
-                  <TableRow key={run._id}>
-                    <TableCell className="w-8">
-                      <Checkbox
-                        checked={includes(selectedRuns, run._id)}
-                        onCheckedChange={(checked) =>
-                          onSelectRunToggled({ runId: run._id, isChecked: Boolean(checked) })
-                        }
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">{run.name}</TableCell>
-                    <TableCell>{run.snapshot?.model?.name || run.model || '-'}</TableCell>
-                    <TableCell>
-                      {run.isComplete ? 'Complete' : run.isRunning ? 'Running' : 'Pending'}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <Collection
+            items={eligibleRuns}
+            itemsLayout="list"
+            hasSearch
+            hasPagination
+            searchValue={searchValue}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            isSyncing={isSyncing}
+            emptyAttributes={{
+              title: 'No runs found',
+              description: searchValue ? 'Try a different search term' : 'No eligible runs available'
+            }}
+            getItemAttributes={getItemAttributes}
+            getItemActions={() => []}
+            renderItem={renderItem}
+            onItemClicked={(id) => {
+              const isSelected = includes(selectedRuns, id);
+              onSelectRunToggled(id, !isSelected);
+            }}
+            onActionClicked={() => {}}
+            onSearchValueChanged={setSearchValue}
+            onPaginationChanged={setCurrentPage}
+            onFiltersValueChanged={() => {}}
+            onSortValueChanged={() => {}}
+            filters={[]}
+            filtersValues={{}}
+          />
 
           <div className="flex justify-end gap-2 mt-6">
             <Button variant="outline" onClick={onCancelClicked}>

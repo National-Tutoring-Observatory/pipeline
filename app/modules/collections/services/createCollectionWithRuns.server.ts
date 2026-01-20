@@ -4,8 +4,8 @@ import type { Collection, PromptReference } from '../collections.types';
 import type { RunAnnotationType } from '~/modules/runs/runs.types';
 import { CollectionService } from '../collection';
 
-interface CreateCollectionWithRunsPayload {
-  projectId: string;
+export interface CreateCollectionWithRunsPayload {
+  project: string;
   name: string;
   sessions: string[];
   prompts: PromptReference[];
@@ -14,9 +14,16 @@ interface CreateCollectionWithRunsPayload {
 }
 
 export default async function createCollectionWithRuns(
-  collection: Collection,
   payload: CreateCollectionWithRunsPayload
 ): Promise<{ collection: Collection; errors: string[] }> {
+  const collection = await CollectionService.create({
+    project: payload.project,
+    name: payload.name,
+    sessions: payload.sessions,
+    runs: [],
+    annotationType: payload.annotationType
+  });
+
   const generatedRunIds: string[] = [];
   const runErrors: string[] = [];
 
@@ -29,7 +36,7 @@ export default async function createCollectionWithRuns(
         const runName = `${collection.name} - ${promptLabel} - ${model}`;
 
         const newRun = await RunService.create({
-          project: payload.projectId,
+          project: payload.project,
           name: runName,
           annotationType: payload.annotationType,
           isRunning: false,
@@ -38,7 +45,7 @@ export default async function createCollectionWithRuns(
 
         const startedRun = await startRun({
           runId: newRun._id,
-          projectId: payload.projectId,
+          projectId: payload.project,
           sessions: payload.sessions,
           annotationType: payload.annotationType,
           prompt: prompt.promptId,

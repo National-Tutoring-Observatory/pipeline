@@ -1,7 +1,7 @@
 import escapeRegExp from 'lodash/escapeRegExp';
 import has from 'lodash/has';
 
-export type QueryParams = { searchValue?: string, currentPage?: string, filters?: Record<string, string>, sort?: string }
+export type QueryParams = { searchValue?: string, currentPage?: number, filters?: Record<string, string>, sort?: string }
 type BuildQueryProps = {
   match: any,
   queryParams: QueryParams,
@@ -9,7 +9,7 @@ type BuildQueryProps = {
   sortableFields: string[],
   filterableFields?: string[]
 }
-export type Query = { match: any, sort?: any, page?: string }
+export type Query = { match: any, sort?: any, page?: number }
 
 function regexMatch(field: string, value: string) {
   return { [field]: { $regex: new RegExp(escapeRegExp(value), "i") } };

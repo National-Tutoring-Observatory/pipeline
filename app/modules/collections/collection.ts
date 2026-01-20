@@ -97,25 +97,15 @@ export class CollectionService {
     };
   }
 
-  static async createWithRuns(
-    data: Partial<Collection>,
-    prompts: PromptReference[],
-    models: string[],
-    annotationType: RunAnnotationType
-  ): Promise<{ collection: Collection; errors: string[] }> {
-    const collection = await this.create({ ...data, annotationType });
-
-    return createCollectionWithRuns(
-      collection,
-      {
-        projectId: data.project!,
-        name: data.name!,
-        sessions: data.sessions!,
-        prompts,
-        models,
-        annotationType
-      }
-    );
+  static async createWithRuns(payload: {
+    project: string;
+    name: string;
+    sessions: string[];
+    prompts: PromptReference[];
+    models: string[];
+    annotationType: RunAnnotationType;
+  }): Promise<{ collection: Collection; errors: string[] }> {
+    return createCollectionWithRuns(payload);
   }
 
   static async deleteWithCleanup(collectionId: string): Promise<{ status: string }> {
@@ -124,7 +114,7 @@ export class CollectionService {
 
   static async findEligibleRunsForCollection(
     collectionId: string,
-    options?: { page?: number; pageSize?: number }
+    options?: { page?: number; pageSize?: number; search?: string }
   ): Promise<{ data: Run[]; count: number; totalPages: number }> {
     return findEligibleRunsService(collectionId, options);
   }
@@ -136,8 +126,11 @@ export class CollectionService {
     return addRunsToCollectionService(collectionId, runIds);
   }
 
-  static async findMergeableCollections(targetCollectionId: string): Promise<Collection[]> {
-    return findMergeableCollectionsService(targetCollectionId);
+  static async findMergeableCollections(
+    targetCollectionId: string,
+    options?: { page?: number; pageSize?: number; search?: string }
+  ): Promise<{ data: Collection[]; count: number; totalPages: number }> {
+    return findMergeableCollectionsService(targetCollectionId, options);
   }
 
   static async mergeCollections(

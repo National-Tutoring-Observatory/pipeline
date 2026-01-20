@@ -78,8 +78,8 @@ describe('CollectionService.findMergeableCollections', () => {
 
     const result = await CollectionService.findMergeableCollections(targetCollection._id);
 
-    expect(result).toHaveLength(1);
-    expect(result[0]._id).toBe(mergeableCollection._id);
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0]._id).toBe(mergeableCollection._id);
   });
 
   it('excludes collections from different projects', async () => {
@@ -101,7 +101,7 @@ describe('CollectionService.findMergeableCollections', () => {
 
     const result = await CollectionService.findMergeableCollections(targetCollection._id);
 
-    expect(result).toHaveLength(0);
+    expect(result.data).toHaveLength(0);
   });
 
   it('excludes collections with different sessions', async () => {
@@ -123,7 +123,7 @@ describe('CollectionService.findMergeableCollections', () => {
 
     const result = await CollectionService.findMergeableCollections(targetCollection._id);
 
-    expect(result).toHaveLength(0);
+    expect(result.data).toHaveLength(0);
   });
 
   it('excludes collections with incompatible annotation types', async () => {
@@ -173,8 +173,8 @@ describe('CollectionService.findMergeableCollections', () => {
 
     const result = await CollectionService.findMergeableCollections(targetCollection._id);
 
-    expect(result).toHaveLength(0);
-    expect(result.map(c => c._id)).not.toContain(targetCollection._id);
+    expect(result.data).toHaveLength(0);
+    expect(result.data.map(c => c._id)).not.toContain(targetCollection._id);
   });
 
   it('only includes collections with matching annotation type', async () => {
@@ -204,10 +204,8 @@ describe('CollectionService.findMergeableCollections', () => {
 
     const result = await CollectionService.findMergeableCollections(targetCollection._id);
 
-    expect(result).toHaveLength(2);
-    const ids = result.map(c => c._id);
-    expect(ids).toContain(collection1._id);
-    expect(ids).toContain(collection2._id);
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0]._id).toBe(matchingCollection._id);
   });
 });
 
