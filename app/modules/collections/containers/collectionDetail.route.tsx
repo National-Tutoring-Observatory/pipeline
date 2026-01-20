@@ -1,27 +1,26 @@
-import { useEffect } from 'react';
-import { data, redirect, useLoaderData, useNavigate, useRevalidator, useSubmit } from 'react-router';
-import find from 'lodash/find';
 import { Button } from '@/components/ui/button';
 import { Collection } from '@/components/ui/collection';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Download, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import find from 'lodash/find';
 import throttle from 'lodash/throttle';
+import { Copy, Download, GitMerge, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { data, redirect, useLoaderData, useNavigate, useRevalidator, useSubmit } from 'react-router';
+import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
-import addDialog from '~/modules/dialogs/addDialog';
 import { CollectionService } from '~/modules/collections/collection';
 import CollectionDownloads from '~/modules/collections/components/collectionDownloads';
 import exportCollection from '~/modules/collections/helpers/exportCollection';
 import { useCollectionActions } from '~/modules/collections/hooks/useCollectionActions';
-import { ProjectService } from '~/modules/projects/project';
+import addDialog from '~/modules/dialogs/addDialog';
+import ProjectAuthorization from '~/modules/projects/authorization';
 import getProjectRunsItemAttributes from '~/modules/projects/helpers/getProjectRunsItemAttributes';
 import getProjectSessionsItemAttributes from '~/modules/projects/helpers/getProjectSessionsItemAttributes';
+import { ProjectService } from '~/modules/projects/project';
 import { RunService } from '~/modules/runs/run';
-import { SessionService } from '~/modules/sessions/session';
 import ViewSessionContainer from '~/modules/sessions/containers/viewSessionContainer';
-import type { Session } from '~/modules/sessions/sessions.types';
-import ProjectAuthorization from '~/modules/projects/authorization';
+import { SessionService } from '~/modules/sessions/session';
 import type { User } from '~/modules/users/users.types';
 import type { Route } from './+types/collectionDetail.route';
 
@@ -99,7 +98,8 @@ export default function CollectionDetailRoute() {
 
   const {
     openEditCollectionDialog,
-    openDeleteCollectionDialog
+    openDeleteCollectionDialog,
+    openDuplicateCollectionDialog
   } = useCollectionActions({
     projectId: project._id,
     onDeleteSuccess: () => {
@@ -232,6 +232,19 @@ export default function CollectionDetailRoute() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate(`/projects/${project._id}/collections/${collection._id}/add-runs`)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Runs
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(`/projects/${project._id}/collections/${collection._id}/merge`)}>
+                <GitMerge className="mr-2 h-4 w-4" />
+                Merge
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => openDuplicateCollectionDialog(collection)}>
+                <Copy className="mr-2 h-4 w-4" />
+                Duplicate
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => openEditCollectionDialog(collection)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit

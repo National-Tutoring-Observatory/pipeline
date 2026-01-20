@@ -4,6 +4,7 @@ export interface Collection {
   project: string;
   sessions: string[];
   runs?: string[];
+  annotationType: string;
   createdAt?: string;
   hasSetup?: boolean;
   isExporting?: boolean;
@@ -18,7 +19,7 @@ export interface CreateCollection {
 
 export interface PromptReference {
   promptId: string;
-  promptName?: string;
+  promptName: string;
   version: number;
 }
 

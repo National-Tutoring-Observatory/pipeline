@@ -5,6 +5,7 @@ export default new mongoose.Schema({
   project: { type: mongoose.Types.ObjectId, ref: 'Project' },
   sessions: [{ type: mongoose.Types.ObjectId, ref: 'Session' }],
   runs: [{ type: mongoose.Types.ObjectId, ref: 'Run' }],
+  annotationType: { type: String, required: true },
   hasSetup: { type: Boolean, default: false },
   isExporting: { type: Boolean, default: false },
   hasExportedCSV: { type: Boolean, default: false },

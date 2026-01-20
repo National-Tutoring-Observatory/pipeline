@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 import runSchema from '~/lib/schemas/run.schema';
 import type { Run } from './runs.types';
-import type { FindOptions } from '~/modules/common/types';
+import type { FindOptions, PaginateProps } from '~/modules/common/types';
+import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import createRunAnnotations from '~/modules/projects/services/createRunAnnotations.server';
 
 const RunModel = mongoose.model('Run', runSchema);
@@ -33,6 +34,17 @@ export class RunService {
 
   static async count(match: Record<string, any> = {}): Promise<number> {
     return RunModel.countDocuments(match);
+  }
+
+  static async paginate({ match, sort, page, pageSize }: PaginateProps): Promise<{ data: Run[]; count: number; totalPages: number }> {
+    const pagination = getPaginationParams(page, pageSize);
+    const data = await this.find({ match, sort, pagination });
+    const count = await this.count(match);
+    return {
+      data,
+      count,
+      totalPages: getTotalPages(count, pageSize)
+    };
   }
 
   static async findById(id: string | undefined): Promise<Run | null> {

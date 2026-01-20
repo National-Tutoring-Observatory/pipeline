@@ -124,7 +124,7 @@ describe("collectionsList.route action - CREATE_COLLECTION", () => {
     const req = new Request('http://localhost/projects/' + project._id + '/collections', {
       method: 'POST',
       headers: { cookie: cookieHeader, 'content-type': 'application/json' },
-      body: JSON.stringify({ intent: 'CREATE_COLLECTION', payload: { name: 'Test Collection' } })
+      body: JSON.stringify({ intent: 'CREATE_COLLECTION', payload: { name: 'Test Collection', annotationType: 'PER_UTTERANCE' } })
     });
 
     const resp = await action({ request: req, params: { id: project._id } } as any) as any;
@@ -134,6 +134,7 @@ describe("collectionsList.route action - CREATE_COLLECTION", () => {
     expect(resp._id).toBeDefined();
     expect(resp.name).toBe('Test Collection');
     expect(resp.project).toBe(project._id);
+    expect(resp.annotationType).toBe('PER_UTTERANCE');
   });
 });
 
@@ -159,7 +160,8 @@ describe("collectionsList.route action - DELETE_COLLECTION", () => {
       name: 'Test Collection',
       project: project._id,
       sessions: [],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const cookieHeader = await loginUser(otherUser._id);
@@ -190,7 +192,8 @@ describe("collectionsList.route action - DELETE_COLLECTION", () => {
       name: 'Test Collection',
       project: project._id,
       sessions: [],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const cookieHeader = await loginUser(user._id);
@@ -232,3 +235,4 @@ describe("collectionsList.route action - DELETE_COLLECTION", () => {
     await expect(action({ request: req, params: { id: project._id } } as any)).rejects.toThrow('Collection not found');
   });
 });
+

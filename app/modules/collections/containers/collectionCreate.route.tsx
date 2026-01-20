@@ -5,7 +5,7 @@ import aiGatewayConfig from '~/config/ai_gateway.json';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { CollectionService } from '~/modules/collections/collection';
-import type { PrefillData } from '~/modules/collections/collections.types';
+import type { PrefillData, PromptReference } from '~/modules/collections/collections.types';
 import { ProjectService } from '~/modules/projects/project';
 import { RunService } from '~/modules/runs/run';
 import { PromptService } from '~/modules/prompts/prompt';
@@ -106,7 +106,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         const promptsById = new Map(prompts.map(p => [p._id, p]));
 
         // Validate prompts still exist and build selected prompts
-        const selectedPrompts: Array<{ promptId: string; promptName?: string; version: number }> = [];
+        const selectedPrompts: PromptReference[] = [];
         for (const [, promptRef] of promptMap) {
           const prompt = promptsById.get(promptRef.promptId);
           if (prompt) {
@@ -208,18 +208,14 @@ export async function action({
         return data({ errors }, { status: 400 });
       }
 
-      const result = await CollectionService.createWithRuns(
-        {
-          project: params.projectId,
-          name,
-          sessions,
-          runs: [],
-          hasSetup: false
-        },
+      const result = await CollectionService.createWithRuns({
+        project: params.projectId,
+        name,
+        sessions,
         prompts,
         models,
-        annotationType as RunAnnotationType
-      );
+        annotationType: annotationType as RunAnnotationType
+      });
 
       return {
         intent: 'CREATE_COLLECTION',

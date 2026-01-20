@@ -2,12 +2,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { UserService } from '~/modules/users/user';
 import { TeamService } from '~/modules/teams/team';
 import { ProjectService } from '~/modules/projects/project';
-import { CollectionService } from '~/modules/collections/collection';
 import { SessionService } from '~/modules/sessions/session';
 import { PromptService } from '~/modules/prompts/prompt';
 import { PromptVersionService } from '~/modules/prompts/promptVersion';
-import { RunService } from '~/modules/runs/run';
-import type { Collection } from '~/modules/collections/collections.types';
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import createCollectionWithRuns from '../services/createCollectionWithRuns.server';
 
@@ -15,9 +12,6 @@ describe('createCollectionWithRuns', () => {
   let projectId: string;
   let sessions: string[];
   let prompt1: any;
-  let prompt2: any;
-  let models: string[];
-  let collection: Collection;
 
   beforeEach(async () => {
     await clearDocumentDB();
@@ -54,32 +48,12 @@ describe('createCollectionWithRuns', () => {
       userPrompt: 'Test prompt 1',
       annotationSchema: []
     });
-
-    prompt2 = await PromptService.create({
-      name: 'Prompt 2',
-      annotationType: 'PER_SESSION'
-    });
-    await PromptVersionService.create({
-      prompt: prompt2._id,
-      version: 1,
-      userPrompt: 'Test prompt 2',
-      annotationSchema: []
-    });
-
-    models = ['gpt-4', 'gpt-3.5'];
-
-    collection = await CollectionService.create({
-      name: 'Test Collection',
-      project: projectId,
-      sessions,
-      runs: []
-    });
   });
 
-  it('returns collection with updated run list', async () => {
-    const result = await createCollectionWithRuns(collection, {
-      projectId,
-      name: collection.name,
+  it('creates collection with runs', async () => {
+    const result = await createCollectionWithRuns({
+      project: projectId,
+      name: 'Test Collection',
       sessions,
       prompts: [
         { promptId: prompt1._id, promptName: 'Prompt 1', version: 1 }
@@ -90,10 +64,9 @@ describe('createCollectionWithRuns', () => {
 
     expect(result).toHaveProperty('collection');
     expect(result).toHaveProperty('errors');
-    expect(result.collection._id).toBe(collection._id);
-    expect(result.collection.name).toBe(collection.name);
+    expect(result.collection.name).toBe('Test Collection');
+    expect(result.collection.project).toBe(projectId);
+    expect(result.collection.annotationType).toBe('PER_UTTERANCE');
     expect(Array.isArray(result.collection.runs)).toBe(true);
   });
-
-
 });
