@@ -1,15 +1,19 @@
 import { Collection } from '@/components/ui/collection';
-import type { User } from '../users.types';
+import { PageHeader, PageHeaderLeft } from '@/components/ui/pageHeader';
+import type { Breadcrumb } from '~/modules/app/app.types';
+import Breadcrumbs from '~/modules/app/components/breadcrumbs';
 import type { AuditRecord } from '~/modules/audits/audit.types';
+import getEmptyStateAttributes from '../helpers/getEmptyStateAttributes';
 import getUserManagementItemActions from '../helpers/getUserManagementItemActions';
 import getUserManagementItemAttributes from '../helpers/getUserManagementItemAttributes';
-import getEmptyStateAttributes from '../helpers/getEmptyStateAttributes';
+import type { User } from '../users.types';
 import AuditLog from './auditLog';
 
 interface AdminUsersProps {
   users: User[];
   audits: AuditRecord[];
   currentUser: User;
+  breadcrumbs: Breadcrumb[];
   onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
 }
 
@@ -17,6 +21,7 @@ export default function AdminUsers({
   users,
   audits,
   currentUser,
+  breadcrumbs,
   onItemActionClicked
 }: AdminUsersProps) {
   const onActionClicked = (action: string) => {
@@ -25,10 +30,11 @@ export default function AdminUsers({
 
   return (
     <div className="max-w-6xl p-8">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
-        System Administrators
-      </h1>
-
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+      </PageHeader>
       <div className="space-y-12">
         <div>
           <Collection
@@ -48,8 +54,8 @@ export default function AdminUsers({
             getItemActions={(item) => getUserManagementItemActions(item, currentUser)}
             onActionClicked={onActionClicked}
             onItemActionClicked={onItemActionClicked}
-            onPaginationChanged={() => {}}
-            onSortValueChanged={() => {}}
+            onPaginationChanged={() => { }}
+            onSortValueChanged={() => { }}
           />
         </div>
 
