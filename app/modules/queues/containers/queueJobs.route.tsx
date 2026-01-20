@@ -1,8 +1,6 @@
-import capitalize from "lodash/capitalize";
 import { useEffect } from "react";
-import { data, redirect, useLoaderData, useParams, useFetcher } from "react-router";
+import { data, redirect, useFetcher, useLoaderData, useParams } from "react-router";
 import { toast } from "sonner";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthorization';
 import addDialog from '~/modules/dialogs/addDialog';
@@ -104,17 +102,8 @@ export async function action({ request, params }: Route.ActionArgs) {
 export default function QueueJobsRoute() {
   const loaderData = useLoaderData<typeof loader>();
   const params = useParams();
-  const queueType = params.type as string;
   const state = params.state as string;
   const fetcher = useFetcher();
-
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: 'Queues', link: '/queues' },
-      { text: `${capitalize(queueType)} Queue`, link: `/queues/${queueType}` },
-      { text: `${capitalize(state)} Jobs` }
-    ]);
-  }, [queueType, state]);
 
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {

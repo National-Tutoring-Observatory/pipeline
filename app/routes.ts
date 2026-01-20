@@ -36,9 +36,9 @@ export default [
     index("modules/teams/containers/teams.route.tsx"),
     route(":id", "modules/teams/containers/team.route.tsx", { id: 'team' }, [
       index("modules/teams/containers/teamIndex.route.tsx"),
-      route("projects", "modules/teams/containers/teamProjects.route.tsx"),
-      route("prompts", "modules/teams/containers/teamPrompts.route.tsx"),
-      route("users", "modules/teams/containers/teamUsers.route.tsx"),
+      route("projects", "modules/teams/containers/teamProjects.route.tsx", { id: 'teamProjects' }),
+      route("prompts", "modules/teams/containers/teamPrompts.route.tsx", { id: 'teamPrompts' }),
+      route("users", "modules/teams/containers/teamUsers.route.tsx", { id: 'teamUsers' }),
     ]),
   ]),
   ...prefix("invite", [

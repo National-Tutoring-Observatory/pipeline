@@ -1,15 +1,14 @@
 import { useEffect } from 'react';
-import { redirect, useFetcher, data } from 'react-router';
+import { data, redirect, useFetcher } from 'react-router';
 import { toast } from 'sonner';
+import { AuditService } from '~/modules/audits/audit';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { userIsSuperAdmin } from '~/modules/authorization/helpers/superAdmin';
-import UserManagementAuthorization from '../authorization';
-import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import addDialog from '~/modules/dialogs/addDialog';
-import { UserService } from '../user';
-import { AuditService } from '~/modules/audits/audit';
-import type { User } from '../users.types';
+import UserManagementAuthorization from '../authorization';
 import AdminUsers from '../components/adminUsers';
+import { UserService } from '../user';
+import type { User } from '../users.types';
 import AssignSuperAdminDialogContainer from './assignSuperAdminDialogContainer';
 import RevokeSuperAdminDialogContainer from './revokeSuperAdminDialogContainer';
 
@@ -178,12 +177,9 @@ export default function UserManagementRoute({ loaderData }: Route.ComponentProps
   const { users, audits, currentUser } = loaderData;
   const fetcher = useFetcher();
 
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: 'Admin', link: '/admin/users' },
-      { text: 'Users' }
-    ]);
-  }, []);
+  const breadcrumbs = [
+    { text: 'Users' }
+  ];
 
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {
@@ -247,6 +243,7 @@ export default function UserManagementRoute({ loaderData }: Route.ComponentProps
       users={users}
       audits={audits}
       currentUser={currentUser}
+      breadcrumbs={breadcrumbs}
       onItemActionClicked={onItemActionClicked}
     />
   );

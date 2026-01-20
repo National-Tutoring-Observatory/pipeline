@@ -1,10 +1,8 @@
 import find from 'lodash/find';
-import { useEffect } from "react";
 import { redirect, useLoaderData, useOutletContext, useParams, useSubmit } from "react-router";
 import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import addDialog from "~/modules/dialogs/addDialog";
 import { UserService } from "~/modules/users/user";
@@ -191,14 +189,6 @@ export default function TeamUsersRoute() {
   const onSortValueChanged = (sortValue: string) => {
     setSortValue(sortValue);
   }
-
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: 'Teams', link: '/teams' },
-      { text: ctx.team.name, link: `/teams/${params.id}` },
-      { text: 'Users' }
-    ]);
-  }, [params.id]);
 
   const users = data.users.data ?? [];
 

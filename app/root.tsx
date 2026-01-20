@@ -7,14 +7,13 @@ import {
   ScrollRestoration,
 } from "react-router";
 
-import type { Route } from "./+types/root";
-import "./app.css";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "sonner";
-import DialogContainer from "./modules/dialogs/containers/dialog.container";
-import BreadcrumbsContainer from "./modules/app/containers/breadcrumbs.container";
+import type { Route } from "./+types/root";
+import "./app.css";
 import AppSidebar from "./modules/app/components/appSidebar";
 import AuthenticationContainer from "./modules/authentication/containers/authentication.container";
+import DialogContainer from "./modules/dialogs/containers/dialog.container";
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", href: '/assets/nto-favicon.png', type: "image/png" },
@@ -46,9 +45,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <AppSidebar />
             <SidebarInset>
               <main>
-                <div className="p-2 px-6 flex items-center">
+                {/* <div className="pt-8 px-8 flex items-center">
                   <BreadcrumbsContainer />
-                </div>
+                </div> */}
                 {children}
               </main>
             </SidebarInset>

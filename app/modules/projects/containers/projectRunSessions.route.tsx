@@ -1,16 +1,12 @@
 import fse from 'fs-extra';
 import find from 'lodash/find';
 import map from 'lodash/map';
-import { useEffect } from "react";
 import { redirect, useLoaderData } from "react-router";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import { ProjectService } from "~/modules/projects/project";
-import type { Run } from "~/modules/runs/runs.types";
 import { RunService } from "~/modules/runs/run";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import ProjectRunSessions from "../components/projectRunSessions";
-import type { Project } from "../projects.types";
 import type { Route } from "./+types/projectRunSessions.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -41,25 +37,25 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export default function ProjectRunSessionsRoute() {
   const { project, run, sessionFile, session } = useLoaderData();
-  useEffect(() => {
-    updateBreadcrumb([{
-      text: 'Projects', link: `/`
-    }, {
-      text: project.name, link: `/projects/${project._id}`
-    }, {
-      text: 'Runs', link: `/projects/${project._id}`
-    }, {
-      text: run.name, link: `/projects/${project._id}/runs/${run._id}`
-    }, {
-      text: 'Session'
-    }])
-  }, []);
+
+  const breadcrumbs = [{
+    text: 'Projects', link: `/`
+  }, {
+    text: project.name, link: `/projects/${project._id}`
+  }, {
+    text: 'Runs', link: `/projects/${project._id}`
+  }, {
+    text: run.name, link: `/projects/${project._id}/runs/${run._id}`
+  }, {
+    text: session.name
+  }]
 
   return (
     <ProjectRunSessions
       run={run}
       session={session}
       sessionFile={sessionFile}
+      breadcrumbs={breadcrumbs}
     />
   )
 }

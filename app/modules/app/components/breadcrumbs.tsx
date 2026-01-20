@@ -10,12 +10,12 @@ export default function Breadcrumbs({ breadcrumbs }: { breadcrumbs: BreadcrumbTy
       <BreadcrumbList>
         {map(breadcrumbs, (breadcrumb, index) => {
 
-          let element = (<BreadcrumbPage>{breadcrumb.text}</BreadcrumbPage>)
+          let element = (<BreadcrumbPage className="text-xl font-extrabold tracking-tight text-balance">{breadcrumb.text}</BreadcrumbPage>)
 
           if (breadcrumb.link) {
             element = (
               <BreadcrumbLink asChild>
-                <Link to={breadcrumb.link}>
+                <Link to={breadcrumb.link} className="text-xl font-extrabold tracking-tight text-balance">
                   {breadcrumb.text}
                 </Link>
               </BreadcrumbLink>

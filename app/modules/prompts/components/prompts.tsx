@@ -1,5 +1,8 @@
 
 import { Collection } from "@/components/ui/collection";
+import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
+import type { Breadcrumb } from "~/modules/app/app.types";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getPromptsEmptyAttributes from "../helpers/getPromptsEmptyAttributes";
 import getPromptsItemActions from "../helpers/getPromptsItemActions";
 import getPromptsItemAttributes from "../helpers/getPromptsItemAttributes";
@@ -10,6 +13,7 @@ import type { Prompt } from "../prompts.types";
 
 interface PromptsProps {
   prompts: Prompt[];
+  breadcrumbs: Breadcrumb[],
   searchValue: string,
   currentPage: number,
   totalPages: number,
@@ -26,6 +30,7 @@ interface PromptsProps {
 
 export default function Prompts({
   prompts,
+  breadcrumbs,
   filtersValues,
   sortValue,
   searchValue,
@@ -41,9 +46,11 @@ export default function Prompts({
 }: PromptsProps) {
   return (
     <div className="max-w-6xl p-8">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
-        Prompts
-      </h1>
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+      </PageHeader>
       <Collection
         items={prompts}
         itemsLayout="list"

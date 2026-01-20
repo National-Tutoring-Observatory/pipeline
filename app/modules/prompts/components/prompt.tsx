@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
+import { PageHeader, PageHeaderLeft, PageHeaderRight } from "@/components/ui/pageHeader";
 import map from 'lodash/map';
 import { CirclePlus, Pencil } from "lucide-react";
 import { Outlet } from "react-router";
 import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
+import type { Breadcrumb } from "~/modules/app/app.types";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Prompt, PromptVersion } from "../prompts.types";
 import PromptVersionItem from './promptVersionItem';
 
@@ -10,6 +13,7 @@ type PromptProps = {
   prompt: Prompt;
   promptVersions: PromptVersion[];
   version: number;
+  breadcrumbs: Breadcrumb[];
   onCreatePromptVersionClicked: () => void;
   onEditPromptButtonClicked: (prompt: Prompt) => void;
 }
@@ -18,26 +22,28 @@ export default function Prompt({
   prompt,
   promptVersions,
   version,
+  breadcrumbs,
   onCreatePromptVersionClicked,
   onEditPromptButtonClicked,
 }: PromptProps) {
   return (
     <div className="max-w-6xl p-8">
-      <div className="mb-4 flex justify-between items-start">
-        <div>
-          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-2">
-            {prompt.name}
-          </h1>
-          <p className="text-sm text-muted-foreground">Annotation Type: {getAnnotationLabel(prompt.annotationType)}</p>
-        </div>
-        {onEditPromptButtonClicked && (
-          <div>
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+        <PageHeaderRight>
+
+          {onEditPromptButtonClicked && (
             <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditPromptButtonClicked(prompt)}>
               <Pencil />
               Edit
             </Button>
-          </div>
-        )}
+          )}
+        </PageHeaderRight>
+      </PageHeader>
+      <div className="mb-2">
+        <p className="text-sm text-muted-foreground">Annotation Type: {getAnnotationLabel(prompt.annotationType)}</p>
       </div>
       <div className="border rounded-md flex">
 

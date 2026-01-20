@@ -1,15 +1,14 @@
 import { useEffect } from "react";
 import { redirect, useFetcher } from "react-router";
 import { toast } from "sonner";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import { TeamService } from '../team';
 import type { User } from "~/modules/users/users.types";
-import type { Team } from "../teams.types";
 import TeamAuthorization from "../authorization";
 import EditTeamDialog from "../components/editTeamDialog";
 import TeamComponent from '../components/team';
+import { TeamService } from '../team';
+import type { Team } from "../teams.types";
 import type { Route } from "./+types/team.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -58,14 +57,12 @@ export default function TeamRoute({ loaderData }: {
     }
   }, [fetcher.state, fetcher.data]);
 
-
-  useEffect(() => {
-    updateBreadcrumb([{ text: 'Teams', link: `/teams` }, { text: team.name }])
-  }, []);
+  const breadcrumbs = [{ text: 'Teams', link: `/teams` }, { text: team.name }];
 
   return (
     <TeamComponent
       team={team}
+      breadcrumbs={breadcrumbs}
       onEditTeamButtonClicked={onEditTeamButtonClicked}
     />
   );

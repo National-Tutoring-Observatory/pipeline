@@ -1,5 +1,8 @@
 
 import { Collection } from "@/components/ui/collection";
+import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import type { Breadcrumb } from "~/modules/app/app.types";
 import getProjectsEmptyAttributes from "../helpers/getProjectsEmptyAttributes";
 import getProjectsItemActions from "../helpers/getProjectsItemActions";
 import getProjectsItemAttributes from "../helpers/getProjectsItemAttributes";
@@ -15,6 +18,7 @@ interface ProjectsProps {
   totalPages: number,
   filtersValues: {},
   sortValue: string,
+  breadcrumbs: Breadcrumb[];
   isSyncing: boolean,
   onActionClicked: (action: string) => void;
   onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
@@ -31,6 +35,7 @@ export default function Projects({
   totalPages,
   filtersValues,
   sortValue,
+  breadcrumbs,
   isSyncing,
   onActionClicked,
   onItemActionClicked,
@@ -41,9 +46,11 @@ export default function Projects({
 }: ProjectsProps) {
   return (
     <div className="max-w-6xl p-8">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
-        Projects
-      </h1>
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+      </PageHeader>
       <Collection
         items={projects}
         itemsLayout="list"

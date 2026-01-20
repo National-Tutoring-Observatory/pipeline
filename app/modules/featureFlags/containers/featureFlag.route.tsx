@@ -1,16 +1,15 @@
 import { useEffect } from 'react';
-import { redirect, useFetcher, data } from 'react-router';
+import { data, redirect, useFetcher } from 'react-router';
 import { toast } from 'sonner';
-import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthorization';
 import addDialog from '~/modules/dialogs/addDialog';
 import getQueue from '~/modules/queues/helpers/getQueue';
 import { UserService } from '~/modules/users/user';
-import { FeatureFlagService } from '../featureFlag';
 import type { User } from '~/modules/users/users.types';
 import DeleteFeatureFlagDialog from '../components/deleteFeatureFlagDialog';
 import FeatureFlag from '../components/featureFlag';
+import { FeatureFlagService } from '../featureFlag';
 import type { FeatureFlag as FeatureFlagType } from '../featureFlags.types';
 import type { Route } from './+types/featureFlag.route';
 import AddUsersToFeatureFlagDialogContainer from './addUsersToFeatureFlagDialog.container';
@@ -127,10 +126,6 @@ export default function FeatureFlagRoute({ loaderData }: {
 }) {
   const { featureFlag, users } = loaderData;
   const fetcher = useFetcher();
-
-  useEffect(() => {
-    updateBreadcrumb([{ text: 'Feature flags', link: '/featureFlags' }, { text: featureFlag.name }])
-  }, [featureFlag.name]);
 
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {

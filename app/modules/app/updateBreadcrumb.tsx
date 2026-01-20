@@ -1,7 +1,8 @@
-import type { ReactNode } from "react";
 import type { Breadcrumb } from "./app.types";
 // @ts-ignore
-let updateBreadcrumbDispatch;
+let updateBreadcrumbDispatch = () => {
+
+};
 // @ts-ignore
 export const setDispatch = (dispatch) => {
   updateBreadcrumbDispatch = dispatch;
