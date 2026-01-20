@@ -18,7 +18,7 @@ export interface CreateCollection {
 
 export interface PromptReference {
   promptId: string;
-  promptName?: string;
+  promptName: string;
   version: number;
 }
 

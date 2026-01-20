@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import type { FindOptions, PaginateProps } from '~/modules/common/types';
 import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import collectionSchema from '~/lib/schemas/collection.schema';
-import type { Collection } from './collections.types';
+import type { Collection, PromptReference } from './collections.types';
 import type { Run, RunAnnotationType } from '~/modules/runs/runs.types';
 import createCollectionWithRuns from './services/createCollectionWithRuns.server';
 import deleteCollectionService from './services/deleteCollection.server';
@@ -99,7 +99,7 @@ export class CollectionService {
 
   static async createWithRuns(
     data: Partial<Collection>,
-    prompts: Array<{ promptId: string; promptName?: string; version: number }>,
+    prompts: PromptReference[],
     models: string[],
     annotationType: RunAnnotationType
   ): Promise<{ collection: Collection; errors: string[] }> {

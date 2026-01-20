@@ -48,11 +48,11 @@ export default function CollectionCreatorForm({
   const [tempModel, setTempModel] = useState<string>('');
 
   const onAddPrompt = () => {
-    if (!tempPromptId || tempPromptVersion == null) return;
+    if (!tempPromptId || !tempPromptName || tempPromptVersion == null) return;
 
     const newPrompt: PromptReference = {
       promptId: tempPromptId,
-      promptName: tempPromptName || undefined,
+      promptName: tempPromptName,
       version: tempPromptVersion
     };
 
@@ -186,7 +186,7 @@ export default function CollectionCreatorForm({
                 {selectedPrompts.map((prompt) => (
                   <div key={`${prompt.promptId}-${prompt.version}`} className="flex items-center justify-between bg-white rounded p-2">
                     <span className="text-sm">
-                      {prompt.promptName || prompt.promptId} (v{prompt.version})
+                      {prompt.promptName} (v{prompt.version})
                     </span>
                     <Button
                       size="sm"
@@ -273,7 +273,7 @@ export default function CollectionCreatorForm({
                     <div className="space-y-1">
                       <div>
                         <p className="text-xs text-muted-foreground">Prompt</p>
-                        <p className="text-xs font-mono truncate">{prompt.promptName || prompt.promptId} (v{prompt.version})</p>
+                        <p className="text-xs font-mono truncate">{prompt.promptName} (v{prompt.version})</p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Model</p>

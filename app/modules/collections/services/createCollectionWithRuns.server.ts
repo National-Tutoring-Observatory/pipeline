@@ -1,6 +1,6 @@
 import { RunService } from '~/modules/runs/run';
 import startRun from '~/modules/projects/services/startRun.server';
-import type { Collection } from '../collections.types';
+import type { Collection, PromptReference } from '../collections.types';
 import type { RunAnnotationType } from '~/modules/runs/runs.types';
 import { CollectionService } from '../collection';
 
@@ -8,7 +8,7 @@ interface CreateCollectionWithRunsPayload {
   projectId: string;
   name: string;
   sessions: string[];
-  prompts: Array<{ promptId: string; promptName?: string; version: number }>;
+  prompts: PromptReference[];
   models: string[];
   annotationType: RunAnnotationType;
 }
@@ -23,7 +23,10 @@ export default async function createCollectionWithRuns(
   for (const prompt of payload.prompts) {
     for (const model of payload.models) {
       try {
-        const runName = `${collection.name} - ${prompt.promptId} - ${model}`;
+        const promptLabel = prompt.promptName
+          ? `${prompt.promptName} v${prompt.version}`
+          : prompt.promptId;
+        const runName = `${collection.name} - ${promptLabel} - ${model}`;
 
         const newRun = await RunService.create({
           project: payload.projectId,

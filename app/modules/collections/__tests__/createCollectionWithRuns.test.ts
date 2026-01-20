@@ -6,7 +6,6 @@ import { CollectionService } from '~/modules/collections/collection';
 import { SessionService } from '~/modules/sessions/session';
 import { PromptService } from '~/modules/prompts/prompt';
 import { PromptVersionService } from '~/modules/prompts/promptVersion';
-import { RunService } from '~/modules/runs/run';
 import type { Collection } from '~/modules/collections/collections.types';
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import createCollectionWithRuns from '../services/createCollectionWithRuns.server';
@@ -16,7 +15,6 @@ describe('createCollectionWithRuns', () => {
   let sessions: string[];
   let prompt1: any;
   let prompt2: any;
-  let models: string[];
   let collection: Collection;
 
   beforeEach(async () => {
@@ -65,8 +63,6 @@ describe('createCollectionWithRuns', () => {
       userPrompt: 'Test prompt 2',
       annotationSchema: []
     });
-
-    models = ['gpt-4', 'gpt-3.5'];
 
     collection = await CollectionService.create({
       name: 'Test Collection',
