@@ -1,16 +1,14 @@
 import find from 'lodash/find';
 import { useEffect } from "react";
 import { redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
+import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import ProjectAuthorization from "~/modules/projects/authorization";
 import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
-import type { Project } from "~/modules/projects/projects.types";
 import { ProjectService } from "~/modules/projects/project";
 import TeamAuthorization from "../authorization";
 import TeamProjects from "../components/teamProjects";
@@ -97,14 +95,6 @@ export default function TeamProjectsRoute() {
     sortValue: 'name',
     filters: {}
   });
-
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: 'Teams', link: '/teams' },
-      { text: ctx.team.name, link: `/teams/${teamId}` },
-      { text: 'Projects' }
-    ]);
-  }, [teamId]);
 
   useEffect(() => {
     if (actionData?.intent === 'CREATE_PROJECT') {

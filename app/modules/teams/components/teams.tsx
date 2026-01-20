@@ -1,4 +1,7 @@
 import { Collection } from "@/components/ui/collection";
+import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
+import type { Breadcrumb } from "~/modules/app/app.types";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getTeamsActions from "../helpers/getTeamsActions";
 import getTeamsEmptyAttributes from "../helpers/getTeamsEmptyAttributes";
 import getTeamsItemActions from "../helpers/getTeamsItemActions";
@@ -9,6 +12,7 @@ import type { Team } from "../teams.types";
 
 interface TeamsProps {
   teams: Team[];
+  breadcrumbs: Breadcrumb[];
   searchValue: string,
   currentPage: number,
   totalPages: number,
@@ -25,6 +29,7 @@ interface TeamsProps {
 
 export default function Teams({
   teams,
+  breadcrumbs,
   filtersValues,
   sortValue,
   searchValue,
@@ -40,9 +45,11 @@ export default function Teams({
 }: TeamsProps) {
   return (
     <div className="max-w-6xl p-8">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
-        Teams
-      </h1>
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+      </PageHeader>
       <Collection
         items={teams}
         itemsLayout="list"

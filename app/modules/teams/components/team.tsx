@@ -1,18 +1,23 @@
 import { Button } from "@/components/ui/button";
+import { PageHeader, PageHeaderLeft, PageHeaderRight } from "@/components/ui/pageHeader";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Pencil } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router";
-import type { Team } from "../teams.types";
+import type { Breadcrumb } from "~/modules/app/app.types";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import useTeamAuthorization from "../hooks/useTeamAuthorization";
+import type { Team } from "../teams.types";
 
 
 interface TeamProps {
   team: Team;
+  breadcrumbs: Breadcrumb[];
   onEditTeamButtonClicked: (team: Team) => void;
 }
 
 export default function Team({
   team,
+  breadcrumbs,
   onEditTeamButtonClicked
 }: TeamProps) {
   const navigate = useNavigate();
@@ -29,18 +34,20 @@ export default function Team({
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
-          {team.name}
-        </h1>
-        {canUpdate && (
-          <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditTeamButtonClicked(team)}>
-            <Pencil />
-            Edit
-          </Button>
-        )}
-      </div>
+    <div className="max-w-6xl p-8">
+      < PageHeader >
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+        <PageHeaderRight>
+          {canUpdate && (
+            <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditTeamButtonClicked(team)}>
+              <Pencil />
+              Edit
+            </Button>
+          )}
+        </PageHeaderRight>
+      </PageHeader >
       <Tabs value={active} onValueChange={handleTabChange} className="mb-2">
         <TabsList>
           <TabsTrigger value="users">Users</TabsTrigger>
@@ -52,6 +59,6 @@ export default function Team({
       <Outlet context={{
         team,
       }} />
-    </div>
+    </div >
   );
 }
