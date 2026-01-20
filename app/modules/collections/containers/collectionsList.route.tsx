@@ -8,6 +8,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import type { Collection } from "~/modules/collections/collections.types";
 import { useCollectionActions } from "~/modules/collections/hooks/useCollectionActions";
+import hasFeatureFlag from "~/modules/featureFlags/helpers/hasFeatureFlag";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import type { User } from "~/modules/users/users.types";
@@ -45,7 +46,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const collections = await CollectionService.paginate(query);
 
-  return { collections, project };
+  const hasCollectionsFeature = await hasFeatureFlag('HAS_PROJECT_COLLECTIONS', { request }, { defaultValue: false });
+
+  return { collections, project, hasCollectionsFeature };
 }
 
 export async function action({
@@ -141,7 +144,7 @@ export async function action({
 }
 
 export default function CollectionsListRoute({ loaderData }: Route.ComponentProps) {
-  const { collections, project } = loaderData;
+  const { collections, project, hasCollectionsFeature } = loaderData;
   const navigate = useNavigate();
 
   const {
@@ -199,6 +202,7 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
       currentPage={currentPage}
       sortValue={sortValue}
       isSyncing={isSyncing}
+      hasCollectionsFeature={hasCollectionsFeature}
       onCreateCollectionButtonClicked={onCreateCollectionButtonClicked}
       onEditCollectionButtonClicked={openEditCollectionDialog}
       onDuplicateCollectionButtonClicked={openDuplicateCollectionDialog}

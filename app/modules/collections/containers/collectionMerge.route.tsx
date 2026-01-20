@@ -13,6 +13,7 @@ import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromR
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { CollectionService } from '~/modules/collections/collection';
+import requireCollectionsFeature from '~/modules/collections/helpers/requireCollectionsFeature';
 import { ProjectService } from '~/modules/projects/project';
 import ProjectAuthorization from '~/modules/projects/authorization';
 import type { User } from '~/modules/users/users.types';
@@ -33,6 +34,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!ProjectAuthorization.canView(user, project)) {
     return redirect('/');
   }
+
+  await requireCollectionsFeature(request, params);
 
   const collection = await CollectionService.findById(params.collectionId);
   if (!collection) {

@@ -12,6 +12,7 @@ import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { CollectionService } from '~/modules/collections/collection';
 import CollectionDownloads from '~/modules/collections/components/collectionDownloads';
 import exportCollection from '~/modules/collections/helpers/exportCollection';
+import requireCollectionsFeature from '~/modules/collections/helpers/requireCollectionsFeature';
 import { useCollectionActions } from '~/modules/collections/hooks/useCollectionActions';
 import addDialog from '~/modules/dialogs/addDialog';
 import ProjectAuthorization from '~/modules/projects/authorization';
@@ -38,6 +39,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!ProjectAuthorization.canView(user, project)) {
     return redirect('/');
   }
+
+  await requireCollectionsFeature(request, params);
 
   const collection = await CollectionService.findById(params.collectionId);
   if (!collection) {

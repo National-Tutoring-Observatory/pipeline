@@ -3,6 +3,7 @@ import map from 'lodash/map';
 import { PassThrough, Readable } from "node:stream";
 import { redirect } from "react-router";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import requireCollectionsFeature from "~/modules/collections/helpers/requireCollectionsFeature";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
@@ -19,6 +20,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!project) {
     return redirect('/');
   }
+
+  await requireCollectionsFeature(request, params);
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;

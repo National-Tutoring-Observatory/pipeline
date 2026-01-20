@@ -6,6 +6,7 @@ import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { CollectionService } from '~/modules/collections/collection';
 import type { PrefillData, PromptReference } from '~/modules/collections/collections.types';
+import requireCollectionsFeature from '~/modules/collections/helpers/requireCollectionsFeature';
 import { ProjectService } from '~/modules/projects/project';
 import { RunService } from '~/modules/runs/run';
 import { PromptService } from '~/modules/prompts/prompt';
@@ -29,6 +30,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!ProjectAuthorization.canView(user, project)) {
     return redirect('/');
   }
+
+  await requireCollectionsFeature(request, params);
 
   // Check for fromRun or fromCollection query parameter
   const url = new URL(request.url);

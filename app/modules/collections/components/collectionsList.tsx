@@ -13,6 +13,7 @@ interface CollectionsListProps {
   currentPage: number;
   sortValue: string;
   isSyncing: boolean;
+  hasCollectionsFeature: boolean;
   onCreateCollectionButtonClicked: () => void;
   onEditCollectionButtonClicked: (collection: Collection) => void;
   onDuplicateCollectionButtonClicked: (collection: Collection) => void;
@@ -30,6 +31,7 @@ export default function CollectionsList({
   currentPage,
   sortValue,
   isSyncing,
+  hasCollectionsFeature,
   onCreateCollectionButtonClicked,
   onEditCollectionButtonClicked,
   onDuplicateCollectionButtonClicked,
@@ -64,6 +66,35 @@ export default function CollectionsList({
       onCreateCollectionButtonClicked();
     }
   };
+
+  if (!hasCollectionsFeature) {
+    return (
+      <div className="mt-8">
+        <CollectionComponent
+          items={[]}
+          itemsLayout="list"
+          actions={[]}
+          sortOptions={[]}
+          filters={[]}
+          filtersValues={{}}
+          emptyAttributes={{
+            title: 'Coming soon',
+            description: 'Collections will be available in a future update.'
+          }}
+          getItemAttributes={getCollectionsItemAttributes}
+          getItemActions={() => []}
+          onActionClicked={() => {}}
+          onItemActionClicked={() => {}}
+          onSearchValueChanged={() => {}}
+          onPaginationChanged={() => {}}
+          onFiltersValueChanged={() => {}}
+          onSortValueChanged={() => {}}
+          currentPage={1}
+          totalPages={1}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mt-8">
