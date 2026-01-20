@@ -1,25 +1,24 @@
 import find from 'lodash/find';
 import map from 'lodash/map';
 import { useEffect } from "react";
-import { redirect, useNavigate, useRevalidator, useFetcher, data } from "react-router";
+import { data, redirect, useFetcher, useNavigate, useRevalidator } from "react-router";
 import { toast } from "sonner";
+import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
-import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import type { User } from "~/modules/users/users.types";
 import ProjectAuthorization from "../authorization";
 import CreateProjectDialog from "../components/createProjectDialog";
 import DeleteProjectDialog from "../components/deleteProjectDialog";
 import EditProjectDialog from "../components/editProjectDialog";
 import Projects from "../components/projects";
-import type { Project } from "../projects.types";
 import { ProjectService } from "../project";
+import type { Project } from "../projects.types";
 import deleteProject from "../services/deleteProject.server";
 import type { Route } from "./+types/projects.route";
 
@@ -191,9 +190,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     callback: revalidate
   });
 
-  useEffect(() => {
-    updateBreadcrumb([{ text: 'Projects' }])
-  }, []);
+  const breadcrumbs = [{ text: 'Projects' }];
 
   const openCreateProjectDialog = () => {
     addDialog(
@@ -290,6 +287,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       totalPages={projects.totalPages}
       filtersValues={filtersValues}
       sortValue={sortValue}
+      breadcrumbs={breadcrumbs}
       isSyncing={isSyncing}
       onActionClicked={onActionClicked}
       onItemActionClicked={onItemActionClicked}

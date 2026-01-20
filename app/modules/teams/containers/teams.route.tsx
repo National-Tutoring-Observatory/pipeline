@@ -6,16 +6,15 @@ import { toast } from "sonner";
 import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import { TeamService } from "../team";
 import type { User } from "~/modules/users/users.types";
-import type { Team } from "../teams.types";
 import TeamAuthorization from "../authorization";
 import CreateTeamDialog from "../components/createTeamDialog";
 import EditTeamDialog from "../components/editTeamDialog";
 import Teams from "../components/teams";
+import { TeamService } from "../team";
+import type { Team } from "../teams.types";
 import type { Route } from "./+types/teams.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -122,9 +121,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
     }
   }, [actionData]);
 
-  useEffect(() => {
-    updateBreadcrumb([{ text: 'Teams' }])
-  }, []);
+  const breadcrumbs = [{ text: 'Teams' }];
 
   const openCreateTeamDialog = () => {
     addDialog(
@@ -186,6 +183,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   return (
     <Teams
       teams={teams?.data}
+      breadcrumbs={breadcrumbs}
       searchValue={searchValue}
       currentPage={currentPage}
       totalPages={teams.totalPages}

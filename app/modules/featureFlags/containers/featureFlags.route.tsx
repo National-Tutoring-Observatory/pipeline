@@ -1,14 +1,14 @@
+import get from 'lodash/get';
 import { useEffect } from 'react';
-import { redirect, useFetcher, useMatch, data } from 'react-router';
+import { data, redirect, useFetcher, useMatch, useMatches } from 'react-router';
 import { toast } from 'sonner';
-import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthorization';
 import addDialog from '~/modules/dialogs/addDialog';
-import { FeatureFlagService } from '../featureFlag';
 import type { User } from '~/modules/users/users.types';
 import CreateFeatureFlagDialog from '../components/createFeatureFlagDialog';
 import FeatureFlags from '../components/featureFlags';
+import { FeatureFlagService } from '../featureFlag';
 import type { FeatureFlag } from '../featureFlags.types';
 import type { Route } from './+types/featureFlags.route';
 
@@ -62,12 +62,10 @@ export default function FeatureFlagsRoute({ loaderData }: Route.ComponentProps) 
   const { featureFlags } = loaderData;
   const fetcher = useFetcher();
   const match = useMatch('/featureFlags');
+  const matches = useMatches();
 
-  useEffect(() => {
-    if (match) {
-      updateBreadcrumb([{ text: 'Feature flags' }]);
-    }
-  }, [match]);
+  const featureFlag = get(matches, '2.data.featureFlag', {}) as FeatureFlag;
+  const breadcrumbs = match ? [{ text: 'Feature flags' }] : [{ text: 'Feature flags', link: '/featureFlags' }, { text: featureFlag.name }]
 
   useEffect(() => {
     if (fetcher.state === 'idle' && fetcher.data) {
@@ -102,6 +100,7 @@ export default function FeatureFlagsRoute({ loaderData }: Route.ComponentProps) 
   return (
     <FeatureFlags
       featureFlags={featureFlags}
+      breadcrumbs={breadcrumbs}
       onCreateFeatureFlagButtonClicked={openCreateFeatureFlagDialog}
     />
   );

@@ -1,23 +1,28 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { PageHeader, PageHeaderLeft, PageHeaderRight } from "@/components/ui/pageHeader";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import dayjs from "dayjs";
 import find from 'lodash/find';
 import map from 'lodash/map';
-import { Download, FolderPlus, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Link } from "react-router";
+import type { Breadcrumb } from "~/modules/app/app.types";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import ProjectDownloadDropdown from "./projectDownloadDropdown";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import ProjectRunDownloads from "./projectRunDownloads";
-import { Badge } from "@/components/ui/badge";
 
 export default function ProjectRun({
   run,
   promptInfo,
   runSessionsProgress,
   runSessionsStep,
+  breadcrumbs,
   onExportRunButtonClicked,
   onReRunClicked,
   onEditRunButtonClicked,
@@ -27,6 +32,7 @@ export default function ProjectRun({
   promptInfo: { name: string, version: number },
   runSessionsProgress: number,
   runSessionsStep: string,
+  breadcrumbs: Breadcrumb[]
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void
   onReRunClicked: () => void
   onEditRunButtonClicked?: (run: Run) => void
@@ -35,52 +41,28 @@ export default function ProjectRun({
 
   return (
     <div className="max-w-6xl p-8">
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+        <PageHeaderRight>
+          {(run.isComplete && (!run.hasExportedCSV || !run.hasExportedJSONL)) && (
+            <ProjectDownloadDropdown
+              isExporting={run.isExporting || false}
+              hasExportedCSV={run.hasExportedCSV}
+              hasExportedJSONL={run.hasExportedJSONL}
+              onExportButtonClicked={onExportRunButtonClicked}
+            />
+          )}
+          {onEditRunButtonClicked && (
+            <Button variant="ghost" onClick={() => onEditRunButtonClicked(run)} className="ml-2">
+              <Pencil />
+              Edit
+            </Button>
+          )}
+        </PageHeaderRight>
+      </PageHeader>
       <div className="mb-8 relative">
-        <div className="flex justify-between">
-          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
-            {run.name}
-          </h1>
-          <div className="flex text-muted-foreground gap-1">
-            {(run.isComplete && (!run.hasExportedCSV || !run.hasExportedJSONL)) && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    disabled={run.isExporting}
-                    className="data-[state=open]:bg-muted flex"
-                  >
-                    <Download />
-                    {run.isExporting ? <span>Exporting</span> : <span>Export</span>}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {!run.hasExportedCSV && (
-                    <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'CSV' })}>
-                      As Table (.csv file)
-                    </DropdownMenuItem>
-                  )}
-                  {!run.hasExportedJSONL && (
-                    <DropdownMenuItem onClick={() => onExportRunButtonClicked({ exportType: 'JSON' })}>
-                      JSONL (.jsonl file)
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-            {onEditRunButtonClicked && (
-              <Button variant="ghost" onClick={() => onEditRunButtonClicked(run)} className="ml-2">
-                <Pencil />
-                Edit
-              </Button>
-            )}
-            {onCreateCollectionButtonClicked && (
-              <Button variant="ghost" onClick={() => onCreateCollectionButtonClicked(run)} className="ml-2">
-                <FolderPlus />
-                Create Collection
-              </Button>
-            )}
-          </div>
-        </div>
         {(run.isRunning) && (
           <div className="relative">
             <div className="text-xs opacity-40 absolute right-0 top-3">Annotating {runSessionsStep}</div>

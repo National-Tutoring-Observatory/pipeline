@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { redirect, useFetcher, useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from "react-router";
 import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
 import { ProjectService } from "~/modules/projects/project";
@@ -211,17 +210,15 @@ export default function ProjectRunRoute() {
     }
   }, []);
 
-  useEffect(() => {
-    updateBreadcrumb([{
-      text: 'Projects', link: `/`
-    }, {
-      text: project.name, link: `/projects/${project._id}`
-    }, {
-      text: 'Runs', link: `/projects/${project._id}`
-    }, {
-      text: run.name
-    }])
-  }, []);
+  const breadcrumbs = [{
+    text: 'Projects', link: `/`
+  }, {
+    text: project.name, link: `/projects/${project._id}`
+  }, {
+    text: 'Runs', link: `/projects/${project._id}`
+  }, {
+    text: run.name
+  }];
 
 
   return (
@@ -230,6 +227,7 @@ export default function ProjectRunRoute() {
       promptInfo={promptInfo}
       runSessionsProgress={runSessionsProgress}
       runSessionsStep={runSessionsStep}
+      breadcrumbs={breadcrumbs}
       onExportRunButtonClicked={onExportRunButtonClicked}
       onReRunClicked={onReRunClicked}
       onEditRunButtonClicked={onEditRunButtonClicked}

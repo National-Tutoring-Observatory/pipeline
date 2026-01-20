@@ -1,8 +1,8 @@
-import { Outlet, redirect, useLoaderData } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthorization';
 import type { User } from "~/modules/users/users.types";
-import QueueTypeTabs from "../components/queueTypeTabs";
+import QueuesLayout from '../components/queuesLayout';
 import getQueue from "../helpers/getQueue";
 import type { Route } from "./+types/queuesLayout.route";
 
@@ -34,16 +34,13 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function QueuesLayoutRoute() {
   const data = useLoaderData<typeof loader>();
   const queues = data.queues;
+  const breadcrumbs = [{
+    text: 'Queues'
+  }];
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
-          Queues
-        </h1>
-        <QueueTypeTabs queues={queues} />
-      </div>
-
-      <Outlet />
-    </div>
+    <QueuesLayout
+      queues={queues}
+      breadcrumbs={breadcrumbs}
+    />
   );
 }

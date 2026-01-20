@@ -1,19 +1,17 @@
 import find from 'lodash/find';
 import { useEffect } from "react";
 import { redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
+import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { userIsTeamMember } from "~/modules/authorization/helpers/teamMembership";
 import addDialog from "~/modules/dialogs/addDialog";
-import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import PromptAuthorization from "~/modules/prompts/authorization";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
-import type { Prompt } from "~/modules/prompts/prompts.types";
 import TeamPrompts from "../components/teamPrompts";
 import type { Route } from "./+types/teamPrompts.route";
 
@@ -115,14 +113,6 @@ export default function TeamPromptsRoute() {
     sortValue: 'name',
     filters: {}
   });
-
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: 'Teams', link: '/teams' },
-      { text: ctx.team.name, link: `/teams/${params.id}` },
-      { text: 'Prompts' }
-    ]);
-  }, [params.id]);
 
   useEffect(() => {
     if (actionData?.intent === 'CREATE_PROMPT') {
