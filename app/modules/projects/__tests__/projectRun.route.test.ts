@@ -5,8 +5,6 @@ import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import { ProjectService } from "../project";
 import { RunService } from "~/modules/runs/run";
-import { PromptService } from "~/modules/prompts/prompt";
-import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
 import { loader } from "../containers/projectRun.route";
@@ -39,7 +37,7 @@ describe("projectRun.route loader", () => {
     expect((res as Response).headers.get("Location")).toBe("/");
   });
 
-  it("returns run data for authorized users", async () => {
+  it("returns run data with promptInfo from snapshot", async () => {
     const user = await UserService.create({ username: 'test_user', teams: [] });
     const team = await TeamService.create({ name: 'Test Team' });
     await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
@@ -50,26 +48,23 @@ describe("projectRun.route loader", () => {
       team: team._id
     });
 
-    const prompt = await PromptService.create({
-      name: 'Test Prompt',
-      team: team._id
-    });
-
-    const promptVersion = await PromptVersionService.create({
-      name: 'v1',
-      prompt: prompt._id,
-      version: 1,
-      userPrompt: 'Test prompt',
-      annotationSchema: []
-    });
-
     const run = await RunService.create({
       name: 'Test Run',
       project: project._id,
       isRunning: false,
       isComplete: false,
-      prompt: prompt._id,
-      promptVersion: 1
+      prompt: new Types.ObjectId().toString(),
+      promptVersion: 1,
+      snapshot: {
+        prompt: {
+          name: 'Test Prompt',
+          userPrompt: 'Test user prompt',
+          annotationSchema: [],
+          annotationType: 'CLASSIFICATION',
+          version: 1
+        },
+        model: { code: 'gpt-4', provider: 'openai', name: 'GPT-4' }
+      }
     });
 
     const cookieHeader = await loginUser(user._id);
@@ -81,17 +76,9 @@ describe("projectRun.route loader", () => {
 
     expect(res).not.toBeInstanceOf(Response);
     const loaderData = res as any;
-    // Ensure project is unwrapped, not { data: ... }
-    expect(loaderData.project._id).toBe(project._id);
-    expect(loaderData.project.name).toBe('Test Project');
-    expect(loaderData.project.data).toBeUndefined();
-    // Ensure run is unwrapped
-    expect(loaderData.run._id).toBe(run._id);
-    expect(loaderData.run.name).toBe('Test Run');
-    expect(loaderData.run.data).toBeUndefined();
-    // Ensure prompt is unwrapped
-    expect(loaderData.runPrompt._id).toBe(prompt._id);
-    expect(loaderData.runPrompt.data).toBeUndefined();
+    expect(loaderData.promptInfo).toBeDefined();
+    expect(loaderData.promptInfo.name).toBe('Test Prompt');
+    expect(loaderData.promptInfo.version).toBe(1);
   });
 
   it("redirects to / when user is not in project team", async () => {

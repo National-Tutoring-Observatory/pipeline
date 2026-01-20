@@ -14,7 +14,7 @@ export default function PromptSelectorContainer({
   annotationType: string,
   selectedPrompt: string | null,
   selectedPromptVersion: number | null,
-  onSelectedPromptChanged: (selectedPrompt: string) => void,
+  onSelectedPromptChanged: (selectedPrompt: string, selectedPromptName?: string) => void,
   onSelectedPromptVersionChanged: (selectedPromptVersion: number) => void
 }) {
 
@@ -50,12 +50,12 @@ export default function PromptSelectorContainer({
   }
 
   const onSelectedPromptChange = (selectedPrompt: string) => {
-    onSelectedPromptChanged(selectedPrompt);
+    const selectedPromptItem = find(promptsFetcher.data.prompts.data, { _id: selectedPrompt });
+    onSelectedPromptChanged(selectedPrompt, selectedPromptItem?.name);
     const params = new URLSearchParams();
     params.set('prompt', selectedPrompt)
     promptVersionsFetcher.load(`/api/promptVersionsList?${params.toString()}`);
-    const selectedPromptItem = find(promptsFetcher.data.prompts.data, { _id: selectedPrompt });
-    if (selectedPromptItem) {
+    if (selectedPromptItem?.productionVersion != null) {
       onSelectedPromptVersionChanged(selectedPromptItem.productionVersion);
     }
   }

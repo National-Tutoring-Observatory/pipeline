@@ -20,7 +20,7 @@ export default async function exportCollection({ collectionId, exportType }: { c
     isExporting: true
   });
 
-  emitter.emit("EXPORT_COLLECTION", { collectionId: Number(collectionId), progress: 0, status: 'STARTED' });
+  emitter.emit("EXPORT_COLLECTION", { collectionId, progress: 0, status: 'STARTED' });
 
   if (exportType === 'CSV') {
     await outputCollectionDataToCSV({ body: { collection, runs, inputFolder: inputDirectory, outputFolder: outputDirectory } });
@@ -41,7 +41,7 @@ export default async function exportCollection({ collectionId, exportType }: { c
 
     await CollectionService.updateById(collectionId, update);
 
-    emitter.emit("EXPORT_COLLECTION", { collectionId: Number(collectionId), progress: 100, status: 'DONE' });
+    emitter.emit("EXPORT_COLLECTION", { collectionId, progress: 100, status: 'DONE' });
 
   }, 2000);
 

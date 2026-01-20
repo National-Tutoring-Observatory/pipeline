@@ -4,20 +4,36 @@ import map from 'lodash/map';
 import type { Session } from "../sessions.types";
 import { Checkbox } from "@/components/ui/checkbox";
 import includes from 'lodash/includes';
+import SessionRandomizer from "./sessionRandomizer";
 
 export default function SessionSelector({
   sessions = [],
   selectedSessions,
+  sampleSize,
   onSelectAllToggled,
-  onSelectSessionToggled
+  onSelectSessionToggled,
+  onSampleSizeChanged,
+  onRandomizeClicked
 }: {
   sessions: [],
   selectedSessions: string[],
+  sampleSize: number,
   onSelectAllToggled: (isChecked: boolean) => void,
-  onSelectSessionToggled: ({ sessionId, isChecked }: { sessionId: string, isChecked: boolean }) => void
+  onSelectSessionToggled: ({ sessionId, isChecked }: { sessionId: string, isChecked: boolean }) => void,
+  onSampleSizeChanged: (size: number) => void,
+  onRandomizeClicked: () => void
 }) {
   return (
     <div>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm font-medium">Select All</span>
+        <SessionRandomizer
+          sampleSize={sampleSize}
+          maxSize={sessions.length}
+          onSampleSizeChanged={onSampleSizeChanged}
+          onRandomizeClicked={onRandomizeClicked}
+        />
+      </div>
       <div className="border rounded-md h-80 overflow-y-auto">
         <Table>
           <TableHeader>

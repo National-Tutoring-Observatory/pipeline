@@ -42,22 +42,10 @@ export async function loader({ request, params, context }: Route.LoaderArgs & { 
     sortableFields: ['name', 'createdAt']
   });
 
-  const pagination = getPaginationParams(query.page);
-
-  const projects = await ProjectService.find({
-    match: query.match,
-    populate: ['team'],
-    sort: query.sort,
-    pagination
-  });
-
-  const total = await ProjectService.count(query.match);
+  const projects = await ProjectService.paginate(query)
 
   return {
-    projects: {
-      data: projects,
-      totalPages: getTotalPages(total)
-    }
+    projects
   };
 }
 

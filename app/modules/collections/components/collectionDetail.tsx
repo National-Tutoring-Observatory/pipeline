@@ -12,7 +12,7 @@ import annotationTypes from "~/modules/prompts/annotationTypes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 
-export default function ProjectCollection({
+export default function CollectionDetail({
   collection,
   runs,
   onSetupCollection,
@@ -89,11 +89,11 @@ export default function ProjectCollection({
                       <TableCell>{find(annotationTypes, { value: run.annotationType })?.name}</TableCell>
                       <TableCell>
                         <div>
-                          {run.prompt as string}
+                          {run.snapshot.prompt.name}
                         </div>
                         <div>
                           <Badge >
-                            Version {run.promptVersion}
+                            Version {run.snapshot.prompt.version}
                           </Badge>
                         </div>
                       </TableCell>

@@ -15,14 +15,17 @@ export default [
       route("sessions", "modules/projects/containers/projectSessions.route.tsx", {
         id: "SESSIONS"
       }),
-      route("collections", "modules/projects/containers/projectCollections.route.tsx", {
+      route("collections", "modules/collections/containers/collectionsList.route.tsx", {
         id: "COLLECTIONS"
       }),
     ]),
     route(":projectId/create-run", "modules/projects/containers/projectCreateRun.route.tsx"),
+    route(":projectId/create-collection", "modules/collections/containers/collectionCreate.route.tsx"),
     route(":projectId/runs/:runId", "modules/projects/containers/projectRun.route.tsx"),
     route(":projectId/runs/:runId/sessions/:sessionId", "modules/projects/containers/projectRunSessions.route.tsx"),
-    route(":projectId/collections/:collectionId", "modules/projects/containers/projectCollection.route.tsx")
+    route(":projectId/collections/:collectionId", "modules/collections/containers/collectionDetail.route.tsx"),
+    route(":projectId/collections/:collectionId/add-runs", "modules/collections/containers/collectionAddRuns.route.tsx"),
+    route(":projectId/collections/:collectionId/merge", "modules/collections/containers/collectionMerge.route.tsx")
   ]),
   ...prefix("prompts", [
     index("modules/prompts/containers/prompts.route.tsx"),
@@ -57,6 +60,7 @@ export default [
   route("api/availableTeamUsers", "modules/users/containers/availableTeamUsers.route.tsx"),
   route("api/availableTeams", "modules/teams/containers/availableTeams.route.tsx", { id: 'availableTeams' }),
   route("api/downloads/:projectId/:runId", "modules/runs/containers/downloadRun.route.tsx"),
+  route("api/downloads/:projectId/collections/:collectionId", "modules/collections/containers/downloadCollection.route.tsx"),
   route("api/events", "modules/events/containers/events.route.tsx"),
   route("api/projects", "modules/projects/containers/projects.route.tsx", { id: 'projects' }),
   route("api/promptVersionAlignment", "modules/prompts/containers/promptVersionAlignment.route.tsx"),

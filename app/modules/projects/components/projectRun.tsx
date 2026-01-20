@@ -13,31 +13,30 @@ import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import ProjectDownloadDropdown from "./projectDownloadDropdown";
 import annotationTypes from "~/modules/prompts/annotationTypes";
-import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import ProjectRunDownloads from "./projectRunDownloads";
 
 export default function ProjectRun({
   run,
-  runPrompt,
-  runPromptVersion,
+  promptInfo,
   runSessionsProgress,
   runSessionsStep,
   breadcrumbs,
   onExportRunButtonClicked,
   onReRunClicked,
-  onEditRunButtonClicked
+  onEditRunButtonClicked,
+  onCreateCollectionButtonClicked
 }: {
   run: Run,
-  runPrompt: Prompt,
-  runPromptVersion: PromptVersion,
+  promptInfo: { name: string, version: number },
   runSessionsProgress: number,
   runSessionsStep: string,
   breadcrumbs: Breadcrumb[]
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void
   onReRunClicked: () => void
   onEditRunButtonClicked?: (run: Run) => void
+  onCreateCollectionButtonClicked?: (run: Run) => void
 }) {
 
   return (
@@ -83,11 +82,11 @@ export default function ProjectRun({
             <div className="text-xs text-muted-foreground">Selected prompt</div>
             <div>
               <div>
-                {runPrompt.name}
+                {promptInfo.name}
               </div>
               <div>
                 <Badge >
-                  Version {runPromptVersion.version}
+                  Version {promptInfo.version}
                 </Badge>
               </div>
             </div>

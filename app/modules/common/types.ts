@@ -9,3 +9,10 @@ export interface FindOptions {
   pagination?: { skip: number; limit: number };
   populate?: string[];
 }
+
+export interface PaginateProps {
+  match: Record<string, any>;
+  sort?: Record<string, 1 | -1>;
+  page?: string | number;
+  pageSize?: number;
+}

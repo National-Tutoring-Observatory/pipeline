@@ -2,7 +2,12 @@ import includes from 'lodash/includes.js';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { FeatureFlagService } from "../featureFlag";
 
-export default async (featureFlagName: string, context: { request: Request }) => {
+export default async (
+  featureFlagName: string,
+  context: { request: Request },
+  options: { defaultValue?: boolean } = {}
+) => {
+  const { defaultValue = true } = options;
   const featureFlag = await FeatureFlagService.find({ match: { name: featureFlagName } });
 
   if (featureFlag.length > 0) {
@@ -11,8 +16,7 @@ export default async (featureFlagName: string, context: { request: Request }) =>
       return true;
     }
   } else {
-    // If the feature flag does not exist, then they all have that feature enabled.
-    return true;
+    return defaultValue;
   }
 
   return false;

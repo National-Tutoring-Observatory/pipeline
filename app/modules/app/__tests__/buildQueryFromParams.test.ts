@@ -152,12 +152,12 @@ describe('buildQueryFromParams', () => {
   it('preserves page parameter', () => {
     const query = buildQueryFromParams({
       match: {},
-      queryParams: { currentPage: '2' },
+      queryParams: { currentPage: 2 },
       searchableFields: [],
       sortableFields: ['name'],
     })
 
-    expect(query.page).toBe('2')
+    expect(query.page).toBe(2)
   })
 
   it('page is undefined when not provided', () => {

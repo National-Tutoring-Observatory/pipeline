@@ -1,31 +1,37 @@
-export type defaultQueryParams = {
+export type QueryParams = {
   searchValue?: string,
   currentPage?: number,
   sort?: string,
-  filters?: {}
+  filters?: Record<string, string>
 }
 
-export default function getQueryParamsFromRequest(request: Request, defaultQueryParams: defaultQueryParams) {
-
+export default function getQueryParamsFromRequest(
+  request: Request,
+  defaults: QueryParams
+): QueryParams {
   const url = new URL(request.url);
-
-  let queryParams: Record<string, string | number | {}> = { ...defaultQueryParams };
   const filters: Record<string, string> = {};
+
+  let searchValue = defaults.searchValue;
+  let currentPage = defaults.currentPage;
+  let sort = defaults.sort;
 
   url.searchParams.forEach((value, key) => {
     if (key.startsWith("filter_")) {
-      const filterKey = key.replace("filter_", "");
-      filters[filterKey] = value;
+      filters[key.replace("filter_", "")] = value;
+    } else if (key === "searchValue") {
+      searchValue = value;
     } else if (key === "currentPage") {
-      queryParams[key] = Number(value);
-    } else {
-      queryParams[key] = value;
+      currentPage = Number(value);
+    } else if (key === "sort") {
+      sort = value;
     }
   });
 
-  if (Object.keys(filters).length > 0) {
-    queryParams.filters = filters;
-  }
-
-  return queryParams;
+  return {
+    searchValue,
+    currentPage,
+    sort,
+    filters: Object.keys(filters).length > 0 ? filters : defaults.filters
+  };
 }

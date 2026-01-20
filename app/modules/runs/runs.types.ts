@@ -2,6 +2,8 @@ import type { Project } from "~/modules/projects/projects.types";
 import type { Prompt } from "~/modules/prompts/prompts.types";
 import type { RunSnapshot } from "~/modules/runs/services/buildRunSnapshot.server";
 
+export type RunAnnotationType = 'PER_UTTERANCE' | 'PER_SESSION';
+
 export interface Run {
   _id: string;
   name: string;
@@ -11,7 +13,7 @@ export interface Run {
   promptVersion: number;
   model: string;
   sessions: RunSession[]
-  snapshot?: RunSnapshot;
+  snapshot: RunSnapshot;
   isRunning: boolean;
   isComplete: boolean;
   hasErrored: boolean;
@@ -37,7 +39,7 @@ export interface StartRunProps {
   runId: string
   projectId: string,
   sessions: string[],
-  annotationType: 'PER_UTTERANCE' | 'PER_SESSION',
+  annotationType: RunAnnotationType,
   prompt: string
   promptVersion: number,
   modelCode: string
