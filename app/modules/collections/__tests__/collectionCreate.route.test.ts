@@ -6,6 +6,7 @@ import { ProjectService } from '~/modules/projects/project';
 import { CollectionService } from '~/modules/collections/collection';
 import { SessionService } from '~/modules/sessions/session';
 import { PromptService } from '~/modules/prompts/prompt';
+import { FeatureFlagService } from '~/modules/featureFlags/featureFlag';
 import type { User } from '~/modules/users/users.types';
 import type { Team } from '~/modules/teams/teams.types';
 import type { Project } from '~/modules/projects/projects.types';
@@ -33,7 +34,8 @@ describe('collectionCreate.route', () => {
   beforeEach(async () => {
     await clearDocumentDB();
 
-    user = await UserService.create({ username: 'test_user', teams: [] });
+    await FeatureFlagService.create({ name: 'HAS_PROJECT_COLLECTIONS' });
+    user = await UserService.create({ username: 'test_user', teams: [], featureFlags: ['HAS_PROJECT_COLLECTIONS'] });
     team = await TeamService.create({ name: 'Test Team' });
     await UserService.updateById(user._id, {
       teams: [{ team: team._id, role: 'ADMIN' }]

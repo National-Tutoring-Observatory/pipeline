@@ -6,12 +6,14 @@ import { ProjectService } from '~/modules/projects/project';
 import { CollectionService } from '~/modules/collections/collection';
 import { RunService } from '~/modules/runs/run';
 import { SessionService } from '~/modules/sessions/session';
+import { FeatureFlagService } from '~/modules/featureFlags/featureFlag';
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
 import { loader, action } from '../containers/collectionMerge.route';
 
 beforeEach(async () => {
   await clearDocumentDB();
+  await FeatureFlagService.create({ name: 'HAS_PROJECT_COLLECTIONS' });
 });
 
 describe('collectionMerge.route loader', () => {
@@ -26,7 +28,7 @@ describe('collectionMerge.route loader', () => {
   });
 
   it('redirects to / when project not found', async () => {
-    const user = await UserService.create({ username: 'test_user', teams: [] });
+    const user = await UserService.create({ username: 'test_user', teams: [], featureFlags: ['HAS_PROJECT_COLLECTIONS'] });
     const cookieHeader = await loginUser(user._id);
 
     const res = await loader({
@@ -41,7 +43,7 @@ describe('collectionMerge.route loader', () => {
   });
 
   it('returns mergeable collections', async () => {
-    const user = await UserService.create({ username: 'test_user', teams: [] });
+    const user = await UserService.create({ username: 'test_user', teams: [], featureFlags: ['HAS_PROJECT_COLLECTIONS'] });
     const team = await TeamService.create({ name: 'Test Team' });
     await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
     const project = await ProjectService.create({ name: 'Test Project', createdBy: user._id, team: team._id });
@@ -62,7 +64,7 @@ describe('collectionMerge.route loader', () => {
   });
 
   it('excludes collections with different sessions', async () => {
-    const user = await UserService.create({ username: 'test_user', teams: [] });
+    const user = await UserService.create({ username: 'test_user', teams: [], featureFlags: ['HAS_PROJECT_COLLECTIONS'] });
     const team = await TeamService.create({ name: 'Test Team' });
     await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
     const project = await ProjectService.create({ name: 'Test Project', createdBy: user._id, team: team._id });
@@ -110,7 +112,7 @@ describe('collectionMerge.route action', () => {
   });
 
   it('merges collections and redirects to collection detail', async () => {
-    const user = await UserService.create({ username: 'test_user', teams: [] });
+    const user = await UserService.create({ username: 'test_user', teams: [], featureFlags: ['HAS_PROJECT_COLLECTIONS'] });
     const team = await TeamService.create({ name: 'Test Team' });
     await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
     const project = await ProjectService.create({ name: 'Test Project', createdBy: user._id, team: team._id });
@@ -144,7 +146,7 @@ describe('collectionMerge.route action', () => {
   });
 
   it('merges multiple collections', async () => {
-    const user = await UserService.create({ username: 'test_user', teams: [] });
+    const user = await UserService.create({ username: 'test_user', teams: [], featureFlags: ['HAS_PROJECT_COLLECTIONS'] });
     const team = await TeamService.create({ name: 'Test Team' });
     await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
     const project = await ProjectService.create({ name: 'Test Project', createdBy: user._id, team: team._id });
