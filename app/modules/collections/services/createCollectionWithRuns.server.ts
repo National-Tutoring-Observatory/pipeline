@@ -63,7 +63,6 @@ export default async function createCollectionWithRuns(
     }
   }
 
-  // Update collection with generated run IDs
   const updatedCollection = await CollectionService.updateById(collection._id, {
     runs: generatedRunIds
   });

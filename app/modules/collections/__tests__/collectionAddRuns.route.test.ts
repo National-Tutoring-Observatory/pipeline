@@ -46,7 +46,7 @@ describe('collectionAddRuns.route loader', () => {
     await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
     const project = await ProjectService.create({ name: 'Test Project', createdBy: user._id, team: team._id });
     const session = await SessionService.create({ name: 'Test Session', project: project._id });
-    const collection = await CollectionService.create({ name: 'Test Collection', project: project._id, sessions: [session._id], runs: [] });
+    const collection = await CollectionService.create({ name: 'Test Collection', project: project._id, sessions: [session._id], runs: [], annotationType: 'PER_UTTERANCE' });
     const eligibleRun = await RunService.create({
       name: 'Eligible Run',
       project: project._id,
@@ -78,7 +78,7 @@ describe('collectionAddRuns.route loader', () => {
       annotationType: 'PER_UTTERANCE',
       sessions: [{ sessionId: session._id, status: 'DONE', name: 'Test Session', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
     });
-    const collection = await CollectionService.create({ name: 'Test Collection', project: project._id, sessions: [session._id], runs: [existingRun._id] });
+    const collection = await CollectionService.create({ name: 'Test Collection', project: project._id, sessions: [session._id], runs: [existingRun._id], annotationType: 'PER_UTTERANCE' });
     const cookieHeader = await loginUser(user._id);
 
     const res = await loader({
@@ -99,7 +99,7 @@ describe('collectionAddRuns.route action', () => {
     await UserService.updateById(owner._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
     const project = await ProjectService.create({ name: 'Test Project', createdBy: owner._id, team: team._id });
     const session = await SessionService.create({ name: 'Test Session', project: project._id });
-    const collection = await CollectionService.create({ name: 'Test Collection', project: project._id, sessions: [session._id], runs: [] });
+    const collection = await CollectionService.create({ name: 'Test Collection', project: project._id, sessions: [session._id], runs: [], annotationType: 'PER_UTTERANCE' });
 
     const otherUser = await UserService.create({ username: 'other_user', teams: [] });
     const otherCookie = await loginUser(otherUser._id);
@@ -124,7 +124,7 @@ describe('collectionAddRuns.route action', () => {
     await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
     const project = await ProjectService.create({ name: 'Test Project', createdBy: user._id, team: team._id });
     const session = await SessionService.create({ name: 'Test Session', project: project._id });
-    const collection = await CollectionService.create({ name: 'Test Collection', project: project._id, sessions: [session._id], runs: [] });
+    const collection = await CollectionService.create({ name: 'Test Collection', project: project._id, sessions: [session._id], runs: [], annotationType: 'PER_UTTERANCE' });
     const run = await RunService.create({
       name: 'Test Run',
       project: project._id,

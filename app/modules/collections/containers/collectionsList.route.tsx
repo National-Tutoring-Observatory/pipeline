@@ -72,7 +72,7 @@ export async function action({
   const body = await request.json();
   const { intent, entityId, payload = {} } = body;
 
-  const { name } = payload;
+  const { name, annotationType } = payload;
   let collection;
 
   switch (intent) {
@@ -80,12 +80,16 @@ export async function action({
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
+      if (typeof annotationType !== "string") {
+        throw new Error("Annotation type is required and must be a string.");
+      }
       collection = await CollectionService.create({
         project: params.id,
         name,
         sessions: [],
         runs: [],
-        hasSetup: false
+        hasSetup: false,
+        annotationType
       });
       return {
         intent: 'CREATE_COLLECTION',
@@ -113,14 +117,13 @@ export async function action({
         throw new Error('Collection not found');
       }
 
-      const { project, sessions, runs } = existingCollection;
-
       collection = await CollectionService.create({
-        project,
+        project: existingCollection.project,
         name: name,
-        sessions,
-        runs: runs || [],
-        hasSetup: true
+        sessions: existingCollection.sessions,
+        runs: existingCollection.runs || [],
+        hasSetup: true,
+        annotationType: existingCollection.annotationType
       });
       return {
         intent: 'DUPLICATE_COLLECTION',

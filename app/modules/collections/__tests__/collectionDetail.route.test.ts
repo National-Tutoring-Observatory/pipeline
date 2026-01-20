@@ -28,7 +28,6 @@ describe('collectionDetail.route loader', () => {
   beforeEach(async () => {
     await clearDocumentDB();
 
-    // Setup test data
     user = await UserService.create({ username: 'test_user', teams: [] });
     team = await TeamService.create({ name: 'Test Team' });
     await UserService.updateById(user._id, {
@@ -54,7 +53,8 @@ describe('collectionDetail.route loader', () => {
       name: 'Test Collection',
       project: project._id,
       sessions: [session._id],
-      runs: [run._id]
+      runs: [run._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     cookieHeader = await loginUser(user._id);
@@ -129,7 +129,8 @@ describe('collectionDetail.route loader', () => {
       name: 'Empty Collection',
       project: project._id,
       sessions: [],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const res = await loader({
@@ -178,7 +179,7 @@ describe('collectionDetail.route loader', () => {
     const run2 = await RunService.create({
       name: 'Test Run 2',
       project: project._id,
-      annotationType: 'PER_SESSION',
+      annotationType: 'PER_UTTERANCE',
       isRunning: true,
       isComplete: false
     });
@@ -187,7 +188,8 @@ describe('collectionDetail.route loader', () => {
       name: 'Multi Collection',
       project: project._id,
       sessions: [session._id, session2._id],
-      runs: [run._id, run2._id]
+      runs: [run._id, run2._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const res = await loader({
@@ -219,13 +221,11 @@ describe('collectionDetail.route loader', () => {
     expect(res).not.toBeInstanceOf(Response);
     const data = res as { collection: Collection; project: Project; runs: Run[]; sessions: Session[] };
 
-    // Verify structure
     expect(data).toHaveProperty('collection');
     expect(data).toHaveProperty('project');
     expect(data).toHaveProperty('runs');
     expect(data).toHaveProperty('sessions');
 
-    // Verify collection structure
     expect(data.collection).toHaveProperty('_id');
     expect(data.collection).toHaveProperty('name');
     expect(data.collection).toHaveProperty('project');

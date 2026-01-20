@@ -9,14 +9,13 @@ interface CompatibilityResult {
 
 export function isRunCompatibleWithCollection(
   run: Run,
-  collection: Collection,
-  targetAnnotationType: string | null
+  collection: Collection
 ): CompatibilityResult {
   if (run.project !== collection.project) {
     return { compatible: false, reason: 'different project' };
   }
 
-  if (targetAnnotationType && run.annotationType !== targetAnnotationType) {
+  if (run.annotationType !== collection.annotationType) {
     return { compatible: false, reason: 'incompatible annotation type' };
   }
 

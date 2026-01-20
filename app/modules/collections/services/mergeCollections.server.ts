@@ -1,7 +1,5 @@
-import { RunService } from '~/modules/runs/run';
 import type { Collection } from '../collections.types';
 import { CollectionService } from '../collection';
-import { getCollectionAnnotationType } from '../helpers/getCollectionAnnotationType';
 import { sessionsMatch } from '../helpers/sessionsMatch';
 
 interface MergeResult {
@@ -10,27 +8,20 @@ interface MergeResult {
   skipped: string[];
 }
 
-async function validateSourceCollection(
+function validateSourceCollection(
   sourceCollection: Collection,
-  targetCollection: Collection,
-  targetSessionIds: string[],
-  targetAnnotationType: string | null
-): Promise<void> {
-  const sourceSessionIds = sourceCollection.sessions;
-
-  if (!sessionsMatch(targetSessionIds, sourceSessionIds)) {
-    throw new Error('Collections are not compatible for merging');
-  }
-
+  targetCollection: Collection
+): void {
   if (targetCollection.project !== sourceCollection.project) {
     throw new Error('Collections are not compatible for merging');
   }
 
-  if (targetAnnotationType && sourceCollection.runs && sourceCollection.runs.length > 0) {
-    const firstSourceRun = await RunService.findById(sourceCollection.runs[0]);
-    if (firstSourceRun && firstSourceRun.annotationType !== targetAnnotationType) {
-      throw new Error('Collections are not compatible for merging');
-    }
+  if (!sessionsMatch(targetCollection.sessions, sourceCollection.sessions)) {
+    throw new Error('Collections are not compatible for merging');
+  }
+
+  if (sourceCollection.annotationType !== targetCollection.annotationType) {
+    throw new Error('Collections are not compatible for merging');
   }
 }
 
@@ -45,9 +36,6 @@ export default async function mergeCollections(
     throw new Error('Target collection not found');
   }
 
-  const targetSessionIds = targetCollection.sessions;
-  let targetAnnotationType = await getCollectionAnnotationType(targetCollection);
-
   const existingRunIds = new Set(targetCollection.runs || []);
   const added: string[] = [];
   const skipped: string[] = [];
@@ -58,12 +46,7 @@ export default async function mergeCollections(
       throw new Error('Source collection not found');
     }
 
-    await validateSourceCollection(
-      sourceCollection,
-      targetCollection,
-      targetSessionIds,
-      targetAnnotationType
-    );
+    validateSourceCollection(sourceCollection, targetCollection);
 
     for (const runId of sourceCollection.runs || []) {
       if (existingRunIds.has(runId)) {
@@ -71,12 +54,6 @@ export default async function mergeCollections(
       } else {
         added.push(runId);
         existingRunIds.add(runId);
-        if (!targetAnnotationType) {
-          const run = await RunService.findById(runId);
-          if (run) {
-            targetAnnotationType = run.annotationType;
-          }
-        }
       }
     }
   }

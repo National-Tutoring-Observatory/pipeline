@@ -4,6 +4,7 @@ export interface Collection {
   project: string;
   sessions: string[];
   runs?: string[];
+  annotationType: string;
   createdAt?: string;
   hasSetup?: boolean;
   isExporting?: boolean;

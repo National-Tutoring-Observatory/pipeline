@@ -1,7 +1,6 @@
 import { RunService } from '~/modules/runs/run';
 import type { Collection } from '../collections.types';
 import { CollectionService } from '../collection';
-import { getCollectionAnnotationType } from '../helpers/getCollectionAnnotationType';
 import { isRunCompatibleWithCollection } from '../helpers/isRunCompatibleWithCollection';
 
 interface AddRunsResult {
@@ -20,7 +19,6 @@ export default async function addRunsToCollection(
     throw new Error('Collection not found');
   }
 
-  let targetAnnotationType = await getCollectionAnnotationType(collection);
   const existingRunIds = new Set(collection.runs || []);
 
   const added: string[] = [];
@@ -39,16 +37,13 @@ export default async function addRunsToCollection(
       continue;
     }
 
-    const { compatible, reason } = isRunCompatibleWithCollection(run, collection, targetAnnotationType);
+    const { compatible, reason } = isRunCompatibleWithCollection(run, collection);
     if (!compatible) {
       errors.push(`Run ${runId}: ${reason}`);
       continue;
     }
 
     added.push(runId);
-    if (!targetAnnotationType) {
-      targetAnnotationType = run.annotationType;
-    }
   }
 
   const updatedRuns = [...(collection.runs || []), ...added];

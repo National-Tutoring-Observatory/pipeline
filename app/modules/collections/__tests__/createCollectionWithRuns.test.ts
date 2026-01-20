@@ -68,7 +68,8 @@ describe('createCollectionWithRuns', () => {
       name: 'Test Collection',
       project: projectId,
       sessions,
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
   });
 

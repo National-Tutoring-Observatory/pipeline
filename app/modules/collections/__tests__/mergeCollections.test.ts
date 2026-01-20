@@ -64,14 +64,16 @@ describe('CollectionService.findMergeableCollections', () => {
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id, session2._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const mergeableCollection = await CollectionService.create({
       name: 'Mergeable Collection',
       project: project._id,
       sessions: [session1._id, session2._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const result = await CollectionService.findMergeableCollections(targetCollection._id);
@@ -85,14 +87,16 @@ describe('CollectionService.findMergeableCollections', () => {
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     await CollectionService.create({
       name: 'Other Project Collection',
       project: project2._id,
       sessions: [session1._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const result = await CollectionService.findMergeableCollections(targetCollection._id);
@@ -105,14 +109,16 @@ describe('CollectionService.findMergeableCollections', () => {
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id, session2._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     await CollectionService.create({
       name: 'Different Sessions Collection',
       project: project._id,
       sessions: [session1._id, session3._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const result = await CollectionService.findMergeableCollections(targetCollection._id);
@@ -132,7 +138,8 @@ describe('CollectionService.findMergeableCollections', () => {
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [targetRun._id]
+      runs: [targetRun._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const incompatibleRun = await RunService.create({
@@ -146,12 +153,13 @@ describe('CollectionService.findMergeableCollections', () => {
       name: 'Incompatible Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [incompatibleRun._id]
+      runs: [incompatibleRun._id],
+      annotationType: 'PER_SESSION'
     });
 
     const result = await CollectionService.findMergeableCollections(targetCollection._id);
 
-    expect(result).toHaveLength(0);
+    expect(result.data).toHaveLength(0);
   });
 
   it('excludes the target collection itself', async () => {
@@ -159,7 +167,8 @@ describe('CollectionService.findMergeableCollections', () => {
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const result = await CollectionService.findMergeableCollections(targetCollection._id);
@@ -168,40 +177,29 @@ describe('CollectionService.findMergeableCollections', () => {
     expect(result.map(c => c._id)).not.toContain(targetCollection._id);
   });
 
-  it('includes collections when target has no runs', async () => {
+  it('only includes collections with matching annotation type', async () => {
     targetCollection = await CollectionService.create({
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
-    const perUtteranceRun = await RunService.create({
-      name: 'Per Utterance Run',
-      project: project._id,
-      annotationType: 'PER_UTTERANCE',
-      sessions: [{ sessionId: session1._id, status: 'DONE', name: 'Session 1', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
-    });
-
-    const perSessionRun = await RunService.create({
-      name: 'Per Session Run',
-      project: project._id,
-      annotationType: 'PER_SESSION',
-      sessions: [{ sessionId: session1._id, status: 'DONE', name: 'Session 1', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
-    });
-
-    const collection1 = await CollectionService.create({
-      name: 'Collection 1',
+    const matchingCollection = await CollectionService.create({
+      name: 'Matching Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [perUtteranceRun._id]
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
-    const collection2 = await CollectionService.create({
-      name: 'Collection 2',
+    await CollectionService.create({
+      name: 'Non-matching Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [perSessionRun._id]
+      runs: [],
+      annotationType: 'PER_SESSION'
     });
 
     const result = await CollectionService.findMergeableCollections(targetCollection._id);
@@ -246,7 +244,8 @@ describe('CollectionService.mergeCollections', () => {
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const sourceRun = await RunService.create({
@@ -260,7 +259,8 @@ describe('CollectionService.mergeCollections', () => {
       name: 'Source Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [sourceRun._id]
+      runs: [sourceRun._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const result = await CollectionService.mergeCollections(targetCollection._id, sourceCollection._id);
@@ -284,7 +284,8 @@ describe('CollectionService.mergeCollections', () => {
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [existingRun._id]
+      runs: [existingRun._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const newRun = await RunService.create({
@@ -298,7 +299,8 @@ describe('CollectionService.mergeCollections', () => {
       name: 'Source Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [existingRun._id, newRun._id]
+      runs: [existingRun._id, newRun._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const result = await CollectionService.mergeCollections(targetCollection._id, sourceCollection._id);
@@ -322,14 +324,16 @@ describe('CollectionService.mergeCollections', () => {
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const sourceCollection = await CollectionService.create({
       name: 'Source Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [sourceRun._id]
+      runs: [sourceRun._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     await CollectionService.mergeCollections(targetCollection._id, sourceCollection._id);
@@ -341,32 +345,20 @@ describe('CollectionService.mergeCollections', () => {
   });
 
   it('throws error for incompatible collections', async () => {
-    const targetRun = await RunService.create({
-      name: 'Target Run',
-      project: project._id,
-      annotationType: 'PER_UTTERANCE',
-      sessions: [{ sessionId: session1._id, status: 'DONE', name: 'Session 1', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
-    });
-
     targetCollection = await CollectionService.create({
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [targetRun._id]
-    });
-
-    const incompatibleRun = await RunService.create({
-      name: 'Incompatible Run',
-      project: project._id,
-      annotationType: 'PER_SESSION',
-      sessions: [{ sessionId: session1._id, status: 'DONE', name: 'Session 1', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const incompatibleCollection = await CollectionService.create({
       name: 'Incompatible Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [incompatibleRun._id]
+      runs: [],
+      annotationType: 'PER_SESSION'
     });
 
     await expect(
@@ -386,7 +378,8 @@ describe('CollectionService.mergeCollections', () => {
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [existingRun._id]
+      runs: [existingRun._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const newRun1 = await RunService.create({
@@ -407,7 +400,8 @@ describe('CollectionService.mergeCollections', () => {
       name: 'Source Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [existingRun._id, newRun1._id, newRun2._id]
+      runs: [existingRun._id, newRun1._id, newRun2._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const result = await CollectionService.mergeCollections(targetCollection._id, sourceCollection._id);
@@ -422,7 +416,8 @@ describe('CollectionService.mergeCollections', () => {
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const run1 = await RunService.create({
@@ -450,14 +445,16 @@ describe('CollectionService.mergeCollections', () => {
       name: 'Source 1',
       project: project._id,
       sessions: [session1._id],
-      runs: [run1._id]
+      runs: [run1._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const source2 = await CollectionService.create({
       name: 'Source 2',
       project: project._id,
       sessions: [session1._id],
-      runs: [run2._id, run3._id]
+      runs: [run2._id, run3._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const result = await CollectionService.mergeCollections(targetCollection._id, [source1._id, source2._id]);
@@ -496,21 +493,24 @@ describe('CollectionService.mergeCollections', () => {
       name: 'Target Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const source1 = await CollectionService.create({
       name: 'Source 1',
       project: project._id,
       sessions: [session1._id],
-      runs: [sharedRun._id, uniqueRun1._id]
+      runs: [sharedRun._id, uniqueRun1._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const source2 = await CollectionService.create({
       name: 'Source 2',
       project: project._id,
       sessions: [session1._id],
-      runs: [sharedRun._id, uniqueRun2._id]
+      runs: [sharedRun._id, uniqueRun2._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const result = await CollectionService.mergeCollections(targetCollection._id, [source1._id, source2._id]);

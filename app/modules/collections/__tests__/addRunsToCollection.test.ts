@@ -63,7 +63,8 @@ describe('CollectionService.findEligibleRunsForCollection', () => {
         name: 'Test Collection',
         project: project._id,
         sessions: [session1._id, session2._id],
-        runs: []
+        runs: [],
+        annotationType: 'PER_UTTERANCE'
       });
 
       await RunService.create({
@@ -86,7 +87,8 @@ describe('CollectionService.findEligibleRunsForCollection', () => {
         name: 'Test Collection',
         project: project._id,
         sessions: [session1._id, session2._id],
-        runs: []
+        runs: [],
+        annotationType: 'PER_UTTERANCE'
       });
 
       const run = await RunService.create({
@@ -107,49 +109,13 @@ describe('CollectionService.findEligibleRunsForCollection', () => {
   });
 
   describe('annotation type invariant', () => {
-    it('includes any annotation type when collection has no runs', async () => {
+    it('only includes runs with matching annotation type', async () => {
       collection = await CollectionService.create({
-        name: 'Empty Collection',
+        name: 'Collection',
         project: project._id,
         sessions: [session1._id],
-        runs: []
-      });
-
-      const perUtterance = await RunService.create({
-        name: 'Per Utterance Run',
-        project: project._id,
-        annotationType: 'PER_UTTERANCE',
-        sessions: [{ sessionId: session1._id, status: 'DONE', name: 'Session 1', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
-      });
-
-      const perSession = await RunService.create({
-        name: 'Per Session Run',
-        project: project._id,
-        annotationType: 'PER_SESSION',
-        sessions: [{ sessionId: session1._id, status: 'DONE', name: 'Session 1', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
-      });
-
-      const result = await CollectionService.findEligibleRunsForCollection(collection._id);
-
-      expect(result.data).toHaveLength(2);
-      const runIds = result.data.map(r => r._id);
-      expect(runIds).toContain(perUtterance._id);
-      expect(runIds).toContain(perSession._id);
-    });
-
-    it('only includes runs with matching annotation type when collection has runs', async () => {
-      const existingRun = await RunService.create({
-        name: 'Existing Run',
-        project: project._id,
-        annotationType: 'PER_UTTERANCE',
-        sessions: [{ sessionId: session1._id, status: 'DONE', name: 'Session 1', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
-      });
-
-      collection = await CollectionService.create({
-        name: 'Collection with run',
-        project: project._id,
-        sessions: [session1._id],
-        runs: [existingRun._id]
+        runs: [],
+        annotationType: 'PER_UTTERANCE'
       });
 
       const matchingRun = await RunService.create({
@@ -179,7 +145,8 @@ describe('CollectionService.findEligibleRunsForCollection', () => {
         name: 'Test Collection',
         project: project._id,
         sessions: [session1._id, session2._id],
-        runs: []
+        runs: [],
+        annotationType: 'PER_UTTERANCE'
       });
 
       await RunService.create({
@@ -202,7 +169,8 @@ describe('CollectionService.findEligibleRunsForCollection', () => {
         name: 'Test Collection',
         project: project._id,
         sessions: [session1._id, session2._id],
-        runs: []
+        runs: [],
+        annotationType: 'PER_UTTERANCE'
       });
 
       const run = await RunService.create({
@@ -226,7 +194,8 @@ describe('CollectionService.findEligibleRunsForCollection', () => {
         name: 'Test Collection',
         project: project._id,
         sessions: [session1._id, session2._id],
-        runs: []
+        runs: [],
+        annotationType: 'PER_UTTERANCE'
       });
 
       await RunService.create({
@@ -246,7 +215,8 @@ describe('CollectionService.findEligibleRunsForCollection', () => {
         name: 'Test Collection',
         project: project._id,
         sessions: [session1._id],
-        runs: []
+        runs: [],
+        annotationType: 'PER_UTTERANCE'
       });
 
       await RunService.create({
@@ -278,7 +248,8 @@ describe('CollectionService.findEligibleRunsForCollection', () => {
         name: 'Test Collection',
         project: project._id,
         sessions: [session1._id],
-        runs: [existingRun._id]
+        runs: [existingRun._id],
+        annotationType: 'PER_UTTERANCE'
       });
 
       const newRun = await RunService.create({
@@ -301,7 +272,8 @@ describe('CollectionService.findEligibleRunsForCollection', () => {
         name: 'Test Collection',
         project: project._id,
         sessions: [session1._id],
-        runs: []
+        runs: [],
+        annotationType: 'PER_UTTERANCE'
       });
 
       for (let i = 0; i < 5; i++) {
@@ -372,7 +344,8 @@ describe('CollectionService.addRunsToCollection', () => {
       name: 'Test Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const run1 = await RunService.create({
@@ -411,7 +384,8 @@ describe('CollectionService.addRunsToCollection', () => {
       name: 'Test Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: [existingRun._id]
+      runs: [existingRun._id],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const newRun = await RunService.create({
@@ -435,7 +409,8 @@ describe('CollectionService.addRunsToCollection', () => {
       name: 'Test Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const invalidRun = await RunService.create({
@@ -461,7 +436,8 @@ describe('CollectionService.addRunsToCollection', () => {
       name: 'Test Collection',
       project: project._id,
       sessions: [session1._id],
-      runs: []
+      runs: [],
+      annotationType: 'PER_UTTERANCE'
     });
 
     const validRun = await RunService.create({

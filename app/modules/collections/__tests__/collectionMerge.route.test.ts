@@ -46,8 +46,8 @@ describe('collectionMerge.route loader', () => {
     await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
     const project = await ProjectService.create({ name: 'Test Project', createdBy: user._id, team: team._id });
     const session = await SessionService.create({ name: 'Test Session', project: project._id });
-    const collection = await CollectionService.create({ name: 'Target', project: project._id, sessions: [session._id], runs: [] });
-    const sourceCollection = await CollectionService.create({ name: 'Source', project: project._id, sessions: [session._id], runs: [] });
+    const collection = await CollectionService.create({ name: 'Target', project: project._id, sessions: [session._id], runs: [], annotationType: 'PER_UTTERANCE' });
+    const sourceCollection = await CollectionService.create({ name: 'Source', project: project._id, sessions: [session._id], runs: [], annotationType: 'PER_UTTERANCE' });
     const cookieHeader = await loginUser(user._id);
 
     const res = await loader({
@@ -68,8 +68,8 @@ describe('collectionMerge.route loader', () => {
     const project = await ProjectService.create({ name: 'Test Project', createdBy: user._id, team: team._id });
     const session1 = await SessionService.create({ name: 'Session 1', project: project._id });
     const session2 = await SessionService.create({ name: 'Session 2', project: project._id });
-    const collection = await CollectionService.create({ name: 'Target', project: project._id, sessions: [session1._id], runs: [] });
-    await CollectionService.create({ name: 'Incompatible', project: project._id, sessions: [session2._id], runs: [] });
+    const collection = await CollectionService.create({ name: 'Target', project: project._id, sessions: [session1._id], runs: [], annotationType: 'PER_UTTERANCE' });
+    await CollectionService.create({ name: 'Incompatible', project: project._id, sessions: [session2._id], runs: [], annotationType: 'PER_UTTERANCE' });
     const cookieHeader = await loginUser(user._id);
 
     const res = await loader({
@@ -90,7 +90,7 @@ describe('collectionMerge.route action', () => {
     await UserService.updateById(owner._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
     const project = await ProjectService.create({ name: 'Test Project', createdBy: owner._id, team: team._id });
     const session = await SessionService.create({ name: 'Test Session', project: project._id });
-    const collection = await CollectionService.create({ name: 'Target', project: project._id, sessions: [session._id], runs: [] });
+    const collection = await CollectionService.create({ name: 'Target', project: project._id, sessions: [session._id], runs: [], annotationType: 'PER_UTTERANCE' });
 
     const otherUser = await UserService.create({ username: 'other_user', teams: [] });
     const otherCookie = await loginUser(otherUser._id);
@@ -115,14 +115,14 @@ describe('collectionMerge.route action', () => {
     await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
     const project = await ProjectService.create({ name: 'Test Project', createdBy: user._id, team: team._id });
     const session = await SessionService.create({ name: 'Test Session', project: project._id });
-    const targetCollection = await CollectionService.create({ name: 'Target', project: project._id, sessions: [session._id], runs: [] });
+    const targetCollection = await CollectionService.create({ name: 'Target', project: project._id, sessions: [session._id], runs: [], annotationType: 'PER_UTTERANCE' });
     const sourceRun = await RunService.create({
       name: 'Source Run',
       project: project._id,
       annotationType: 'PER_UTTERANCE',
       sessions: [{ sessionId: session._id, status: 'DONE', name: 'Test Session', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
     });
-    const sourceCollection = await CollectionService.create({ name: 'Source', project: project._id, sessions: [session._id], runs: [sourceRun._id] });
+    const sourceCollection = await CollectionService.create({ name: 'Source', project: project._id, sessions: [session._id], runs: [sourceRun._id], annotationType: 'PER_UTTERANCE' });
     const cookieHeader = await loginUser(user._id);
 
     const req = new Request('http://localhost/', {
@@ -149,7 +149,7 @@ describe('collectionMerge.route action', () => {
     await UserService.updateById(user._id, { teams: [{ team: team._id, role: 'ADMIN' }] });
     const project = await ProjectService.create({ name: 'Test Project', createdBy: user._id, team: team._id });
     const session = await SessionService.create({ name: 'Test Session', project: project._id });
-    const targetCollection = await CollectionService.create({ name: 'Target', project: project._id, sessions: [session._id], runs: [] });
+    const targetCollection = await CollectionService.create({ name: 'Target', project: project._id, sessions: [session._id], runs: [], annotationType: 'PER_UTTERANCE' });
     const run1 = await RunService.create({
       name: 'Run 1', project: project._id, annotationType: 'PER_UTTERANCE',
       sessions: [{ sessionId: session._id, status: 'DONE', name: 'Test Session', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
@@ -158,8 +158,8 @@ describe('collectionMerge.route action', () => {
       name: 'Run 2', project: project._id, annotationType: 'PER_UTTERANCE',
       sessions: [{ sessionId: session._id, status: 'DONE', name: 'Test Session', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
     });
-    const source1 = await CollectionService.create({ name: 'Source 1', project: project._id, sessions: [session._id], runs: [run1._id] });
-    const source2 = await CollectionService.create({ name: 'Source 2', project: project._id, sessions: [session._id], runs: [run2._id] });
+    const source1 = await CollectionService.create({ name: 'Source 1', project: project._id, sessions: [session._id], runs: [run1._id], annotationType: 'PER_UTTERANCE' });
+    const source2 = await CollectionService.create({ name: 'Source 2', project: project._id, sessions: [session._id], runs: [run2._id], annotationType: 'PER_UTTERANCE' });
     const cookieHeader = await loginUser(user._id);
 
     const req = new Request('http://localhost/', {

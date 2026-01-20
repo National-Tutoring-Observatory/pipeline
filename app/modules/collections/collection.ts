@@ -103,7 +103,7 @@ export class CollectionService {
     models: string[],
     annotationType: RunAnnotationType
   ): Promise<{ collection: Collection; errors: string[] }> {
-    const collection = await this.create(data);
+    const collection = await this.create({ ...data, annotationType });
 
     return createCollectionWithRuns(
       collection,
