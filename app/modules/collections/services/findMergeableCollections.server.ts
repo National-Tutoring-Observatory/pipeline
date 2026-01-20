@@ -13,7 +13,7 @@ export default async function findMergeableCollections(
   }
 
   const targetAnnotationType = await getCollectionAnnotationType(targetCollection);
-  const targetSessionIds = targetCollection.sessions.map(String);
+  const targetSessionIds = targetCollection.sessions;
 
   const allCollections = await CollectionService.find({
     match: {
@@ -25,7 +25,7 @@ export default async function findMergeableCollections(
   const mergeableCollections: Collection[] = [];
 
   for (const collection of allCollections) {
-    const collectionSessionIds = collection.sessions.map(String);
+    const collectionSessionIds = collection.sessions;
     if (!sessionsMatch(collectionSessionIds, targetSessionIds)) {
       continue;
     }

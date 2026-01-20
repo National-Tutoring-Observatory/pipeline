@@ -16,7 +16,7 @@ async function validateSourceCollection(
   targetSessionIds: string[],
   targetAnnotationType: string | null
 ): Promise<void> {
-  const sourceSessionIds = sourceCollection.sessions.map(String);
+  const sourceSessionIds = sourceCollection.sessions;
 
   if (!sessionsMatch(targetSessionIds, sourceSessionIds)) {
     throw new Error('Collections are not compatible for merging');
@@ -45,7 +45,7 @@ export default async function mergeCollections(
     throw new Error('Target collection not found');
   }
 
-  const targetSessionIds = targetCollection.sessions.map(String);
+  const targetSessionIds = targetCollection.sessions;
   let targetAnnotationType = await getCollectionAnnotationType(targetCollection);
 
   const existingRunIds = new Set(targetCollection.runs || []);
