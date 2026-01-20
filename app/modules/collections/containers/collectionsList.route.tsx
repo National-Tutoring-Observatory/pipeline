@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import { data, redirect, useFetcher, useNavigate } from "react-router";
-import { toast } from "sonner";
+import { data, redirect, useNavigate } from "react-router";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
@@ -8,9 +7,7 @@ import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import type { Collection } from "~/modules/collections/collections.types";
-import DuplicateCollectionDialog from "~/modules/collections/components/duplicateCollectionDialog";
 import { useCollectionActions } from "~/modules/collections/hooks/useCollectionActions";
-import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import type { User } from "~/modules/users/users.types";
@@ -146,11 +143,11 @@ export async function action({
 export default function CollectionsListRoute({ loaderData }: Route.ComponentProps) {
   const { collections, project } = loaderData;
   const navigate = useNavigate();
-  const duplicateFetcher = useFetcher();
 
   const {
     openEditCollectionDialog,
-    openDeleteCollectionDialog
+    openDeleteCollectionDialog,
+    openDuplicateCollectionDialog
   } = useCollectionActions({
     projectId: project._id
   });
@@ -173,30 +170,6 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
       { text: 'Collections' }
     ]);
   }, [project._id, project.name]);
-
-  useEffect(() => {
-    if (duplicateFetcher.state === 'idle' && duplicateFetcher.data) {
-      if (duplicateFetcher.data.intent === 'DUPLICATE_COLLECTION') {
-        toast.success('Collection duplicated');
-        addDialog(null);
-        navigate(`/projects/${duplicateFetcher.data.project}/collections/${duplicateFetcher.data._id}`);
-      }
-    }
-  }, [duplicateFetcher.state, duplicateFetcher.data, navigate]);
-
-  const openDuplicateCollectionDialog = (collection: Collection) => {
-    addDialog(<DuplicateCollectionDialog
-      collection={collection}
-      onDuplicateNewCollectionClicked={submitDuplicateCollection}
-    />);
-  }
-
-  const submitDuplicateCollection = ({ name, collectionId }: { name: string, collectionId: string }) => {
-    duplicateFetcher.submit(
-      JSON.stringify({ intent: 'DUPLICATE_COLLECTION', entityId: collectionId, payload: { name } }),
-      { method: 'POST', encType: 'application/json' }
-    );
-  }
 
   const onSearchValueChanged = (searchValue: string) => {
     setSearchValue(searchValue);
