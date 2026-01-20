@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { data, redirect, useFetcher, useMatches, useRevalidator } from "react-router";
 import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -235,9 +234,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     }
   }, []);
 
-  useEffect(() => {
-    updateBreadcrumb([{ text: 'Projects', link: `/` }, { text: project.name }])
-  }, [project.name]);
+  const breadcrumbs = [{ text: 'Projects', link: '/' }, { text: project.name }];
 
   return (
     <Project
@@ -248,8 +245,9 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       runsCount={runsCount}
       collectionsCount={collectionsCount}
       tabValue={matches[matches.length - 1].id}
-      convertFilesProgress={convertFilesProgress}
       uploadFilesProgress={uploadFilesProgress}
+      convertFilesProgress={convertFilesProgress}
+      breadcrumbs={breadcrumbs}
       uploadFetcher={uploadFetcher}
       onEditProjectButtonClicked={openEditProjectDialog}
     />

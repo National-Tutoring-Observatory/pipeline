@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import dayjs from "dayjs";
 import map from 'lodash/map';
@@ -8,7 +8,7 @@ import { Link } from "react-router";
 import type { Collection } from "~/modules/collections/collections.types";
 
 export default function ProjectCollections({
-  collections,
+  collections = [],
   onCreateCollectionButtonClicked,
   onEditCollectionButtonClicked,
   onDuplicateCollectionButtonClicked

@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader, PageHeaderLeft, PageHeaderRight } from "@/components/ui/pageHeader";
 import { Progress } from "@/components/ui/progress";
 import clsx from "clsx";
 import { Pencil } from "lucide-react";
 import { useContext } from "react";
-import { Link, Outlet } from "react-router";
 import type { FetcherWithComponents } from "react-router";
+import { Link, Outlet } from "react-router";
+import type { Breadcrumb } from "~/modules/app/app.types";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import UploadFilesContainer from "~/modules/files/containers/uploadFiles.container";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -21,12 +24,13 @@ interface ProjectProps {
   project: Project;
   filesCount: number;
   sessionsCount: number;
+  convertedSessionsCount: number;
   runsCount: number;
   collectionsCount: number;
   tabValue: string;
   uploadFilesProgress: number;
   convertFilesProgress: number;
-  convertedSessionsCount: number;
+  breadcrumbs: Breadcrumb[];
   uploadFetcher: FetcherWithComponents<UploadFilesData>;
   onEditProjectButtonClicked: (project: Project) => void;
 }
@@ -35,12 +39,13 @@ export default function Project({
   project,
   filesCount,
   sessionsCount,
+  convertedSessionsCount,
   runsCount,
   collectionsCount,
   tabValue,
   uploadFilesProgress,
   convertFilesProgress,
-  convertedSessionsCount,
+  breadcrumbs,
   uploadFetcher,
   onEditProjectButtonClicked
 }: ProjectProps) {
@@ -49,19 +54,21 @@ export default function Project({
 
   return (
     <div className="max-w-6xl p-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
-          {project.name}
-        </h1>
-        {canUpdate && (
-          <div>
-            <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditProjectButtonClicked(project)}>
-              <Pencil />
-              Edit
-            </Button>
-          </div>
-        )}
-      </div>
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+        <PageHeaderRight>
+          {canUpdate && (
+            <div>
+              <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditProjectButtonClicked(project)}>
+                <Pencil />
+                Edit
+              </Button>
+            </div>
+          )}
+        </PageHeaderRight>
+      </PageHeader>
       {(!project.hasSetupProject) && (
         <div>
           <UploadFilesContainer

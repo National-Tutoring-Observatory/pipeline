@@ -12,7 +12,6 @@ import { Toaster } from "sonner";
 import type { Route } from "./+types/root";
 import "./app.css";
 import AppSidebar from "./modules/app/components/appSidebar";
-import BreadcrumbsContainer from "./modules/app/containers/breadcrumbs.container";
 import AuthenticationContainer from "./modules/authentication/containers/authentication.container";
 import DialogContainer from "./modules/dialogs/containers/dialog.container";
 
@@ -46,9 +45,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <AppSidebar />
             <SidebarInset>
               <main>
-                <div className="pt-8 px-8 flex items-center">
+                {/* <div className="pt-8 px-8 flex items-center">
                   <BreadcrumbsContainer />
-                </div>
+                </div> */}
                 {children}
               </main>
             </SidebarInset>

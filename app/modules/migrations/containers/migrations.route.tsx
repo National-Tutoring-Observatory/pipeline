@@ -5,8 +5,6 @@ import getQueue from '~/modules/queues/helpers/getQueue'
 import Migrations from '../components/migrations'
 import { MigrationService } from '../migration'
 import type { Route } from './+types/migrations.route'
-import updateBreadcrumb from '~/modules/app/updateBreadcrumb'
-import { useEffect } from 'react'
 
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getSessionUser({ request })
@@ -61,11 +59,15 @@ export default function MigrationsRoute({ loaderData }: Route.ComponentProps) {
     )
   }
 
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: 'Migrations' }
-    ])
-  }, []);
+  const breadcrumbs = [
+    { text: 'Migrations' }
+  ];
 
-  return <Migrations migrations={migrations} onRunMigration={onRunMigration} />
+  return (
+    <Migrations
+      migrations={migrations}
+      breadcrumbs={breadcrumbs}
+      onRunMigration={onRunMigration}
+    />
+  );
 }

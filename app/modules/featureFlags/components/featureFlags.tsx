@@ -1,24 +1,31 @@
 import { Button } from "@/components/ui/button";
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparator, ItemTitle } from "@/components/ui/item";
+import { Item, ItemActions, ItemContent, ItemGroup, ItemSeparator, ItemTitle } from "@/components/ui/item";
+import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
+import { Separator } from "@/components/ui/separator";
+import map from 'lodash/map';
+import { ChevronRight } from "lucide-react";
 import React from "react";
 import { Link, Outlet } from "react-router";
-import map from 'lodash/map';
+import type { Breadcrumb } from "~/modules/app/app.types";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { FeatureFlag } from "../featureFlags.types";
-import { ChevronRight, PlusIcon } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 
 export default function FeatureFlags({
   featureFlags,
+  breadcrumbs,
   onCreateFeatureFlagButtonClicked
 }: {
   featureFlags: FeatureFlag[],
+  breadcrumbs: Breadcrumb[],
   onCreateFeatureFlagButtonClicked: () => void
 }) {
   return (
     <div className="max-w-6xl p-8">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-8">
-        Feature flags
-      </h1>
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+      </PageHeader>
       <div>
         <div className="flex justify-end p-2">
           <Button onClick={onCreateFeatureFlagButtonClicked}>Create feature flag</Button>

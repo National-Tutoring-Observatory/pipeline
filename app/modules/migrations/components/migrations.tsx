@@ -1,10 +1,13 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparator, ItemTitle } from "@/components/ui/item"
+import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader"
 import dayjs from "dayjs"
 import { PlayIcon } from "lucide-react"
 import React from "react"
 import { useRevalidator } from "react-router"
+import type { Breadcrumb } from "~/modules/app/app.types"
+import Breadcrumbs from "~/modules/app/components/breadcrumbs"
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets"
 
 type MigrationWithStatus = {
@@ -33,9 +36,11 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function Migrations({
   migrations,
+  breadcrumbs,
   onRunMigration
 }: {
   migrations: MigrationWithStatus[]
+  breadcrumbs: Breadcrumb[],
   onRunMigration: (migrationId: string) => void
 }) {
   const revalidator = useRevalidator()
@@ -50,6 +55,12 @@ export default function Migrations({
 
   return (
     <div className="max-w-6xl p-8">
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs}>
+          </Breadcrumbs>
+        </PageHeaderLeft>
+      </PageHeader>
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-2">
         Data Migrations
       </h1>

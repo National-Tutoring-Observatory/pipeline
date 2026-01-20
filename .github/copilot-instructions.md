@@ -376,6 +376,12 @@ import { getProjects } from '~/modules/projects/queries'
 - **Styling utility**: Use `cn()` function from `@/lib/utils` (combines `clsx` + `tailwind-merge`)
 - **Variant management**: Use `class-variance-authority` for component variants
 - **Icon usage**: Import from `lucide-react`, configured as default in shadcn setup
+- **Props ordering**: Always order props consistently:
+  1. First: text/numbers/arrays/objects (data props)
+  2. Then: booleans (flags)
+  3. Last: functions (handlers/callbacks)
+
+  This applies to TypeScript interfaces, function parameters, and JSX prop passing
 
 ### UI Development Guidelines
 ```typescript
