@@ -1,26 +1,25 @@
 import find from 'lodash/find';
 import map from 'lodash/map';
 import { useEffect } from "react";
-import { redirect, useFetcher, useNavigate, data } from "react-router";
+import { data, redirect, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
+import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
-import { PromptService } from "../prompt";
-import { PromptVersionService } from "../promptVersion";
-import { RunService } from "~/modules/runs/run";
 import PromptAuthorization from "~/modules/prompts/authorization";
+import { RunService } from "~/modules/runs/run";
 import type { User } from "~/modules/users/users.types";
-import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
 import CreatePromptDialog from "../components/createPromptDialog";
 import DeletePromptDialog from "../components/deletePromptDialog";
 import EditPromptDialog from "../components/editPromptDialog";
 import Prompts from "../components/prompts";
+import { PromptService } from "../prompt";
 import type { Prompt } from "../prompts.types";
+import { PromptVersionService } from "../promptVersion";
 import type { Route } from "./+types/prompts.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -226,9 +225,7 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
     }
   }, [fetcher.state, fetcher.data, navigate]);
 
-  useEffect(() => {
-    updateBreadcrumb([{ text: 'Prompts' }])
-  }, []);
+  const breadcrumbs = [{ text: 'Prompts' }];
 
   const openCreatePromptDialog = () => {
     addDialog(
@@ -309,6 +306,7 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
   return (
     <Prompts
       prompts={prompts?.data}
+      breadcrumbs={breadcrumbs}
       searchValue={searchValue}
       currentPage={currentPage}
       totalPages={prompts.totalPages}

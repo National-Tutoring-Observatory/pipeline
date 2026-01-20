@@ -1,15 +1,14 @@
 import { useEffect } from "react";
-import { redirect, useFetcher, useLoaderData, useNavigate, useParams, data } from "react-router";
+import { data, redirect, useFetcher, useLoaderData, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import { PromptService } from "../prompt";
-import { PromptVersionService } from "../promptVersion";
 import PromptAuthorization from "~/modules/prompts/authorization";
 import EditPromptDialog from "../components/editPromptDialog";
 import Prompt from '../components/prompt';
+import { PromptService } from "../prompt";
 import type { Prompt as PromptType } from "../prompts.types";
+import { PromptVersionService } from "../promptVersion";
 import type { Route } from "./+types/prompt.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -130,13 +129,11 @@ export default function PromptRoute() {
     }
   }, [fetcher.state, fetcher.data, navigate]);
 
-  useEffect(() => {
-    updateBreadcrumb([{
-      text: 'Prompts', link: '/prompts'
-    }, {
-      text: prompt.name
-    }]);
-  }, [prompt.name]);
+  const breadcrumbs = [{
+    text: 'Prompts', link: '/prompts'
+  }, {
+    text: prompt.name
+  }];
 
   const openEditPromptDialog = (p: PromptType) => {
     addDialog(<EditPromptDialog
@@ -158,6 +155,7 @@ export default function PromptRoute() {
       prompt={prompt}
       promptVersions={promptVersions}
       version={Number(version)}
+      breadcrumbs={breadcrumbs}
       onCreatePromptVersionClicked={submitCreatePromptVersion}
       onEditPromptButtonClicked={openEditPromptDialog}
     />
