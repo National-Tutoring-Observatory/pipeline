@@ -4,6 +4,7 @@ import map from 'lodash/map';
 import { CirclePlus, Pencil } from "lucide-react";
 import { Outlet } from "react-router";
 import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
+import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Prompt, PromptVersion } from "../prompts.types";
 import PromptVersionItem from './promptVersionItem';
@@ -12,6 +13,7 @@ type PromptProps = {
   prompt: Prompt;
   promptVersions: PromptVersion[];
   version: number;
+  breadcrumbs: Breadcrumb[];
   onCreatePromptVersionClicked: () => void;
   onEditPromptButtonClicked: (prompt: Prompt) => void;
 }
