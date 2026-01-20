@@ -69,7 +69,8 @@ export async function action({
     return data({ errors: { project: 'Access denied' } }, { status: 403 });
   }
 
-  const { intent, entityId, payload = {} } = await request.json();
+  const body = await request.json();
+  const { intent, entityId, payload = {} } = body;
 
   const { name } = payload;
   let collection;

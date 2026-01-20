@@ -232,3 +232,4 @@ describe("collectionsList.route action - DELETE_COLLECTION", () => {
     await expect(action({ request: req, params: { id: project._id } } as any)).rejects.toThrow('Collection not found');
   });
 });
+

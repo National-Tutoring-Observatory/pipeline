@@ -140,6 +140,47 @@ export class ProjectService {
 - `skip`/`limit`: Pagination
 - `populate`: Relations to expand
 
+**Service Class Structure**:
+
+The service class acts as a **facade** - a single entry point that routes use. It contains:
+- Basic CRUD methods (inline, ~5-10 lines each)
+- Business operation methods that delegate to service files
+
+```typescript
+// module.ts - The facade
+export class CollectionService {
+  // Basic CRUD - implemented inline
+  static async find(options?: FindOptions): Promise<Collection[]> { ... }
+  static async findById(id: string): Promise<Collection | null> { ... }
+
+  // Complex operations - delegate to service files
+  static async mergeCollections(targetId: string, sourceIds: string[]) {
+    return mergeCollectionsService(targetId, sourceIds);
+  }
+}
+```
+
+**When to split into service files** (`services/*.server.ts`):
+- Operation has multiple steps or validation logic
+- Method would exceed ~20-30 lines
+- Logic needs to be tested in isolation
+
+**When to use helpers** (`helpers/*.ts`):
+- Pure functions (no side effects, no DB calls)
+- Logic shared between multiple services
+- Validation or transformation utilities
+
+```
+module/
+├── module.ts              # Facade - what's exposed to routes
+├── services/              # Complex business logic
+│   ├── mergeItems.server.ts
+│   └── processItems.server.ts
+└── helpers/               # Pure shared functions
+    ├── validateItem.ts
+    └── transformData.ts
+```
+
 ### React Router Pattern
 
 Routes use React Router v7's loader/action pattern:

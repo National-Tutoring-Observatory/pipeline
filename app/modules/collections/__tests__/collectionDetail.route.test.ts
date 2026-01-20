@@ -14,7 +14,7 @@ import type { Run } from '~/modules/runs/runs.types';
 import type { Session } from '~/modules/sessions/sessions.types';
 import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 import loginUser from '../../../../test/helpers/loginUser';
-import { loader } from '../containers/collectionDetail.route';
+import { loader, action } from '../containers/collectionDetail.route';
 
 describe('collectionDetail.route loader', () => {
   let user: User;
@@ -231,5 +231,258 @@ describe('collectionDetail.route loader', () => {
     expect(data.collection).toHaveProperty('project');
     expect(data.collection).toHaveProperty('sessions');
     expect(data.collection).toHaveProperty('runs');
+  });
+});
+
+describe('collectionDetail.route action - ADD_RUNS_TO_COLLECTION', () => {
+  let user: User;
+  let team: Team;
+  let project: Project;
+  let collection: Collection;
+  let session: Session;
+  let cookieHeader: string;
+
+  beforeEach(async () => {
+    await clearDocumentDB();
+
+    user = await UserService.create({ username: 'test_user', teams: [] });
+    team = await TeamService.create({ name: 'Test Team' });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: 'ADMIN' }]
+    });
+    project = await ProjectService.create({
+      name: 'Test Project',
+      createdBy: user._id,
+      team: team._id
+    });
+    session = await SessionService.create({
+      name: 'Test Session',
+      project: project._id
+    });
+    collection = await CollectionService.create({
+      name: 'Test Collection',
+      project: project._id,
+      sessions: [session._id],
+      runs: []
+    });
+
+    cookieHeader = await loginUser(user._id);
+  });
+
+  it('returns 403 when user cannot manage project', async () => {
+    const otherUser = await UserService.create({
+      username: 'other_user',
+      teams: []
+    });
+    const otherCookie = await loginUser(otherUser._id);
+
+    const run = await RunService.create({
+      name: 'Test Run',
+      project: project._id,
+      annotationType: 'PER_UTTERANCE',
+      sessions: [{ sessionId: session._id, status: 'DONE', name: 'Test Session', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
+    });
+
+    const req = new Request('http://localhost/', {
+      method: 'POST',
+      headers: { cookie: otherCookie, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        intent: 'ADD_RUNS_TO_COLLECTION',
+        payload: { runIds: [run._id] }
+      })
+    });
+
+    const resp = await action({
+      request: req,
+      params: { projectId: project._id, collectionId: collection._id }
+    } as any) as any;
+
+    expect(resp.init?.status).toBe(403);
+    expect(resp.data?.errors?.project).toBe('Access denied');
+  });
+
+  it('adds runs successfully', async () => {
+    const run = await RunService.create({
+      name: 'Test Run',
+      project: project._id,
+      annotationType: 'PER_UTTERANCE',
+      sessions: [{ sessionId: session._id, status: 'DONE', name: 'Test Session', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
+    });
+
+    const req = new Request('http://localhost/', {
+      method: 'POST',
+      headers: { cookie: cookieHeader, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        intent: 'ADD_RUNS_TO_COLLECTION',
+        payload: { runIds: [run._id] }
+      })
+    });
+
+    const resp = await action({
+      request: req,
+      params: { projectId: project._id, collectionId: collection._id }
+    } as any) as any;
+
+    expect(resp.intent).toBe('ADD_RUNS_TO_COLLECTION');
+    expect(resp.added).toHaveLength(1);
+    expect(resp.added).toContain(run._id);
+
+    const updatedCollection = await CollectionService.findById(collection._id);
+    expect(updatedCollection!.runs).toHaveLength(1);
+    expect(updatedCollection!.runs).toContain(run._id);
+  });
+});
+
+describe('collectionDetail.route action - MERGE_COLLECTIONS', () => {
+  let user: User;
+  let team: Team;
+  let project: Project;
+  let targetCollection: Collection;
+  let sourceCollection: Collection;
+  let session: Session;
+  let cookieHeader: string;
+
+  beforeEach(async () => {
+    await clearDocumentDB();
+
+    user = await UserService.create({ username: 'test_user', teams: [] });
+    team = await TeamService.create({ name: 'Test Team' });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: 'ADMIN' }]
+    });
+    project = await ProjectService.create({
+      name: 'Test Project',
+      createdBy: user._id,
+      team: team._id
+    });
+    session = await SessionService.create({
+      name: 'Test Session',
+      project: project._id
+    });
+    targetCollection = await CollectionService.create({
+      name: 'Target Collection',
+      project: project._id,
+      sessions: [session._id],
+      runs: []
+    });
+
+    cookieHeader = await loginUser(user._id);
+  });
+
+  it('returns 403 when user cannot manage project', async () => {
+    const otherUser = await UserService.create({
+      username: 'other_user',
+      teams: []
+    });
+    const otherCookie = await loginUser(otherUser._id);
+
+    const sourceRun = await RunService.create({
+      name: 'Source Run',
+      project: project._id,
+      annotationType: 'PER_UTTERANCE',
+      sessions: [{ sessionId: session._id, status: 'DONE', name: 'Test Session', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
+    });
+
+    sourceCollection = await CollectionService.create({
+      name: 'Source Collection',
+      project: project._id,
+      sessions: [session._id],
+      runs: [sourceRun._id]
+    });
+
+    const req = new Request('http://localhost/', {
+      method: 'POST',
+      headers: { cookie: otherCookie, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        intent: 'MERGE_COLLECTIONS',
+        payload: { sourceCollectionIds: [sourceCollection._id] }
+      })
+    });
+
+    const resp = await action({
+      request: req,
+      params: { projectId: project._id, collectionId: targetCollection._id }
+    } as any) as any;
+
+    expect(resp.init?.status).toBe(403);
+    expect(resp.data?.errors?.project).toBe('Access denied');
+  });
+
+  it('merges collections successfully', async () => {
+    const sourceRun = await RunService.create({
+      name: 'Source Run',
+      project: project._id,
+      annotationType: 'PER_UTTERANCE',
+      sessions: [{ sessionId: session._id, status: 'DONE', name: 'Test Session', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
+    });
+
+    sourceCollection = await CollectionService.create({
+      name: 'Source Collection',
+      project: project._id,
+      sessions: [session._id],
+      runs: [sourceRun._id]
+    });
+
+    const req = new Request('http://localhost/', {
+      method: 'POST',
+      headers: { cookie: cookieHeader, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        intent: 'MERGE_COLLECTIONS',
+        payload: { sourceCollectionIds: [sourceCollection._id] }
+      })
+    });
+
+    const resp = await action({
+      request: req,
+      params: { projectId: project._id, collectionId: targetCollection._id }
+    } as any) as any;
+
+    expect(resp.intent).toBe('MERGE_COLLECTIONS');
+    expect(resp.added).toHaveLength(1);
+    expect(resp.added).toContain(sourceRun._id);
+
+    const updatedTarget = await CollectionService.findById(targetCollection._id);
+    expect(updatedTarget!.runs).toHaveLength(1);
+    expect(updatedTarget!.runs).toContain(sourceRun._id);
+
+    const updatedSource = await CollectionService.findById(sourceCollection._id);
+    expect(updatedSource!.runs).toHaveLength(1);
+  });
+
+  it('returns error when collections are incompatible', async () => {
+    const session2 = await SessionService.create({
+      name: 'Different Session',
+      project: project._id
+    });
+
+    const incompatibleRun = await RunService.create({
+      name: 'Incompatible Run',
+      project: project._id,
+      annotationType: 'PER_UTTERANCE',
+      sessions: [{ sessionId: session2._id, status: 'DONE', name: 'Different Session', fileType: 'json', startedAt: new Date(), finishedAt: new Date() }]
+    });
+
+    const incompatibleCollection = await CollectionService.create({
+      name: 'Incompatible Collection',
+      project: project._id,
+      sessions: [session2._id],
+      runs: [incompatibleRun._id]
+    });
+
+    const req = new Request('http://localhost/', {
+      method: 'POST',
+      headers: { cookie: cookieHeader, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        intent: 'MERGE_COLLECTIONS',
+        payload: { sourceCollectionIds: [incompatibleCollection._id] }
+      })
+    });
+
+    await expect(
+      action({
+        request: req,
+        params: { projectId: project._id, collectionId: targetCollection._id }
+      } as any)
+    ).rejects.toThrow('Collections are not compatible for merging');
   });
 });

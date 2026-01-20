@@ -4,7 +4,7 @@ import find from 'lodash/find';
 import { Button } from '@/components/ui/button';
 import { Collection } from '@/components/ui/collection';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Download, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Download, GitMerge, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
 import throttle from 'lodash/throttle';
 import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
@@ -85,6 +85,36 @@ export async function action({ request, params }: Route.ActionArgs) {
       await exportCollection({ collectionId: params.collectionId, exportType });
       return {};
     }
+    case 'ADD_RUNS_TO_COLLECTION': {
+      const { runIds } = payload;
+      const result = await CollectionService.addRunsToCollection(params.collectionId, runIds);
+      return {
+        intent: 'ADD_RUNS_TO_COLLECTION',
+        ...result
+      };
+    }
+    case 'MERGE_COLLECTIONS': {
+      const { sourceCollectionIds } = payload;
+      const result = await CollectionService.mergeCollections(params.collectionId, sourceCollectionIds);
+      return {
+        intent: 'MERGE_COLLECTIONS',
+        ...result
+      };
+    }
+    case 'GET_ELIGIBLE_RUNS': {
+      const eligibleRuns = await CollectionService.findEligibleRunsForCollection(params.collectionId, { page: 1, pageSize: 100 });
+      return {
+        intent: 'GET_ELIGIBLE_RUNS',
+        eligibleRuns: eligibleRuns.data
+      };
+    }
+    case 'GET_MERGEABLE_COLLECTIONS': {
+      const mergeableCollections = await CollectionService.findMergeableCollections(params.collectionId);
+      return {
+        intent: 'GET_MERGEABLE_COLLECTIONS',
+        mergeableCollections
+      };
+    }
     default: {
       return data({ errors: { intent: 'Invalid intent' } }, { status: 400 });
     }
@@ -99,11 +129,20 @@ export default function CollectionDetailRoute() {
 
   const {
     openEditCollectionDialog,
-    openDeleteCollectionDialog
+    openDeleteCollectionDialog,
+    openAddRunsDialog,
+    openMergeCollectionsDialog
   } = useCollectionActions({
     projectId: project._id,
+    collectionId: collection._id,
     onDeleteSuccess: () => {
       navigate(`/projects/${project._id}/collections`);
+    },
+    onAddRunsSuccess: () => {
+      revalidator.revalidate();
+    },
+    onMergeSuccess: () => {
+      revalidator.revalidate();
     }
   });
 
@@ -232,6 +271,15 @@ export default function CollectionDetailRoute() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => openAddRunsDialog()}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Runs
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => openMergeCollectionsDialog()}>
+                <GitMerge className="mr-2 h-4 w-4" />
+                Merge
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => openEditCollectionDialog(collection)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
