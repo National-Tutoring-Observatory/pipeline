@@ -26,7 +26,13 @@ interface JobsListProps {
   onRetryJobClick: (job: Job) => void;
 }
 
-export default function JobsList({ jobs, state, onDisplayJobClick, onRemoveJobClick, onRetryJobClick }: JobsListProps) {
+export default function JobsList({
+  jobs,
+  state,
+  onDisplayJobClick,
+  onRemoveJobClick,
+  onRetryJobClick
+}: JobsListProps) {
   const [sortField, setSortField] = useState<SortField>('timestamp');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
@@ -169,9 +175,9 @@ export default function JobsList({ jobs, state, onDisplayJobClick, onRemoveJobCl
                       View Details
                     </DropdownMenuItem>
                     {state === 'failed' && (
-                        <DropdownMenuItem onClick={() => onRetryJobClick?.(job)}>
-                          Retry Job
-                        </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onRetryJobClick?.(job)}>
+                        Retry Job
+                      </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
