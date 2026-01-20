@@ -61,13 +61,6 @@ export default function Migrations({
           </Breadcrumbs>
         </PageHeaderLeft>
       </PageHeader>
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-2">
-        Data Migrations
-      </h1>
-      <p className="text-muted-foreground mb-8">
-        Manage data backfills and transformations
-      </p>
-
       <div className="border rounded-lg">
         <ItemGroup>
           {migrations.map((migration, index) => (
