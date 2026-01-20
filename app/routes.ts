@@ -23,7 +23,9 @@ export default [
     route(":projectId/create-collection", "modules/collections/containers/collectionCreate.route.tsx"),
     route(":projectId/runs/:runId", "modules/projects/containers/projectRun.route.tsx"),
     route(":projectId/runs/:runId/sessions/:sessionId", "modules/projects/containers/projectRunSessions.route.tsx"),
-    route(":projectId/collections/:collectionId", "modules/collections/containers/collectionDetail.route.tsx")
+    route(":projectId/collections/:collectionId", "modules/collections/containers/collectionDetail.route.tsx"),
+    route(":projectId/collections/:collectionId/add-runs", "modules/collections/containers/collectionAddRuns.route.tsx"),
+    route(":projectId/collections/:collectionId/merge", "modules/collections/containers/collectionMerge.route.tsx")
   ]),
   ...prefix("prompts", [
     index("modules/prompts/containers/prompts.route.tsx"),
