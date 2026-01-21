@@ -7,6 +7,9 @@ import {
   useParams,
 } from "react-router";
 import { toast } from "sonner";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -27,13 +30,31 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const { type, state } = params;
 
+  const queryParams = getQueryParamsFromRequest(request, {
+    currentPage: 1,
+    sort: "-timestamp",
+  });
+
+  const pagination = getPaginationParams(queryParams.currentPage);
+  const asc = queryParams.sort === "timestamp";
+
   const queue = getQueue(type);
-  const jobs = await queue.getJobs(state);
+  const jobs = await queue.getJobs(
+    state,
+    pagination.skip,
+    pagination.skip + pagination.limit - 1,
+    asc,
+  );
+
+  const total = await queue.getJobCountByTypes(state);
 
   return {
     queueType: type,
     state,
     jobs,
+    currentPage: queryParams.currentPage ?? 1,
+    totalPages: getTotalPages(total),
+    sortValue: queryParams.sort ?? "-timestamp",
   };
 }
 
@@ -108,6 +129,20 @@ export default function QueueJobsRoute() {
   const state = params.state as string;
   const fetcher = useFetcher();
 
+  const { currentPage, setCurrentPage, sortValue, setSortValue, isSyncing } =
+    useSearchQueryParams({
+      currentPage: loaderData.currentPage,
+      sortValue: loaderData.sortValue,
+    });
+
+  const onPaginationChanged = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const onSortValueChanged = (value: string) => {
+    setSortValue(value);
+  };
+
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data) {
       if (fetcher.data.success) {
@@ -165,9 +200,15 @@ export default function QueueJobsRoute() {
     <JobsList
       jobs={loaderData.jobs}
       state={state}
+      currentPage={currentPage}
+      totalPages={loaderData.totalPages}
+      sortValue={sortValue}
+      isSyncing={isSyncing}
       onDisplayJobClick={openJobDetailsDialog}
       onRemoveJobClick={openDeleteJobDialog}
       onRetryJobClick={openRetryJobDialog}
+      onPaginationChanged={onPaginationChanged}
+      onSortValueChanged={onSortValueChanged}
     />
   );
 }
