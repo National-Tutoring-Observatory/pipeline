@@ -149,10 +149,13 @@ export class OrcidStrategy<User> extends Strategy<
     // );
 
     // 5. Verify the user and return them
-    // @ts-ignore
     const user = await this.verify({
       ...tokenResponse,
-      profile: { id: tokenResponse.extraParams.orcid, emails: [] },
+      profile: {
+        id: tokenResponse.extraParams.orcid,
+        name: null,
+        emails: { email: [] },
+      },
     });
     return user;
   }

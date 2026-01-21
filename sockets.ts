@@ -44,8 +44,8 @@ export function setupSockets({ server, app }: { server: any; app: any }) {
   });
 
   io.on("connection", (socket) => {
-    // @ts-ignore
     console.log(
+      // @ts-expect-error user is attached by auth middleware
       `Client connected: ${socket.id}, User: ${socket.user.username}`,
     );
 
