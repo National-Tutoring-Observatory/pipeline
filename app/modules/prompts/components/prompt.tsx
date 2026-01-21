@@ -51,13 +51,13 @@ export default function Prompt({
         </PageHeaderRight>
       </PageHeader>
       <div className="mb-2">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Annotation Type: {getAnnotationLabel(prompt.annotationType)}
         </p>
       </div>
-      <div className="border rounded-md flex">
-        <div className="w-1/4 h-full">
-          <div className="border-b p-2 text-sm flex justify-between items-center">
+      <div className="flex rounded-md border">
+        <div className="h-full w-1/4">
+          <div className="flex items-center justify-between border-b p-2 text-sm">
             <div>Versions</div>
             <div>
               <Button
@@ -88,7 +88,7 @@ export default function Prompt({
             );
           })}
         </div>
-        <div className="w-3/4 h-full">
+        <div className="h-full w-3/4">
           <Outlet />
         </div>
       </div>

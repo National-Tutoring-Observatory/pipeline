@@ -45,10 +45,10 @@ export default function SessionViewer({
   const hasSelectedAnnotation = selectedUtteranceIndex !== null;
 
   return (
-    <div className="border h-[calc(100vh-200px)] flex rounded-md">
+    <div className="flex h-[calc(100vh-200px)] rounded-md border">
       <div
         id="session-viewer-scroll-container"
-        className="flex flex-col w-3/5 p-4 h-full overflow-y-scroll scroll-smooth border-r"
+        className="flex h-full w-3/5 flex-col overflow-y-scroll scroll-smooth border-r p-4"
       >
         {map(sessionFile.transcript, (utterance: Utterance) => {
           const isSelected = selectedUtteranceId === utterance._id;
@@ -63,7 +63,7 @@ export default function SessionViewer({
           );
         })}
       </div>
-      <div className="py-8 w-2/5 h-full">
+      <div className="h-full w-2/5 py-8">
         <SessionViewerDetails
           session={session}
           utteranceCount={utteranceCount}
@@ -89,7 +89,7 @@ export default function SessionViewer({
         )}
         {annotatedUtteranceCount > 0 && (
           <div className="p-4">
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2 flex items-center justify-between">
               <div>
                 View Annotations
                 <p className="text-muted-foreground text-xs">
@@ -107,7 +107,7 @@ export default function SessionViewer({
                   Jump to first annotation
                 </Button>
                 {hasSelectedAnnotation && (
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-muted-foreground text-sm">
                     Annotation {selectedUtteranceIndex + 1} of{" "}
                     {annotatedUtteranceCount}
                   </div>
@@ -121,7 +121,7 @@ export default function SessionViewer({
                       !hasSelectedAnnotation || selectedUtteranceIndex == 0
                     }
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="outline"
@@ -132,7 +132,7 @@ export default function SessionViewer({
                       selectedUtteranceIndex == annotatedUtteranceCount - 1
                     }
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>

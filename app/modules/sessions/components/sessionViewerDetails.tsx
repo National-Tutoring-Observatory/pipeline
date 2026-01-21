@@ -15,7 +15,7 @@ export default function SessionViewerDetails({
   return (
     <div className="border-b px-4 pb-4">
       <div className="mb-2">
-        <div className="flex justify-between items-center mb-2">
+        <div className="mb-2 flex items-center justify-between">
           <span className="text-muted-foreground">Started</span>
           <span className="text-right">
             {session.startedAt
@@ -23,7 +23,7 @@ export default function SessionViewerDetails({
               : "--"}
           </span>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Finished</span>
           <span className="text-right">
             {session.finishedAt
@@ -35,14 +35,14 @@ export default function SessionViewerDetails({
           <div className="mt-2 mb-4">
             <div className="text-muted-foreground mb-4">Summary</div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg border bg-card p-3 flex flex-col items-center">
-                <div className="text-xs text-muted-foreground mb-1">
+              <div className="bg-card flex flex-col items-center rounded-lg border p-3">
+                <div className="text-muted-foreground mb-1 text-xs">
                   Total utterances
                 </div>
                 <div className="text-2xl font-bold">{utteranceCount}</div>
               </div>
-              <div className="rounded-lg border bg-card p-3 flex flex-col items-center">
-                <div className="text-xs text-muted-foreground mb-1">
+              <div className="bg-card flex flex-col items-center rounded-lg border p-3">
+                <div className="text-muted-foreground mb-1 text-xs">
                   Annotated
                 </div>
                 <div className="text-2xl font-bold">

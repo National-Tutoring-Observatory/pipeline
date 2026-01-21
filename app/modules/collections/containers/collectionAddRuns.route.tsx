@@ -164,7 +164,7 @@ export default function CollectionAddRunsRoute() {
   });
 
   const renderItem = (run: Run) => (
-    <div className="flex items-center gap-4 p-4 w-full">
+    <div className="flex w-full items-center gap-4 p-4">
       <Checkbox
         checked={includes(selectedRuns, run._id)}
         onCheckedChange={(checked) =>
@@ -172,9 +172,9 @@ export default function CollectionAddRunsRoute() {
         }
         onClick={(e) => e.stopPropagation()}
       />
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="font-medium">{run.name}</div>
-        <div className="text-sm text-muted-foreground flex gap-4">
+        <div className="text-muted-foreground flex gap-4 text-sm">
           <span>Model: {getRunModelDisplayName(run) || "-"}</span>
           <span>
             Status:{" "}
@@ -218,9 +218,9 @@ export default function CollectionAddRunsRoute() {
       </div>
 
       {totalEligibleRuns === 0 && !searchValue ? (
-        <div className="text-center py-12 text-muted-foreground">
+        <div className="text-muted-foreground py-12 text-center">
           <p>No eligible runs found.</p>
-          <p className="text-sm mt-2">
+          <p className="mt-2 text-sm">
             Runs must have the same sessions and annotation type as this
             collection.
           </p>
@@ -230,14 +230,14 @@ export default function CollectionAddRunsRoute() {
         </div>
       ) : (
         <>
-          <div className="flex items-center gap-4 mb-4">
+          <div className="mb-4 flex items-center gap-4">
             <Checkbox
               checked={allSelected}
               onCheckedChange={(checked) =>
                 onSelectAllToggled(Boolean(checked))
               }
             />
-            <span className="text-sm text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               Select all ({selectedRuns.length} of {totalEligibleRuns} selected)
             </span>
           </div>
@@ -273,7 +273,7 @@ export default function CollectionAddRunsRoute() {
             filtersValues={{}}
           />
 
-          <div className="flex justify-end gap-2 mt-6">
+          <div className="mt-6 flex justify-end gap-2">
             <Button variant="outline" onClick={onCancelClicked}>
               Cancel
             </Button>

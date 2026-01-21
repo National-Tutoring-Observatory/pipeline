@@ -68,18 +68,18 @@ export default function Migrations({
           <Breadcrumbs breadcrumbs={breadcrumbs}></Breadcrumbs>
         </PageHeaderLeft>
       </PageHeader>
-      <div className="border rounded-lg">
+      <div className="rounded-lg border">
         <ItemGroup>
           {migrations.map((migration, index) => (
             <React.Fragment key={migration.id}>
               <Item>
                 <ItemContent className="gap-2">
-                  <div className="flex items-center gap-3 flex-1">
+                  <div className="flex flex-1 items-center gap-3">
                     <div className="flex-1">
                       <ItemTitle>{migration.name}</ItemTitle>
                       <ItemDescription>{migration.description}</ItemDescription>
                       {migration.lastRun && (
-                        <div className="text-xs text-muted-foreground mt-1 space-y-1">
+                        <div className="text-muted-foreground mt-1 space-y-1 text-xs">
                           <div>
                             Last run:{" "}
                             {dayjs(migration.lastRun.startedAt).format(
@@ -130,7 +130,7 @@ export default function Migrations({
                       size="sm"
                       onClick={() => onRunMigration(migration.id)}
                     >
-                      <PlayIcon className="size-4 mr-1" />
+                      <PlayIcon className="mr-1 size-4" />
                       Run
                     </Button>
                   )}
@@ -145,7 +145,7 @@ export default function Migrations({
             </React.Fragment>
           ))}
           {migrations.length === 0 && (
-            <div className="p-8 text-center text-muted-foreground">
+            <div className="text-muted-foreground p-8 text-center">
               No migrations found. Create a migration file in app/migrations/
             </div>
           )}

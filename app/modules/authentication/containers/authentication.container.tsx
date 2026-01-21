@@ -78,7 +78,7 @@ export default function AuthenticationContainer({
 
   if (isFetching) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center">
+      <div className="flex h-screen w-screen items-center justify-center">
         <LoaderPinwheel className="animate-spin" />
       </div>
     );

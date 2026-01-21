@@ -9,7 +9,7 @@ function PageHeader({ children, className }: PageHeaderProps) {
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-4 pb-4  min-h-10",
+        "flex min-h-10 items-center justify-between gap-4 pb-4",
         className,
       )}
     >
@@ -25,7 +25,7 @@ export type PageHeaderLeftProps = {
 
 function PageHeaderLeft({ children, className }: PageHeaderLeftProps) {
   return (
-    <div className={cn("flex items-center gap-2 min-h-10", className)}>
+    <div className={cn("flex min-h-10 items-center gap-2", className)}>
       {children}
     </div>
   );
@@ -40,7 +40,7 @@ function PageHeaderRight({ children, className }: PageHeaderRightProps) {
   return (
     <div
       className={cn(
-        "flex items-center gap-2 text-muted-foreground min-h-10",
+        "text-muted-foreground flex min-h-10 items-center gap-2",
         className,
       )}
     >

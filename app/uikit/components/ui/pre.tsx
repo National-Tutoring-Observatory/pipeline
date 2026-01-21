@@ -6,10 +6,10 @@ export interface PreProps extends React.HTMLAttributes<HTMLPreElement> {}
 
 function Pre({ className, children, ...props }: PreProps) {
   return (
-    <div className="border rounded bg-muted max-h-32 overflow-auto">
+    <div className="bg-muted max-h-32 overflow-auto rounded border">
       <pre
         className={cn(
-          "text-xs text-muted-foreground p-3 whitespace-pre-wrap break-words",
+          "text-muted-foreground p-3 text-xs break-words whitespace-pre-wrap",
           className,
         )}
         {...props}

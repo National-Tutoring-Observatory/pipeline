@@ -18,7 +18,7 @@ export default function Invite({
 }) {
   return (
     <div
-      className="w-screen h-screen flex items-center justify-center"
+      className="flex h-screen w-screen items-center justify-center"
       style={{ backgroundColor: "#f7f7f7" }}
     >
       <Card className="w-full max-w-md text-center">
@@ -83,7 +83,7 @@ export default function Invite({
               <AlertTitle>{errorMessage}</AlertTitle>
             </Alert>
           )}
-          <p className="text-xs text-muted-foreground mt-4">
+          <p className="text-muted-foreground mt-4 text-xs">
             Don't have a Github login?{" "}
             <a
               href="https://github.com/signup"

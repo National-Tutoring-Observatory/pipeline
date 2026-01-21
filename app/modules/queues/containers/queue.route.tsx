@@ -94,7 +94,7 @@ export default function QueueRoute() {
   return (
     <div>
       <div className="mb-6">
-        <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="mb-6 flex items-center justify-between gap-4">
           <QueueStateTabs queueType={queueType} states={states} />
 
           <QueueControls

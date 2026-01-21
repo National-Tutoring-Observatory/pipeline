@@ -31,7 +31,7 @@ export default function PromptVersionItem({
       <div className="mb-2">
         <Badge variant="outline" className="bg-white">{`# ${version}`}</Badge>
         {isProduction && (
-          <Badge variant="secondary" className="bg-indigo-100 ml-2">
+          <Badge variant="secondary" className="ml-2 bg-indigo-100">
             <BookCheck />
             Production
           </Badge>

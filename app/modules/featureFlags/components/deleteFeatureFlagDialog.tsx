@@ -37,7 +37,7 @@ const DeleteFeatureFlagDialog = ({
         </Label>
         <div className="relative">
           <Input
-            className="absolute left-0 top-0"
+            className="absolute top-0 left-0"
             placeholder={featureFlag.name}
             disabled={true}
             autoComplete="off"

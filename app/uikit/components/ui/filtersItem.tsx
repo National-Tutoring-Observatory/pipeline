@@ -37,13 +37,13 @@ const FiltersItem = ({
   if (filter.options.length > 4) {
     return (
       <div className="flex flex-col gap-2">
-        <div className="flex items-baseline justify-between h-4">
+        <div className="flex h-4 items-baseline justify-between">
           <Label htmlFor="width">{filter.text}</Label>
           {value && (
             <Button
               variant="link"
               size={"sm"}
-              className="text-[10px] p-0 h-auto"
+              className="h-auto p-0 text-[10px]"
               onClick={() => {
                 if (onFiltersValueChanged) {
                   onFiltersValueChanged({ [filter.category]: null });
@@ -69,7 +69,7 @@ const FiltersItem = ({
               <ChevronDown className="opacity-30" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className=" p-0">
+          <PopoverContent className="p-0">
             <Command>
               <CommandInput placeholder={`Search...`} className="h-9" />
               <CommandList>
@@ -112,13 +112,13 @@ const FiltersItem = ({
   } else {
     return (
       <div className="flex flex-col gap-2">
-        <div className="flex items-baseline justify-between h-4">
+        <div className="flex h-4 items-baseline justify-between">
           <Label htmlFor="width">{filter.text}</Label>
           {value && (
             <Button
               variant="link"
               size={"sm"}
-              className="text-[10px] p-0 h-auto"
+              className="h-auto p-0 text-[10px]"
               onClick={() => {
                 if (onFiltersValueChanged) {
                   onFiltersValueChanged({ [filter.category]: null });
@@ -154,7 +154,7 @@ const FiltersItem = ({
               </SelectGroup>
             </SelectContent>
           </Select>
-          <div className="flex justify-end absolute right-0"></div>
+          <div className="absolute right-0 flex justify-end"></div>
         </div>
       </div>
     );

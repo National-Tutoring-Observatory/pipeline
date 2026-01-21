@@ -144,7 +144,7 @@ export default function PromptSelector({
                         selectedPromptVersionItem.version && (
                         <Badge
                           variant="secondary"
-                          className="bg-indigo-100 ml-2"
+                          className="ml-2 bg-indigo-100"
                         >
                           <BookCheck className="size-3" />
                           Production
@@ -193,7 +193,7 @@ export default function PromptSelector({
                             productionVersion === promptVersion.version && (
                               <Badge
                                 variant="secondary"
-                                className="bg-indigo-100 ml-2"
+                                className="ml-2 bg-indigo-100"
                               >
                                 <BookCheck className="size-3" />
                                 Production
@@ -220,14 +220,14 @@ export default function PromptSelector({
                 <ViewIcon />
               </Button>
             </SheetTrigger>
-            <SheetContent className="overflow-y-auto !max-w-1/2">
+            <SheetContent className="!max-w-1/2 overflow-y-auto">
               <SheetHeader>
                 <SheetTitle>Selected prompt version</SheetTitle>
-                <div className="inline-flex items-center p-2 border rounded-t-md mb-[-1px]">
+                <div className="mb-[-1px] inline-flex items-center rounded-t-md border p-2">
                   {`#${selectedPromptVersionItem.version}`}
                   {productionVersion &&
                     productionVersion === selectedPromptVersionItem.version && (
-                      <Badge variant="secondary" className="bg-indigo-100 ml-2">
+                      <Badge variant="secondary" className="ml-2 bg-indigo-100">
                         <BookCheck />
                         Production
                       </Badge>
@@ -235,7 +235,7 @@ export default function PromptSelector({
                 </div>
                 <Textarea
                   disabled
-                  className="max-h-[calc(100vh-120px)] !opacity-100 !rounded-tl-none"
+                  className="max-h-[calc(100vh-120px)] !rounded-tl-none !opacity-100"
                 >
                   {selectedPromptVersionItem?.userPrompt}
                 </Textarea>

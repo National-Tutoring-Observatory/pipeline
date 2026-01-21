@@ -34,7 +34,7 @@ export default function CollectionCreator({
 }) {
   return (
     <div>
-      <div className="border rounded-lg grid grid-cols-2">
+      <div className="grid grid-cols-2 rounded-lg border">
         <div className="border-r">
           <div className="border-b p-2">
             Select a run to base this collection from
@@ -76,7 +76,7 @@ export default function CollectionCreator({
                 <Label
                   key={run._id}
                   htmlFor={`collection-creator-${run._id}`}
-                  className="w-full p-2 flex items-center gap-2"
+                  className="flex w-full items-center gap-2 p-2"
                 >
                   <Checkbox
                     id={`collection-creator-${run._id}`}

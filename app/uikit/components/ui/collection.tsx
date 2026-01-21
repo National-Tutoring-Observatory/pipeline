@@ -102,7 +102,7 @@ const Collection = ({
       )}
       <ItemGroup
         className={clsx({
-          "border rounded-sm": itemsLayout === "list",
+          "rounded-sm border": itemsLayout === "list",
           "grid grid-cols-3 gap-4": itemsLayout === "card",
         })}
       >

@@ -75,10 +75,10 @@ export default function ProjectRun({
           )}
         </PageHeaderRight>
       </PageHeader>
-      <div className="mb-8 relative">
+      <div className="relative mb-8">
         {run.isRunning && (
           <div className="relative">
-            <div className="text-xs opacity-40 absolute right-0 top-3">
+            <div className="absolute top-3 right-0 text-xs opacity-40">
               Annotating {runSessionsStep}
             </div>
             <Progress value={runSessionsProgress} />
@@ -88,13 +88,13 @@ export default function ProjectRun({
       <div>
         <div className="grid grid-cols-3 gap-6">
           <div>
-            <div className="text-xs text-muted-foreground">Annotation type</div>
+            <div className="text-muted-foreground text-xs">Annotation type</div>
             <div>
               {find(annotationTypes, { value: run.annotationType })?.name}
             </div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">Selected prompt</div>
+            <div className="text-muted-foreground text-xs">Selected prompt</div>
             <div>
               <div>{promptInfo.name}</div>
               <div>
@@ -103,18 +103,18 @@ export default function ProjectRun({
             </div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">Selected model</div>
+            <div className="text-muted-foreground text-xs">Selected model</div>
             <div>{getRunModelDisplayName(run)}</div>
           </div>
         </div>
         <div className="mt-8">
-          <div className="flex justify-between items-end">
-            <div className="text-xs text-muted-foreground">Sessions</div>
+          <div className="flex items-end justify-between">
+            <div className="text-muted-foreground text-xs">Sessions</div>
             {run.hasErrored && (
               <Button onClick={onReRunClicked}>Re-run errored</Button>
             )}
           </div>
-          <div className="border rounded-md h-80 overflow-y-auto mt-2">
+          <div className="mt-2 h-80 overflow-y-auto rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>

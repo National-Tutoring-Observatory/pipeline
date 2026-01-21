@@ -14,7 +14,7 @@ function DangerZone({ children, className }: WithClassName) {
 
 function DangerZoneTitle({ children, className }: WithClassName) {
   return (
-    <div className={cn("text-sm font-medium text-foreground", className)}>
+    <div className={cn("text-foreground text-sm font-medium", className)}>
       {children ?? "Danger Zone"}
     </div>
   );
@@ -24,7 +24,7 @@ function DangerZonePanel({ children, className }: WithClassName) {
   return (
     <div
       className={cn(
-        "border border-destructive/20 rounded-md p-4 w-full",
+        "border-destructive/20 w-full rounded-md border p-4",
         className,
       )}
     >
@@ -74,7 +74,7 @@ function DangerZoneActionRow({
 
 function DangerZoneDescription({ children, className }: WithClassName) {
   return (
-    <p className={cn("text-xs text-muted-foreground", className)}>{children}</p>
+    <p className={cn("text-muted-foreground text-xs", className)}>{children}</p>
   );
 }
 
@@ -96,7 +96,7 @@ function DangerZoneActionTitle({ children, className }: WithClassName) {
 
 function DangerZoneActionDescription({ children, className }: WithClassName) {
   return (
-    <p className={cn("text-xs text-muted-foreground", className)}>{children}</p>
+    <p className={cn("text-muted-foreground text-xs", className)}>{children}</p>
   );
 }
 

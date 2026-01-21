@@ -66,7 +66,7 @@ export default function ProjectRunCreator({
   };
 
   return (
-    <div className="max-w-3xl w-full mx-0 pt-4 pb-8">
+    <div className="mx-0 w-full max-w-3xl pt-4 pb-8">
       <Card className="mb-4">
         <CardHeader>
           <CardTitle>Name your run</CardTitle>
@@ -157,7 +157,7 @@ export default function ProjectRunCreator({
             selectedSessions={selectedSessions}
             onSelectedSessionsChanged={onSelectedSessionsChanged}
           />
-          <div className="flex justify-center mt-4">
+          <div className="mt-4 flex justify-center">
             <Button
               size="sm"
               disabled={isRunButtonDisabled}

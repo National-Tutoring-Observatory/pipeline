@@ -28,7 +28,7 @@ export default function FeatureFlag({
 }) {
   return (
     <div className="w-full">
-      <div className="px-4 py-2 border-b flex items-center justify-between">
+      <div className="flex items-center justify-between border-b px-4 py-2">
         <div>{featureFlag.name}</div>
         <div>
           <Button

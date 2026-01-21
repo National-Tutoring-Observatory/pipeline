@@ -77,9 +77,9 @@ export default function JobsList({
 
   if (jobs.length === 0) {
     return (
-      <div className="border rounded-md">
+      <div className="rounded-md border">
         <div className="flex items-center justify-center py-12">
-          <div className="text-center text-muted-foreground">
+          <div className="text-muted-foreground text-center">
             <p className="text-lg font-medium">No {state} jobs found</p>
             <p className="text-sm">
               Jobs will appear here when they are {state}
@@ -91,7 +91,7 @@ export default function JobsList({
   }
 
   return (
-    <div className="border rounded-md">
+    <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
@@ -145,7 +145,7 @@ export default function JobsList({
               <TableCell className="font-medium">
                 <button
                   onClick={() => onDisplayJobClick(job)}
-                  className="text-left w-full hover:underline"
+                  className="w-full text-left hover:underline"
                 >
                   {job.name}
                 </button>
@@ -166,7 +166,7 @@ export default function JobsList({
                   : "-"}
               </TableCell>
               <TableCell>{job.attemptsMade || 0}</TableCell>
-              <TableCell className="text-right flex justify-end">
+              <TableCell className="flex justify-end text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button

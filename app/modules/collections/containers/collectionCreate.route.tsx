@@ -260,7 +260,7 @@ export default function CollectionCreateRoute() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Create Collection</h1>
+        <h1 className="mb-2 text-3xl font-bold">Create Collection</h1>
         <p className="text-muted-foreground">
           Set up a new collection with your preferred annotation settings
         </p>

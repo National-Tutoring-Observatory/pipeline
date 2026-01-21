@@ -22,7 +22,7 @@ export default function ViewSession({
   leadRole: string;
 }) {
   return (
-    <DialogContent className=" max-h-screen">
+    <DialogContent className="max-h-screen">
       <DialogHeader>
         <DialogTitle>{`Session ${session.name}`}</DialogTitle>
         <DialogDescription></DialogDescription>
@@ -33,7 +33,7 @@ export default function ViewSession({
             <LoaderPinwheel className="animate-spin" />
           </div>
         )}
-        <div className="flex flex-col p-4 h-full overflow-y-scroll scroll-smooth max-h-[calc(100vh-200px)]">
+        <div className="flex h-full max-h-[calc(100vh-200px)] flex-col overflow-y-scroll scroll-smooth p-4">
           {map(transcript, (utterance: Utterance) => {
             return (
               <SessionViewerUtterance

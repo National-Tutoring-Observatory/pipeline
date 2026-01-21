@@ -31,7 +31,7 @@ export default function SortableTableHead({
   const getSortIcon = () => {
     if (!isActive) {
       return (
-        <ArrowUpDown className="h-4 w-4 opacity-0 group-hover:opacity-50 transition-opacity" />
+        <ArrowUpDown className="h-4 w-4 opacity-0 transition-opacity group-hover:opacity-50" />
       );
     }
     return currentSortDirection === "asc" ? (
@@ -45,7 +45,7 @@ export default function SortableTableHead({
     <TableHead className={className}>
       <button
         onClick={() => onSort(field)}
-        className={`group flex items-center gap-2 hover:text-foreground transition-colors ${
+        className={`group hover:text-foreground flex items-center gap-2 transition-colors ${
           isActive ? "text-foreground font-medium" : "text-muted-foreground"
         }`}
       >

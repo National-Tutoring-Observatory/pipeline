@@ -117,7 +117,7 @@ export default function Project({
               className="h-full"
             >
               <Card
-                className={clsx("transition-all h-full", {
+                className={clsx("h-full transition-all", {
                   "border-accent-foreground": tabValue === "FILES",
                 })}
               >
@@ -145,7 +145,7 @@ export default function Project({
               className="h-full"
             >
               <Card
-                className={clsx("transition-all h-full", {
+                className={clsx("h-full transition-all", {
                   "border-accent-foreground": tabValue === "SESSIONS",
                 })}
               >
@@ -166,7 +166,7 @@ export default function Project({
                   </div>
                   {project.isConvertingFiles && (
                     <div className="relative">
-                      <div className="text-xs opacity-40 absolute right-0 top-3">
+                      <div className="absolute top-3 right-0 text-xs opacity-40">
                         Converting
                       </div>
                       <Progress value={convertFilesProgress} />
@@ -177,7 +177,7 @@ export default function Project({
             </Link>
             <Link to={`/projects/${project._id}`} replace className="h-full">
               <Card
-                className={clsx("transition-all h-full", {
+                className={clsx("h-full transition-all", {
                   "border-accent-foreground": tabValue === "RUNS",
                 })}
               >
@@ -198,7 +198,7 @@ export default function Project({
               className="h-full"
             >
               <Card
-                className={clsx("transition-all h-full", {
+                className={clsx("h-full transition-all", {
                   "border-accent-foreground": tabValue === "COLLECTIONS",
                 })}
               >

@@ -18,9 +18,9 @@ export default function JobDetailField({
 }: JobDetailFieldProps) {
   return (
     <div className={cn("space-y-2", className)}>
-      <div className="text-sm font-medium text-foreground">{label}</div>
+      <div className="text-foreground text-sm font-medium">{label}</div>
       {children || (
-        <div className={cn("text-sm text-muted-foreground", valueClassName)}>
+        <div className={cn("text-muted-foreground text-sm", valueClassName)}>
           {value}
         </div>
       )}

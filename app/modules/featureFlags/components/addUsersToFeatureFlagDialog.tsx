@@ -51,7 +51,7 @@ export default function AddUsersToFeatureFlagDialog({
             {map(users, (user) => {
               const isChecked = !!includes(selectedUsers, user._id);
               return (
-                <div key={user._id} className="flex items-center gap-3 mb-2">
+                <div key={user._id} className="mb-2 flex items-center gap-3">
                   <Checkbox
                     id={user._id}
                     checked={isChecked}

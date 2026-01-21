@@ -38,7 +38,7 @@ const Filters = ({
         <Button variant="ghost" size="icon" className="relative">
           <FilterIcon />
           {hasAtLeastOneFilter && (
-            <Badge className="bg-blue-500 text-white dark:bg-blue-600 absolute top-1 right-1 h-1.5 w-1.5 p-0" />
+            <Badge className="absolute top-1 right-1 h-1.5 w-1.5 bg-blue-500 p-0 text-white dark:bg-blue-600" />
           )}
         </Button>
       </PopoverTrigger>

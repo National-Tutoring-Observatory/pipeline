@@ -16,7 +16,7 @@ export default function QueueControls({
     <Button
       variant="outline"
       onClick={onPauseResume}
-      className="min-w-[120px] flex items-center gap-2"
+      className="flex min-w-[120px] items-center gap-2"
     >
       {isPaused ? (
         <>

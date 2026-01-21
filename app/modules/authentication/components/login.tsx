@@ -24,7 +24,7 @@ export default function Login({
 }) {
   return (
     <div
-      className="w-screen h-screen flex items-center justify-center"
+      className="flex h-screen w-screen items-center justify-center"
       style={{ backgroundColor: "#f7f7f7" }}
     >
       <Card className="w-full max-w-md text-center">

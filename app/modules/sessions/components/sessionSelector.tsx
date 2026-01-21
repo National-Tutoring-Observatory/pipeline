@@ -38,7 +38,7 @@ export default function SessionSelector({
 }) {
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
+      <div className="mb-2 flex items-center justify-between">
         <span className="text-sm font-medium">Select All</span>
         <SessionRandomizer
           sampleSize={sampleSize}
@@ -47,7 +47,7 @@ export default function SessionSelector({
           onRandomizeClicked={onRandomizeClicked}
         />
       </div>
-      <div className="border rounded-md h-80 overflow-y-auto">
+      <div className="h-80 overflow-y-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>

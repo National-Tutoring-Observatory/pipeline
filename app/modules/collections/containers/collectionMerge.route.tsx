@@ -179,7 +179,7 @@ export default function CollectionMergeRoute() {
   });
 
   const renderItem = (coll: CollectionType) => (
-    <div className="flex items-center gap-4 p-4 w-full">
+    <div className="flex w-full items-center gap-4 p-4">
       <Checkbox
         checked={includes(selectedCollections, coll._id)}
         onCheckedChange={(checked) =>
@@ -187,9 +187,9 @@ export default function CollectionMergeRoute() {
         }
         onClick={(e) => e.stopPropagation()}
       />
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="font-medium">{coll.name}</div>
-        <div className="text-sm text-muted-foreground flex gap-4">
+        <div className="text-muted-foreground flex gap-4 text-sm">
           <span>{coll.runs?.length || 0} runs</span>
           <span>
             {coll.createdAt ? dayjs(coll.createdAt).format("MMM D, YYYY") : ""}
@@ -229,9 +229,9 @@ export default function CollectionMergeRoute() {
       </div>
 
       {totalMergeableCollections === 0 && !searchValue ? (
-        <div className="text-center py-12 text-muted-foreground">
+        <div className="text-muted-foreground py-12 text-center">
           <p>No compatible collections found.</p>
-          <p className="text-sm mt-2">
+          <p className="mt-2 text-sm">
             Collections must have the same sessions and annotation type.
           </p>
           <Button variant="outline" className="mt-4" onClick={onCancelClicked}>
@@ -240,14 +240,14 @@ export default function CollectionMergeRoute() {
         </div>
       ) : (
         <>
-          <div className="flex items-center gap-4 mb-4">
+          <div className="mb-4 flex items-center gap-4">
             <Checkbox
               checked={allSelected}
               onCheckedChange={(checked) =>
                 onSelectAllToggled(Boolean(checked))
               }
             />
-            <span className="text-sm text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               Select all ({selectedCollections.length} of{" "}
               {totalMergeableCollections} selected, {totalRuns} runs)
             </span>
@@ -284,7 +284,7 @@ export default function CollectionMergeRoute() {
             filtersValues={{}}
           />
 
-          <div className="flex justify-end gap-2 mt-6">
+          <div className="mt-6 flex justify-end gap-2">
             <Button variant="outline" onClick={onCancelClicked}>
               Cancel
             </Button>

@@ -232,11 +232,11 @@ export default function CollectionDetailRoute() {
 
   return (
     <div className="p-8">
-      <div className="mb-8 flex justify-between items-start">
+      <div className="mb-8 flex items-start justify-between">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
           {collection.name}
         </h1>
-        <div className="flex text-muted-foreground gap-1">
+        <div className="text-muted-foreground flex gap-1">
           {!collection.hasExportedCSV && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -321,7 +321,7 @@ export default function CollectionDetailRoute() {
         {/* Overview Section */}
         <div className="grid grid-cols-3 gap-6">
           <div>
-            <div className="text-xs text-muted-foreground">Created</div>
+            <div className="text-muted-foreground text-xs">Created</div>
             <div>
               {collection.createdAt
                 ? new Date(collection.createdAt).toLocaleDateString()
@@ -329,11 +329,11 @@ export default function CollectionDetailRoute() {
             </div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">Sessions</div>
+            <div className="text-muted-foreground text-xs">Sessions</div>
             <div>{collection.sessions?.length || 0}</div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">Runs</div>
+            <div className="text-muted-foreground text-xs">Runs</div>
             <div>{collection.runs?.length || 0}</div>
           </div>
         </div>
@@ -341,8 +341,8 @@ export default function CollectionDetailRoute() {
         {/* Sessions Section */}
         {sessions.length > 0 && (
           <div className="mt-8">
-            <div className="text-xs text-muted-foreground">Sessions</div>
-            <div className="border rounded-md mt-2">
+            <div className="text-muted-foreground text-xs">Sessions</div>
+            <div className="mt-2 rounded-md border">
               <Collection
                 items={sessions}
                 itemsLayout="list"
@@ -368,8 +368,8 @@ export default function CollectionDetailRoute() {
         {/* Runs Section */}
         {runs.length > 0 && (
           <div className="mt-8">
-            <div className="text-xs text-muted-foreground">Runs</div>
-            <div className="border rounded-md mt-2">
+            <div className="text-muted-foreground text-xs">Runs</div>
+            <div className="mt-2 rounded-md border">
               <Collection
                 items={runs}
                 itemsLayout="list"

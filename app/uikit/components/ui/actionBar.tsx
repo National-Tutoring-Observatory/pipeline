@@ -82,13 +82,13 @@ function ActionBar({
 
       <div
         className={clsx(
-          `flex justify-between sticky top-4 border p-2 mb-2 transition-all rounded-2xl bg-white`,
+          `sticky top-4 mb-2 flex justify-between rounded-2xl border bg-white p-2 transition-all`,
           {
-            "shadow -mx-2": isStuck,
+            "-mx-2 shadow": isStuck,
           },
         )}
       >
-        <div className="w-1/3 flex items-center gap-x-1">
+        <div className="flex w-1/3 items-center gap-x-1">
           {hasSearch && (
             <Search
               searchValue={searchValue}
@@ -110,7 +110,7 @@ function ActionBar({
             />
           )}
         </div>
-        <div className="w-1/3 flex justify-center">
+        <div className="flex w-1/3 justify-center">
           {hasPagination && (
             <Pagination
               currentPage={currentPage}
@@ -119,7 +119,7 @@ function ActionBar({
             />
           )}
         </div>
-        <div className="flex gap-x-1 w-1/3 justify-end">
+        <div className="flex w-1/3 justify-end gap-x-1">
           {map(actions, (action) => {
             return (
               <Button
@@ -135,7 +135,7 @@ function ActionBar({
         {isSyncing && (
           <div
             className={clsx(
-              "absolute left-1/2 -translate-x-1/2 bg-white border-b border-x pb-1 px-6 top-full rounded-b-md",
+              "absolute top-full left-1/2 -translate-x-1/2 rounded-b-md border-x border-b bg-white px-6 pb-1",
               {
                 shadow: isStuck,
               },

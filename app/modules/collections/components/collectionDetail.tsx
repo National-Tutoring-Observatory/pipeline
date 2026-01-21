@@ -49,7 +49,7 @@ export default function CollectionDetail({
 }) {
   return (
     <div className="max-w-6xl p-8">
-      <div className="mb-8 relative">
+      <div className="relative mb-8">
         <div className="flex justify-between">
           <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
             {collection.name}
@@ -94,8 +94,8 @@ export default function CollectionDetail({
       </div>
       {collection.hasSetup && (
         <div className="mt-8">
-          <div className="text-xs text-muted-foreground">Runs</div>
-          <div className="border rounded-md overflow-y-auto mt-2">
+          <div className="text-muted-foreground text-xs">Runs</div>
+          <div className="mt-2 overflow-y-auto rounded-md border">
             <div className="flex justify-end border-b p-2">
               <Button onClick={onAddRunButtonClicked}>Add run</Button>
             </div>

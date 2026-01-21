@@ -39,7 +39,7 @@ export default function FeatureFlags({
             Create feature flag
           </Button>
         </div>
-        <div className="border rounded-lg flex relative">
+        <div className="relative flex rounded-lg border">
           <ItemGroup className="w-1/3">
             {map(featureFlags, (featureFlag, index) => (
               <React.Fragment key={featureFlag._id}>
@@ -66,7 +66,7 @@ export default function FeatureFlags({
           </ItemGroup>
           <Separator
             orientation="vertical"
-            className="h-full absolute left-1/3"
+            className="absolute left-1/3 h-full"
           />
           <div className="w-2/3">
             <Outlet />

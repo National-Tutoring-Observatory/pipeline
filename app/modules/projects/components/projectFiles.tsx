@@ -13,7 +13,7 @@ import type { File } from "~/modules/files/files.types";
 export default function ProjectFiles({ files }: { files: File[] }) {
   return (
     <div className="mt-8">
-      <div className="border rounded-md">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -32,7 +32,7 @@ export default function ProjectFiles({ files }: { files: File[] }) {
                     {dayjs(file.createdAt).format("ddd, MMM D, YYYY - h:mm A")}
                   </TableCell>
                   <TableCell>{file.fileType}</TableCell>
-                  <TableCell className="text-right flex justify-end">
+                  <TableCell className="flex justify-end text-right">
                     {/* <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button

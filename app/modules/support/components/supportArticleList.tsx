@@ -16,7 +16,7 @@ export default function SupportArticleList({
       {supportArticles.map((supportArticle) => (
         <Button
           variant="ghost"
-          className="w-full text-left cursor-pointer flex items-center justify-between"
+          className="flex w-full cursor-pointer items-center justify-between text-left"
           key={supportArticle.documentId}
           onClick={() => onSupportArticleClicked(supportArticle.documentId)}
         >

@@ -34,7 +34,7 @@ export default function JobDetailsDialog({
   };
 
   return (
-    <DialogContent className="max-h-[80vh] flex flex-col">
+    <DialogContent className="flex max-h-[80vh] flex-col">
       <DialogHeader>
         <DialogTitle>Job Details</DialogTitle>
         <DialogDescription>
@@ -42,7 +42,7 @@ export default function JobDetailsDialog({
         </DialogDescription>
       </DialogHeader>
 
-      <div className="flex-1 overflow-y-auto min-h-0">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-4 pb-4">
           <JobDetailField label="Job Name" value={job.name} />
 

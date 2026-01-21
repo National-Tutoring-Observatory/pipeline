@@ -8,8 +8,8 @@ export default function ProjectRunDownloads({ run }: { run: Run }) {
   if (run.hasExportedCSV || run.hasExportedJSONL) {
     return (
       <div className="mt-8">
-        <div className="text-xs text-muted-foreground">Downloads</div>
-        <div className="grid grid-cols-2 gap-6 mt-2">
+        <div className="text-muted-foreground text-xs">Downloads</div>
+        <div className="mt-2 grid grid-cols-2 gap-6">
           {run.hasExportedCSV && (
             <Card>
               <CardContent>

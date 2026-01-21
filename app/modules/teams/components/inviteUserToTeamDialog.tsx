@@ -67,7 +67,7 @@ export default function InviteUserToTeamDialog({
       <div>
         {!isGeneratingInviteLink && (
           <div className="flex flex-col gap-2">
-            <Label className="text-xs mb-0.5">
+            <Label className="mb-0.5 text-xs">
               Select your users role in this team
             </Label>
             <Select value={role} onValueChange={onRoleChanged}>
@@ -84,7 +84,7 @@ export default function InviteUserToTeamDialog({
                 })}
               </SelectContent>
             </Select>
-            <Label className="text-xs mb-0.5">Who is this for</Label>
+            <Label className="mb-0.5 text-xs">Who is this for</Label>
             <Input
               id="username"
               name="username"
@@ -98,12 +98,12 @@ export default function InviteUserToTeamDialog({
           <div>
             {inviteLink && (
               <div className="relative">
-                <div className="text-sm bg-gray-100 rounded-2xl p-2 break-all pr-10">
+                <div className="rounded-2xl bg-gray-100 p-2 pr-10 text-sm break-all">
                   {inviteLink}
                 </div>
                 <Button
                   variant="ghost"
-                  className="absolute top-0 z-10 right-1 cursor-pointer"
+                  className="absolute top-0 right-1 z-10 cursor-pointer"
                   disabled={hasCopiedInviteLink}
                   onClick={onCopyInviteClicked}
                 >
@@ -112,11 +112,11 @@ export default function InviteUserToTeamDialog({
                   {!hasCopiedInviteLink && <CopyIcon />}
                 </Button>
                 {hasCopiedInviteLink && (
-                  <div className="text-xs absolute -bottom-6 right-4 text-green-500">
+                  <div className="absolute right-4 -bottom-6 text-xs text-green-500">
                     Invite link copied!
                   </div>
                 )}
-                <div className="text-xs mt-4 text-gray-500">
+                <div className="mt-4 text-xs text-gray-500">
                   {`This invite link will expire in ${INVITE_LINK_TTL_DAYS} days.`}
                 </div>
               </div>

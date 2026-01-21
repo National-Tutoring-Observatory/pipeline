@@ -71,11 +71,11 @@ export default function PromptEditor({
 
   return (
     <div className="border-l">
-      <div className="border-b  p-2 text-sm flex justify-between items-center">
+      <div className="flex items-center justify-between border-b p-2 text-sm">
         <div>
           <div>{`Version: ${promptVersion.name}`}</div>
         </div>
-        <div className="space-x-4 flex items-center">
+        <div className="flex items-center space-x-4">
           {!isProduction && promptVersion.hasBeenSaved && (
             <Button
               variant="ghost"
@@ -99,7 +99,7 @@ export default function PromptEditor({
           )}
         </div>
       </div>
-      <div className="p-8 grid gap-8">
+      <div className="grid gap-8 p-8">
         <div className="grid gap-3">
           <Label htmlFor="name">Name</Label>
           <Input

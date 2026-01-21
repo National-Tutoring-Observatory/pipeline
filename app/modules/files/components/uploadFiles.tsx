@@ -84,7 +84,7 @@ export default function UploadFiles({
               )}
             </div>
             {data?.errors?.files && (
-              <div className="text-sm text-destructive space-y-1">
+              <div className="text-destructive space-y-1 text-sm">
                 <p>{data.errors.files}</p>
                 <p>Check the File Instructions for the correct format.</p>
               </div>
@@ -131,7 +131,7 @@ export default function UploadFiles({
       </div>
       {acceptedFiles.length > 0 && (
         <div className="mt-8">
-          <div className="border rounded-md">
+          <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow className="grid grid-cols-[500px_1fr_auto] items-center">

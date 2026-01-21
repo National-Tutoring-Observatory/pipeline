@@ -136,7 +136,7 @@ export default function CollectionCreatorForm({
                   ". You can modify any field before creating.
                 </p>
                 {prefillData.validationErrors?.length ? (
-                  <ul className="mt-2 list-disc list-inside">
+                  <ul className="mt-2 list-inside list-disc">
                     {prefillData.validationErrors.map((error, i) => (
                       <li key={i}>{error}</li>
                     ))}
@@ -147,11 +147,11 @@ export default function CollectionCreatorForm({
           )}
 
           {Object.keys(errors).length > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-red-900 mb-2">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+              <h3 className="mb-2 text-sm font-semibold text-red-900">
                 Errors
               </h3>
-              <ul className="text-sm text-red-700 space-y-1">
+              <ul className="space-y-1 text-sm text-red-700">
                 {Object.entries(errors).map(([field, message]) => (
                   <li key={field}>• {message}</li>
                 ))}
@@ -193,7 +193,7 @@ export default function CollectionCreatorForm({
           {/* Prompts */}
           <div className="space-y-2">
             <Label>Prompts</Label>
-            <div className="bg-slate-50 rounded-lg p-4 space-y-3">
+            <div className="space-y-3 rounded-lg bg-slate-50 p-4">
               <div className="space-y-2">
                 <PromptSelectorContainer
                   annotationType={annotationType}
@@ -221,17 +221,17 @@ export default function CollectionCreatorForm({
                   }
                   className="gap-2"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="h-4 w-4" />
                   Add Prompt
                 </Button>
               </div>
 
               {selectedPrompts.length > 0 && (
-                <div className="space-y-2 pt-2 border-t">
+                <div className="space-y-2 border-t pt-2">
                   {selectedPrompts.map((prompt) => (
                     <div
                       key={`${prompt.promptId}-${prompt.version}`}
-                      className="flex items-center justify-between bg-white rounded p-2"
+                      className="flex items-center justify-between rounded bg-white p-2"
                     >
                       <span className="text-sm">
                         {prompt.promptName} (v{prompt.version})
@@ -243,7 +243,7 @@ export default function CollectionCreatorForm({
                           onRemovePrompt(prompt.promptId, prompt.version)
                         }
                       >
-                        <X className="w-4 h-4" />
+                        <X className="h-4 w-4" />
                       </Button>
                     </div>
                   ))}
@@ -255,7 +255,7 @@ export default function CollectionCreatorForm({
           {/* Models */}
           <div className="space-y-2">
             <Label>Models</Label>
-            <div className="bg-slate-50 rounded-lg p-4 space-y-3">
+            <div className="space-y-3 rounded-lg bg-slate-50 p-4">
               <div className="space-y-2">
                 <ModelSelectorContainer
                   selectedModel={tempModel}
@@ -269,17 +269,17 @@ export default function CollectionCreatorForm({
                   disabled={!tempModel || selectedModels.includes(tempModel)}
                   className="gap-2"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="h-4 w-4" />
                   Add Model
                 </Button>
               </div>
 
               {selectedModels.length > 0 && (
-                <div className="space-y-2 pt-2 border-t">
+                <div className="space-y-2 border-t pt-2">
                   {selectedModels.map((model) => (
                     <div
                       key={model}
-                      className="flex items-center justify-between bg-white rounded p-2"
+                      className="flex items-center justify-between rounded bg-white p-2"
                     >
                       <span className="text-sm">{model}</span>
                       <Button
@@ -287,7 +287,7 @@ export default function CollectionCreatorForm({
                         variant="ghost"
                         onClick={() => onRemoveModel(model)}
                       >
-                        <X className="w-4 h-4" />
+                        <X className="h-4 w-4" />
                       </Button>
                     </div>
                   ))}
@@ -299,7 +299,7 @@ export default function CollectionCreatorForm({
           {/* Sessions */}
           <div className="space-y-2">
             <Label>Sessions</Label>
-            <div className="bg-slate-50 rounded-lg p-4">
+            <div className="rounded-lg bg-slate-50 p-4">
               <SessionSelectorContainer
                 selectedSessions={selectedSessions}
                 onSelectedSessionsChanged={onSessionsChanged}
@@ -309,38 +309,38 @@ export default function CollectionCreatorForm({
         </div>
 
         {/* Right Column - Run Preview */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           {selectedPrompts.length > 0 && selectedModels.length > 0 ? (
             <div className="sticky top-8 space-y-4">
               <div>
-                <h3 className="font-semibold text-sm mb-2">Generated Runs</h3>
-                <p className="text-xs text-muted-foreground mb-4">
+                <h3 className="mb-2 text-sm font-semibold">Generated Runs</h3>
+                <p className="text-muted-foreground mb-4 text-xs">
                   {selectedPrompts.length * selectedModels.length} run(s) •{" "}
                   {selectedSessions.length} session(s)
                 </p>
               </div>
-              <div className="grid grid-cols-2 2xl:grid-cols-3 gap-2 max-h-[600px] overflow-y-auto pr-2">
+              <div className="grid max-h-[600px] grid-cols-2 gap-2 overflow-y-auto pr-2 2xl:grid-cols-3">
                 {selectedPrompts.map((prompt) =>
                   selectedModels.map((model) => (
                     <div
                       key={`${prompt.promptId}-${model}`}
-                      className="bg-slate-50 rounded-lg border p-3 text-sm"
+                      className="rounded-lg border bg-slate-50 p-3 text-sm"
                     >
-                      <p className="font-medium text-xs text-muted-foreground mb-2">
+                      <p className="text-muted-foreground mb-2 text-xs font-medium">
                         Run
                       </p>
                       <div className="space-y-1">
                         <div>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-muted-foreground text-xs">
                             Prompt
                           </p>
-                          <p className="text-xs font-mono truncate">
+                          <p className="truncate font-mono text-xs">
                             {prompt.promptName} (v{prompt.version})
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Model</p>
-                          <p className="text-xs font-mono truncate">{model}</p>
+                          <p className="text-muted-foreground text-xs">Model</p>
+                          <p className="truncate font-mono text-xs">{model}</p>
                         </div>
                       </div>
                     </div>
@@ -349,8 +349,8 @@ export default function CollectionCreatorForm({
               </div>
             </div>
           ) : (
-            <div className="sticky top-8 bg-slate-50 rounded-lg border p-4 text-center">
-              <p className="text-xs text-muted-foreground">
+            <div className="sticky top-8 rounded-lg border bg-slate-50 p-4 text-center">
+              <p className="text-muted-foreground text-xs">
                 Select prompts and models to preview runs
               </p>
             </div>
@@ -359,9 +359,9 @@ export default function CollectionCreatorForm({
       </div>
 
       {/* Bottom Section - Summary and Button */}
-      <div className="flex gap-8 items-center">
+      <div className="flex items-center gap-8">
         <div className="flex-1">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
             <p className="text-sm text-blue-900">
               This will create{" "}
               <strong>{selectedPrompts.length * selectedModels.length}</strong>{" "}

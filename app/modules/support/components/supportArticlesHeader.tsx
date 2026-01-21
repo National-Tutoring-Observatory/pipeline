@@ -49,7 +49,7 @@ export default function SupportArticlesHeader({
         <SheetDescription>
           <Button
             variant="ghost"
-            className="w-full text-left cursor-pointer flex items-center justify-start"
+            className="flex w-full cursor-pointer items-center justify-start text-left"
             onClick={() => onBackToSupportArticlesClicked()}
           >
             <ChevronLeft />

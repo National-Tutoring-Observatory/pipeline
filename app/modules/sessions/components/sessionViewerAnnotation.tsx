@@ -18,7 +18,7 @@ export default function SessionViewerAnnotation({
   onUpVoteClicked: () => void;
 }) {
   return (
-    <div className="p-4 bg-muted rounded-md mb-2">
+    <div className="bg-muted mb-2 rounded-md p-4">
       {map(annotation, (annotationValue, annotationKey) => {
         if (annotationKey === "_id" || annotationKey === "identifiedBy") {
           return null;
@@ -26,12 +26,12 @@ export default function SessionViewerAnnotation({
 
         return (
           <div className="mb-2" key={annotationKey}>
-            <div className="text-xs text-muted-foreground">{annotationKey}</div>
+            <div className="text-muted-foreground text-xs">{annotationKey}</div>
             <SessionViewerAnnotationValue value={annotationValue} />
           </div>
         );
       })}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <Badge>{`Identified by ${annotation.identifiedBy}`}</Badge>
         </div>
