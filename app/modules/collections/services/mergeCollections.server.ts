@@ -64,7 +64,11 @@ export default async function mergeCollections(
   const updatedRuns = [...(targetCollection.runs || []), ...added];
   const updatedCollection = await CollectionService.updateById(
     targetCollectionId,
-    { runs: updatedRuns },
+    {
+      runs: updatedRuns,
+      hasExportedCSV: false,
+      hasExportedJSONL: false,
+    },
   );
 
   return {
