@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import { data, redirect } from "react-router";
-import { useLoaderData } from "react-router";
+import { data, redirect, useLoaderData } from "react-router";
 import aiGatewayConfig from "~/config/ai_gateway.json";
 import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
@@ -10,12 +9,12 @@ import type {
   PromptReference,
 } from "~/modules/collections/collections.types";
 import requireCollectionsFeature from "~/modules/collections/helpers/requireCollectionsFeature";
-import { ProjectService } from "~/modules/projects/project";
-import { RunService } from "~/modules/runs/run";
-import { PromptService } from "~/modules/prompts/prompt";
-import type { User } from "~/modules/users/users.types";
-import type { RunAnnotationType } from "~/modules/runs/runs.types";
 import ProjectAuthorization from "~/modules/projects/authorization";
+import { ProjectService } from "~/modules/projects/project";
+import { PromptService } from "~/modules/prompts/prompt";
+import { RunService } from "~/modules/runs/run";
+import type { RunAnnotationType } from "~/modules/runs/runs.types";
+import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/collectionCreate.route";
 import CollectionCreatorFormContainer from "./collectionCreatorForm.container";
 

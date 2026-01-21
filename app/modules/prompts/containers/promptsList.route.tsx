@@ -2,9 +2,9 @@ import map from "lodash/map";
 import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import { PromptService } from "../prompt";
 import type { User } from "~/modules/users/users.types";
 import annotationTypes from "../annotationTypes";
+import { PromptService } from "../prompt";
 import type { Route } from "./+types/promptsList.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {

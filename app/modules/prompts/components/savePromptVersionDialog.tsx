@@ -1,21 +1,14 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
-import {
-  CircleAlert,
-  CircleCheck,
-  Loader,
-  Loader2,
-  LoaderCircle,
-  LoaderPinwheel,
-} from "lucide-react";
+import { CircleAlert, CircleCheck, LoaderPinwheel } from "lucide-react";
 
 const SavePromptVersionDialog = ({
   reasoning,

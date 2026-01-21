@@ -1,17 +1,17 @@
 import { Button } from "@/components/ui/button";
 import {
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import ProjectNameAlert from "./projectNameAlert";
 import type { Project } from "../projects.types";
+import ProjectNameAlert from "./projectNameAlert";
 
 const EditProjectDialog = ({
   project,

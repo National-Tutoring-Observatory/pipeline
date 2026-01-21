@@ -1,11 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { SheetDescription, SheetHeader } from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { ChevronRight, Search } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import type { SupportArticle } from "../support.types";
 
 export default function SupportArticleList({

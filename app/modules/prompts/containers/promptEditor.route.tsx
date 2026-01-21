@@ -7,12 +7,11 @@ import {
 } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import { PromptService } from "../prompt";
-import { PromptVersionService } from "../promptVersion";
 import type { User } from "~/modules/users/users.types";
 import PromptAuthorization from "../authorization";
 import PromptEditor from "../components/promptEditor";
-import type { Prompt, PromptVersion } from "../prompts.types";
+import { PromptService } from "../prompt";
+import { PromptVersionService } from "../promptVersion";
 import type { Route } from "./+types/promptEditor.route";
 import SavePromptVersionDialogContainer from "./savePromptVersionDialogContainer";
 

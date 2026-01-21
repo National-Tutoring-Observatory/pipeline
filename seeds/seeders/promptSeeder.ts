@@ -1,9 +1,5 @@
 import { PromptService } from "../../app/modules/prompts/prompt.js";
 import { PromptVersionService } from "../../app/modules/prompts/promptVersion.js";
-import type {
-  Prompt,
-  PromptVersion,
-} from "../../app/modules/prompts/prompts.types.js";
 import { getSeededTeams } from "./teamSeeder.js";
 
 const SEED_PROMPTS = [

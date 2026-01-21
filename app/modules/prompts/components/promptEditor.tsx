@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Archive, BookCheck, Save, SaveOff, Trash } from "lucide-react";
+import { BookCheck, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { PromptVersion } from "../prompts.types";
 import AnnotationSchemaBuilder from "./annotationSchemaBuilder";

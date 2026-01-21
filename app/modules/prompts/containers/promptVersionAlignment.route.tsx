@@ -1,11 +1,11 @@
-import LLM from "~/modules/llm/llm";
+import { redirect } from "react-router";
 import aiGatewayConfig from "~/config/ai_gateway.json";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import LLM from "~/modules/llm/llm";
+import type { User } from "~/modules/users/users.types";
+import PromptAuthorization from "../authorization";
 import type { AnnotationSchemaItem } from "../prompts.types";
 import type { Route } from "./+types/promptVersionAlignment.route";
-import type { User } from "~/modules/users/users.types";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import PromptAuthorization from "../authorization";
-import { redirect } from "react-router";
 
 export async function action({ request }: Route.ActionArgs) {
   const user = (await getSessionUser({ request })) as User;

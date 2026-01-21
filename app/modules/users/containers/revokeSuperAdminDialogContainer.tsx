@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { User } from "../users.types";
 import RevokeSuperAdminForm from "../components/revokeSuperAdminForm";
+import type { User } from "../users.types";
 
 interface RevokeSuperAdminDialogContainerProps {
   targetUser: User;

@@ -1,6 +1,5 @@
-import { useFetcher, useLocation, useSearchParams } from "react-router";
+import { useFetcher, useSearchParams } from "react-router";
 import Login from "../components/login";
-import { useEffect } from "react";
 
 const ERROR_MESSAGES = {
   EXPIRED_INVITE: {

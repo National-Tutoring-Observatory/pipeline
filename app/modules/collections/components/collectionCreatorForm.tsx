@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,16 +9,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import annotationTypes from "~/modules/prompts/annotationTypes";
-import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
-import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
-import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
+import { Info, Plus, X } from "lucide-react";
+import { useState } from "react";
 import type {
   PrefillData,
   PromptReference,
 } from "~/modules/collections/collections.types";
-import { Info, Plus, X } from "lucide-react";
+import annotationTypes from "~/modules/prompts/annotationTypes";
+import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
+import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
+import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 
 export default function CollectionCreatorForm({
   name,

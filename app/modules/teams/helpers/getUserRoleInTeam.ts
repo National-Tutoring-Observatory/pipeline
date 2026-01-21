@@ -1,6 +1,6 @@
 import find from "lodash/find";
-import type { Team } from "../teams.types";
 import type { User } from "~/modules/users/users.types";
+import type { Team } from "../teams.types";
 
 type RoleKey = "ADMIN";
 

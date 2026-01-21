@@ -1,7 +1,7 @@
 import each from "lodash/each";
 import has from "lodash/has";
-import LLM from "~/modules/llm/llm";
 import aiGatewayConfig from "~/config/ai_gateway.json";
+import LLM from "~/modules/llm/llm";
 import leadRolePrompt from "../prompts/leadRole.prompt.json";
 
 const REQUIRED_ATTRIBUTES = {

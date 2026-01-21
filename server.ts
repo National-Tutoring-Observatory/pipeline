@@ -3,10 +3,10 @@ import dotenv from "dotenv";
 import express from "express";
 import http from "http";
 import morgan from "morgan";
-import { UserService } from "./app/modules/users/user";
-import { setupSockets } from "./sockets";
 import { initializeDatabase } from "./app/lib/database";
 import "./app/modules/storage/storage";
+import { UserService } from "./app/modules/users/user";
+import { setupSockets } from "./sockets";
 dotenv.config({ path: ".env" });
 
 // Short-circuit the type-checking of the built output.

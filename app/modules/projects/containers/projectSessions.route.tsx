@@ -1,9 +1,9 @@
 import find from "lodash/find";
 import { redirect, useLoaderData, useSubmit } from "react-router";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import ViewSessionContainer from "~/modules/sessions/containers/viewSessionContainer";

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import migrationSchema from "~/lib/schemas/migration.schema";
-import type { Migration, MigrationResult, MigrationStatus } from "./types";
 import type { FindOptions } from "~/modules/common/types";
+import type { Migration, MigrationStatus } from "./types";
 
 const MigrationModel =
   mongoose.models.Migration || mongoose.model("Migration", migrationSchema);

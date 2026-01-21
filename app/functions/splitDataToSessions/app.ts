@@ -1,8 +1,8 @@
 import fs from "fs";
 import fse from "fs-extra";
-import readline from "readline";
-import path from "path";
 import get from "lodash/get";
+import path from "path";
+import readline from "readline";
 
 interface RequestBody {
   contentType: "JSONL";

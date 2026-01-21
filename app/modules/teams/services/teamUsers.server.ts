@@ -1,8 +1,8 @@
-import { UserService } from "~/modules/users/user";
 import { AuditService } from "~/modules/audits/audit";
 import getQueue from "~/modules/queues/helpers/getQueue";
-import type { TeamAssignmentOption } from "../teams.types";
+import { UserService } from "~/modules/users/user";
 import type { UserTeam } from "~/modules/users/users.types";
+import type { TeamAssignmentOption } from "../teams.types";
 
 const MS_IN_A_DAY = 86400000;
 

@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { Types } from "mongoose";
-import { RunService } from "app/modules/runs/run";
 import { ProjectService } from "app/modules/projects/project";
+import { RunService } from "app/modules/runs/run";
 import { TeamService } from "app/modules/teams/team";
+import { Types } from "mongoose";
+import { beforeEach, describe, expect, it } from "vitest";
 import clearDocumentDB from "../../../test/helpers/clearDocumentDB";
 import updateRunSession from "../updateRunSession";
 

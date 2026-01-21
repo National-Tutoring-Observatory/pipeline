@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import UserManagementAuthorization from "../authorization";
 import type { User } from "../users.types";
 

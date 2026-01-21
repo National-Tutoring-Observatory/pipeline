@@ -1,15 +1,15 @@
-import { beforeEach, describe, expect, it } from "vitest";
 import { Types } from "mongoose";
-import { UserService } from "~/modules/users/user";
-import { TeamService } from "~/modules/teams/team";
-import { ProjectService } from "~/modules/projects/project";
+import { beforeEach, describe, expect, it } from "vitest";
 import { CollectionService } from "~/modules/collections/collection";
+import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
+import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import { SessionService } from "~/modules/sessions/session";
-import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
+import { TeamService } from "~/modules/teams/team";
+import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
-import { loader, action } from "../containers/collectionMerge.route";
+import { action, loader } from "../containers/collectionMerge.route";
 
 beforeEach(async () => {
   await clearDocumentDB();

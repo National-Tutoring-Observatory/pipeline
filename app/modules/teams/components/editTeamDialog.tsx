@@ -1,17 +1,17 @@
 import { Button } from "@/components/ui/button";
 import {
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import TeamNameAlert from "./teamNameAlert";
 import type { Team } from "../teams.types";
+import TeamNameAlert from "./teamNameAlert";
 
 const EditTeamDialog = ({
   team,

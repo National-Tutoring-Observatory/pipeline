@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useFetcher } from "react-router";
+import { useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
-import CollectionCreatorForm from "../components/collectionCreatorForm";
 import type { PrefillData, PromptReference } from "../collections.types";
+import CollectionCreatorForm from "../components/collectionCreatorForm";
 
 interface CollectionCreatorFormContainerProps {
   projectId: string;

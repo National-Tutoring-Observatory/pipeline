@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { UserService } from "app/modules/users/user";
-import clearDocumentDB from "../../../test/helpers/clearDocumentDB";
 import { MigrationRunService } from "app/modules/migrations/migrationRun";
-import runMigration from "../runMigration";
-import type { Job } from "bullmq";
 import * as registryModule from "app/modules/migrations/registry";
+import { UserService } from "app/modules/users/user";
+import type { Job } from "bullmq";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import clearDocumentDB from "../../../test/helpers/clearDocumentDB";
+import runMigration from "../runMigration";
 
 vi.mock("app/modules/migrations/registry");
 vi.mock("../../helpers/emitFromJob");

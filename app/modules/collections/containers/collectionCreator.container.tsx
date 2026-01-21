@@ -1,11 +1,11 @@
-import { useFetcher, useParams } from "react-router";
-import type { Collection, CreateCollection } from "../collections.types";
-import CollectionCreator from "../components/collectionCreator";
-import { useEffect, useState } from "react";
-import type { Run } from "~/modules/runs/runs.types";
+import cloneDeep from "lodash/cloneDeep";
 import map from "lodash/map";
 import pull from "lodash/pull";
-import cloneDeep from "lodash/cloneDeep";
+import { useEffect, useState } from "react";
+import { useFetcher, useParams } from "react-router";
+import type { Run } from "~/modules/runs/runs.types";
+import type { CreateCollection } from "../collections.types";
+import CollectionCreator from "../components/collectionCreator";
 
 export default function CollectionCreatorContainer({
   onSetupCollection,

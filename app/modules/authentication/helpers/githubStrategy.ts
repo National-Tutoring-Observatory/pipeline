@@ -2,8 +2,8 @@ import dayjs from "dayjs";
 import find from "lodash/find";
 import { redirect } from "react-router";
 import { GitHubStrategy } from "remix-auth-github";
-import { UserService } from "~/modules/users/user";
 import INVITE_LINK_TTL_DAYS from "~/modules/teams/helpers/inviteLink";
+import { UserService } from "~/modules/users/user";
 import type { UserTeam } from "~/modules/users/users.types";
 import sessionStorage from "../../../../sessionStorage.js";
 

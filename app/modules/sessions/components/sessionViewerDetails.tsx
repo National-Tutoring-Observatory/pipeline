@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
 import dayjs from "dayjs";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Session } from "../sessions.types";
 
 interface SessionViewerDetailsProps {

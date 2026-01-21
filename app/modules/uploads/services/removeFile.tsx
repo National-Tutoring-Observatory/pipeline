@@ -1,4 +1,3 @@
-import path from "path";
 import fse from "fs-extra";
 
 export default async function removeFile({

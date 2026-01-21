@@ -1,5 +1,4 @@
 import { UserService } from "~/modules/users/user";
-import type { User } from "~/modules/users/users.types";
 // @ts-ignore
 import dayjs from "dayjs";
 import sessionStorage from "../../../../sessionStorage.js";

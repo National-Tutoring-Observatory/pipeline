@@ -1,6 +1,6 @@
 import { useState } from "react";
-import AnnotationTypeSelector from "../components/annotationTypeSelector";
 import annotationTypes from "../annotationTypes";
+import AnnotationTypeSelector from "../components/annotationTypeSelector";
 
 export default function AnnotationTypeSelectorContainer({
   annotationType,

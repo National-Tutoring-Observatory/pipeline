@@ -1,6 +1,6 @@
 import { RunService } from "~/modules/runs/run";
-import type { Collection } from "../collections.types";
 import { CollectionService } from "../collection";
+import type { Collection } from "../collections.types";
 import { isRunCompatibleWithCollection } from "../helpers/isRunCompatibleWithCollection";
 
 interface AddRunsResult {

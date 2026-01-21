@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DialogClose,
   DialogContent,
@@ -7,12 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import includes from "lodash/includes";
+import map from "lodash/map";
 import { LoaderPinwheel } from "lucide-react";
 import type { User } from "~/modules/users/users.types";
-import map from "lodash/map";
-import includes from "lodash/includes";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 
 export default function AddUsersToFeatureFlagDialog({
   users,

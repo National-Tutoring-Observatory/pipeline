@@ -1,7 +1,7 @@
 import map from "lodash/map";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import { TeamService } from "../team";
 import type { User } from "~/modules/users/users.types";
+import { TeamService } from "../team";
 import type { Route } from "./+types/availableTeams.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {

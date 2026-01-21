@@ -4,9 +4,9 @@ import { PassThrough, Readable } from "node:stream";
 import { redirect } from "react-router";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import requireCollectionsFeature from "~/modules/collections/helpers/requireCollectionsFeature";
-import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
+import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import { CollectionService } from "../collection";
 import type { Route } from "./+types/downloadCollection.route";
 

@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+import type { Run } from "~/modules/runs/runs.types";
 import {
   getRunModelCode,
   getRunModelDisplayName,
   getRunModelInfo,
 } from "../runModel";
-import type { Run } from "~/modules/runs/runs.types";
 
 const createRun = (overrides: Partial<Run> = {}): Run =>
   ({

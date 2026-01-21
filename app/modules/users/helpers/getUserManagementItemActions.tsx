@@ -1,6 +1,6 @@
 import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
-import type { User } from "../users.types";
 import UserManagementAuthorization from "../authorization";
+import type { User } from "../users.types";
 
 export default (item: User, currentUser: User): CollectionItemAction[] => {
   const actions: CollectionItemAction[] = [];

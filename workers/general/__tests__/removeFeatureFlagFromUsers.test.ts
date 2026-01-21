@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { UserService } from "~/modules/users/user";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
+import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../test/helpers/clearDocumentDB";
 import removeFeatureFlagFromUsers from "../removeFeatureFlagFromUsers";
 

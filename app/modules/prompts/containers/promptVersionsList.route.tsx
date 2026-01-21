@@ -2,7 +2,6 @@ import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
-import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 import type { User } from "~/modules/users/users.types";
 import PromptAuthorization from "../authorization";
 import type { Route } from "./+types/promptVersionsList.route";

@@ -1,5 +1,5 @@
-import { StorageAdapters } from "./registerStorageAdapter";
 import find from "lodash/find";
+import { StorageAdapters } from "./registerStorageAdapter";
 
 export default () => {
   let storage = find(StorageAdapters, { name: process.env.STORAGE_ADAPTER });

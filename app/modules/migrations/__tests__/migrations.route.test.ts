@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { action, loader } from "../containers/migrations.route";
-import { clearMigrationsCache } from "../registry";
-import type { Route } from "../containers/+types/migrations.route";
+import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
-import { UserService } from "~/modules/users/user";
+import type { Route } from "../containers/+types/migrations.route";
+import { action, loader } from "../containers/migrations.route";
+import { clearMigrationsCache } from "../registry";
 
 // Mock getQueue
 vi.mock("~/modules/queues/helpers/getQueue", () => ({

@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
 import { MigrationRunService } from "app/modules/migrations/migrationRun";
 import { getAllMigrations } from "app/modules/migrations/registry";
 import type { Job } from "bullmq";
+import mongoose from "mongoose";
 import emitFromJob from "../helpers/emitFromJob";
 
 export default async function runMigration(job: Job) {

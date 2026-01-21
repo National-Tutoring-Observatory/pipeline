@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import featureFlagSchema from "~/lib/schemas/featureFlag.schema";
-import type { FeatureFlag } from "./featureFlags.types";
 import type { FindOptions } from "~/modules/common/types";
+import type { FeatureFlag } from "./featureFlags.types";
 
 const FeatureFlagModel = mongoose.model("FeatureFlag", featureFlagSchema);
 

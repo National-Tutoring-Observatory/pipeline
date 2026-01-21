@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import TeamsSelector from "../components/teamsSelector";
-import { useFetcher } from "react-router";
 import get from "lodash/get";
+import { useEffect, useState } from "react";
+import { useFetcher } from "react-router";
+import TeamsSelector from "../components/teamsSelector";
 
 export default function TeamsSelectorContainer({
   team,

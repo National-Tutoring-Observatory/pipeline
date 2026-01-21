@@ -1,10 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { UserService } from "../user";
 import { AuditService } from "~/modules/audits/audit";
-import type { User } from "../users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/adminUsers.route";
+import { UserService } from "../user";
 
 describe("adminUsers.route", () => {
   beforeEach(async () => {

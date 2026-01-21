@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import auditSchema from "~/lib/schemas/audit.schema";
-import type { AuditRecord } from "./audit.types";
 import { UserService } from "../users/user";
+import type { AuditRecord } from "./audit.types";
 
 const AuditModel =
   mongoose.models.Audit || mongoose.model("Audit", auditSchema);

@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { PromptService } from "../prompt";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/promptsList.route";
+import { PromptService } from "../prompt";
 
 describe("promptsList.route loader", () => {
   beforeEach(async () => {

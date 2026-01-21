@@ -1,9 +1,8 @@
+import dayjs from "dayjs";
 import loginUser from "test/helpers/loginUser";
 import { expect, test } from "vitest";
 import { UserService } from "~/modules/users/user";
 import { loader } from "../containers/authentication.route.js";
-import dayjs from "dayjs";
-import sessionStorage from "../../../../sessionStorage.js";
 
 async function readLoaderJson(resp: any) {
   if (!resp) return null;

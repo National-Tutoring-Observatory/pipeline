@@ -1,5 +1,5 @@
-import { RunService } from "~/modules/runs/run";
 import { emitter } from "~/modules/events/emitter";
+import { RunService } from "~/modules/runs/run";
 import { handler as outputRunDataToCSV } from "../../../functions/outputRunDataToCSV/app";
 import { handler as outputRunDataToJSON } from "../../../functions/outputRunDataToJSON/app";
 

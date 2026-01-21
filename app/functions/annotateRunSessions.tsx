@@ -1,14 +1,9 @@
 import { emitter } from "~/modules/events/emitter";
-import type { Project } from "~/modules/projects/projects.types";
-import type {
-  AnnotationSchemaItem,
-  PromptVersion,
-} from "~/modules/prompts/prompts.types";
-import { getRunModelCode } from "~/modules/runs/helpers/runModel";
-import type { Run } from "~/modules/runs/runs.types";
-import { RunService } from "~/modules/runs/run";
-import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import { ProjectService } from "~/modules/projects/project";
+import type { AnnotationSchemaItem } from "~/modules/prompts/prompts.types";
+import { PromptVersionService } from "~/modules/prompts/promptVersion";
+import { getRunModelCode } from "~/modules/runs/helpers/runModel";
+import { RunService } from "~/modules/runs/run";
 import { SessionService } from "~/modules/sessions/session";
 import { handler as annotatePerSession } from "./annotatePerSession/app";
 import { handler as annotatePerUtterance } from "./annotatePerUtterance/app";

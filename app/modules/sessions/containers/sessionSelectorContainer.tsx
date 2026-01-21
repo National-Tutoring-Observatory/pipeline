@@ -1,10 +1,10 @@
-import { useFetcher, useParams } from "react-router";
-import SessionSelector from "../components/sessionSelector";
-import { useEffect, useState } from "react";
-import map from "lodash/map";
 import cloneDeep from "lodash/cloneDeep";
+import map from "lodash/map";
 import pull from "lodash/pull";
 import sampleSize from "lodash/sampleSize";
+import { useEffect, useState } from "react";
+import { useFetcher, useParams } from "react-router";
+import SessionSelector from "../components/sessionSelector";
 
 export default function SessionSelectorContainer({
   selectedSessions,

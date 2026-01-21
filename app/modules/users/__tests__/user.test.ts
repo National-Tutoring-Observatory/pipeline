@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it } from "vitest";
 import mongoose from "mongoose";
+import { beforeEach, describe, expect, it } from "vitest";
+import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import { UserService } from "../user";
 import type { User } from "../users.types";
-import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 
 const generateObjectId = () => new mongoose.Types.ObjectId().toString();
 

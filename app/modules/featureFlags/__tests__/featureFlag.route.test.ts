@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserService } from "~/modules/users/user";
-import { FeatureFlagService } from "../featureFlag";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/featureFlag.route";
+import { FeatureFlagService } from "../featureFlag";
 
 vi.mock("~/modules/queues/helpers/getQueue", () => ({
   default: vi.fn(() => ({

@@ -1,6 +1,6 @@
+import { initializeDatabase } from "app/lib/database";
 import "app/modules/storage/storage";
 import type { Job } from "bullmq";
-import { initializeDatabase } from "app/lib/database";
 import deleteCollectionData from "../general/deleteCollectionData";
 import deleteProject from "../general/deleteProject";
 import deleteProjectData from "../general/deleteProjectData";

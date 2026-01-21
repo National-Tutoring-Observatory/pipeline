@@ -1,8 +1,8 @@
+import type { Db } from "mongodb";
 import type {
   MigrationFile,
   MigrationResult,
 } from "~/modules/migrations/types";
-import type { Db } from "mongodb";
 
 export default {
   id: "20260109120414-move-user-field-to-context-for-audit-records",

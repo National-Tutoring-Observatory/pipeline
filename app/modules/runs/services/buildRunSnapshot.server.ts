@@ -1,6 +1,5 @@
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
-import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 
 /**
  * Snapshot sections that can be added to a run

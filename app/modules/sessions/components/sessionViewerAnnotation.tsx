@@ -1,10 +1,10 @@
 import { Badge } from "@/components/ui/badge";
-import type { Annotation, Utterance } from "../sessions.types";
-import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
-import SessionViewerAnnotationValue from "./sessionViewerAnnotationValue";
 import map from "lodash/map";
+import { ThumbsDown, ThumbsUp } from "lucide-react";
+import type { Annotation } from "../sessions.types";
+import SessionViewerAnnotationValue from "./sessionViewerAnnotationValue";
 
 export default function SessionViewerAnnotation({
   annotation,

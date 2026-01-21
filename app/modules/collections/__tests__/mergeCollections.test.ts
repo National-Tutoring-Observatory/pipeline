@@ -1,17 +1,15 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { Types } from "mongoose";
-import { UserService } from "~/modules/users/user";
-import { TeamService } from "~/modules/teams/team";
-import { ProjectService } from "~/modules/projects/project";
 import { CollectionService } from "~/modules/collections/collection";
+import type { Collection } from "~/modules/collections/collections.types";
+import { ProjectService } from "~/modules/projects/project";
+import type { Project } from "~/modules/projects/projects.types";
 import { RunService } from "~/modules/runs/run";
 import { SessionService } from "~/modules/sessions/session";
-import type { User } from "~/modules/users/users.types";
-import type { Team } from "~/modules/teams/teams.types";
-import type { Project } from "~/modules/projects/projects.types";
-import type { Collection } from "~/modules/collections/collections.types";
-import type { Run } from "~/modules/runs/runs.types";
 import type { Session } from "~/modules/sessions/sessions.types";
+import { TeamService } from "~/modules/teams/team";
+import type { Team } from "~/modules/teams/teams.types";
+import { UserService } from "~/modules/users/user";
+import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 
 describe("CollectionService.findMergeableCollections", () => {

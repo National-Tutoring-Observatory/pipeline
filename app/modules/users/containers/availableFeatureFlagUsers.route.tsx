@@ -1,8 +1,8 @@
 import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
-import { UserService } from "~/modules/users/user";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
+import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/availableTeamUsers.route";
 

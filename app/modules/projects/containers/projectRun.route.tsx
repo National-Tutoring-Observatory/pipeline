@@ -7,7 +7,6 @@ import {
   useFetcher,
   useLoaderData,
   useNavigate,
-  useParams,
   useRevalidator,
   useSubmit,
 } from "react-router";

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { User } from "../users.types";
 import AssignSuperAdminForm from "../components/assignSuperAdminForm";
+import type { User } from "../users.types";
 
 interface AssignSuperAdminDialogContainerProps {
   targetUser: User;

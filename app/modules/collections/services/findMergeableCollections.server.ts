@@ -1,5 +1,5 @@
-import type { Collection } from "../collections.types";
 import { CollectionService } from "../collection";
+import type { Collection } from "../collections.types";
 
 interface FindMergeableCollectionsOptions {
   page?: number;

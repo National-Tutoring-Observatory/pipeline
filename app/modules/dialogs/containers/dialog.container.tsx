@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from "react";
-import Modal from "../components/modal";
 import { setDispatch } from "../addDialog";
+import Modal from "../components/modal";
 import type { Modal as ModalType } from "../dialogs.types";
 
 function modalReducer(

@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import findModelByCode from "../findModelByCode";
+import { describe, expect, it } from "vitest";
 import aiGatewayConfig from "~/config/ai_gateway.json";
+import findModelByCode from "../findModelByCode";
 
 describe("findModelByCode", () => {
   it("should find any valid model code from config", () => {

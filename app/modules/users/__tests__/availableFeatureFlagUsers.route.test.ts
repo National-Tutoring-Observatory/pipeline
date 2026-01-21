@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it } from "vitest";
 import mongoose from "mongoose";
-import { UserService } from "../user";
+import { beforeEach, describe, expect, it } from "vitest";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/availableFeatureFlagUsers.route";
+import { UserService } from "../user";
 
 const generateObjectId = () => new mongoose.Types.ObjectId().toString();
 

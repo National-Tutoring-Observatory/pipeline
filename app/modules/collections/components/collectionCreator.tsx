@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import clsx from "clsx";
-import xor from "lodash/xor";
-import map from "lodash/map";
 import includes from "lodash/includes";
+import map from "lodash/map";
+import xor from "lodash/xor";
 import type { Run } from "~/modules/runs/runs.types";
 
 export default function CollectionCreator({

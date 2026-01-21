@@ -1,10 +1,10 @@
 import { Collection as CollectionComponent } from "@/components/ui/collection";
+import type { Collection } from "~/modules/collections/collections.types";
+import collectionsActions from "~/modules/collections/helpers/collectionsActions";
+import collectionsSortOptions from "~/modules/collections/helpers/collectionsSortOptions";
 import getCollectionsEmptyAttributes from "~/modules/collections/helpers/getCollectionsEmptyAttributes";
 import getCollectionsItemActions from "~/modules/collections/helpers/getCollectionsItemActions";
 import getCollectionsItemAttributes from "~/modules/collections/helpers/getCollectionsItemAttributes";
-import collectionsActions from "~/modules/collections/helpers/collectionsActions";
-import collectionsSortOptions from "~/modules/collections/helpers/collectionsSortOptions";
-import type { Collection } from "~/modules/collections/collections.types";
 
 interface CollectionsListProps {
   collections: Collection[];

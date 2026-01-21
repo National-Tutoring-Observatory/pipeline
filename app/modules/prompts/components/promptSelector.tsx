@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -12,16 +13,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import clsx from "clsx";
-import {
-  BookCheck,
-  CheckIcon,
-  ChevronsUpDownIcon,
-  ViewIcon,
-} from "lucide-react";
-import type { Prompt, PromptVersion } from "../prompts.types";
-import { Badge } from "@/components/ui/badge";
-import find from "lodash/find";
 import {
   Sheet,
   SheetContent,
@@ -30,6 +21,15 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import clsx from "clsx";
+import find from "lodash/find";
+import {
+  BookCheck,
+  CheckIcon,
+  ChevronsUpDownIcon,
+  ViewIcon,
+} from "lucide-react";
+import type { Prompt, PromptVersion } from "../prompts.types";
 
 export default function PromptSelector({
   prompts,

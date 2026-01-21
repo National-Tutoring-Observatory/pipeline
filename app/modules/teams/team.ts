@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import teamSchema from "~/lib/schemas/team.schema";
-import type { Team } from "./teams.types";
 import type { FindOptions } from "~/modules/common/types";
+import type { Team } from "./teams.types";
 
 const TeamModel = mongoose.model("Team", teamSchema);
 

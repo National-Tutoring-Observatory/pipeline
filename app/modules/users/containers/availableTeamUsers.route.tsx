@@ -2,8 +2,8 @@ import { redirect } from "react-router";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import { UserService } from "~/modules/users/user";
 import TeamAuthorization from "~/modules/teams/authorization";
+import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/availableTeamUsers.route";
 

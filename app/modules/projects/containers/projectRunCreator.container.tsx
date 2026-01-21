@@ -3,7 +3,7 @@ import sampleSize from "lodash/sampleSize";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import aiGatewayConfig from "~/config/ai_gateway.json";
-import type { CreateRun, Run } from "~/modules/runs/runs.types";
+import type { CreateRun } from "~/modules/runs/runs.types";
 import ProjectRunCreator from "../components/projectRunCreator";
 
 interface ProjectRunCreatorContainerProps {

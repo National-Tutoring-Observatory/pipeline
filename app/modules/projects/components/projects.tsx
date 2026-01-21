@@ -1,7 +1,7 @@
 import { Collection } from "@/components/ui/collection";
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
-import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Breadcrumb } from "~/modules/app/app.types";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getProjectsEmptyAttributes from "../helpers/getProjectsEmptyAttributes";
 import getProjectsItemActions from "../helpers/getProjectsItemActions";
 import getProjectsItemAttributes from "../helpers/getProjectsItemAttributes";

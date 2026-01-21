@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import runSchema from "~/lib/schemas/run.schema";
-import type { Run } from "./runs.types";
-import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
+import runSchema from "~/lib/schemas/run.schema";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import createRunAnnotations from "~/modules/projects/services/createRunAnnotations.server";
+import type { Run } from "./runs.types";
 
 const RunModel = mongoose.model("Run", runSchema);
 

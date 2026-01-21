@@ -1,8 +1,8 @@
-import { RunService } from "~/modules/runs/run";
 import startRun from "~/modules/projects/services/startRun.server";
-import type { Collection, PromptReference } from "../collections.types";
+import { RunService } from "~/modules/runs/run";
 import type { RunAnnotationType } from "~/modules/runs/runs.types";
 import { CollectionService } from "../collection";
+import type { Collection, PromptReference } from "../collections.types";
 
 export interface CreateCollectionWithRunsPayload {
   project: string;

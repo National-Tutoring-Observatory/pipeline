@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { data, redirect, useNavigate } from "react-router";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import type { Collection } from "~/modules/collections/collections.types";

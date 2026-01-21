@@ -1,11 +1,3 @@
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -16,8 +8,6 @@ import {
 } from "@/components/ui/table";
 import dayjs from "dayjs";
 import map from "lodash/map";
-import { EllipsisVertical } from "lucide-react";
-import { Link } from "react-router";
 import type { File } from "~/modules/files/files.types";
 
 export default function ProjectFiles({ files }: { files: File[] }) {

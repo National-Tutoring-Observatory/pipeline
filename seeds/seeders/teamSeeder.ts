@@ -1,6 +1,5 @@
 import { TeamService } from "../../app/modules/teams/team.js";
 import { UserService } from "../../app/modules/users/user.js";
-import type { User } from "../../app/modules/users/users.types.js";
 import { getSeededUsers } from "./userSeeder.js";
 
 const SEED_TEAMS = [

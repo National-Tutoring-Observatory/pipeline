@@ -1,5 +1,5 @@
-import { getAllMigrations } from "./registry";
 import { MigrationRunService } from "./migrationRun";
+import { getAllMigrations } from "./registry";
 
 export class MigrationService {
   static async allWithStatus() {

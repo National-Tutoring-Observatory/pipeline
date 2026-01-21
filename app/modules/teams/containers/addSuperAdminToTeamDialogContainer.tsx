@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import type { TeamAssignmentOption } from "../teams.types";
 import AddSuperAdminToTeamDialog from "../components/addSuperAdminToTeamDialog";
+import type { TeamAssignmentOption } from "../teams.types";
 
 export default function AddSuperAdminToTeamDialogContainer({
   onAddSuperAdminClicked,

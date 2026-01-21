@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import projectSchema from "~/lib/schemas/project.schema";
-import type { Project } from "./projects.types";
-import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
+import projectSchema from "~/lib/schemas/project.schema";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
+import type { Project } from "./projects.types";
 
 const ProjectModel = mongoose.model("Project", projectSchema);
 

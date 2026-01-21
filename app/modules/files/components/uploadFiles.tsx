@@ -20,10 +20,10 @@ import clsx from "clsx";
 import map from "lodash/map";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Link } from "react-router";
 import type { FetcherWithComponents } from "react-router";
-import type { FileType } from "../files.types";
+import { Link } from "react-router";
 import { SUPPORTED_FILE_TYPES } from "../constants";
+import type { FileType } from "../files.types";
 import getFileUploadAccepts from "../helpers/getFileUploadAccepts";
 
 interface UploadFilesData {

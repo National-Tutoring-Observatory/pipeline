@@ -1,8 +1,8 @@
 import pick from "lodash/pick";
 import mongoose from "mongoose";
 import promptVersionSchema from "~/lib/schemas/promptVersion.schema";
-import type { PromptVersion } from "./prompts.types";
 import type { FindOptions } from "~/modules/common/types";
+import type { PromptVersion } from "./prompts.types";
 
 const PromptVersionModel = mongoose.model("PromptVersion", promptVersionSchema);
 

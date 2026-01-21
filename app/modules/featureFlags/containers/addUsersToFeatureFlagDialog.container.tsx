@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import { useFetcher } from "react-router";
-import AddUsersToFeatureFlagDialog from "../components/addUsersToFeatureFlagDialog";
+import cloneDeep from "lodash/cloneDeep";
 import includes from "lodash/includes";
 import remove from "lodash/remove";
-import cloneDeep from "lodash/cloneDeep";
+import { useEffect, useState } from "react";
+import { useFetcher } from "react-router";
+import AddUsersToFeatureFlagDialog from "../components/addUsersToFeatureFlagDialog";
 
 export default function AddUsersToFeatureFlagDialogContainer({
   featureFlagId,

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { UserService } from "~/modules/users/user";
-import { TeamService } from "~/modules/teams/team";
 import { ProjectService } from "~/modules/projects/project";
+import { TeamService } from "~/modules/teams/team";
+import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/runsList.route";

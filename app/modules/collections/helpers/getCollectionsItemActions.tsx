@@ -1,5 +1,5 @@
 import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
-import { Edit, Copy, FileInput, Trash2 } from "lucide-react";
+import { Copy, Edit, FileInput, Trash2 } from "lucide-react";
 import type { Collection } from "../collections.types";
 
 export default (item: Collection): CollectionItemAction[] => {

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import promptSchema from "~/lib/schemas/prompt.schema";
-import type { Prompt } from "./prompts.types";
 import type { FindOptions } from "~/modules/common/types";
+import type { Prompt } from "./prompts.types";
 
 const PromptModel = mongoose.model("Prompt", promptSchema);
 

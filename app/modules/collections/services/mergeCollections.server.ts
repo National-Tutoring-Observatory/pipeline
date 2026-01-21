@@ -1,5 +1,5 @@
-import type { Collection } from "../collections.types";
 import { CollectionService } from "../collection";
+import type { Collection } from "../collections.types";
 import { sessionsMatch } from "../helpers/sessionsMatch";
 
 interface MergeResult {

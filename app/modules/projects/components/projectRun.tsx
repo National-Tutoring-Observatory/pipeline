@@ -1,12 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   PageHeader,
   PageHeaderLeft,
   PageHeaderRight,
@@ -27,10 +21,10 @@ import { Pencil } from "lucide-react";
 import { Link } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
-import ProjectDownloadDropdown from "./projectDownloadDropdown";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
+import ProjectDownloadDropdown from "./projectDownloadDropdown";
 import ProjectRunDownloads from "./projectRunDownloads";
 
 export default function ProjectRun({

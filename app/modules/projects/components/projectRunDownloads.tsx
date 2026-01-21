@@ -1,11 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { DownloadIcon } from "lucide-react";
 import { Link } from "react-router";
 import type { Run } from "~/modules/runs/runs.types";

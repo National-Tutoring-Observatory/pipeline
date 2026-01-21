@@ -13,8 +13,8 @@ import { useState } from "react";
 import AnnotationTypeSelectorContainer from "~/modules/prompts/containers/annoationTypeSelectorContainer";
 import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
 import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
-import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 import SessionRandomizer from "~/modules/sessions/components/sessionRandomizer";
+import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 import RunNameAlert from "./runNameAlert";
 
 export default function ProjectRunCreator({

@@ -1,7 +1,7 @@
 import type { FetcherWithComponents } from "react-router";
 import UploadFiles from "../components/uploadFiles";
-import type { FileType } from "../files.types";
 import { SUPPORTED_FILE_TYPES } from "../constants";
+import type { FileType } from "../files.types";
 import getInstructionsByFileType from "../helpers/getInstructionsByFileType";
 import useFileAccumulator from "../hooks/useFileAccumulator";
 

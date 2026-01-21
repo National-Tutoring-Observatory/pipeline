@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -8,10 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import map from "lodash/map";
 import cloneDeep from "lodash/cloneDeep";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Delete, Trash } from "lucide-react";
+import map from "lodash/map";
+import { Trash } from "lucide-react";
 
 export default function AnnotationSchemaBuilder({
   annotationSchema,

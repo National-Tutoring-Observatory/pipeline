@@ -9,7 +9,6 @@ import {
   useRevalidator,
 } from "react-router";
 import { toast } from "sonner";
-import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";

@@ -2,9 +2,9 @@ import type { CollectionItemAction } from "@/components/ui/collectionContentItem
 import { Edit, Trash2 } from "lucide-react";
 import { useContext } from "react";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
-import type { Prompt } from "../prompts.types";
-import PromptAuthorization from "../authorization";
 import type { User } from "~/modules/users/users.types";
+import PromptAuthorization from "../authorization";
+import type { Prompt } from "../prompts.types";
 
 export default (item: Prompt): CollectionItemAction[] => {
   const user = useContext(AuthenticationContext) as User;

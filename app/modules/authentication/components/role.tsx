@@ -1,8 +1,8 @@
+import includes from "lodash/includes";
 import { useContext, type ReactNode } from "react";
-import type { Roles } from "../authentication.types";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import type { User } from "~/modules/users/users.types";
-import includes from "lodash/includes";
+import type { Roles } from "../authentication.types";
 
 export default function Role({
   roles,

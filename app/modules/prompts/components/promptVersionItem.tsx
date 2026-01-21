@@ -1,10 +1,9 @@
-import { Card } from "@/components/ui/card";
-import dayjs from "dayjs";
-import { Link } from "react-router";
-import type { Prompt, PromptVersion } from "../prompts.types";
-import clsx from "clsx";
 import { Badge } from "@/components/ui/badge";
+import clsx from "clsx";
+import dayjs from "dayjs";
 import { BookCheck } from "lucide-react";
+import { Link } from "react-router";
+import type { Prompt } from "../prompts.types";
 
 type PromptVersionItemProps = {
   name: string;

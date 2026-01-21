@@ -17,8 +17,8 @@
  *   yarn seeds --clean            # Clean all seeded data before seeding
  */
 
-import "../app/modules/storage/storage";
 import { initializeDatabase } from "../app/lib/database";
+import "../app/modules/storage/storage";
 
 import path from "path";
 import { fileURLToPath } from "url";

@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
-import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import collectionSchema from "~/lib/schemas/collection.schema";
-import type { Collection, PromptReference } from "./collections.types";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Run, RunAnnotationType } from "~/modules/runs/runs.types";
+import type { Collection, PromptReference } from "./collections.types";
+import addRunsToCollectionService from "./services/addRunsToCollection.server";
 import createCollectionWithRuns from "./services/createCollectionWithRuns.server";
 import deleteCollectionService from "./services/deleteCollection.server";
 import findEligibleRunsService from "./services/findEligibleRuns.server";
-import addRunsToCollectionService from "./services/addRunsToCollection.server";
 import findMergeableCollectionsService from "./services/findMergeableCollections.server";
 import mergeCollectionsService from "./services/mergeCollections.server";
 

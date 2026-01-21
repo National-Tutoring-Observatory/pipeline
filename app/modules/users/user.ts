@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import userSchema from "~/lib/schemas/user.schema";
-import type { User } from "./users.types";
-import type { FindOptions } from "~/modules/common/types";
 import { AuditService } from "~/modules/audits/audit";
+import type { FindOptions } from "~/modules/common/types";
+import type { User } from "./users.types";
 
 const UserModel = mongoose.models.User || mongoose.model("User", userSchema);
 

@@ -1,5 +1,5 @@
-import detectFileType from "~/modules/files/helpers/detectFileType";
 import { SUPPORTED_FILE_TYPES } from "~/modules/files/constants";
+import detectFileType from "~/modules/files/helpers/detectFileType";
 import parseCSV from "../parsers/csvParser";
 import parseJSONL from "../parsers/jsonlParser";
 

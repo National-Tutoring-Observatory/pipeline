@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { UserService } from "~/modules/users/user";
-import { TeamService } from "~/modules/teams/team";
 import { ProjectService } from "~/modules/projects/project";
-import { SessionService } from "~/modules/sessions/session";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
+import { SessionService } from "~/modules/sessions/session";
+import { TeamService } from "~/modules/teams/team";
+import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createCollectionWithRuns from "../services/createCollectionWithRuns.server";
 

@@ -1,8 +1,8 @@
-import { UserService } from "../../app/modules/users/user.js";
-import { ProjectService } from "../../app/modules/projects/project.js";
-import { TeamService } from "../../app/modules/teams/team.js";
 import mongoose from "mongoose";
+import { ProjectService } from "../../app/modules/projects/project.js";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter.js";
+import { TeamService } from "../../app/modules/teams/team.js";
+import { UserService } from "../../app/modules/users/user.js";
 
 /**
  * Cleans all seeded data from the database and storage

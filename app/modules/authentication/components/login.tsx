@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AlertCircle, ExternalLink, Terminal } from "lucide-react";
+import { AlertCircle, ExternalLink } from "lucide-react";
 
 export default function Login({
   errorTitle,

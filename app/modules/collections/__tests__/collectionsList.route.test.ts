@@ -1,13 +1,13 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
+import { CollectionService } from "~/modules/collections/collection";
+import { ProjectService } from "~/modules/projects/project";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
-import { ProjectService } from "~/modules/projects/project";
-import { CollectionService } from "~/modules/collections/collection";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
-import { loader, action } from "../containers/collectionsList.route";
+import { action, loader } from "../containers/collectionsList.route";
 
 describe("collectionsList.route loader", () => {
   beforeEach(async () => {

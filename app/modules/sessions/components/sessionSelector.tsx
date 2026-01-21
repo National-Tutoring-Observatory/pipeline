@@ -1,3 +1,4 @@
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -7,10 +8,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import dayjs from "dayjs";
+import includes from "lodash/includes";
 import map from "lodash/map";
 import type { Session } from "../sessions.types";
-import { Checkbox } from "@/components/ui/checkbox";
-import includes from "lodash/includes";
 import SessionRandomizer from "./sessionRandomizer";
 
 export default function SessionSelector({

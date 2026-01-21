@@ -12,9 +12,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import clsx from "clsx";
 import { Check, ChevronsUpDown } from "lucide-react";
 import type { Team } from "../teams.types";
-import clsx from "clsx";
 
 export default function TeamsSelector({
   selectedTeam,
