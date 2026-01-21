@@ -72,7 +72,9 @@ yarn migration:generate <Name Of Migration>
 
 ### Pre-commit Checklist
 1. ✅ `yarn typecheck` - must pass with no errors
-2. ✅ `yarn app:build` - must complete successfully
+2. ✅ `yarn format:check` - must pass with no errors
+3. ✅ `yarn test` - must pass with no errors
+4. ✅ `yarn app:build` - must complete successfully
 
 ## Architecture Overview
 
@@ -702,6 +704,7 @@ See detailed documentation:
 ```bash
 yarn install --frozen-lockfile
 yarn typecheck
+yarn format:check
 yarn app:build
 ```
 
