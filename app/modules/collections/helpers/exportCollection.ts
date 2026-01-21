@@ -1,6 +1,7 @@
 import { emitter } from "~/modules/events/emitter";
 import { RunService } from "~/modules/runs/run";
 import { handler as outputCollectionDataToCSV } from "../../../functions/outputCollectionDataToCSV/app";
+import { handler as outputCollectionDataToJSONL } from "../../../functions/outputCollectionDataToJSON/app";
 import { CollectionService } from "../collection";
 
 export default async function exportCollection({
@@ -43,7 +44,14 @@ export default async function exportCollection({
       },
     });
   } else {
-    //await outputCollectionDataToJSON({ body: { collection, runs, inputFolder: inputDirectory, outputFolder: outputDirectory } });
+    await outputCollectionDataToJSONL({
+      body: {
+        collection,
+        runs,
+        inputFolder: inputDirectory,
+        outputFolder: outputDirectory,
+      },
+    });
   }
 
   let update = {
@@ -58,6 +66,9 @@ export default async function exportCollection({
     update.hasExportedJSONL = true;
   }
 
+  const downloadType = exportType === "CSV" ? "CSV" : "JSONL";
+  const downloadUrl = `/api/downloads/${collection.project}/collections/${collection._id}?exportType=${downloadType}`;
+
   setTimeout(async () => {
     await CollectionService.updateById(collectionId, update);
 
@@ -65,6 +76,8 @@ export default async function exportCollection({
       collectionId,
       progress: 100,
       status: "DONE",
+      exportType,
+      url: downloadUrl,
     });
   }, 2000);
 }

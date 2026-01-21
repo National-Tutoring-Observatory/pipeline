@@ -24,8 +24,7 @@ export const handler = async (event: {
 
   const storage = getStorageAdapter();
 
-  // Determine annotation type from first run (all runs in collection share same type)
-  const annotationType = runs[0]?.annotationType;
+  const { annotationType } = collection;
 
   let utteranceKeys = [
     "_id",

@@ -77,30 +77,15 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const storage = getStorageAdapter();
 
-  for (const file of filesToArchive) {
-    try {
-      const requestUrl = await storage.request({ url: file.path });
-      const response = await fetch(requestUrl as string);
+  const localPaths = await Promise.all(
+    filesToArchive.map(async (file) => {
+      const localPath = await storage.download({ sourcePath: file.path });
+      return { file, localPath };
+    }),
+  );
 
-      // Check if the request was successful.
-      if (!response.ok) {
-        throw new Error(
-          `Fetch Error: ${response.status} ${response.statusText}`,
-        );
-      }
-
-      if (response.body) {
-        // @ts-ignore
-        const stream = Readable.fromWeb(response.body);
-        archive.append(stream, { name: file.name });
-      } else {
-        throw new Error(`Response body is null for file ${file.name}`);
-      }
-      // const fileStream = fs.createReadStream(file.path);
-      // archive.append(fileStream, { name: file.name });
-    } catch (error) {
-      console.error(`Error adding file ${file.name} to archive:`, error);
-    }
+  for (const { file, localPath } of localPaths) {
+    archive.file(localPath, { name: file.name });
   }
 
   archive.finalize();
