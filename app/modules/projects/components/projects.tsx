@@ -1,8 +1,7 @@
-
 import { Collection } from "@/components/ui/collection";
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
-import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Breadcrumb } from "~/modules/app/app.types";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getProjectsEmptyAttributes from "../helpers/getProjectsEmptyAttributes";
 import getProjectsItemActions from "../helpers/getProjectsItemActions";
 import getProjectsItemAttributes from "../helpers/getProjectsItemAttributes";
@@ -13,19 +12,19 @@ import type { Project } from "../projects.types";
 
 interface ProjectsProps {
   projects: Project[];
-  searchValue: string,
-  currentPage: number,
-  totalPages: number,
-  filtersValues: {},
-  sortValue: string,
+  searchValue: string;
+  currentPage: number;
+  totalPages: number;
+  filtersValues: {};
+  sortValue: string;
   breadcrumbs: Breadcrumb[];
-  isSyncing: boolean,
+  isSyncing: boolean;
   onActionClicked: (action: string) => void;
-  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
-  onSearchValueChanged: (searchValue: string) => void,
-  onPaginationChanged: (currentPage: number) => void,
-  onFiltersValueChanged: (filterValue: any) => void,
-  onSortValueChanged: (sortValue: any) => void
+  onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (currentPage: number) => void;
+  onFiltersValueChanged: (filterValue: any) => void;
+  onSortValueChanged: (sortValue: any) => void;
 }
 
 export default function Projects({
@@ -42,7 +41,7 @@ export default function Projects({
   onSearchValueChanged,
   onPaginationChanged,
   onFiltersValueChanged,
-  onSortValueChanged
+  onSortValueChanged,
 }: ProjectsProps) {
   return (
     <div className="max-w-6xl p-8">

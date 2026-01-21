@@ -3,7 +3,6 @@ import type { RunSession, StartRunProps } from "~/modules/runs/runs.types";
 import buildRunSnapshot from "~/modules/runs/services/buildRunSnapshot.server";
 import { SessionService } from "~/modules/sessions/session";
 
-
 export default async function startRun({
   runId,
   projectId,
@@ -11,12 +10,11 @@ export default async function startRun({
   annotationType,
   prompt,
   promptVersion,
-  modelCode
+  modelCode,
 }: StartRunProps) {
-
   const run = await RunService.findById(runId);
   if (!run || run.project !== projectId) {
-    throw new Error('Run not found');
+    throw new Error("Run not found");
   }
 
   const sessionsAsObjects: RunSession[] = [];
@@ -28,11 +26,11 @@ export default async function startRun({
     }
     sessionsAsObjects.push({
       name: sessionModel.name,
-      fileType: sessionModel.fileType || '',
+      fileType: sessionModel.fileType || "",
       sessionId: session,
-      status: 'RUNNING',
+      status: "RUNNING",
       startedAt: new Date(),
-      finishedAt: new Date()
+      finishedAt: new Date(),
     });
   }
 
@@ -49,6 +47,6 @@ export default async function startRun({
     promptVersion,
     model: modelCode,
     sessions: sessionsAsObjects,
-    snapshot
+    snapshot,
   });
 }

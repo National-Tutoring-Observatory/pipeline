@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Collection } from "@/components/ui/collection";
-import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { User } from "~/modules/users/users.types";
 import getAddUserToTeamDialogEmptyAttributes from "../helpers/getAddUserToTeamDialogEmptyAttributes";
 import getAddUserToTeamDialogItemActions from "../helpers/getAddUserToTeamDialogItemActions";
@@ -17,18 +24,18 @@ export default function AddUserToTeamDialog({
   onAddUsersClicked,
   onSelectUserToggled,
   onSearchValueChanged,
-  onPaginationChanged
+  onPaginationChanged,
 }: {
-  users: User[],
-  selectedUsers: string[],
-  searchValue: string,
-  currentPage: number,
-  totalPages: number,
-  isSubmitButtonDisabled: boolean,
-  onAddUsersClicked: () => void,
-  onSelectUserToggled: (userId: string) => void,
-  onSearchValueChanged: (searchValue: string) => void,
-  onPaginationChanged: (page: number) => void
+  users: User[];
+  selectedUsers: string[];
+  searchValue: string;
+  currentPage: number;
+  totalPages: number;
+  isSubmitButtonDisabled: boolean;
+  onAddUsersClicked: () => void;
+  onSelectUserToggled: (userId: string) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (page: number) => void;
 }) {
   return (
     <DialogContent className="min-w-2xl">
@@ -38,7 +45,7 @@ export default function AddUserToTeamDialog({
           Select the users you would like to add to this team.
         </DialogDescription>
       </DialogHeader>
-      <div style={{ height: 'calc(100vh - 200px)' }}>
+      <div style={{ height: "calc(100vh - 200px)" }}>
         <Collection
           items={users}
           itemsLayout="list"
@@ -50,15 +57,17 @@ export default function AddUserToTeamDialog({
           filters={[]}
           filtersValues={{}}
           emptyAttributes={getAddUserToTeamDialogEmptyAttributes()}
-          renderItem={(user: User) => renderAddUserToTeamDialogItem(user, selectedUsers)}
+          renderItem={(user: User) =>
+            renderAddUserToTeamDialogItem(user, selectedUsers)
+          }
           getItemAttributes={getAddUserToTeamDialogItemAttributes}
           getItemActions={getAddUserToTeamDialogItemActions}
           onItemClicked={onSelectUserToggled}
-          onActionClicked={() => { }}
+          onActionClicked={() => {}}
           onSearchValueChanged={onSearchValueChanged}
           onPaginationChanged={onPaginationChanged}
-          onFiltersValueChanged={() => { }}
-          onSortValueChanged={() => { }}
+          onFiltersValueChanged={() => {}}
+          onSortValueChanged={() => {}}
         />
       </div>
       <DialogFooter className="justify-end">
@@ -68,13 +77,17 @@ export default function AddUserToTeamDialog({
           </Button>
         </DialogClose>
         <DialogClose asChild>
-          <Button type="button" disabled={isSubmitButtonDisabled} onClick={() => {
-            onAddUsersClicked();
-          }}>
+          <Button
+            type="button"
+            disabled={isSubmitButtonDisabled}
+            onClick={() => {
+              onAddUsersClicked();
+            }}
+          >
             Add users
           </Button>
         </DialogClose>
       </DialogFooter>
-    </DialogContent >
+    </DialogContent>
   );
 }

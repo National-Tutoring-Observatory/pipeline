@@ -1,5 +1,5 @@
-import type { Route } from ".react-router/types/app/+types/root"
-import mongoose from 'mongoose';
+import type { Route } from ".react-router/types/app/+types/root";
+import mongoose from "mongoose";
 import { redis } from "~/modules/queues/helpers/createQueue";
 
 const checkParamsExist = (paramKeys: string[]) => {
@@ -10,72 +10,69 @@ const checkParamsExist = (paramKeys: string[]) => {
     }
   }
   return missingParams;
-}
+};
 
 export async function loader({ request }: Route.LoaderArgs) {
-
   let missingParameters: any[] = [];
 
-  let {
-    LLM_PROVIDER,
-    STORAGE_ADAPTER,
-    DOCUMENTS_ADAPTER,
-  } = process.env;
+  let { LLM_PROVIDER, STORAGE_ADAPTER, DOCUMENTS_ADAPTER } = process.env;
 
-  if (LLM_PROVIDER === 'AI_GATEWAY') {
-    missingParameters = missingParameters.concat(checkParamsExist([
-      'AI_GATEWAY_KEY',
-      'AI_GATEWAY_BASE_URL',
-      'AI_GATEWAY_PROVIDER'
-    ]));
+  if (LLM_PROVIDER === "AI_GATEWAY") {
+    missingParameters = missingParameters.concat(
+      checkParamsExist([
+        "AI_GATEWAY_KEY",
+        "AI_GATEWAY_BASE_URL",
+        "AI_GATEWAY_PROVIDER",
+      ]),
+    );
   }
 
-  if (STORAGE_ADAPTER === 'AWS_S3') {
-    missingParameters = missingParameters.concat(checkParamsExist([
-      'AWS_BUCKET',
-      'AWS_REGION',
-      'AWS_KEY',
-      'AWS_SECRET'
-    ]));
+  if (STORAGE_ADAPTER === "AWS_S3") {
+    missingParameters = missingParameters.concat(
+      checkParamsExist(["AWS_BUCKET", "AWS_REGION", "AWS_KEY", "AWS_SECRET"]),
+    );
   }
 
-  if (DOCUMENTS_ADAPTER === 'DOCUMENT_DB') {
-    missingParameters = missingParameters.concat(checkParamsExist([
-      'DOCUMENT_DB_CONNECTION_STRING',
-      'DOCUMENT_DB_USERNAME',
-      'DOCUMENT_DB_PASSWORD',
-      'REDIS_URL'
-    ]));
+  if (DOCUMENTS_ADAPTER === "DOCUMENT_DB") {
+    missingParameters = missingParameters.concat(
+      checkParamsExist([
+        "DOCUMENT_DB_CONNECTION_STRING",
+        "DOCUMENT_DB_USERNAME",
+        "DOCUMENT_DB_PASSWORD",
+        "REDIS_URL",
+      ]),
+    );
   }
-  missingParameters = missingParameters.concat(checkParamsExist([
-    'SESSION_SECRET',
-    'GITHUB_CLIENT_ID',
-    'GITHUB_CLIENT_SECRET',
-    'SUPER_ADMIN_GITHUB_ID',
-    'AUTH_CALLBACK_URL'
-  ]));
+  missingParameters = missingParameters.concat(
+    checkParamsExist([
+      "SESSION_SECRET",
+      "GITHUB_CLIENT_ID",
+      "GITHUB_CLIENT_SECRET",
+      "SUPER_ADMIN_GITHUB_ID",
+      "AUTH_CALLBACK_URL",
+    ]),
+  );
 
-  let dbStatus = 'DISCONNECTED';
-  let cacheStatus = 'DISCONNECTED';
+  let dbStatus = "DISCONNECTED";
+  let cacheStatus = "DISCONNECTED";
 
-  const isDocumentDB = process.env.DOCUMENTS_ADAPTER === 'DOCUMENT_DB';
+  const isDocumentDB = process.env.DOCUMENTS_ADAPTER === "DOCUMENT_DB";
 
   if (isDocumentDB) {
     dbStatus = mongoose.STATES[mongoose.connection.readyState].toUpperCase();
   } else {
-    dbStatus = 'CONNECTED';
+    dbStatus = "CONNECTED";
   }
 
-  cacheStatus = 'DISCONNECTED';
-  if (redis.status === 'ready') {
-    cacheStatus = 'CONNECTED';
+  cacheStatus = "DISCONNECTED";
+  if (redis.status === "ready") {
+    cacheStatus = "CONNECTED";
   }
 
   return {
     status: 200,
     dbStatus,
     cacheStatus,
-    missingParameters
-  }
-
+    missingParameters,
+  };
 }

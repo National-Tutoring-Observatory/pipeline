@@ -1,4 +1,6 @@
-export default [{
-  action: 'CREATE',
-  text: 'Create collection'
-}]
+export default [
+  {
+    action: "CREATE",
+    text: "Create collection",
+  },
+];

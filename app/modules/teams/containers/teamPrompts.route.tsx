@@ -1,10 +1,18 @@
-import find from 'lodash/find';
+import find from "lodash/find";
 import { useEffect } from "react";
-import { redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
-import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
-import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
-import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
-import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
+import {
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+  useOutletContext,
+  useParams,
+  useSubmit,
+} from "react-router";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
+import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { userIsTeamMember } from "~/modules/authorization/helpers/teamMembership";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -18,25 +26,25 @@ import type { Route } from "./+types/teamPrompts.route";
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await getSessionUser({ request });
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
   if (!userIsTeamMember(user, params.id)) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const queryParams = getQueryParamsFromRequest(request, {
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sort: 'name',
-    filters: {}
+    sort: "name",
+    filters: {},
   });
 
   const query = buildQueryFromParams({
     match: { team: params.id, deletedAt: { $exists: false } },
     queryParams,
-    searchableFields: ['name'],
-    sortableFields: ['name', 'createdAt'],
-    filterableFields: ['annotationType']
+    searchableFields: ["name"],
+    sortableFields: ["name", "createdAt"],
+    filterableFields: ["annotationType"],
   });
 
   const pagination = getPaginationParams(query.page);
@@ -44,12 +52,18 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const result = await PromptService.find({
     match: query.match,
     sort: query.sort,
-    pagination
+    pagination,
   });
 
   const total = await PromptService.count(query.match);
 
-  return { prompts: { data: result, totalPages: getTotalPages(total), currentPage: query.page || 1 } };
+  return {
+    prompts: {
+      data: result,
+      totalPages: getTotalPages(total),
+      currentPage: query.page || 1,
+    },
+  };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -57,36 +71,48 @@ export async function action({ request, params }: Route.ActionArgs) {
   const { name, annotationType } = payload;
 
   const user = await getSessionUser({ request });
-  if (!user) return { redirect: '/' };
+  if (!user) return { redirect: "/" };
 
   if (!PromptAuthorization.canCreate(user, params.id)) {
-    throw new Error('You do not have permission to create a prompt in this team.');
+    throw new Error(
+      "You do not have permission to create a prompt in this team.",
+    );
   }
 
-  if (intent === 'CREATE_PROMPT') {
-    if (typeof name !== 'string') throw new Error('Prompt name is required and must be a string.');
+  if (intent === "CREATE_PROMPT") {
+    if (typeof name !== "string")
+      throw new Error("Prompt name is required and must be a string.");
 
-    const prompt = await PromptService.create({ name, annotationType, team: params.id, productionVersion: 1, createdBy: user._id });
+    const prompt = await PromptService.create({
+      name,
+      annotationType,
+      team: params.id,
+      productionVersion: 1,
+      createdBy: user._id,
+    });
     await PromptVersionService.create({
-      name: 'initial',
+      name: "initial",
       prompt: prompt._id,
       version: 1,
-      annotationSchema: [{
-        "isSystem": true,
-        "fieldKey": "_id",
-        "fieldType": "string",
-        "value": ""
-      }, {
-        "isSystem": true,
-        "fieldKey": "identifiedBy",
-        "fieldType": "string",
-        "value": "AI"
-      }]
+      annotationSchema: [
+        {
+          isSystem: true,
+          fieldKey: "_id",
+          fieldType: "string",
+          value: "",
+        },
+        {
+          isSystem: true,
+          fieldKey: "identifiedBy",
+          fieldType: "string",
+          value: "AI",
+        },
+      ],
     });
 
     return {
-      intent: 'CREATE_PROMPT',
-      ...prompt
+      intent: "CREATE_PROMPT",
+      ...prompt,
     };
   }
 
@@ -102,21 +128,27 @@ export default function TeamPromptsRoute() {
   const navigate = useNavigate();
 
   const {
-    searchValue, setSearchValue,
-    currentPage, setCurrentPage,
-    sortValue, setSortValue,
-    filtersValues, setFiltersValues,
-    isSyncing
+    searchValue,
+    setSearchValue,
+    currentPage,
+    setCurrentPage,
+    sortValue,
+    setSortValue,
+    filtersValues,
+    setFiltersValues,
+    isSyncing,
   } = useSearchQueryParams({
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sortValue: 'name',
-    filters: {}
+    sortValue: "name",
+    filters: {},
   });
 
   useEffect(() => {
-    if (actionData?.intent === 'CREATE_PROMPT') {
-      navigate(`/prompts/${actionData.data._id}/${actionData.data.productionVersion}`);
+    if (actionData?.intent === "CREATE_PROMPT") {
+      navigate(
+        `/prompts/${actionData.data._id}/${actionData.data.productionVersion}`,
+      );
     }
   }, [actionData]);
 
@@ -125,40 +157,58 @@ export default function TeamPromptsRoute() {
       <CreatePromptDialog
         hasTeamSelection={false}
         onCreateNewPromptClicked={onCreateNewPromptClicked}
-      />
+      />,
     );
-  }
+  };
 
-  const onCreateNewPromptClicked = ({ name, annotationType }: { name: string, annotationType: string }) => {
-    submit(JSON.stringify({ intent: 'CREATE_PROMPT', payload: { name, annotationType } }), { method: 'POST', encType: 'application/json' });
-  }
+  const onCreateNewPromptClicked = ({
+    name,
+    annotationType,
+  }: {
+    name: string;
+    annotationType: string;
+  }) => {
+    submit(
+      JSON.stringify({
+        intent: "CREATE_PROMPT",
+        payload: { name, annotationType },
+      }),
+      { method: "POST", encType: "application/json" },
+    );
+  };
 
   const onActionClicked = (action: string) => {
-    if (action === 'CREATE') {
+    if (action === "CREATE") {
       onCreatePromptButtonClicked();
     }
-  }
+  };
 
-  const onItemActionClicked = ({ id, action }: { id: string, action: string }) => {
+  const onItemActionClicked = ({
+    id,
+    action,
+  }: {
+    id: string;
+    action: string;
+  }) => {
     const prompt = find(data.prompts.data, { _id: id });
     if (!prompt) return null;
-  }
+  };
 
   const onSearchValueChanged = (searchValue: string) => {
     setSearchValue(searchValue);
-  }
+  };
 
   const onPaginationChanged = (currentPage: number) => {
     setCurrentPage(currentPage);
-  }
+  };
 
   const onFiltersValueChanged = (filterValue: any) => {
     setFiltersValues({ ...filtersValues, ...filterValue });
-  }
+  };
 
   const onSortValueChanged = (sortValue: string) => {
     setSortValue(sortValue);
-  }
+  };
 
   const prompts = data.prompts.data ?? [];
 

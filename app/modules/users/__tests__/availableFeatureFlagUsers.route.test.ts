@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it } from "vitest";
 import mongoose from "mongoose";
-import { UserService } from "../user";
+import { beforeEach, describe, expect, it } from "vitest";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
-import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
-import loginUser from '../../../../test/helpers/loginUser';
+import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/availableFeatureFlagUsers.route";
+import { UserService } from "../user";
 
 const generateObjectId = () => new mongoose.Types.ObjectId().toString();
 
@@ -15,7 +15,9 @@ describe("availableFeatureFlagUsers.route loader", () => {
 
   it("redirects to / when there is no session cookie", async () => {
     const res = await loader({
-      request: new Request("http://localhost/available-feature-flag-users?featureFlagId=123"),
+      request: new Request(
+        "http://localhost/available-feature-flag-users?featureFlagId=123",
+      ),
       params: {},
     } as any);
     expect(res).toBeInstanceOf(Response);
@@ -36,7 +38,7 @@ describe("availableFeatureFlagUsers.route loader", () => {
           headers: { cookie: cookieHeader },
         }),
         params: {},
-      } as any)
+      } as any),
     ).rejects.toThrow("Feature flag id is not defined");
   });
 
@@ -59,10 +61,10 @@ describe("availableFeatureFlagUsers.route loader", () => {
       loader({
         request: new Request(
           `http://localhost/available-feature-flag-users?featureFlagId=${featureFlag._id}`,
-          { headers: { cookie: cookieHeader } }
+          { headers: { cookie: cookieHeader } },
         ),
         params: {},
-      } as any)
+      } as any),
     ).rejects.toThrow("Access denied");
   });
 
@@ -79,10 +81,10 @@ describe("availableFeatureFlagUsers.route loader", () => {
       loader({
         request: new Request(
           `http://localhost/available-feature-flag-users?featureFlagId=${generateObjectId()}`,
-          { headers: { cookie: cookieHeader } }
+          { headers: { cookie: cookieHeader } },
         ),
         params: {},
-      } as any)
+      } as any),
     ).rejects.toThrow("Feature flag not found");
   });
 
@@ -116,13 +118,15 @@ describe("availableFeatureFlagUsers.route loader", () => {
     const result = (await loader({
       request: new Request(
         `http://localhost/available-feature-flag-users?featureFlagId=${featureFlag._id}`,
-        { headers: { cookie: cookieHeader } }
+        { headers: { cookie: cookieHeader } },
       ),
       params: {},
     } as any)) as any;
 
     expect(result.data).toHaveLength(2);
-    expect(result.data.some((u: any) => u._id === userWithoutFlag._id)).toBe(true);
+    expect(result.data.some((u: any) => u._id === userWithoutFlag._id)).toBe(
+      true,
+    );
     expect(result.data.some((u: any) => u._id === superAdmin._id)).toBe(true);
   });
 
@@ -156,14 +160,18 @@ describe("availableFeatureFlagUsers.route loader", () => {
     const result = (await loader({
       request: new Request(
         `http://localhost/available-feature-flag-users?featureFlagId=${featureFlag._id}`,
-        { headers: { cookie: cookieHeader } }
+        { headers: { cookie: cookieHeader } },
       ),
       params: {},
     } as any)) as any;
 
     expect(result.data).toHaveLength(2);
-    expect(result.data.some((u: any) => u._id === registeredUser._id)).toBe(true);
+    expect(result.data.some((u: any) => u._id === registeredUser._id)).toBe(
+      true,
+    );
     expect(result.data.some((u: any) => u._id === superAdmin._id)).toBe(true);
-    expect(result.data.some((u: any) => u._id === unregisteredUser._id)).toBe(false);
+    expect(result.data.some((u: any) => u._id === unregisteredUser._id)).toBe(
+      false,
+    );
   });
 });

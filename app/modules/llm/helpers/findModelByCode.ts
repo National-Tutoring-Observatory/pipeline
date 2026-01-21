@@ -1,6 +1,5 @@
-
-import aiGatewayConfig from '~/config/ai_gateway.json';
-import type { ModelInfo } from '~/modules/llm/model.types';
+import aiGatewayConfig from "~/config/ai_gateway.json";
+import type { ModelInfo } from "~/modules/llm/model.types";
 
 /** Finds a model in config by code (e.g., 'google.gemini-2.5-flash') */
 export function findModelByCode(modelCode: string): ModelInfo | null {
@@ -10,7 +9,7 @@ export function findModelByCode(modelCode: string): ModelInfo | null {
       return {
         code: model.code,
         name: model.name,
-        provider: provider.name
+        provider: provider.name,
       };
     }
   }

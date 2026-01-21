@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { UserService } from "../user";
 import { TeamService } from "~/modules/teams/team";
-import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
-import loginUser from '../../../../test/helpers/loginUser';
+import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/availableTeamUsers.route";
+import { UserService } from "../user";
 
 describe("availableTeamUsers.route loader", () => {
   beforeEach(async () => {
@@ -21,7 +21,8 @@ describe("availableTeamUsers.route loader", () => {
 
   it("throws error when teamId is not provided", async () => {
     const user = await UserService.create({
-      username: "testuser", role: "USER",
+      username: "testuser",
+      role: "USER",
     });
 
     const cookieHeader = await loginUser(user._id);
@@ -32,14 +33,16 @@ describe("availableTeamUsers.route loader", () => {
           headers: { cookie: cookieHeader },
         }),
         params: {},
-      } as any)
+      } as any),
     ).rejects.toThrow("Team id is not defined");
   });
 
   it("throws error when user cannot view team", async () => {
     const team = await TeamService.create({ name: "test team" });
     const user = await UserService.create({
-      username: "testuser", role: "USER", teams: []
+      username: "testuser",
+      role: "USER",
+      teams: [],
     });
 
     const cookieHeader = await loginUser(user._id);
@@ -48,10 +51,10 @@ describe("availableTeamUsers.route loader", () => {
       loader({
         request: new Request(
           `http://localhost/available-team-users?teamId=${team._id}`,
-          { headers: { cookie: cookieHeader } }
+          { headers: { cookie: cookieHeader } },
         ),
         params: {},
-      } as any)
+      } as any),
     ).rejects.toThrow("Access denied");
   });
 
@@ -88,7 +91,7 @@ describe("availableTeamUsers.route loader", () => {
     const result = (await loader({
       request: new Request(
         `http://localhost/available-team-users?teamId=${team._id}`,
-        { headers: { cookie: cookieHeader } }
+        { headers: { cookie: cookieHeader } },
       ),
       params: {},
     } as any)) as any;
@@ -131,7 +134,7 @@ describe("availableTeamUsers.route loader", () => {
     const result = (await loader({
       request: new Request(
         `http://localhost/available-team-users?teamId=${team._id}`,
-        { headers: { cookie: cookieHeader } }
+        { headers: { cookie: cookieHeader } },
       ),
       params: {},
     } as any)) as any;

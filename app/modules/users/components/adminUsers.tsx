@@ -1,13 +1,13 @@
-import { Collection } from '@/components/ui/collection';
-import { PageHeader, PageHeaderLeft } from '@/components/ui/pageHeader';
-import type { Breadcrumb } from '~/modules/app/app.types';
-import Breadcrumbs from '~/modules/app/components/breadcrumbs';
-import type { AuditRecord } from '~/modules/audits/audit.types';
-import getEmptyStateAttributes from '../helpers/getEmptyStateAttributes';
-import getUserManagementItemActions from '../helpers/getUserManagementItemActions';
-import getUserManagementItemAttributes from '../helpers/getUserManagementItemAttributes';
-import type { User } from '../users.types';
-import AuditLog from './auditLog';
+import { Collection } from "@/components/ui/collection";
+import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
+import type { Breadcrumb } from "~/modules/app/app.types";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import type { AuditRecord } from "~/modules/audits/audit.types";
+import getEmptyStateAttributes from "../helpers/getEmptyStateAttributes";
+import getUserManagementItemActions from "../helpers/getUserManagementItemActions";
+import getUserManagementItemAttributes from "../helpers/getUserManagementItemAttributes";
+import type { User } from "../users.types";
+import AuditLog from "./auditLog";
 
 interface AdminUsersProps {
   users: User[];
@@ -22,7 +22,7 @@ export default function AdminUsers({
   audits,
   currentUser,
   breadcrumbs,
-  onItemActionClicked
+  onItemActionClicked,
 }: AdminUsersProps) {
   const onActionClicked = (action: string) => {
     // No collection-level actions
@@ -51,16 +51,20 @@ export default function AdminUsers({
             totalPages={1}
             emptyAttributes={getEmptyStateAttributes()}
             getItemAttributes={getUserManagementItemAttributes}
-            getItemActions={(item) => getUserManagementItemActions(item, currentUser)}
+            getItemActions={(item) =>
+              getUserManagementItemActions(item, currentUser)
+            }
             onActionClicked={onActionClicked}
             onItemActionClicked={onItemActionClicked}
-            onPaginationChanged={() => { }}
-            onSortValueChanged={() => { }}
+            onPaginationChanged={() => {}}
+            onSortValueChanged={() => {}}
           />
         </div>
 
         <div>
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Role Change History</h2>
+          <h2 className="mb-4 text-2xl font-bold tracking-tight">
+            Role Change History
+          </h2>
           <AuditLog audits={audits} />
         </div>
       </div>

@@ -1,14 +1,16 @@
-import includes from 'lodash/includes.js';
+import includes from "lodash/includes.js";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { FeatureFlagService } from "../featureFlag";
 
 export default async (
   featureFlagName: string,
   context: { request: Request },
-  options: { defaultValue?: boolean } = {}
+  options: { defaultValue?: boolean } = {},
 ) => {
   const { defaultValue = true } = options;
-  const featureFlag = await FeatureFlagService.find({ match: { name: featureFlagName } });
+  const featureFlag = await FeatureFlagService.find({
+    match: { name: featureFlagName },
+  });
 
   if (featureFlag.length > 0) {
     const user = await getSessionUser({ request: context.request });
@@ -20,4 +22,4 @@ export default async (
   }
 
   return false;
-}
+};

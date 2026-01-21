@@ -17,7 +17,10 @@ export default function QueueTypeTabs({ queues }: QueueTypeTabsProps) {
   const navigate = useNavigate();
   const currentPath = location.pathname;
 
-  const currentValue = queues.find(t => currentPath.includes(`/${t.key}`))?.key ?? queues[0]?.key ?? '';
+  const currentValue =
+    queues.find((t) => currentPath.includes(`/${t.key}`))?.key ??
+    queues[0]?.key ??
+    "";
 
   const handleValueChange = (value: string) => {
     if (value) {

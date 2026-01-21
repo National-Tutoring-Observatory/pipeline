@@ -1,6 +1,6 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 import { createCookieSessionStorage } from "react-router";
-dotenv.config({ path: '.env' });
+dotenv.config({ path: ".env" });
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -13,6 +13,5 @@ const sessionStorage = createCookieSessionStorage({
     secure: process.env.NODE_ENV === "production",
   },
 });
-
 
 export default sessionStorage;

@@ -1,10 +1,18 @@
-import find from 'lodash/find';
+import find from "lodash/find";
 import { useEffect } from "react";
-import { redirect, useActionData, useLoaderData, useNavigate, useOutletContext, useParams, useSubmit } from "react-router";
-import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
-import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
-import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
-import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
+import {
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+  useOutletContext,
+  useParams,
+  useSubmit,
+} from "react-router";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
+import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -17,25 +25,25 @@ import type { Route } from "./+types/teamProjects.route";
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await getSessionUser({ request });
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
   if (!TeamAuthorization.canView(user, params.id)) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const queryParams = getQueryParamsFromRequest(request, {
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sort: 'name',
-    filters: {}
+    sort: "name",
+    filters: {},
   });
 
   const query = buildQueryFromParams({
     match: { team: params.id },
     queryParams,
-    searchableFields: ['name'],
-    sortableFields: ['name', 'createdAt'],
-    filterableFields: []
+    searchableFields: ["name"],
+    sortableFields: ["name", "createdAt"],
+    filterableFields: [],
   });
 
   const pagination = getPaginationParams(query.page);
@@ -43,12 +51,18 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const result = await ProjectService.find({
     match: query.match,
     sort: query.sort,
-    pagination
+    pagination,
   });
 
   const total = await ProjectService.count(query.match);
 
-  return { projects: { data: result, totalPages: getTotalPages(total), currentPage: query.page || 1 } };
+  return {
+    projects: {
+      data: result,
+      totalPages: getTotalPages(total),
+      currentPage: query.page || 1,
+    },
+  };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -56,18 +70,25 @@ export async function action({ request, params }: Route.ActionArgs) {
   const { name } = payload;
 
   const user = await getSessionUser({ request });
-  if (!user) return { redirect: '/' };
+  if (!user) return { redirect: "/" };
 
   if (!ProjectAuthorization.canCreate(user, params.id)) {
-    throw new Error('You do not have permission to create a project in this team.');
+    throw new Error(
+      "You do not have permission to create a project in this team.",
+    );
   }
 
-  if (intent === 'CREATE_PROJECT') {
-    if (typeof name !== 'string') throw new Error('Project name is required and must be a string.');
-    const project = await ProjectService.create({ name, team: params.id, createdBy: user._id });
+  if (intent === "CREATE_PROJECT") {
+    if (typeof name !== "string")
+      throw new Error("Project name is required and must be a string.");
+    const project = await ProjectService.create({
+      name,
+      team: params.id,
+      createdBy: user._id,
+    });
     return {
-      intent: 'CREATE_PROJECT',
-      data: project
+      intent: "CREATE_PROJECT",
+      data: project,
     };
   }
 
@@ -84,20 +105,24 @@ export default function TeamProjectsRoute() {
   const teamId = params.id;
 
   const {
-    searchValue, setSearchValue,
-    currentPage, setCurrentPage,
-    sortValue, setSortValue,
-    filtersValues, setFiltersValues,
-    isSyncing
+    searchValue,
+    setSearchValue,
+    currentPage,
+    setCurrentPage,
+    sortValue,
+    setSortValue,
+    filtersValues,
+    setFiltersValues,
+    isSyncing,
   } = useSearchQueryParams({
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sortValue: 'name',
-    filters: {}
+    sortValue: "name",
+    filters: {},
   });
 
   useEffect(() => {
-    if (actionData?.intent === 'CREATE_PROJECT') {
+    if (actionData?.intent === "CREATE_PROJECT") {
       navigate(`/projects/${actionData.data._id}`);
     }
   }, [actionData]);
@@ -107,40 +132,49 @@ export default function TeamProjectsRoute() {
       <CreateProjectDialog
         hasTeamSelection={false}
         onCreateNewProjectClicked={onCreateNewProjectClicked}
-      />
+      />,
     );
-  }
+  };
 
   const onCreateNewProjectClicked = ({ name }: { name: string }) => {
-    submit(JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name } }), { method: 'POST', encType: 'application/json' });
-  }
+    submit(JSON.stringify({ intent: "CREATE_PROJECT", payload: { name } }), {
+      method: "POST",
+      encType: "application/json",
+    });
+  };
 
   const onActionClicked = (action: string) => {
-    if (action === 'CREATE') {
+    if (action === "CREATE") {
       onCreateProjectButtonClicked();
     }
-  }
+  };
 
-  const onItemActionClicked = ({ id, action }: { id: string, action: string }) => {
+  const onItemActionClicked = ({
+    id,
+    action,
+  }: {
+    id: string;
+    action: string;
+  }) => {
     const project = find(data.projects.data, { _id: id });
     if (!project) return null;
-  }
+  };
 
   const onSearchValueChanged = (searchValue: string) => {
     setSearchValue(searchValue);
-  }
+  };
 
   const onPaginationChanged = (currentPage: number) => {
     setCurrentPage(currentPage);
-  }
+  };
 
   const onFiltersValueChanged = (filterValue: any) => {
     setFiltersValues({ ...filtersValues, ...filterValue });
-  }
+  };
 
   const onSortValueChanged = (sortValue: string) => {
     setSortValue(sortValue);
-  }
+  };
 
   const projects = data.projects.data ?? [];
 

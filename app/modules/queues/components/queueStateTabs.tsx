@@ -8,21 +8,22 @@ interface QueueState {
   count: number;
 }
 
-
 interface QueueStateTabsProps {
   queueType: string;
   states: QueueState[];
 }
 
-
-export default function QueueStateTabs({ queueType, states }: QueueStateTabsProps) {
+export default function QueueStateTabs({
+  queueType,
+  states,
+}: QueueStateTabsProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
 
-  const currentValue = states.find(state =>
-    currentPath.includes(`/${state.key}`)
-  )?.key || states[0]?.key;
+  const currentValue =
+    states.find((state) => currentPath.includes(`/${state.key}`))?.key ||
+    states[0]?.key;
 
   const handleValueChange = (value: string) => {
     if (value) {

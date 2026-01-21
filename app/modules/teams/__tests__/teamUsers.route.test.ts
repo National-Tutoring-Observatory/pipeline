@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
-import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
-import loginUser from '../../../../test/helpers/loginUser';
+import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/teamUsers.route";
 
 describe("teamUsers.route", () => {
@@ -86,7 +86,8 @@ describe("teamUsers.route", () => {
         context: {},
       } as any);
 
-      if (result instanceof Response) throw new Error("Expected data, got Response");
+      if (result instanceof Response)
+        throw new Error("Expected data, got Response");
       expect(result.users.data).toHaveLength(2);
       expect(result.users.data.map((u: any) => u.username)).toContain("user1");
       expect(result.users.data.map((u: any) => u.username)).toContain("user2");
@@ -135,8 +136,14 @@ describe("teamUsers.route", () => {
       const updatedUser1 = await UserService.findById(user1._id);
       const updatedUser2 = await UserService.findById(user2._id);
 
-      expect(updatedUser1?.teams).toContainEqual({ team: team._id, role: "ADMIN" });
-      expect(updatedUser2?.teams).toContainEqual({ team: team._id, role: "ADMIN" });
+      expect(updatedUser1?.teams).toContainEqual({
+        team: team._id,
+        role: "ADMIN",
+      });
+      expect(updatedUser2?.teams).toContainEqual({
+        team: team._id,
+        role: "ADMIN",
+      });
     });
 
     it("throws when user is not authorized", async () => {
@@ -169,7 +176,7 @@ describe("teamUsers.route", () => {
           params: { id: team._id },
           unstable_pattern: "",
           context: {},
-        } as any)
+        } as any),
       ).rejects.toThrow("You do not have permission to manage team users");
     });
   });
@@ -244,7 +251,7 @@ describe("teamUsers.route", () => {
           params: { id: team._id },
           unstable_pattern: "",
           context: {},
-        } as any)
+        } as any),
       ).rejects.toThrow("You do not have permission to manage team users");
     });
 

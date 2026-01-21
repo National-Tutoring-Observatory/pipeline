@@ -1,6 +1,12 @@
-import get from 'lodash/get';
+import get from "lodash/get";
 import { LoaderPinwheel } from "lucide-react";
-import { createContext, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { Outlet, useFetcher, useLocation, useMatch } from "react-router";
 import { connectSockets } from "~/modules/sockets/sockets";
 import type { User } from "~/modules/users/users.types";
@@ -8,8 +14,11 @@ import LoginContainer from "./login.container";
 
 export const AuthenticationContext = createContext<{} | null>(null);
 
-export default function AuthenticationContainer({ children }: { children: ReactNode }) {
-
+export default function AuthenticationContainer({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [authentication, setAuthentication] = useState<User | null>(null);
   const [isFetching, setIsFetching] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -27,9 +36,12 @@ export default function AuthenticationContainer({ children }: { children: ReactN
   }, []);
 
   useEffect(() => {
-    if (hasLoaded && authenticationFetcher.state === 'idle') {
+    if (hasLoaded && authenticationFetcher.state === "idle") {
       setIsFetching(false);
-      const authentication = get(authenticationFetcher, 'data.authentication.data');
+      const authentication = get(
+        authenticationFetcher,
+        "data.authentication.data",
+      );
 
       if (authentication) {
         setAuthentication(authentication);
@@ -61,28 +73,24 @@ export default function AuthenticationContainer({ children }: { children: ReactN
   }, [location.pathname]);
 
   if (isInviteRoute) {
-    return (
-      <Outlet />
-    );
+    return <Outlet />;
   }
 
   if (isFetching) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center">
+      <div className="flex h-screen w-screen items-center justify-center">
         <LoaderPinwheel className="animate-spin" />
       </div>
     );
   }
 
   if (!authentication) {
-    return (
-      <LoginContainer />
-    );
+    return <LoginContainer />;
   }
 
   return (
-    <AuthenticationContext value={authentication} >
+    <AuthenticationContext value={authentication}>
       {children}
     </AuthenticationContext>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it } from "vitest";
 import mongoose from "mongoose";
+import { beforeEach, describe, expect, it } from "vitest";
+import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import { UserService } from "../user";
 import type { User } from "../users.types";
-import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
 
 const generateObjectId = () => new mongoose.Types.ObjectId().toString();
 
@@ -204,7 +204,9 @@ describe("UserService", () => {
         isRegistered: true,
       });
 
-      const result = await UserService.updateById(user._id, { username: "newname" });
+      const result = await UserService.updateById(user._id, {
+        username: "newname",
+      });
 
       expect(result).toBeDefined();
       expect(result?.username).toBe("newname");
@@ -214,7 +216,9 @@ describe("UserService", () => {
     });
 
     it("returns null when user not found", async () => {
-      const result = await UserService.updateById(generateObjectId(), { username: "newname" });
+      const result = await UserService.updateById(generateObjectId(), {
+        username: "newname",
+      });
 
       expect(result).toBeNull();
     });

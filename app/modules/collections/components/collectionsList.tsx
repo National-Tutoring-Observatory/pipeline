@@ -1,10 +1,10 @@
 import { Collection as CollectionComponent } from "@/components/ui/collection";
+import type { Collection } from "~/modules/collections/collections.types";
+import collectionsActions from "~/modules/collections/helpers/collectionsActions";
+import collectionsSortOptions from "~/modules/collections/helpers/collectionsSortOptions";
 import getCollectionsEmptyAttributes from "~/modules/collections/helpers/getCollectionsEmptyAttributes";
 import getCollectionsItemActions from "~/modules/collections/helpers/getCollectionsItemActions";
 import getCollectionsItemAttributes from "~/modules/collections/helpers/getCollectionsItemAttributes";
-import collectionsActions from "~/modules/collections/helpers/collectionsActions";
-import collectionsSortOptions from "~/modules/collections/helpers/collectionsSortOptions";
-import type { Collection } from "~/modules/collections/collections.types";
 
 interface CollectionsListProps {
   collections: Collection[];
@@ -39,30 +39,36 @@ export default function CollectionsList({
   onDeleteCollectionButtonClicked,
   onSearchValueChanged,
   onPaginationChanged,
-  onSortValueChanged
+  onSortValueChanged,
 }: CollectionsListProps) {
-  const handleItemActionClicked = ({ id, action }: { id: string; action: string }) => {
-    const collection = collections?.find(c => c._id === id);
+  const handleItemActionClicked = ({
+    id,
+    action,
+  }: {
+    id: string;
+    action: string;
+  }) => {
+    const collection = collections?.find((c) => c._id === id);
     if (!collection) return;
 
     switch (action) {
-      case 'EDIT':
+      case "EDIT":
         onEditCollectionButtonClicked(collection);
         break;
-      case 'DUPLICATE':
+      case "DUPLICATE":
         onDuplicateCollectionButtonClicked(collection);
         break;
-      case 'USE_AS_TEMPLATE':
+      case "USE_AS_TEMPLATE":
         onUseAsTemplateButtonClicked(collection);
         break;
-      case 'DELETE':
+      case "DELETE":
         onDeleteCollectionButtonClicked(collection);
         break;
     }
   };
 
   const handleActionClicked = (action: string) => {
-    if (action === 'CREATE') {
+    if (action === "CREATE") {
       onCreateCollectionButtonClicked();
     }
   };
@@ -78,8 +84,8 @@ export default function CollectionsList({
           filters={[]}
           filtersValues={{}}
           emptyAttributes={{
-            title: 'Coming soon',
-            description: 'Collections will be available in a future update.'
+            title: "Coming soon",
+            description: "Collections will be available in a future update.",
           }}
           getItemAttributes={getCollectionsItemAttributes}
           getItemActions={() => []}

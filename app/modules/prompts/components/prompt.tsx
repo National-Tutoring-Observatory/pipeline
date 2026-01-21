@@ -1,13 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { PageHeader, PageHeaderLeft, PageHeaderRight } from "@/components/ui/pageHeader";
-import map from 'lodash/map';
+import {
+  PageHeader,
+  PageHeaderLeft,
+  PageHeaderRight,
+} from "@/components/ui/pageHeader";
+import map from "lodash/map";
 import { CirclePlus, Pencil } from "lucide-react";
 import { Outlet } from "react-router";
 import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Prompt, PromptVersion } from "../prompts.types";
-import PromptVersionItem from './promptVersionItem';
+import PromptVersionItem from "./promptVersionItem";
 
 type PromptProps = {
   prompt: Prompt;
@@ -16,7 +20,7 @@ type PromptProps = {
   breadcrumbs: Breadcrumb[];
   onCreatePromptVersionClicked: () => void;
   onEditPromptButtonClicked: (prompt: Prompt) => void;
-}
+};
 
 export default function Prompt({
   prompt,
@@ -33,9 +37,13 @@ export default function Prompt({
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
         <PageHeaderRight>
-
           {onEditPromptButtonClicked && (
-            <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditPromptButtonClicked(prompt)}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-muted-foreground"
+              onClick={() => onEditPromptButtonClicked(prompt)}
+            >
               <Pencil />
               Edit
             </Button>
@@ -43,29 +51,30 @@ export default function Prompt({
         </PageHeaderRight>
       </PageHeader>
       <div className="mb-2">
-        <p className="text-sm text-muted-foreground">Annotation Type: {getAnnotationLabel(prompt.annotationType)}</p>
+        <p className="text-muted-foreground text-sm">
+          Annotation Type: {getAnnotationLabel(prompt.annotationType)}
+        </p>
       </div>
-      <div className="border rounded-md flex">
-
-        <div className="w-1/4 h-full">
-          <div className="border-b p-2 text-sm flex justify-between items-center">
-            <div>
-              Versions
-            </div>
+      <div className="flex rounded-md border">
+        <div className="h-full w-1/4">
+          <div className="flex items-center justify-between border-b p-2 text-sm">
+            <div>Versions</div>
             <div>
               <Button
                 size="icon"
                 variant="ghost"
                 className="size-4 cursor-pointer hover:text-indigo-600"
                 onClick={onCreatePromptVersionClicked}
-                asChild>
+                asChild
+              >
                 <CirclePlus />
               </Button>
             </div>
           </div>
           {map(promptVersions, (promptVersion) => {
             const isSelected = version === promptVersion.version;
-            const isProduction = prompt.productionVersion === promptVersion.version;
+            const isProduction =
+              prompt.productionVersion === promptVersion.version;
             return (
               <PromptVersionItem
                 key={promptVersion._id}
@@ -79,10 +88,10 @@ export default function Prompt({
             );
           })}
         </div>
-        <div className="w-3/4 h-full">
+        <div className="h-full w-3/4">
           <Outlet />
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,11 +1,11 @@
-import find from 'lodash/find';
-import map from 'lodash/map';
+import find from "lodash/find";
+import map from "lodash/map";
 import { useEffect } from "react";
 import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
 import { toast } from "sonner";
-import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
-import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
-import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
+import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
@@ -20,32 +20,32 @@ import type { Route } from "./+types/teams.route";
 export async function loader({ request, params }: Route.LoaderArgs) {
   let match = {};
 
-  const userSession = await getSessionUser({ request }) as User;
+  const userSession = (await getSessionUser({ request })) as User;
 
   if (!userSession) {
-    return redirect('/');
+    return redirect("/");
   }
 
-  if (userSession.role === 'SUPER_ADMIN') {
+  if (userSession.role === "SUPER_ADMIN") {
     match = {};
   } else {
     const teamIds = map(userSession.teams, "team");
-    match = { _id: { $in: teamIds } }
+    match = { _id: { $in: teamIds } };
   }
 
   const queryParams = getQueryParamsFromRequest(request, {
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sort: 'name',
-    filters: {}
+    sort: "name",
+    filters: {},
   });
 
   const query = buildQueryFromParams({
     match,
     queryParams,
-    searchableFields: ['name'],
-    sortableFields: ['name', 'createdAt'],
-    filterableFields: []
+    searchableFields: ["name"],
+    sortableFields: ["name", "createdAt"],
+    filterableFields: [],
   });
 
   const data = await TeamService.find({ match });
@@ -53,36 +53,37 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return { teams: { data, totalPages: 1 } };
 }
 
-export async function action({
-  request,
-}: Route.ActionArgs) {
-
-  const { intent, entityId, payload = {} } = await request.json()
+export async function action({ request }: Route.ActionArgs) {
+  const { intent, entityId, payload = {} } = await request.json();
 
   const { name } = payload;
 
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
 
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   switch (intent) {
-    case 'CREATE_TEAM':
+    case "CREATE_TEAM":
       if (!TeamAuthorization.canCreate(user)) {
-        throw new Error("Insufficient permissions. Only super admins can create teams.");
+        throw new Error(
+          "Insufficient permissions. Only super admins can create teams.",
+        );
       }
       if (typeof name !== "string") {
         throw new Error("Team name is required and must be a string.");
       }
       const team = await TeamService.create({ name });
       return {
-        intent: 'CREATE_TEAM',
-        data: team
+        intent: "CREATE_TEAM",
+        data: team,
       };
-    case 'UPDATE_TEAM':
+    case "UPDATE_TEAM":
       if (!TeamAuthorization.canUpdate(user, entityId)) {
-        throw new Error("Insufficient permissions. Only team admins can update teams.");
+        throw new Error(
+          "Insufficient permissions. Only team admins can update teams.",
+        );
       }
       const updated = await TeamService.updateById(entityId, { name });
       return { data: updated };
@@ -95,7 +96,6 @@ export function HydrateFallback() {
   return <div>Loading...</div>;
 }
 
-
 export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   const { teams } = loaderData;
   const submit = useSubmit();
@@ -103,82 +103,97 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
 
   const {
-    searchValue, setSearchValue,
-    currentPage, setCurrentPage,
-    sortValue, setSortValue,
-    filtersValues, setFiltersValues,
-    isSyncing
+    searchValue,
+    setSearchValue,
+    currentPage,
+    setCurrentPage,
+    sortValue,
+    setSortValue,
+    filtersValues,
+    setFiltersValues,
+    isSyncing,
   } = useSearchQueryParams({
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sortValue: 'name',
-    filters: {}
+    sortValue: "name",
+    filters: {},
   });
 
   useEffect(() => {
-    if (actionData?.intent === 'CREATE_TEAM') {
-      navigate(`/teams/${actionData.data._id}`)
+    if (actionData?.intent === "CREATE_TEAM") {
+      navigate(`/teams/${actionData.data._id}`);
     }
   }, [actionData]);
 
-  const breadcrumbs = [{ text: 'Teams' }];
+  const breadcrumbs = [{ text: "Teams" }];
 
   const openCreateTeamDialog = () => {
-    addDialog(
-      <CreateTeamDialog
-        onCreateNewTeamClicked={submitCreateTeam}
-      />
-    );
-  }
+    addDialog(<CreateTeamDialog onCreateNewTeamClicked={submitCreateTeam} />);
+  };
 
   const openEditTeamDialog = (team: Team) => {
-    addDialog(<EditTeamDialog
-      team={team}
-      onEditTeamClicked={submitEditTeam}
-    />);
-  }
+    addDialog(
+      <EditTeamDialog team={team} onEditTeamClicked={submitEditTeam} />,
+    );
+  };
 
   const submitCreateTeam = (name: string) => {
-    submit(JSON.stringify({ intent: 'CREATE_TEAM', payload: { name } }), { method: 'POST', encType: 'application/json' });
-  }
+    submit(JSON.stringify({ intent: "CREATE_TEAM", payload: { name } }), {
+      method: "POST",
+      encType: "application/json",
+    });
+  };
 
   const submitEditTeam = (team: Team) => {
-    submit(JSON.stringify({ intent: 'UPDATE_TEAM', entityId: team._id, payload: { name: team.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
-      toast.success('Updated team');
+    submit(
+      JSON.stringify({
+        intent: "UPDATE_TEAM",
+        entityId: team._id,
+        payload: { name: team.name },
+      }),
+      { method: "PUT", encType: "application/json" },
+    ).then(() => {
+      toast.success("Updated team");
     });
-  }
+  };
 
   const onActionClicked = (action: String) => {
-    if (action === 'CREATE') {
+    if (action === "CREATE") {
       openCreateTeamDialog();
     }
-  }
+  };
 
-  const onItemActionClicked = ({ id, action }: { id: string, action: string }) => {
+  const onItemActionClicked = ({
+    id,
+    action,
+  }: {
+    id: string;
+    action: string;
+  }) => {
     const team = find(teams.data, { _id: id }) as Team | undefined;
     if (!team) return null;
     switch (action) {
-      case 'EDIT':
+      case "EDIT":
         openEditTeamDialog(team);
         break;
     }
-  }
+  };
 
   const onSearchValueChanged = (searchValue: string) => {
     setSearchValue(searchValue);
-  }
+  };
 
   const onPaginationChanged = (currentPage: number) => {
     setCurrentPage(currentPage);
-  }
+  };
 
   const onFiltersValueChanged = (filterValue: any) => {
     setFiltersValues({ ...filtersValues, ...filterValue });
-  }
+  };
 
   const onSortValueChanged = (sortValue: string) => {
     setSortValue(sortValue);
-  }
+  };
 
   return (
     <Teams

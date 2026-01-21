@@ -4,10 +4,13 @@ export interface Team {
   createdAt: string;
 }
 
-export const TEAM_ASSIGNMENT_OPTIONS = ['temporary', 'permanent'] as const;
+export const TEAM_ASSIGNMENT_OPTIONS = ["temporary", "permanent"] as const;
 
-export type TeamAssignmentOption = typeof TEAM_ASSIGNMENT_OPTIONS[number];
+export type TeamAssignmentOption = (typeof TEAM_ASSIGNMENT_OPTIONS)[number];
 
 export function isTeamAssignmentOption(v: unknown): v is TeamAssignmentOption {
-  return typeof v === 'string' && (TEAM_ASSIGNMENT_OPTIONS as readonly string[]).includes(v);
+  return (
+    typeof v === "string" &&
+    (TEAM_ASSIGNMENT_OPTIONS as readonly string[]).includes(v)
+  );
 }

@@ -5,14 +5,8 @@ import orcidStrategy from "./helpers/orcidStrategy";
 
 const authenticator = new Authenticator<User>();
 
-authenticator.use(
-  githubStrategy,
-  "github"
-);
+authenticator.use(githubStrategy, "github");
 
-authenticator.use(
-  orcidStrategy,
-  "orcid"
-);
+authenticator.use(orcidStrategy, "orcid");
 
 export { authenticator };

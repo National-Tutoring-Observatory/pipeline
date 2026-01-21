@@ -8,8 +8,8 @@ const QueuesLayout = ({
   queues,
   breadcrumbs,
 }: {
-  queues: any,
-  breadcrumbs: Breadcrumb[]
+  queues: any;
+  breadcrumbs: Breadcrumb[];
 }) => {
   return (
     <div className="max-w-6xl p-8">

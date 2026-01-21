@@ -19,9 +19,9 @@ export interface PromptVersion {
   prompt: Prompt | string;
   version: number;
   userPrompt: string;
-  annotationSchema: any[],
-  hasBeenSaved: boolean,
-  updatedAt: string,
+  annotationSchema: any[];
+  hasBeenSaved: boolean;
+  updatedAt: string;
 }
 
 export interface Model {
@@ -39,4 +39,4 @@ export interface AnnotationSchemaItem {
   fieldKey: string;
   value: any;
   isSystem: boolean;
-};
+}

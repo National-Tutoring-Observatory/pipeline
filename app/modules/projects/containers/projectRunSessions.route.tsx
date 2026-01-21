@@ -1,6 +1,6 @@
-import fse from 'fs-extra';
-import find from 'lodash/find';
-import map from 'lodash/map';
+import fse from "fs-extra";
+import find from "lodash/find";
+import map from "lodash/map";
 import { redirect, useLoaderData } from "react-router";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import { ProjectService } from "~/modules/projects/project";
@@ -11,14 +11,20 @@ import type { Route } from "./+types/projectRunSessions.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
-  const teamIds = map(authenticationTeams, 'team');
-  const project = await ProjectService.findOne({ _id: params.projectId, team: { $in: teamIds } });
+  const teamIds = map(authenticationTeams, "team");
+  const project = await ProjectService.findOne({
+    _id: params.projectId,
+    team: { $in: teamIds },
+  });
   if (!project) {
-    return redirect('/');
+    return redirect("/");
   }
-  const run = await RunService.findOne({ _id: params.runId, project: params.projectId });
+  const run = await RunService.findOne({
+    _id: params.runId,
+    project: params.projectId,
+  });
   if (!run) {
-    return redirect('/');
+    return redirect("/");
   }
   const session = find(run.sessions, (session) => {
     if (session.sessionId === params.sessionId) {
@@ -38,17 +44,27 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export default function ProjectRunSessionsRoute() {
   const { project, run, sessionFile, session } = useLoaderData();
 
-  const breadcrumbs = [{
-    text: 'Projects', link: `/`
-  }, {
-    text: project.name, link: `/projects/${project._id}`
-  }, {
-    text: 'Runs', link: `/projects/${project._id}`
-  }, {
-    text: run.name, link: `/projects/${project._id}/runs/${run._id}`
-  }, {
-    text: session.name
-  }]
+  const breadcrumbs = [
+    {
+      text: "Projects",
+      link: `/`,
+    },
+    {
+      text: project.name,
+      link: `/projects/${project._id}`,
+    },
+    {
+      text: "Runs",
+      link: `/projects/${project._id}`,
+    },
+    {
+      text: run.name,
+      link: `/projects/${project._id}/runs/${run._id}`,
+    },
+    {
+      text: session.name,
+    },
+  ];
 
   return (
     <ProjectRunSessions
@@ -57,5 +73,5 @@ export default function ProjectRunSessionsRoute() {
       sessionFile={sessionFile}
       breadcrumbs={breadcrumbs}
     />
-  )
+  );
 }

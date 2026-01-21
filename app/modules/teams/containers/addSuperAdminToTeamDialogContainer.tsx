@@ -1,15 +1,17 @@
 import { useMemo, useState } from "react";
-import type { TeamAssignmentOption } from "../teams.types";
 import AddSuperAdminToTeamDialog from "../components/addSuperAdminToTeamDialog";
+import type { TeamAssignmentOption } from "../teams.types";
 
 export default function AddSuperAdminToTeamDialogContainer({
   onAddSuperAdminClicked,
 }: {
-  onAddSuperAdminClicked: (reason: string, option: TeamAssignmentOption) => void,
+  onAddSuperAdminClicked: (
+    reason: string,
+    option: TeamAssignmentOption,
+  ) => void;
 }) {
-
-  const [reason, setReason] = useState('');
-  const [option, setOption] = useState<TeamAssignmentOption>('temporary');
+  const [reason, setReason] = useState("");
+  const [option, setOption] = useState<TeamAssignmentOption>("temporary");
 
   const isSubmitButtonDisabled = useMemo(() => {
     return !(reason && reason.trim().length > 0);
@@ -21,7 +23,7 @@ export default function AddSuperAdminToTeamDialogContainer({
 
   const onOptionChanged = (value: TeamAssignmentOption) => {
     setOption(value);
-  }
+  };
 
   return (
     <AddSuperAdminToTeamDialog

@@ -12,6 +12,7 @@ isPublished: true
 The **Schema** defines the structure of your **Annotations**. It is a template that outlines the specific fields and information that the LLM should include in each annotation it creates.
 
 In the NTO Pipeline, the schema is defined in two ways:
+
 1.  **In the Prompt:** You can provide instructions to the LLM within your **Prompt** to tell it how to format the output.
 2.  **In a dedicated section:** The application also provides a dedicated section for you to explicitly declare the expected schema output. Here, you can define a variable name for the output and set its data type (e.g., string, boolean, integer, etc.).
 

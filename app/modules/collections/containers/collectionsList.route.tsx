@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { data, redirect, useNavigate } from "react-router";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import type { Collection } from "~/modules/collections/collections.types";
@@ -16,57 +16,58 @@ import CollectionsList from "../components/collectionsList";
 import type { Route } from "./+types/collectionsList.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const project = await ProjectService.findById(params.id);
   if (!project) {
-    return redirect('/');
+    return redirect("/");
   }
 
   if (!ProjectAuthorization.canView(user, project)) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const queryParams = getQueryParamsFromRequest(request, {
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sort: '-createdAt',
-    filters: {}
+    sort: "-createdAt",
+    filters: {},
   });
 
   const query = buildQueryFromParams({
     match: { project: params.id },
     queryParams,
-    searchableFields: ['name'],
-    sortableFields: ['name', 'createdAt']
+    searchableFields: ["name"],
+    sortableFields: ["name", "createdAt"],
   });
 
   const collections = await CollectionService.paginate(query);
 
-  const hasCollectionsFeature = await hasFeatureFlag('HAS_PROJECT_COLLECTIONS', { request }, { defaultValue: false });
+  const hasCollectionsFeature = await hasFeatureFlag(
+    "HAS_PROJECT_COLLECTIONS",
+    { request },
+    { defaultValue: false },
+  );
 
   return { collections, project, hasCollectionsFeature };
 }
 
-export async function action({
-  request,
-  params,
-}: Route.ActionArgs) {
-  const user = await getSessionUser({ request }) as User;
+export async function action({ request, params }: Route.ActionArgs) {
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const project = await ProjectService.findById(params.id);
   if (!project) {
-    throw new Error('Project not found');
+    throw new Error("Project not found");
   }
 
   if (!ProjectAuthorization.Runs.canManage(user, project)) {
-    return data({ errors: { project: 'Access denied' } }, { status: 403 });
+    return data({ errors: { project: "Access denied" } }, { status: 403 });
   }
 
   const body = await request.json();
@@ -76,7 +77,7 @@ export async function action({
   let collection;
 
   switch (intent) {
-    case 'CREATE_COLLECTION': {
+    case "CREATE_COLLECTION": {
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
@@ -89,32 +90,30 @@ export async function action({
         sessions: [],
         runs: [],
         hasSetup: false,
-        annotationType
+        annotationType,
       });
       return {
-        intent: 'CREATE_COLLECTION',
-        ...collection
-      }
+        intent: "CREATE_COLLECTION",
+        ...collection,
+      };
     }
-    case 'UPDATE_COLLECTION': {
-
+    case "UPDATE_COLLECTION": {
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
       await CollectionService.updateById(entityId, {
-        name
+        name,
       });
       return {};
     }
-    case 'DUPLICATE_COLLECTION': {
-
+    case "DUPLICATE_COLLECTION": {
       if (typeof name !== "string") {
         throw new Error("Collection name is required and must be a string.");
       }
       const existingCollection = await CollectionService.findById(entityId);
 
       if (!existingCollection) {
-        throw new Error('Collection not found');
+        throw new Error("Collection not found");
       }
 
       collection = await CollectionService.create({
@@ -123,18 +122,18 @@ export async function action({
         sessions: existingCollection.sessions,
         runs: existingCollection.runs || [],
         hasSetup: true,
-        annotationType: existingCollection.annotationType
+        annotationType: existingCollection.annotationType,
       });
       return {
-        intent: 'DUPLICATE_COLLECTION',
-        ...collection
+        intent: "DUPLICATE_COLLECTION",
+        ...collection,
       };
     }
-    case 'DELETE_COLLECTION': {
+    case "DELETE_COLLECTION": {
       await CollectionService.deleteWithCleanup(entityId);
 
       return {
-        intent: 'DELETE_COLLECTION'
+        intent: "DELETE_COLLECTION",
       };
     }
     default: {
@@ -143,56 +142,63 @@ export async function action({
   }
 }
 
-export default function CollectionsListRoute({ loaderData }: Route.ComponentProps) {
+export default function CollectionsListRoute({
+  loaderData,
+}: Route.ComponentProps) {
   const { collections, project, hasCollectionsFeature } = loaderData;
   const navigate = useNavigate();
 
   const {
     openEditCollectionDialog,
     openDeleteCollectionDialog,
-    openDuplicateCollectionDialog
+    openDuplicateCollectionDialog,
   } = useCollectionActions({
-    projectId: project._id
+    projectId: project._id,
   });
 
   const {
-    searchValue, setSearchValue,
-    currentPage, setCurrentPage,
-    sortValue, setSortValue,
-    isSyncing
+    searchValue,
+    setSearchValue,
+    currentPage,
+    setCurrentPage,
+    sortValue,
+    setSortValue,
+    isSyncing,
   } = useSearchQueryParams({
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sortValue: 'createdAt'
+    sortValue: "createdAt",
   });
 
   useEffect(() => {
     updateBreadcrumb([
-      { text: 'Projects', link: '/' },
+      { text: "Projects", link: "/" },
       { text: project.name, link: `/projects/${project._id}` },
-      { text: 'Collections' }
+      { text: "Collections" },
     ]);
   }, [project._id, project.name]);
 
   const onSearchValueChanged = (searchValue: string) => {
     setSearchValue(searchValue);
-  }
+  };
 
   const onPaginationChanged = (currentPage: number) => {
     setCurrentPage(currentPage);
-  }
+  };
 
   const onSortValueChanged = (sortValue: string) => {
     setSortValue(sortValue);
-  }
+  };
 
   const onCreateCollectionButtonClicked = () => {
     navigate(`/projects/${project._id}/create-collection`);
-  }
+  };
 
   const onUseAsTemplateButtonClicked = (collection: Collection) => {
-    navigate(`/projects/${project._id}/create-collection?fromCollection=${collection._id}`);
-  }
+    navigate(
+      `/projects/${project._id}/create-collection?fromCollection=${collection._id}`,
+    );
+  };
 
   return (
     <CollectionsList
@@ -212,5 +218,5 @@ export default function CollectionsListRoute({ loaderData }: Route.ComponentProp
       onPaginationChanged={onPaginationChanged}
       onSortValueChanged={onSortValueChanged}
     />
-  )
+  );
 }

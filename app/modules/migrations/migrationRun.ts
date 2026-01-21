@@ -1,68 +1,74 @@
-import mongoose from 'mongoose'
-import migrationSchema from '~/lib/schemas/migration.schema'
-import type { Migration, MigrationResult, MigrationStatus } from './types'
-import type { FindOptions } from '~/modules/common/types'
+import mongoose from "mongoose";
+import migrationSchema from "~/lib/schemas/migration.schema";
+import type { FindOptions } from "~/modules/common/types";
+import type { Migration, MigrationStatus } from "./types";
 
-const MigrationModel = mongoose.models.Migration || mongoose.model('Migration', migrationSchema)
+const MigrationModel =
+  mongoose.models.Migration || mongoose.model("Migration", migrationSchema);
 
 export class MigrationRunService {
   private static toMigrationRun(doc: any): Migration {
-    return doc.toJSON({ flattenObjectIds: true })
+    return doc.toJSON({ flattenObjectIds: true });
   }
 
   static async find(options?: FindOptions): Promise<Migration[]> {
-    const match = options?.match || {}
-    let query = MigrationModel.find(match)
+    const match = options?.match || {};
+    let query = MigrationModel.find(match);
 
     if (options?.populate?.length) {
-      query = query.populate(options.populate)
+      query = query.populate(options.populate);
     }
 
     if (options?.sort) {
-      query = query.sort(options.sort)
+      query = query.sort(options.sort);
     }
 
     if (options?.pagination) {
       query = query
         .skip(options.pagination.skip)
-        .limit(options.pagination.limit)
+        .limit(options.pagination.limit);
     }
 
-    const docs = await query.exec()
-    return docs.map(doc => this.toMigrationRun(doc))
+    const docs = await query.exec();
+    return docs.map((doc) => this.toMigrationRun(doc));
   }
 
   static async count(match: Record<string, any> = {}): Promise<number> {
-    return MigrationModel.countDocuments(match)
+    return MigrationModel.countDocuments(match);
   }
 
   static async findById(id: string | undefined): Promise<Migration | null> {
-    if (!id) return null
-    const doc = await MigrationModel.findById(id)
-    return doc ? this.toMigrationRun(doc) : null
+    if (!id) return null;
+    const doc = await MigrationModel.findById(id);
+    return doc ? this.toMigrationRun(doc) : null;
   }
 
   static async create(data: {
-    migrationId: string
-    triggeredBy: string
-    jobId: string
+    migrationId: string;
+    triggeredBy: string;
+    jobId: string;
   }): Promise<Migration> {
     const doc = await MigrationModel.create({
       ...data,
-      status: 'running' as MigrationStatus,
-      startedAt: new Date()
-    })
-    return this.toMigrationRun(doc)
+      status: "running" as MigrationStatus,
+      startedAt: new Date(),
+    });
+    return this.toMigrationRun(doc);
   }
 
-  static async updateById(id: string, updates: Partial<Migration>): Promise<Migration | null> {
-    const doc = await MigrationModel.findByIdAndUpdate(id, updates, { new: true }).exec()
-    return doc ? this.toMigrationRun(doc) : null
+  static async updateById(
+    id: string,
+    updates: Partial<Migration>,
+  ): Promise<Migration | null> {
+    const doc = await MigrationModel.findByIdAndUpdate(id, updates, {
+      new: true,
+    }).exec();
+    return doc ? this.toMigrationRun(doc) : null;
   }
 
   static async deleteById(id: string): Promise<Migration | null> {
-    const doc = await MigrationModel.findByIdAndDelete(id).exec()
-    return doc ? this.toMigrationRun(doc) : null
+    const doc = await MigrationModel.findByIdAndDelete(id).exec();
+    return doc ? this.toMigrationRun(doc) : null;
   }
 
   static async allWithRunStatus() {
@@ -70,34 +76,38 @@ export class MigrationRunService {
       { $sort: { startedAt: -1 } },
       {
         $group: {
-          _id: '$migrationId',
-          lastRun: { $first: '$$ROOT' },
-          statuses: { $push: '$status' }
-        }
+          _id: "$migrationId",
+          lastRun: { $first: "$$ROOT" },
+          statuses: { $push: "$status" },
+        },
       },
       {
         $project: {
-          migrationId: '$_id',
+          migrationId: "$_id",
           lastRun: 1,
           statuses: 1,
           status: {
             $cond: [
-              { $in: ['running', '$statuses'] },
-              'running',
+              { $in: ["running", "$statuses"] },
+              "running",
               {
-                $cond: [{ $in: ['completed', '$statuses'] }, 'completed', 'pending']
-              }
-            ]
-          }
-        }
-      }
-    ])
+                $cond: [
+                  { $in: ["completed", "$statuses"] },
+                  "completed",
+                  "pending",
+                ],
+              },
+            ],
+          },
+        },
+      },
+    ]);
 
     // Serialize run data for safe passing between layers
-    return runsData.map(r => ({
+    return runsData.map((r) => ({
       migrationId: r.migrationId,
       status: r.status,
-      lastRun: r.lastRun ? JSON.parse(JSON.stringify(r.lastRun)) : null
-    }))
+      lastRun: r.lastRun ? JSON.parse(JSON.stringify(r.lastRun)) : null,
+    }));
   }
 }

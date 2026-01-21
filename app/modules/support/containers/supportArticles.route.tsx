@@ -1,7 +1,7 @@
-import Markdoc from '@markdoc/markdoc';
-import fs from 'fs';
-import matter from 'gray-matter';
-import path from 'path';
+import Markdoc from "@markdoc/markdoc";
+import fs from "fs";
+import matter from "gray-matter";
+import path from "path";
 import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import type { User } from "~/modules/users/users.types";
@@ -14,21 +14,25 @@ interface SupportArticle {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const supportArticles: SupportArticle[] = [];
 
-  const documentsInDirectory = fs.readdirSync(path.join(process.cwd(), 'documentation')).filter(file => path.extname(file) === '.md');
+  const documentsInDirectory = fs
+    .readdirSync(path.join(process.cwd(), "documentation"))
+    .filter((file) => path.extname(file) === ".md");
 
   for (const document of documentsInDirectory) {
-    const markdownContent = fs.readFileSync(path.join(process.cwd(), 'documentation', document), 'utf-8');
+    const markdownContent = fs.readFileSync(
+      path.join(process.cwd(), "documentation", document),
+      "utf-8",
+    );
     const data = matter(markdownContent);
 
     if (Object.keys(data.data).length > 0 && data.data.isPublished) {
-
       const ast = Markdoc.parse(data.content);
 
       const content = Markdoc.transform(ast);
@@ -38,14 +42,13 @@ export async function loader({ request }: Route.LoaderArgs) {
       supportArticles.push({
         documentId: document,
         data: data.data,
-        html
-      })
+        html,
+      });
     }
   }
 
   return {
     count: supportArticles.length,
-    data: supportArticles
-  }
-
+    data: supportArticles,
+  };
 }

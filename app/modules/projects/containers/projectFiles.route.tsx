@@ -8,18 +8,18 @@ import { ProjectService } from "../project";
 import type { Route } from "./+types/projectFiles.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const project = await ProjectService.findById(params.id);
   if (!project) {
-    return redirect('/');
+    return redirect("/");
   }
 
   if (!ProjectAuthorization.canView(user, project)) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const files = await FileService.findByProject(params.id);
@@ -28,9 +28,5 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export default function ProjectFilesRoute() {
   const { files } = useLoaderData();
-  return (
-    <ProjectFiles
-      files={files}
-    />
-  )
+  return <ProjectFiles files={files} />;
 }

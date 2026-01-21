@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { ShuffleIcon } from "lucide-react";
 
@@ -16,16 +20,12 @@ export default function SessionRandomizer({
   sampleSize,
   maxSize,
   onSampleSizeChanged,
-  onRandomizeClicked
+  onRandomizeClicked,
 }: SessionRandomizerProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          variant="secondary"
-          size="sm"
-          role="combobox"
-        >
+        <Button variant="secondary" size="sm" role="combobox">
           <ShuffleIcon />
           RandomizR
         </Button>
@@ -40,12 +40,12 @@ export default function SessionRandomizer({
             max={`${maxSize}`}
             min="1"
             value={sampleSize}
-            onChange={(event) => onSampleSizeChanged(Number(event.target.value))}
+            onChange={(event) =>
+              onSampleSizeChanged(Number(event.target.value))
+            }
           />
           <PopoverClose asChild>
-            <Button onClick={onRandomizeClicked}>
-              Select
-            </Button>
+            <Button onClick={onRandomizeClicked}>Select</Button>
           </PopoverClose>
         </div>
       </PopoverContent>

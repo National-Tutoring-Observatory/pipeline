@@ -11,7 +11,7 @@ flowProducer = new FlowProducer({ connection: redis });
 
 export default (name: string) => {
   const queue = new Queue(name, {
-    connection: redis
+    connection: redis,
   });
   QUEUES[name] = queue;
-}
+};

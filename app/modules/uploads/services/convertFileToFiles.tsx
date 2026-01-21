@@ -1,10 +1,16 @@
-import fs from 'fs';
+import fs from "fs";
 import path from "path";
-import { handler as splitDataToSessions } from '../../../functions/splitDataToSessions/app';
+import { handler as splitDataToSessions } from "../../../functions/splitDataToSessions/app";
 import removeFile from "./removeFile";
 import uploadFile from "./uploadFile";
 
-export default async function convertFileToFiles({ file, entityId, }: { file: File, entityId: string }): Promise<File[]> {
+export default async function convertFileToFiles({
+  file,
+  entityId,
+}: {
+  file: File;
+  entityId: string;
+}): Promise<File[]> {
   const splitFiles = [];
   const uploadDirectory = `storage/${entityId}/tmp`;
   const fileName = path.basename(file.name);
@@ -12,21 +18,22 @@ export default async function convertFileToFiles({ file, entityId, }: { file: Fi
 
   await uploadFile({ file, uploadPath });
 
-
   await splitDataToSessions({
     body: {
-      contentType: 'JSONL',
+      contentType: "JSONL",
       inputFile: uploadPath,
       outputFolder: uploadDirectory,
-      outputFileKey: 'id',
+      outputFileKey: "id",
       sessionLimit: 1,
-      sessionSkip: 0
-    }
+      sessionSkip: 0,
+    },
   });
 
   await removeFile({ path: path.join(uploadDirectory, fileName) });
 
-  const jsonsInDir = fs.readdirSync(uploadDirectory).filter(file => path.extname(file) === '.json');
+  const jsonsInDir = fs
+    .readdirSync(uploadDirectory)
+    .filter((file) => path.extname(file) === ".json");
 
   for (const file of jsonsInDir) {
     const blob = await fs.openAsBlob(path.join(uploadDirectory, file));
@@ -35,5 +42,4 @@ export default async function convertFileToFiles({ file, entityId, }: { file: Fi
   }
 
   return splitFiles;
-
 }

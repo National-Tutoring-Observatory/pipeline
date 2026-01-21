@@ -1,17 +1,26 @@
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
 
 export default function ProjectDownloadDropdown({
   isExporting,
   hasExportedCSV,
   hasExportedJSONL,
-  onExportButtonClicked
+  onExportButtonClicked,
 }: {
-  isExporting: boolean
-  hasExportedCSV: boolean
-  hasExportedJSONL: boolean
-  onExportButtonClicked: ({ exportType }: { exportType: 'CSV' | 'JSON' }) => void
+  isExporting: boolean;
+  hasExportedCSV: boolean;
+  hasExportedJSONL: boolean;
+  onExportButtonClicked: ({
+    exportType,
+  }: {
+    exportType: "CSV" | "JSON";
+  }) => void;
 }) {
   return (
     <DropdownMenu>
@@ -27,16 +36,20 @@ export default function ProjectDownloadDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {!hasExportedCSV && (
-          <DropdownMenuItem onClick={() => onExportButtonClicked({ exportType: 'CSV' })}>
+          <DropdownMenuItem
+            onClick={() => onExportButtonClicked({ exportType: "CSV" })}
+          >
             As Table (.csv file)
           </DropdownMenuItem>
         )}
         {!hasExportedJSONL && (
-          <DropdownMenuItem onClick={() => onExportButtonClicked({ exportType: 'JSON' })}>
+          <DropdownMenuItem
+            onClick={() => onExportButtonClicked({ exportType: "JSON" })}
+          >
             JSONL (.jsonl file)
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

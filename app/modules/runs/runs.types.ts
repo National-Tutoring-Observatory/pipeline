@@ -2,7 +2,7 @@ import type { Project } from "~/modules/projects/projects.types";
 import type { Prompt } from "~/modules/prompts/prompts.types";
 import type { RunSnapshot } from "~/modules/runs/services/buildRunSnapshot.server";
 
-export type RunAnnotationType = 'PER_UTTERANCE' | 'PER_SESSION';
+export type RunAnnotationType = "PER_UTTERANCE" | "PER_SESSION";
 
 export interface Run {
   _id: string;
@@ -12,7 +12,7 @@ export interface Run {
   prompt: Prompt | string;
   promptVersion: number;
   model: string;
-  sessions: RunSession[]
+  sessions: RunSession[];
   snapshot: RunSnapshot;
   isRunning: boolean;
   isComplete: boolean;
@@ -25,22 +25,29 @@ export interface Run {
   hasExportedJSONL: boolean;
 }
 
-export interface RunSession { sessionId: string, status: 'DONE' | 'RUNNING' | 'ERRORED', name: string, fileType: string, startedAt: Date, finishedAt: Date }
+export interface RunSession {
+  sessionId: string;
+  status: "DONE" | "RUNNING" | "ERRORED";
+  name: string;
+  fileType: string;
+  startedAt: Date;
+  finishedAt: Date;
+}
 
 export interface CreateRun {
-  selectedAnnotationType: string,
-  selectedPrompt: string | null,
-  selectedPromptVersion: number | null,
-  selectedModel: string,
-  selectedSessions: string[]
+  selectedAnnotationType: string;
+  selectedPrompt: string | null;
+  selectedPromptVersion: number | null;
+  selectedModel: string;
+  selectedSessions: string[];
 }
 
 export interface StartRunProps {
-  runId: string
-  projectId: string,
-  sessions: string[],
-  annotationType: RunAnnotationType,
-  prompt: string
-  promptVersion: number,
-  modelCode: string
+  runId: string;
+  projectId: string;
+  sessions: string[];
+  annotationType: RunAnnotationType;
+  prompt: string;
+  promptVersion: number;
+  modelCode: string;
 }

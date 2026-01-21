@@ -1,4 +1,4 @@
-import { parse } from 'csv-parse/sync';
+import { parse } from "csv-parse/sync";
 
 interface SessionData {
   [key: string]: string;

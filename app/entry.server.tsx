@@ -8,13 +8,13 @@ import type { AppLoadContext, EntryContext } from "react-router";
 import { ServerRouter } from "react-router";
 
 import createQueue from "./modules/queues/helpers/createQueue";
-import './modules/storage/storage';
+import "./modules/storage/storage";
 
 const setupQueues = async () => {
-  createQueue('tasks');
-  createQueue('general');
-  createQueue('cron');
-}
+  createQueue("tasks");
+  createQueue("general");
+  createQueue("cron");
+};
 
 setTimeout(() => {
   setupQueues();
@@ -27,7 +27,7 @@ export default function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   routerContext: EntryContext,
-  loadContext: AppLoadContext
+  loadContext: AppLoadContext,
   // If you have middleware enabled:
   // loadContext: unstable_RouterContextProvider
 ) {
@@ -56,7 +56,7 @@ export default function handleRequest(
             new Response(stream, {
               headers: responseHeaders,
               status: responseStatusCode,
-            })
+            }),
           );
 
           pipe(body);
@@ -73,7 +73,7 @@ export default function handleRequest(
             console.error(error);
           }
         },
-      }
+      },
     );
 
     // Abort the rendering stream after the `streamTimeout` so it has time to

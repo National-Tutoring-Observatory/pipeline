@@ -5,6 +5,7 @@ This directory contains scripts for seeding the database with test data.
 ## Overview
 
 The seeds system helps you quickly populate the database with realistic test data including:
+
 - **Users**: Test users with different roles (admin, regular users)
 - **Teams**: Research teams with ownership relationships
 - **Projects**: Projects with uploaded files from the fixtures directory
@@ -13,17 +14,20 @@ The seeds system helps you quickly populate the database with realistic test dat
 ## Prerequisites
 
 Before running seeds, ensure:
+
 1. **Redis is running**: `yarn local:redis` (in a separate terminal)
 2. **Workers are running** (optional, for file processing): `yarn workers:dev` (in a separate terminal)
 
 ## Usage
 
 ### Run All Seeds
+
 ```bash
 yarn seeds
 ```
 
 ### Run Specific Seeds
+
 ```bash
 # Seed only users
 yarn seeds --users
@@ -39,6 +43,7 @@ yarn seeds --projects
 ```
 
 ### Clean Data Before Seeding
+
 ```bash
 # Clean all data and reseed
 yarn seeds --clean
@@ -48,6 +53,7 @@ yarn seeds --clean --users
 ```
 
 ### Combine Options
+
 ```bash
 # Clean and seed users and teams only
 yarn seeds --clean --users --teams
@@ -56,20 +62,24 @@ yarn seeds --clean --users --teams
 ## Seeded Data
 
 ### Users
+
 - **testadmin**: Super admin user (githubId: 100001)
 - **testuser1**: Regular user (githubId: 100002)
 - **testuser2**: Regular user (githubId: 100003)
 
 ### Teams
+
 - **Research Team Alpha**: Owned by testadmin
 - **Education Lab Beta**: Owned by testadmin
 
 ### Prompts
+
 - **Student Engagement Analysis**: Analyzes student engagement levels
 - **Teacher Feedback Classification**: Classifies types of teacher feedback
 - **Math Problem Solving Strategy**: Identifies problem-solving strategies
 
 ### Projects
+
 Projects are created with files from the `./seeds/fixtures` directory:
 
 1. **Tutoring Transcripts Study 2024**
@@ -78,20 +88,25 @@ Projects are created with files from the `./seeds/fixtures` directory:
 ## How It Works
 
 The seeding process works as follows:
+
 1. Loading fixture files from the `seeds/fixtures` directory.
 2. Creating users, teams, prompts, and projects in the database.
 3. Uploading files to storage using the configured storage adapter (LOCAL or AWS_S3).
 4. Storing files in the correct project directory structure: `storage/{projectId}/files/{fileId}/{filename}`.
 5. Creating session documents for each uploaded file.
+
 ### Background Processing
+
 After seeding, files need to be processed into session data (JSON format):
+
 - **Automatic processing**: Requires workers to be running (`yarn workers:dev`)
 - **Jobs are queued** via BullMQ and processed by workers
 - Sessions will have `hasConverted: false` until workers process them
 - Check the workers output to see file processing progress
 
 **To fully seed with processed sessions:**
-```bash
+
+````bash
 # Terminal 1: Start Redis
 yarn local:redis
 
@@ -128,28 +143,33 @@ export async function seedNewEntity() {
 
   // Your seeding logic here
 }
-```
+````
 
 2. Add the seeder to `index.ts`:
+
 ```typescript
 if (options.all || options.newEntity) {
-  console.log('🎯 Seeding new entity...');
-  const { seedNewEntity } = await import('./seeders/newSeeder.js');
+  console.log("🎯 Seeding new entity...");
+  const { seedNewEntity } = await import("./seeders/newSeeder.js");
   await seedNewEntity();
-  console.log('✅ New entity seeded\n');
+  console.log("✅ New entity seeded\n");
 }
 ```
 
 3. Update the cleaner if needed:
+
 ```typescript
 // seeders/cleaner.ts
 await documents.deleteMany({
-  collection: 'newentities',
-  match: { /* your criteria */ },
+  collection: "newentities",
+  match: {
+    /* your criteria */
+  },
 });
 ```
 
 ### Testing Seeds
+
 ```bash
 # Run seeds in development
 yarn seeds
@@ -166,7 +186,9 @@ yarn seeds
 ## Troubleshooting
 
 ### "No seeded users/teams found"
+
 Run the seeds in order:
+
 ```bash
 yarn seeds --users
 yarn seeds --teams
@@ -174,26 +196,33 @@ yarn seeds --projects
 ```
 
 Or run all at once:
+
 ```bash
 yarn seeds
 ```
 
 ### "Fixture file not found"
+
 Ensure fixture files exist in `./fixtures` directory:
+
 - `test_data_63_ForAnnotationTool.-.test_data_63.csv`
 - `conversation.csv`
 - `875691052_captions (1).vtt`
 - `884473571_captions (1).vtt`
 
 ### Storage Errors
+
 Check your environment configuration:
+
 - `STORAGE_ADAPTER` is set correctly (LOCAL or AWS_S3)
 - For AWS_S3: Verify AWS credentials and bucket access
 - For LOCAL: Ensure write permissions to `./storage` directory
 
 ### Duplicate Data
+
 If you see "already exists, skipping" messages, the data is already seeded.
 To reseed, run with `--clean`:
+
 ```bash
 yarn seeds --clean
 ```

@@ -3,15 +3,15 @@ import { Button } from "./button";
 import { ButtonGroup } from "./button-group";
 
 export type PaginationProps = {
-  currentPage: number,
-  totalPages: number,
-  onPaginationChanged: (currentPage: number) => void
-}
+  currentPage: number;
+  totalPages: number;
+  onPaginationChanged: (currentPage: number) => void;
+};
 
 function Pagination({
   currentPage = 1,
   totalPages = 1,
-  onPaginationChanged
+  onPaginationChanged,
 }: PaginationProps) {
   return (
     <ButtonGroup>
@@ -24,7 +24,7 @@ function Pagination({
       >
         <ArrowLeft />
       </Button>
-      <div className="border-y border-r justify-center min-w-20 flex items-center text-xs h-9">
+      <div className="flex h-9 min-w-20 items-center justify-center border-y border-r text-xs">
         {`${currentPage} / ${totalPages}`}
       </div>
       <Button

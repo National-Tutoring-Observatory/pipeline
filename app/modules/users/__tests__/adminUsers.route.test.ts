@@ -1,10 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { UserService } from "../user";
 import { AuditService } from "~/modules/audits/audit";
-import type { User } from "../users.types";
-import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
-import loginUser from '../../../../test/helpers/loginUser';
+import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/adminUsers.route";
+import { UserService } from "../user";
 
 describe("adminUsers.route", () => {
   beforeEach(async () => {
@@ -70,7 +69,8 @@ describe("adminUsers.route", () => {
         params: {},
       } as any);
 
-      if (result instanceof Response) throw new Error("Expected data, got Response");
+      if (result instanceof Response)
+        throw new Error("Expected data, got Response");
 
       expect(result.users).toHaveLength(3);
       expect(result.users.map((u: any) => u.username)).toContain("super-admin");
@@ -111,7 +111,7 @@ describe("adminUsers.route", () => {
       } as any);
 
       const response = (result as any).data;
-      expect(response.errors?.general).toBe('Access denied');
+      expect(response.errors?.general).toBe("Access denied");
     });
 
     it("returns error when target user is not found", async () => {
@@ -138,7 +138,7 @@ describe("adminUsers.route", () => {
       } as any);
 
       const response = (result as any).data;
-      expect(response?.errors?.general).toBe('User not found');
+      expect(response?.errors?.general).toBe("User not found");
     });
 
     it("returns error when trying to self-promote", async () => {
@@ -165,7 +165,7 @@ describe("adminUsers.route", () => {
       } as any);
 
       const response = (result as any).data;
-      expect(response?.errors?.general).toBe('Cannot perform this action');
+      expect(response?.errors?.general).toBe("Cannot perform this action");
     });
 
     it("returns error when target user is already a super admin", async () => {
@@ -198,7 +198,7 @@ describe("adminUsers.route", () => {
       } as any);
 
       const response = (result as any).data;
-      expect(response?.errors?.general).toBe('Cannot perform this action');
+      expect(response?.errors?.general).toBe("Cannot perform this action");
     });
 
     it("returns error when reason is missing", async () => {
@@ -231,7 +231,7 @@ describe("adminUsers.route", () => {
       } as any);
 
       const response = (result as any).data;
-      expect(response?.errors?.reason).toBe('Reason is required');
+      expect(response?.errors?.reason).toBe("Reason is required");
     });
 
     it("promotes user to super admin and creates audit record", async () => {
@@ -268,7 +268,7 @@ describe("adminUsers.route", () => {
 
       const response = (result as any).data;
       expect(response?.success).toBe(true);
-      expect(response?.intent).toBe('ASSIGN_SUPER_ADMIN');
+      expect(response?.intent).toBe("ASSIGN_SUPER_ADMIN");
 
       // Verify user role was updated
       const updatedUser = await UserService.findById(targetUser._id);
@@ -278,7 +278,7 @@ describe("adminUsers.route", () => {
       const audits = await AuditService.find({
         match: {
           action: "ADD_SUPERADMIN",
-          'context.target': targetUser._id,
+          "context.target": targetUser._id,
         },
       });
 
@@ -323,7 +323,7 @@ describe("adminUsers.route", () => {
       const audits = await AuditService.find({
         match: {
           action: "ADD_SUPERADMIN",
-          'context.target': targetUser._id,
+          "context.target": targetUser._id,
         },
       });
 
@@ -362,7 +362,7 @@ describe("adminUsers.route", () => {
       } as any);
 
       const response = (result as any).data;
-      expect(response?.errors?.general).toBe('Cannot perform this action');
+      expect(response?.errors?.general).toBe("Cannot perform this action");
     });
 
     it("returns error when target user is not found", async () => {
@@ -389,7 +389,7 @@ describe("adminUsers.route", () => {
       } as any);
 
       const response = (result as any).data;
-      expect(response?.errors?.general).toBe('User not found');
+      expect(response?.errors?.general).toBe("User not found");
     });
 
     it("returns error when reason is missing", async () => {
@@ -422,7 +422,7 @@ describe("adminUsers.route", () => {
       } as any);
 
       const response = (result as any).data;
-      expect(response?.errors?.reason).toBe('Reason is required');
+      expect(response?.errors?.reason).toBe("Reason is required");
     });
 
     it("revokes super admin status and creates audit record", async () => {
@@ -459,7 +459,7 @@ describe("adminUsers.route", () => {
 
       const response = (result as any).data;
       expect(response?.success).toBe(true);
-      expect(response?.intent).toBe('REVOKE_SUPER_ADMIN');
+      expect(response?.intent).toBe("REVOKE_SUPER_ADMIN");
 
       // Verify user role was updated
       const updatedUser = await UserService.findById(superAdmin2._id);
@@ -469,7 +469,7 @@ describe("adminUsers.route", () => {
       const audits = await AuditService.find({
         match: {
           action: "REMOVE_SUPERADMIN",
-          'context.target': superAdmin2._id,
+          "context.target": superAdmin2._id,
         },
       });
 

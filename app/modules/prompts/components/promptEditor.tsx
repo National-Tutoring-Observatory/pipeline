@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Archive, BookCheck, Save, SaveOff, Trash } from "lucide-react";
+import { BookCheck, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { PromptVersion } from "../prompts.types";
 import AnnotationSchemaBuilder from "./annotationSchemaBuilder";
@@ -12,62 +12,71 @@ export default function PromptEditor({
   isLoading,
   isProduction,
   onSavePromptVersion,
-  onMakePromptVersionProduction
+  onMakePromptVersionProduction,
 }: {
-  promptVersion: PromptVersion,
-  isLoading: boolean,
-  isProduction: boolean,
-  onSavePromptVersion: ({ name, userPrompt, annotationSchema }: { name: string, userPrompt: string, annotationSchema: any[] }) => void,
-  onMakePromptVersionProduction: () => void,
+  promptVersion: PromptVersion;
+  isLoading: boolean;
+  isProduction: boolean;
+  onSavePromptVersion: ({
+    name,
+    userPrompt,
+    annotationSchema,
+  }: {
+    name: string;
+    userPrompt: string;
+    annotationSchema: any[];
+  }) => void;
+  onMakePromptVersionProduction: () => void;
 }) {
-
   const [hasChanges, setHasChanges] = useState(false);
-  const [name, setName] = useState('');
-  const [userPrompt, setUserPrompt] = useState('');
+  const [name, setName] = useState("");
+  const [userPrompt, setUserPrompt] = useState("");
   const [annotationSchema, setAnnotationSchema] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   const onNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setHasChanges(true);
     setName(event.target.value);
-  }
+  };
 
-  const onUserPromptChanged = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const onUserPromptChanged = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
     setHasChanges(true);
     setUserPrompt(event.target.value);
-  }
+  };
 
   const onAnnotationSchemaChanged = (annotationSchema: any) => {
     setHasChanges(true);
     setAnnotationSchema(annotationSchema);
-  }
+  };
 
   const onSavePromptVersionClicked = () => {
     setIsSaving(true);
     onSavePromptVersion({ name, userPrompt, annotationSchema });
-  }
+  };
 
   const onMakePromptVersionProductionClicked = () => {
     onMakePromptVersionProduction();
-  }
+  };
 
   useEffect(() => {
     if (promptVersion) {
       setHasChanges(false);
       setName(promptVersion.name);
-      setUserPrompt(promptVersion.userPrompt || '')
+      setUserPrompt(promptVersion.userPrompt || "");
       setAnnotationSchema(promptVersion.annotationSchema);
     }
   }, [promptVersion]);
 
   return (
     <div className="border-l">
-      <div className="border-b  p-2 text-sm flex justify-between items-center">
+      <div className="flex items-center justify-between border-b p-2 text-sm">
         <div>
           <div>{`Version: ${promptVersion.name}`}</div>
         </div>
-        <div className="space-x-4 flex items-center">
-          {(!isProduction && promptVersion.hasBeenSaved) && (
+        <div className="flex items-center space-x-4">
+          {!isProduction && promptVersion.hasBeenSaved && (
             <Button
               variant="ghost"
               className="cursor-pointer hover:text-indigo-600"
@@ -77,7 +86,7 @@ export default function PromptEditor({
               Make production version
             </Button>
           )}
-          {(!promptVersion.hasBeenSaved) && (
+          {!promptVersion.hasBeenSaved && (
             <Button
               variant="ghost"
               className="cursor-pointer hover:text-indigo-600"
@@ -90,10 +99,17 @@ export default function PromptEditor({
           )}
         </div>
       </div>
-      <div className="p-8 grid gap-8">
+      <div className="grid gap-8 p-8">
         <div className="grid gap-3">
           <Label htmlFor="name">Name</Label>
-          <Input id="name" name="name" value={name} disabled={promptVersion.hasBeenSaved} autoComplete="off" onChange={onNameChanged} />
+          <Input
+            id="name"
+            name="name"
+            value={name}
+            disabled={promptVersion.hasBeenSaved}
+            autoComplete="off"
+            onChange={onNameChanged}
+          />
         </div>
         <div className="grid gap-3">
           <Label htmlFor="prompt">Prompt</Label>
@@ -115,7 +131,6 @@ export default function PromptEditor({
           />
         </div>
       </div>
-
     </div>
   );
 }

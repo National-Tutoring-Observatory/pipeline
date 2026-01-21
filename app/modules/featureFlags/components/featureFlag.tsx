@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Item, ItemActions, ItemContent, ItemGroup, ItemSeparator, ItemTitle } from "@/components/ui/item";
-import map from 'lodash/map';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemGroup,
+  ItemSeparator,
+  ItemTitle,
+} from "@/components/ui/item";
+import map from "lodash/map";
 import { Trash } from "lucide-react";
 import React from "react";
 import type { User } from "~/modules/users/users.types";
@@ -11,20 +18,18 @@ export default function FeatureFlag({
   users,
   onAddUsersClicked,
   onRemoveUserFromFeatureFlagClicked,
-  onDeleteFeatureFlagClicked
+  onDeleteFeatureFlagClicked,
 }: {
-  featureFlag: FeatureFlag,
-  users: User[],
-  onAddUsersClicked: () => void,
-  onRemoveUserFromFeatureFlagClicked: (userId: string) => void,
-  onDeleteFeatureFlagClicked: () => void,
+  featureFlag: FeatureFlag;
+  users: User[];
+  onAddUsersClicked: () => void;
+  onRemoveUserFromFeatureFlagClicked: (userId: string) => void;
+  onDeleteFeatureFlagClicked: () => void;
 }) {
   return (
     <div className="w-full">
-      <div className="px-4 py-2 border-b flex items-center justify-between">
-        <div>
-          {featureFlag.name}
-        </div>
+      <div className="flex items-center justify-between border-b px-4 py-2">
+        <div>{featureFlag.name}</div>
         <div>
           <Button
             variant="secondary"
@@ -51,7 +56,12 @@ export default function FeatureFlag({
                   <ItemTitle>{user.username}</ItemTitle>
                 </ItemContent>
                 <ItemActions>
-                  <Button variant="ghost" size="icon" className="rounded-full" onClick={() => onRemoveUserFromFeatureFlagClicked(user._id)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full"
+                    onClick={() => onRemoveUserFromFeatureFlagClicked(user._id)}
+                  >
                     <Trash className="size-4" />
                   </Button>
                 </ItemActions>

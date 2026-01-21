@@ -1,18 +1,19 @@
-import chalk from 'chalk';
-import { spawn } from 'child_process';
+import chalk from "chalk";
+import { spawn } from "child_process";
 
 export function getRandomColorFn() {
   const chalkColorFns = [
-    'red',
-    'green',
-    'yellow',
-    'blue',
-    'magenta',
-    'cyan',
-    'white',
-    'gray',
+    "red",
+    "green",
+    "yellow",
+    "blue",
+    "magenta",
+    "cyan",
+    "white",
+    "gray",
   ];
-  const fnName = chalkColorFns[Math.floor(Math.random() * chalkColorFns.length)];
+  const fnName =
+    chalkColorFns[Math.floor(Math.random() * chalkColorFns.length)];
   return chalk[fnName] || chalk.white;
 }
 
@@ -23,7 +24,7 @@ export class ManagedProcess {
     this.label = label || command;
     this.colorFn = colorFn || ((x) => x);
     this.options = {
-      stdio: ['pipe', 'pipe', 'pipe'],
+      stdio: ["pipe", "pipe", "pipe"],
       shell: false,
       detached: false,
       ...options,
@@ -33,44 +34,50 @@ export class ManagedProcess {
 
   start() {
     const prefix = this.colorFn(`[${this.label}]`);
-    console.log(`🚀 Starting: ${this.command} ${this.args.join(' ')}`);
+    console.log(`🚀 Starting: ${this.command} ${this.args.join(" ")}`);
 
     const child = spawn(this.command, this.args, this.options);
     this.child = child;
 
     // Prefix stdout
-    child.stdout?.on('data', (data) => {
+    child.stdout?.on("data", (data) => {
       data
         .toString()
-        .split('\n')
+        .split("\n")
         .forEach((line) => {
           if (line.trim()) console.log(`${prefix} ${line}`);
         });
     });
 
     // Prefix stderr
-    child.stderr?.on('data', (data) => {
+    child.stderr?.on("data", (data) => {
       data
         .toString()
-        .split('\n')
+        .split("\n")
         .forEach((line) => {
           if (line.trim()) console.error(`${prefix} ${line}`);
         });
     });
 
-    child.on('spawn', () => {
-      console.log(`✅ Process spawned successfully: ${this.label} (PID: ${child.pid})`);
+    child.on("spawn", () => {
+      console.log(
+        `✅ Process spawned successfully: ${this.label} (PID: ${child.pid})`,
+      );
     });
 
-    child.on('error', (error) => {
+    child.on("error", (error) => {
       console.error(`❌ Process error (${this.label}):`, error.message);
     });
 
-    child.on('exit', (code, signal) => {
+    child.on("exit", (code, signal) => {
       if (signal) {
-        console.log(this.colorFn(`⚡ Process ${this.label} killed by signal ${signal}`));
+        console.log(
+          this.colorFn(`⚡ Process ${this.label} killed by signal ${signal}`),
+        );
       } else {
-        console.log(this.colorFn(`📋 Process ${this.label} exited with code ${code}`));
+        console.log(
+          this.colorFn(`📋 Process ${this.label} exited with code ${code}`),
+        );
       }
       this.cleanup();
     });
@@ -78,10 +85,10 @@ export class ManagedProcess {
     return child;
   }
 
-  kill(signal = 'SIGTERM') {
+  kill(signal = "SIGTERM") {
     if (!this.child || this.child.killed) return Promise.resolve();
-    return new Promise(resolve => {
-      this.child.once('exit', () => {
+    return new Promise((resolve) => {
+      this.child.once("exit", () => {
         this.cleanup();
         resolve();
       });

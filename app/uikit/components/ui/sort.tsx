@@ -1,30 +1,26 @@
-import map from 'lodash/map';
-import { ArrowDownUp } from 'lucide-react';
-import { Button } from './button';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
-import SortItem from './sortItem';
+import map from "lodash/map";
+import { ArrowDownUp } from "lucide-react";
+import { Button } from "./button";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+import SortItem from "./sortItem";
 
 export type SortOption = {
-  value: string,
-  text: string
-}
+  value: string;
+  text: string;
+};
 
 export type FilterOption = {
-  value: string,
-  text: string
-}
+  value: string;
+  text: string;
+};
 
 export type SortProps = {
-  sortOptions?: SortOption[],
-  sortValue?: any,
-  onSortValueChanged: (sortValue: string) => any,
-}
+  sortOptions?: SortOption[];
+  sortValue?: any;
+  onSortValueChanged: (sortValue: string) => any;
+};
 
-const Sort = ({
-  sortOptions,
-  sortValue,
-  onSortValueChanged,
-}: SortProps) => {
+const Sort = ({ sortOptions, sortValue, onSortValueChanged }: SortProps) => {
   return (
     <Popover>
       <PopoverTrigger asChild>

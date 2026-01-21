@@ -5,12 +5,12 @@ import emitFromJob from "../helpers/emitFromJob";
 export default async function deleteProjectProcess(job: Job) {
   const { projectId } = job.data || {};
   if (!projectId) {
-    throw new Error('missing projectId');
+    throw new Error("missing projectId");
   }
 
   await ProjectService.deleteById(projectId);
 
-  await emitFromJob(job as any, { projectId }, 'FINISHED');
+  await emitFromJob(job as any, { projectId }, "FINISHED");
 
-  return { status: 'DELETED', projectId };
+  return { status: "DELETED", projectId };
 }

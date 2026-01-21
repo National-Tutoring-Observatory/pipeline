@@ -7,32 +7,35 @@ import { SessionService } from "../session";
 import type { Route } from "./+types/sessionsList.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const url = new URL(request.url);
-  const projectId = url.searchParams.get('project');
+  const projectId = url.searchParams.get("project");
 
   if (!projectId) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const project = await ProjectService.findById(projectId);
   if (!project) {
-    return redirect('/');
+    return redirect("/");
   }
 
   if (!ProjectAuthorization.canView(user, project)) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const sessionsList = await SessionService.find({
     match: { project: projectId, hasConverted: true },
-    sort: {}
+    sort: {},
   });
-  const count = await SessionService.count({ project: projectId, hasConverted: true });
+  const count = await SessionService.count({
+    project: projectId,
+    hasConverted: true,
+  });
 
   return { sessions: { data: sessionsList, count } };
 }

@@ -1,5 +1,5 @@
-import type { Collection } from '../collections.types';
-import { CollectionService } from '../collection';
+import { CollectionService } from "../collection";
+import type { Collection } from "../collections.types";
 
 interface FindMergeableCollectionsOptions {
   page?: number;
@@ -9,11 +9,11 @@ interface FindMergeableCollectionsOptions {
 
 export default async function findMergeableCollections(
   targetCollectionId: string,
-  options?: FindMergeableCollectionsOptions
+  options?: FindMergeableCollectionsOptions,
 ): Promise<{ data: Collection[]; count: number; totalPages: number }> {
   const targetCollection = await CollectionService.findById(targetCollectionId);
   if (!targetCollection) {
-    throw new Error('Collection not found');
+    throw new Error("Collection not found");
   }
 
   const targetSessionIds = targetCollection.sessions;
@@ -22,16 +22,16 @@ export default async function findMergeableCollections(
     project: targetCollection.project,
     _id: { $ne: targetCollectionId },
     sessions: { $all: targetSessionIds, $size: targetSessionIds.length },
-    annotationType: targetCollection.annotationType
+    annotationType: targetCollection.annotationType,
   };
 
   if (options?.search) {
-    match.name = { $regex: options.search, $options: 'i' };
+    match.name = { $regex: options.search, $options: "i" };
   }
 
   return CollectionService.paginate({
     match,
     page: options?.page,
-    pageSize: options?.pageSize
+    pageSize: options?.pageSize,
   });
 }

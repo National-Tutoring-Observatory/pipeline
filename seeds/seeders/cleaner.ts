@@ -1,8 +1,8 @@
-import { UserService } from '../../app/modules/users/user.js';
-import { ProjectService } from '../../app/modules/projects/project.js';
-import { TeamService } from '../../app/modules/teams/team.js';
-import mongoose from 'mongoose';
-import getStorageAdapter from '../../app/modules/storage/helpers/getStorageAdapter.js';
+import mongoose from "mongoose";
+import { ProjectService } from "../../app/modules/projects/project.js";
+import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter.js";
+import { TeamService } from "../../app/modules/teams/team.js";
+import { UserService } from "../../app/modules/users/user.js";
 
 /**
  * Cleans all seeded data from the database and storage
@@ -21,8 +21,11 @@ export async function cleanAll() {
         console.log(`  ✓ Cleaned storage for project: ${project.name}`);
       } catch (error) {
         // Ignore errors if directory doesn't exist
-        if (error instanceof Error && !error.message.includes('ENOENT')) {
-          console.warn(`  ⚠️  Error cleaning storage for project ${project.name}:`, error.message);
+        if (error instanceof Error && !error.message.includes("ENOENT")) {
+          console.warn(
+            `  ⚠️  Error cleaning storage for project ${project.name}:`,
+            error.message,
+          );
         }
       }
     }
@@ -31,7 +34,7 @@ export async function cleanAll() {
     await mongoose.connection.dropDatabase();
     console.log(`  ✓ Cleaned all documents from database`);
   } catch (error) {
-    console.error('  ✗ Error during cleanup:', error);
+    console.error("  ✗ Error during cleanup:", error);
     throw error;
   }
 }
@@ -42,7 +45,9 @@ export async function cleanAll() {
 export async function cleanSeededOnly() {
   try {
     // Clean seeded users (by githubId range)
-    const seededUsers = await UserService.find({ match: { githubId: { $gte: 100001, $lte: 100003 } } });
+    const seededUsers = await UserService.find({
+      match: { githubId: { $gte: 100001, $lte: 100003 } },
+    });
 
     for (const user of seededUsers) {
       await UserService.deleteById(user._id);
@@ -67,7 +72,7 @@ export async function cleanSeededOnly() {
 
     // Note: Projects and files will be orphaned but can be identified by team reference
   } catch (error) {
-    console.error('  ✗ Error during seeded cleanup:', error);
+    console.error("  ✗ Error during seeded cleanup:", error);
     throw error;
   }
 }

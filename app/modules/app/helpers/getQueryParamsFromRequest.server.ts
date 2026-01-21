@@ -1,13 +1,13 @@
 export type QueryParams = {
-  searchValue?: string,
-  currentPage?: number,
-  sort?: string,
-  filters?: Record<string, string>
-}
+  searchValue?: string;
+  currentPage?: number;
+  sort?: string;
+  filters?: Record<string, string>;
+};
 
 export default function getQueryParamsFromRequest(
   request: Request,
-  defaults: QueryParams
+  defaults: QueryParams,
 ): QueryParams {
   const url = new URL(request.url);
   const filters: Record<string, string> = {};
@@ -32,6 +32,6 @@ export default function getQueryParamsFromRequest(
     searchValue,
     currentPage,
     sort,
-    filters: Object.keys(filters).length > 0 ? filters : defaults.filters
+    filters: Object.keys(filters).length > 0 ? filters : defaults.filters,
   };
 }

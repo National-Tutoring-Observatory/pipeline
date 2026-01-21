@@ -1,14 +1,19 @@
-import type { User } from '~/modules/users/users.types';
-import { userIsTeamAdmin, userIsTeamMember } from '../authorization/helpers/teamMembership';
-import type { Project } from './projects.types';
+import type { User } from "~/modules/users/users.types";
+import {
+  userIsTeamAdmin,
+  userIsTeamMember,
+} from "../authorization/helpers/teamMembership";
+import type { Project } from "./projects.types";
 
 const getTeamId = (project: Project): string => {
-  return typeof project.team === 'string' ? project.team : project.team._id;
+  return typeof project.team === "string" ? project.team : project.team._id;
 };
 
 const getProjectCreatorId = (project: Project): string | null => {
   if (!project.createdBy) return null;
-  return typeof project.createdBy === 'string' ? project.createdBy : project.createdBy._id;
+  return typeof project.createdBy === "string"
+    ? project.createdBy
+    : project.createdBy._id;
 };
 
 const canUserManageProject = (user: User | null, project: Project): boolean => {
@@ -68,11 +73,18 @@ type AnnotationsAuthorizationShape = {
 };
 
 type ProjectAuthorizationShape = {
-  [K in Exclude<keyof typeof ProjectAuthorization, 'Runs' | 'Annotations'>]: boolean;
+  [K in Exclude<
+    keyof typeof ProjectAuthorization,
+    "Runs" | "Annotations"
+  >]: boolean;
 } & {
   runs: RunsAuthorizationShape;
   annotations: AnnotationsAuthorizationShape;
 };
 
 export default ProjectAuthorization;
-export type { AnnotationsAuthorizationShape, ProjectAuthorizationShape, RunsAuthorizationShape };
+export type {
+  AnnotationsAuthorizationShape,
+  ProjectAuthorizationShape,
+  RunsAuthorizationShape,
+};

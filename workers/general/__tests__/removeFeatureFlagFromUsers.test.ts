@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { UserService } from "~/modules/users/user";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
+import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../test/helpers/clearDocumentDB";
 import removeFeatureFlagFromUsers from "../removeFeatureFlagFromUsers";
 
@@ -37,7 +37,10 @@ describe("removeFeatureFlagFromUsers worker", () => {
     });
 
     const result = await removeFeatureFlagFromUsers({
-      data: { featureFlagName: "deprecated-flag", featureFlagId: featureFlag._id },
+      data: {
+        featureFlagName: "deprecated-flag",
+        featureFlagId: featureFlag._id,
+      },
     } as any);
 
     expect(result.status).toBe("DELETED");

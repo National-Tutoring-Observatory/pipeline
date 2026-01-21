@@ -1,8 +1,8 @@
 import { Collection } from "@/components/ui/collection";
-import { useContext } from 'react';
-import { AuthenticationContext } from '~/modules/authentication/containers/authentication.container';
+import { useContext } from "react";
+import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import type { Prompt } from "~/modules/prompts/prompts.types";
-import type { User } from '~/modules/users/users.types';
+import type { User } from "~/modules/users/users.types";
 import getTeamPromptsActions from "../helpers/getTeamPromptsActions";
 import getTeamPromptsEmptyAttributes from "../helpers/getTeamPromptsEmptyAttributes";
 import getTeamPromptsItemActions from "../helpers/getTeamPromptsItemActions";
@@ -14,18 +14,18 @@ import type { Team } from "../teams.types";
 interface TeamPromptsProps {
   prompts: Prompt[];
   team: Team;
-  searchValue: string,
-  currentPage: number,
-  totalPages: number,
-  filtersValues: {},
-  sortValue: string,
-  isSyncing: boolean,
+  searchValue: string;
+  currentPage: number;
+  totalPages: number;
+  filtersValues: {};
+  sortValue: string;
+  isSyncing: boolean;
   onActionClicked: (action: string) => void;
-  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
-  onSearchValueChanged: (searchValue: string) => void,
-  onPaginationChanged: (currentPage: number) => void,
-  onFiltersValueChanged: (filterValue: any) => void,
-  onSortValueChanged: (sortValue: any) => void
+  onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (currentPage: number) => void;
+  onFiltersValueChanged: (filterValue: any) => void;
+  onSortValueChanged: (sortValue: any) => void;
 }
 
 export default function TeamPrompts({
@@ -42,7 +42,7 @@ export default function TeamPrompts({
   onSearchValueChanged,
   onPaginationChanged,
   onFiltersValueChanged,
-  onSortValueChanged
+  onSortValueChanged,
 }: TeamPromptsProps) {
   const user = useContext(AuthenticationContext) as User | null;
 
@@ -62,7 +62,9 @@ export default function TeamPrompts({
         currentPage={currentPage}
         totalPages={totalPages}
         emptyAttributes={getTeamPromptsEmptyAttributes()}
-        getItemAttributes={(item) => getTeamPromptsItemAttributes(item, team._id, user)}
+        getItemAttributes={(item) =>
+          getTeamPromptsItemAttributes(item, team._id, user)
+        }
         getItemActions={getTeamPromptsItemActions}
         isSyncing={isSyncing}
         onActionClicked={onActionClicked}

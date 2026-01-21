@@ -1,67 +1,70 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Types } from 'mongoose';
-import { RunService } from 'app/modules/runs/run';
-import { ProjectService } from 'app/modules/projects/project';
-import { TeamService } from 'app/modules/teams/team';
-import clearDocumentDB from '../../../test/helpers/clearDocumentDB';
-import finishAnnotateRun from '../finishAnnotateRun';
-import type { Job } from 'bullmq';
+import { ProjectService } from "app/modules/projects/project";
+import { RunService } from "app/modules/runs/run";
+import { TeamService } from "app/modules/teams/team";
+import type { Job } from "bullmq";
+import { Types } from "mongoose";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import clearDocumentDB from "../../../test/helpers/clearDocumentDB";
+import finishAnnotateRun from "../finishAnnotateRun";
 
-vi.mock('../../helpers/emitFromJob');
+vi.mock("../../helpers/emitFromJob");
 
-describe('finishAnnotateRun worker', () => {
+describe("finishAnnotateRun worker", () => {
   beforeEach(async () => {
     await clearDocumentDB();
     vi.clearAllMocks();
   });
 
-  it('throws error if runId is missing', async () => {
+  it("throws error if runId is missing", async () => {
     const job = {
-      id: 'job-1',
+      id: "job-1",
       data: {},
-      getChildrenValues: vi.fn().mockResolvedValue([])
+      getChildrenValues: vi.fn().mockResolvedValue([]),
     } as any as Job;
 
-    await expect(finishAnnotateRun(job)).rejects.toThrow('finishAnnotateRun: runId is required');
+    await expect(finishAnnotateRun(job)).rejects.toThrow(
+      "finishAnnotateRun: runId is required",
+    );
   });
 
-  it('throws error if run not found', async () => {
+  it("throws error if run not found", async () => {
     const fakeRunId = new Types.ObjectId().toString();
     const job = {
-      id: 'job-1',
+      id: "job-1",
       data: { runId: fakeRunId },
-      getChildrenValues: vi.fn().mockResolvedValue([])
+      getChildrenValues: vi.fn().mockResolvedValue([]),
     } as any as Job;
 
-    await expect(finishAnnotateRun(job)).rejects.toThrow(`finishAnnotateRun: Run not found: ${fakeRunId}`);
+    await expect(finishAnnotateRun(job)).rejects.toThrow(
+      `finishAnnotateRun: Run not found: ${fakeRunId}`,
+    );
   });
 
-  it('marks run as complete when all sessions succeed', async () => {
-    const team = await TeamService.create({ name: 'Test Team' });
+  it("marks run as complete when all sessions succeed", async () => {
+    const team = await TeamService.create({ name: "Test Team" });
     const project = await ProjectService.create({
-      name: 'Test Project',
+      name: "Test Project",
       team: team._id,
-      createdBy: new Types.ObjectId().toString()
+      createdBy: new Types.ObjectId().toString(),
     });
     const run = await RunService.create({
-      name: 'Test Run',
+      name: "Test Run",
       project: project._id,
       isRunning: true,
       isComplete: false,
     });
 
     const job = {
-      id: 'job-1',
+      id: "job-1",
       data: { runId: run._id },
-      getChildrenValues: vi.fn().mockResolvedValue([
-        { status: 'SUCCESS' },
-        { status: 'SUCCESS' }
-      ])
+      getChildrenValues: vi
+        .fn()
+        .mockResolvedValue([{ status: "SUCCESS" }, { status: "SUCCESS" }]),
     } as any as Job;
 
     const result = await finishAnnotateRun(job);
 
-    expect(result.status).toBe('SUCCESS');
+    expect(result.status).toBe("SUCCESS");
 
     const updatedRun = await RunService.findById(run._id);
     expect(updatedRun?.isRunning).toBe(false);
@@ -70,32 +73,31 @@ describe('finishAnnotateRun worker', () => {
     expect(updatedRun?.finishedAt).toBeDefined();
   });
 
-  it('marks run as errored when any session fails', async () => {
-    const team = await TeamService.create({ name: 'Test Team' });
+  it("marks run as errored when any session fails", async () => {
+    const team = await TeamService.create({ name: "Test Team" });
     const project = await ProjectService.create({
-      name: 'Test Project',
+      name: "Test Project",
       team: team._id,
-      createdBy: new Types.ObjectId().toString()
+      createdBy: new Types.ObjectId().toString(),
     });
     const run = await RunService.create({
-      name: 'Test Run',
+      name: "Test Run",
       project: project._id,
       isRunning: true,
       isComplete: false,
     });
 
     const job = {
-      id: 'job-1',
+      id: "job-1",
       data: { runId: run._id },
-      getChildrenValues: vi.fn().mockResolvedValue([
-        { status: 'SUCCESS' },
-        { status: 'ERRORED' }
-      ])
+      getChildrenValues: vi
+        .fn()
+        .mockResolvedValue([{ status: "SUCCESS" }, { status: "ERRORED" }]),
     } as any as Job;
 
     const result = await finishAnnotateRun(job);
 
-    expect(result.status).toBe('SUCCESS');
+    expect(result.status).toBe("SUCCESS");
 
     const updatedRun = await RunService.findById(run._id);
     expect(updatedRun?.isRunning).toBe(false);
@@ -103,28 +105,28 @@ describe('finishAnnotateRun worker', () => {
     expect(updatedRun?.hasErrored).toBe(true);
   });
 
-  it('returns correct status on success', async () => {
-    const team = await TeamService.create({ name: 'Test Team' });
+  it("returns correct status on success", async () => {
+    const team = await TeamService.create({ name: "Test Team" });
     const project = await ProjectService.create({
-      name: 'Test Project',
+      name: "Test Project",
       team: team._id,
-      createdBy: new Types.ObjectId().toString()
+      createdBy: new Types.ObjectId().toString(),
     });
     const run = await RunService.create({
-      name: 'Test Run',
+      name: "Test Run",
       project: project._id,
       isRunning: true,
       isComplete: false,
     });
 
     const job = {
-      id: 'job-1',
+      id: "job-1",
       data: { runId: run._id },
-      getChildrenValues: vi.fn().mockResolvedValue([])
+      getChildrenValues: vi.fn().mockResolvedValue([]),
     } as any as Job;
 
     const result = await finishAnnotateRun(job);
 
-    expect(result).toEqual({ status: 'SUCCESS' });
+    expect(result).toEqual({ status: "SUCCESS" });
   });
 });

@@ -1,15 +1,15 @@
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogClose
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import type { User } from '../users.types';
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import type { User } from "../users.types";
 
 interface AssignSuperAdminFormProps {
   targetUser: User;
@@ -26,29 +26,34 @@ export default function AssignSuperAdminForm({
   isSubmitting,
   isSubmitButtonDisabled,
   onReasonChanged,
-  onAssignSuperAdminClicked
+  onAssignSuperAdminClicked,
 }: AssignSuperAdminFormProps) {
   return (
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Promote User to Super Admin</DialogTitle>
         <DialogDescription>
-          Grant super admin privileges to a user. This action is audited and cannot be undone without explicit revocation.
+          Grant super admin privileges to a user. This action is audited and
+          cannot be undone without explicit revocation.
         </DialogDescription>
       </DialogHeader>
 
       <div className="space-y-4">
-        <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded text-sm">
+        <div className="rounded bg-slate-50 p-3 text-sm dark:bg-slate-900">
           <div>
             <p className="text-xs text-gray-600 dark:text-gray-400">User:</p>
-            <p className="font-medium mb-2">{targetUser.username || 'Unknown User'}</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Current Role:</p>
-            <p className="font-medium">{targetUser.role || 'USER'}</p>
+            <p className="mb-2 font-medium">
+              {targetUser.username || "Unknown User"}
+            </p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              Current Role:
+            </p>
+            <p className="font-medium">{targetUser.role || "USER"}</p>
           </div>
         </div>
 
         <div>
-          <Label htmlFor="reason" className="text-sm mb-2 block">
+          <Label htmlFor="reason" className="mb-2 block text-sm">
             Reason for Promotion <span className="text-red-500">*</span>
           </Label>
           <Textarea
@@ -58,7 +63,7 @@ export default function AssignSuperAdminForm({
             onChange={onReasonChanged}
             className="min-h-24"
           />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             This will be recorded in the audit log for security purposes.
           </p>
         </div>
@@ -72,7 +77,7 @@ export default function AssignSuperAdminForm({
           disabled={isSubmitButtonDisabled}
           onClick={() => onAssignSuperAdminClicked(reason)}
         >
-          {isSubmitting ? 'Promoting...' : 'Promote to Super Admin'}
+          {isSubmitting ? "Promoting..." : "Promote to Super Admin"}
         </Button>
       </DialogFooter>
     </DialogContent>

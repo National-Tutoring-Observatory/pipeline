@@ -1,14 +1,14 @@
 {
-    "files.trimTrailingWhitespace": true,
-    "files.trimFinalNewlines": true,
-    "files.insertFinalNewline": true,
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll": "explicit",
-        "source.organizeImports": "explicit"
-    },
-    "typescript.format.enable": true,
-    "typescript.format.insertSpaceAfterCommaDelimiter": true,
-    "typescript.format.insertSpaceAfterSemicolonInForStatements": true,
-    "editor.tabSize": 2
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "files.insertFinalNewline": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "typescript.format.enable": true,
+  "typescript.format.insertSpaceAfterCommaDelimiter": true,
+  "typescript.format.insertSpaceAfterSemicolonInForStatements": true,
+  "editor.tabSize": 2
 }

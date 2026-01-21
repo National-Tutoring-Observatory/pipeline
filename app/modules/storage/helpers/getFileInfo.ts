@@ -1,5 +1,4 @@
 export default async (file: any) => {
-
   const contentType = file.type;
   const size = file.size;
 
@@ -7,5 +6,4 @@ export default async (file: any) => {
   const buffer = Buffer.from(arrayBuffer);
 
   return { buffer, contentType, size };
-
-}
+};
