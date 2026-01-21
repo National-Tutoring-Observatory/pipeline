@@ -24,20 +24,20 @@ export default function ProjectSessions({
   onFiltersValueChanged,
   onSortValueChanged,
 }: {
-  project: Project,
-  sessions: Session[],
-  searchValue: string,
-  currentPage: number,
-  totalPages: number,
-  filtersValues: {},
-  sortValue: string,
-  isSyncing: boolean,
+  project: Project;
+  sessions: Session[];
+  searchValue: string;
+  currentPage: number;
+  totalPages: number;
+  filtersValues: {};
+  sortValue: string;
+  isSyncing: boolean;
   onActionClicked: (action: string) => void;
-  onItemClicked: (id: string) => void,
-  onSearchValueChanged: (searchValue: string) => void,
-  onPaginationChanged: (currentPage: number) => void,
-  onFiltersValueChanged: (filterValue: any) => void,
-  onSortValueChanged: (sortValue: any) => void
+  onItemClicked: (id: string) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (currentPage: number) => void;
+  onFiltersValueChanged: (filterValue: any) => void;
+  onSortValueChanged: (sortValue: any) => void;
 }) {
   return (
     <div className="mt-8">
@@ -66,5 +66,5 @@ export default function ProjectSessions({
         onSortValueChanged={onSortValueChanged}
       />
     </div>
-  )
+  );
 }

@@ -5,7 +5,13 @@ import { emitter } from "../../events/emitter";
 import { getProjectFileStoragePath } from "../helpers/projectFileStorage";
 import uploadFile from "./uploadFile";
 
-export default async function uploadFiles({ files, entityId }: { files: any, entityId: string }) {
+export default async function uploadFiles({
+  files,
+  entityId,
+}: {
+  files: any;
+  entityId: string;
+}) {
   let completedFiles = 0;
 
   for (const file of files) {
@@ -17,19 +23,30 @@ export default async function uploadFiles({ files, entityId }: { files: any, ent
         name,
       });
 
-      const uploadPath = getProjectFileStoragePath(entityId, newFile._id, file.name);
+      const uploadPath = getProjectFileStoragePath(
+        entityId,
+        newFile._id,
+        file.name,
+      );
       await uploadFile({ file, uploadPath }).then(async () => {
         await FileService.updateById(newFile._id, {
-          hasUploaded: true
+          hasUploaded: true,
         });
         completedFiles++;
-        emitter.emit("UPLOAD_FILES", { projectId: entityId, progress: Math.round((100 / files.length) * completedFiles), status: 'RUNNING' });
+        emitter.emit("UPLOAD_FILES", {
+          projectId: entityId,
+          progress: Math.round((100 / files.length) * completedFiles),
+          status: "RUNNING",
+        });
       });
-
     } else {
-      console.warn('Expected a File, but got:', file);
+      console.warn("Expected a File, but got:", file);
     }
   }
   await ProjectService.updateById(entityId, { isUploadingFiles: false });
-  emitter.emit("UPLOAD_FILES", { projectId: entityId, progress: 100, status: 'DONE' });
+  emitter.emit("UPLOAD_FILES", {
+    projectId: entityId,
+    progress: 100,
+    status: "DONE",
+  });
 }

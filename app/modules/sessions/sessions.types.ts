@@ -22,7 +22,7 @@ export interface Session {
 export interface SessionFile {
   transcript: Utterance[];
   leadRole: string;
-  annotations: Annotation[]
+  annotations: Annotation[];
 }
 
 export interface Utterance {
@@ -32,7 +32,7 @@ export interface Utterance {
   start_time: string;
   end_time: string;
   timestamp: string;
-  annotations: any[]
+  annotations: any[];
 }
 
 export interface Annotation {

@@ -7,48 +7,56 @@ import { SessionService } from "~/modules/sessions/session";
 import { ProjectService } from "../project";
 
 export default async function createRunAnnotations(run: Run) {
-
   const project = await ProjectService.findById(run.project as string);
   if (!project) throw new Error(`Project not found: ${run.project}`);
 
-  if (run.isRunning) { return; }
+  if (run.isRunning) {
+    return;
+  }
 
   const inputFolder = `storage/${run.project}/preAnalysis`;
 
   const outputFolder = `storage/${run.project}/runs/${run._id}`;
 
-  const promptVersion = await PromptVersionService.findOne({ prompt: run.prompt, version: Number(run.promptVersion) });
-  if (!promptVersion) throw new Error('Prompt version not found');
+  const promptVersion = await PromptVersionService.findOne({
+    prompt: run.prompt,
+    version: Number(run.promptVersion),
+  });
+  if (!promptVersion) throw new Error("Prompt version not found");
   const userPrompt = promptVersion.userPrompt;
 
   let annotationFields: Record<string, any> = {};
 
   for (const annotationSchemaItem of promptVersion.annotationSchema as AnnotationSchemaItem[]) {
-    annotationFields[annotationSchemaItem.fieldKey] = annotationSchemaItem.value;
+    annotationFields[annotationSchemaItem.fieldKey] =
+      annotationSchemaItem.value;
   }
-  const annotationSchema = { "annotations": [annotationFields] };
+  const annotationSchema = { annotations: [annotationFields] };
 
   let currentSessionIndex = 0;
 
-  const annotationType = run.annotationType === 'PER_UTTERANCE' ? 'ANNOTATE_PER_UTTERANCE' : 'ANNOTATE_PER_SESSION';
+  const annotationType =
+    run.annotationType === "PER_UTTERANCE"
+      ? "ANNOTATE_PER_UTTERANCE"
+      : "ANNOTATE_PER_SESSION";
 
-  const taskSequencer = new TaskSequencer('ANNOTATE_RUN');
+  const taskSequencer = new TaskSequencer("ANNOTATE_RUN");
 
-  taskSequencer.addTask('START', {
+  taskSequencer.addTask("START", {
     projectId: run.project,
-    runId: run._id
+    runId: run._id,
   });
 
   for (const session of run.sessions) {
     currentSessionIndex++;
-    if (session.status === 'DONE') {
+    if (session.status === "DONE") {
       continue;
     }
     const sessionModel = await SessionService.findById(session.sessionId);
     if (!sessionModel) {
       throw new Error(`Session not found: ${session.sessionId}`);
     }
-    taskSequencer.addTask('PROCESS', {
+    taskSequencer.addTask("PROCESS", {
       annotationType,
       projectId: run.project,
       runId: run._id,
@@ -58,15 +66,14 @@ export default async function createRunAnnotations(run: Run) {
       prompt: { prompt: userPrompt, annotationSchema },
       model: getRunModelCode(run),
       team: project.team,
-      currentSessionIndex
+      currentSessionIndex,
     });
   }
 
-  taskSequencer.addTask('FINISH', {
+  taskSequencer.addTask("FINISH", {
     projectId: run.project,
-    runId: run._id
+    runId: run._id,
   });
 
   taskSequencer.run();
-
 }

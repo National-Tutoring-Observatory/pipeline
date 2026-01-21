@@ -1,9 +1,16 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import dayjs from "dayjs";
-import map from 'lodash/map';
+import map from "lodash/map";
 import type { Session } from "../sessions.types";
 import { Checkbox } from "@/components/ui/checkbox";
-import includes from 'lodash/includes';
+import includes from "lodash/includes";
 import SessionRandomizer from "./sessionRandomizer";
 
 export default function SessionSelector({
@@ -13,15 +20,21 @@ export default function SessionSelector({
   onSelectAllToggled,
   onSelectSessionToggled,
   onSampleSizeChanged,
-  onRandomizeClicked
+  onRandomizeClicked,
 }: {
-  sessions: [],
-  selectedSessions: string[],
-  sampleSize: number,
-  onSelectAllToggled: (isChecked: boolean) => void,
-  onSelectSessionToggled: ({ sessionId, isChecked }: { sessionId: string, isChecked: boolean }) => void,
-  onSampleSizeChanged: (size: number) => void,
-  onRandomizeClicked: () => void
+  sessions: [];
+  selectedSessions: string[];
+  sampleSize: number;
+  onSelectAllToggled: (isChecked: boolean) => void;
+  onSelectSessionToggled: ({
+    sessionId,
+    isChecked,
+  }: {
+    sessionId: string;
+    isChecked: boolean;
+  }) => void;
+  onSampleSizeChanged: (size: number) => void;
+  onRandomizeClicked: () => void;
 }) {
   return (
     <div>
@@ -38,10 +51,14 @@ export default function SessionSelector({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-8"><Checkbox
-                checked={selectedSessions.length === sessions.length}
-                onCheckedChange={(checked) => onSelectAllToggled(Boolean(checked))}
-              /></TableHead>
+              <TableHead className="w-8">
+                <Checkbox
+                  checked={selectedSessions.length === sessions.length}
+                  onCheckedChange={(checked) =>
+                    onSelectAllToggled(Boolean(checked))
+                  }
+                />
+              </TableHead>
               <TableHead className="w-[300px]">Name</TableHead>
               <TableHead>Created</TableHead>
               <TableHead>File type</TableHead>
@@ -54,13 +71,20 @@ export default function SessionSelector({
                   <TableCell className="w-8">
                     <Checkbox
                       checked={includes(selectedSessions, session._id)}
-                      onCheckedChange={(checked) => onSelectSessionToggled({ sessionId: session._id, isChecked: Boolean(checked) })}
+                      onCheckedChange={(checked) =>
+                        onSelectSessionToggled({
+                          sessionId: session._id,
+                          isChecked: Boolean(checked),
+                        })
+                      }
                     ></Checkbox>
                   </TableCell>
-                  <TableCell className="font-medium">
-                    {session.name}
+                  <TableCell className="font-medium">{session.name}</TableCell>
+                  <TableCell>
+                    {dayjs(session.createdAt).format(
+                      "ddd, MMM D, YYYY - h:mm A",
+                    )}
                   </TableCell>
-                  <TableCell>{dayjs(session.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                   <TableCell>{session.fileType}</TableCell>
                 </TableRow>
               );
@@ -69,5 +93,5 @@ export default function SessionSelector({
         </Table>
       </div>
     </div>
-  )
+  );
 }

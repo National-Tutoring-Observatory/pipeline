@@ -11,18 +11,18 @@ import type { Team } from "../teams.types";
 interface TeamProjectsProps {
   projects: Project[];
   team: Team;
-  searchValue: string,
-  currentPage: number,
-  totalPages: number,
-  filtersValues: {},
-  sortValue: string,
-  isSyncing: boolean,
+  searchValue: string;
+  currentPage: number;
+  totalPages: number;
+  filtersValues: {};
+  sortValue: string;
+  isSyncing: boolean;
   onActionClicked: (action: string) => void;
-  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
-  onSearchValueChanged: (searchValue: string) => void,
-  onPaginationChanged: (currentPage: number) => void,
-  onFiltersValueChanged: (filterValue: any) => void,
-  onSortValueChanged: (sortValue: any) => void
+  onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (currentPage: number) => void;
+  onFiltersValueChanged: (filterValue: any) => void;
+  onSortValueChanged: (sortValue: any) => void;
   onCreateProjectButtonClicked: () => void;
 }
 
@@ -41,7 +41,7 @@ export default function TeamProjects({
   onSearchValueChanged,
   onPaginationChanged,
   onFiltersValueChanged,
-  onSortValueChanged
+  onSortValueChanged,
 }: TeamProjectsProps) {
   return (
     <div>
@@ -59,7 +59,9 @@ export default function TeamProjects({
         currentPage={currentPage}
         totalPages={totalPages}
         emptyAttributes={getTeamProjectsEmptyAttributes()}
-        getItemAttributes={(item) => getTeamProjectsItemAttributes(item, team._id)}
+        getItemAttributes={(item) =>
+          getTeamProjectsItemAttributes(item, team._id)
+        }
         getItemActions={getTeamProjectsItemActions}
         onActionClicked={onActionClicked}
         onItemActionClicked={onItemActionClicked}

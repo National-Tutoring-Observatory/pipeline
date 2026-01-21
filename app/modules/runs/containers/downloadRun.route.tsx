@@ -1,5 +1,5 @@
 import archiver from "archiver";
-import map from 'lodash/map';
+import map from "lodash/map";
 import { PassThrough, Readable } from "node:stream";
 import { redirect } from "react-router";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
@@ -9,14 +9,16 @@ import { RunService } from "../run";
 import type { Route } from "./+types/downloadRun.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-
   const authenticationTeams = await getSessionUserTeams({ request });
-  const teamIds = map(authenticationTeams, 'team');
+  const teamIds = map(authenticationTeams, "team");
 
-  const project = await ProjectService.findOne({ _id: params.projectId, team: { $in: teamIds } });
+  const project = await ProjectService.findOne({
+    _id: params.projectId,
+    team: { $in: teamIds },
+  });
 
   if (!project) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const url = new URL(request.url);
@@ -30,29 +32,29 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     throw new Error("Run not found.");
   }
 
-  const archive = archiver('zip', {
-    zlib: { level: 9 }
+  const archive = archiver("zip", {
+    zlib: { level: 9 },
   });
 
   const outputDirectory = `storage/${run.project}/runs/${run._id}/exports`;
 
   let filesToArchive = [];
 
-  if (exportType === 'CSV') {
+  if (exportType === "CSV") {
     filesToArchive.push({
       path: `${outputDirectory}/${run.project}-${run._id}-meta.csv`,
       name: `${run.project}-${run._id}-meta.csv`,
     });
-    if (run.annotationType === 'PER_UTTERANCE') {
+    if (run.annotationType === "PER_UTTERANCE") {
       filesToArchive.push({
         path: `${outputDirectory}/${run.project}-${run._id}-utterances.csv`,
         name: `${run.project}-${run._id}-utterances.csv`,
-      })
+      });
     } else {
       filesToArchive.push({
         path: `${outputDirectory}/${run.project}-${run._id}-sessions.csv`,
         name: `${run.project}-${run._id}-sessions.csv`,
-      })
+      });
     }
   } else {
     filesToArchive.push({
@@ -65,14 +67,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     });
   }
 
-
-
   const passthroughStream = new PassThrough();
 
   archive.pipe(passthroughStream);
 
-  archive.on('error', (err) => {
-    console.error('Archiver encountered an error:', err);
+  archive.on("error", (err) => {
+    console.error("Archiver encountered an error:", err);
   });
 
   const storage = getStorageAdapter();
@@ -84,7 +84,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
       // Check if the request was successful.
       if (!response.ok) {
-        throw new Error(`Fetch Error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Fetch Error: ${response.status} ${response.statusText}`,
+        );
       }
 
       if (response.body) {
@@ -108,11 +110,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return new Response(webStream as ReadableStream<Uint8Array>, {
     status: 200,
     headers: {
-      'Content-Type': 'application/zip',
-      'Content-Disposition': `attachment; filename="project-${run.project}-run-${run._id}-${run.name}.zip"`,
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0',
+      "Content-Type": "application/zip",
+      "Content-Disposition": `attachment; filename="project-${run.project}-run-${run._id}-${run.name}.zip"`,
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
     },
   });
 }

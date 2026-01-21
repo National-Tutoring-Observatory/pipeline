@@ -5,7 +5,7 @@ import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import { PromptService } from "~/modules/prompts/prompt";
 import { ProjectService } from "../project";
 import { TeamService } from "~/modules/teams/team";
-import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
+import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 
 describe("createRunAnnotations", () => {
   beforeEach(async () => {
@@ -17,7 +17,7 @@ describe("createRunAnnotations", () => {
     const prompt = await PromptService.create({
       name: "Test Prompt",
       annotationType: "PER_UTTERANCE",
-      team: team._id
+      team: team._id,
     });
 
     // Create a run with a non-existent project ID
@@ -35,11 +35,11 @@ describe("createRunAnnotations", () => {
       hasErrored: false,
       isExporting: false,
       hasExportedCSV: false,
-      hasExportedJSONL: false
+      hasExportedJSONL: false,
     });
 
     await expect(createRunAnnotations(run)).rejects.toThrow(
-      `Project not found: ${invalidProjectId}`
+      `Project not found: ${invalidProjectId}`,
     );
   });
 
@@ -47,13 +47,13 @@ describe("createRunAnnotations", () => {
     const team = await TeamService.create({ name: "team 1" });
     const project = await ProjectService.create({
       name: "Test Project",
-      team: team._id
+      team: team._id,
     });
 
     const prompt = await PromptService.create({
       name: "Test Prompt",
       annotationType: "PER_UTTERANCE",
-      team: team._id
+      team: team._id,
     });
 
     const run = await RunService.create({
@@ -69,11 +69,11 @@ describe("createRunAnnotations", () => {
       hasErrored: false,
       isExporting: false,
       hasExportedCSV: false,
-      hasExportedJSONL: false
+      hasExportedJSONL: false,
     });
 
     await expect(createRunAnnotations(run)).rejects.toThrow(
-      "Prompt version not found"
+      "Prompt version not found",
     );
   });
 
@@ -81,13 +81,13 @@ describe("createRunAnnotations", () => {
     const team = await TeamService.create({ name: "team 1" });
     const project = await ProjectService.create({
       name: "Test Project",
-      team: team._id
+      team: team._id,
     });
 
     const prompt = await PromptService.create({
       name: "Test Prompt",
       annotationType: "PER_UTTERANCE",
-      team: team._id
+      team: team._id,
     });
 
     const run = await RunService.create({
@@ -103,7 +103,7 @@ describe("createRunAnnotations", () => {
       hasErrored: false,
       isExporting: false,
       hasExportedCSV: false,
-      hasExportedJSONL: false
+      hasExportedJSONL: false,
     });
 
     // Should not throw, should return early
@@ -114,13 +114,13 @@ describe("createRunAnnotations", () => {
     const team = await TeamService.create({ name: "team 1" });
     const project = await ProjectService.create({
       name: "Test Project",
-      team: team._id
+      team: team._id,
     });
 
     const prompt = await PromptService.create({
       name: "Test Prompt",
       annotationType: "PER_UTTERANCE",
-      team: team._id
+      team: team._id,
     });
 
     const promptVersion = await PromptVersionService.create({
@@ -133,9 +133,9 @@ describe("createRunAnnotations", () => {
           isSystem: true,
           fieldKey: "_id",
           fieldType: "string",
-          value: ""
-        }
-      ]
+          value: "",
+        },
+      ],
     });
 
     const run = await RunService.create({
@@ -151,7 +151,7 @@ describe("createRunAnnotations", () => {
       hasErrored: false,
       isExporting: false,
       hasExportedCSV: false,
-      hasExportedJSONL: false
+      hasExportedJSONL: false,
     });
 
     // Mock TaskSequencer to avoid actual task queueing

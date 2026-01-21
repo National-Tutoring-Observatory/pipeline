@@ -12,28 +12,30 @@ await initializeDatabase();
 
 export default async (job: Job) => {
   try {
-
     switch (job.name) {
-      case 'DELETE_COLLECTION:DATA': {
+      case "DELETE_COLLECTION:DATA": {
         return deleteCollectionData(job);
       }
-      case 'DELETE_PROJECT:DATA': {
+      case "DELETE_PROJECT:DATA": {
         return deleteProjectData(job);
       }
-      case 'DELETE_PROJECT:FINISH': {
+      case "DELETE_PROJECT:FINISH": {
         return deleteProject(job);
       }
-      case 'REMOVE_FEATURE_FLAG': {
+      case "REMOVE_FEATURE_FLAG": {
         return removeFeatureFlagFromUsers(job);
       }
-      case 'REMOVE_EXPIRED_TEAM_ASSIGNMENT': {
+      case "REMOVE_EXPIRED_TEAM_ASSIGNMENT": {
         return removeExpiredTeamAssignment(job);
       }
-      case 'RUN_MIGRATION': {
+      case "RUN_MIGRATION": {
         return runMigration(job);
       }
       default: {
-        return { status: 'ERRORED', message: `Missing handler for ${job.name}` }
+        return {
+          status: "ERRORED",
+          message: `Missing handler for ${job.name}`,
+        };
       }
     }
   } catch (error) {
@@ -41,4 +43,4 @@ export default async (job: Job) => {
     // @ts-ignore
     throw new Error(error);
   }
-}
+};

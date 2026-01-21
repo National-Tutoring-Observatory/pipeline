@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
-import projectSchema from '~/lib/schemas/project.schema';
-import type { Project } from './projects.types';
-import type { FindOptions, PaginateProps } from '~/modules/common/types';
-import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
+import mongoose from "mongoose";
+import projectSchema from "~/lib/schemas/project.schema";
+import type { Project } from "./projects.types";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 
-const ProjectModel = mongoose.model('Project', projectSchema);
+const ProjectModel = mongoose.model("Project", projectSchema);
 
 export class ProjectService {
   private static toProject(doc: any): Project {
@@ -24,11 +24,13 @@ export class ProjectService {
     }
 
     if (options?.pagination) {
-      query = query.skip(options.pagination.skip).limit(options.pagination.limit);
+      query = query
+        .skip(options.pagination.skip)
+        .limit(options.pagination.limit);
     }
 
     const docs = await query;
-    return docs.map(doc => this.toProject(doc));
+    return docs.map((doc) => this.toProject(doc));
   }
 
   static async count(match: Record<string, any> = {}): Promise<number> {
@@ -46,7 +48,10 @@ export class ProjectService {
     return this.toProject(doc);
   }
 
-  static async updateById(id: string, updates: Partial<Project>): Promise<Project | null> {
+  static async updateById(
+    id: string,
+    updates: Partial<Project>,
+  ): Promise<Project | null> {
     const doc = await ProjectModel.findByIdAndUpdate(id, updates, {
       new: true,
     });
@@ -63,14 +68,23 @@ export class ProjectService {
     return docs[0] || null;
   }
 
-  static async paginate({ match, sort, page, pageSize }: PaginateProps): Promise<{ data: Project[]; count: number; totalPages: number }> {
+  static async paginate({
+    match,
+    sort,
+    page,
+    pageSize,
+  }: PaginateProps): Promise<{
+    data: Project[];
+    count: number;
+    totalPages: number;
+  }> {
     const pagination = getPaginationParams(page, pageSize);
 
     const results = await this.find({
       match,
       sort,
       pagination,
-      populate: ['team']
+      populate: ["team"],
     });
 
     const count = await this.count(match);
@@ -78,7 +92,7 @@ export class ProjectService {
     return {
       data: results,
       count,
-      totalPages: getTotalPages(count, pageSize)
+      totalPages: getTotalPages(count, pageSize),
     };
   }
 }

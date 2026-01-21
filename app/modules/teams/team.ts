@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
-import teamSchema from '~/lib/schemas/team.schema';
-import type { Team } from './teams.types';
-import type { FindOptions } from '~/modules/common/types';
+import mongoose from "mongoose";
+import teamSchema from "~/lib/schemas/team.schema";
+import type { Team } from "./teams.types";
+import type { FindOptions } from "~/modules/common/types";
 
-const TeamModel = mongoose.model('Team', teamSchema);
+const TeamModel = mongoose.model("Team", teamSchema);
 
 export class TeamService {
   private static toTeam(doc: any): Team {
@@ -23,11 +23,13 @@ export class TeamService {
     }
 
     if (options?.pagination) {
-      query = query.skip(options.pagination.skip).limit(options.pagination.limit);
+      query = query
+        .skip(options.pagination.skip)
+        .limit(options.pagination.limit);
     }
 
     const docs = await query.exec();
-    return docs.map(doc => this.toTeam(doc));
+    return docs.map((doc) => this.toTeam(doc));
   }
 
   static async count(match: Record<string, any> = {}): Promise<number> {
@@ -45,7 +47,10 @@ export class TeamService {
     return this.toTeam(doc);
   }
 
-  static async updateById(id: string, updates: Partial<Team>): Promise<Team | null> {
+  static async updateById(
+    id: string,
+    updates: Partial<Team>,
+  ): Promise<Team | null> {
     const doc = await TeamModel.findByIdAndUpdate(id, updates, {
       new: true,
     }).exec();

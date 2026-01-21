@@ -3,8 +3,5 @@ import { hydrateRoot } from "react-dom/client";
 import { HydratedRouter } from "react-router/dom";
 
 startTransition(() => {
-  hydrateRoot(
-    document,
-    <HydratedRouter />
-  );
+  hydrateRoot(document, <HydratedRouter />);
 });

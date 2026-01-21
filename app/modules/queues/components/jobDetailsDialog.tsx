@@ -3,7 +3,7 @@ import {
   DangerZone,
   DangerZoneActionRow,
   DangerZonePanel,
-  DangerZoneTitle
+  DangerZoneTitle,
 } from "@/components/ui/dangerZone";
 import {
   DialogClose,
@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Pre } from "@/components/ui/pre";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import type { Job } from "../queues.types";
 import JobDetailField from "./jobDetailField";
 
@@ -23,7 +23,10 @@ interface JobDetailsDialogProps {
   onDelete: (job: Job) => void;
 }
 
-export default function JobDetailsDialog({ job, onDelete }: JobDetailsDialogProps) {
+export default function JobDetailsDialog({
+  job,
+  onDelete,
+}: JobDetailsDialogProps) {
   if (!job) return null;
 
   const handleDelete = () => {
@@ -57,60 +60,60 @@ export default function JobDetailsDialog({ job, onDelete }: JobDetailsDialogProp
 
           <JobDetailField
             label="Created"
-            value={job.timestamp
-              ? dayjs(job.timestamp).format('ddd, MMM D, YYYY - h:mm A')
-              : 'Unknown'
+            value={
+              job.timestamp
+                ? dayjs(job.timestamp).format("ddd, MMM D, YYYY - h:mm A")
+                : "Unknown"
             }
           />
 
           <JobDetailField
             label="Processed On"
-            value={job.processedOn
-              ? dayjs(job.processedOn).format('ddd, MMM D, YYYY - h:mm A')
-              : 'Not processed yet'
+            value={
+              job.processedOn
+                ? dayjs(job.processedOn).format("ddd, MMM D, YYYY - h:mm A")
+                : "Not processed yet"
             }
           />
 
           <JobDetailField
             label="Finished On"
-            value={job.finishedOn
-              ? dayjs(job.finishedOn).format('ddd, MMM D, YYYY - h:mm A')
-              : 'Not finished yet'
+            value={
+              job.finishedOn
+                ? dayjs(job.finishedOn).format("ddd, MMM D, YYYY - h:mm A")
+                : "Not finished yet"
             }
           />
 
-          <JobDetailField
-            label="Attempts Made"
-            value={job.attemptsMade || 0}
-          />
+          <JobDetailField label="Attempts Made" value={job.attemptsMade || 0} />
 
           <JobDetailField label="Return Value">
             <Pre>
-              {job.returnvalue ? JSON.stringify(job.returnvalue, null, 2) : 'No return value yet'}
+              {job.returnvalue
+                ? JSON.stringify(job.returnvalue, null, 2)
+                : "No return value yet"}
             </Pre>
           </JobDetailField>
 
           <JobDetailField label="Job Data">
             <Pre>
-              {job.data ? JSON.stringify(job.data, null, 2) : 'No job data'}
+              {job.data ? JSON.stringify(job.data, null, 2) : "No job data"}
             </Pre>
           </JobDetailField>
 
           <JobDetailField label="Job Options">
             <Pre>
-              {job.opts ? JSON.stringify(job.opts, null, 2) : 'No job options'}
+              {job.opts ? JSON.stringify(job.opts, null, 2) : "No job options"}
             </Pre>
           </JobDetailField>
 
           <JobDetailField
             label="Failed Reason"
-            value={job.failedReason || 'No failure reason'}
+            value={job.failedReason || "No failure reason"}
           />
 
           <JobDetailField label="Stack Trace">
-            <Pre>
-              {job.stacktrace?.join('\n') || 'No stack trace'}
-            </Pre>
+            <Pre>{job.stacktrace?.join("\n") || "No stack trace"}</Pre>
           </JobDetailField>
 
           <DangerZone>

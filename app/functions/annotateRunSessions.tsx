@@ -1,23 +1,30 @@
 import { emitter } from "~/modules/events/emitter";
 import type { Project } from "~/modules/projects/projects.types";
-import type { AnnotationSchemaItem, PromptVersion } from "~/modules/prompts/prompts.types";
+import type {
+  AnnotationSchemaItem,
+  PromptVersion,
+} from "~/modules/prompts/prompts.types";
 import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import { RunService } from "~/modules/runs/run";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import { ProjectService } from "~/modules/projects/project";
 import { SessionService } from "~/modules/sessions/session";
-import { handler as annotatePerSession } from './annotatePerSession/app';
-import { handler as annotatePerUtterance } from './annotatePerUtterance/app';
+import { handler as annotatePerSession } from "./annotatePerSession/app";
+import { handler as annotatePerUtterance } from "./annotatePerUtterance/app";
 
-export default async function annotateRunSessions({ runId }: { runId: string }, context: { request: Request }) {
-
+export default async function annotateRunSessions(
+  { runId }: { runId: string },
+  context: { request: Request },
+) {
   const run = await RunService.findById(runId);
   if (!run) throw new Error(`Run not found: ${runId}`);
   const project = await ProjectService.findById(run.project as string);
   if (!project) throw new Error(`Project not found: ${run.project}`);
 
-  if (run.isRunning) { return {} }
+  if (run.isRunning) {
+    return {};
+  }
 
   const inputDirectory = `storage/${run.project}/preAnalysis`;
 
@@ -25,55 +32,77 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
 
   await RunService.updateById(runId, {
     isRunning: true,
-    startedAt: new Date()
+    startedAt: new Date(),
   });
 
-  const promptVersion = await PromptVersionService.findOne({ prompt: run.prompt, version: Number(run.promptVersion) });
-  if (!promptVersion) throw new Error(`Prompt version not found: ${run.prompt} v${run.promptVersion}`);
+  const promptVersion = await PromptVersionService.findOne({
+    prompt: run.prompt,
+    version: Number(run.promptVersion),
+  });
+  if (!promptVersion)
+    throw new Error(
+      `Prompt version not found: ${run.prompt} v${run.promptVersion}`,
+    );
 
-  emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: 0, status: 'STARTED', step: `0/${run.sessions.length}` });
+  emitter.emit("ANNOTATE_RUN_SESSION", {
+    runId: runId,
+    progress: 0,
+    status: "STARTED",
+    step: `0/${run.sessions.length}`,
+  });
 
   let annotationFields: Record<string, any> = {};
 
   for (const annotationSchemaItem of promptVersion.annotationSchema as AnnotationSchemaItem[]) {
-    annotationFields[annotationSchemaItem.fieldKey] = annotationSchemaItem.value;
+    annotationFields[annotationSchemaItem.fieldKey] =
+      annotationSchemaItem.value;
   }
-  const annotationSchema = { "annotations": [annotationFields] };
+  const annotationSchema = { annotations: [annotationFields] };
 
   let completedSessions = 0;
 
   let hasErrored = false;
 
   for (const session of run.sessions) {
-    if (session.status === 'DONE') {
+    if (session.status === "DONE") {
       completedSessions++;
-      emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.sessions.length) * completedSessions), status: 'RUNNING' });
+      emitter.emit("ANNOTATE_RUN_SESSION", {
+        runId: runId,
+        progress: Math.round((100 / run.sessions.length) * completedSessions),
+        status: "RUNNING",
+      });
       continue;
     }
     const sessionModel = await SessionService.findById(session.sessionId);
-    if (!sessionModel) throw new Error(`Session not found: ${session.sessionId}`);
+    if (!sessionModel)
+      throw new Error(`Session not found: ${session.sessionId}`);
 
-    session.status = 'RUNNING';
+    session.status = "RUNNING";
     session.startedAt = new Date();
 
     await RunService.updateById(runId, {
-      sessions: run.sessions
+      sessions: run.sessions,
     });
 
-    emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.sessions.length) * completedSessions), status: 'RUNNING', step: `${completedSessions + 1}/${run.sessions.length}` });
+    emitter.emit("ANNOTATE_RUN_SESSION", {
+      runId: runId,
+      progress: Math.round((100 / run.sessions.length) * completedSessions),
+      status: "RUNNING",
+      step: `${completedSessions + 1}/${run.sessions.length}`,
+    });
 
-    let status: 'DONE' | 'ERRORED' | 'RUNNING';
+    let status: "DONE" | "ERRORED" | "RUNNING";
 
     try {
-      if (run.annotationType === 'PER_UTTERANCE') {
+      if (run.annotationType === "PER_UTTERANCE") {
         await annotatePerUtterance({
           body: {
             inputFile: `${inputDirectory}/${sessionModel._id}/${sessionModel.name}`,
             outputFolder: `${outputDirectory}/${sessionModel._id}`,
             prompt: { prompt: promptVersion.userPrompt, annotationSchema },
             model: getRunModelCode(run),
-            team: project.team
-          }
+            team: project.team,
+          },
         });
       } else {
         await annotatePerSession({
@@ -82,14 +111,14 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
             outputFolder: `${outputDirectory}/${sessionModel._id}`,
             prompt: { prompt: promptVersion.userPrompt, annotationSchema },
             model: getRunModelCode(run),
-            team: project.team
-          }
-        })
+            team: project.team,
+          },
+        });
       }
-      status = 'DONE';
+      status = "DONE";
     } catch (error) {
       console.warn(error);
-      status = 'ERRORED';
+      status = "ERRORED";
       hasErrored = true;
     }
 
@@ -99,16 +128,23 @@ export default async function annotateRunSessions({ runId }: { runId: string }, 
       sessions: run.sessions,
     });
     completedSessions++;
-    emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: Math.round((100 / run.sessions.length) * completedSessions), status: 'RUNNING' });
+    emitter.emit("ANNOTATE_RUN_SESSION", {
+      runId: runId,
+      progress: Math.round((100 / run.sessions.length) * completedSessions),
+      status: "RUNNING",
+    });
   }
 
   await RunService.updateById(runId, {
     isRunning: false,
     isComplete: true,
     hasErrored,
-    finishedAt: new Date()
+    finishedAt: new Date(),
   });
 
-  emitter.emit("ANNOTATE_RUN_SESSION", { runId: runId, progress: 100, status: 'DONE' });
-
+  emitter.emit("ANNOTATE_RUN_SESSION", {
+    runId: runId,
+    progress: 100,
+    status: "DONE",
+  });
 }

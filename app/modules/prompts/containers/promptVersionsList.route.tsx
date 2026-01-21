@@ -8,29 +8,32 @@ import PromptAuthorization from "../authorization";
 import type { Route } from "./+types/promptVersionsList.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const url = new URL(request.url);
-  const promptId = url.searchParams.get('prompt');
+  const promptId = url.searchParams.get("prompt");
 
   if (!promptId) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const prompt = await PromptService.findById(promptId);
 
   if (!prompt) {
-    return redirect('/');
+    return redirect("/");
   }
 
   if (!PromptAuthorization.canView(user, prompt)) {
-    return redirect('/');
+    return redirect("/");
   }
 
-  const result = await PromptVersionService.find({ match: { prompt: promptId }, sort: { version: -1 } });
+  const result = await PromptVersionService.find({
+    match: { prompt: promptId },
+    sort: { version: -1 },
+  });
   const promptVersions = { data: result };
   return { promptVersions };
 }

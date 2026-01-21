@@ -3,15 +3,15 @@ import { Button } from "./button";
 import { ButtonGroup } from "./button-group";
 
 export type PaginationProps = {
-  currentPage: number,
-  totalPages: number,
-  onPaginationChanged: (currentPage: number) => void
-}
+  currentPage: number;
+  totalPages: number;
+  onPaginationChanged: (currentPage: number) => void;
+};
 
 function Pagination({
   currentPage = 1,
   totalPages = 1,
-  onPaginationChanged
+  onPaginationChanged,
 }: PaginationProps) {
   return (
     <ButtonGroup>

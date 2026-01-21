@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { TeamService } from "../team";
 import { UserService } from "~/modules/users/user";
-import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
-import loginUser from '../../../../test/helpers/loginUser';
+import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import loginUser from "../../../../test/helpers/loginUser";
 import { loader, action } from "../containers/teams.route";
 
 describe("teams.route", () => {
@@ -25,13 +25,17 @@ describe("teams.route", () => {
       const team2 = await TeamService.create({ name: "team 2" });
 
       const admin = await UserService.create({
-        username: "admin", role: "SUPER_ADMIN", teams: [],
+        username: "admin",
+        role: "SUPER_ADMIN",
+        teams: [],
       });
 
       const cookieHeader = await loginUser(admin._id);
 
       const result = (await loader({
-        request: new Request("http://localhost/teams", { headers: { cookie: cookieHeader } }),
+        request: new Request("http://localhost/teams", {
+          headers: { cookie: cookieHeader },
+        }),
         params: {},
       } as any)) as any;
 
@@ -54,7 +58,9 @@ describe("teams.route", () => {
       const cookieHeader = await loginUser(user._id);
 
       const result = (await loader({
-        request: new Request("http://localhost/teams", { headers: { cookie: cookieHeader } }),
+        request: new Request("http://localhost/teams", {
+          headers: { cookie: cookieHeader },
+        }),
         params: {},
       } as any)) as any;
 
@@ -66,7 +72,8 @@ describe("teams.route", () => {
   describe("action - CREATE_TEAM", () => {
     it("creates a team when user is super admin", async () => {
       const admin = await UserService.create({
-        username: "admin", role: "SUPER_ADMIN",
+        username: "admin",
+        role: "SUPER_ADMIN",
       });
 
       const cookieHeader = await loginUser(admin._id);
@@ -75,7 +82,10 @@ describe("teams.route", () => {
         request: new Request("http://localhost/teams", {
           method: "POST",
           headers: { cookie: cookieHeader },
-          body: JSON.stringify({ intent: "CREATE_TEAM", payload: { name: "new team" } }),
+          body: JSON.stringify({
+            intent: "CREATE_TEAM",
+            payload: { name: "new team" },
+          }),
         }),
         params: {},
       } as any)) as any;
@@ -91,7 +101,8 @@ describe("teams.route", () => {
 
     it("throws when team name is missing", async () => {
       const admin = await UserService.create({
-        username: "admin", role: "SUPER_ADMIN",
+        username: "admin",
+        role: "SUPER_ADMIN",
       });
 
       const cookieHeader = await loginUser(admin._id);
@@ -104,7 +115,7 @@ describe("teams.route", () => {
             body: JSON.stringify({ intent: "CREATE_TEAM", payload: {} }),
           }),
           params: {},
-        } as any)
+        } as any),
       ).rejects.toThrow(/Team name is required/);
     });
   });

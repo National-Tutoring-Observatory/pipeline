@@ -1,15 +1,15 @@
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogClose
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import type { User } from '../users.types';
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import type { User } from "../users.types";
 
 interface AssignSuperAdminFormProps {
   targetUser: User;
@@ -26,14 +26,15 @@ export default function AssignSuperAdminForm({
   isSubmitting,
   isSubmitButtonDisabled,
   onReasonChanged,
-  onAssignSuperAdminClicked
+  onAssignSuperAdminClicked,
 }: AssignSuperAdminFormProps) {
   return (
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Promote User to Super Admin</DialogTitle>
         <DialogDescription>
-          Grant super admin privileges to a user. This action is audited and cannot be undone without explicit revocation.
+          Grant super admin privileges to a user. This action is audited and
+          cannot be undone without explicit revocation.
         </DialogDescription>
       </DialogHeader>
 
@@ -41,9 +42,13 @@ export default function AssignSuperAdminForm({
         <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded text-sm">
           <div>
             <p className="text-xs text-gray-600 dark:text-gray-400">User:</p>
-            <p className="font-medium mb-2">{targetUser.username || 'Unknown User'}</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Current Role:</p>
-            <p className="font-medium">{targetUser.role || 'USER'}</p>
+            <p className="font-medium mb-2">
+              {targetUser.username || "Unknown User"}
+            </p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              Current Role:
+            </p>
+            <p className="font-medium">{targetUser.role || "USER"}</p>
           </div>
         </div>
 
@@ -72,7 +77,7 @@ export default function AssignSuperAdminForm({
           disabled={isSubmitButtonDisabled}
           onClick={() => onAssignSuperAdminClicked(reason)}
         >
-          {isSubmitting ? 'Promoting...' : 'Promote to Super Admin'}
+          {isSubmitting ? "Promoting..." : "Promote to Super Admin"}
         </Button>
       </DialogFooter>
     </DialogContent>

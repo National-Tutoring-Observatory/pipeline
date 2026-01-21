@@ -9,6 +9,7 @@ NTO (National Tutoring Observatory) Pipeline - React-based web application for a
 ## Essential Commands
 
 ### Installation & Setup
+
 ```bash
 # Install dependencies (always use frozen lockfile to match CI)
 yarn install --frozen-lockfile
@@ -19,6 +20,7 @@ cp .env.example .env
 ```
 
 ### Development
+
 ```bash
 # Start development server (port 5173)
 yarn app:dev
@@ -31,6 +33,7 @@ yarn workers:dev
 ```
 
 ### Build & Validation
+
 ```bash
 # Type checking (required before commits)
 yarn typecheck
@@ -43,6 +46,7 @@ yarn app:prod
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 yarn test
@@ -58,6 +62,7 @@ yarn test:coverage
 ```
 
 ### Data Migrations
+
 ```bash
 # Generate new migration
 yarn migration:generate <Name Of Migration>
@@ -71,6 +76,7 @@ yarn migration:generate <Name Of Migration>
 ```
 
 ### Pre-commit Checklist
+
 1. ✅ `yarn typecheck` - must pass with no errors
 2. ✅ `yarn format:check` - must pass with no errors
 3. ✅ `yarn test` - must pass with no errors
@@ -116,6 +122,7 @@ module/
 ```
 
 **Core Modules**:
+
 - **Data Management**: `projects`, `runs`, `sessions`, `collections`
 - **LLM/Annotations**: `prompts`, `annotations`
 - **Access Control**: `teams`, `users`, `authentication`, `authorization`
@@ -127,16 +134,20 @@ All data operations go through service classes with a consistent interface:
 
 ```typescript
 export class ProjectService {
-  static async find(options?: FindOptions): Promise<Project[]>
-  static async findById(id: string): Promise<Project | null>
-  static async create(data: CreateProjectInput): Promise<Project>
-  static async updateById(id: string, updates: Partial<Project>): Promise<Project | null>
-  static async deleteById(id: string): Promise<boolean>
-  static async paginate(options): Promise<{ data, count, totalPages }>
+  static async find(options?: FindOptions): Promise<Project[]>;
+  static async findById(id: string): Promise<Project | null>;
+  static async create(data: CreateProjectInput): Promise<Project>;
+  static async updateById(
+    id: string,
+    updates: Partial<Project>,
+  ): Promise<Project | null>;
+  static async deleteById(id: string): Promise<boolean>;
+  static async paginate(options): Promise<{ data; count; totalPages }>;
 }
 ```
 
 **FindOptions Interface**:
+
 - `match`: MongoDB query object
 - `sort`: Sort criteria
 - `skip`/`limit`: Pagination
@@ -145,6 +156,7 @@ export class ProjectService {
 **Service Class Structure**:
 
 The service class acts as a **facade** - a single entry point that routes use. It contains:
+
 - Basic CRUD methods (inline, ~5-10 lines each)
 - Business operation methods that delegate to service files
 
@@ -163,11 +175,13 @@ export class CollectionService {
 ```
 
 **When to split into service files** (`services/*.server.ts`):
+
 - Operation has multiple steps or validation logic
 - Method would exceed ~20-30 lines
 - Logic needs to be tested in isolation
 
 **When to use helpers** (`helpers/*.ts`):
+
 - Pure functions (no side effects, no DB calls)
 - Logic shared between multiple services
 - Validation or transformation utilities
@@ -245,6 +259,7 @@ export const ProjectAuthorization = {
 ```
 
 Authorization checks are done in route loaders/actions:
+
 - **Loaders**: Use `redirect()` for auth failures
 - **Actions**: Return `data({ errors: {...} }, { status: 400/403/500 })` for errors
 
@@ -253,21 +268,23 @@ Authorization checks are done in route loaders/actions:
 Jobs are processed by workers in the `workers/` workspace:
 
 **Job Creation Pattern**:
+
 ```typescript
-import { createTaskJob } from '~/modules/queues/helpers/createTaskJob'
+import { createTaskJob } from "~/modules/queues/helpers/createTaskJob";
 
 // Create parent job with child jobs
 await createTaskJob({
-  name: 'ANNOTATE_RUN:START',
+  name: "ANNOTATE_RUN:START",
   data: { runId, userId },
-  children: sessions.map(session => ({
-    name: 'ANNOTATE_RUN:PROCESS',
-    data: { runId, sessionId }
-  }))
-})
+  children: sessions.map((session) => ({
+    name: "ANNOTATE_RUN:PROCESS",
+    data: { runId, sessionId },
+  })),
+});
 ```
 
 **Common Job Types**:
+
 - `ANNOTATE_RUN:START/PROCESS/FINISH` - LLM annotation pipeline
 - `CONVERT_FILES_TO_SESSIONS:START/PROCESS/FINISH` - File conversion
 - `DELETE_PROJECT:DATA/FINISH` - Cascading deletion
@@ -278,16 +295,16 @@ await createTaskJob({
 Use the `useHandleSockets` hook for real-time data updates:
 
 ```typescript
-import { useHandleSockets } from '~/modules/sockets/hooks/useHandleSockets'
+import { useHandleSockets } from "~/modules/sockets/hooks/useHandleSockets";
 
 useHandleSockets({
-  event: 'ANNOTATE_RUN',
-  matches: [{ task: 'ANNOTATE_RUN:START', status: 'FINISHED' }],
+  event: "ANNOTATE_RUN",
+  matches: [{ task: "ANNOTATE_RUN:START", status: "FINISHED" }],
   callback: (payload) => {
     // Revalidate route data
-    revalidator.revalidate()
-  }
-})
+    revalidator.revalidate();
+  },
+});
 ```
 
 ### Storage Adapters
@@ -300,17 +317,19 @@ The app uses a pluggable adapter system for file storage:
 Selected via `STORAGE_ADAPTER` environment variable.
 
 **Usage**:
-```typescript
-import { getStorageAdapter } from '~/modules/storage/storage'
 
-const adapter = getStorageAdapter()
-await adapter.upload({ file, uploadPath })
-await adapter.download(path)
-await adapter.remove(path)
-const url = await adapter.request(path) // Presigned URL
+```typescript
+import { getStorageAdapter } from "~/modules/storage/storage";
+
+const adapter = getStorageAdapter();
+await adapter.upload({ file, uploadPath });
+await adapter.download(path);
+await adapter.remove(path);
+const url = await adapter.request(path); // Presigned URL
 ```
 
 **IMPORTANT**: `app/adapters.js` auto-generates storage adapter imports:
+
 - Runs automatically before `yarn app:build` and `yarn app:dev`
 - Scans `app/storageAdapters/` and generates `app/modules/storage/storage.ts`
 - **DO NOT edit** `app/modules/storage/storage.ts` manually
@@ -320,6 +339,7 @@ const url = await adapter.request(path) // Presigned URL
 **Connection**: Single connection established in `app/lib/database.ts`
 
 **Schemas**: Located in `app/lib/schemas/`
+
 - `project.schema.ts` - Projects with metadata and status
 - `run.schema.ts` - Runs: annotation tasks with sessions and prompts
 - `session.schema.ts` - Individual sessions with utterances
@@ -335,13 +355,14 @@ const url = await adapter.request(path) // Presigned URL
 ## Path Aliases
 
 ```typescript
-import { Button } from '@/components/ui/button'  // @/* → ./app/uikit/*
-import { getProjects } from '~/modules/projects/queries'  // ~/* → ./app/*
+import { Button } from "@/components/ui/button"; // @/* → ./app/uikit/*
+import { getProjects } from "~/modules/projects/queries"; // ~/* → ./app/*
 ```
 
 ## Code Conventions
 
 ### File Naming
+
 - **Files**: camelCase (`userProfile.tsx`, `dataLoader.ts`)
 - **Directories**: lowercase (`components/`, `modules/`)
 - **Components**: File camelCase, export PascalCase
@@ -351,68 +372,73 @@ import { getProjects } from '~/modules/projects/queries'  // ~/* → ./app/*
   ```
 
 ### Formatting
+
 - **2 spaces** for indentation (no tabs)
 - **No trailing whitespace**
 - **Single newline** at end of file
 - **Always save files** after editing to apply auto-formatting
 
 ### Comments
+
 Only comment complex logic or non-obvious behavior:
 
 ```typescript
 // ✅ Good - explains WHY
 // Workaround: Safari requires explicit height for flex containers
 // See: https://bugs.webkit.org/show_bug.cgi?id=137730
-className="h-full flex"
+className = "h-full flex";
 
 // Rate limit: OpenAI allows 3 requests/minute for this endpoint
-await delay(20000)
+await delay(20000);
 
 // ❌ Bad - states the obvious
 // Set the user name
-const userName = user.name
+const userName = user.name;
 
 // Update role
-await UserService.updateById(userId, { role: 'admin' })
+await UserService.updateById(userId, { role: "admin" });
 ```
 
 ### Error Handling in Routes
 
 **Loaders** - Use `redirect()` for authentication failures:
+
 ```typescript
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getUser(request)
-  if (!user) return redirect('/')
+  const user = await getUser(request);
+  if (!user) return redirect("/");
   // ...
 }
 ```
 
 **Actions** - Return explicit error responses:
+
 ```typescript
 export async function action({ request }: Route.ActionArgs) {
-  const user = await getUser(request)
-  if (!user) throw new Error("Authentication required")
+  const user = await getUser(request);
+  if (!user) throw new Error("Authentication required");
 
-  const payload = await request.json()
+  const payload = await request.json();
 
   if (!payload.name) {
-    return data({ errors: { name: 'Name is required' } }, { status: 400 })
+    return data({ errors: { name: "Name is required" } }, { status: 400 });
   }
 
   // Success
-  return data({ success: true })
+  return data({ success: true });
 }
 ```
 
 **Client-side Error Handling**:
+
 ```typescript
-const fetcher = useFetcher()
+const fetcher = useFetcher();
 
 useEffect(() => {
   if (fetcher.data?.errors) {
-    toast.error(fetcher.data.errors.general || 'An error occurred')
+    toast.error(fetcher.data.errors.general || "An error occurred");
   }
-}, [fetcher.data])
+}, [fetcher.data]);
 ```
 
 ### Dialog and Action Naming
@@ -478,14 +504,16 @@ export default function MyRoute() {
 ```
 
 **Breadcrumb Interface**:
+
 ```typescript
 interface Breadcrumb {
-  text: string    // Display text
-  link?: string   // Optional link (omit for current page)
+  text: string; // Display text
+  link?: string; // Optional link (omit for current page)
 }
 ```
 
 **Guidelines**:
+
 - Add breadcrumbs to ALL routes that need navigation context
 - Omit `link` property for the current/active page
 - Include all parent levels (Projects → Project → Section → Current)
@@ -495,6 +523,7 @@ interface Breadcrumb {
 ## UI Components
 
 ### Component Library
+
 - **Radix UI**: Headless, accessible primitives
 - **shadcn/ui**: Pre-built components in `app/uikit/components/ui/`
 - **Tailwind CSS 4**: Utility-first styling
@@ -522,6 +551,7 @@ import { ChevronDown } from 'lucide-react'
 ## Environment Configuration
 
 ### Required Variables
+
 ```bash
 # Storage adapter (LOCAL or AWS_S3)
 STORAGE_ADAPTER='LOCAL'
@@ -544,6 +574,7 @@ REDIS_LOCAL='true'                  # Local Redis (development)
 ```
 
 ### Optional Variables
+
 - AWS credentials (if using AWS_S3 or DOCUMENT_DB)
 - AI Gateway credentials (if using AI_GATEWAY)
 - OpenAI key (if using OPENAI provider)
@@ -551,6 +582,7 @@ REDIS_LOCAL='true'                  # Local Redis (development)
 ## Testing Patterns
 
 ### Running Tests
+
 ```bash
 # All tests
 yarn test
@@ -566,52 +598,56 @@ yarn test:coverage
 ```
 
 ### Test Structure
-```typescript
-import { describe, it, expect, beforeEach } from 'vitest'
 
-describe('ProjectAuthorization', () => {
-  let user: User
-  let project: Project
+```typescript
+import { describe, it, expect, beforeEach } from "vitest";
+
+describe("ProjectAuthorization", () => {
+  let user: User;
+  let project: Project;
 
   beforeEach(() => {
-    user = createMockUser()
-    project = createMockProject()
-  })
+    user = createMockUser();
+    project = createMockProject();
+  });
 
-  it('allows team admins to create projects', () => {
-    const canCreate = ProjectAuthorization.canCreate(user, 'team123')
-    expect(canCreate).toBe(true)
-  })
-})
+  it("allows team admins to create projects", () => {
+    const canCreate = ProjectAuthorization.canCreate(user, "team123");
+    expect(canCreate).toBe(true);
+  });
+});
 ```
 
 ## Security Considerations
 
 ### Authentication & Authorization
+
 - **Always check authentication** before implementing features that require login
 - **Verify permissions** using authorization modules (e.g., `ProjectAuthorization.canView()`)
 - **Follow established patterns** - Use `redirect()` in loaders, return error responses in actions
 
 ### Data Protection
+
 - **Tutoring transcripts are confidential** - Handle with appropriate care
 - **Never log sensitive information**
 - **Validate all inputs** and sanitize outputs
 - **Use .env for secrets** - Never commit credentials
 
 ### Example Permission Check
+
 ```typescript
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getUser(request)
-  if (!user) return redirect('/')
+  const user = await getUser(request);
+  if (!user) return redirect("/");
 
-  const project = await ProjectService.findById(params.projectId)
-  if (!project) throw new Response("Not Found", { status: 404 })
+  const project = await ProjectService.findById(params.projectId);
+  if (!project) throw new Response("Not Found", { status: 404 });
 
   if (!ProjectAuthorization.canView(user, project)) {
-    throw new Error("Access denied")
+    throw new Error("Access denied");
   }
 
-  return { project }
+  return { project };
 }
 ```
 
@@ -646,17 +682,21 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 ## Troubleshooting
 
 ### Type Errors During Build
+
 **Cause**: TypeScript compilation errors
 **Fix**: Run `yarn typecheck` to see detailed errors
 **Note**: Build warnings about unused imports are expected and safe to ignore
 
 ### Storage Imports Not Found
+
 **Cause**: `app/adapters.js` didn't run or failed
 **Fix**: Manually run `node ./app/adapters.js` to see errors
 
 ### Module Not Found Errors
+
 **Cause**: Stale or corrupted dependencies
 **Fix**:
+
 ```bash
 rm -rf node_modules .react-router build
 yarn install --frozen-lockfile
@@ -665,10 +705,12 @@ yarn app:build
 ```
 
 ### Workers Failing to Start
+
 **Cause**: Missing dependencies or Redis configuration
 **Fix**: Run `yarn install` at root (handles all workspaces) and ensure Redis is running
 
 ### Port 5173 Already in Use
+
 **Cause**: Another process using the port
 **Fix**: `lsof -i :5173` to find process, then kill it
 **Alternative**: `PORT=3000 yarn app:dev`
@@ -678,16 +720,19 @@ yarn app:build
 **Status**: Phase 1 Complete (Foundation)
 
 See detailed documentation:
+
 - `COLLECTION_CREATE_PLAN.md` - Full feature implementation plan
 - Additional phase documentation may exist
 
 **Phase 1 Includes**:
+
 - CollectionService CRUD operations
 - CollectionAuthorization module (team-based access)
 - Updated projectCollections.route with proper error handling
 - Comprehensive test coverage
 
 **To Continue**:
+
 1. Check phase documentation for next steps
 2. Tests run via: `yarn test -- app/modules/collections/__tests__/`
 3. Build: `yarn app:build` - must pass before commit
@@ -701,6 +746,7 @@ See detailed documentation:
 ## Quick Reference
 
 **Full build & validation cycle** (recommended before PR):
+
 ```bash
 yarn install --frozen-lockfile
 yarn typecheck
@@ -709,6 +755,7 @@ yarn app:build
 ```
 
 **Start development**:
+
 ```bash
 cp .env.example .env
 # Edit .env as needed

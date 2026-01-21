@@ -1,6 +1,32 @@
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { ChartNoAxesGantt, ChevronsUpDown, ClipboardList, Database, Flag, Folder, LogOut, Network, Users } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import {
+  ChartNoAxesGantt,
+  ChevronsUpDown,
+  ClipboardList,
+  Database,
+  Flag,
+  Folder,
+  LogOut,
+  Network,
+  Users,
+} from "lucide-react";
 import { useContext, useEffect } from "react";
 import { NavLink, useFetcher } from "react-router";
 import SideBarHelpDropdown from "~/modules/app/components/sidebarHelpDropdown";
@@ -9,29 +35,29 @@ import { AuthenticationContext } from "~/modules/authentication/containers/authe
 import type { User } from "~/modules/users/users.types";
 
 export default function AppSidebar() {
-
   const user = useContext(AuthenticationContext) as User;
 
   const fetcher = useFetcher();
 
   useEffect(() => {
-    if (fetcher.state === 'loading') {
-      window.location.pathname = '/'
+    if (fetcher.state === "loading") {
+      window.location.pathname = "/";
     }
   }, [fetcher.state]);
 
   const onLogoutClicked = () => {
-
-    fetcher.submit({}, {
-      action: `/api/authentication`,
-      method: "delete",
-      encType: "application/json"
-    })
-
-  }
+    fetcher.submit(
+      {},
+      {
+        action: `/api/authentication`,
+        method: "delete",
+        encType: "application/json",
+      },
+    );
+  };
 
   return (
-    <Sidebar variant="inset" >
+    <Sidebar variant="inset">
       <SidebarHeader />
       <SidebarContent>
         <SidebarGroup>
@@ -40,11 +66,13 @@ export default function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to={'/'}>
+                  <NavLink to={"/"}>
                     {({ isActive }) => (
                       <>
                         <Folder />
-                        <span className={isActive ? "underline" : ""}>Projects</span>
+                        <span className={isActive ? "underline" : ""}>
+                          Projects
+                        </span>
                       </>
                     )}
                   </NavLink>
@@ -52,11 +80,13 @@ export default function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to={'/prompts'}>
+                  <NavLink to={"/prompts"}>
                     {({ isActive }) => (
                       <>
                         <ClipboardList />
-                        <span className={isActive ? "underline" : ""}>Prompts</span>
+                        <span className={isActive ? "underline" : ""}>
+                          Prompts
+                        </span>
                       </>
                     )}
                   </NavLink>
@@ -70,67 +100,77 @@ export default function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild >
-                  <NavLink to={'/teams'}>
+                <SidebarMenuButton asChild>
+                  <NavLink to={"/teams"}>
                     {({ isActive }) => (
                       <>
                         <Network />
-                        <span className={isActive ? "underline" : ""}>Teams</span>
+                        <span className={isActive ? "underline" : ""}>
+                          Teams
+                        </span>
                       </>
                     )}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <Role roles={['SUPER_ADMIN']}>
+              <Role roles={["SUPER_ADMIN"]}>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild >
-                    <NavLink to={'/featureFlags'}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={"/featureFlags"}>
                       {({ isActive }) => (
                         <>
                           <Flag />
-                          <span className={isActive ? "underline" : ""}>Feature flags</span>
+                          <span className={isActive ? "underline" : ""}>
+                            Feature flags
+                          </span>
                         </>
                       )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </Role>
-              <Role roles={['SUPER_ADMIN']}>
+              <Role roles={["SUPER_ADMIN"]}>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild >
-                    <NavLink to={'/queues/tasks/active'}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={"/queues/tasks/active"}>
                       {({ isActive }) => (
                         <>
                           <ChartNoAxesGantt />
-                          <span className={isActive ? "underline" : ""}>Queues</span>
+                          <span className={isActive ? "underline" : ""}>
+                            Queues
+                          </span>
                         </>
                       )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </Role>
-              <Role roles={['SUPER_ADMIN']}>
+              <Role roles={["SUPER_ADMIN"]}>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild >
-                    <NavLink to={'/migrations'}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={"/migrations"}>
                       {({ isActive }) => (
                         <>
                           <Database />
-                          <span className={isActive ? "underline" : ""}>Migrations</span>
+                          <span className={isActive ? "underline" : ""}>
+                            Migrations
+                          </span>
                         </>
                       )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </Role>
-              <Role roles={['SUPER_ADMIN']}>
+              <Role roles={["SUPER_ADMIN"]}>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild >
-                    <NavLink to={'/admin/users'}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={"/admin/users"}>
                       {({ isActive }) => (
                         <>
                           <Users />
-                          <span className={isActive ? "underline" : ""}>Users</span>
+                          <span className={isActive ? "underline" : ""}>
+                            Users
+                          </span>
                         </>
                       )}
                     </NavLink>
@@ -162,8 +202,12 @@ export default function AppSidebar() {
                       className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                     >
                       <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-medium">{user.username}</span>
-                        <span className="truncate text-xs">{user.orcidId || user.githubId}</span>
+                        <span className="truncate font-medium">
+                          {user.username}
+                        </span>
+                        <span className="truncate text-xs">
+                          {user.orcidId || user.githubId}
+                        </span>
                       </div>
                       <ChevronsUpDown className="ml-auto size-4" />
                     </SidebarMenuButton>
@@ -184,7 +228,7 @@ export default function AppSidebar() {
             </SidebarMenu>
           </SidebarContent>
         </SidebarGroup>
-      </SidebarFooter >
+      </SidebarFooter>
     </Sidebar>
   );
 }

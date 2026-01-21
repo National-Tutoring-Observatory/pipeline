@@ -1,12 +1,11 @@
-import { getRedisInstance } from 'app/helpers/getRedisInstance';
-import { Job, MetricsTime, Worker } from 'bullmq';
+import { getRedisInstance } from "app/helpers/getRedisInstance";
+import { Job, MetricsTime, Worker } from "bullmq";
 
 export const redis = getRedisInstance({ maxRetriesPerRequest: null });
 
 export const WORKERS: any = {};
 
 export default async ({ name }: { name: string }, file: string) => {
-
   let worker;
 
   worker = new Worker(name, file, {
@@ -17,24 +16,24 @@ export default async ({ name }: { name: string }, file: string) => {
     },
     useWorkerThreads: false,
     // Increase lock duration given how long some scripts can take - set to 5 mins.
-    lockDuration: 300000
+    lockDuration: 300000,
   });
 
   if (worker) {
-    worker.on('active', (job: Job) => {
-      console.log('Job started', job.name);
+    worker.on("active", (job: Job) => {
+      console.log("Job started", job.name);
     });
 
-    worker.on('completed', (job: Job) => {
-      console.log('Job completed', job.name);
+    worker.on("completed", (job: Job) => {
+      console.log("Job completed", job.name);
     });
     // @ts-ignore
-    worker.on('failed', (job: Job, error: Error) => {
-      console.log('Job failed', job.name, error);
+    worker.on("failed", (job: Job, error: Error) => {
+      console.log("Job failed", job.name, error);
     });
 
     // @ts-ignore
-    worker.on('error', (err: Error) => {
+    worker.on("error", (err: Error) => {
       console.error(err);
     });
 
@@ -42,7 +41,6 @@ export default async ({ name }: { name: string }, file: string) => {
   }
 
   async function shutdown() {
-
     const workers = [];
 
     for (const name in WORKERS) {
@@ -56,10 +54,8 @@ export default async ({ name }: { name: string }, file: string) => {
     await redis.disconnect();
 
     process.exit(0);
+  }
 
-  };
-
-  process.on('SIGINT', shutdown);
-  process.on('SIGTERM', shutdown);
-
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 };

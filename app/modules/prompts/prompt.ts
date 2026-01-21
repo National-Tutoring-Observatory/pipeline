@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
-import promptSchema from '~/lib/schemas/prompt.schema';
-import type { Prompt } from './prompts.types';
-import type { FindOptions } from '~/modules/common/types';
+import mongoose from "mongoose";
+import promptSchema from "~/lib/schemas/prompt.schema";
+import type { Prompt } from "./prompts.types";
+import type { FindOptions } from "~/modules/common/types";
 
-const PromptModel = mongoose.model('Prompt', promptSchema);
+const PromptModel = mongoose.model("Prompt", promptSchema);
 
 export class PromptService {
   private static toPrompt(doc: any): Prompt {
@@ -23,11 +23,13 @@ export class PromptService {
     }
 
     if (options?.pagination) {
-      query = query.skip(options.pagination.skip).limit(options.pagination.limit);
+      query = query
+        .skip(options.pagination.skip)
+        .limit(options.pagination.limit);
     }
 
     const docs = await query;
-    return docs.map(doc => this.toPrompt(doc));
+    return docs.map((doc) => this.toPrompt(doc));
   }
 
   static async count(match: Record<string, any> = {}): Promise<number> {
@@ -45,7 +47,10 @@ export class PromptService {
     return this.toPrompt(doc);
   }
 
-  static async updateById(id: string, updates: Partial<Prompt>): Promise<Prompt | null> {
+  static async updateById(
+    id: string,
+    updates: Partial<Prompt>,
+  ): Promise<Prompt | null> {
     const doc = await PromptModel.findByIdAndUpdate(id, updates, {
       new: true,
     });

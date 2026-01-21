@@ -67,7 +67,7 @@ jobs:
           p=t.split('.')[1] + "==="
           print(json.dumps(json.loads(base64.urlsafe_b64decode(p[:len(p)-len(p)%4]).decode()), indent=2))
           PY
-      
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -123,7 +123,7 @@ jobs:
           p=t.split('.')[1] + "==="
           print(json.dumps(json.loads(base64.urlsafe_b64decode(p[:len(p)-len(p)%4]).decode()), indent=2))
           PY
-      
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:

@@ -1,8 +1,11 @@
 import type { SupportArticle } from "../support.types";
 
-export default function SupportArticleDetail({ article, onBackToSupportArticlesClicked }: {
-  article: SupportArticle,
-  onBackToSupportArticlesClicked: () => void
+export default function SupportArticleDetail({
+  article,
+  onBackToSupportArticlesClicked,
+}: {
+  article: SupportArticle;
+  onBackToSupportArticlesClicked: () => void;
 }) {
   return (
     <div className="px-4">

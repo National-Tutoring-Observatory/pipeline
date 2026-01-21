@@ -37,7 +37,10 @@ describe("removeFeatureFlagFromUsers worker", () => {
     });
 
     const result = await removeFeatureFlagFromUsers({
-      data: { featureFlagName: "deprecated-flag", featureFlagId: featureFlag._id },
+      data: {
+        featureFlagName: "deprecated-flag",
+        featureFlagId: featureFlag._id,
+      },
     } as any);
 
     expect(result.status).toBe("DELETED");

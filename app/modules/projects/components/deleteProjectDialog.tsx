@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogClose
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,10 +15,13 @@ import type { Project } from "../projects.types";
 const DeleteProjectDialog = ({
   project,
   onDeleteProjectClicked,
-  isSubmitting = false
-}: { project: Project, onDeleteProjectClicked: (id: string) => void, isSubmitting?: boolean }) => {
-
-  const [projectName, setProjectName] = useState('');
+  isSubmitting = false,
+}: {
+  project: Project;
+  onDeleteProjectClicked: (id: string) => void;
+  isSubmitting?: boolean;
+}) => {
+  const [projectName, setProjectName] = useState("");
 
   let isDeleteButtonDisabled = true;
 
@@ -30,30 +33,53 @@ const DeleteProjectDialog = ({
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Delete project - {project.name}</DialogTitle>
-        <DialogDescription>
-          THIS ACTION IS IRREVERSIBLE.
-        </DialogDescription>
+        <DialogDescription>THIS ACTION IS IRREVERSIBLE.</DialogDescription>
       </DialogHeader>
       <div className="grid gap-3">
-        <Label htmlFor="name-1">To confirm delete, type in the project name.</Label>
+        <Label htmlFor="name-1">
+          To confirm delete, type in the project name.
+        </Label>
         <div className="relative">
-          <Input className="absolute left-0 top-0" placeholder={project.name} disabled={true} autoComplete="off" />
-          <Input className="focus-visible:border-destructive focus-visible:ring-destructive/50" id="name-1" name="name" value={projectName} autoComplete="off" onChange={(event) => setProjectName(event.target.value)} disabled={isSubmitting} />
+          <Input
+            className="absolute left-0 top-0"
+            placeholder={project.name}
+            disabled={true}
+            autoComplete="off"
+          />
+          <Input
+            className="focus-visible:border-destructive focus-visible:ring-destructive/50"
+            id="name-1"
+            name="name"
+            value={projectName}
+            autoComplete="off"
+            onChange={(event) => setProjectName(event.target.value)}
+            disabled={isSubmitting}
+          />
         </div>
       </div>
       <DialogFooter className="justify-end">
         <DialogClose asChild>
-          <Button type="button" variant="secondary" onClick={() => {
-            setProjectName('');
-          }} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              setProjectName("");
+            }}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
         </DialogClose>
         <DialogClose asChild>
-          <Button type="button" disabled={isDeleteButtonDisabled || isSubmitting} variant="destructive" onClick={() => {
-            onDeleteProjectClicked(project._id);
-            setProjectName('');
-          }}>
+          <Button
+            type="button"
+            disabled={isDeleteButtonDisabled || isSubmitting}
+            variant="destructive"
+            onClick={() => {
+              onDeleteProjectClicked(project._id);
+              setProjectName("");
+            }}
+          >
             Delete project
           </Button>
         </DialogClose>

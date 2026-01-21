@@ -5,7 +5,7 @@ export default async function deleteCollectionData(job: Job) {
   const { collectionId, projectId } = job.data || {};
 
   if (!collectionId || !projectId) {
-    throw new Error('missing collectionId or projectId');
+    throw new Error("missing collectionId or projectId");
   }
 
   const storage = getStorageAdapter();
@@ -14,5 +14,5 @@ export default async function deleteCollectionData(job: Job) {
   const collectionExportsDir = `storage/${projectId}/collections/${collectionId}/exports`;
   await storage.removeDir({ sourcePath: collectionExportsDir });
 
-  return { status: 'OK', collectionId };
+  return { status: "OK", collectionId };
 }

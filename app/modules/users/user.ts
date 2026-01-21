@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
-import userSchema from '~/lib/schemas/user.schema';
-import type { User } from './users.types';
-import type { FindOptions } from '~/modules/common/types';
-import { AuditService } from '~/modules/audits/audit';
+import mongoose from "mongoose";
+import userSchema from "~/lib/schemas/user.schema";
+import type { User } from "./users.types";
+import type { FindOptions } from "~/modules/common/types";
+import { AuditService } from "~/modules/audits/audit";
 
-const UserModel = mongoose.models.User || mongoose.model('User', userSchema);
+const UserModel = mongoose.models.User || mongoose.model("User", userSchema);
 
 export class UserService {
   private static toUser(doc: any): User {
@@ -24,11 +24,13 @@ export class UserService {
     }
 
     if (options?.pagination) {
-      query = query.skip(options.pagination.skip).limit(options.pagination.limit);
+      query = query
+        .skip(options.pagination.skip)
+        .limit(options.pagination.limit);
     }
 
     const docs = await query.exec();
-    return docs.map(doc => this.toUser(doc));
+    return docs.map((doc) => this.toUser(doc));
   }
 
   static async count(match: Record<string, any> = {}): Promise<number> {
@@ -46,7 +48,10 @@ export class UserService {
     return this.toUser(doc);
   }
 
-  static async updateById(id: string, updates: Partial<User>): Promise<User | null> {
+  static async updateById(
+    id: string,
+    updates: Partial<User>,
+  ): Promise<User | null> {
     const doc = await UserModel.findByIdAndUpdate(id, updates, {
       new: true,
     });
@@ -64,13 +69,19 @@ export class UserService {
     });
   }
 
-  static async addFeatureFlag(userId: string, featureFlagName: string): Promise<void> {
+  static async addFeatureFlag(
+    userId: string,
+    featureFlagName: string,
+  ): Promise<void> {
     await UserModel.findByIdAndUpdate(userId, {
       $addToSet: { featureFlags: featureFlagName },
     });
   }
 
-  static async removeFeatureFlagFromUser(userId: string, featureFlagName: string): Promise<void> {
+  static async removeFeatureFlagFromUser(
+    userId: string,
+    featureFlagName: string,
+  ): Promise<void> {
     await UserModel.findByIdAndUpdate(userId, {
       $pull: { featureFlags: featureFlagName },
     });
@@ -80,7 +91,7 @@ export class UserService {
   static async removeFeatureFlag(featureFlagName: string): Promise<void> {
     await UserModel.updateMany(
       { featureFlags: { $in: [featureFlagName] } },
-      { $pull: { featureFlags: featureFlagName } }
+      { $pull: { featureFlags: featureFlagName } },
     );
   }
 
@@ -88,20 +99,20 @@ export class UserService {
     targetUserId,
     performedByUserId,
     reason,
-    performedByUsername
+    performedByUsername,
   }: {
     targetUserId: string;
     performedByUserId: string;
     reason: string;
     performedByUsername: string;
   }): Promise<void> {
-    await this.updateById(targetUserId, { role: 'SUPER_ADMIN' });
+    await this.updateById(targetUserId, { role: "SUPER_ADMIN" });
 
     await AuditService.create({
-      action: 'ADD_SUPERADMIN',
+      action: "ADD_SUPERADMIN",
       performedBy: performedByUserId,
       performedByUsername,
-      context: { target: targetUserId, reason }
+      context: { target: targetUserId, reason },
     });
   }
 
@@ -109,20 +120,20 @@ export class UserService {
     targetUserId,
     performedByUserId,
     reason,
-    performedByUsername
+    performedByUsername,
   }: {
     targetUserId: string;
     performedByUserId: string;
     reason: string;
     performedByUsername: string;
   }): Promise<void> {
-    await this.updateById(targetUserId, { role: 'USER' });
+    await this.updateById(targetUserId, { role: "USER" });
 
     await AuditService.create({
-      action: 'REMOVE_SUPERADMIN',
+      action: "REMOVE_SUPERADMIN",
       performedBy: performedByUserId,
       performedByUsername,
-      context: { target: targetUserId, reason }
+      context: { target: targetUserId, reason },
     });
   }
 }

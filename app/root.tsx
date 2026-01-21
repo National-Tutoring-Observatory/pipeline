@@ -16,7 +16,7 @@ import AuthenticationContainer from "./modules/authentication/containers/authent
 import DialogContainer from "./modules/dialogs/containers/dialog.container";
 
 export const links: Route.LinksFunction = () => [
-  { rel: "icon", href: '/assets/nto-favicon.png', type: "image/png" },
+  { rel: "icon", href: "/assets/nto-favicon.png", type: "image/png" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
@@ -30,7 +30,6 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-
   return (
     <html lang="en">
       <head>
@@ -63,7 +62,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />
+  return <Outlet />;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

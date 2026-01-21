@@ -1,4 +1,3 @@
-
 export interface ModelInfo {
   code: string;
   name: string;

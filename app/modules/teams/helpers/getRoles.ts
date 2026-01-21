@@ -1,6 +1,8 @@
 export default () => {
-  return [{
-    value: 'ADMIN',
-    name: 'Admin'
-  }]
-}
+  return [
+    {
+      value: "ADMIN",
+      name: "Admin",
+    },
+  ];
+};

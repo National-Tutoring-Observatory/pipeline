@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import AddUsersToFeatureFlagDialog from "../components/addUsersToFeatureFlagDialog";
-import includes from 'lodash/includes';
-import remove from 'lodash/remove';
+import includes from "lodash/includes";
+import remove from "lodash/remove";
 import cloneDeep from "lodash/cloneDeep";
 
 export default function AddUsersToFeatureFlagDialogContainer({
   featureFlagId,
   onAddUsersClicked,
-  isSubmitting = false
+  isSubmitting = false,
 }: {
-  featureFlagId: string,
-  onAddUsersClicked: (userIds: string[]) => void,
-  isSubmitting?: boolean
+  featureFlagId: string;
+  onAddUsersClicked: (userIds: string[]) => void;
+  isSubmitting?: boolean;
 }) {
   const [isFetching, setIsFetching] = useState(true);
   const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true);
@@ -21,14 +21,16 @@ export default function AddUsersToFeatureFlagDialogContainer({
   const fetcher = useFetcher();
 
   useEffect(() => {
-    fetcher.load(`/api/availableFeatureFlagUsers?featureFlagId=${featureFlagId}`);
+    fetcher.load(
+      `/api/availableFeatureFlagUsers?featureFlagId=${featureFlagId}`,
+    );
   }, []);
 
   useEffect(() => {
     if (fetcher.data) {
       setIsFetching(false);
     }
-  }, [fetcher.data])
+  }, [fetcher.data]);
 
   const onSelectUserToggled = (userId: string) => {
     let clonedSelectedUsers = cloneDeep(selectedUsers);
@@ -40,7 +42,7 @@ export default function AddUsersToFeatureFlagDialogContainer({
       setSelectedUsers(clonedSelectedUsers);
     }
     setIsSubmitButtonDisabled(clonedSelectedUsers.length === 0);
-  }
+  };
 
   return (
     <AddUsersToFeatureFlagDialog

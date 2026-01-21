@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useFetcher } from 'react-router';
-import { toast } from 'sonner';
-import CollectionCreatorForm from '../components/collectionCreatorForm';
-import type { PrefillData, PromptReference } from '../collections.types';
+import { useEffect, useState } from "react";
+import { useNavigate, useFetcher } from "react-router";
+import { toast } from "sonner";
+import CollectionCreatorForm from "../components/collectionCreatorForm";
+import type { PrefillData, PromptReference } from "../collections.types";
 
 interface CollectionCreatorFormContainerProps {
   projectId: string;
@@ -10,38 +10,50 @@ interface CollectionCreatorFormContainerProps {
 }
 
 function getDefaultName(prefillData?: PrefillData | null): string {
-  if (!prefillData) return '';
+  if (!prefillData) return "";
   if (prefillData.sourceCollectionName) {
     return `Collection from ${prefillData.sourceCollectionName}`;
   }
   if (prefillData.sourceRunName) {
     return `Collection from ${prefillData.sourceRunName}`;
   }
-  return '';
+  return "";
 }
 
-export default function CollectionCreatorFormContainer({ projectId, prefillData }: CollectionCreatorFormContainerProps) {
+export default function CollectionCreatorFormContainer({
+  projectId,
+  prefillData,
+}: CollectionCreatorFormContainerProps) {
   const navigate = useNavigate();
   const fetcher = useFetcher();
 
   const [name, setName] = useState(getDefaultName(prefillData));
-  const [annotationType, setAnnotationType] = useState(prefillData?.annotationType || 'PER_UTTERANCE');
-  const [selectedPrompts, setSelectedPrompts] = useState<PromptReference[]>(prefillData?.selectedPrompts || []);
-  const [selectedModels, setSelectedModels] = useState<string[]>(prefillData?.selectedModels || []);
-  const [selectedSessions, setSelectedSessions] = useState<string[]>(prefillData?.selectedSessions || []);
-
+  const [annotationType, setAnnotationType] = useState(
+    prefillData?.annotationType || "PER_UTTERANCE",
+  );
+  const [selectedPrompts, setSelectedPrompts] = useState<PromptReference[]>(
+    prefillData?.selectedPrompts || [],
+  );
+  const [selectedModels, setSelectedModels] = useState<string[]>(
+    prefillData?.selectedModels || [],
+  );
+  const [selectedSessions, setSelectedSessions] = useState<string[]>(
+    prefillData?.selectedSessions || [],
+  );
 
   useEffect(() => {
-    if (fetcher.state !== 'idle') return;
-    if (fetcher.data?.intent !== 'CREATE_COLLECTION') return;
+    if (fetcher.state !== "idle") return;
+    if (fetcher.data?.intent !== "CREATE_COLLECTION") return;
 
     const collectionId = fetcher.data.data?.collectionId;
     if (collectionId) {
       const runErrors = fetcher.data?.data?.errors;
       if (runErrors && runErrors.length > 0) {
-        toast.warning(`Collection created, but ${runErrors.length} run(s) failed to start`);
+        toast.warning(
+          `Collection created, but ${runErrors.length} run(s) failed to start`,
+        );
       } else {
-        toast.success('Collection created successfully');
+        toast.success("Collection created successfully");
       }
       navigate(`/projects/${projectId}/collections/${collectionId}`);
     }
@@ -50,16 +62,16 @@ export default function CollectionCreatorFormContainer({ projectId, prefillData 
   const handleCreateCollection = () => {
     fetcher.submit(
       JSON.stringify({
-        intent: 'CREATE_COLLECTION',
+        intent: "CREATE_COLLECTION",
         payload: {
           name,
           annotationType,
           prompts: selectedPrompts,
           models: selectedModels,
-          sessions: selectedSessions
-        }
+          sessions: selectedSessions,
+        },
       }),
-      { method: 'POST', encType: 'application/json' }
+      { method: "POST", encType: "application/json" },
     );
   };
 
@@ -76,7 +88,7 @@ export default function CollectionCreatorFormContainer({ projectId, prefillData 
       onModelsChanged={setSelectedModels}
       onSessionsChanged={setSelectedSessions}
       onCreateClicked={handleCreateCollection}
-      isLoading={fetcher.state !== 'idle'}
+      isLoading={fetcher.state !== "idle"}
       errors={(fetcher.data as any)?.errors || {}}
       prefillData={prefillData}
     />

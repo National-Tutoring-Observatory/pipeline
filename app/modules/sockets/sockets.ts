@@ -18,17 +18,16 @@ export async function getSockets() {
 }
 
 export function connectSockets() {
-
   if (SOCKETS) return SOCKETS;
   const socket = io(window.location.origin, {
     reconnection: true,
     reconnectionDelay: 200,
     reconnectionAttempts: 20,
     randomizationFactor: 0,
-    withCredentials: true
+    withCredentials: true,
   });
-  socket.on('connect', () => {
-    console.log('Sockets: connected');
+  socket.on("connect", () => {
+    console.log("Sockets: connected");
   });
   socket.on(`disconnect`, (message: string) => {
     SOCKETS = null;

@@ -127,5 +127,5 @@ export {
   DangerZoneActionTitle,
   DangerZoneDescription,
   DangerZonePanel,
-  DangerZoneTitle
+  DangerZoneTitle,
 };

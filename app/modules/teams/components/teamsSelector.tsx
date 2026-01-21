@@ -1,6 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Check, ChevronsUpDown } from "lucide-react";
 import type { Team } from "../teams.types";
 import clsx from "clsx";
@@ -11,14 +22,14 @@ export default function TeamsSelector({
   isOpen,
   isLoading,
   onToggleDropdown,
-  onTeamSelected
+  onTeamSelected,
 }: {
-  selectedTeam: string | null,
-  teams: Team[],
-  isOpen: boolean,
-  isLoading: boolean,
-  onToggleDropdown: (isOpen: boolean) => void,
-  onTeamSelected: (selectedTeam: string) => void
+  selectedTeam: string | null;
+  teams: Team[];
+  isOpen: boolean;
+  isLoading: boolean;
+  onToggleDropdown: (isOpen: boolean) => void;
+  onTeamSelected: (selectedTeam: string) => void;
 }) {
   return (
     <Popover open={isOpen} onOpenChange={onToggleDropdown}>
@@ -46,15 +57,15 @@ export default function TeamsSelector({
                   key={team._id}
                   value={team._id}
                   onSelect={(currentValue) => {
-                    onTeamSelected(currentValue)
-                    onToggleDropdown(false)
+                    onTeamSelected(currentValue);
+                    onToggleDropdown(false);
                   }}
                 >
                   {team.name}
                   <Check
                     className={clsx(
                       "ml-auto",
-                      selectedTeam === team._id ? "opacity-100" : "opacity-0"
+                      selectedTeam === team._id ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>

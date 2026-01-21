@@ -9,29 +9,35 @@ export default async function createSessionsFromFiles({
   projectId,
   shouldCreateSessionModels = true,
   attributesMapping,
-}: { projectId: string, shouldCreateSessionModels: boolean, attributesMapping?: any }) {
+}: {
+  projectId: string;
+  shouldCreateSessionModels: boolean;
+  attributesMapping?: any;
+}) {
   const projectFiles = await FileService.findByProject(projectId);
 
   const project = await ProjectService.findById(projectId);
-  if (!project) throw new Error('Project not found');
+  if (!project) throw new Error("Project not found");
 
   if (shouldCreateSessionModels) {
     for (const projectFile of projectFiles) {
       await SessionService.create({
         project: projectFile.project,
         file: projectFile._id,
-        fileType: 'application/json',
-        name: `${projectFile.name.replace(/\.[^.]+$/, '')}.json`,
-        hasConverted: false
+        fileType: "application/json",
+        name: `${projectFile.name.replace(/\.[^.]+$/, "")}.json`,
+        hasConverted: false,
       });
     }
   }
 
-  const projectSessions = await SessionService.find({ match: { project: projectId } });
+  const projectSessions = await SessionService.find({
+    match: { project: projectId },
+  });
 
-  const taskSequencer = new TaskSequencer('CONVERT_FILES_TO_SESSIONS');
+  const taskSequencer = new TaskSequencer("CONVERT_FILES_TO_SESSIONS");
 
-  taskSequencer.addTask('START', {
+  taskSequencer.addTask("START", {
     projectId,
   });
 
@@ -40,18 +46,22 @@ export default async function createSessionsFromFiles({
       continue;
     }
     const file = await FileService.findById(projectSession.file as string);
-    if (!file) throw new Error('File not found');
-    taskSequencer.addTask('PROCESS', {
+    if (!file) throw new Error("File not found");
+    taskSequencer.addTask("PROCESS", {
       projectId,
       sessionId: projectSession._id,
-      inputFile: getProjectFileStoragePath(projectId, String(projectSession.file), file.name),
+      inputFile: getProjectFileStoragePath(
+        projectId,
+        String(projectSession.file),
+        file.name,
+      ),
       outputFolder: getProjectSessionStorageDir(projectId, projectSession._id),
       team: project.team,
-      attributesMapping
+      attributesMapping,
     });
   }
 
-  taskSequencer.addTask('FINISH', {
+  taskSequencer.addTask("FINISH", {
     projectId,
   });
 

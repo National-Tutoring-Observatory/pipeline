@@ -7,7 +7,11 @@ interface QueueControlsProps {
   isPaused?: boolean;
 }
 
-export default function QueueControls({ queueType, onPauseResume, isPaused = false }: QueueControlsProps) {
+export default function QueueControls({
+  queueType,
+  onPauseResume,
+  isPaused = false,
+}: QueueControlsProps) {
   return (
     <Button
       variant="outline"

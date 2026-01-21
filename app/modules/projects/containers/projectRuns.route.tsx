@@ -1,11 +1,20 @@
-import find from 'lodash/find';
+import find from "lodash/find";
 import { useEffect } from "react";
-import { data, redirect, useActionData, useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from "react-router";
+import {
+  data,
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+  useParams,
+  useRevalidator,
+  useSubmit,
+} from "react-router";
 import { toast } from "sonner";
-import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
-import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
+import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
-import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -13,35 +22,35 @@ import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
-import DuplicateRunDialog from '../components/duplicateRunDialog';
+import DuplicateRunDialog from "../components/duplicateRunDialog";
 import EditRunDialog from "../components/editRunDialog";
 import ProjectRuns from "../components/projectRuns";
-import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import type { Route } from "./+types/projectRuns.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const queryParams = getQueryParamsFromRequest(request, {
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sort: 'name',
-    filters: {}
+    sort: "name",
+    filters: {},
   });
 
   const query = buildQueryFromParams({
     match: { project: params.id },
     queryParams,
-    searchableFields: ['name'],
-    sortableFields: ['name', 'createdAt'],
-    filterableFields: ['annotationType']
+    searchableFields: ["name"],
+    sortableFields: ["name", "createdAt"],
+    filterableFields: ["annotationType"],
   });
 
   const pagination = getPaginationParams(query.page);
 
   const runs = await RunService.find({
     match: query.match,
-    populate: ['prompt'],
+    populate: ["prompt"],
     sort: query.sort,
-    pagination
+    pagination,
   });
 
   const total = await RunService.count(query.match);
@@ -49,32 +58,30 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return { runs: { data: runs, totalPages: getTotalPages(total) } };
 }
 
-export async function action({
-  request,
-  params,
-}: Route.ActionArgs) {
-
+export async function action({ request, params }: Route.ActionArgs) {
   const { intent, entityId, payload = {} } = await request.json();
 
   const user = await getSessionUser({ request });
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const { name } = payload;
 
   const project = await ProjectService.findById(params.id);
   if (!project) {
-    return data({ errors: { project: 'Project not found' } }, { status: 400 });
+    return data({ errors: { project: "Project not found" } }, { status: 400 });
   }
   switch (intent) {
-    case 'UPDATE_RUN': {
+    case "UPDATE_RUN": {
       if (typeof name !== "string") {
         throw new Error("Run name is required and must be a string.");
       }
 
       if (!ProjectAuthorization.Runs.canManage(user, project)) {
-        throw new Error('You do not have permission to update runs in this project.');
+        throw new Error(
+          "You do not have permission to update runs in this project.",
+        );
       }
 
       const existingRun = await RunService.findById(entityId);
@@ -85,14 +92,15 @@ export async function action({
       await RunService.updateById(entityId, { name });
       return {};
     }
-    case 'DUPLICATE_RUN': {
-
+    case "DUPLICATE_RUN": {
       if (typeof name !== "string") {
         throw new Error("Run name is required and must be a string.");
       }
 
       if (!ProjectAuthorization.Runs.canManage(user, project)) {
-        throw new Error('You do not have permission to duplicate runs in this project.');
+        throw new Error(
+          "You do not have permission to duplicate runs in this project.",
+        );
       }
 
       const existingRun = await RunService.findById(entityId);
@@ -100,7 +108,15 @@ export async function action({
         throw new Error("Run not found.");
       }
 
-      const { project: projectId, annotationType, prompt, promptVersion, model, snapshot, sessions } = existingRun;
+      const {
+        project: projectId,
+        annotationType,
+        prompt,
+        promptVersion,
+        model,
+        snapshot,
+        sessions,
+      } = existingRun;
 
       const run = await RunService.create({
         project: projectId,
@@ -115,8 +131,8 @@ export async function action({
         snapshot: snapshot,
       });
       return {
-        intent: 'DUPLICATE_RUN',
-        data: run
+        intent: "DUPLICATE_RUN",
+        data: run,
       };
     }
     default: {
@@ -134,105 +150,139 @@ export default function ProjectRunsRoute() {
   const { revalidate } = useRevalidator();
 
   const {
-    searchValue, setSearchValue,
-    currentPage, setCurrentPage,
-    sortValue, setSortValue,
-    filtersValues, setFiltersValues,
-    isSyncing
+    searchValue,
+    setSearchValue,
+    currentPage,
+    setCurrentPage,
+    sortValue,
+    setSortValue,
+    filtersValues,
+    setFiltersValues,
+    isSyncing,
   } = useSearchQueryParams({
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sortValue: 'name',
-    filters: {}
+    sortValue: "name",
+    filters: {},
   });
 
   useEffect(() => {
-    if (actionData?.intent === 'DUPLICATE_RUN') {
-      navigate(`/projects/${actionData.data.project}/runs/${actionData.data._id}`)
+    if (actionData?.intent === "DUPLICATE_RUN") {
+      navigate(
+        `/projects/${actionData.data.project}/runs/${actionData.data._id}`,
+      );
     }
   }, [actionData]);
 
   const onEditRunClicked = (run: Run) => {
-    submit(JSON.stringify({ intent: 'UPDATE_RUN', entityId: run._id, payload: { name: run.name } }), { method: 'PUT', encType: 'application/json' }).then(() => {
-      toast.success('Updated run');
+    submit(
+      JSON.stringify({
+        intent: "UPDATE_RUN",
+        entityId: run._id,
+        payload: { name: run.name },
+      }),
+      { method: "PUT", encType: "application/json" },
+    ).then(() => {
+      toast.success("Updated run");
     });
-  }
+  };
 
-  const onDuplicateNewRunClicked = ({ name, runId }: { name: string, runId: string }) => {
-    submit(JSON.stringify({ intent: 'DUPLICATE_RUN', entityId: runId, payload: { name: name } }), { method: 'POST', encType: 'application/json' }).then(() => {
-      toast.success('Duplicated run');
+  const onDuplicateNewRunClicked = ({
+    name,
+    runId,
+  }: {
+    name: string;
+    runId: string;
+  }) => {
+    submit(
+      JSON.stringify({
+        intent: "DUPLICATE_RUN",
+        entityId: runId,
+        payload: { name: name },
+      }),
+      { method: "POST", encType: "application/json" },
+    ).then(() => {
+      toast.success("Duplicated run");
     });
-  }
+  };
 
   const onEditRunButtonClicked = (run: Run) => {
-    addDialog(<EditRunDialog
-      run={run}
-      onEditRunClicked={onEditRunClicked}
-    />);
-  }
+    addDialog(<EditRunDialog run={run} onEditRunClicked={onEditRunClicked} />);
+  };
 
   const onCreateRunButtonClicked = () => {
     navigate(`/projects/${projectId}/create-run`);
-  }
+  };
 
   const onDuplicateRunButtonClicked = (run: Run) => {
-    addDialog(<DuplicateRunDialog
-      run={run}
-      onDuplicateNewRunClicked={onDuplicateNewRunClicked}
-    />
+    addDialog(
+      <DuplicateRunDialog
+        run={run}
+        onDuplicateNewRunClicked={onDuplicateNewRunClicked}
+      />,
     );
-  }
+  };
 
   const onActionClicked = (action: string) => {
-    if (action === 'CREATE') {
+    if (action === "CREATE") {
       onCreateRunButtonClicked();
     }
-  }
+  };
 
-  const onItemActionClicked = ({ id, action }: { id: string, action: string }) => {
+  const onItemActionClicked = ({
+    id,
+    action,
+  }: {
+    id: string;
+    action: string;
+  }) => {
     const run = find(runs.data, { _id: id });
     if (!run) return null;
     switch (action) {
-      case 'EDIT':
+      case "EDIT":
         onEditRunButtonClicked(run);
         break;
-      case 'DUPLICATE':
+      case "DUPLICATE":
         onDuplicateRunButtonClicked(run);
         break;
-      case 'CREATE_COLLECTION':
+      case "CREATE_COLLECTION":
         navigate(`/projects/${projectId}/create-collection?fromRun=${id}`);
         break;
     }
-  }
+  };
 
   const onSearchValueChanged = (searchValue: string) => {
     setSearchValue(searchValue);
-  }
+  };
 
   const onPaginationChanged = (currentPage: number) => {
     setCurrentPage(currentPage);
-  }
+  };
 
   const onFiltersValueChanged = (filterValue: any) => {
     setFiltersValues({ ...filtersValues, ...filterValue });
-  }
+  };
 
   const onSortValueChanged = (sortValue: string) => {
     setSortValue(sortValue);
-  }
+  };
 
   useHandleSockets({
-    event: 'ANNOTATE_RUN',
-    matches: [{
-      task: 'ANNOTATE_RUN:START',
-      status: 'FINISHED'
-    }, {
-      task: 'ANNOTATE_RUN:FINISH',
-      status: 'FINISHED'
-    }], callback: (payload) => {
+    event: "ANNOTATE_RUN",
+    matches: [
+      {
+        task: "ANNOTATE_RUN:START",
+        status: "FINISHED",
+      },
+      {
+        task: "ANNOTATE_RUN:FINISH",
+        status: "FINISHED",
+      },
+    ],
+    callback: (payload) => {
       revalidate();
-    }
-  })
+    },
+  });
 
   return (
     <ProjectRuns
@@ -250,5 +300,5 @@ export default function ProjectRunsRoute() {
       onFiltersValueChanged={onFiltersValueChanged}
       onSortValueChanged={onSortValueChanged}
     />
-  )
+  );
 }

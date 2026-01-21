@@ -1,14 +1,14 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 export default new mongoose.Schema({
   name: { type: String },
-  prompt: { type: mongoose.Types.ObjectId, ref: 'Prompt' },
+  prompt: { type: mongoose.Types.ObjectId, ref: "Prompt" },
   version: { type: Number },
-  userPrompt: { type: String, default: '' },
+  userPrompt: { type: String, default: "" },
   annotationSchema: [],
   hasBeenSaved: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
-  createdBy: { type: mongoose.Types.ObjectId, ref: 'User' },
+  createdBy: { type: mongoose.Types.ObjectId, ref: "User" },
   updatedAt: { type: Date },
-  updatedBy: { type: mongoose.Types.ObjectId, ref: 'User' }
+  updatedBy: { type: mongoose.Types.ObjectId, ref: "User" },
 });

@@ -1,6 +1,6 @@
 import cloneDeep from "lodash/cloneDeep";
-import includes from 'lodash/includes';
-import remove from 'lodash/remove';
+import includes from "lodash/includes";
+import remove from "lodash/remove";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import type { User } from "~/modules/users/users.types";
@@ -10,13 +10,12 @@ export default function AddUserToTeamDialogContainer({
   teamId,
   onAddUsersClicked,
 }: {
-  teamId: string,
-  onAddUsersClicked: (userIds: string[]) => void,
+  teamId: string;
+  onAddUsersClicked: (userIds: string[]) => void;
 }) {
-
   const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
   const fetcher = useFetcher();
@@ -25,7 +24,7 @@ export default function AddUserToTeamDialogContainer({
     const params = new URLSearchParams({
       teamId,
       searchValue,
-      currentPage: currentPage.toString()
+      currentPage: currentPage.toString(),
     });
     fetcher.load(`/api/availableTeamUsers?${params.toString()}`);
   }, [teamId, searchValue, currentPage]);
@@ -40,16 +39,16 @@ export default function AddUserToTeamDialogContainer({
       setSelectedUsers(clonedSelectedUsers);
     }
     setIsSubmitButtonDisabled(clonedSelectedUsers.length === 0);
-  }
+  };
 
   const onSearchValueChanged = (value: string) => {
     setSearchValue(value);
     setCurrentPage(1);
-  }
+  };
 
   const onPaginationChanged = (page: number) => {
     setCurrentPage(page);
-  }
+  };
 
   const users = (fetcher.data?.data || []) as User[];
   const totalPages = fetcher.data?.totalPages || 1;

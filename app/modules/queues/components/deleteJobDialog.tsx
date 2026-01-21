@@ -16,7 +16,11 @@ interface DeleteJobDialogProps {
   isSubmitting?: boolean;
 }
 
-export default function DeleteJobDialog({ job, onRemoveJobClicked, isSubmitting = false }: DeleteJobDialogProps) {
+export default function DeleteJobDialog({
+  job,
+  onRemoveJobClicked,
+  isSubmitting = false,
+}: DeleteJobDialogProps) {
   const handleDelete = () => {
     if (!isSubmitting) {
       onRemoveJobClicked(job.id);
@@ -28,7 +32,8 @@ export default function DeleteJobDialog({ job, onRemoveJobClicked, isSubmitting 
       <DialogHeader>
         <DialogTitle>Remove Job</DialogTitle>
         <DialogDescription>
-          Are you sure you want to remove this job from the queue? This action cannot be undone.
+          Are you sure you want to remove this job from the queue? This action
+          cannot be undone.
         </DialogDescription>
       </DialogHeader>
 
@@ -47,7 +52,12 @@ export default function DeleteJobDialog({ job, onRemoveJobClicked, isSubmitting 
           </Button>
         </DialogClose>
         <DialogClose asChild>
-          <Button type="button" variant="destructive" onClick={handleDelete} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isSubmitting}
+          >
             Remove Job
           </Button>
         </DialogClose>

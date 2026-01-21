@@ -1,8 +1,21 @@
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import dayjs from "dayjs";
-import map from 'lodash/map';
+import map from "lodash/map";
 import { EllipsisVertical } from "lucide-react";
 import { Link } from "react-router";
 import type { File } from "~/modules/files/files.types";
@@ -24,10 +37,10 @@ export default function ProjectFiles({ files }: { files: File[] }) {
             {map(files, (file) => {
               return (
                 <TableRow key={file._id}>
-                  <TableCell className="font-medium">
-                    {file.name}
+                  <TableCell className="font-medium">{file.name}</TableCell>
+                  <TableCell>
+                    {dayjs(file.createdAt).format("ddd, MMM D, YYYY - h:mm A")}
                   </TableCell>
-                  <TableCell>{dayjs(file.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                   <TableCell>{file.fileType}</TableCell>
                   <TableCell className="text-right flex justify-end">
                     {/* <DropdownMenu>
@@ -59,5 +72,5 @@ export default function ProjectFiles({ files }: { files: File[] }) {
         </Table>
       </div>
     </div>
-  )
+  );
 }

@@ -16,7 +16,11 @@ interface RetryJobDialogProps {
   isSubmitting?: boolean;
 }
 
-export default function RetryJobDialog({ job, onRetryJobClicked, isSubmitting = false }: RetryJobDialogProps) {
+export default function RetryJobDialog({
+  job,
+  onRetryJobClicked,
+  isSubmitting = false,
+}: RetryJobDialogProps) {
   const handleRetry = () => {
     if (!isSubmitting) {
       onRetryJobClicked(job.id);
@@ -28,7 +32,8 @@ export default function RetryJobDialog({ job, onRetryJobClicked, isSubmitting = 
       <DialogHeader>
         <DialogTitle>Retry Job</DialogTitle>
         <DialogDescription>
-          Are you sure you want to retry this failed job? The job will be re-added to the queue and attempted again.
+          Are you sure you want to retry this failed job? The job will be
+          re-added to the queue and attempted again.
         </DialogDescription>
       </DialogHeader>
 

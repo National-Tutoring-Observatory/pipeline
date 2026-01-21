@@ -1,5 +1,5 @@
-import type { User } from '~/modules/users/users.types';
-import { userIsSuperAdmin } from './helpers/superAdmin';
+import type { User } from "~/modules/users/users.types";
+import { userIsSuperAdmin } from "./helpers/superAdmin";
 
 const SystemAdminAuthorization = {
   FeatureFlags: {
@@ -20,9 +20,13 @@ const SystemAdminAuthorization = {
 };
 
 type SystemAuthorizationShape = {
-  FeatureFlags: { [K in keyof typeof SystemAdminAuthorization.FeatureFlags]: boolean };
+  FeatureFlags: {
+    [K in keyof typeof SystemAdminAuthorization.FeatureFlags]: boolean;
+  };
   Queues: { [K in keyof typeof SystemAdminAuthorization.Queues]: boolean };
-  Migrations: { [K in keyof typeof SystemAdminAuthorization.Migrations]: boolean };
+  Migrations: {
+    [K in keyof typeof SystemAdminAuthorization.Migrations]: boolean;
+  };
 };
 
 export default SystemAdminAuthorization;

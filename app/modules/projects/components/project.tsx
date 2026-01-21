@@ -1,6 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageHeader, PageHeaderLeft, PageHeaderRight } from "@/components/ui/pageHeader";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  PageHeader,
+  PageHeaderLeft,
+  PageHeaderRight,
+} from "@/components/ui/pageHeader";
 import { Progress } from "@/components/ui/progress";
 import clsx from "clsx";
 import { Pencil, Trash2 } from "lucide-react";
@@ -49,7 +59,7 @@ export default function Project({
   breadcrumbs,
   uploadFetcher,
   onEditProjectButtonClicked,
-  onDeleteProjectButtonClicked
+  onDeleteProjectButtonClicked,
 }: ProjectProps) {
   const user = useContext(AuthenticationContext) as User | null;
   const canUpdate = ProjectAuthorization.canUpdate(user, project);
@@ -65,13 +75,23 @@ export default function Project({
           {(canUpdate || canDelete) && (
             <div className="flex gap-1">
               {canUpdate && (
-                <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditProjectButtonClicked(project)}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-muted-foreground"
+                  onClick={() => onEditProjectButtonClicked(project)}
+                >
                   <Pencil />
                   Edit
                 </Button>
               )}
               {canDelete && (
-                <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onDeleteProjectButtonClicked(project)}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-muted-foreground"
+                  onClick={() => onDeleteProjectButtonClicked(project)}
+                >
                   <Trash2 />
                   Delete
                 </Button>
@@ -80,7 +100,7 @@ export default function Project({
           )}
         </PageHeaderRight>
       </PageHeader>
-      {(!project.hasSetupProject) && (
+      {!project.hasSetupProject && (
         <div>
           <UploadFilesContainer
             projectId={project._id}
@@ -88,24 +108,30 @@ export default function Project({
           />
         </div>
       )}
-      {(project.hasSetupProject) && (
+      {project.hasSetupProject && (
         <div>
           <div className="grid grid-cols-4 gap-8">
-            <Link to={`/projects/${project._id}/files`} replace className="h-full">
-              <Card className={clsx("transition-all h-full", {
-                "border-accent-foreground": tabValue === 'FILES'
-              })}>
+            <Link
+              to={`/projects/${project._id}/files`}
+              replace
+              className="h-full"
+            >
+              <Card
+                className={clsx("transition-all h-full", {
+                  "border-accent-foreground": tabValue === "FILES",
+                })}
+              >
                 <CardHeader>
                   <CardTitle>Files</CardTitle>
-                  <CardDescription>Files are your original data files</CardDescription>
+                  <CardDescription>
+                    Files are your original data files
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="h-8">
-                  {(!project.isUploadingFiles) && (
-                    <div>
-                      {`${filesCount} files`}
-                    </div>
+                  {!project.isUploadingFiles && (
+                    <div>{`${filesCount} files`}</div>
                   )}
-                  {(project.isUploadingFiles) && (
+                  {project.isUploadingFiles && (
                     <div>
                       <Progress value={uploadFilesProgress} />
                     </div>
@@ -113,13 +139,21 @@ export default function Project({
                 </CardContent>
               </Card>
             </Link>
-            <Link to={`/projects/${project._id}/sessions`} replace className="h-full">
-              <Card className={clsx("transition-all h-full", {
-                "border-accent-foreground": tabValue === 'SESSIONS'
-              })}>
+            <Link
+              to={`/projects/${project._id}/sessions`}
+              replace
+              className="h-full"
+            >
+              <Card
+                className={clsx("transition-all h-full", {
+                  "border-accent-foreground": tabValue === "SESSIONS",
+                })}
+              >
                 <CardHeader>
                   <CardTitle>Sessions</CardTitle>
-                  <CardDescription>Sessions are your files converted to our standard format</CardDescription>
+                  <CardDescription>
+                    Sessions are your files converted to our standard format
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="h-8">
                   <div>
@@ -130,9 +164,11 @@ export default function Project({
                       </div>
                     )}
                   </div>
-                  {(project.isConvertingFiles) && (
+                  {project.isConvertingFiles && (
                     <div className="relative">
-                      <div className="text-xs opacity-40 absolute right-0 top-3">Converting</div>
+                      <div className="text-xs opacity-40 absolute right-0 top-3">
+                        Converting
+                      </div>
                       <Progress value={convertFilesProgress} />
                     </div>
                   )}
@@ -140,25 +176,38 @@ export default function Project({
               </Card>
             </Link>
             <Link to={`/projects/${project._id}`} replace className="h-full">
-              <Card className={clsx("transition-all h-full", {
-                "border-accent-foreground": tabValue === 'RUNS'
-              })}>
+              <Card
+                className={clsx("transition-all h-full", {
+                  "border-accent-foreground": tabValue === "RUNS",
+                })}
+              >
                 <CardHeader>
                   <CardTitle>Runs</CardTitle>
-                  <CardDescription>Runs are a way to annotate your data via Prompts</CardDescription>
+                  <CardDescription>
+                    Runs are a way to annotate your data via Prompts
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="h-8">
                   <p>{runsCount} runs</p>
                 </CardContent>
               </Card>
             </Link>
-            <Link to={`/projects/${project._id}/collections`} replace className="h-full">
-              <Card className={clsx("transition-all h-full", {
-                "border-accent-foreground": tabValue === 'COLLECTIONS'
-              })}>
+            <Link
+              to={`/projects/${project._id}/collections`}
+              replace
+              className="h-full"
+            >
+              <Card
+                className={clsx("transition-all h-full", {
+                  "border-accent-foreground": tabValue === "COLLECTIONS",
+                })}
+              >
                 <CardHeader>
                   <CardTitle>Collections</CardTitle>
-                  <CardDescription>Collections are a grouping of runs to help you compare different run settings across the same dataset</CardDescription>
+                  <CardDescription>
+                    Collections are a grouping of runs to help you compare
+                    different run settings across the same dataset
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="h-8">
                   <p>{collectionsCount} collections</p>
@@ -172,5 +221,5 @@ export default function Project({
         </div>
       )}
     </div>
-  )
+  );
 }

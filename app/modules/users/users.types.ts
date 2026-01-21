@@ -11,12 +11,12 @@ export interface User {
   hasOrcidSSO: boolean;
   githubId: number;
   hasGithubSSO: boolean;
-  teams: UserTeam[]
-  featureFlags: string[],
+  teams: UserTeam[];
+  featureFlags: string[];
   createdAt: string;
   updatedAt: string;
   inviteId: string;
-  invitedAt: Date,
-  isRegistered: boolean,
-  registeredAt: Date
+  invitedAt: Date;
+  isRegistered: boolean;
+  registeredAt: Date;
 }

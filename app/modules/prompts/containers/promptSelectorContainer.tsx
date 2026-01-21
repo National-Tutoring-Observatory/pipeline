@@ -1,23 +1,25 @@
-import find from 'lodash/find';
-import get from 'lodash/get';
-import { useEffect, useState } from 'react';
-import { useFetcher } from 'react-router';
-import PromptSelector from '../components/promptSelector';
+import find from "lodash/find";
+import get from "lodash/get";
+import { useEffect, useState } from "react";
+import { useFetcher } from "react-router";
+import PromptSelector from "../components/promptSelector";
 
 export default function PromptSelectorContainer({
   annotationType,
   selectedPrompt,
   selectedPromptVersion,
   onSelectedPromptChanged,
-  onSelectedPromptVersionChanged
+  onSelectedPromptVersionChanged,
 }: {
-  annotationType: string,
-  selectedPrompt: string | null,
-  selectedPromptVersion: number | null,
-  onSelectedPromptChanged: (selectedPrompt: string, selectedPromptName?: string) => void,
-  onSelectedPromptVersionChanged: (selectedPromptVersion: number) => void
+  annotationType: string;
+  selectedPrompt: string | null;
+  selectedPromptVersion: number | null;
+  onSelectedPromptChanged: (
+    selectedPrompt: string,
+    selectedPromptName?: string,
+  ) => void;
+  onSelectedPromptVersionChanged: (selectedPromptVersion: number) => void;
 }) {
-
   const [isPromptsOpen, setIsPromptsOpen] = useState(false);
   const [isPromptVersionsOpen, setIsPromptVersionsOpen] = useState(false);
 
@@ -28,49 +30,59 @@ export default function PromptSelectorContainer({
     setIsPromptsOpen(isPromptsOpen);
     if (isPromptsOpen) {
       const params = new URLSearchParams();
-      params.set('annotationType', annotationType)
+      params.set("annotationType", annotationType);
       promptsFetcher.load(`/api/promptsList?${params.toString()}`);
     }
-  }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams();
-    params.set('annotationType', annotationType);
+    params.set("annotationType", annotationType);
 
     promptsFetcher.load(`/api/promptsList?${params.toString()}`);
 
     if (selectedPrompt) {
-      params.set('prompt', selectedPrompt);
-      promptVersionsFetcher.load(`/api/promptVersionsList?${params.toString()}`);
+      params.set("prompt", selectedPrompt);
+      promptVersionsFetcher.load(
+        `/api/promptVersionsList?${params.toString()}`,
+      );
     }
   }, [selectedPrompt]);
 
   const onTogglePromptVersionsPopover = (isPromptsOpen: boolean) => {
     setIsPromptVersionsOpen(isPromptsOpen);
-  }
+  };
 
   const onSelectedPromptChange = (selectedPrompt: string) => {
-    const selectedPromptItem = find(promptsFetcher.data.prompts.data, { _id: selectedPrompt });
+    const selectedPromptItem = find(promptsFetcher.data.prompts.data, {
+      _id: selectedPrompt,
+    });
     onSelectedPromptChanged(selectedPrompt, selectedPromptItem?.name);
     const params = new URLSearchParams();
-    params.set('prompt', selectedPrompt)
+    params.set("prompt", selectedPrompt);
     promptVersionsFetcher.load(`/api/promptVersionsList?${params.toString()}`);
     if (selectedPromptItem?.productionVersion != null) {
       onSelectedPromptVersionChanged(selectedPromptItem.productionVersion);
     }
-  }
+  };
 
   const onSelectedPromptVersionChange = (selectedPromptVersion: number) => {
-    onSelectedPromptVersionChanged(selectedPromptVersion)
-  }
+    onSelectedPromptVersionChanged(selectedPromptVersion);
+  };
 
-  const prompts = get(promptsFetcher, 'data.prompts.data', []);
+  const prompts = get(promptsFetcher, "data.prompts.data", []);
 
-  const promptVersions = get(promptVersionsFetcher, 'data.promptVersions.data', []);
+  const promptVersions = get(
+    promptVersionsFetcher,
+    "data.promptVersions.data",
+    [],
+  );
 
   let productionVersion = null;
   if (selectedPrompt) {
-    const selectedPromptItem = find(promptsFetcher.data?.prompts?.data, { _id: selectedPrompt });
+    const selectedPromptItem = find(promptsFetcher.data?.prompts?.data, {
+      _id: selectedPrompt,
+    });
     if (selectedPromptItem) {
       productionVersion = selectedPromptItem.productionVersion;
     }
@@ -83,8 +95,8 @@ export default function PromptSelectorContainer({
       selectedPrompt={selectedPrompt}
       selectedPromptVersion={selectedPromptVersion}
       productionVersion={productionVersion}
-      isLoadingPrompts={promptsFetcher.state === 'loading'}
-      isLoadingPromptVersions={promptVersionsFetcher.state === 'loading'}
+      isLoadingPrompts={promptsFetcher.state === "loading"}
+      isLoadingPromptVersions={promptVersionsFetcher.state === "loading"}
       isPromptsOpen={isPromptsOpen}
       isPromptVersionsOpen={isPromptVersionsOpen}
       onTogglePromptPopover={onTogglePromptPopover}

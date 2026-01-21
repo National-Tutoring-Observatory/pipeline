@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
-import featureFlagSchema from '~/lib/schemas/featureFlag.schema';
-import type { FeatureFlag } from './featureFlags.types';
-import type { FindOptions } from '~/modules/common/types';
+import mongoose from "mongoose";
+import featureFlagSchema from "~/lib/schemas/featureFlag.schema";
+import type { FeatureFlag } from "./featureFlags.types";
+import type { FindOptions } from "~/modules/common/types";
 
-const FeatureFlagModel = mongoose.model('FeatureFlag', featureFlagSchema);
+const FeatureFlagModel = mongoose.model("FeatureFlag", featureFlagSchema);
 
 export class FeatureFlagService {
   private static toFeatureFlag(doc: any): FeatureFlag {
@@ -23,11 +23,13 @@ export class FeatureFlagService {
     }
 
     if (options?.pagination) {
-      query = query.skip(options.pagination.skip).limit(options.pagination.limit);
+      query = query
+        .skip(options.pagination.skip)
+        .limit(options.pagination.limit);
     }
 
     const docs = await query;
-    return docs.map(doc => this.toFeatureFlag(doc));
+    return docs.map((doc) => this.toFeatureFlag(doc));
   }
 
   static async count(match: Record<string, any> = {}): Promise<number> {
@@ -45,7 +47,10 @@ export class FeatureFlagService {
     return this.toFeatureFlag(doc);
   }
 
-  static async updateById(id: string, updates: Partial<FeatureFlag>): Promise<FeatureFlag | null> {
+  static async updateById(
+    id: string,
+    updates: Partial<FeatureFlag>,
+  ): Promise<FeatureFlag | null> {
     const doc = await FeatureFlagModel.findByIdAndUpdate(id, updates, {
       new: true,
     });

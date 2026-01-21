@@ -26,7 +26,10 @@ describe("removeExpiredTeamAssignment worker", () => {
     expect(result.message).toBe("Team assignment removed");
 
     const updatedUser = await UserService.findById(user._id);
-    expect(updatedUser?.teams).not.toContainEqual({ team: team._id, role: "ADMIN" });
+    expect(updatedUser?.teams).not.toContainEqual({
+      team: team._id,
+      role: "ADMIN",
+    });
   });
 
   it("removes only the specified team, keeping other teams", async () => {
@@ -49,8 +52,14 @@ describe("removeExpiredTeamAssignment worker", () => {
     expect(result.status).toBe("OK");
 
     const updatedUser = await UserService.findById(user._id);
-    expect(updatedUser?.teams).not.toContainEqual({ team: team1._id, role: "ADMIN" });
-    expect(updatedUser?.teams).toContainEqual({ team: team2._id, role: "ADMIN" });
+    expect(updatedUser?.teams).not.toContainEqual({
+      team: team1._id,
+      role: "ADMIN",
+    });
+    expect(updatedUser?.teams).toContainEqual({
+      team: team2._id,
+      role: "ADMIN",
+    });
   });
 
   it("returns ERRORED when userId is missing", async () => {

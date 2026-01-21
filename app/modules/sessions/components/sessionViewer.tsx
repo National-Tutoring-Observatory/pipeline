@@ -1,10 +1,15 @@
-import { Button } from '@/components/ui/button';
-import map from 'lodash/map';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Annotation, Session, SessionFile, Utterance } from '../sessions.types';
-import SessionViewerAnnotation from './sessionViewerAnnotation';
-import SessionViewerDetails from './sessionViewerDetails';
-import SessionViewerUtterance from './sessionViewerUtterance';
+import { Button } from "@/components/ui/button";
+import map from "lodash/map";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import type {
+  Annotation,
+  Session,
+  SessionFile,
+  Utterance,
+} from "../sessions.types";
+import SessionViewerAnnotation from "./sessionViewerAnnotation";
+import SessionViewerDetails from "./sessionViewerDetails";
+import SessionViewerUtterance from "./sessionViewerUtterance";
 
 export default function SessionViewer({
   session,
@@ -22,14 +27,14 @@ export default function SessionViewer({
   onDownVoteClicked,
   onUpVoteClicked,
 }: {
-  session: Session,
-  sessionFile: SessionFile,
-  selectedUtteranceAnnotations: Annotation[],
-  selectedUtteranceId: string | null,
-  isVoting: boolean,
-  utteranceCount: number,
-  selectedUtteranceIndex: number | null,
-  annotatedUtteranceCount: number,
+  session: Session;
+  sessionFile: SessionFile;
+  selectedUtteranceAnnotations: Annotation[];
+  selectedUtteranceId: string | null;
+  isVoting: boolean;
+  utteranceCount: number;
+  selectedUtteranceIndex: number | null;
+  annotatedUtteranceCount: number;
   onUtteranceClicked: (utteranceId: string) => void;
   onPreviousAnnotationClicked: () => void;
   onNextAnnotationClicked: () => void;
@@ -41,7 +46,10 @@ export default function SessionViewer({
 
   return (
     <div className="border h-[calc(100vh-200px)] flex rounded-md">
-      <div id="session-viewer-scroll-container" className="flex flex-col w-3/5 p-4 h-full overflow-y-scroll scroll-smooth border-r">
+      <div
+        id="session-viewer-scroll-container"
+        className="flex flex-col w-3/5 p-4 h-full overflow-y-scroll scroll-smooth border-r"
+      >
         {map(sessionFile.transcript, (utterance: Utterance) => {
           const isSelected = selectedUtteranceId === utterance._id;
           return (
@@ -61,7 +69,7 @@ export default function SessionViewer({
           utteranceCount={utteranceCount}
           annotatedUtteranceCount={annotatedUtteranceCount}
         />
-        {(sessionFile.annotations && sessionFile.annotations.length > 0) && (
+        {sessionFile.annotations && sessionFile.annotations.length > 0 && (
           <div className="p-4">
             <div className="text-muted-foreground mb-2">
               Session annotations
@@ -79,12 +87,14 @@ export default function SessionViewer({
             })}
           </div>
         )}
-        {(annotatedUtteranceCount > 0) && (
+        {annotatedUtteranceCount > 0 && (
           <div className="p-4">
             <div className="flex items-center justify-between mb-2">
               <div>
                 View Annotations
-                <p className="text-muted-foreground text-xs">Browse annotations in this session</p>
+                <p className="text-muted-foreground text-xs">
+                  Browse annotations in this session
+                </p>
               </div>
             </div>
             <div className="my-6">
@@ -96,17 +106,20 @@ export default function SessionViewer({
                 >
                   Jump to first annotation
                 </Button>
-                {hasSelectedAnnotation &&
+                {hasSelectedAnnotation && (
                   <div className="text-sm text-muted-foreground">
-                    Annotation {selectedUtteranceIndex + 1} of {annotatedUtteranceCount}
+                    Annotation {selectedUtteranceIndex + 1} of{" "}
+                    {annotatedUtteranceCount}
                   </div>
-                }
+                )}
                 <div className="flex gap-1">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={onPreviousAnnotationClicked}
-                    disabled={!hasSelectedAnnotation || (selectedUtteranceIndex == 0)}
+                    disabled={
+                      !hasSelectedAnnotation || selectedUtteranceIndex == 0
+                    }
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
@@ -114,7 +127,10 @@ export default function SessionViewer({
                     variant="outline"
                     size="sm"
                     onClick={onNextAnnotationClicked}
-                    disabled={!hasSelectedAnnotation || (selectedUtteranceIndex == (annotatedUtteranceCount - 1))}
+                    disabled={
+                      !hasSelectedAnnotation ||
+                      selectedUtteranceIndex == annotatedUtteranceCount - 1
+                    }
                   >
                     <ChevronRight className="w-4 h-4" />
                   </Button>
@@ -135,6 +151,6 @@ export default function SessionViewer({
           </div>
         )}
       </div>
-    </div >
+    </div>
   );
 }

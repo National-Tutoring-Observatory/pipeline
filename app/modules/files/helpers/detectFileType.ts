@@ -1,12 +1,12 @@
-import type { FileType } from '../files.types';
+import type { FileType } from "../files.types";
 
 const EXTENSION_MAP: Record<string, FileType> = {
-  '.csv': 'CSV',
-  '.jsonl': 'JSONL',
+  ".csv": "CSV",
+  ".jsonl": "JSONL",
 };
 
 export default function detectFileType(fileName: string): FileType | null {
-  const extension = fileName.toLowerCase().slice(fileName.lastIndexOf('.'));
+  const extension = fileName.toLowerCase().slice(fileName.lastIndexOf("."));
   return EXTENSION_MAP[extension] || null;
 }
 

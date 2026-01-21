@@ -1,11 +1,11 @@
 import dayjs from "dayjs";
-import find from 'lodash/find';
+import find from "lodash/find";
 import { redirect } from "react-router";
 import { GitHubStrategy } from "remix-auth-github";
 import { UserService } from "~/modules/users/user";
 import INVITE_LINK_TTL_DAYS from "~/modules/teams/helpers/inviteLink";
 import type { UserTeam } from "~/modules/users/users.types";
-import sessionStorage from '../../../../sessionStorage.js';
+import sessionStorage from "../../../../sessionStorage.js";
 
 const githubStrategy = new GitHubStrategy<any>(
   {
@@ -18,7 +18,6 @@ const githubStrategy = new GitHubStrategy<any>(
     scopes: ["user:email"],
   },
   async ({ tokens, request }) => {
-
     let userResponse = await fetch("https://api.github.com/user", {
       headers: {
         Accept: "application/vnd.github+json",
@@ -35,18 +34,21 @@ const githubStrategy = new GitHubStrategy<any>(
       },
     });
 
-
     let githubUser = await userResponse.json();
 
     let emails = await emailsResponse.json();
 
-    let session = await sessionStorage.getSession(request.headers.get("cookie"));
+    let session = await sessionStorage.getSession(
+      request.headers.get("cookie"),
+    );
 
     const inviteId = session.get("inviteId");
 
     const isInvitedUser = !!inviteId;
 
-    const users = await UserService.find({ match: { githubId: githubUser.id, hasGithubSSO: true } });
+    const users = await UserService.find({
+      match: { githubId: githubUser.id, hasGithubSSO: true },
+    });
     let user = users.length > 0 ? users[0] : null;
 
     let update: any = {};
@@ -58,7 +60,11 @@ const githubStrategy = new GitHubStrategy<any>(
         user = invitedUsers.length > 0 ? invitedUsers[0] : null;
 
         if (user) {
-          if (dayjs().isAfter(dayjs(user.invitedAt).add(INVITE_LINK_TTL_DAYS, 'day'))) {
+          if (
+            dayjs().isAfter(
+              dayjs(user.invitedAt).add(INVITE_LINK_TTL_DAYS, "day"),
+            )
+          ) {
             throw redirect("/?error=EXPIRED_INVITE");
           }
           update.inviteId = null;
@@ -79,13 +85,19 @@ const githubStrategy = new GitHubStrategy<any>(
 
       if (!invitedUser) throw redirect("/?error=UNREGISTERED");
 
-      if (dayjs().isAfter(dayjs(invitedUser.invitedAt).add(INVITE_LINK_TTL_DAYS, 'day'))) {
+      if (
+        dayjs().isAfter(
+          dayjs(invitedUser.invitedAt).add(INVITE_LINK_TTL_DAYS, "day"),
+        )
+      ) {
         throw redirect("/?error=EXPIRED_INVITE");
       }
 
-      const invitedUserTeam = invitedUser.teams[0] as UserTeam
+      const invitedUserTeam = invitedUser.teams[0] as UserTeam;
       const currentUserTeams = user.teams;
-      const isPartOfInvitedTeam = find(currentUserTeams, { team: invitedUserTeam.team });
+      const isPartOfInvitedTeam = find(currentUserTeams, {
+        team: invitedUserTeam.team,
+      });
       if (!isPartOfInvitedTeam) {
         currentUserTeams.push(invitedUserTeam);
         update.teams = currentUserTeams;
@@ -114,7 +126,7 @@ const githubStrategy = new GitHubStrategy<any>(
     user = await UserService.updateById(user._id, update);
 
     return user;
-  }
+  },
 );
 
 export default githubStrategy;

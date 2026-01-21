@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserService } from "~/modules/users/user";
 import { FeatureFlagService } from "../featureFlag";
-import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
-import loginUser from '../../../../test/helpers/loginUser';
+import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/featureFlag.route";
 
 vi.mock("~/modules/queues/helpers/getQueue", () => ({
@@ -38,7 +38,7 @@ describe("featureFlag.route", () => {
       });
 
       const featureFlag = await FeatureFlagService.create({
-        name: "test-flag"
+        name: "test-flag",
       });
 
       await UserService.create({
@@ -64,7 +64,8 @@ describe("featureFlag.route", () => {
         context: {},
       } as any);
 
-      if (result instanceof Response) throw new Error("Expected data, got Response");
+      if (result instanceof Response)
+        throw new Error("Expected data, got Response");
       expect(result.featureFlag.name).toBe("test-flag");
       expect(result.users).toHaveLength(1);
       expect(result.users[0].username).toBe("user1");
@@ -81,7 +82,7 @@ describe("featureFlag.route", () => {
       });
 
       const featureFlag = await FeatureFlagService.create({
-        name: "beta-feature"
+        name: "beta-feature",
       });
 
       const user1 = await UserService.create({
@@ -130,7 +131,7 @@ describe("featureFlag.route", () => {
       });
 
       const featureFlag = await FeatureFlagService.create({
-        name: "beta-feature"
+        name: "beta-feature",
       });
 
       const user = await UserService.create({
@@ -172,7 +173,7 @@ describe("featureFlag.route", () => {
       });
 
       const featureFlag = await FeatureFlagService.create({
-        name: "deprecated-flag"
+        name: "deprecated-flag",
       });
 
       const cookieHeader = await loginUser(admin._id);

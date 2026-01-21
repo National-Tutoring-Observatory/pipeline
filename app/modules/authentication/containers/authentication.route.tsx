@@ -1,8 +1,8 @@
 import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 // @ts-ignore
-import dayjs from 'dayjs';
-import sessionStorage from '../../../../sessionStorage.js';
+import dayjs from "dayjs";
+import sessionStorage from "../../../../sessionStorage.js";
 import { authenticator } from "../authentication.server";
 import getSessionUser from "../helpers/getSessionUser";
 import type { Route } from "./+types/authentication.route";
@@ -12,27 +12,33 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   if (!user) {
     return {
-      authentication: {}
-    }
+      authentication: {},
+    };
   }
 
-  const session = await sessionStorage.getSession(request.headers.get("cookie"));
-  const lastActivity = session.get('lastActivity') as number | undefined;
-  const expirationThreshold = dayjs().subtract(72, 'hour');
+  const session = await sessionStorage.getSession(
+    request.headers.get("cookie"),
+  );
+  const lastActivity = session.get("lastActivity") as number | undefined;
+  const expirationThreshold = dayjs().subtract(72, "hour");
 
   if (lastActivity && dayjs(lastActivity).isBefore(expirationThreshold)) {
     // destroy expired session and treat as not authenticated
-    return Response.json({ authentication: {} }, { headers: { "Set-Cookie": await sessionStorage.destroySession(session) } });
+    return Response.json(
+      { authentication: {} },
+      {
+        headers: { "Set-Cookie": await sessionStorage.destroySession(session) },
+      },
+    );
   }
 
   // update last activity and commit session cookie so client stays logged in
-  session.set('lastActivity', dayjs().valueOf());
+  session.set("lastActivity", dayjs().valueOf());
   const headers = new Headers({
     "Set-Cookie": await sessionStorage.commitSession(session),
   });
 
   return Response.json({ authentication: { data: user } }, { headers });
-
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -40,19 +46,36 @@ export async function action({ request }: Route.ActionArgs) {
 
   const data = await clonedRequest.json();
 
-  if (clonedRequest.method === 'DELETE') {
-    let session = await sessionStorage.getSession(clonedRequest.headers.get("cookie"));
+  if (clonedRequest.method === "DELETE") {
+    let session = await sessionStorage.getSession(
+      clonedRequest.headers.get("cookie"),
+    );
 
-    return Response.json({}, { headers: { "Set-Cookie": await sessionStorage.destroySession(session) } });
+    return Response.json(
+      {},
+      {
+        headers: { "Set-Cookie": await sessionStorage.destroySession(session) },
+      },
+    );
   }
 
-  const referrerSplit = clonedRequest.headers.get('Referer')?.split('/') || [];
-  let session = await sessionStorage.getSession(clonedRequest.headers.get("cookie"));
+  const referrerSplit = clonedRequest.headers.get("Referer")?.split("/") || [];
+  let session = await sessionStorage.getSession(
+    clonedRequest.headers.get("cookie"),
+  );
 
-  if (referrerSplit[referrerSplit.length - 1] === data.inviteId && referrerSplit[referrerSplit.length - 2] === 'invite') {
-    const invitedUsers = await UserService.find({ match: { inviteId: data.inviteId, isRegistered: false } });
+  if (
+    referrerSplit[referrerSplit.length - 1] === data.inviteId &&
+    referrerSplit[referrerSplit.length - 2] === "invite"
+  ) {
+    const invitedUsers = await UserService.find({
+      match: { inviteId: data.inviteId, isRegistered: false },
+    });
     if (invitedUsers.length === 0) {
-      return Response.json({ ok: false, error: "Invalid invite" }, { status: 404 })
+      return Response.json(
+        { ok: false, error: "Invalid invite" },
+        { status: 404 },
+      );
     }
     session.flash("inviteId", data.inviteId);
   }
@@ -60,7 +83,10 @@ export async function action({ request }: Route.ActionArgs) {
     await authenticator.authenticate(data.provider, request);
   } catch (error) {
     if (error instanceof Response) {
-      error.headers.append("Set-Cookie", await sessionStorage.commitSession(session));
+      error.headers.append(
+        "Set-Cookie",
+        await sessionStorage.commitSession(session),
+      );
       throw error;
     }
     throw error;

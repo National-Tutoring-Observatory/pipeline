@@ -1,10 +1,10 @@
-import pick from 'lodash/pick';
-import mongoose from 'mongoose';
-import promptVersionSchema from '~/lib/schemas/promptVersion.schema';
-import type { PromptVersion } from './prompts.types';
-import type { FindOptions } from '~/modules/common/types';
+import pick from "lodash/pick";
+import mongoose from "mongoose";
+import promptVersionSchema from "~/lib/schemas/promptVersion.schema";
+import type { PromptVersion } from "./prompts.types";
+import type { FindOptions } from "~/modules/common/types";
 
-const PromptVersionModel = mongoose.model('PromptVersion', promptVersionSchema);
+const PromptVersionModel = mongoose.model("PromptVersion", promptVersionSchema);
 
 export class PromptVersionService {
   private static toPromptVersion(doc: any): PromptVersion {
@@ -24,11 +24,13 @@ export class PromptVersionService {
     }
 
     if (options?.pagination) {
-      query = query.skip(options.pagination.skip).limit(options.pagination.limit);
+      query = query
+        .skip(options.pagination.skip)
+        .limit(options.pagination.limit);
     }
 
     const docs = await query;
-    return docs.map(doc => this.toPromptVersion(doc));
+    return docs.map((doc) => this.toPromptVersion(doc));
   }
 
   static async count(match: Record<string, any> = {}): Promise<number> {
@@ -46,7 +48,10 @@ export class PromptVersionService {
     return this.toPromptVersion(doc);
   }
 
-  static async updateById(id: string, updates: Partial<PromptVersion>): Promise<PromptVersion | null> {
+  static async updateById(
+    id: string,
+    updates: Partial<PromptVersion>,
+  ): Promise<PromptVersion | null> {
     const doc = await PromptVersionModel.findByIdAndUpdate(id, updates, {
       new: true,
     });
@@ -58,23 +63,31 @@ export class PromptVersionService {
     return doc ? this.toPromptVersion(doc) : null;
   }
 
-  static async findOne(match: Record<string, any>): Promise<PromptVersion | null> {
+  static async findOne(
+    match: Record<string, any>,
+  ): Promise<PromptVersion | null> {
     const docs = await this.find({ match });
     return docs[0] || null;
   }
 
-  static async createNextVersion(promptId: string, fromVersion: PromptVersion): Promise<PromptVersion> {
-    const newPromptAttributes = pick(fromVersion, ['userPrompt', 'annotationSchema']);
+  static async createNextVersion(
+    promptId: string,
+    fromVersion: PromptVersion,
+  ): Promise<PromptVersion> {
+    const newPromptAttributes = pick(fromVersion, [
+      "userPrompt",
+      "annotationSchema",
+    ]);
 
     const allVersions = await this.find({
-      match: { prompt: promptId }
+      match: { prompt: promptId },
     });
 
     return this.create({
       ...newPromptAttributes,
-      name: `${fromVersion.name.replace(/#\d+/g, '').trim()} #${allVersions.length + 1}`,
+      name: `${fromVersion.name.replace(/#\d+/g, "").trim()} #${allVersions.length + 1}`,
       prompt: promptId,
-      version: allVersions.length + 1
+      version: allVersions.length + 1,
     });
   }
 }

@@ -1,9 +1,13 @@
-import { useContext } from 'react';
-import { AuthenticationContext } from '~/modules/authentication/containers/authentication.container';
-import type { User } from '~/modules/users/users.types';
-import TeamAuthorization, { type TeamAuthorizationShape } from '../authorization';
+import { useContext } from "react";
+import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
+import type { User } from "~/modules/users/users.types";
+import TeamAuthorization, {
+  type TeamAuthorizationShape,
+} from "../authorization";
 
-export default function useTeamAuthorization(teamId: string | null = null): TeamAuthorizationShape {
+export default function useTeamAuthorization(
+  teamId: string | null = null,
+): TeamAuthorizationShape {
   const user = useContext(AuthenticationContext) as User | null;
 
   const defaults: TeamAuthorizationShape = {

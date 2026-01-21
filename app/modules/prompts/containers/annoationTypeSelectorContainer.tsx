@@ -1,20 +1,19 @@
-import { useState } from 'react';
-import AnnotationTypeSelector from '../components/annotationTypeSelector';
-import annotationTypes from '../annotationTypes';
+import { useState } from "react";
+import AnnotationTypeSelector from "../components/annotationTypeSelector";
+import annotationTypes from "../annotationTypes";
 
 export default function AnnotationTypeSelectorContainer({
   annotationType,
-  onSelectedAnnotationTypeChanged
+  onSelectedAnnotationTypeChanged,
 }: {
-  annotationType: string,
-  onSelectedAnnotationTypeChanged: (annotationType: string) => void,
+  annotationType: string;
+  onSelectedAnnotationTypeChanged: (annotationType: string) => void;
 }) {
-
   const [isAnnotationTypesOpen, setIsAnnotationTypesOpen] = useState(false);
 
   const onToggleAnnotationTypePopover = (isAnnotationTypesOpen: boolean) => {
     setIsAnnotationTypesOpen(isAnnotationTypesOpen);
-  }
+  };
 
   return (
     <AnnotationTypeSelector
@@ -24,5 +23,5 @@ export default function AnnotationTypeSelectorContainer({
       onToggleAnnotationTypePopover={onToggleAnnotationTypePopover}
       onSelectedAnnotationTypeChanged={onSelectedAnnotationTypeChanged}
     />
-  )
+  );
 }

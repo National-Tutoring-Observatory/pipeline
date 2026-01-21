@@ -16,10 +16,9 @@ yarn
 
 You'll need to set up your .env file.
 
-``` bash
+```bash
 cp .env.example .env
 ```
-
 
 Start the development server with HMR:
 

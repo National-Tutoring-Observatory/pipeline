@@ -1,13 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { SheetDescription, SheetHeader } from "@/components/ui/sheet";
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ChevronRight, Search } from "lucide-react";
 import type { SupportArticle } from "../support.types";
 
-export default function SupportArticleList({ supportArticles, onSupportArticleClicked, onSearchClicked }: {
-  supportArticles: SupportArticle[],
-  onSupportArticleClicked: (selectedDocumentId: string) => void,
-  onSearchClicked: () => void
+export default function SupportArticleList({
+  supportArticles,
+  onSupportArticleClicked,
+  onSearchClicked,
+}: {
+  supportArticles: SupportArticle[];
+  onSupportArticleClicked: (selectedDocumentId: string) => void;
+  onSearchClicked: () => void;
 }) {
   return (
     <div className="px-4">

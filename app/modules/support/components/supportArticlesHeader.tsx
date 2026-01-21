@@ -1,24 +1,34 @@
 import { Button } from "@/components/ui/button";
-import { SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ChevronLeft, LifeBuoy, Search } from "lucide-react";
 
 export default function SupportArticlesHeader({
   selectedDocumentId,
   onBackToSupportArticlesClicked,
-  onSearchClicked
+  onSearchClicked,
 }: {
-  selectedDocumentId: string | null,
-  onBackToSupportArticlesClicked: () => void,
-  onSearchClicked: () => void,
+  selectedDocumentId: string | null;
+  onBackToSupportArticlesClicked: () => void;
+  onSearchClicked: () => void;
 }) {
   return (
-    <SheetHeader className="sticky top-0 bg-white" >
+    <SheetHeader className="sticky top-0 bg-white">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <SheetTitle className="flex items-center">
             <LifeBuoy size={16} />
-            <span className="ml-2" tabIndex={0}>Help & Support</span>
+            <span className="ml-2" tabIndex={0}>
+              Help & Support
+            </span>
           </SheetTitle>
           <Tooltip>
             <TooltipTrigger asChild>

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { TeamService } from "../team";
 import { UserService } from "~/modules/users/user";
-import clearDocumentDB from '../../../../test/helpers/clearDocumentDB';
-import loginUser from '../../../../test/helpers/loginUser';
+import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/team.route";
 
 describe("team.route loader", () => {
@@ -24,7 +24,9 @@ describe("team.route loader", () => {
   it("returns team when user is super admin", async () => {
     const team = await TeamService.create({ name: "test team" });
     const admin = await UserService.create({
-      username: "admin", role: "SUPER_ADMIN", teams: [],
+      username: "admin",
+      role: "SUPER_ADMIN",
+      teams: [],
     });
 
     const cookieHeader = await loginUser(admin._id);

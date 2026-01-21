@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import type { User } from '../users.types';
-import AssignSuperAdminForm from '../components/assignSuperAdminForm';
+import { useState } from "react";
+import type { User } from "../users.types";
+import AssignSuperAdminForm from "../components/assignSuperAdminForm";
 
 interface AssignSuperAdminDialogContainerProps {
   targetUser: User;
@@ -11,9 +11,9 @@ interface AssignSuperAdminDialogContainerProps {
 export default function AssignSuperAdminDialogContainer({
   targetUser,
   isSubmitting,
-  onAssignSuperAdminClicked
+  onAssignSuperAdminClicked,
 }: AssignSuperAdminDialogContainerProps) {
-  const [reason, setReason] = useState<string>('');
+  const [reason, setReason] = useState<string>("");
 
   const isFormValid = reason.trim().length > 0;
 

@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
-import type { FindOptions } from '~/modules/common/types';
-import sessionSchema from '~/lib/schemas/session.schema';
-import type { Session } from './sessions.types';
+import mongoose from "mongoose";
+import type { FindOptions } from "~/modules/common/types";
+import sessionSchema from "~/lib/schemas/session.schema";
+import type { Session } from "./sessions.types";
 
-const SessionModel = mongoose.model('Session', sessionSchema);
+const SessionModel = mongoose.model("Session", sessionSchema);
 
 export class SessionService {
   private static toSession(doc: any): Session {
@@ -23,11 +23,13 @@ export class SessionService {
     }
 
     if (options?.pagination) {
-      query = query.skip(options.pagination.skip).limit(options.pagination.limit);
+      query = query
+        .skip(options.pagination.skip)
+        .limit(options.pagination.limit);
     }
 
     const docs = await query;
-    return docs.map(doc => this.toSession(doc));
+    return docs.map((doc) => this.toSession(doc));
   }
 
   static async count(match: Record<string, any> = {}): Promise<number> {
@@ -50,7 +52,10 @@ export class SessionService {
     return this.toSession(doc);
   }
 
-  static async updateById(id: string, updates: Partial<Session>): Promise<Session | null> {
+  static async updateById(
+    id: string,
+    updates: Partial<Session>,
+  ): Promise<Session | null> {
     const doc = await SessionModel.findByIdAndUpdate(id, updates, {
       new: true,
     });

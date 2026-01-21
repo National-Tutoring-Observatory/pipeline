@@ -1,15 +1,20 @@
-import escapeRegExp from 'lodash/escapeRegExp';
-import has from 'lodash/has';
+import escapeRegExp from "lodash/escapeRegExp";
+import has from "lodash/has";
 
-export type QueryParams = { searchValue?: string, currentPage?: number, filters?: Record<string, string>, sort?: string }
+export type QueryParams = {
+  searchValue?: string;
+  currentPage?: number;
+  filters?: Record<string, string>;
+  sort?: string;
+};
 type BuildQueryProps = {
-  match: any,
-  queryParams: QueryParams,
-  searchableFields: string[]
-  sortableFields: string[],
-  filterableFields?: string[]
-}
-export type Query = { match: any, sort?: any, page?: number }
+  match: any;
+  queryParams: QueryParams;
+  searchableFields: string[];
+  sortableFields: string[];
+  filterableFields?: string[];
+};
+export type Query = { match: any; sort?: any; page?: number };
 
 function regexMatch(field: string, value: string) {
   return { [field]: { $regex: new RegExp(escapeRegExp(value), "i") } };
@@ -20,14 +25,16 @@ export function buildQueryFromParams({
   queryParams,
   searchableFields,
   sortableFields,
-  filterableFields
+  filterableFields,
 }: BuildQueryProps): Query {
   let query = { match } as Query;
 
   const searchValue = queryParams.searchValue;
   if (searchValue) {
     if (!searchableFields || searchableFields.length === 0) {
-      throw new Error('Search value provided but no searchable fields are configured.');
+      throw new Error(
+        "Search value provided but no searchable fields are configured.",
+      );
     }
     let conditions: any[] = [];
     for (const field of searchableFields) {
@@ -43,7 +50,9 @@ export function buildQueryFromParams({
   const filters = queryParams.filters;
   if (filters && Object.keys(filters).length > 0) {
     if (!filterableFields || filterableFields.length === 0) {
-      throw new Error('Filters provided but no filterable fields are configured.');
+      throw new Error(
+        "Filters provided but no filterable fields are configured.",
+      );
     }
 
     for (const field of filterableFields) {
@@ -55,20 +64,20 @@ export function buildQueryFromParams({
 
   const sort = queryParams.sort;
   if (sort) {
-    if (typeof sort !== 'string') {
-      throw new Error('Sort parameter must be a string.');
+    if (typeof sort !== "string") {
+      throw new Error("Sort parameter must be a string.");
     }
-    if (!sortableFields.includes(sort.replace('-', ''))) {
-      throw new Error('Invalid sort field.');
+    if (!sortableFields.includes(sort.replace("-", ""))) {
+      throw new Error("Invalid sort field.");
     }
-    query.sort = sort
+    query.sort = sort;
   } else {
     query.sort = null;
   }
 
   query.page = queryParams.currentPage;
 
-  return query
+  return query;
 }
 
-export default buildQueryFromParams
+export default buildQueryFromParams;

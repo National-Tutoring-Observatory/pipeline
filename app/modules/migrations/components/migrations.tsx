@@ -1,64 +1,71 @@
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparator, ItemTitle } from "@/components/ui/item"
-import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader"
-import dayjs from "dayjs"
-import { PlayIcon } from "lucide-react"
-import React from "react"
-import { useRevalidator } from "react-router"
-import type { Breadcrumb } from "~/modules/app/app.types"
-import Breadcrumbs from "~/modules/app/components/breadcrumbs"
-import useHandleSockets from "~/modules/app/hooks/useHandleSockets"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemSeparator,
+  ItemTitle,
+} from "@/components/ui/item";
+import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
+import dayjs from "dayjs";
+import { PlayIcon } from "lucide-react";
+import React from "react";
+import { useRevalidator } from "react-router";
+import type { Breadcrumb } from "~/modules/app/app.types";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 
 type MigrationWithStatus = {
-  id: string
-  name: string
-  description: string
-  status: 'pending' | 'running' | 'completed'
+  id: string;
+  name: string;
+  description: string;
+  status: "pending" | "running" | "completed";
   lastRun?: {
-    startedAt: Date
-    completedAt?: Date
-    triggeredBy: string
+    startedAt: Date;
+    completedAt?: Date;
+    triggeredBy: string;
     result?: {
-      success: boolean
-      message: string
-      stats?: Record<string, number>
-    }
-    error?: string
-  } | null
-}
+      success: boolean;
+      message: string;
+      stats?: Record<string, number>;
+    };
+    error?: string;
+  } | null;
+};
 
 const STATUS_COLORS: Record<string, string> = {
-  completed: 'bg-chart-2/10 text-chart-2 border-chart-2/20',
-  running: 'bg-chart-1/10 text-chart-1 border-chart-1/20',
-  pending: 'bg-chart-3/10 text-chart-3 border-chart-3/20'
-}
+  completed: "bg-chart-2/10 text-chart-2 border-chart-2/20",
+  running: "bg-chart-1/10 text-chart-1 border-chart-1/20",
+  pending: "bg-chart-3/10 text-chart-3 border-chart-3/20",
+};
 
 export default function Migrations({
   migrations,
   breadcrumbs,
-  onRunMigration
+  onRunMigration,
 }: {
-  migrations: MigrationWithStatus[]
-  breadcrumbs: Breadcrumb[],
-  onRunMigration: (migrationId: string) => void
+  migrations: MigrationWithStatus[];
+  breadcrumbs: Breadcrumb[];
+  onRunMigration: (migrationId: string) => void;
 }) {
-  const revalidator = useRevalidator()
+  const revalidator = useRevalidator();
 
   useHandleSockets({
-    event: 'migration:update',
+    event: "migration:update",
     matches: [{}],
     callback: () => {
-      revalidator.revalidate()
-    }
-  })
+      revalidator.revalidate();
+    },
+  });
 
   return (
     <div className="max-w-6xl p-8">
       <PageHeader>
         <PageHeaderLeft>
-          <Breadcrumbs breadcrumbs={breadcrumbs}>
-          </Breadcrumbs>
+          <Breadcrumbs breadcrumbs={breadcrumbs}></Breadcrumbs>
         </PageHeaderLeft>
       </PageHeader>
       <div className="border rounded-lg">
@@ -74,14 +81,29 @@ export default function Migrations({
                       {migration.lastRun && (
                         <div className="text-xs text-muted-foreground mt-1 space-y-1">
                           <div>
-                            Last run: {dayjs(migration.lastRun.startedAt).format('MMM D, YYYY h:mm A')}
+                            Last run:{" "}
+                            {dayjs(migration.lastRun.startedAt).format(
+                              "MMM D, YYYY h:mm A",
+                            )}
                           </div>
                           {migration.lastRun.result && (
-                            <div className={migration.lastRun.result.success ? 'text-chart-2' : 'text-destructive'}>
+                            <div
+                              className={
+                                migration.lastRun.result.success
+                                  ? "text-chart-2"
+                                  : "text-destructive"
+                              }
+                            >
                               {migration.lastRun.result.message}
                               {migration.lastRun.result.stats && (
                                 <span className="ml-2">
-                                  ({Object.entries(migration.lastRun.result.stats).map(([key, value]) => `${key}: ${value}`).join(', ')})
+                                  (
+                                  {Object.entries(
+                                    migration.lastRun.result.stats,
+                                  )
+                                    .map(([key, value]) => `${key}: ${value}`)
+                                    .join(", ")}
+                                  )
                                 </span>
                               )}
                             </div>
@@ -94,13 +116,16 @@ export default function Migrations({
                         </div>
                       )}
                     </div>
-                    <Badge variant="outline" className={STATUS_COLORS[migration.status]}>
+                    <Badge
+                      variant="outline"
+                      className={STATUS_COLORS[migration.status]}
+                    >
                       {migration.status}
                     </Badge>
                   </div>
                 </ItemContent>
                 <ItemActions className="gap-2">
-                  {migration.status === 'pending' && (
+                  {migration.status === "pending" && (
                     <Button
                       size="sm"
                       onClick={() => onRunMigration(migration.id)}
@@ -109,7 +134,7 @@ export default function Migrations({
                       Run
                     </Button>
                   )}
-                  {migration.status === 'running' && (
+                  {migration.status === "running" && (
                     <Button size="sm" disabled>
                       Running...
                     </Button>
@@ -127,5 +152,5 @@ export default function Migrations({
         </ItemGroup>
       </div>
     </div>
-  )
+  );
 }

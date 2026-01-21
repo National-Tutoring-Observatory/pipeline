@@ -7,18 +7,20 @@ interface SessionDataMap {
 }
 
 export default function parseJSONL(fileContents: string): SessionDataMap {
-  const lines = fileContents.split('\n');
+  const lines = fileContents.split("\n");
   const sessionMap = new Map<string, SessionData[]>();
 
   for (const line of lines) {
-    if (line.trim() === '') continue;
+    if (line.trim() === "") continue;
 
     let data: SessionData;
 
     try {
       data = JSON.parse(line);
     } catch (error) {
-      throw new Error(`Failed to parse JSONL line: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to parse JSONL line: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
 
     const sessionId = data.session_id;

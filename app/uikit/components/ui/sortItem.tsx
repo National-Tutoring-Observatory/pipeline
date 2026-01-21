@@ -7,17 +7,25 @@ const SortItem = ({
   item,
   value,
   onValueChange,
-}: { item: SortOption, value: string, onValueChange: (value: string) => void }) => {
+}: {
+  item: SortOption;
+  value: string;
+  onValueChange: (value: string) => void;
+}) => {
   return (
     <div className="flex justify-between">
-      <Label>
-        {item.text}
-      </Label>
-      <ToggleGroup type="single" size="sm" variant={"outline"} value={value} onValueChange={(value) => {
-        if (value) {
-          onValueChange(value);
-        }
-      }}>
+      <Label>{item.text}</Label>
+      <ToggleGroup
+        type="single"
+        size="sm"
+        variant={"outline"}
+        value={value}
+        onValueChange={(value) => {
+          if (value) {
+            onValueChange(value);
+          }
+        }}
+      >
         <ToggleGroupItem value={item.value}>
           <ArrowDownWideNarrow />
         </ToggleGroupItem>

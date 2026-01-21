@@ -1,7 +1,7 @@
 export interface SupportArticle {
   documentId: string;
   data: {
-    title: string
+    title: string;
   };
-  html: string
+  html: string;
 }

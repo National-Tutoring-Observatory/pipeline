@@ -19,8 +19,8 @@ You initiate a run from within a **Project**.
 
 1.  **Start a New Run:** Navigate to a **Project** and click "New Run."
 2.  **Configure the Run:** On the run configuration screen, you will make the following selections:
-    * **Sessions:** Choose the specific sessions you want to analyze.
-    * **Prompt:** Select the prompt you want to use.
-    * **Annotation Type:** Choose whether to run the analysis line-by-line or on the whole session.
-    * **LLM Model:** Select the LLM model you wish to use.
+    - **Sessions:** Choose the specific sessions you want to analyze.
+    - **Prompt:** Select the prompt you want to use.
+    - **Annotation Type:** Choose whether to run the analysis line-by-line or on the whole session.
+    - **LLM Model:** Select the LLM model you wish to use.
 3.  **Initiate Analysis:** Once all options are set, click "Start Run." You can then monitor the run's progress from the **Dashboard** or the project's details page.

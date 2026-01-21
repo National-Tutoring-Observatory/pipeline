@@ -6,24 +6,24 @@ import type { User } from "~/modules/users/users.types";
 import getStorageAdapter from "../helpers/getStorageAdapter";
 
 function extractProjectIdFromUrl(rawUrl: string): string {
-  const parts = rawUrl.split('/');
+  const parts = rawUrl.split("/");
 
-  if (parts[0] !== 'storage' || !parts[1]) {
-    throw new Error('Invalid request path');
+  if (parts[0] !== "storage" || !parts[1]) {
+    throw new Error("Invalid request path");
   }
 
   return parts[1];
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
     throw new Error("Authentication required");
   }
 
-  const { intent, payload } = await request.json()
+  const { intent, payload } = await request.json();
 
-  if (intent === 'REQUEST_STORAGE') {
+  if (intent === "REQUEST_STORAGE") {
     const { url } = payload;
 
     if (!url) {
@@ -33,11 +33,13 @@ export async function action({ request }: ActionFunctionArgs) {
     const projectId = extractProjectIdFromUrl(url);
     const project = await ProjectService.findById(projectId);
     if (!project) {
-      throw new Error('Project not found');
+      throw new Error("Project not found");
     }
 
     if (!ProjectAuthorization.canView(user, project)) {
-      throw new Error("You do not have permission to access files from this project");
+      throw new Error(
+        "You do not have permission to access files from this project",
+      );
     }
 
     const storage = getStorageAdapter();

@@ -22,19 +22,19 @@ export default function ProjectRuns({
   onFiltersValueChanged,
   onSortValueChanged,
 }: {
-  runs: Run[],
-  searchValue: string,
-  currentPage: number,
-  totalPages: number,
-  filtersValues: {},
-  sortValue: string,
-  isSyncing: boolean,
+  runs: Run[];
+  searchValue: string;
+  currentPage: number;
+  totalPages: number;
+  filtersValues: {};
+  sortValue: string;
+  isSyncing: boolean;
   onActionClicked: (action: string) => void;
-  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
-  onSearchValueChanged: (searchValue: string) => void,
-  onPaginationChanged: (currentPage: number) => void,
-  onFiltersValueChanged: (filterValue: any) => void,
-  onSortValueChanged: (sortValue: any) => void
+  onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (currentPage: number) => void;
+  onFiltersValueChanged: (filterValue: any) => void;
+  onSortValueChanged: (sortValue: any) => void;
 }) {
   return (
     <div className="mt-8">
@@ -63,5 +63,5 @@ export default function ProjectRuns({
         onSortValueChanged={onSortValueChanged}
       />
     </div>
-  )
+  );
 }

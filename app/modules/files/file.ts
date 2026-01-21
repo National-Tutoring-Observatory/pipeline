@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
-import type { FindOptions } from '~/modules/common/types';
-import fileSchema from '~/lib/schemas/file.schema';
-import type { File } from './files.types';
+import mongoose from "mongoose";
+import type { FindOptions } from "~/modules/common/types";
+import fileSchema from "~/lib/schemas/file.schema";
+import type { File } from "./files.types";
 
-const FileModel = mongoose.model('File', fileSchema);
+const FileModel = mongoose.model("File", fileSchema);
 
 export class FileService {
   private static toFile(doc: any): File {
@@ -23,11 +23,13 @@ export class FileService {
     }
 
     if (options?.pagination) {
-      query = query.skip(options.pagination.skip).limit(options.pagination.limit);
+      query = query
+        .skip(options.pagination.skip)
+        .limit(options.pagination.limit);
     }
 
     const docs = await query;
-    return docs.map(doc => this.toFile(doc));
+    return docs.map((doc) => this.toFile(doc));
   }
 
   static async count(match: Record<string, any> = {}): Promise<number> {
@@ -45,7 +47,10 @@ export class FileService {
     return this.toFile(doc);
   }
 
-  static async updateById(id: string, updates: Partial<File>): Promise<File | null> {
+  static async updateById(
+    id: string,
+    updates: Partial<File>,
+  ): Promise<File | null> {
     const doc = await FileModel.findByIdAndUpdate(id, updates, {
       new: true,
     });

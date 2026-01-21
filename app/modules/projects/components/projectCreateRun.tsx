@@ -8,12 +8,12 @@ export default function ProjectCreateRun({
   breadcrumbs,
   runName,
   onRunNameChanged,
-  onStartRunClicked
+  onStartRunClicked,
 }: {
-  breadcrumbs: Breadcrumb[],
-  runName: string,
-  onRunNameChanged: (name: string) => void,
-  onStartRunClicked: (createRun: CreateRun) => void
+  breadcrumbs: Breadcrumb[];
+  runName: string;
+  onRunNameChanged: (name: string) => void;
+  onStartRunClicked: (createRun: CreateRun) => void;
 }) {
   return (
     <div className="max-w-6xl p-8">

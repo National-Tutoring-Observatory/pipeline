@@ -1,11 +1,11 @@
-import mongoose from 'mongoose';
-import runSchema from '~/lib/schemas/run.schema';
-import type { Run } from './runs.types';
-import type { FindOptions, PaginateProps } from '~/modules/common/types';
-import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
-import createRunAnnotations from '~/modules/projects/services/createRunAnnotations.server';
+import mongoose from "mongoose";
+import runSchema from "~/lib/schemas/run.schema";
+import type { Run } from "./runs.types";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
+import createRunAnnotations from "~/modules/projects/services/createRunAnnotations.server";
 
-const RunModel = mongoose.model('Run', runSchema);
+const RunModel = mongoose.model("Run", runSchema);
 
 export class RunService {
   private static toRun(doc: any): Run {
@@ -25,25 +25,36 @@ export class RunService {
     }
 
     if (options?.pagination) {
-      query = query.skip(options.pagination.skip).limit(options.pagination.limit);
+      query = query
+        .skip(options.pagination.skip)
+        .limit(options.pagination.limit);
     }
 
     const docs = await query;
-    return docs.map(doc => this.toRun(doc));
+    return docs.map((doc) => this.toRun(doc));
   }
 
   static async count(match: Record<string, any> = {}): Promise<number> {
     return RunModel.countDocuments(match);
   }
 
-  static async paginate({ match, sort, page, pageSize }: PaginateProps): Promise<{ data: Run[]; count: number; totalPages: number }> {
+  static async paginate({
+    match,
+    sort,
+    page,
+    pageSize,
+  }: PaginateProps): Promise<{
+    data: Run[];
+    count: number;
+    totalPages: number;
+  }> {
     const pagination = getPaginationParams(page, pageSize);
     const data = await this.find({ match, sort, pagination });
     const count = await this.count(match);
     return {
       data,
       count,
-      totalPages: getTotalPages(count, pageSize)
+      totalPages: getTotalPages(count, pageSize),
     };
   }
 
@@ -58,7 +69,10 @@ export class RunService {
     return this.toRun(doc);
   }
 
-  static async updateById(id: string, updates: Partial<Run>): Promise<Run | null> {
+  static async updateById(
+    id: string,
+    updates: Partial<Run>,
+  ): Promise<Run | null> {
     const doc = await RunModel.findByIdAndUpdate(id, updates, {
       new: true,
     });

@@ -1,22 +1,29 @@
-import { Button } from '@/components/ui/button';
-import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from "@/components/ui/button";
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function SearchSupportArticlesDialog({
   searchValue,
   onSearchValueChange,
   results,
-  onSelectArticle
+  onSelectArticle,
 }: {
-  searchValue: string,
-  onSearchValueChange: (val: string) => void,
-  results: { documentId: string, title: string, snippet: string }[],
-  onSelectArticle: (documentId: string) => void
+  searchValue: string;
+  onSearchValueChange: (val: string) => void;
+  results: { documentId: string; title: string; snippet: string }[];
+  onSelectArticle: (documentId: string) => void;
 }) {
   const MIN_SEARCH_LENGTH = 3;
   const trimmedSearch = searchValue.trim();
   let resultsContent;
   if (results.length > 0) {
-    resultsContent = results.map(article => (
+    resultsContent = results.map((article) => (
       <div key={article.documentId} className="mb-3">
         <Button
           variant="ghost"
@@ -29,12 +36,16 @@ export default function SearchSupportArticlesDialog({
           className="text-xs text-muted-foreground px-2 py-1"
           dangerouslySetInnerHTML={{ __html: article.snippet }}
         />
-
       </div>
     ));
-  } else if (trimmedSearch.length > 0 && trimmedSearch.length < MIN_SEARCH_LENGTH) {
+  } else if (
+    trimmedSearch.length > 0 &&
+    trimmedSearch.length < MIN_SEARCH_LENGTH
+  ) {
     resultsContent = (
-      <div className="text-muted-foreground py-2 px-2">Enter at least {MIN_SEARCH_LENGTH} characters to search.</div>
+      <div className="text-muted-foreground py-2 px-2">
+        Enter at least {MIN_SEARCH_LENGTH} characters to search.
+      </div>
     );
   } else {
     resultsContent = (
@@ -53,12 +64,10 @@ export default function SearchSupportArticlesDialog({
         className="w-full border rounded px-2 py-1 mb-4"
         placeholder="Search..."
         value={searchValue}
-        onChange={e => onSearchValueChange(e.target.value)}
+        onChange={(e) => onSearchValueChange(e.target.value)}
         autoFocus
       />
-      <div className="flex-1 overflow-y-auto">
-        {resultsContent}
-      </div>
+      <div className="flex-1 overflow-y-auto">{resultsContent}</div>
       <DialogFooter className="justify-end mt-4 flex-shrink-0">
         <DialogClose asChild>
           <Button type="button" variant="secondary">

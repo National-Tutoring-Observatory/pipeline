@@ -1,12 +1,12 @@
-import type { ModelInfo } from '~/modules/llm/model.types';
-import type { Run } from '~/modules/runs/runs.types';
+import type { ModelInfo } from "~/modules/llm/model.types";
+import type { Run } from "~/modules/runs/runs.types";
 
 export function getRunModelInfo(run: Run): ModelInfo | undefined {
   if (run.snapshot?.model) {
     return {
       code: run.snapshot.model.code,
       name: run.snapshot.model.name,
-      provider: run.snapshot.model.provider
+      provider: run.snapshot.model.provider,
     };
   }
   return undefined;

@@ -1,7 +1,7 @@
-import { RunService } from '~/modules/runs/run';
-import type { Collection } from '../collections.types';
-import { CollectionService } from '../collection';
-import { isRunCompatibleWithCollection } from '../helpers/isRunCompatibleWithCollection';
+import { RunService } from "~/modules/runs/run";
+import type { Collection } from "../collections.types";
+import { CollectionService } from "../collection";
+import { isRunCompatibleWithCollection } from "../helpers/isRunCompatibleWithCollection";
 
 interface AddRunsResult {
   collection: Collection;
@@ -12,11 +12,11 @@ interface AddRunsResult {
 
 export default async function addRunsToCollection(
   collectionId: string,
-  runIds: string[]
+  runIds: string[],
 ): Promise<AddRunsResult> {
   const collection = await CollectionService.findById(collectionId);
   if (!collection) {
-    throw new Error('Collection not found');
+    throw new Error("Collection not found");
   }
 
   const existingRunIds = new Set(collection.runs || []);
@@ -37,7 +37,10 @@ export default async function addRunsToCollection(
       continue;
     }
 
-    const { compatible, reason } = isRunCompatibleWithCollection(run, collection);
+    const { compatible, reason } = isRunCompatibleWithCollection(
+      run,
+      collection,
+    );
     if (!compatible) {
       errors.push(`Run ${runId}: ${reason}`);
       continue;
@@ -47,12 +50,14 @@ export default async function addRunsToCollection(
   }
 
   const updatedRuns = [...(collection.runs || []), ...added];
-  const updatedCollection = await CollectionService.updateById(collectionId, { runs: updatedRuns });
+  const updatedCollection = await CollectionService.updateById(collectionId, {
+    runs: updatedRuns,
+  });
 
   return {
     collection: updatedCollection!,
     added,
     skipped,
-    errors
+    errors,
   };
 }

@@ -1,5 +1,5 @@
-import { QUEUES } from "./createQueue"
+import { QUEUES } from "./createQueue";
 
 export default (name: string) => {
   return QUEUES[name];
-}
+};

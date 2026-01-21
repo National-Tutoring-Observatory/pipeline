@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -8,15 +14,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import orderBy from "lodash/orderBy";
 import { EllipsisVertical } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { Job } from "../queues.types";
 import SortableTableHead from "./sortableTableHead";
 
-type SortField = 'name' | 'timestamp' | 'processedOn' | 'finishedOn' | 'attemptsMade';
-type SortDirection = 'asc' | 'desc';
+type SortField =
+  | "name"
+  | "timestamp"
+  | "processedOn"
+  | "finishedOn"
+  | "attemptsMade";
+type SortDirection = "asc" | "desc";
 
 interface JobsListProps {
   jobs: Job[];
@@ -31,13 +42,13 @@ export default function JobsList({
   state,
   onDisplayJobClick,
   onRemoveJobClick,
-  onRetryJobClick
+  onRetryJobClick,
 }: JobsListProps) {
-  const [sortField, setSortField] = useState<SortField>('timestamp');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [sortField, setSortField] = useState<SortField>("timestamp");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const sortedJobs = useMemo(() => {
-    const jobsWithSortValues = jobs.map(job => ({
+    const jobsWithSortValues = jobs.map((job) => ({
       ...job,
       _sortValues: {
         name: job.name,
@@ -45,22 +56,22 @@ export default function JobsList({
         processedOn: job.processedOn ? dayjs(job.processedOn).valueOf() : null,
         finishedOn: job.finishedOn ? dayjs(job.finishedOn).valueOf() : null,
         attemptsMade: job.attemptsMade || 0,
-      }
+      },
     }));
 
     return orderBy(
       jobsWithSortValues,
       [`_sortValues.${sortField}`],
-      [sortDirection]
+      [sortDirection],
     );
   }, [jobs, sortField, sortDirection]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field as SortField);
-      setSortDirection('desc');
+      setSortDirection("desc");
     }
   };
 
@@ -70,7 +81,9 @@ export default function JobsList({
         <div className="flex items-center justify-center py-12">
           <div className="text-center text-muted-foreground">
             <p className="text-lg font-medium">No {state} jobs found</p>
-            <p className="text-sm">Jobs will appear here when they are {state}</p>
+            <p className="text-sm">
+              Jobs will appear here when they are {state}
+            </p>
           </div>
         </div>
       </div>
@@ -139,25 +152,20 @@ export default function JobsList({
               </TableCell>
               <TableCell>
                 {job.timestamp
-                  ? dayjs(job.timestamp).format('MMM D, h:mm A')
-                  : '-'
-                }
+                  ? dayjs(job.timestamp).format("MMM D, h:mm A")
+                  : "-"}
               </TableCell>
               <TableCell>
                 {job.processedOn
-                  ? dayjs(job.processedOn).format('MMM D, h:mm A')
-                  : '-'
-                }
+                  ? dayjs(job.processedOn).format("MMM D, h:mm A")
+                  : "-"}
               </TableCell>
               <TableCell>
                 {job.finishedOn
-                  ? dayjs(job.finishedOn).format('MMM D, h:mm A')
-                  : '-'
-                }
+                  ? dayjs(job.finishedOn).format("MMM D, h:mm A")
+                  : "-"}
               </TableCell>
-              <TableCell>
-                {job.attemptsMade || 0}
-              </TableCell>
+              <TableCell>{job.attemptsMade || 0}</TableCell>
               <TableCell className="text-right flex justify-end">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -174,7 +182,7 @@ export default function JobsList({
                     <DropdownMenuItem onClick={() => onDisplayJobClick(job)}>
                       View Details
                     </DropdownMenuItem>
-                    {state === 'failed' && (
+                    {state === "failed" && (
                       <DropdownMenuItem onClick={() => onRetryJobClick?.(job)}>
                         Retry Job
                       </DropdownMenuItem>

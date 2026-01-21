@@ -4,46 +4,45 @@ import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromR
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { UserService } from "~/modules/users/user";
 import TeamAuthorization from "~/modules/teams/authorization";
-import type { User } from '~/modules/users/users.types';
+import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/availableTeamUsers.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const url = new URL(request.url);
-  const teamId = url.searchParams.get('teamId');
+  const teamId = url.searchParams.get("teamId");
 
   if (!teamId) {
     throw Error("Team id is not defined");
   }
 
   if (!TeamAuthorization.canView(user, teamId)) {
-    throw new Error('Access denied');
+    throw new Error("Access denied");
   }
 
   const queryParams = getQueryParamsFromRequest(request, {
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sort: 'username',
-    filters: {}
+    sort: "username",
+    filters: {},
   });
 
   const query = buildQueryFromParams({
     match: {
-      "teams.team": { "$ne": teamId },
-      "isRegistered": true
+      "teams.team": { $ne: teamId },
+      isRegistered: true,
     },
     queryParams,
-    searchableFields: ['username', 'email'],
-    sortableFields: ['username', 'createdAt'],
-    filterableFields: []
+    searchableFields: ["username", "email"],
+    sortableFields: ["username", "createdAt"],
+    filterableFields: [],
   });
 
   const result = await UserService.find({ match: query.match });
 
   return { data: result };
-
 }
