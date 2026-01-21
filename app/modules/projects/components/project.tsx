@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PageHeader, PageHeaderLeft, PageHeaderRight } from "@/components/ui/pageHeader";
 import { Progress } from "@/components/ui/progress";
 import clsx from "clsx";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { useContext } from "react";
 import type { FetcherWithComponents } from "react-router";
 import { Link, Outlet } from "react-router";
@@ -33,6 +33,7 @@ interface ProjectProps {
   breadcrumbs: Breadcrumb[];
   uploadFetcher: FetcherWithComponents<UploadFilesData>;
   onEditProjectButtonClicked: (project: Project) => void;
+  onDeleteProjectButtonClicked: (project: Project) => void;
 }
 
 export default function Project({
@@ -47,10 +48,12 @@ export default function Project({
   convertFilesProgress,
   breadcrumbs,
   uploadFetcher,
-  onEditProjectButtonClicked
+  onEditProjectButtonClicked,
+  onDeleteProjectButtonClicked
 }: ProjectProps) {
   const user = useContext(AuthenticationContext) as User | null;
   const canUpdate = ProjectAuthorization.canUpdate(user, project);
+  const canDelete = ProjectAuthorization.canDelete(user, project);
 
   return (
     <div className="max-w-6xl p-8">
@@ -59,12 +62,20 @@ export default function Project({
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
         <PageHeaderRight>
-          {canUpdate && (
-            <div>
-              <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditProjectButtonClicked(project)}>
-                <Pencil />
-                Edit
-              </Button>
+          {(canUpdate || canDelete) && (
+            <div className="flex gap-1">
+              {canUpdate && (
+                <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onEditProjectButtonClicked(project)}>
+                  <Pencil />
+                  Edit
+                </Button>
+              )}
+              {canDelete && (
+                <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => onDeleteProjectButtonClicked(project)}>
+                  <Trash2 />
+                  Delete
+                </Button>
+              )}
             </div>
           )}
         </PageHeaderRight>

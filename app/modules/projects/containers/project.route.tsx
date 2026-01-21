@@ -2,12 +2,11 @@ import filter from 'lodash/filter';
 import has from 'lodash/has';
 import throttle from 'lodash/throttle';
 import { useEffect, useState } from "react";
-import { data, redirect, useFetcher, useMatches, useRevalidator } from "react-router";
+import { data, redirect, useFetcher, useMatches, useNavigate, useRevalidator } from "react-router";
 import { toast } from "sonner";
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
-import addDialog from "~/modules/dialogs/addDialog";
 import { FileService } from "~/modules/files/file";
 import { RunService } from "~/modules/runs/run";
 import { SessionService } from "~/modules/sessions/session";
@@ -15,11 +14,10 @@ import splitMultipleSessionsIntoFiles from '~/modules/uploads/services/splitMult
 import uploadFiles from "~/modules/uploads/services/uploadFiles";
 import type { User } from "~/modules/users/users.types";
 import ProjectAuthorization from "../authorization";
-import EditProjectDialog from "../components/editProjectDialog";
 import Project from '../components/project';
+import { useProjectActions } from '../hooks/useProjectActions';
 import getAttributeMappingFromFile from '../helpers/getAttributeMappingFromFile';
 import { ProjectService } from "../project";
-import type { Project as ProjectType } from "../projects.types";
 import createSessionsFromFiles from '../services/createSessionsFromFiles.server';
 import type { Route } from "./+types/project.route";
 
@@ -128,42 +126,15 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const { project, filesCount, sessionsCount, convertedSessionsCount, runsCount, collectionsCount } = loaderData;
 
   const uploadFetcher = useFetcher();
-  const editFetcher = useFetcher();
-
   const matches = useMatches();
-
-  const { revalidate, state } = useRevalidator();
+  const navigate = useNavigate();
+  const { revalidate } = useRevalidator();
+  const { openEditProjectDialog, openDeleteProjectDialog } = useProjectActions({
+    onDeleteSuccess: () => navigate('/')
+  });
 
   const [uploadFilesProgress, setUploadFilesProgress] = useState(0);
   const [convertFilesProgress, setConvertFilesProgress] = useState(0);
-
-  const submitEditProject = (p: ProjectType) => {
-    editFetcher.submit(
-      JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: p._id, payload: { name: p.name } }),
-      { method: 'PUT', encType: 'application/json' }
-    );
-  };
-
-  const openEditProjectDialog = (project: ProjectType) => {
-    addDialog(
-      <EditProjectDialog
-        project={project}
-        onEditProjectClicked={submitEditProject}
-        isSubmitting={editFetcher.state === 'submitting'}
-      />
-    );
-  };
-
-  useEffect(() => {
-    if (editFetcher.state === 'idle' && editFetcher.data) {
-      if ('success' in editFetcher.data && editFetcher.data.success && editFetcher.data.intent === 'UPDATE_PROJECT') {
-        toast.success('Updated project');
-        addDialog(null);
-      } else if ('errors' in editFetcher.data && editFetcher.data.errors) {
-        toast.error(editFetcher.data.errors.general || 'An error occurred');
-      }
-    }
-  }, [editFetcher.state, editFetcher.data]);
 
   useEffect(() => {
     if (uploadFetcher.data?.success) {
@@ -250,6 +221,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       breadcrumbs={breadcrumbs}
       uploadFetcher={uploadFetcher}
       onEditProjectButtonClicked={openEditProjectDialog}
+      onDeleteProjectButtonClicked={openDeleteProjectDialog}
     />
   );
 }

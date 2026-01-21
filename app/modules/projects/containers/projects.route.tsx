@@ -14,11 +14,9 @@ import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
 import ProjectAuthorization from "../authorization";
 import CreateProjectDialog from "../components/createProjectDialog";
-import DeleteProjectDialog from "../components/deleteProjectDialog";
-import EditProjectDialog from "../components/editProjectDialog";
 import Projects from "../components/projects";
+import { useProjectActions } from '../hooks/useProjectActions';
 import { ProjectService } from "../project";
-import type { Project } from "../projects.types";
 import deleteProject from "../services/deleteProject.server";
 import type { Route } from "./+types/projects.route";
 
@@ -148,9 +146,13 @@ export function HydrateFallback() {
 
 export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const { projects } = loaderData;
-  const fetcher = useFetcher();
+  const createFetcher = useFetcher();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
+
+  const { openEditProjectDialog, openDeleteProjectDialog } = useProjectActions({
+    onDeleteSuccess: revalidate
+  });
 
   const {
     searchValue, setSearchValue,
@@ -166,23 +168,16 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   });
 
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data) {
-      if (fetcher.data.success && fetcher.data.intent === 'CREATE_PROJECT') {
+    if (createFetcher.state === 'idle' && createFetcher.data) {
+      if (createFetcher.data.success && createFetcher.data.intent === 'CREATE_PROJECT') {
         toast.success('Project created');
         addDialog(null);
-        navigate(`/projects/${fetcher.data.data._id}`);
-      } else if (fetcher.data.success && fetcher.data.intent === 'UPDATE_PROJECT') {
-        toast.success('Project updated');
-        addDialog(null);
-      } else if (fetcher.data.success && fetcher.data.intent === 'DELETE_PROJECT') {
-        toast.success('Project deleted');
-        addDialog(null);
-        revalidate();
-      } else if (fetcher.data.errors) {
-        toast.error(fetcher.data.errors.general || 'An error occurred');
+        navigate(`/projects/${createFetcher.data.data._id}`);
+      } else if (createFetcher.data.errors) {
+        toast.error(createFetcher.data.errors.general || 'An error occurred');
       }
     }
-  }, [fetcher.state, fetcher.data, navigate, revalidate]);
+  }, [createFetcher.state, createFetcher.data, navigate]);
 
   useHandleSockets({
     event: 'DELETE_PROJECT',
@@ -197,25 +192,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       <CreateProjectDialog
         hasTeamSelection={true}
         onCreateNewProjectClicked={submitCreateProject}
-        isSubmitting={fetcher.state === 'submitting'}
-      />
-    );
-  }
-
-  const openEditProjectDialog = (project: Project) => {
-    addDialog(<EditProjectDialog
-      project={project}
-      onEditProjectClicked={submitEditProject}
-      isSubmitting={fetcher.state === 'submitting'}
-    />);
-  }
-
-  const openDeleteProjectDialog = (project: Project) => {
-    addDialog(
-      <DeleteProjectDialog
-        project={project}
-        onDeleteProjectClicked={submitDeleteProject}
-        isSubmitting={fetcher.state === 'submitting'}
+        isSubmitting={createFetcher.state === 'submitting'}
       />
     );
   }
@@ -223,23 +200,9 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const submitCreateProject = ({ name, team }: {
     name: string, team: string | null
   }) => {
-    fetcher.submit(
+    createFetcher.submit(
       JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name, team } }),
       { method: 'POST', encType: 'application/json' }
-    );
-  }
-
-  const submitEditProject = (project: Project) => {
-    fetcher.submit(
-      JSON.stringify({ intent: 'UPDATE_PROJECT', entityId: project._id, payload: { name: project.name } }),
-      { method: 'PUT', encType: 'application/json' }
-    );
-  }
-
-  const submitDeleteProject = (projectId: string) => {
-    fetcher.submit(
-      JSON.stringify({ intent: 'DELETE_PROJECT', entityId: projectId }),
-      { method: 'DELETE', encType: 'application/json' }
     );
   }
 
