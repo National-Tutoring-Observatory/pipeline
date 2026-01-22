@@ -52,6 +52,8 @@ export default async function addRunsToCollection(
   const updatedRuns = [...(collection.runs || []), ...added];
   const updatedCollection = await CollectionService.updateById(collectionId, {
     runs: updatedRuns,
+    hasExportedCSV: false,
+    hasExportedJSONL: false,
   });
 
   return {

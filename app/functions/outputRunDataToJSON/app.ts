@@ -34,7 +34,7 @@ export const handler = async (event: {
       return JSON.stringify(session);
     }).join("\n");
 
-    await fse.outputJSON(`tmp/${sessionsOutputFile}`, sessionsAsJSONL);
+    await fse.outputFile(`tmp/${sessionsOutputFile}`, sessionsAsJSONL);
 
     const sessionsBuffer = await fse.readFile(`tmp/${sessionsOutputFile}`);
 
@@ -78,7 +78,7 @@ export const handler = async (event: {
       return JSON.stringify(meta);
     }).join("\n");
 
-    await fse.outputJSON(`tmp/${metaOutputFile}`, metaAsJSONL);
+    await fse.outputFile(`tmp/${metaOutputFile}`, metaAsJSONL);
 
     const metaBuffer = await fse.readFile(`tmp/${metaOutputFile}`);
 

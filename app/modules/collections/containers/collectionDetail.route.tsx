@@ -1,28 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Collection } from "@/components/ui/collection";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  PageHeader,
-  PageHeaderLeft,
-  PageHeaderRight,
-} from "@/components/ui/pageHeader";
 import find from "lodash/find";
 import throttle from "lodash/throttle";
-import {
-  Copy,
-  Download,
-  GitMerge,
-  MoreHorizontal,
-  Pencil,
-  Plus,
-  Trash2,
-} from "lucide-react";
 import { useEffect } from "react";
 import {
   data,
@@ -32,18 +9,15 @@ import {
   useRevalidator,
   useSubmit,
 } from "react-router";
-import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
-import CollectionDownloads from "~/modules/collections/components/collectionDownloads";
+import CollectionDetail from "~/modules/collections/components/collectionDetail";
 import exportCollection from "~/modules/collections/helpers/exportCollection";
 import requireCollectionsFeature from "~/modules/collections/helpers/requireCollectionsFeature";
 import { useCollectionActions } from "~/modules/collections/hooks/useCollectionActions";
 import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
-import getProjectRunsItemAttributes from "~/modules/projects/helpers/getProjectRunsItemAttributes";
-import getProjectSessionsItemAttributes from "~/modules/projects/helpers/getProjectSessionsItemAttributes";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import ViewSessionContainer from "~/modules/sessions/containers/viewSessionContainer";
@@ -73,7 +47,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect(`/projects/${params.projectId}/collections`);
   }
 
-  // Fetch runs and sessions
   const runs = collection.runs?.length
     ? await RunService.find({ match: { _id: { $in: collection.runs || [] } } })
     : [];
@@ -165,7 +138,6 @@ export default function CollectionDetailRoute() {
     addDialog(<ViewSessionContainer session={session} />);
   };
 
-  // Subscribe to run events for real-time updates
   useHandleSockets({
     event: "ANNOTATE_RUN",
     matches: runs
@@ -213,10 +185,9 @@ export default function CollectionDetailRoute() {
         switch (data.event) {
           case "EXPORT_COLLECTION":
             debounceRevalidate();
-            if (data.status === "DONE") {
-              const downloadUrl = `/api/downloads/${project._id}/collections/${collection._id}?exportType=CSV`;
+            if (data.status === "DONE" && data.url) {
               const a = document.createElement("a");
-              a.href = downloadUrl;
+              a.href = data.url;
               a.target = "_blank";
               a.rel = "noopener";
               document.body.appendChild(a);
@@ -234,168 +205,25 @@ export default function CollectionDetailRoute() {
   }, [collection._id]);
 
   return (
-    <div className="p-8">
-      <PageHeader>
-        <PageHeaderLeft>
-          <Breadcrumbs breadcrumbs={breadcrumbs} />
-        </PageHeaderLeft>
-        <PageHeaderRight>
-          <div className="text-muted-foreground flex gap-1">
-            {!collection.hasExportedCSV && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    disabled={collection.isExporting}
-                    className="data-[state=open]:bg-muted flex"
-                  >
-                    <Download />
-                    {collection.isExporting ? (
-                      <span>Exporting</span>
-                    ) : (
-                      <span>Export</span>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() =>
-                      onExportCollectionButtonClicked({ exportType: "CSV" })
-                    }
-                  >
-                    As Table (.csv file)
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="data-[state=open]:bg-muted">
-                  <MoreHorizontal />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() =>
-                    navigate(
-                      `/projects/${project._id}/collections/${collection._id}/add-runs`,
-                    )
-                  }
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Runs
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() =>
-                    navigate(
-                      `/projects/${project._id}/collections/${collection._id}/merge`,
-                    )
-                  }
-                >
-                  <GitMerge className="mr-2 h-4 w-4" />
-                  Merge
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => openDuplicateCollectionDialog(collection)}
-                >
-                  <Copy className="mr-2 h-4 w-4" />
-                  Duplicate
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => openEditCollectionDialog(collection)}
-                >
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => openDeleteCollectionDialog(collection)}
-                  className="text-destructive"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </PageHeaderRight>
-      </PageHeader>
-      <div>
-        {/* Overview Section */}
-        <div className="grid grid-cols-3 gap-6">
-          <div>
-            <div className="text-muted-foreground text-xs">Created</div>
-            <div>
-              {collection.createdAt
-                ? new Date(collection.createdAt).toLocaleDateString()
-                : "--"}
-            </div>
-          </div>
-          <div>
-            <div className="text-muted-foreground text-xs">Sessions</div>
-            <div>{collection.sessions?.length || 0}</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground text-xs">Runs</div>
-            <div>{collection.runs?.length || 0}</div>
-          </div>
-        </div>
-
-        {/* Sessions Section */}
-        {sessions.length > 0 && (
-          <div className="mt-8">
-            <div className="text-muted-foreground text-xs">Sessions</div>
-            <div className="mt-2 rounded-md border">
-              <Collection
-                items={sessions}
-                itemsLayout="list"
-                getItemAttributes={getProjectSessionsItemAttributes}
-                getItemActions={() => []}
-                onActionClicked={() => {}}
-                onItemClicked={onSessionItemClicked}
-                emptyAttributes={{
-                  title: "No sessions found",
-                  description: "",
-                }}
-                currentPage={1}
-                totalPages={1}
-                onPaginationChanged={() => {}}
-                filters={[]}
-                filtersValues={{}}
-                onSortValueChanged={() => {}}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Runs Section */}
-        {runs.length > 0 && (
-          <div className="mt-8">
-            <div className="text-muted-foreground text-xs">Runs</div>
-            <div className="mt-2 rounded-md border">
-              <Collection
-                items={runs}
-                itemsLayout="list"
-                getItemAttributes={getProjectRunsItemAttributes}
-                getItemActions={() => []}
-                onActionClicked={() => {}}
-                emptyAttributes={{
-                  title: "No runs found",
-                  description: "",
-                }}
-                currentPage={1}
-                totalPages={1}
-                onPaginationChanged={() => {}}
-                filters={[]}
-                filtersValues={{}}
-                onSortValueChanged={() => {}}
-              />
-            </div>
-          </div>
-        )}
-        <CollectionDownloads collection={collection} projectId={project._id} />
-      </div>
-    </div>
+    <CollectionDetail
+      collection={collection}
+      project={project}
+      runs={runs}
+      sessions={sessions}
+      breadcrumbs={breadcrumbs}
+      onExportCollectionButtonClicked={onExportCollectionButtonClicked}
+      onSessionItemClicked={onSessionItemClicked}
+      onAddRunsClicked={() =>
+        navigate(
+          `/projects/${project._id}/collections/${collection._id}/add-runs`,
+        )
+      }
+      onMergeClicked={() =>
+        navigate(`/projects/${project._id}/collections/${collection._id}/merge`)
+      }
+      onDuplicateClicked={() => openDuplicateCollectionDialog(collection)}
+      onEditClicked={() => openEditCollectionDialog(collection)}
+      onDeleteClicked={() => openDeleteCollectionDialog(collection)}
+    />
   );
 }
