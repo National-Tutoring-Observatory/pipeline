@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 import { data, redirect, useFetcher } from "react-router";
 import { toast } from "sonner";
+import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuditService } from "~/modules/audits/audit";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { userIsSuperAdmin } from "~/modules/authorization/helpers/superAdmin";
@@ -21,10 +24,22 @@ export async function loader({ request }: Route.LoaderArgs) {
     return redirect("/");
   }
 
-  // Fetch all users
-  const users = await UserService.find({});
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: "",
+    currentPage: 1,
+    sort: "username",
+    filters: {},
+  });
 
-  // Fetch audit trail for role changes
+  const query = buildQueryFromParams({
+    match: {},
+    queryParams,
+    searchableFields: ["username", "email", "name"],
+    sortableFields: ["username", "createdAt"],
+  });
+
+  const users = await UserService.paginate(query);
+
   const audits = await AuditService.find({
     match: { action: { $in: ["ADD_SUPERADMIN", "REMOVE_SUPERADMIN"] } },
     sort: { createdAt: -1 },
@@ -167,6 +182,23 @@ export default function UserManagementRoute({
   const { users, audits, currentUser } = loaderData;
   const fetcher = useFetcher();
 
+  const {
+    searchValue,
+    setSearchValue,
+    currentPage,
+    setCurrentPage,
+    sortValue,
+    setSortValue,
+    filtersValues,
+    setFiltersValues,
+    isSyncing,
+  } = useSearchQueryParams({
+    searchValue: "",
+    currentPage: 1,
+    sortValue: "username",
+    filters: {},
+  });
+
   const breadcrumbs = [{ text: "Users" }];
 
   useEffect(() => {
@@ -218,7 +250,7 @@ export default function UserManagementRoute({
     id: string;
     action: string;
   }) => {
-    const targetUser = users.find((u) => u._id === id);
+    const targetUser = users.data.find((u: User) => u._id === id);
     if (!targetUser) return;
 
     if (action === "ASSIGN_SUPER_ADMIN") {
@@ -226,7 +258,7 @@ export default function UserManagementRoute({
         <AssignSuperAdminDialogContainer
           targetUser={targetUser}
           isSubmitting={fetcher.state === "submitting"}
-          onAssignSuperAdminClicked={onAssignSuperAdminClicked(targetUser._id)}
+          onAssignSuperAdminClicked={onAssignSuperAdminClicked(id)}
         />,
       );
     } else if (action === "REVOKE_SUPER_ADMIN") {
@@ -234,7 +266,7 @@ export default function UserManagementRoute({
         <RevokeSuperAdminDialogContainer
           targetUser={targetUser}
           isSubmitting={fetcher.state === "submitting"}
-          onRevokeSuperAdminClicked={onRevokeSuperAdminClicked(targetUser._id)}
+          onRevokeSuperAdminClicked={onRevokeSuperAdminClicked(id)}
         />,
       );
     }
@@ -242,11 +274,21 @@ export default function UserManagementRoute({
 
   return (
     <AdminUsers
-      users={users}
+      users={users.data}
       audits={audits}
       currentUser={currentUser}
       breadcrumbs={breadcrumbs}
+      searchValue={searchValue}
+      currentPage={currentPage}
+      totalPages={users.totalPages}
+      sortValue={sortValue}
+      filtersValues={filtersValues}
+      isSyncing={isSyncing}
       onItemActionClicked={onItemActionClicked}
+      onSearchValueChanged={setSearchValue}
+      onPaginationChanged={setCurrentPage}
+      onSortValueChanged={setSortValue}
+      onFiltersValueChanged={setFiltersValues}
     />
   );
 }

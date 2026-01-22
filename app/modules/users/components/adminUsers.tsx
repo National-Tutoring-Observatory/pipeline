@@ -14,7 +14,17 @@ interface AdminUsersProps {
   audits: AuditRecord[];
   currentUser: User;
   breadcrumbs: Breadcrumb[];
+  searchValue: string;
+  currentPage: number;
+  totalPages: number;
+  sortValue: string;
+  filtersValues: Record<string, any>;
+  isSyncing?: boolean;
   onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (currentPage: number) => void;
+  onSortValueChanged: (sortValue: string) => void;
+  onFiltersValueChanged: (filterValue: any) => void;
 }
 
 export default function AdminUsers({
@@ -22,7 +32,17 @@ export default function AdminUsers({
   audits,
   currentUser,
   breadcrumbs,
+  searchValue,
+  currentPage,
+  totalPages,
+  sortValue,
+  filtersValues,
+  isSyncing,
   onItemActionClicked,
+  onSearchValueChanged,
+  onPaginationChanged,
+  onSortValueChanged,
+  onFiltersValueChanged,
 }: AdminUsersProps) {
   const onActionClicked = (action: string) => {
     // No collection-level actions
@@ -42,13 +62,18 @@ export default function AdminUsers({
             itemsLayout="list"
             actions={[]}
             filters={[]}
-            filtersValues={{}}
-            sortOptions={[]}
-            sortValue=""
+            filtersValues={filtersValues}
+            sortOptions={[
+              { text: "Username", value: "username" },
+              { text: "Created", value: "createdAt" },
+            ]}
+            sortValue={sortValue}
+            searchValue={searchValue}
             hasSearch
-            hasPagination={false}
-            currentPage={1}
-            totalPages={1}
+            hasPagination={true}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            isSyncing={isSyncing}
             emptyAttributes={getEmptyStateAttributes()}
             getItemAttributes={getUserManagementItemAttributes}
             getItemActions={(item) =>
@@ -56,8 +81,10 @@ export default function AdminUsers({
             }
             onActionClicked={onActionClicked}
             onItemActionClicked={onItemActionClicked}
-            onPaginationChanged={() => {}}
-            onSortValueChanged={() => {}}
+            onSearchValueChanged={onSearchValueChanged}
+            onPaginationChanged={onPaginationChanged}
+            onSortValueChanged={onSortValueChanged}
+            onFiltersValueChanged={onFiltersValueChanged}
           />
         </div>
 

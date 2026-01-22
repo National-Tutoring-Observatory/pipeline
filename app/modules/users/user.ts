@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import userSchema from "~/lib/schemas/user.schema";
 import { AuditService } from "~/modules/audits/audit";
-import type { FindOptions } from "~/modules/common/types";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { User } from "./users.types";
 
 const UserModel = mongoose.models.User || mongoose.model("User", userSchema);
@@ -35,6 +36,33 @@ export class UserService {
 
   static async count(match: Record<string, any> = {}): Promise<number> {
     return UserModel.countDocuments(match);
+  }
+
+  static async paginate({
+    match,
+    sort,
+    page,
+    pageSize,
+  }: PaginateProps): Promise<{
+    data: User[];
+    count: number;
+    totalPages: number;
+  }> {
+    const pagination = getPaginationParams(page, pageSize);
+
+    const results = await this.find({
+      match,
+      sort,
+      pagination,
+    });
+
+    const count = await this.count(match);
+
+    return {
+      data: results,
+      count,
+      totalPages: getTotalPages(count, pageSize),
+    };
   }
 
   static async findById(id: string | undefined): Promise<User | null> {
