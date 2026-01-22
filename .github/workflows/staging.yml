@@ -1,0 +1,81 @@
+name: Staging Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: staging-deployment
+  cancel-in-progress: true
+
+jobs:
+  staging-preflight:
+    name: Staging Preflight – ECS Stability Check
+    runs-on: ubuntu-latest
+    environment: staging
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+      ECS_SERVICE: ${{ vars.ECS_SERVICE }}
+      AWS_REGION: us-east-1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Check ECS service stability
+        id: ecs-stability
+        shell: bash
+        run: |
+          echo "Checking ECS service stability..."
+          echo "Cluster: $ECS_CLUSTER"
+          echo "Service: $ECS_SERVICE"
+
+          MAX_WAIT_SECONDS=600   # 10 minutes
+          SLEEP_SECONDS=30
+          ELAPSED=0
+
+          while true; do
+            STATUS=$(aws ecs describe-services \
+              --cluster "$ECS_CLUSTER" \
+              --services "$ECS_SERVICE" \
+              --query 'services[0].deployments' \
+              --output json)
+
+            DEPLOYMENT_COUNT=$(echo "$STATUS" | jq length)
+
+            echo "Active deployments: $DEPLOYMENT_COUNT"
+
+            if [ "$DEPLOYMENT_COUNT" -eq 1 ]; then
+              ROLLOUT_STATE=$(aws ecs describe-services \
+                --cluster "$ECS_CLUSTER" \
+                --services "$ECS_SERVICE" \
+                --query 'services[0].deployments[0].rolloutState' \
+                --output text)
+
+              if [ "$ROLLOUT_STATE" = "COMPLETED" ]; then
+                echo "✅ ECS service is stable."
+                exit 0
+              fi
+            fi
+
+            if [ "$ELAPSED" -ge "$MAX_WAIT_SECONDS" ]; then
+              echo "❌ Timeout reached waiting for ECS service to stabilize."
+              exit 1
+            fi
+
+            echo "⏳ Service not stable yet. Rechecking in $SLEEP_SECONDS seconds..."
+            sleep "$SLEEP_SECONDS"
+            ELAPSED=$((ELAPSED + SLEEP_SECONDS))
+          done
