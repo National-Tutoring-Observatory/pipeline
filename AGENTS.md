@@ -250,12 +250,14 @@ export default function ProjectRoute() {
 **CRITICAL**: For ANY list with search or pagination, ALWAYS use the Collection component and the established query pattern.
 
 **DO NOT**:
+
 - Build custom search UI with `<Search>` component
 - Build custom pagination UI with `<Pagination>` component
 - Map over items manually with custom markup
 - Create custom empty states or filter/sort UI
 
 **DO**:
+
 - Use `<Collection>` component for ALL lists
 - Define helper functions for `getItemAttributes` (returns CollectionItemAttributes)
 - Define helper functions for `getItemActions` (returns CollectionItemAction[])
@@ -270,6 +272,7 @@ export default function ProjectRoute() {
 #### Complete Example
 
 **Loader (Server)**:
+
 ```typescript
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
@@ -282,17 +285,17 @@ export async function loader({ request }: Route.LoaderArgs) {
   const queryParams = getQueryParamsFromRequest(request, {
     searchValue: "",
     currentPage: 1,
-    sort: "-createdAt",  // Default sort (- prefix = descending)
+    sort: "-createdAt", // Default sort (- prefix = descending)
     filters: {},
   });
 
   // 2. Build database query
   const query = buildQueryFromParams({
-    match: { team: user.teamId },  // Base filter
+    match: { team: user.teamId }, // Base filter
     queryParams,
-    searchableFields: ["name", "description"],  // Fields to search
-    sortableFields: ["name", "createdAt"],      // Allowed sort fields
-    filterableFields: ["status"],               // Optional filters
+    searchableFields: ["name", "description"], // Fields to search
+    sortableFields: ["name", "createdAt"], // Allowed sort fields
+    filterableFields: ["status"], // Optional filters
   });
 
   // 3. Paginate results
@@ -303,6 +306,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 ```
 
 **Component (Client)**:
+
 ```typescript
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { Collection } from "@/components/ui/collection";
@@ -368,6 +372,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
 When you have multiple collections (e.g., users list + audit log), use **separate instances** with `paramPrefix`:
 
 **Loader**:
+
 ```typescript
 // First collection - users
 const queryParams = getQueryParamsFromRequest(request, {
@@ -395,7 +400,7 @@ const auditQueryParams = getQueryParamsFromRequest(
     sort: "-createdAt",
     filters: {},
   },
-  { paramPrefix: "audit" }  // Creates auditSearchValue, auditCurrentPage
+  { paramPrefix: "audit" }, // Creates auditSearchValue, auditCurrentPage
 );
 
 const auditQuery = buildQueryFromParams({
@@ -411,6 +416,7 @@ return { users, audits };
 ```
 
 **Component**:
+
 ```typescript
 // First collection hook
 const {
@@ -440,7 +446,7 @@ const {
     sortValue: "-createdAt",
     filters: {},
   },
-  { paramPrefix: "audit" }  // Must match loader prefix!
+  { paramPrefix: "audit" }, // Must match loader prefix!
 );
 ```
 

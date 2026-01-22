@@ -176,7 +176,10 @@ export function useSearchQueryParams(
               filterValue !== undefined &&
               filterValue !== ""
             ) {
-              newSearchParams.set(`${filterPrefix}${filterKey}`, String(filterValue));
+              newSearchParams.set(
+                `${filterPrefix}${filterKey}`,
+                String(filterValue),
+              );
             }
           });
         }

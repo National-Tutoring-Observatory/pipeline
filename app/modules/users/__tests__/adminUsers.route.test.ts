@@ -73,7 +73,9 @@ describe("adminUsers.route", () => {
         throw new Error("Expected data, got Response");
 
       expect(result.users.data).toHaveLength(3);
-      expect(result.users.data.map((u: any) => u.username)).toContain("super-admin");
+      expect(result.users.data.map((u: any) => u.username)).toContain(
+        "super-admin",
+      );
       expect(result.users.data.map((u: any) => u.username)).toContain("user1");
       expect(result.users.data.map((u: any) => u.username)).toContain("user2");
       expect(result.users.totalPages).toBe(1);
