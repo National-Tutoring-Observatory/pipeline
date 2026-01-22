@@ -40,13 +40,35 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const users = await UserService.paginate(query);
 
-  const audits = await AuditService.find({
+  const auditQueryParams = getQueryParamsFromRequest(
+    request,
+    {
+      searchValue: "",
+      currentPage: 1,
+      sort: "-createdAt",
+      filters: {},
+    },
+    { paramPrefix: "audit" },
+  );
+
+  const auditQuery = buildQueryFromParams({
     match: { action: { $in: ["ADD_SUPERADMIN", "REMOVE_SUPERADMIN"] } },
-    sort: { createdAt: -1 },
-    pagination: { skip: 0, limit: 100 },
+    queryParams: auditQueryParams,
+    searchableFields: [
+      "performedByUsername",
+      "context.targetUsername",
+      "context.reason",
+    ],
+    sortableFields: ["createdAt"],
   });
 
-  return { users, audits, currentUser: user };
+  const audits = await AuditService.paginate(auditQuery);
+
+  return {
+    users,
+    audits,
+    currentUser: user,
+  };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -197,6 +219,24 @@ export default function UserManagementRoute({
     filters: {},
   });
 
+  const {
+    searchValue: auditSearchValue,
+    setSearchValue: setAuditSearchValue,
+    currentPage: auditCurrentPage,
+    setCurrentPage: setAuditCurrentPage,
+    sortValue: auditSortValue,
+    setSortValue: setAuditSortValue,
+    isSyncing: isAuditSyncing,
+  } = useSearchQueryParams(
+    {
+      searchValue: "",
+      currentPage: 1,
+      sortValue: "-createdAt",
+      filters: {},
+    },
+    { paramPrefix: "audit" },
+  );
+
   const breadcrumbs = [{ text: "Users" }];
 
   useEffect(() => {
@@ -273,7 +313,11 @@ export default function UserManagementRoute({
   return (
     <AdminUsers
       users={users.data}
-      audits={audits}
+      audits={audits.data}
+      auditSearchValue={auditSearchValue}
+      auditSortValue={auditSortValue}
+      auditCurrentPage={auditCurrentPage}
+      auditTotalPages={audits.totalPages}
       currentUser={currentUser}
       breadcrumbs={breadcrumbs}
       searchValue={searchValue}
@@ -287,6 +331,9 @@ export default function UserManagementRoute({
       onPaginationChanged={setCurrentPage}
       onSortValueChanged={setSortValue}
       onFiltersValueChanged={setFiltersValues}
+      onAuditSearchChanged={setAuditSearchValue}
+      onAuditPageChanged={setAuditCurrentPage}
+      onAuditSortChanged={setAuditSortValue}
     />
   );
 }

@@ -78,7 +78,8 @@ describe("adminUsers.route", () => {
       expect(result.users.data.map((u: any) => u.username)).toContain("user2");
       expect(result.users.totalPages).toBe(1);
       expect(result.users.count).toBe(3);
-      expect(Array.isArray(result.audits)).toBe(true);
+      expect(result.audits.data).toBeInstanceOf(Array);
+      expect(result.audits.totalPages).toBeGreaterThanOrEqual(0);
     });
   });
 

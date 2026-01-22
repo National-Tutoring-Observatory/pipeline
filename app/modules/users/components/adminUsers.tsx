@@ -12,6 +12,10 @@ import AuditLog from "./auditLog";
 interface AdminUsersProps {
   users: User[];
   audits: AuditRecord[];
+  auditSearchValue: string;
+  auditSortValue: string;
+  auditCurrentPage: number;
+  auditTotalPages: number;
   currentUser: User;
   breadcrumbs: Breadcrumb[];
   searchValue: string;
@@ -25,11 +29,18 @@ interface AdminUsersProps {
   onPaginationChanged: (currentPage: number) => void;
   onSortValueChanged: (sortValue: string) => void;
   onFiltersValueChanged: (filterValue: any) => void;
+  onAuditSearchChanged: (searchValue: string) => void;
+  onAuditPageChanged: (page: number) => void;
+  onAuditSortChanged: (sortValue: string) => void;
 }
 
 export default function AdminUsers({
   users,
   audits,
+  auditSearchValue,
+  auditSortValue,
+  auditCurrentPage,
+  auditTotalPages,
   currentUser,
   breadcrumbs,
   searchValue,
@@ -43,6 +54,9 @@ export default function AdminUsers({
   onPaginationChanged,
   onSortValueChanged,
   onFiltersValueChanged,
+  onAuditSearchChanged,
+  onAuditPageChanged,
+  onAuditSortChanged,
 }: AdminUsersProps) {
   const onActionClicked = (action: string) => {
     // No collection-level actions
@@ -92,7 +106,16 @@ export default function AdminUsers({
           <h2 className="mb-4 text-2xl font-bold tracking-tight">
             Role Change History
           </h2>
-          <AuditLog audits={audits} />
+          <AuditLog
+            audits={audits}
+            searchValue={auditSearchValue}
+            sortValue={auditSortValue}
+            currentPage={auditCurrentPage}
+            totalPages={auditTotalPages}
+            onSearchValueChanged={onAuditSearchChanged}
+            onPaginationChanged={onAuditPageChanged}
+            onSortValueChanged={onAuditSortChanged}
+          />
         </div>
       </div>
     </div>

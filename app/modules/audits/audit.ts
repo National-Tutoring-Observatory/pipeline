@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import auditSchema from "~/lib/schemas/audit.schema";
+import type { PaginateProps } from "../common/types";
 import { UserService } from "../users/user";
 import type { AuditRecord } from "./audit.types";
 
@@ -74,5 +76,32 @@ export class AuditService {
 
   static async count(match: Record<string, any> = {}): Promise<number> {
     return AuditModel.countDocuments(match);
+  }
+
+  static async paginate({
+    match,
+    sort,
+    page,
+    pageSize,
+  }: PaginateProps): Promise<{
+    data: AuditRecord[];
+    count: number;
+    totalPages: number;
+  }> {
+    const pagination = getPaginationParams(page, pageSize);
+
+    const results = await this.find({
+      match,
+      sort,
+      pagination,
+    });
+
+    const count = await this.count(match);
+
+    return {
+      data: results,
+      count,
+      totalPages: getTotalPages(count, pageSize),
+    };
   }
 }
