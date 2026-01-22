@@ -43,9 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <SidebarProvider defaultOpen={true}>
             <AppSidebar />
             <SidebarInset>
-              <main>
-                {children}
-              </main>
+              <main>{children}</main>
             </SidebarInset>
           </SidebarProvider>
         </AuthenticationContainer>

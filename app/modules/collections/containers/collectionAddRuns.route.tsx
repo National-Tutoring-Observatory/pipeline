@@ -1,25 +1,31 @@
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Collection } from '@/components/ui/collection';
-import { PageHeader, PageHeaderLeft } from '@/components/ui/pageHeader';
-import cloneDeep from 'lodash/cloneDeep';
-import includes from 'lodash/includes';
-import map from 'lodash/map';
-import pull from 'lodash/pull';
-import { useState } from 'react';
-import { data, redirect, useLoaderData, useNavigate, useSubmit } from 'react-router';
-import Breadcrumbs from '~/modules/app/components/breadcrumbs';
-import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
-import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
-import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import { CollectionService } from '~/modules/collections/collection';
-import requireCollectionsFeature from '~/modules/collections/helpers/requireCollectionsFeature';
-import ProjectAuthorization from '~/modules/projects/authorization';
-import { ProjectService } from '~/modules/projects/project';
-import { getRunModelDisplayName } from '~/modules/runs/helpers/runModel';
-import type { Run } from '~/modules/runs/runs.types';
-import type { User } from '~/modules/users/users.types';
-import type { Route } from './+types/collectionAddRuns.route';
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Collection } from "@/components/ui/collection";
+import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
+import cloneDeep from "lodash/cloneDeep";
+import includes from "lodash/includes";
+import map from "lodash/map";
+import pull from "lodash/pull";
+import { useState } from "react";
+import {
+  data,
+  redirect,
+  useLoaderData,
+  useNavigate,
+  useSubmit,
+} from "react-router";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { CollectionService } from "~/modules/collections/collection";
+import requireCollectionsFeature from "~/modules/collections/helpers/requireCollectionsFeature";
+import ProjectAuthorization from "~/modules/projects/authorization";
+import { ProjectService } from "~/modules/projects/project";
+import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
+import type { Run } from "~/modules/runs/runs.types";
+import type { User } from "~/modules/users/users.types";
+import type { Route } from "./+types/collectionAddRuns.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = (await getSessionUser({ request })) as User;
@@ -185,11 +191,14 @@ export default function CollectionAddRunsRoute() {
   );
 
   const breadcrumbs = [
-    { text: 'Projects', link: '/' },
+    { text: "Projects", link: "/" },
     { text: project.name, link: `/projects/${project._id}` },
-    { text: 'Collections', link: `/projects/${project._id}/collections` },
-    { text: collection.name, link: `/projects/${project._id}/collections/${collection._id}` },
-    { text: 'Add Runs' }
+    { text: "Collections", link: `/projects/${project._id}/collections` },
+    {
+      text: collection.name,
+      link: `/projects/${project._id}/collections/${collection._id}`,
+    },
+    { text: "Add Runs" },
   ];
 
   const allSelected =
@@ -259,11 +268,11 @@ export default function CollectionAddRunsRoute() {
               const isSelected = includes(selectedRuns, id);
               onSelectRunToggled(id, !isSelected);
             }}
-            onActionClicked={() => { }}
+            onActionClicked={() => {}}
             onSearchValueChanged={setSearchValue}
             onPaginationChanged={setCurrentPage}
-            onFiltersValueChanged={() => { }}
-            onSortValueChanged={() => { }}
+            onFiltersValueChanged={() => {}}
+            onSortValueChanged={() => {}}
             filters={[]}
             filtersValues={{}}
           />

@@ -1,30 +1,55 @@
-import { Button } from '@/components/ui/button';
-import { Collection } from '@/components/ui/collection';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { PageHeader, PageHeaderLeft, PageHeaderRight } from '@/components/ui/pageHeader';
-import find from 'lodash/find';
-import throttle from 'lodash/throttle';
-import { Copy, Download, GitMerge, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
-import { useEffect } from 'react';
-import { data, redirect, useLoaderData, useNavigate, useRevalidator, useSubmit } from 'react-router';
-import Breadcrumbs from '~/modules/app/components/breadcrumbs';
-import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
-import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import { CollectionService } from '~/modules/collections/collection';
-import CollectionDownloads from '~/modules/collections/components/collectionDownloads';
-import exportCollection from '~/modules/collections/helpers/exportCollection';
-import requireCollectionsFeature from '~/modules/collections/helpers/requireCollectionsFeature';
-import { useCollectionActions } from '~/modules/collections/hooks/useCollectionActions';
-import addDialog from '~/modules/dialogs/addDialog';
-import ProjectAuthorization from '~/modules/projects/authorization';
-import getProjectRunsItemAttributes from '~/modules/projects/helpers/getProjectRunsItemAttributes';
-import getProjectSessionsItemAttributes from '~/modules/projects/helpers/getProjectSessionsItemAttributes';
-import { ProjectService } from '~/modules/projects/project';
-import { RunService } from '~/modules/runs/run';
-import ViewSessionContainer from '~/modules/sessions/containers/viewSessionContainer';
-import { SessionService } from '~/modules/sessions/session';
-import type { User } from '~/modules/users/users.types';
-import type { Route } from './+types/collectionDetail.route';
+import { Button } from "@/components/ui/button";
+import { Collection } from "@/components/ui/collection";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  PageHeader,
+  PageHeaderLeft,
+  PageHeaderRight,
+} from "@/components/ui/pageHeader";
+import find from "lodash/find";
+import throttle from "lodash/throttle";
+import {
+  Copy,
+  Download,
+  GitMerge,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { useEffect } from "react";
+import {
+  data,
+  redirect,
+  useLoaderData,
+  useNavigate,
+  useRevalidator,
+  useSubmit,
+} from "react-router";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { CollectionService } from "~/modules/collections/collection";
+import CollectionDownloads from "~/modules/collections/components/collectionDownloads";
+import exportCollection from "~/modules/collections/helpers/exportCollection";
+import requireCollectionsFeature from "~/modules/collections/helpers/requireCollectionsFeature";
+import { useCollectionActions } from "~/modules/collections/hooks/useCollectionActions";
+import addDialog from "~/modules/dialogs/addDialog";
+import ProjectAuthorization from "~/modules/projects/authorization";
+import getProjectRunsItemAttributes from "~/modules/projects/helpers/getProjectRunsItemAttributes";
+import getProjectSessionsItemAttributes from "~/modules/projects/helpers/getProjectSessionsItemAttributes";
+import { ProjectService } from "~/modules/projects/project";
+import { RunService } from "~/modules/runs/run";
+import ViewSessionContainer from "~/modules/sessions/containers/viewSessionContainer";
+import { SessionService } from "~/modules/sessions/session";
+import type { User } from "~/modules/users/users.types";
+import type { Route } from "./+types/collectionDetail.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = (await getSessionUser({ request })) as User;
@@ -55,8 +80,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const sessions = collection.sessions?.length
     ? await SessionService.find({
-      match: { _id: { $in: collection.sessions || [] } },
-    })
+        match: { _id: { $in: collection.sessions || [] } },
+      })
     : [];
 
   return {
@@ -173,10 +198,10 @@ export default function CollectionDetailRoute() {
   });
 
   const breadcrumbs = [
-    { text: 'Projects', link: '/' },
+    { text: "Projects", link: "/" },
     { text: project.name, link: `/projects/${project._id}` },
-    { text: 'Collections', link: `/projects/${project._id}/collections` },
-    { text: collection.name }
+    { text: "Collections", link: `/projects/${project._id}/collections` },
+    { text: collection.name },
   ];
 
   useEffect(() => {
@@ -215,7 +240,7 @@ export default function CollectionDetailRoute() {
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
         <PageHeaderRight>
-          <div className="flex text-muted-foreground gap-1">
+          <div className="text-muted-foreground flex gap-1">
             {!collection.hasExportedCSV && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -225,11 +250,19 @@ export default function CollectionDetailRoute() {
                     className="data-[state=open]:bg-muted flex"
                   >
                     <Download />
-                    {collection.isExporting ? <span>Exporting</span> : <span>Export</span>}
+                    {collection.isExporting ? (
+                      <span>Exporting</span>
+                    ) : (
+                      <span>Export</span>
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onExportCollectionButtonClicked({ exportType: 'CSV' })}>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      onExportCollectionButtonClicked({ exportType: "CSV" })
+                    }
+                  >
                     As Table (.csv file)
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -237,33 +270,49 @@ export default function CollectionDetailRoute() {
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="data-[state=open]:bg-muted"
-                >
+                <Button variant="ghost" className="data-[state=open]:bg-muted">
                   <MoreHorizontal />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate(`/projects/${project._id}/collections/${collection._id}/add-runs`)}>
+                <DropdownMenuItem
+                  onClick={() =>
+                    navigate(
+                      `/projects/${project._id}/collections/${collection._id}/add-runs`,
+                    )
+                  }
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Runs
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate(`/projects/${project._id}/collections/${collection._id}/merge`)}>
+                <DropdownMenuItem
+                  onClick={() =>
+                    navigate(
+                      `/projects/${project._id}/collections/${collection._id}/merge`,
+                    )
+                  }
+                >
                   <GitMerge className="mr-2 h-4 w-4" />
                   Merge
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => openDuplicateCollectionDialog(collection)}>
+                <DropdownMenuItem
+                  onClick={() => openDuplicateCollectionDialog(collection)}
+                >
                   <Copy className="mr-2 h-4 w-4" />
                   Duplicate
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => openEditCollectionDialog(collection)}>
+                <DropdownMenuItem
+                  onClick={() => openEditCollectionDialog(collection)}
+                >
                   <Pencil className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => openDeleteCollectionDialog(collection)} className="text-destructive">
+                <DropdownMenuItem
+                  onClick={() => openDeleteCollectionDialog(collection)}
+                  className="text-destructive"
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>
@@ -303,7 +352,7 @@ export default function CollectionDetailRoute() {
                 itemsLayout="list"
                 getItemAttributes={getProjectSessionsItemAttributes}
                 getItemActions={() => []}
-                onActionClicked={() => { }}
+                onActionClicked={() => {}}
                 onItemClicked={onSessionItemClicked}
                 emptyAttributes={{
                   title: "No sessions found",
@@ -311,10 +360,10 @@ export default function CollectionDetailRoute() {
                 }}
                 currentPage={1}
                 totalPages={1}
-                onPaginationChanged={() => { }}
+                onPaginationChanged={() => {}}
                 filters={[]}
                 filtersValues={{}}
-                onSortValueChanged={() => { }}
+                onSortValueChanged={() => {}}
               />
             </div>
           </div>
@@ -330,17 +379,17 @@ export default function CollectionDetailRoute() {
                 itemsLayout="list"
                 getItemAttributes={getProjectRunsItemAttributes}
                 getItemActions={() => []}
-                onActionClicked={() => { }}
+                onActionClicked={() => {}}
                 emptyAttributes={{
                   title: "No runs found",
                   description: "",
                 }}
                 currentPage={1}
                 totalPages={1}
-                onPaginationChanged={() => { }}
+                onPaginationChanged={() => {}}
                 filters={[]}
                 filtersValues={{}}
-                onSortValueChanged={() => { }}
+                onSortValueChanged={() => {}}
               />
             </div>
           </div>

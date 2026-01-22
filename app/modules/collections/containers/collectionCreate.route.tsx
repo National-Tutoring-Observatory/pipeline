@@ -1,19 +1,22 @@
-import { PageHeader, PageHeaderLeft } from '@/components/ui/pageHeader';
-import { data, redirect, useLoaderData } from 'react-router';
-import aiGatewayConfig from '~/config/ai_gateway.json';
-import Breadcrumbs from '~/modules/app/components/breadcrumbs';
-import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import { CollectionService } from '~/modules/collections/collection';
-import type { PrefillData, PromptReference } from '~/modules/collections/collections.types';
-import requireCollectionsFeature from '~/modules/collections/helpers/requireCollectionsFeature';
-import ProjectAuthorization from '~/modules/projects/authorization';
-import { ProjectService } from '~/modules/projects/project';
-import { PromptService } from '~/modules/prompts/prompt';
-import { RunService } from '~/modules/runs/run';
-import type { RunAnnotationType } from '~/modules/runs/runs.types';
-import type { User } from '~/modules/users/users.types';
-import type { Route } from './+types/collectionCreate.route';
-import CollectionCreatorFormContainer from './collectionCreatorForm.container';
+import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
+import { data, redirect, useLoaderData } from "react-router";
+import aiGatewayConfig from "~/config/ai_gateway.json";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { CollectionService } from "~/modules/collections/collection";
+import type {
+  PrefillData,
+  PromptReference,
+} from "~/modules/collections/collections.types";
+import requireCollectionsFeature from "~/modules/collections/helpers/requireCollectionsFeature";
+import ProjectAuthorization from "~/modules/projects/authorization";
+import { ProjectService } from "~/modules/projects/project";
+import { PromptService } from "~/modules/prompts/prompt";
+import { RunService } from "~/modules/runs/run";
+import type { RunAnnotationType } from "~/modules/runs/runs.types";
+import type { User } from "~/modules/users/users.types";
+import type { Route } from "./+types/collectionCreate.route";
+import CollectionCreatorFormContainer from "./collectionCreatorForm.container";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = (await getSessionUser({ request })) as User;
@@ -246,10 +249,10 @@ export default function CollectionCreateRoute() {
   const { project, prefillData } = useLoaderData<typeof loader>();
 
   const breadcrumbs = [
-    { text: 'Projects', link: '/' },
+    { text: "Projects", link: "/" },
     { text: project.name, link: `/projects/${project._id}` },
-    { text: 'Collections', link: `/projects/${project._id}/collections` },
-    { text: 'Create Collection' }
+    { text: "Collections", link: `/projects/${project._id}/collections` },
+    { text: "Create Collection" },
   ];
 
   return (

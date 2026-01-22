@@ -89,12 +89,12 @@ export default function CollectionsList({
           }}
           getItemAttributes={getCollectionsItemAttributes}
           getItemActions={() => []}
-          onActionClicked={() => { }}
-          onItemActionClicked={() => { }}
-          onSearchValueChanged={() => { }}
-          onPaginationChanged={() => { }}
-          onFiltersValueChanged={() => { }}
-          onSortValueChanged={() => { }}
+          onActionClicked={() => {}}
+          onItemActionClicked={() => {}}
+          onSearchValueChanged={() => {}}
+          onPaginationChanged={() => {}}
+          onFiltersValueChanged={() => {}}
+          onSortValueChanged={() => {}}
           currentPage={1}
           totalPages={1}
         />
@@ -125,7 +125,7 @@ export default function CollectionsList({
         onItemActionClicked={handleItemActionClicked}
         onSearchValueChanged={onSearchValueChanged}
         onPaginationChanged={onPaginationChanged}
-        onFiltersValueChanged={() => { }}
+        onFiltersValueChanged={() => {}}
         onSortValueChanged={onSortValueChanged}
       />
     </div>

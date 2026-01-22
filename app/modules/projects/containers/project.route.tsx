@@ -1,8 +1,8 @@
-import capitalize from 'lodash/capitalize';
-import filter from 'lodash/filter';
-import get from 'lodash/get';
-import has from 'lodash/has';
-import throttle from 'lodash/throttle';
+import capitalize from "lodash/capitalize";
+import filter from "lodash/filter";
+import get from "lodash/get";
+import has from "lodash/has";
+import throttle from "lodash/throttle";
 import { useEffect, useState } from "react";
 import {
   data,
@@ -23,9 +23,9 @@ import splitMultipleSessionsIntoFiles from "~/modules/uploads/services/splitMult
 import uploadFiles from "~/modules/uploads/services/uploadFiles";
 import type { User } from "~/modules/users/users.types";
 import ProjectAuthorization from "../authorization";
-import Project from '../components/project';
-import getAttributeMappingFromFile from '../helpers/getAttributeMappingFromFile';
-import { useProjectActions } from '../hooks/useProjectActions';
+import Project from "../components/project";
+import getAttributeMappingFromFile from "../helpers/getAttributeMappingFromFile";
+import { useProjectActions } from "../hooks/useProjectActions";
 import { ProjectService } from "../project";
 import createSessionsFromFiles from "../services/createSessionsFromFiles.server";
 import type { Route } from "./+types/project.route";
@@ -256,7 +256,11 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     };
   }, []);
 
-  const breadcrumbs = [{ text: 'Projects', link: '/' }, { text: project.name }, { text: capitalize(get(matches, '2.id', '')) }];
+  const breadcrumbs = [
+    { text: "Projects", link: "/" },
+    { text: project.name },
+    { text: capitalize(get(matches, "2.id", "")) },
+  ];
 
   return (
     <Project
