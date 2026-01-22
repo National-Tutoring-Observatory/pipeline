@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collection } from "@/components/ui/collection";
+import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import cloneDeep from "lodash/cloneDeep";
 import includes from "lodash/includes";
 import map from "lodash/map";
 import pull from "lodash/pull";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   data,
   redirect,
@@ -13,9 +14,9 @@ import {
   useNavigate,
   useSubmit,
 } from "react-router";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import requireCollectionsFeature from "~/modules/collections/helpers/requireCollectionsFeature";
@@ -189,24 +190,27 @@ export default function CollectionAddRunsRoute() {
     </div>
   );
 
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: "Projects", link: "/" },
-      { text: project.name, link: `/projects/${project._id}` },
-      { text: "Collections", link: `/projects/${project._id}/collections` },
-      {
-        text: collection.name,
-        link: `/projects/${project._id}/collections/${collection._id}`,
-      },
-      { text: "Add Runs" },
-    ]);
-  }, [project._id, project.name, collection._id, collection.name]);
+  const breadcrumbs = [
+    { text: "Projects", link: "/" },
+    { text: project.name, link: `/projects/${project._id}` },
+    { text: "Collections", link: `/projects/${project._id}/collections` },
+    {
+      text: collection.name,
+      link: `/projects/${project._id}/collections/${collection._id}`,
+    },
+    { text: "Add Runs" },
+  ];
 
   const allSelected =
     eligibleRuns.length > 0 && selectedRuns.length === eligibleRuns.length;
 
   return (
     <div className="p-8">
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+      </PageHeader>
       <div className="mb-8">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
           Add Runs

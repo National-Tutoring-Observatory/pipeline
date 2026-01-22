@@ -1,4 +1,6 @@
+import capitalize from "lodash/capitalize";
 import filter from "lodash/filter";
+import get from "lodash/get";
 import has from "lodash/has";
 import throttle from "lodash/throttle";
 import { useEffect, useState } from "react";
@@ -254,7 +256,11 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     };
   }, []);
 
-  const breadcrumbs = [{ text: "Projects", link: "/" }, { text: project.name }];
+  const breadcrumbs = [
+    { text: "Projects", link: "/" },
+    { text: project.name },
+    { text: capitalize(get(matches, "2.id", "")) },
+  ];
 
   return (
     <Project

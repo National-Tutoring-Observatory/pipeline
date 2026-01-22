@@ -1,9 +1,7 @@
-import { useEffect } from "react";
 import { data, redirect, useNavigate } from "react-router";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import type { Collection } from "~/modules/collections/collections.types";
@@ -169,14 +167,6 @@ export default function CollectionsListRoute({
     currentPage: 1,
     sortValue: "createdAt",
   });
-
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: "Projects", link: "/" },
-      { text: project.name, link: `/projects/${project._id}` },
-      { text: "Collections" },
-    ]);
-  }, [project._id, project.name]);
 
   const onSearchValueChanged = (searchValue: string) => {
     setSearchValue(searchValue);

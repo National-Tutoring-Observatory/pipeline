@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import { data, redirect, useLoaderData } from "react-router";
 import aiGatewayConfig from "~/config/ai_gateway.json";
-import updateBreadcrumb from "~/modules/app/updateBreadcrumb";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import type {
@@ -248,17 +248,20 @@ export async function action({ request, params, context }: Route.ActionArgs) {
 export default function CollectionCreateRoute() {
   const { project, prefillData } = useLoaderData<typeof loader>();
 
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: "Projects", link: "/" },
-      { text: project.name, link: `/projects/${project._id}` },
-      { text: "Collections", link: `/projects/${project._id}/collections` },
-      { text: "Create Collection" },
-    ]);
-  }, [project._id, project.name]);
+  const breadcrumbs = [
+    { text: "Projects", link: "/" },
+    { text: project.name, link: `/projects/${project._id}` },
+    { text: "Collections", link: `/projects/${project._id}/collections` },
+    { text: "Create Collection" },
+  ];
 
   return (
     <div className="p-8">
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+      </PageHeader>
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold">Create Collection</h1>
         <p className="text-muted-foreground">

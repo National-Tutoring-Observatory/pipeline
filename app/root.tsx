@@ -43,12 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <SidebarProvider defaultOpen={true}>
             <AppSidebar />
             <SidebarInset>
-              <main>
-                {/* <div className="pt-8 px-8 flex items-center">
-                  <BreadcrumbsContainer />
-                </div> */}
-                {children}
-              </main>
+              <main>{children}</main>
             </SidebarInset>
           </SidebarProvider>
         </AuthenticationContainer>
