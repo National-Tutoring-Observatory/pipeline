@@ -4,7 +4,8 @@
   "type": "module",
   "workspaces": [
     "workers",
-    "localMode"
+    "localMode",
+    "e2e"
   ],
   "scripts": {
     "app:build": "node ./app/adapters.js && react-router build",
@@ -25,7 +26,11 @@
     "test:typecheck": "tsc -p tsconfig.test.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:e2e": "yarn workspace e2e test",
+    "test:e2e:ui": "yarn workspace e2e test:ui",
+    "test:e2e:headed": "yarn workspace e2e test:headed",
+    "test:e2e:setup": "yarn workspace e2e test:setup"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",
