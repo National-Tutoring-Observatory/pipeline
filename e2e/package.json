@@ -1,0 +1,15 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test --project=chromium",
+    "test:ui": "playwright test --project=chromium --ui",
+    "test:headed": "playwright test --project=chromium --headed",
+    "test:setup": "playwright test --project=setup --headed --debug"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
+  }
+}

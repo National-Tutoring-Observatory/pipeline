@@ -4,7 +4,8 @@
   "type": "module",
   "workspaces": [
     "workers",
-    "localMode"
+    "localMode",
+    "e2e"
   ],
   "scripts": {
     "app:build": "node ./app/adapters.js && react-router build",
@@ -22,7 +23,11 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
-    "test:typecheck": "tsc -p tsconfig.test.json"
+    "test:typecheck": "tsc -p tsconfig.test.json",
+    "test:e2e": "yarn workspace e2e test",
+    "test:e2e:ui": "yarn workspace e2e test:ui",
+    "test:e2e:headed": "yarn workspace e2e test:headed",
+    "test:e2e:setup": "yarn workspace e2e test:setup"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",
