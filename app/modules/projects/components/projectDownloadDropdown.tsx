@@ -22,6 +22,9 @@ export default function ProjectDownloadDropdown({
     exportType: "CSV" | "JSON";
   }) => void;
 }) {
+  if (hasExportedCSV && hasExportedJSONL) {
+    return null;
+  }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

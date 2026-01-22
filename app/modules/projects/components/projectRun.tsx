@@ -55,7 +55,7 @@ export default function ProjectRun({
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
         <PageHeaderRight>
-          {run.isComplete && (!run.hasExportedCSV || !run.hasExportedJSONL) && (
+          {run.isComplete && (
             <ProjectDownloadDropdown
               isExporting={run.isExporting || false}
               hasExportedCSV={run.hasExportedCSV}

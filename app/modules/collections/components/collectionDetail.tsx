@@ -69,14 +69,12 @@ export default function CollectionDetail({
         </PageHeaderLeft>
         <PageHeaderRight>
           <div className="text-muted-foreground flex gap-1">
-            {(!collection.hasExportedCSV || !collection.hasExportedJSONL) && (
-              <ProjectDownloadDropdown
-                isExporting={collection.isExporting || false}
-                hasExportedCSV={collection.hasExportedCSV || false}
-                hasExportedJSONL={collection.hasExportedJSONL || false}
-                onExportButtonClicked={onExportCollectionButtonClicked}
-              />
-            )}
+            <ProjectDownloadDropdown
+              isExporting={collection.isExporting || false}
+              hasExportedCSV={collection.hasExportedCSV || false}
+              hasExportedJSONL={collection.hasExportedJSONL || false}
+              onExportButtonClicked={onExportCollectionButtonClicked}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="data-[state=open]:bg-muted">
