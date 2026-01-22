@@ -80,3 +80,80 @@ jobs:
             sleep "$SLEEP_SECONDS"
             ELAPSED=$((ELAPSED + SLEEP_SECONDS))
           done
+
+  build-and-push-staging:
+    name: Build & Push Staging Containers
+    runs-on: ubuntu-latest
+    environment: staging
+    needs: staging-preflight
+
+    permissions:
+      id-token: write
+      contents: read
+
+    outputs:
+      web_image: ${{ steps.images.outputs.web_image }}
+      worker_image: ${{ steps.images.outputs.worker_image }}
+
+    env:
+      AWS_REGION: us-east-1
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+      ECS_CONTAINER_NAME: ${{ vars.ECS_CONTAINER_NAME }}
+      ECS_WORKER_CONTAINER_NAME: ${{ vars.ECS_WORKER_CONTAINER_NAME }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Resolve image tag
+        id: tag
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          echo "tag=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+          echo "Using image tag: $SHORT_SHA"
+
+      - name: Build & push web container
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
+
+          docker build -t "$ECR_REPOSITORY:$TAG" .
+          docker tag "$ECR_REPOSITORY:$TAG" "$ECR_URI:$TAG"
+          docker push "$ECR_URI:$TAG"
+
+          echo "WEB_IMAGE=$ECR_URI:$TAG" >> "$GITHUB_ENV"
+
+      - name: Build & push worker container
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
+
+          docker build -f workers/Dockerfile -t "$ECR_REPOSITORY:$TAG-worker" .
+          docker tag "$ECR_REPOSITORY:$TAG-worker" "$ECR_URI:$TAG-worker"
+          docker push "$ECR_URI:$TAG-worker"
+
+          echo "WORKER_IMAGE=$ECR_URI:$TAG-worker" >> "$GITHUB_ENV"
+
+      - name: Export image URIs
+        id: images
+        run: |
+          set -euo pipefail
+          echo "web_image=$WEB_IMAGE" >> "$GITHUB_OUTPUT"
+          echo "worker_image=$WORKER_IMAGE" >> "$GITHUB_OUTPUT"
