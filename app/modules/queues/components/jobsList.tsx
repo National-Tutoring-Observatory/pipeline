@@ -1,206 +1,121 @@
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Collection } from "@/components/ui/collection";
 import dayjs from "dayjs";
-import orderBy from "lodash/orderBy";
-import { EllipsisVertical } from "lucide-react";
-import { useMemo, useState } from "react";
+import queueJobsSortOptions from "../helpers/queueJobsSortOptions";
 import type { Job } from "../queues.types";
-import SortableTableHead from "./sortableTableHead";
-
-type SortField =
-  | "name"
-  | "timestamp"
-  | "processedOn"
-  | "finishedOn"
-  | "attemptsMade";
-type SortDirection = "asc" | "desc";
 
 interface JobsListProps {
   jobs: Job[];
   state: string;
+  currentPage: number;
+  totalPages: number;
+  sortValue: string;
+  isSyncing: boolean;
   onDisplayJobClick: (job: Job) => void;
   onRemoveJobClick: (job: Job) => void;
   onRetryJobClick: (job: Job) => void;
+  onPaginationChanged: (page: number) => void;
+  onSortValueChanged: (sortValue: string) => void;
 }
 
 export default function JobsList({
   jobs,
   state,
+  currentPage,
+  totalPages,
+  sortValue,
+  isSyncing,
   onDisplayJobClick,
   onRemoveJobClick,
   onRetryJobClick,
+  onPaginationChanged,
+  onSortValueChanged,
 }: JobsListProps) {
-  const [sortField, setSortField] = useState<SortField>("timestamp");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const getItemAttributes = (job: Job) => {
+    const meta = [];
+    if (job.processedOn) {
+      meta.push({
+        text: `Processed: ${dayjs(job.processedOn).format("MMM D, h:mm A")}`,
+      });
+    }
+    if (job.finishedOn) {
+      meta.push({
+        text: `Finished: ${dayjs(job.finishedOn).format("MMM D, h:mm A")}`,
+      });
+    }
+    meta.push({ text: `Attempts: ${job.attemptsMade || 0}` });
 
-  const sortedJobs = useMemo(() => {
-    const jobsWithSortValues = jobs.map((job) => ({
-      ...job,
-      _sortValues: {
-        name: job.name,
-        timestamp: job.timestamp ? dayjs(job.timestamp).valueOf() : null,
-        processedOn: job.processedOn ? dayjs(job.processedOn).valueOf() : null,
-        finishedOn: job.finishedOn ? dayjs(job.finishedOn).valueOf() : null,
-        attemptsMade: job.attemptsMade || 0,
-      },
-    }));
+    return {
+      id: job.id,
+      title: job.name,
+      description: job.timestamp
+        ? `Created ${dayjs(job.timestamp).format("MMM D, h:mm A")}`
+        : undefined,
+      meta,
+    };
+  };
 
-    return orderBy(
-      jobsWithSortValues,
-      [`_sortValues.${sortField}`],
-      [sortDirection],
-    );
-  }, [jobs, sortField, sortDirection]);
+  const getItemActions = (job: Job) => {
+    const actions = [
+      { action: "VIEW", text: "View Details" },
+      ...(state === "failed" ? [{ action: "RETRY", text: "Retry Job" }] : []),
+      { action: "REMOVE", text: "Remove", variant: "destructive" as const },
+    ];
+    return actions;
+  };
 
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field as SortField);
-      setSortDirection("desc");
+  const onItemActionClicked = ({
+    id,
+    action,
+  }: {
+    id: string;
+    action: string;
+  }) => {
+    const job = jobs.find((j) => j.id === id);
+    if (!job) return;
+
+    switch (action) {
+      case "VIEW":
+        onDisplayJobClick(job);
+        break;
+      case "RETRY":
+        onRetryJobClick(job);
+        break;
+      case "REMOVE":
+        onRemoveJobClick(job);
+        break;
     }
   };
 
-  if (jobs.length === 0) {
-    return (
-      <div className="rounded-md border">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-muted-foreground text-center">
-            <p className="text-lg font-medium">No {state} jobs found</p>
-            <p className="text-sm">
-              Jobs will appear here when they are {state}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const onItemClicked = (id: string) => {
+    const job = jobs.find((j) => j.id === id);
+    if (job) {
+      onDisplayJobClick(job);
+    }
+  };
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <SortableTableHead
-              field="name"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={handleSort}
-              className="w-[250px]"
-            >
-              Job Name
-            </SortableTableHead>
-            <SortableTableHead
-              field="timestamp"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={handleSort}
-            >
-              Created
-            </SortableTableHead>
-            <SortableTableHead
-              field="processedOn"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={handleSort}
-            >
-              Processed
-            </SortableTableHead>
-            <SortableTableHead
-              field="finishedOn"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={handleSort}
-            >
-              Finished
-            </SortableTableHead>
-            <SortableTableHead
-              field="attemptsMade"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={handleSort}
-            >
-              Attempts
-            </SortableTableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedJobs.map((job) => (
-            <TableRow key={job.id}>
-              <TableCell className="font-medium">
-                <button
-                  onClick={() => onDisplayJobClick(job)}
-                  className="w-full text-left hover:underline"
-                >
-                  {job.name}
-                </button>
-              </TableCell>
-              <TableCell>
-                {job.timestamp
-                  ? dayjs(job.timestamp).format("MMM D, h:mm A")
-                  : "-"}
-              </TableCell>
-              <TableCell>
-                {job.processedOn
-                  ? dayjs(job.processedOn).format("MMM D, h:mm A")
-                  : "-"}
-              </TableCell>
-              <TableCell>
-                {job.finishedOn
-                  ? dayjs(job.finishedOn).format("MMM D, h:mm A")
-                  : "-"}
-              </TableCell>
-              <TableCell>{job.attemptsMade || 0}</TableCell>
-              <TableCell className="flex justify-end text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                      size="icon"
-                    >
-                      <EllipsisVertical />
-                      <span className="sr-only">Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-40">
-                    <DropdownMenuItem onClick={() => onDisplayJobClick(job)}>
-                      View Details
-                    </DropdownMenuItem>
-                    {state === "failed" && (
-                      <DropdownMenuItem onClick={() => onRetryJobClick?.(job)}>
-                        Retry Job
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onClick={() => onRemoveJobClick(job)}
-                    >
-                      Remove
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    <Collection
+      items={jobs}
+      itemsLayout="list"
+      filters={[]}
+      filtersValues={{}}
+      sortOptions={queueJobsSortOptions}
+      sortValue={sortValue}
+      hasPagination={totalPages > 1}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      isSyncing={isSyncing}
+      emptyAttributes={{
+        title: `No ${state} jobs found`,
+        description: `Jobs will appear here when they are ${state}`,
+      }}
+      getItemAttributes={getItemAttributes}
+      getItemActions={getItemActions}
+      onItemClicked={onItemClicked}
+      onItemActionClicked={onItemActionClicked}
+      onPaginationChanged={onPaginationChanged}
+      onActionClicked={() => {}}
+      onSortValueChanged={onSortValueChanged}
+    />
   );
 }
