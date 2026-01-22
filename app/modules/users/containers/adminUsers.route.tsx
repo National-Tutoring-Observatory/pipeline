@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 import { data, redirect, useFetcher } from "react-router";
 import { toast } from "sonner";
+import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuditService } from "~/modules/audits/audit";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { userIsSuperAdmin } from "~/modules/authorization/helpers/superAdmin";
@@ -21,17 +24,51 @@ export async function loader({ request }: Route.LoaderArgs) {
     return redirect("/");
   }
 
-  // Fetch all users
-  const users = await UserService.find({});
-
-  // Fetch audit trail for role changes
-  const audits = await AuditService.find({
-    match: { action: { $in: ["ADD_SUPERADMIN", "REMOVE_SUPERADMIN"] } },
-    sort: { createdAt: -1 },
-    pagination: { skip: 0, limit: 100 },
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: "",
+    currentPage: 1,
+    sort: "username",
+    filters: {},
   });
 
-  return { users, audits, currentUser: user };
+  const query = buildQueryFromParams({
+    match: {},
+    queryParams,
+    searchableFields: ["username", "email", "name"],
+    sortableFields: ["username", "createdAt"],
+  });
+
+  const users = await UserService.paginate(query);
+
+  const auditQueryParams = getQueryParamsFromRequest(
+    request,
+    {
+      searchValue: "",
+      currentPage: 1,
+      sort: "-createdAt",
+      filters: {},
+    },
+    { paramPrefix: "audit" },
+  );
+
+  const auditQuery = buildQueryFromParams({
+    match: { action: { $in: ["ADD_SUPERADMIN", "REMOVE_SUPERADMIN"] } },
+    queryParams: auditQueryParams,
+    searchableFields: [
+      "performedByUsername",
+      "context.targetUsername",
+      "context.reason",
+    ],
+    sortableFields: ["createdAt"],
+  });
+
+  const audits = await AuditService.paginate(auditQuery);
+
+  return {
+    users,
+    audits,
+    currentUser: user,
+  };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -86,10 +123,9 @@ export async function action({ request }: Route.ActionArgs) {
 
       try {
         await UserService.assignSuperAdminRole({
-          targetUserId: targetUserId.toString(),
-          performedByUserId: user._id.toString(),
+          targetUser,
+          performedByUser: user,
           reason: reason.trim(),
-          performedByUsername: user.username,
         });
       } catch (error) {
         const errorMessage =
@@ -142,10 +178,9 @@ export async function action({ request }: Route.ActionArgs) {
 
       try {
         await UserService.revokeSuperAdminRole({
-          targetUserId: targetUserId.toString(),
-          performedByUserId: user._id.toString(),
+          targetUser,
+          performedByUser: user,
           reason: reason.trim(),
-          performedByUsername: user.username,
         });
       } catch (error) {
         const errorMessage =
@@ -166,6 +201,41 @@ export default function UserManagementRoute({
 }: Route.ComponentProps) {
   const { users, audits, currentUser } = loaderData;
   const fetcher = useFetcher();
+
+  const {
+    searchValue,
+    setSearchValue,
+    currentPage,
+    setCurrentPage,
+    sortValue,
+    setSortValue,
+    filtersValues,
+    setFiltersValues,
+    isSyncing,
+  } = useSearchQueryParams({
+    searchValue: "",
+    currentPage: 1,
+    sortValue: "username",
+    filters: {},
+  });
+
+  const {
+    searchValue: auditSearchValue,
+    setSearchValue: setAuditSearchValue,
+    currentPage: auditCurrentPage,
+    setCurrentPage: setAuditCurrentPage,
+    sortValue: auditSortValue,
+    setSortValue: setAuditSortValue,
+    isSyncing: isAuditSyncing,
+  } = useSearchQueryParams(
+    {
+      searchValue: "",
+      currentPage: 1,
+      sortValue: "-createdAt",
+      filters: {},
+    },
+    { paramPrefix: "audit" },
+  );
 
   const breadcrumbs = [{ text: "Users" }];
 
@@ -218,7 +288,7 @@ export default function UserManagementRoute({
     id: string;
     action: string;
   }) => {
-    const targetUser = users.find((u) => u._id === id);
+    const targetUser = users.data.find((u: User) => u._id === id);
     if (!targetUser) return;
 
     if (action === "ASSIGN_SUPER_ADMIN") {
@@ -226,7 +296,7 @@ export default function UserManagementRoute({
         <AssignSuperAdminDialogContainer
           targetUser={targetUser}
           isSubmitting={fetcher.state === "submitting"}
-          onAssignSuperAdminClicked={onAssignSuperAdminClicked(targetUser._id)}
+          onAssignSuperAdminClicked={onAssignSuperAdminClicked(id)}
         />,
       );
     } else if (action === "REVOKE_SUPER_ADMIN") {
@@ -234,7 +304,7 @@ export default function UserManagementRoute({
         <RevokeSuperAdminDialogContainer
           targetUser={targetUser}
           isSubmitting={fetcher.state === "submitting"}
-          onRevokeSuperAdminClicked={onRevokeSuperAdminClicked(targetUser._id)}
+          onRevokeSuperAdminClicked={onRevokeSuperAdminClicked(id)}
         />,
       );
     }
@@ -242,11 +312,28 @@ export default function UserManagementRoute({
 
   return (
     <AdminUsers
-      users={users}
-      audits={audits}
+      users={users.data}
+      audits={audits.data}
+      auditSearchValue={auditSearchValue}
+      auditSortValue={auditSortValue}
+      auditCurrentPage={auditCurrentPage}
+      auditTotalPages={audits.totalPages}
       currentUser={currentUser}
       breadcrumbs={breadcrumbs}
+      searchValue={searchValue}
+      currentPage={currentPage}
+      totalPages={users.totalPages}
+      sortValue={sortValue}
+      filtersValues={filtersValues}
+      isSyncing={isSyncing}
       onItemActionClicked={onItemActionClicked}
+      onSearchValueChanged={setSearchValue}
+      onPaginationChanged={setCurrentPage}
+      onSortValueChanged={setSortValue}
+      onFiltersValueChanged={setFiltersValues}
+      onAuditSearchChanged={setAuditSearchValue}
+      onAuditPageChanged={setAuditCurrentPage}
+      onAuditSortChanged={setAuditSortValue}
     />
   );
 }

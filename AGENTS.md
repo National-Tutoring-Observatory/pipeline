@@ -245,6 +245,255 @@ export default function ProjectRoute() {
 }
 ```
 
+### Search, Pagination, and Querying Pattern
+
+**CRITICAL**: For ANY list with search or pagination, ALWAYS use the Collection component and the established query pattern.
+
+**DO NOT**:
+
+- Build custom search UI with `<Search>` component
+- Build custom pagination UI with `<Pagination>` component
+- Map over items manually with custom markup
+- Create custom empty states or filter/sort UI
+
+**DO**:
+
+- Use `<Collection>` component for ALL lists
+- Define helper functions for `getItemAttributes` (returns CollectionItemAttributes)
+- Define helper functions for `getItemActions` (returns CollectionItemAction[])
+- Pass search/pagination props from `useSearchQueryParams`
+
+#### The Three-Part Pattern
+
+1. **Client Hook** - `useSearchQueryParams()` manages URL params and provides state
+2. **Server Helper** - `getQueryParamsFromRequest()` extracts params from request
+3. **Query Builder** - `buildQueryFromParams()` builds database query from params
+
+#### Complete Example
+
+**Loader (Server)**:
+
+```typescript
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
+import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const user = await getSessionUser({ request });
+  if (!user) return redirect("/");
+
+  // 1. Extract query params from URL
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: "",
+    currentPage: 1,
+    sort: "-createdAt", // Default sort (- prefix = descending)
+    filters: {},
+  });
+
+  // 2. Build database query
+  const query = buildQueryFromParams({
+    match: { team: user.teamId }, // Base filter
+    queryParams,
+    searchableFields: ["name", "description"], // Fields to search
+    sortableFields: ["name", "createdAt"], // Allowed sort fields
+    filterableFields: ["status"], // Optional filters
+  });
+
+  // 3. Paginate results
+  const projects = await ProjectService.paginate(query);
+
+  return { projects };
+}
+```
+
+**Component (Client)**:
+
+```typescript
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import { Collection } from "@/components/ui/collection";
+
+export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
+  const { projects } = loaderData;
+
+  // Get search/pagination state from URL
+  const {
+    searchValue,
+    setSearchValue,
+    currentPage,
+    setCurrentPage,
+    sortValue,
+    setSortValue,
+    filtersValues,
+    setFiltersValues,
+    isSyncing,
+  } = useSearchQueryParams({
+    searchValue: "",
+    currentPage: 1,
+    sortValue: "-createdAt",
+    filters: {},
+  });
+
+  return (
+    <Collection
+      items={projects.data}
+      itemsLayout="list"
+      searchValue={searchValue}
+      currentPage={currentPage}
+      totalPages={projects.totalPages}
+      sortValue={sortValue}
+      filtersValues={filtersValues}
+      isSyncing={isSyncing}
+      hasSearch
+      hasPagination
+      sortOptions={[
+        { text: "Name", value: "name" },
+        { text: "Created", value: "createdAt" },
+      ]}
+      getItemAttributes={(item) => ({
+        id: item._id,
+        title: item.name,
+        description: item.description,
+      })}
+      getItemActions={(item) => [
+        { action: "EDIT", text: "Edit" },
+        { action: "DELETE", text: "Delete", variant: "destructive" },
+      ]}
+      onSearchValueChanged={setSearchValue}
+      onPaginationChanged={setCurrentPage}
+      onSortValueChanged={setSortValue}
+      onFiltersValueChanged={setFiltersValues}
+      // ... other props
+    />
+  );
+}
+```
+
+#### Multiple Collections on Same Page
+
+When you have multiple collections (e.g., users list + audit log), use **separate instances** with `paramPrefix`:
+
+**Loader**:
+
+```typescript
+// First collection - users
+const queryParams = getQueryParamsFromRequest(request, {
+  searchValue: "",
+  currentPage: 1,
+  sort: "username",
+  filters: {},
+});
+
+const usersQuery = buildQueryFromParams({
+  match: {},
+  queryParams,
+  searchableFields: ["username", "email"],
+  sortableFields: ["username", "createdAt"],
+});
+
+const users = await UserService.paginate(usersQuery);
+
+// Second collection - audit log with prefix
+const auditQueryParams = getQueryParamsFromRequest(
+  request,
+  {
+    searchValue: "",
+    currentPage: 1,
+    sort: "-createdAt",
+    filters: {},
+  },
+  { paramPrefix: "audit" }, // Creates auditSearchValue, auditCurrentPage
+);
+
+const auditQuery = buildQueryFromParams({
+  match: { action: "USER_ACTION" },
+  queryParams: auditQueryParams,
+  searchableFields: ["username", "action"],
+  sortableFields: ["createdAt"],
+});
+
+const audits = await AuditService.paginate(auditQuery);
+
+return { users, audits };
+```
+
+**Component**:
+
+```typescript
+// First collection hook
+const {
+  searchValue,
+  setSearchValue,
+  currentPage,
+  setCurrentPage,
+  // ...
+} = useSearchQueryParams({
+  searchValue: "",
+  currentPage: 1,
+  sortValue: "username",
+  filters: {},
+});
+
+// Second collection hook with same prefix
+const {
+  searchValue: auditSearchValue,
+  setSearchValue: setAuditSearchValue,
+  currentPage: auditCurrentPage,
+  setCurrentPage: setAuditCurrentPage,
+  // ...
+} = useSearchQueryParams(
+  {
+    searchValue: "",
+    currentPage: 1,
+    sortValue: "-createdAt",
+    filters: {},
+  },
+  { paramPrefix: "audit" }, // Must match loader prefix!
+);
+```
+
+**IMPORTANT**: The `paramPrefix` must match between the hook and loader.
+
+#### Collection Helpers Pattern
+
+Helper functions for Collection components belong in `helpers/` directory:
+
+```typescript
+// helpers/getItemAttributes.tsx - Shapes data for display
+export default (item: ItemType): CollectionItemAttributes => ({
+  id: item._id,
+  title: item.name,
+  description: item.description,
+  meta: [
+    { text: dayjs(item.createdAt).format("MMM D, YYYY") }
+  ],
+  to: `/path/${item._id}`,  // Optional link
+});
+
+// helpers/getItemActions.tsx - Defines available actions
+export default (item: ItemType, currentUser: User): CollectionItemAction[] => [
+  { action: "EDIT", text: "Edit", icon: <PencilIcon /> },
+  { action: "DELETE", text: "Delete", variant: "destructive" },
+];
+
+// Component imports and uses helpers
+import getItemAttributes from "../helpers/getItemAttributes";
+import getItemActions from "../helpers/getItemActions";
+
+<Collection
+  getItemAttributes={getItemAttributes}
+  getItemActions={(item) => getItemActions(item, currentUser)}
+  // ...
+/>
+```
+
+#### Key Rules
+
+1. **Always use Collection component** for lists - never build custom search/pagination UI
+2. **Extract helpers** - `getItemAttributes` and `getItemActions` belong in `helpers/` directory, not inline in components
+3. **Use `buildQueryFromParams`** for queries - never manually build regex queries
+4. **Match prefixes** when using multiple collections on the same page
+5. **Default sorts** should use `-` prefix for descending (e.g., `"-createdAt"`)
+6. **Service.paginate()** must exist on your service (returns `{ data, count, totalPages }`)
+
 ### Authorization Pattern
 
 Every module has an authorization file with consistent methods:

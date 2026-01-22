@@ -8,22 +8,29 @@ export type QueryParams = {
 export default function getQueryParamsFromRequest(
   request: Request,
   defaults: QueryParams,
+  options?: { paramPrefix?: string },
 ): QueryParams {
   const url = new URL(request.url);
   const filters: Record<string, string> = {};
+
+  const prefix = options?.paramPrefix || "";
+  const searchValueKey = prefix ? `${prefix}SearchValue` : "searchValue";
+  const currentPageKey = prefix ? `${prefix}CurrentPage` : "currentPage";
+  const sortKey = prefix ? `${prefix}Sort` : "sort";
+  const filterPrefix = prefix ? `${prefix}Filter_` : "filter_";
 
   let searchValue = defaults.searchValue;
   let currentPage = defaults.currentPage;
   let sort = defaults.sort;
 
   url.searchParams.forEach((value, key) => {
-    if (key.startsWith("filter_")) {
-      filters[key.replace("filter_", "")] = value;
-    } else if (key === "searchValue") {
+    if (key.startsWith(filterPrefix)) {
+      filters[key.replace(filterPrefix, "")] = value;
+    } else if (key === searchValueKey) {
       searchValue = value;
-    } else if (key === "currentPage") {
+    } else if (key === currentPageKey) {
       currentPage = Number(value);
-    } else if (key === "sort") {
+    } else if (key === sortKey) {
       sort = value;
     }
   });

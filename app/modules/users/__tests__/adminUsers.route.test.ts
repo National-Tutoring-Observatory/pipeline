@@ -72,11 +72,16 @@ describe("adminUsers.route", () => {
       if (result instanceof Response)
         throw new Error("Expected data, got Response");
 
-      expect(result.users).toHaveLength(3);
-      expect(result.users.map((u: any) => u.username)).toContain("super-admin");
-      expect(result.users.map((u: any) => u.username)).toContain("user1");
-      expect(result.users.map((u: any) => u.username)).toContain("user2");
-      expect(Array.isArray(result.audits)).toBe(true);
+      expect(result.users.data).toHaveLength(3);
+      expect(result.users.data.map((u: any) => u.username)).toContain(
+        "super-admin",
+      );
+      expect(result.users.data.map((u: any) => u.username)).toContain("user1");
+      expect(result.users.data.map((u: any) => u.username)).toContain("user2");
+      expect(result.users.totalPages).toBe(1);
+      expect(result.users.count).toBe(3);
+      expect(result.audits.data).toBeInstanceOf(Array);
+      expect(result.audits.totalPages).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -285,6 +290,7 @@ describe("adminUsers.route", () => {
       expect(audits).toHaveLength(1);
       const audit = audits[0];
       expect(audit.performedBy?.toString()).toBe(superAdmin._id.toString());
+      expect(audit.context?.targetUsername).toBe(targetUser.username);
       expect(audit.context?.reason).toBe("Trusted deployment manager");
     });
 
@@ -476,6 +482,7 @@ describe("adminUsers.route", () => {
       expect(audits).toHaveLength(1);
       const audit = audits[0];
       expect(audit.performedBy?.toString()).toBe(superAdmin1._id.toString());
+      expect(audit.context?.targetUsername).toBe(superAdmin2.username);
       expect(audit.context?.reason).toBe("Unauthorized activity detected");
     });
   });

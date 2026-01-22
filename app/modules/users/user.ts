@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import userSchema from "~/lib/schemas/user.schema";
 import { AuditService } from "~/modules/audits/audit";
-import type { FindOptions } from "~/modules/common/types";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { User } from "./users.types";
 
 const UserModel = mongoose.models.User || mongoose.model("User", userSchema);
@@ -35,6 +36,33 @@ export class UserService {
 
   static async count(match: Record<string, any> = {}): Promise<number> {
     return UserModel.countDocuments(match);
+  }
+
+  static async paginate({
+    match,
+    sort,
+    page,
+    pageSize,
+  }: PaginateProps): Promise<{
+    data: User[];
+    count: number;
+    totalPages: number;
+  }> {
+    const pagination = getPaginationParams(page, pageSize);
+
+    const results = await this.find({
+      match,
+      sort,
+      pagination,
+    });
+
+    const count = await this.count(match);
+
+    return {
+      data: results,
+      count,
+      totalPages: getTotalPages(count, pageSize),
+    };
   }
 
   static async findById(id: string | undefined): Promise<User | null> {
@@ -96,44 +124,48 @@ export class UserService {
   }
 
   static async assignSuperAdminRole({
-    targetUserId,
-    performedByUserId,
+    targetUser,
+    performedByUser,
     reason,
-    performedByUsername,
   }: {
-    targetUserId: string;
-    performedByUserId: string;
+    targetUser: User;
+    performedByUser: User;
     reason: string;
-    performedByUsername: string;
   }): Promise<void> {
-    await this.updateById(targetUserId, { role: "SUPER_ADMIN" });
+    await this.updateById(targetUser._id, { role: "SUPER_ADMIN" });
 
     await AuditService.create({
       action: "ADD_SUPERADMIN",
-      performedBy: performedByUserId,
-      performedByUsername,
-      context: { target: targetUserId, reason },
+      performedBy: performedByUser._id,
+      performedByUsername: performedByUser.username,
+      context: {
+        target: targetUser._id,
+        targetUsername: targetUser.username,
+        reason,
+      },
     });
   }
 
   static async revokeSuperAdminRole({
-    targetUserId,
-    performedByUserId,
+    targetUser,
+    performedByUser,
     reason,
-    performedByUsername,
   }: {
-    targetUserId: string;
-    performedByUserId: string;
+    targetUser: User;
+    performedByUser: User;
     reason: string;
-    performedByUsername: string;
   }): Promise<void> {
-    await this.updateById(targetUserId, { role: "USER" });
+    await this.updateById(targetUser._id, { role: "USER" });
 
     await AuditService.create({
       action: "REMOVE_SUPERADMIN",
-      performedBy: performedByUserId,
-      performedByUsername,
-      context: { target: targetUserId, reason },
+      performedBy: performedByUser._id,
+      performedByUsername: performedByUser.username,
+      context: {
+        target: targetUser._id,
+        targetUsername: targetUser.username,
+        reason,
+      },
     });
   }
 }

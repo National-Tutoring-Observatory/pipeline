@@ -13,12 +13,14 @@ type DefaultQueryParams = {
 function parseFiltersFromUrl(
   searchParams: URLSearchParams,
   defaultFilters?: Record<string, unknown> | null,
+  prefix: string = "",
 ): Record<string, unknown> {
   const filters: Record<string, unknown> = {};
+  const filterPrefix = prefix ? `${prefix}Filter_` : "filter_";
 
   searchParams.forEach((value, key) => {
-    if (key.startsWith("filter_")) {
-      const filterKey = key.replace("filter_", "");
+    if (key.startsWith(filterPrefix)) {
+      const filterKey = key.replace(filterPrefix, "");
       filters[filterKey] = value;
     }
   });
@@ -26,34 +28,42 @@ function parseFiltersFromUrl(
   return Object.keys(filters).length > 0 ? filters : (defaultFilters ?? {});
 }
 
-export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
+export function useSearchQueryParams(
+  defaultQueryParams: DefaultQueryParams,
+  options?: { paramPrefix?: string },
+) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { state } = useNavigation();
 
+  const prefix = options?.paramPrefix || "";
+  const searchValueKey = prefix ? `${prefix}SearchValue` : "searchValue";
+  const currentPageKey = prefix ? `${prefix}CurrentPage` : "currentPage";
+  const sortKey = prefix ? `${prefix}Sort` : "sort";
+
   const [searchValue, setSearchValueState] = useState<string>(
-    searchParams.get("searchValue") ?? defaultQueryParams.searchValue ?? "",
+    searchParams.get(searchValueKey) ?? defaultQueryParams.searchValue ?? "",
   );
 
   const [currentPage, setCurrentPageState] = useState<number>(
-    searchParams.get("currentPage")
-      ? Number(searchParams.get("currentPage"))
+    searchParams.get(currentPageKey)
+      ? Number(searchParams.get(currentPageKey))
       : (defaultQueryParams.currentPage ?? 1),
   );
 
   const [sortValue, setSortValueState] = useState<string>(
-    searchParams.get("sort") ?? defaultQueryParams.sortValue ?? "",
+    searchParams.get(sortKey) ?? defaultQueryParams.sortValue ?? "",
   );
 
   const [filtersValues, setFiltersValuesState] = useState<
     Record<string, unknown>
-  >(parseFiltersFromUrl(searchParams, defaultQueryParams.filters));
+  >(parseFiltersFromUrl(searchParams, defaultQueryParams.filters, prefix));
 
   const [isPending, setIsPending] = useState<boolean>(false);
 
   useEffect(() => {
     if (
       searchValue ===
-      (searchParams.get("searchValue") ?? defaultQueryParams.searchValue ?? "")
+      (searchParams.get(searchValueKey) ?? defaultQueryParams.searchValue ?? "")
     ) {
       return;
     }
@@ -68,12 +78,12 @@ export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
           );
 
           if (searchValue) {
-            newSearchParams.set("searchValue", searchValue);
+            newSearchParams.set(searchValueKey, searchValue);
           } else {
-            newSearchParams.delete("searchValue");
+            newSearchParams.delete(searchValueKey);
           }
 
-          newSearchParams.set("currentPage", "1");
+          newSearchParams.set(currentPageKey, "1");
           setCurrentPageState(1);
 
           return newSearchParams;
@@ -90,6 +100,8 @@ export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
     defaultQueryParams.searchValue,
     searchParams,
     setSearchParams,
+    searchValueKey,
+    currentPageKey,
   ]);
 
   useEffect(() => {
@@ -119,8 +131,8 @@ export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
           newSearchParams.set(key, String(value));
         }
 
-        if (key !== "currentPage") {
-          newSearchParams.set("currentPage", "1");
+        if (key !== currentPageKey) {
+          newSearchParams.set(currentPageKey, "1");
           setCurrentPageState(1);
         }
 
@@ -145,10 +157,12 @@ export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
           prevSearchParams.toString(),
         );
 
+        const filterPrefix = prefix ? `${prefix}Filter_` : "filter_";
+
         // Remove all existing filter_* params
         const keysToDelete: string[] = [];
         newSearchParams.forEach((_, paramKey) => {
-          if (paramKey.startsWith("filter_")) {
+          if (paramKey.startsWith(filterPrefix)) {
             keysToDelete.push(paramKey);
           }
         });
@@ -162,13 +176,16 @@ export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
               filterValue !== undefined &&
               filterValue !== ""
             ) {
-              newSearchParams.set(`filter_${filterKey}`, String(filterValue));
+              newSearchParams.set(
+                `${filterPrefix}${filterKey}`,
+                String(filterValue),
+              );
             }
           });
         }
 
-        if (key !== "currentPage") {
-          newSearchParams.set("currentPage", "1");
+        if (key !== currentPageKey) {
+          newSearchParams.set(currentPageKey, "1");
           setCurrentPageState(1);
         }
 
@@ -183,10 +200,10 @@ export function useSearchQueryParams(defaultQueryParams: DefaultQueryParams) {
     setSearchValue: setSearchValueState,
     currentPage,
     setCurrentPage: (value: number) =>
-      updateUrlParam<number>("currentPage", value, setCurrentPageState),
+      updateUrlParam<number>(currentPageKey, value, setCurrentPageState),
     sortValue,
     setSortValue: (value: string) =>
-      updateUrlParam<string>("sort", value, setSortValueState),
+      updateUrlParam<string>(sortKey, value, setSortValueState),
     filtersValues,
     setFiltersValues: (value: Record<string, unknown>) =>
       updateUrlParamObject("filters", value, setFiltersValuesState),
