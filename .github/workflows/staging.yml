@@ -157,3 +157,165 @@ jobs:
           set -euo pipefail
           echo "web_image=$WEB_IMAGE" >> "$GITHUB_OUTPUT"
           echo "worker_image=$WORKER_IMAGE" >> "$GITHUB_OUTPUT"
+
+  deploy-staging:
+    name: Deploy to Staging ECS
+    runs-on: ubuntu-latest
+    environment: staging
+    needs: build-and-push-staging
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      AWS_REGION: us-east-1
+      WEB_IMAGE: ${{ needs.build-and-push-staging.outputs.web_image }}
+      WORKER_IMAGE: ${{ needs.build-and-push-staging.outputs.worker_image }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+
+      - name: Deploy web service to staging
+        run: |
+          set -Eeuo pipefail
+
+          cluster="${{ vars.ECS_CLUSTER }}"
+          service="${{ vars.ECS_SERVICE }}"
+          container="${{ vars.ECS_CONTAINER_NAME }}"
+          image="$WEB_IMAGE"
+
+          rollback() {
+            echo "⚠️ Deployment failed. Rolling back web service..."
+            aws ecs update-service \
+              --cluster "$cluster" \
+              --service "$service" \
+              --task-definition "$OLD_TD_ARN"
+
+            aws ecs wait services-stable \
+              --cluster "$cluster" \
+              --services "$service"
+
+            echo "🔙 Web service rolled back to $OLD_TD_ARN"
+          }
+
+          trap rollback ERR
+
+          echo "🚀 Deploying web image: $image"
+
+          OLD_TD_ARN=$(aws ecs describe-services \
+            --cluster "$cluster" \
+            --services "$service" \
+            --query "services[0].taskDefinition" \
+            --output text)
+
+          aws ecs describe-task-definition \
+            --task-definition "$OLD_TD_ARN" \
+            --query taskDefinition > td-web.json
+
+          jq --arg img "$image" --arg name "$container" '
+            .containerDefinitions |= map(
+              if .name == $name then .image = $img else . end
+            )
+            | del(
+                .revision,
+                .status,
+                .taskDefinitionArn,
+                .requiresAttributes,
+                .compatibilities,
+                .registeredAt,
+                .registeredBy
+              )
+          ' td-web.json > td-web-register.json
+
+          NEW_TD_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://td-web-register.json \
+            --query taskDefinition.taskDefinitionArn \
+            --output text)
+
+          aws ecs update-service \
+            --cluster "$cluster" \
+            --service "$service" \
+            --task-definition "$NEW_TD_ARN"
+
+          aws ecs wait services-stable \
+            --cluster "$cluster" \
+            --services "$service"
+
+          trap - ERR
+          echo "✅ Web service deployed successfully"
+
+      - name: Deploy worker service to staging
+        run: |
+          set -Eeuo pipefail
+
+          cluster="${{ vars.ECS_WORKER_CLUSTER }}"
+          service="${{ vars.ECS_WORKER_SERVICE }}"
+          container="${{ vars.ECS_WORKER_CONTAINER_NAME }}"
+          image="$WORKER_IMAGE"
+
+          rollback() {
+            echo "⚠️ Deployment failed. Rolling back worker service..."
+            aws ecs update-service \
+              --cluster "$cluster" \
+              --service "$service" \
+              --task-definition "$OLD_TD_ARN"
+
+            aws ecs wait services-stable \
+              --cluster "$cluster" \
+              --services "$service"
+
+            echo "🔙 Worker service rolled back to $OLD_TD_ARN"
+          }
+
+          trap rollback ERR
+
+          echo "🚀 Deploying worker image: $image"
+
+          OLD_TD_ARN=$(aws ecs describe-services \
+            --cluster "$cluster" \
+            --services "$service" \
+            --query "services[0].taskDefinition" \
+            --output text)
+
+          aws ecs describe-task-definition \
+            --task-definition "$OLD_TD_ARN" \
+            --query taskDefinition > td-worker.json
+
+          jq --arg img "$image" --arg name "$container" '
+            .containerDefinitions |= map(
+              if .name == $name then .image = $img else . end
+            )
+            | del(
+                .revision,
+                .status,
+                .taskDefinitionArn,
+                .requiresAttributes,
+                .compatibilities,
+                .registeredAt,
+                .registeredBy
+              )
+          ' td-worker.json > td-worker-register.json
+
+          NEW_TD_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://td-worker-register.json \
+            --query taskDefinition.taskDefinitionArn \
+            --output text)
+
+          aws ecs update-service \
+            --cluster "$cluster" \
+            --service "$service" \
+            --task-definition "$NEW_TD_ARN"
+
+          aws ecs wait services-stable \
+            --cluster "$cluster" \
+            --services "$service"
+
+          trap - ERR
+          echo "✅ Worker service deployed successfully"
