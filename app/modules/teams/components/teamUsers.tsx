@@ -11,18 +11,18 @@ import type { Team } from "../teams.types";
 interface TeamUsersProps {
   users: User[];
   team: Team;
-  searchValue: string,
-  currentPage: number,
-  totalPages: number,
-  filtersValues: {},
-  sortValue: string,
-  isSyncing: boolean,
+  searchValue: string;
+  currentPage: number;
+  totalPages: number;
+  filtersValues: {};
+  sortValue: string;
+  isSyncing: boolean;
   onActionClicked: (action: string) => void;
-  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
-  onSearchValueChanged: (searchValue: string) => void,
-  onPaginationChanged: (currentPage: number) => void,
-  onFiltersValueChanged: (filterValue: any) => void,
-  onSortValueChanged: (sortValue: any) => void
+  onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (currentPage: number) => void;
+  onFiltersValueChanged: (filterValue: any) => void;
+  onSortValueChanged: (sortValue: any) => void;
 }
 
 export default function TeamUsers({
@@ -39,7 +39,7 @@ export default function TeamUsers({
   onSearchValueChanged,
   onPaginationChanged,
   onFiltersValueChanged,
-  onSortValueChanged
+  onSortValueChanged,
 }: TeamUsersProps) {
   return (
     <div>

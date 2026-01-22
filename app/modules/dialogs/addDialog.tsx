@@ -8,5 +8,5 @@ export const setDispatch = (dispatch) => {
 
 export default (component: ReactNode) => {
   // @ts-ignore
-  addModalDispatch({ type: 'ADD', modal: { component } })
-}
+  addModalDispatch({ type: "ADD", modal: { component } });
+};

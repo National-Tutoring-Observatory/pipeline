@@ -85,7 +85,7 @@ export class OrcidStrategy<User> extends Strategy<
 
   constructor(
     options: OrcidStrategy.Options,
-    verify: Strategy.VerifyFunction<User, OrcidStrategy.VerifyOptions>
+    verify: Strategy.VerifyFunction<User, OrcidStrategy.VerifyOptions>,
   ) {
     super(verify);
     this.options = options;
@@ -103,9 +103,7 @@ export class OrcidStrategy<User> extends Strategy<
     this.profileURL = apiBaseURL;
   }
 
-  async authenticate(
-    request: Request
-  ): Promise<User> {
+  async authenticate(request: Request): Promise<User> {
     const url = new URL(request.url);
     const callbackURL = new URL(this.options.callbackURL);
 
@@ -132,7 +130,8 @@ export class OrcidStrategy<User> extends Strategy<
 
     if (error) {
       throw new Error(
-        url.searchParams.get("error_description") || `Error from ORCID: ${error}`
+        url.searchParams.get("error_description") ||
+          `Error from ORCID: ${error}`,
       );
     }
     if (!code) {
@@ -150,8 +149,14 @@ export class OrcidStrategy<User> extends Strategy<
     // );
 
     // 5. Verify the user and return them
-    // @ts-ignore
-    const user = await this.verify({ ...tokenResponse, profile: { id: tokenResponse.extraParams.orcid, emails: [] } });
+    const user = await this.verify({
+      ...tokenResponse,
+      profile: {
+        id: tokenResponse.extraParams.orcid,
+        name: null,
+        emails: { email: [] },
+      },
+    });
     return user;
   }
 
@@ -181,7 +186,7 @@ export class OrcidStrategy<User> extends Strategy<
       if (!response.ok) {
         const bodyText = await response.text();
         throw new Error(
-          `Failed to exchange code for token. Status: ${response.status}. Body: ${bodyText}`
+          `Failed to exchange code for token. Status: ${response.status}. Body: ${bodyText}`,
         );
       }
 
@@ -199,14 +204,14 @@ export class OrcidStrategy<User> extends Strategy<
     } catch (error) {
       if (error instanceof Error) throw error;
       throw new Error(
-        `Network error while exchanging code for token: ${(error as Error).message}`
+        `Network error while exchanging code for token: ${(error as Error).message}`,
       );
     }
   }
 
   private async fetchUserProfile(
     accessToken: string,
-    orcid: string
+    orcid: string,
   ): Promise<OrcidProfile> {
     const profileEndpoint = `${this.profileURL}/${orcid}/person`;
     try {
@@ -220,7 +225,7 @@ export class OrcidStrategy<User> extends Strategy<
       if (!response.ok) {
         const bodyText = await response.text();
         throw new Error(
-          `Failed to fetch user profile. Status: ${response.status}. Body: ${bodyText}`
+          `Failed to fetch user profile. Status: ${response.status}. Body: ${bodyText}`,
         );
       }
 
@@ -235,12 +240,11 @@ export class OrcidStrategy<User> extends Strategy<
     } catch (error) {
       if (error instanceof Error) throw error;
       throw new Error(
-        `Network error while fetching user profile: ${(error as Error).message}`
+        `Network error while fetching user profile: ${(error as Error).message}`,
       );
     }
   }
 }
-
 
 const orcidStrategy = new OrcidStrategy<any>(
   {
@@ -250,13 +254,15 @@ const orcidStrategy = new OrcidStrategy<any>(
     sandbox: process.env.NODE_ENV === "development",
   },
   async ({ profile }) => {
-    const users = await UserService.find({ match: { orcidId: profile.id, hasOrcidSSO: true } });
+    const users = await UserService.find({
+      match: { orcidId: profile.id, hasOrcidSSO: true },
+    });
     if (users.length === 0) {
       throw redirect("/?error=UNREGISTERED");
     }
 
     return users[0] as any;
-  }
-)
+  },
+);
 
 export default orcidStrategy;

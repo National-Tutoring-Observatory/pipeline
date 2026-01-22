@@ -1,14 +1,16 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 export default new mongoose.Schema({
-  username: { type: String, default: '' },
-  role: { type: String, enum: ['SUPER_ADMIN', 'USER'] },
+  username: { type: String, default: "" },
+  role: { type: String, enum: ["SUPER_ADMIN", "USER"] },
   email: { type: String },
-  teams: [{
-    team: { type: mongoose.Types.ObjectId, ref: 'Team' },
-    role: { type: String, enum: ['ADMIN'] },
-    _id: false
-  }],
+  teams: [
+    {
+      team: { type: mongoose.Types.ObjectId, ref: "Team" },
+      role: { type: String, enum: ["ADMIN"] },
+      _id: false,
+    },
+  ],
   featureFlags: [{ type: String }],
   inviteId: { type: String },
   isRegistered: { type: Boolean, default: false },
@@ -17,7 +19,7 @@ export default new mongoose.Schema({
   invitedAt: { type: Date },
   registeredAt: { type: Date },
   createdAt: { type: Date, default: Date.now },
-  createdBy: { type: mongoose.Types.ObjectId, ref: 'User' },
+  createdBy: { type: mongoose.Types.ObjectId, ref: "User" },
   updatedAt: { type: Date },
-  updatedBy: { type: mongoose.Types.ObjectId, ref: 'User' }
+  updatedBy: { type: mongoose.Types.ObjectId, ref: "User" },
 });

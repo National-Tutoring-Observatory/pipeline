@@ -1,23 +1,25 @@
 import { Button } from "@/components/ui/button";
 import {
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogClose
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import TeamNameAlert from "./teamNameAlert";
 import type { Team } from "../teams.types";
+import TeamNameAlert from "./teamNameAlert";
 
 const EditTeamDialog = ({
   team,
-  onEditTeamClicked
-}: { team: Team, onEditTeamClicked: (team: Team) => void }) => {
-
+  onEditTeamClicked,
+}: {
+  team: Team;
+  onEditTeamClicked: (team: Team) => void;
+}) => {
   const [updatedTeam, setUpdatedTeam] = useState(team);
 
   const onTeamNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,16 +36,18 @@ const EditTeamDialog = ({
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Edit team</DialogTitle>
-        <DialogDescription>
-
-        </DialogDescription>
+        <DialogDescription></DialogDescription>
       </DialogHeader>
       <div className="grid gap-3">
         <Label htmlFor="name-1">Name</Label>
-        <Input id="name-1" name="name" defaultValue={updatedTeam.name} autoComplete="off" onChange={onTeamNameChanged} />
-        <TeamNameAlert
-          name={updatedTeam?.name}
+        <Input
+          id="name-1"
+          name="name"
+          defaultValue={updatedTeam.name}
+          autoComplete="off"
+          onChange={onTeamNameChanged}
         />
+        <TeamNameAlert name={updatedTeam?.name} />
       </div>
       <DialogFooter className="justify-end">
         <DialogClose asChild>
@@ -52,9 +56,13 @@ const EditTeamDialog = ({
           </Button>
         </DialogClose>
         <DialogClose asChild>
-          <Button type="button" disabled={isSubmitButtonDisabled} onClick={() => {
-            onEditTeamClicked(updatedTeam);
-          }}>
+          <Button
+            type="button"
+            disabled={isSubmitButtonDisabled}
+            onClick={() => {
+              onEditTeamClicked(updatedTeam);
+            }}
+          >
             Save team
           </Button>
         </DialogClose>

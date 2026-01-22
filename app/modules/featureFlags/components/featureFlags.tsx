@@ -1,8 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { Item, ItemActions, ItemContent, ItemGroup, ItemSeparator, ItemTitle } from "@/components/ui/item";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemGroup,
+  ItemSeparator,
+  ItemTitle,
+} from "@/components/ui/item";
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import { Separator } from "@/components/ui/separator";
-import map from 'lodash/map';
+import map from "lodash/map";
 import { ChevronRight } from "lucide-react";
 import React from "react";
 import { Link, Outlet } from "react-router";
@@ -13,11 +20,11 @@ import type { FeatureFlag } from "../featureFlags.types";
 export default function FeatureFlags({
   featureFlags,
   breadcrumbs,
-  onCreateFeatureFlagButtonClicked
+  onCreateFeatureFlagButtonClicked,
 }: {
-  featureFlags: FeatureFlag[],
-  breadcrumbs: Breadcrumb[],
-  onCreateFeatureFlagButtonClicked: () => void
+  featureFlags: FeatureFlag[];
+  breadcrumbs: Breadcrumb[];
+  onCreateFeatureFlagButtonClicked: () => void;
 }) {
   return (
     <div className="max-w-6xl p-8">
@@ -28,9 +35,11 @@ export default function FeatureFlags({
       </PageHeader>
       <div>
         <div className="flex justify-end p-2">
-          <Button onClick={onCreateFeatureFlagButtonClicked}>Create feature flag</Button>
+          <Button onClick={onCreateFeatureFlagButtonClicked}>
+            Create feature flag
+          </Button>
         </div>
-        <div className="border rounded-lg flex relative">
+        <div className="relative flex rounded-lg border">
           <ItemGroup className="w-1/3">
             {map(featureFlags, (featureFlag, index) => (
               <React.Fragment key={featureFlag._id}>
@@ -39,7 +48,12 @@ export default function FeatureFlags({
                     <ItemTitle>{featureFlag.name}</ItemTitle>
                   </ItemContent>
                   <ItemActions>
-                    <Button variant="ghost" size="icon" className="rounded-full" asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full"
+                      asChild
+                    >
                       <Link to={`/featureFlags/${featureFlag._id}`}>
                         <ChevronRight className="size-4" />
                       </Link>
@@ -50,7 +64,10 @@ export default function FeatureFlags({
               </React.Fragment>
             ))}
           </ItemGroup>
-          <Separator orientation="vertical" className="h-full absolute left-1/3" />
+          <Separator
+            orientation="vertical"
+            className="absolute left-1/3 h-full"
+          />
           <div className="w-2/3">
             <Outlet />
           </div>

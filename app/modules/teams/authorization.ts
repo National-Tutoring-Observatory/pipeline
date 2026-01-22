@@ -1,6 +1,9 @@
-import type { User } from '~/modules/users/users.types';
-import { userIsSuperAdmin } from '../authorization/helpers/superAdmin';
-import { userIsTeamAdmin, userIsTeamMember } from '../authorization/helpers/teamMembership';
+import type { User } from "~/modules/users/users.types";
+import { userIsSuperAdmin } from "../authorization/helpers/superAdmin";
+import {
+  userIsTeamAdmin,
+  userIsTeamMember,
+} from "../authorization/helpers/teamMembership";
 
 const TeamAuthorization = {
   canCreate(user: User | null): boolean {
@@ -43,7 +46,7 @@ type UsersAuthorizationShape = {
 };
 
 type TeamAuthorizationShape = {
-  [K in Exclude<keyof typeof TeamAuthorization, 'Users'>]: boolean;
+  [K in Exclude<keyof typeof TeamAuthorization, "Users">]: boolean;
 } & {
   users: UsersAuthorizationShape;
 };

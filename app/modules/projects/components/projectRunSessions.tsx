@@ -9,20 +9,18 @@ export default function ProjectRunSessions({
   run,
   sessionFile,
   session,
-  breadcrumbs
+  breadcrumbs,
 }: {
-  run: Run,
-  sessionFile: SessionFile,
-  session: Session,
-  breadcrumbs: Breadcrumb[]
+  run: Run;
+  sessionFile: SessionFile;
+  session: Session;
+  breadcrumbs: Breadcrumb[];
 }) {
   return (
     <div className="max-w-6xl p-8">
       <PageHeader>
         <PageHeaderLeft>
-          <Breadcrumbs
-            breadcrumbs={breadcrumbs}
-          />
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
       </PageHeader>
       <SessionViewerContainer
@@ -31,5 +29,5 @@ export default function ProjectRunSessions({
         sessionFile={sessionFile}
       />
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { initializeDatabase } from '~/lib/database';
+import { initializeDatabase } from "~/lib/database";
 
 // Isolate database per test worker by appending pool ID to DB name
 const poolId = process.env.VITEST_POOL_ID;

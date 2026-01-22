@@ -1,43 +1,54 @@
-import map from 'lodash/map';
-import { EllipsisVertical } from 'lucide-react';
-import React, { type ReactElement } from 'react';
-import { Badge } from './badge';
-import { Button } from './button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu';
-import { ItemActions, ItemContent, ItemDescription, ItemTitle } from './item';
-
+import map from "lodash/map";
+import { EllipsisVertical } from "lucide-react";
+import React, { type ReactElement } from "react";
+import { Badge } from "./badge";
+import { Button } from "./button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
+import { ItemActions, ItemContent, ItemDescription, ItemTitle } from "./item";
 
 export type CollectionItemAction = {
-  icon?: ReactElement,
-  action: string,
-  text: string,
-  variant?: "default" | "destructive" | undefined
-}
+  icon?: ReactElement;
+  action: string;
+  text: string;
+  variant?: "default" | "destructive" | undefined;
+};
 
 export type CollectionItemMeta = {
-  text: string,
-  icon?: ReactElement
-}
+  text: string;
+  icon?: ReactElement;
+};
 
 export type CollectionItemAttributes = {
-  id: string,
-  title: string,
-  description?: string,
-  to?: string,
-  meta?: CollectionItemMeta[],
-  isDisabled?: boolean,
-}
+  id: string;
+  title: string;
+  description?: string;
+  to?: string;
+  meta?: CollectionItemMeta[];
+  isDisabled?: boolean;
+};
 
 type CollectionItemProps = {
-  id: string
-  title: string
-  description?: string
-  to?: string,
-  meta?: CollectionItemMeta[]
-  actions: CollectionItemAction[]
-  isDisabled?: boolean,
-  onItemActionClicked?: ({ id, action }: { id: string, action: string }) => void
-}
+  id: string;
+  title: string;
+  description?: string;
+  to?: string;
+  meta?: CollectionItemMeta[];
+  actions: CollectionItemAction[];
+  isDisabled?: boolean;
+  onItemActionClicked?: ({
+    id,
+    action,
+  }: {
+    id: string;
+    action: string;
+  }) => void;
+};
 
 const CollectionItemContent = ({
   id,
@@ -47,7 +58,7 @@ const CollectionItemContent = ({
   actions = [],
   isDisabled = false,
   onItemActionClicked,
-}: Omit<CollectionItemProps, 'to'>) => (
+}: Omit<CollectionItemProps, "to">) => (
   <>
     <ItemContent className="gap-1">
       <ItemTitle className="text-lg">{title}</ItemTitle>
@@ -55,19 +66,21 @@ const CollectionItemContent = ({
       <div className="flex w-full flex-wrap gap-2">
         {map(meta, (metaItem, index) => {
           return (
-            <Badge key={index} variant="outline" className="text-muted-foreground">
-              {(metaItem.icon) && (
-                metaItem.icon
-              )}
+            <Badge
+              key={index}
+              variant="outline"
+              className="text-muted-foreground"
+            >
+              {metaItem.icon && metaItem.icon}
               {metaItem.text}
             </Badge>
           );
         })}
       </div>
     </ItemContent>
-    {(actions.length > 0) && (
+    {actions.length > 0 && (
       <ItemActions>
-        {(actions.length > 1) && (
+        {(actions.length > 1 && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild disabled={isDisabled}>
               <Button
@@ -83,35 +96,38 @@ const CollectionItemContent = ({
               {map(actions, (action, index) => {
                 return (
                   <React.Fragment key={action.action}>
-                    <DropdownMenuItem variant={action.variant} onClick={(event) => {
-                      event.stopPropagation();
-                      if (onItemActionClicked) {
-                        onItemActionClicked({ id, action: action.action })
-                      }
-                    }}>
+                    <DropdownMenuItem
+                      variant={action.variant}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        if (onItemActionClicked) {
+                          onItemActionClicked({ id, action: action.action });
+                        }
+                      }}
+                    >
                       {action.icon ? action.icon : null}
                       {action.text}
                     </DropdownMenuItem>
-                    {(index !== actions.length - 1) && (
-                      <DropdownMenuSeparator />
-                    )}
+                    {index !== actions.length - 1 && <DropdownMenuSeparator />}
                   </React.Fragment>
-                )
+                );
               })}
             </DropdownMenuContent>
           </DropdownMenu>
-        ) || (
-            <Button variant="ghost" onClick={(event) => {
+        )) || (
+          <Button
+            variant="ghost"
+            onClick={(event) => {
               event.stopPropagation();
               if (onItemActionClicked) {
-                onItemActionClicked({ id, action: actions[0].action })
+                onItemActionClicked({ id, action: actions[0].action });
               }
-            }}>
-              {actions[0].icon ? actions[0].icon : null}
-              {actions[0].text}
-            </Button>
-          )}
-
+            }}
+          >
+            {actions[0].icon ? actions[0].icon : null}
+            {actions[0].text}
+          </Button>
+        )}
       </ItemActions>
     )}
   </>

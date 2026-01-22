@@ -17,6 +17,7 @@ This is the **NTO (National Tutoring Observatory) Pipeline**, a React-based web 
 **CRITICAL**: Always think before coding. Understand the problem fully before implementing solutions.
 
 ### Before Writing Code
+
 1. **Analyze the request** - Break down what the user is actually asking for
 2. **Ask clarifying questions** - If anything is unclear or ambiguous
 3. **Understand the context** - Check existing code patterns and architecture
@@ -24,6 +25,7 @@ This is the **NTO (National Tutoring Observatory) Pipeline**, a React-based web 
 5. **Consider edge cases** - What could go wrong or be misunderstood?
 
 ### When to Ask Questions
+
 - **Unclear requirements** - "Which specific component should handle this?"
 - **Multiple approaches** - "Would you prefer to modify the existing component or create a new one?"
 - **Scope ambiguity** - "Should this apply to all forms or just this specific one?"
@@ -31,6 +33,7 @@ This is the **NTO (National Tutoring Observatory) Pipeline**, a React-based web 
 - **Missing context** - "What should happen when the user doesn't have permission?"
 
 ### Examples of Good Clarification
+
 ```
 // ❌ Jumping straight to code
 User: "Add a delete button"
@@ -53,6 +56,7 @@ Let me check the existing patterns..."
 - Start development and apply the changes to the codebase
 
 ### Problem-Solving Workflow
+
 1. **Read and understand** the full request
 2. **Examine existing code** to understand patterns and find similar implementations
 3. **Ask questions** if anything is unclear
@@ -64,64 +68,83 @@ Let me check the existing patterns..."
 ## Build & Validation Commands
 
 ### Prerequisites
+
 1. **Node.js 20.x or higher** is required
 2. **Yarn 1.22+** is the preferred package manager (though npm will work)
 3. **Environment file**: Copy `.env.example` to `.env` before running the app
 
 ### Installation
+
 Always run installation with frozen lockfile to match CI:
+
 ```bash
 yarn install --frozen-lockfile
 ```
+
 **Time**: ~30-40 seconds
 **Note**: You may see a warning about `package-lock.json` - this is expected and safe to ignore
 
 ### TypeCheck
+
 Run before committing to catch type errors (required by CI):
+
 ```bash
 yarn typecheck
 ```
+
 **Time**: ~7-8 seconds
 **What it does**: Runs `react-router typegen && tsc` to generate route types and check TypeScript
 
 ### Build
+
 Always run before testing production behavior:
+
 ```bash
 yarn app:build
 ```
+
 **Time**: ~8-10 seconds
 **What it does**:
+
 1. Runs `node ./app/adapters.js` to generate storage adapter imports
 2. Runs `react-router build` to create production build in `./build/`
-**Expected warnings**: You'll see warnings about unused imports (useCallback, icons, etc.) - these are safe to ignore
+   **Expected warnings**: You'll see warnings about unused imports (useCallback, icons, etc.) - these are safe to ignore
 
 ### Development Server
+
 ```bash
 yarn app:dev
 ```
+
 **Port**: http://localhost:5173
 **What it does**: Runs adapters.js first, then starts dev server with HMR
 **Note**: For full functionality (workers, Socket.IO), also run `yarn redis` in a separate terminal
 
 ### Production Server
+
 ```bash
 yarn start
 ```
+
 **Port**: 5173 (configurable via PORT env var)
 **Prerequisites**: Must run `yarn build` first
 
 ### Redis (For Background Jobs & Socket Communication)
+
 ```bash
 yarn local:redis
 ```
+
 **What it does**: Starts redis-memory-server for local development (if REDIS_URL not set)
 **When needed**: Required for workers, Socket.IO, and BullMQ functionality
 **Production**: Set REDIS_URL environment variable instead
 
 ### Workers (Background Jobs)
+
 ```bash
 yarn workers:dev
 ```
+
 **What it does**: Starts BullMQ workers for background task processing
 **Prerequisites**: Redis must be running (use `yarn redis` or set REDIS_URL)
 **Note**: Workers are now a yarn workspace, so `yarn install` at the root handles all dependencies
@@ -131,6 +154,7 @@ yarn workers:dev
 ### GitHub Actions Workflows
 
 **1. TypeCheck Workflow** (`.github/workflows/typecheck.yml`)
+
 - **Triggers**: Pull requests and pushes to main
 - **Node version**: 22
 - **Steps**:
@@ -139,13 +163,16 @@ yarn workers:dev
 - **To replicate locally**: Run the exact same commands above
 
 **2. Release Workflow** (`.github/workflows/release.yml`)
+
 - **Triggers**: Tags matching `v[0-9]+.[0-9]+.[0-9]+` (e.g., v1.2.3)
 - **What it does**: Builds Docker image and deploys to AWS ECS
 - **Docker build uses**: Node 25-alpine with yarn
 - **Build command in Docker**: `yarn build` (after `yarn install --frozen-lockfile --production`)
 
 ### Pre-commit Checklist
+
 Before committing, always:
+
 1. ✅ Run `yarn typecheck` - must pass with no errors
 2. ✅ Run `yarn build` - must complete successfully
 3. ✅ If modifying storage/document adapters, ensure `app/adapters.js` runs correctly
@@ -157,6 +184,7 @@ Before committing, always:
 The application uses a **plugin-based adapter pattern** to support multiple storage and database backends without changing business logic:
 
 **Storage Adapters** (`app/storageAdapters/`):
+
 - Handle file storage operations (upload, download, remove, request)
 - Two implementations: `local/` (filesystem) and `awsS3/` (AWS S3)
 - Each adapter registers itself via `registerStorageAdapter()` with a common interface
@@ -164,6 +192,7 @@ The application uses a **plugin-based adapter pattern** to support multiple stor
 - Interface: `{ name, download, upload, remove, request }`
 
 **Document Adapters** (`app/documentsAdapters/`):
+
 - Handle database operations (CRUD for collections)
 - Two implementations: `local/` (in-memory) and `documentDB/` (MongoDB/DocumentDB)
 - Each adapter registers itself via `registerDocumentsAdapter()` with a common interface
@@ -171,6 +200,7 @@ The application uses a **plugin-based adapter pattern** to support multiple stor
 - Interface: `{ name, getDocuments, createDocument, getDocument, updateDocument, deleteDocument }`
 
 **How it works**:
+
 1. On startup, `app/adapters.js` scans `storageAdapters/` and generates `app/modules/storage/storage.ts`
 2. This file imports all adapter implementations, causing them to self-register
 3. Application code calls `getStorageAdapter()` or `getDocumentsAdapter()` to get the active adapter
@@ -181,17 +211,20 @@ The application uses a **plugin-based adapter pattern** to support multiple stor
 The codebase follows a **consistent error handling convention** for React Router loaders and actions:
 
 **Loaders** (data fetching):
+
 - Use `redirect()` for authentication/authorization failures
 - Return redirect responses to guide users to appropriate pages
 - Example: `if (!user) return redirect('/')`
 
 **Actions** (mutations):
+
 - Use `throw new Error()` for validation and business logic failures
 - Throw errors for missing/invalid data, unauthorized access
 - Errors are caught by React Router's error boundary
 - Example: `if (!name) throw new Error("Name is required")`
 
 **Why this pattern?**
+
 - Loaders redirect on auth failures (user should be redirected somewhere)
 - Actions throw on validation failures (user should see error in context)
 - Consistent across all routes for predictable behavior
@@ -228,6 +261,7 @@ The codebase follows a **consistent error handling convention** for React Router
 ### The Adapters System
 
 **IMPORTANT**: The `app/adapters.js` script MUST run before build/dev:
+
 - **What it does**: Scans `app/storageAdapters/` and auto-generates `app/modules/storage/storage.ts`
 - **Why**: This file imports all storage adapter implementations
 - **When**: Both `yarn app:build` and `yarn app:dev` run it automatically
@@ -238,6 +272,7 @@ If you add/remove storage adapters, the build will automatically regenerate the 
 ## Environment Configuration
 
 ### Required Environment Variables
+
 ```bash
 # .env file (copy from .env.example)
 
@@ -267,6 +302,7 @@ AUTH_CALLBACK_URL='http://localhost:5173/auth/callback'
 ```
 
 ### Optional Environment Variables
+
 - AWS credentials (if using AWS_S3 or DOCUMENT_DB)
 - AI Gateway credentials (if using AI_GATEWAY)
 - OpenAI key (if using OPENAI provider)
@@ -276,36 +312,43 @@ AUTH_CALLBACK_URL='http://localhost:5173/auth/callback'
 When encountering issues, focus on understanding and fixing the root cause rather than working around problems:
 
 ### Type errors during build
+
 **Root cause**: TypeScript compilation errors in your code or missing type definitions
 **Diagnosis**: Run `yarn typecheck` to see detailed error messages with file locations
 **Fix**: Address the type errors in the indicated files. Don't ignore type errors.
 **Note**: Build warnings about unused imports (useCallback, icons) are expected and safe to ignore - these are not errors.
 
 ### Storage imports not found
+
 **Root cause**: The `app/adapters.js` script failed or didn't run, so `app/modules/storage/storage.ts` wasn't generated
 **Diagnosis**: Check if `app/modules/storage/storage.ts` exists and contains imports
 **Fix**:
+
 1. Manually run `node ./app/adapters.js` to see any errors
 2. Verify storage adapter directories have proper `index.ts` files
 3. Check that adapters call `registerStorageAdapter()` correctly
-**Prevention**: Both `yarn build` and `yarn dev` run this automatically
+   **Prevention**: Both `yarn build` and `yarn dev` run this automatically
 
 ### Module not found errors
+
 **Root cause**: Stale or corrupted dependencies, or mismatched lock file
 **Diagnosis**: Check if `node_modules/` or `.react-router/` have stale generated code
 **Fix**:
+
 1. Delete `node_modules/`, `.react-router/`, and optionally `build/`
 2. Run `yarn install --frozen-lockfile` (matches CI exactly)
 3. Run `yarn typecheck` to verify types, then `yarn build`
-**Prevention**: Always use `--frozen-lockfile` to match the lock file
+   **Prevention**: Always use `--frozen-lockfile` to match the lock file
 
 ### Workers failing to start
+
 **Root cause**: Missing dependencies or Redis configuration
 **Diagnosis**: Check if root `yarn install` was run and Redis is available
 **Fix**: Run `yarn install` at the root (handles all workspaces) and ensure Redis is running
 **Note**: Workers are a yarn workspace managed by the root package.json
 
 ### Port 5173 already in use
+
 **Root cause**: Another dev server or process is already using the port
 **Diagnosis**: Run `lsof -i :5173` (Unix) or `netstat -ano | findstr :5173` (Windows)
 **Fix**: Kill the existing process or set a different port: `PORT=3000 yarn dev`
@@ -314,18 +357,21 @@ When encountering issues, focus on understanding and fixing the root cause rathe
 ## Path Aliases
 
 When importing files, use these aliases:
+
 - `@/*` → `./app/uikit/*` (UI components)
 - `~/*` → `./app/*` (app modules)
 
 Examples:
+
 ```typescript
-import { Button } from '@/components/ui/button'
-import { getProjects } from '~/modules/projects/queries'
+import { Button } from "@/components/ui/button";
+import { getProjects } from "~/modules/projects/queries";
 ```
 
 ## Testing
 
 **No automated test suite currently exists**. Manual testing recommended:
+
 1. Run `yarn dev` and test features in browser
 2. Check console for errors
 3. Verify builds succeed with `yarn build`
@@ -334,6 +380,7 @@ import { getProjects } from '~/modules/projects/queries'
 ## Key Dependencies
 
 ### Production
+
 - **React 19** & **React DOM 19**: UI framework
 - **React Router 7**: Routing with SSR
 - **Mongoose 8**: MongoDB/DocumentDB ORM
@@ -356,6 +403,7 @@ import { getProjects } from '~/modules/projects/queries'
 - **Socket.io**: Real-time communication
 
 ### Development
+
 - **TypeScript 5.8**: Type checking
 - **Vite 6**: Build tool & dev server
 - **@react-router/dev**: React Router tooling
@@ -363,6 +411,7 @@ import { getProjects } from '~/modules/projects/queries'
 ## UI Component Development
 
 ### Component Library Stack
+
 - **Radix UI**: Headless, accessible component primitives (Root + Indicator pattern)
 - **shadcn/ui**: Pre-built components in `app/uikit/components/ui/`
 - **Tailwind CSS 4**: Utility-first styling with CSS variables for theming
@@ -372,6 +421,7 @@ import { getProjects } from '~/modules/projects/queries'
 - **Motion**: Modern animations (Framer Motion successor)
 
 ### Component Patterns
+
 - **Use compound components**: Radix components follow `Primitive.Root` + `Primitive.Trigger/Content/Indicator` patterns
 - **Styling utility**: Use `cn()` function from `@/lib/utils` (combines `clsx` + `tailwind-merge`)
 - **Variant management**: Use `class-variance-authority` for component variants
@@ -384,6 +434,7 @@ import { getProjects } from '~/modules/projects/queries'
   This applies to TypeScript interfaces, function parameters, and JSX prop passing
 
 ### UI Development Guidelines
+
 ```typescript
 // ✅ Correct shadcn/Radix pattern
 import * as DialogPrimitive from "@radix-ui/react-dialog"
@@ -405,6 +456,7 @@ import { ChevronDown } from "lucide-react"
 ```
 
 ### Accessibility Notes
+
 - Radix UI provides ARIA attributes, keyboard navigation, and screen reader support automatically
 - Always test components with keyboard navigation and screen readers
 - Use semantic HTML structure within Radix primitives
@@ -414,12 +466,14 @@ import { ChevronDown } from "lucide-react"
 **CRITICAL**: All filenames must be in lowercase form consistently throughout the project.
 
 ### Naming Rules
+
 - **Files**: Use camelCase: `userProfile.tsx`, `dataLoader.ts`
 - **Directories**: Use lowercase: `components/`, `modules/`, `storageAdapters/`
 - **React Components**: Files should be camelCase, but export PascalCase: `jobDialog.tsx` exports `JobDialog`
 - **Utilities/Functions**: Use camelCase: `utils.ts`, `helpers.ts`, `queries.ts`
 
 ### Examples
+
 ```typescript
 // ✅ Correct filename: jobDialog.tsx
 export const JobDialog = () => { ... }
@@ -434,6 +488,7 @@ export const fetchUserData = () => { ... }
 ```
 
 ### Why camelCase?
+
 - **Consistency**: Matches existing codebase patterns
 - **JavaScript convention**: Aligns with JavaScript/TypeScript variable naming
 - **Git-friendly**: Avoids case-related merge conflicts
@@ -444,6 +499,7 @@ export const fetchUserData = () => { ... }
 **CRITICAL**: Follow these formatting rules consistently across all files.
 
 ### Indentation & Spacing
+
 - **Use 2 spaces** for indentation (no tabs)
 - **No trailing whitespace** on any lines
 - **Single newline** at end of every file
@@ -451,13 +507,16 @@ export const fetchUserData = () => { ... }
 - **Consistent spacing** around operators and brackets
 
 ### Auto-formatting Workflow
+
 **Always save files to apply formatting rules**:
+
 1. Write your code
 2. **Save the file** (Cmd/Ctrl + S) - this triggers auto-formatting
 3. Verify formatting is applied (indentation, trailing spaces cleaned, etc.)
 4. Commit only after formatting is applied
 
 ### Formatting Rules Applied on Save
+
 - **2-space indentation** enforced
 - **Trailing whitespace** removal
 - **Empty line cleanup** (removes extra blank lines)
@@ -466,6 +525,7 @@ export const fetchUserData = () => { ... }
 - **Consistent quotes** and semicolons
 
 ### Example
+
 ```typescript
 // ✅ Correct formatting (2 spaces, no trailing whitespace, final newline)
 import { cn } from "@/lib/utils"
@@ -485,17 +545,20 @@ export const JobDialog = ({ className, ...props }) => {
 **CRITICAL**: Only add comments when they explain complex logic or non-obvious behavior.
 
 ### When to Comment
+
 - **Complex algorithms** or business logic that isn't immediately clear
 - **Non-obvious workarounds** or browser-specific fixes
 - **Important context** that prevents future bugs or confusion
 - **API integration quirks** or external service limitations
 
 ### When NOT to Comment
+
 - **Self-explanatory code** - good variable/function names are better
 - **Obvious operations** - don't explain what the code clearly does
 - **Redundant descriptions** - avoid restating the code in English
 
 ### Examples
+
 ```typescript
 // ❌ Unnecessary comments
 // Set the user name
@@ -521,6 +584,7 @@ style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
 ```
 
 ### Best Practices
+
 - **Explain WHY, not WHAT** - focus on reasoning and context
 - **Keep comments concise** - avoid lengthy explanations
 - **Extract complex calculations** - use descriptive variables instead of inline math
@@ -532,46 +596,50 @@ style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
 **CRITICAL**: This application handles sensitive tutoring transcripts and research data. Always consider security implications.
 
 ### Authentication & Authorization
+
 - **Always check user authentication** before implementing features that require login
 - **Verify permissions** - Check if user has access to specific projects/teams/data
 - **Follow existing auth patterns** - Use established React Router error handling (see above)
 - **Handle auth failures gracefully** - Use `redirect()` in loaders, `throw new Error()` in actions
 
 ### Data Sensitivity
+
 - **Tutoring transcripts are confidential** - Handle with appropriate care
 - **User data protection** - Don't log sensitive information
 - **File access control** - Ensure users can only access their authorized files
 - **API security** - Validate all inputs and sanitize outputs
 
 ### Environment Variables
+
 - **Never commit secrets** - Use `.env` for sensitive configuration
 - **Validate required env vars** - Check for missing critical environment variables
 - **Use secure defaults** - Fail securely when configuration is missing
 - **Rotate credentials** - Be prepared for credential rotation in production
 
 ### Examples
+
 ```typescript
 // ✅ Check permissions beyond basic auth
 export async function loader({ request }) {
-  const user = await getUser(request)
-  if (!user) return redirect('/') // Follow React Router pattern
+  const user = await getUser(request);
+  if (!user) return redirect("/"); // Follow React Router pattern
 
   // Additional permission checks
-  const project = await getProject(params.projectId)
+  const project = await getProject(params.projectId);
   if (!canAccessProject(user, project)) {
-    throw new Error("Access denied")
+    throw new Error("Access denied");
   }
 }
 
 // ✅ Validate and sanitize all inputs
 export async function action({ request }) {
-  const user = await getUser(request)
-  if (!user) throw new Error("Authentication required") // Follow React Router pattern
+  const user = await getUser(request);
+  if (!user) throw new Error("Authentication required"); // Follow React Router pattern
 
-  const formData = await request.formData()
-  const name = formData.get("name")?.toString().trim()
+  const formData = await request.formData();
+  const name = formData.get("name")?.toString().trim();
   if (!name || name.length > 100) {
-    throw new Error("Invalid name")
+    throw new Error("Invalid name");
   }
 }
 ```
@@ -597,6 +665,7 @@ export async function action({ request }) {
 ## Quick Reference
 
 **Full build & validation cycle** (recommended before PR):
+
 ```bash
 yarn install --frozen-lockfile
 yarn typecheck
@@ -604,12 +673,14 @@ yarn build
 ```
 
 **Start development**:
+
 ```bash
 cp .env.example .env
 # Edit .env as needed
 yarn install --frozen-lockfile
 yarn dev
 ```
+
 ---
 
 **Trust these instructions**. Only search for additional information if these instructions are incomplete or you encounter unexpected behavior not covered here.

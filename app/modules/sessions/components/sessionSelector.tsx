@@ -1,9 +1,16 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import dayjs from "dayjs";
-import map from 'lodash/map';
-import type { Session } from "../sessions.types";
 import { Checkbox } from "@/components/ui/checkbox";
-import includes from 'lodash/includes';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import dayjs from "dayjs";
+import includes from "lodash/includes";
+import map from "lodash/map";
+import type { Session } from "../sessions.types";
 import SessionRandomizer from "./sessionRandomizer";
 
 export default function SessionSelector({
@@ -13,19 +20,25 @@ export default function SessionSelector({
   onSelectAllToggled,
   onSelectSessionToggled,
   onSampleSizeChanged,
-  onRandomizeClicked
+  onRandomizeClicked,
 }: {
-  sessions: [],
-  selectedSessions: string[],
-  sampleSize: number,
-  onSelectAllToggled: (isChecked: boolean) => void,
-  onSelectSessionToggled: ({ sessionId, isChecked }: { sessionId: string, isChecked: boolean }) => void,
-  onSampleSizeChanged: (size: number) => void,
-  onRandomizeClicked: () => void
+  sessions: [];
+  selectedSessions: string[];
+  sampleSize: number;
+  onSelectAllToggled: (isChecked: boolean) => void;
+  onSelectSessionToggled: ({
+    sessionId,
+    isChecked,
+  }: {
+    sessionId: string;
+    isChecked: boolean;
+  }) => void;
+  onSampleSizeChanged: (size: number) => void;
+  onRandomizeClicked: () => void;
 }) {
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
+      <div className="mb-2 flex items-center justify-between">
         <span className="text-sm font-medium">Select All</span>
         <SessionRandomizer
           sampleSize={sampleSize}
@@ -34,14 +47,18 @@ export default function SessionSelector({
           onRandomizeClicked={onRandomizeClicked}
         />
       </div>
-      <div className="border rounded-md h-80 overflow-y-auto">
+      <div className="h-80 overflow-y-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-8"><Checkbox
-                checked={selectedSessions.length === sessions.length}
-                onCheckedChange={(checked) => onSelectAllToggled(Boolean(checked))}
-              /></TableHead>
+              <TableHead className="w-8">
+                <Checkbox
+                  checked={selectedSessions.length === sessions.length}
+                  onCheckedChange={(checked) =>
+                    onSelectAllToggled(Boolean(checked))
+                  }
+                />
+              </TableHead>
               <TableHead className="w-[300px]">Name</TableHead>
               <TableHead>Created</TableHead>
               <TableHead>File type</TableHead>
@@ -54,13 +71,20 @@ export default function SessionSelector({
                   <TableCell className="w-8">
                     <Checkbox
                       checked={includes(selectedSessions, session._id)}
-                      onCheckedChange={(checked) => onSelectSessionToggled({ sessionId: session._id, isChecked: Boolean(checked) })}
+                      onCheckedChange={(checked) =>
+                        onSelectSessionToggled({
+                          sessionId: session._id,
+                          isChecked: Boolean(checked),
+                        })
+                      }
                     ></Checkbox>
                   </TableCell>
-                  <TableCell className="font-medium">
-                    {session.name}
+                  <TableCell className="font-medium">{session.name}</TableCell>
+                  <TableCell>
+                    {dayjs(session.createdAt).format(
+                      "ddd, MMM D, YYYY - h:mm A",
+                    )}
                   </TableCell>
-                  <TableCell>{dayjs(session.createdAt).format('ddd, MMM D, YYYY - h:mm A')}</TableCell>
                   <TableCell>{session.fileType}</TableCell>
                 </TableRow>
               );
@@ -69,5 +93,5 @@ export default function SessionSelector({
         </Table>
       </div>
     </div>
-  )
+  );
 }

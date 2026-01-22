@@ -1,4 +1,3 @@
-
 import { Collection } from "@/components/ui/collection";
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import type { Breadcrumb } from "~/modules/app/app.types";
@@ -13,19 +12,19 @@ import type { Prompt } from "../prompts.types";
 
 interface PromptsProps {
   prompts: Prompt[];
-  breadcrumbs: Breadcrumb[],
-  searchValue: string,
-  currentPage: number,
-  totalPages: number,
-  filtersValues: {},
-  sortValue: string,
-  isSyncing: boolean,
+  breadcrumbs: Breadcrumb[];
+  searchValue: string;
+  currentPage: number;
+  totalPages: number;
+  filtersValues: {};
+  sortValue: string;
+  isSyncing: boolean;
   onActionClicked: (action: string) => void;
-  onItemActionClicked: ({ id, action }: { id: string, action: string }) => void,
-  onSearchValueChanged: (searchValue: string) => void,
-  onPaginationChanged: (currentPage: number) => void,
-  onFiltersValueChanged: (filterValue: any) => void,
-  onSortValueChanged: (sortValue: any) => void
+  onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (currentPage: number) => void;
+  onFiltersValueChanged: (filterValue: any) => void;
+  onSortValueChanged: (sortValue: any) => void;
 }
 
 export default function Prompts({
@@ -42,7 +41,7 @@ export default function Prompts({
   onSearchValueChanged,
   onPaginationChanged,
   onFiltersValueChanged,
-  onSortValueChanged
+  onSortValueChanged,
 }: PromptsProps) {
   return (
     <div className="max-w-6xl p-8">
@@ -74,7 +73,6 @@ export default function Prompts({
         onPaginationChanged={onPaginationChanged}
         onFiltersValueChanged={onFiltersValueChanged}
         onSortValueChanged={onSortValueChanged}
-
       />
     </div>
   );

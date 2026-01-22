@@ -1,21 +1,29 @@
-import { OpenAI } from 'openai';
+import { OpenAI } from "openai";
 import registerLLM from "../helpers/registerLLM";
 
-registerLLM('AI_GATEWAY', {
+registerLLM("AI_GATEWAY", {
   init: () => {
     const openai = new OpenAI({
       apiKey: process.env.AI_GATEWAY_KEY,
-      baseURL: process.env.AI_GATEWAY_BASE_URL
+      baseURL: process.env.AI_GATEWAY_BASE_URL,
     });
     return openai;
   },
-  createChat: async ({ llm, options, messages }: { llm: any; options: any; messages: Array<{ role: string; content: string }> }) => {
+  createChat: async ({
+    llm,
+    options,
+    messages,
+  }: {
+    llm: any;
+    options: any;
+    messages: Array<{ role: string; content: string }>;
+  }) => {
     const { model, user } = options;
 
     let metadata: any = {};
 
     if (user) {
-      metadata.tags = [user]
+      metadata.tags = [user];
     }
 
     const chatCompletion = await llm.chat.completions.create({
@@ -23,10 +31,9 @@ registerLLM('AI_GATEWAY', {
       model: model,
       messages: messages,
       response_format: { type: "json_object" },
-      metadata
+      metadata,
     });
 
     return JSON.parse(chatCompletion.choices[0].message.content);
-
-  }
+  },
 });

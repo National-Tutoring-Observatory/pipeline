@@ -1,29 +1,44 @@
-import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, S3Client, paginateListObjectsV2 } from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import {
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
+  GetObjectCommand,
+  S3Client,
+  paginateListObjectsV2,
+} from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import fse from "fs-extra";
 import path from "path";
 import { Readable } from "stream";
-import { PROJECT_ROOT } from '~/helpers/projectRoot';
+import { PROJECT_ROOT } from "~/helpers/projectRoot";
 import registerStorageAdapter from "~/modules/storage/helpers/registerStorageAdapter";
-import type { DownloadParams, RemoveDirParams, RemoveParams, RequestParams, UploadParams } from '~/modules/storage/storage.types';
+import type {
+  DownloadParams,
+  RemoveDirParams,
+  RemoveParams,
+  RequestParams,
+  UploadParams,
+} from "~/modules/storage/storage.types";
 
 const S3_MAX_BATCH_SIZE = 1000; // AWS S3 limit for DeleteObjectsCommand and ListObjectsV2
 
 function getS3Client() {
-  const { AWS_REGION, AWS_KEY, AWS_SECRET, AWS_S3_FORCE_PATH_STYLE } = process.env;
+  const { AWS_REGION, AWS_KEY, AWS_SECRET, AWS_S3_FORCE_PATH_STYLE } =
+    process.env;
   if (!AWS_REGION || !AWS_KEY || !AWS_SECRET) {
-    throw new Error("Missing AWS configuration: AWS_REGION, AWS_KEY, or AWS_SECRET");
+    throw new Error(
+      "Missing AWS configuration: AWS_REGION, AWS_KEY, or AWS_SECRET",
+    );
   }
   const config: any = {
     region: AWS_REGION,
     credentials: {
       accessKeyId: AWS_KEY,
-      secretAccessKey: AWS_SECRET
-    }
+      secretAccessKey: AWS_SECRET,
+    },
   };
 
-  if (AWS_S3_FORCE_PATH_STYLE === 'true') {
+  if (AWS_S3_FORCE_PATH_STYLE === "true") {
     config.forcePathStyle = true;
   }
 
@@ -39,19 +54,19 @@ function getAwsBucket() {
 }
 
 registerStorageAdapter({
-  name: 'AWS_S3',
+  name: "AWS_S3",
   download: async ({ sourcePath }: DownloadParams): Promise<string> => {
     const s3Client = getS3Client();
 
     const params = {
       Bucket: getAwsBucket(),
-      Key: sourcePath
+      Key: sourcePath,
     };
 
     try {
       const data = await s3Client.send(new GetObjectCommand(params));
       if (data.Body && data.Body instanceof Readable) {
-        const tmpPath = path.join(PROJECT_ROOT, 'tmp', sourcePath);
+        const tmpPath = path.join(PROJECT_ROOT, "tmp", sourcePath);
         const downloadDirectory = path.dirname(tmpPath);
         await fse.ensureDir(downloadDirectory);
         const fileStream = fse.createWriteStream(tmpPath);
@@ -65,11 +80,12 @@ registerStorageAdapter({
       }
       throw new Error(`AWS_S3: No file body returned for ${sourcePath}`);
     } catch (error) {
-      throw new Error(`AWS_S3 download error for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `AWS_S3 download error for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   },
   upload: async ({ file, uploadPath }: UploadParams): Promise<void> => {
-
     const { buffer, contentType, size } = file;
 
     const s3Client = getS3Client();
@@ -77,8 +93,13 @@ registerStorageAdapter({
     const ACL: "private" = "private";
 
     try {
-
-      let params = { Bucket: getAwsBucket(), Key: uploadPath, Body: buffer, ACL, ContentType: contentType };
+      let params = {
+        Bucket: getAwsBucket(),
+        Key: uploadPath,
+        Body: buffer,
+        ACL,
+        ContentType: contentType,
+      };
 
       const upload = new Upload({
         client: s3Client,
@@ -89,35 +110,40 @@ registerStorageAdapter({
       });
 
       await upload.done();
-
     } catch (error) {
       console.log(error);
     }
-
-
   },
   remove: async ({ sourcePath }: RemoveParams): Promise<void> => {
     const s3Client = getS3Client();
-    const command = new DeleteObjectCommand({ Bucket: getAwsBucket(), Key: sourcePath });
+    const command = new DeleteObjectCommand({
+      Bucket: getAwsBucket(),
+      Key: sourcePath,
+    });
     await s3Client.send(command);
     console.log(`AWS_S3: Deleted file ${sourcePath}`);
   },
   removeDir: async ({ sourcePath }: RemoveDirParams): Promise<void> => {
     const s3Client = getS3Client();
     const bucket = getAwsBucket();
-    const prefix = sourcePath.endsWith('/') ? sourcePath : `${sourcePath}/`;
+    const prefix = sourcePath.endsWith("/") ? sourcePath : `${sourcePath}/`;
 
     try {
-      const paginator = paginateListObjectsV2({ client: s3Client, pageSize: S3_MAX_BATCH_SIZE }, { Bucket: bucket, Prefix: prefix });
+      const paginator = paginateListObjectsV2(
+        { client: s3Client, pageSize: S3_MAX_BATCH_SIZE },
+        { Bucket: bucket, Prefix: prefix },
+      );
 
       for await (const page of paginator) {
         if (!page.Contents || page.Contents.length === 0) continue;
 
-        const keysToDelete = page.Contents.map(object => ({ Key: object.Key! }));
+        const keysToDelete = page.Contents.map((object) => ({
+          Key: object.Key!,
+        }));
 
         const deleteCommand = new DeleteObjectsCommand({
           Bucket: bucket,
-          Delete: { Objects: keysToDelete }
+          Delete: { Objects: keysToDelete },
         });
         await s3Client.send(deleteCommand);
       }
@@ -131,11 +157,13 @@ registerStorageAdapter({
 
     const params = {
       Bucket: getAwsBucket(),
-      Key: url
+      Key: url,
     };
 
     const command = new GetObjectCommand(params);
-    const requestUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    const requestUrl = await getSignedUrl(s3Client, command, {
+      expiresIn: 3600,
+    });
     return requestUrl;
-  }
-})
+  },
+});

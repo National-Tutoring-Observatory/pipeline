@@ -1,29 +1,34 @@
 import { Button } from "@/components/ui/button";
 import {
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogClose
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import ProjectNameAlert from "./projectNameAlert";
 import TeamsSelectorContainer from "~/modules/teams/containers/teamsSelector.container";
+import ProjectNameAlert from "./projectNameAlert";
 
 const CreateProjectDialog = ({
   hasTeamSelection,
   onCreateNewProjectClicked,
-  isSubmitting = false
+  isSubmitting = false,
 }: {
-  hasTeamSelection: boolean,
-  onCreateNewProjectClicked: ({ name, team }: { name: string, team: string | null }) => void,
-  isSubmitting?: boolean
+  hasTeamSelection: boolean;
+  onCreateNewProjectClicked: ({
+    name,
+    team,
+  }: {
+    name: string;
+    team: string | null;
+  }) => void;
+  isSubmitting?: boolean;
 }) => {
-
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [team, setTeam] = useState<string | null>(null);
 
   const onProjectNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +37,7 @@ const CreateProjectDialog = ({
 
   const onTeamSelected = (selectedTeam: string) => {
     setTeam(selectedTeam);
-  }
+  };
 
   let isSubmitButtonDisabled = true;
 
@@ -51,25 +56,28 @@ const CreateProjectDialog = ({
       <DialogHeader>
         <DialogTitle>Create a new project</DialogTitle>
         <DialogDescription>
-          Give your project a name. This can be changed at a later date but giving a description now will make it easier to find later.
+          Give your project a name. This can be changed at a later date but
+          giving a description now will make it easier to find later.
         </DialogDescription>
       </DialogHeader>
       <div className="grid gap-3">
-         <Label htmlFor="name-1">Name</Label>
-         <Input id="name-1" name="name" defaultValue={name} autoComplete="off" onChange={onProjectNameChanged} disabled={isSubmitting} />
-         <ProjectNameAlert
-           name={name}
-         />
-       </div>
-       {(hasTeamSelection) && (
-         <div className="grid gap-3">
-           <Label htmlFor="name-1">Team</Label>
-           <TeamsSelectorContainer
-             team={team}
-             onTeamSelected={onTeamSelected}
-           />
-         </div>
-       )}
+        <Label htmlFor="name-1">Name</Label>
+        <Input
+          id="name-1"
+          name="name"
+          defaultValue={name}
+          autoComplete="off"
+          onChange={onProjectNameChanged}
+          disabled={isSubmitting}
+        />
+        <ProjectNameAlert name={name} />
+      </div>
+      {hasTeamSelection && (
+        <div className="grid gap-3">
+          <Label htmlFor="name-1">Team</Label>
+          <TeamsSelectorContainer team={team} onTeamSelected={onTeamSelected} />
+        </div>
+      )}
       <DialogFooter className="justify-end">
         <DialogClose asChild>
           <Button type="button" variant="secondary" disabled={isSubmitting}>
@@ -77,9 +85,13 @@ const CreateProjectDialog = ({
           </Button>
         </DialogClose>
         <DialogClose asChild>
-          <Button type="button" disabled={isSubmitButtonDisabled || isSubmitting} onClick={() => {
-            onCreateNewProjectClicked({ name, team });
-          }}>
+          <Button
+            type="button"
+            disabled={isSubmitButtonDisabled || isSubmitting}
+            onClick={() => {
+              onCreateNewProjectClicked({ name, team });
+            }}
+          >
             Create project
           </Button>
         </DialogClose>

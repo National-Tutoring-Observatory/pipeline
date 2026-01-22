@@ -1,35 +1,31 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { FileService } from '../../app/modules/files/file.js';
-import getAttributeMappingFromFile from '../../app/modules/projects/helpers/getAttributeMappingFromFile.js';
-import { ProjectService } from '../../app/modules/projects/project.js';
-import createSessionsFromFiles from '../../app/modules/projects/services/createSessionsFromFiles.server.js';
-import { getProjectFileStoragePath } from '../../app/modules/uploads/helpers/projectFileStorage.js';
-import splitMultipleSessionsIntoFiles from '../../app/modules/uploads/services/splitMultipleSessionsIntoFiles.js';
-import uploadFile from '../../app/modules/uploads/services/uploadFile.js';
-import { UserService } from '../../app/modules/users/user.js';
-import { getSeededTeams } from './teamSeeder.js';
-import { getSeededUsers } from './userSeeder.js';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { FileService } from "../../app/modules/files/file.js";
+import getAttributeMappingFromFile from "../../app/modules/projects/helpers/getAttributeMappingFromFile.js";
+import { ProjectService } from "../../app/modules/projects/project.js";
+import createSessionsFromFiles from "../../app/modules/projects/services/createSessionsFromFiles.server.js";
+import { getProjectFileStoragePath } from "../../app/modules/uploads/helpers/projectFileStorage.js";
+import splitMultipleSessionsIntoFiles from "../../app/modules/uploads/services/splitMultipleSessionsIntoFiles.js";
+import uploadFile from "../../app/modules/uploads/services/uploadFile.js";
+import { UserService } from "../../app/modules/users/user.js";
+import { getSeededTeams } from "./teamSeeder.js";
+import { getSeededUsers } from "./userSeeder.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const FIXTURES_DIR = path.resolve(__dirname, '../fixtures');
+const FIXTURES_DIR = path.resolve(__dirname, "../fixtures");
 
 const SEED_PROJECTS = [
   {
-    name: 'Tutoring Transcripts Study 2024',
-    files: [
-      { name: 'test_upload.csv', type: 'CSV' }
-    ],
+    name: "Tutoring Transcripts Study 2024",
+    files: [{ name: "test_upload.csv", type: "CSV" }],
   },
   {
-    name: 'Tutoring Transcripts JSONL Study',
-    files: [
-      { name: 'test_upload.jsonl', type: 'JSONL' }
-    ],
-  }
+    name: "Tutoring Transcripts JSONL Study",
+    files: [{ name: "test_upload.jsonl", type: "JSONL" }],
+  },
 ];
 
 export async function seedProjects() {
@@ -37,18 +33,18 @@ export async function seedProjects() {
   const users = await getSeededUsers();
 
   if (teams.length === 0) {
-    console.warn('  ⚠️  No seeded teams found. Please run team seeder first.');
+    console.warn("  ⚠️  No seeded teams found. Please run team seeder first.");
     return;
   }
 
   if (users.length === 0) {
-    console.warn('  ⚠️  No seeded users found. Please run user seeder first.');
+    console.warn("  ⚠️  No seeded users found. Please run user seeder first.");
     return;
   }
 
-  const admin = users.find(u => u.role === 'SUPER_ADMIN');
+  const admin = users.find((u) => u.role === "SUPER_ADMIN");
   if (!admin) {
-    console.warn('  ⚠️  No admin user found.');
+    console.warn("  ⚠️  No admin user found.");
     return;
   }
 
@@ -63,7 +59,9 @@ export async function seedProjects() {
       });
 
       if (existing.length > 0) {
-        console.log(`  ⏭️  Project '${projectData.name}' already exists, skipping...`);
+        console.log(
+          `  ⏭️  Project '${projectData.name}' already exists, skipping...`,
+        );
         continue;
       }
 
@@ -78,14 +76,19 @@ export async function seedProjects() {
         hasErrored: false,
       });
 
-      console.log(`  ✓ Created project: ${projectData.name} (ID: ${project._id})`);
+      console.log(
+        `  ✓ Created project: ${projectData.name} (ID: ${project._id})`,
+      );
 
       // Create sessions from uploaded files and queue processing jobs
       console.log(`    → Processing files into sessions...`);
-      const teamId = typeof project.team === 'string' ? project.team : project.team._id;
+      const teamId =
+        typeof project.team === "string" ? project.team : project.team._id;
       await processProjectFiles(project._id, teamId, projectData.files);
 
-      console.log(`  ✅ Project '${projectData.name}' seeded with ${projectData.files.length} files\n`);
+      console.log(
+        `  ✅ Project '${projectData.name}' seeded with ${projectData.files.length} files\n`,
+      );
     } catch (error) {
       console.error(`  ✗ Error creating project ${projectData.name}:`, error);
       throw error;
@@ -93,16 +96,26 @@ export async function seedProjects() {
   }
 }
 
-async function processProjectFiles(projectId: string, teamId: string, files: Array<{ name: string; type: string }>) {
+async function processProjectFiles(
+  projectId: string,
+  teamId: string,
+  files: Array<{ name: string; type: string }>,
+) {
   // Load fixture files as File objects
   const fixtureFiles: Array<{ file: File; type: string }> = [];
   for (const fileConfig of files) {
     const fixturePath = path.join(FIXTURES_DIR, fileConfig.name);
     if (fs.existsSync(fixturePath)) {
       const fileBuffer = fs.readFileSync(fixturePath);
-      const mimeType = fileConfig.type === 'JSONL' ? 'application/jsonl' : 'text/csv';
-      const fileObj = new File([fileBuffer], fileConfig.name, { type: mimeType });
-      fixtureFiles.push({ file: fileObj, type: fileConfig.type as 'CSV' | 'JSONL' });
+      const mimeType =
+        fileConfig.type === "JSONL" ? "application/jsonl" : "text/csv";
+      const fileObj = new File([fileBuffer], fileConfig.name, {
+        type: mimeType,
+      });
+      fixtureFiles.push({
+        file: fileObj,
+        type: fileConfig.type as "CSV" | "JSONL",
+      });
     }
   }
 
@@ -112,7 +125,7 @@ async function processProjectFiles(projectId: string, teamId: string, files: Arr
   }
 
   // Get the admin user for createdBy field
-  const admins = await UserService.find({ match: { role: 'SUPER_ADMIN' } });
+  const admins = await UserService.find({ match: { role: "SUPER_ADMIN" } });
   const adminUserId = admins[0]?._id;
   if (!adminUserId) {
     console.warn(`      ⚠️  No admin user found`);
@@ -121,11 +134,18 @@ async function processProjectFiles(projectId: string, teamId: string, files: Arr
 
   // Step 1: Split CSV/JSONL files by session_id
   const filesToSplit = fixtureFiles.map(({ file }) => file);
-  const splitFiles = await splitMultipleSessionsIntoFiles({ files: filesToSplit });
-  console.log(`      ✓ Split ${fixtureFiles.length} file(s) into ${splitFiles.length} session(s)`);
+  const splitFiles = await splitMultipleSessionsIntoFiles({
+    files: filesToSplit,
+  });
+  console.log(
+    `      ✓ Split ${fixtureFiles.length} file(s) into ${splitFiles.length} session(s)`,
+  );
 
   // Step 2: Get attribute mapping from first split file
-  const attributesMapping = await getAttributeMappingFromFile({ file: splitFiles[0], team: teamId });
+  const attributesMapping = await getAttributeMappingFromFile({
+    file: splitFiles[0],
+    team: teamId,
+  });
   console.log(`      ✓ Detected attribute mapping from file`);
 
   // Step 3: Upload split files to storage
@@ -135,11 +155,15 @@ async function processProjectFiles(projectId: string, teamId: string, files: Arr
     const fileResult = await FileService.create({
       name: splitFile.name,
       project: projectId,
-      fileType: 'application/json',
+      fileType: "application/json",
       createdBy: adminUserId,
     });
 
-    const uploadPath = getProjectFileStoragePath(projectId, fileResult._id, splitFile.name);
+    const uploadPath = getProjectFileStoragePath(
+      projectId,
+      fileResult._id,
+      splitFile.name,
+    );
     await uploadFile({ file: splitFile, uploadPath });
 
     await FileService.updateById(fileResult._id, { hasUploaded: true });

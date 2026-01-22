@@ -1,17 +1,17 @@
-import mongoose from 'mongoose';
-import type { FindOptions, PaginateProps } from '~/modules/common/types';
-import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
-import collectionSchema from '~/lib/schemas/collection.schema';
-import type { Collection, PromptReference } from './collections.types';
-import type { Run, RunAnnotationType } from '~/modules/runs/runs.types';
-import createCollectionWithRuns from './services/createCollectionWithRuns.server';
-import deleteCollectionService from './services/deleteCollection.server';
-import findEligibleRunsService from './services/findEligibleRuns.server';
-import addRunsToCollectionService from './services/addRunsToCollection.server';
-import findMergeableCollectionsService from './services/findMergeableCollections.server';
-import mergeCollectionsService from './services/mergeCollections.server';
+import mongoose from "mongoose";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
+import collectionSchema from "~/lib/schemas/collection.schema";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
+import type { Run, RunAnnotationType } from "~/modules/runs/runs.types";
+import type { Collection, PromptReference } from "./collections.types";
+import addRunsToCollectionService from "./services/addRunsToCollection.server";
+import createCollectionWithRuns from "./services/createCollectionWithRuns.server";
+import deleteCollectionService from "./services/deleteCollection.server";
+import findEligibleRunsService from "./services/findEligibleRuns.server";
+import findMergeableCollectionsService from "./services/findMergeableCollections.server";
+import mergeCollectionsService from "./services/mergeCollections.server";
 
-const CollectionModel = mongoose.model('Collection', collectionSchema);
+const CollectionModel = mongoose.model("Collection", collectionSchema);
 
 export class CollectionService {
   private static toCollection(doc: any): Collection {
@@ -31,11 +31,13 @@ export class CollectionService {
     }
 
     if (options?.pagination) {
-      query = query.skip(options.pagination.skip).limit(options.pagination.limit);
+      query = query
+        .skip(options.pagination.skip)
+        .limit(options.pagination.limit);
     }
 
     const docs = await query;
-    return docs.map(doc => this.toCollection(doc));
+    return docs.map((doc) => this.toCollection(doc));
   }
 
   static async count(match: Record<string, any> = {}): Promise<number> {
@@ -58,7 +60,10 @@ export class CollectionService {
     return this.toCollection(doc);
   }
 
-  static async updateById(id: string, updates: Partial<Collection>): Promise<Collection | null> {
+  static async updateById(
+    id: string,
+    updates: Partial<Collection>,
+  ): Promise<Collection | null> {
     const doc = await CollectionModel.findByIdAndUpdate(id, updates, {
       new: true,
     });
@@ -79,13 +84,22 @@ export class CollectionService {
     return result.deletedCount || 0;
   }
 
-  static async paginate({ match, sort, page, pageSize }: PaginateProps): Promise<{ data: Collection[]; count: number; totalPages: number }> {
+  static async paginate({
+    match,
+    sort,
+    page,
+    pageSize,
+  }: PaginateProps): Promise<{
+    data: Collection[];
+    count: number;
+    totalPages: number;
+  }> {
     const pagination = getPaginationParams(page, pageSize);
 
     const results = await this.find({
       match,
       sort,
-      pagination
+      pagination,
     });
 
     const count = await this.count(match);
@@ -93,7 +107,7 @@ export class CollectionService {
     return {
       data: results,
       count,
-      totalPages: getTotalPages(count, pageSize)
+      totalPages: getTotalPages(count, pageSize),
     };
   }
 
@@ -108,34 +122,41 @@ export class CollectionService {
     return createCollectionWithRuns(payload);
   }
 
-  static async deleteWithCleanup(collectionId: string): Promise<{ status: string }> {
+  static async deleteWithCleanup(
+    collectionId: string,
+  ): Promise<{ status: string }> {
     return deleteCollectionService({ collectionId });
   }
 
   static async findEligibleRunsForCollection(
     collectionId: string,
-    options?: { page?: number; pageSize?: number; search?: string }
+    options?: { page?: number; pageSize?: number; search?: string },
   ): Promise<{ data: Run[]; count: number; totalPages: number }> {
     return findEligibleRunsService(collectionId, options);
   }
 
   static async addRunsToCollection(
     collectionId: string,
-    runIds: string[]
-  ): Promise<{ collection: Collection; added: string[]; skipped: string[]; errors: string[] }> {
+    runIds: string[],
+  ): Promise<{
+    collection: Collection;
+    added: string[];
+    skipped: string[];
+    errors: string[];
+  }> {
     return addRunsToCollectionService(collectionId, runIds);
   }
 
   static async findMergeableCollections(
     targetCollectionId: string,
-    options?: { page?: number; pageSize?: number; search?: string }
+    options?: { page?: number; pageSize?: number; search?: string },
   ): Promise<{ data: Collection[]; count: number; totalPages: number }> {
     return findMergeableCollectionsService(targetCollectionId, options);
   }
 
   static async mergeCollections(
     targetCollectionId: string,
-    sourceCollectionIds: string | string[]
+    sourceCollectionIds: string | string[],
   ): Promise<{ collection: Collection; added: string[]; skipped: string[] }> {
     return mergeCollectionsService(targetCollectionId, sourceCollectionIds);
   }

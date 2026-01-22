@@ -15,21 +15,20 @@ export default (item: Project): CollectionItemAction[] => {
 
   if (canUpdate) {
     actions.push({
-      action: 'EDIT',
+      action: "EDIT",
       icon: <Edit />,
-      text: 'Edit'
+      text: "Edit",
     });
   }
 
   if (canDelete) {
     actions.push({
-      action: 'DELETE',
+      action: "DELETE",
       icon: <Trash2 />,
-      text: 'Delete',
-      variant: 'destructive'
-    })
+      text: "Delete",
+      variant: "destructive",
+    });
   }
 
   return actions;
-
-}
+};

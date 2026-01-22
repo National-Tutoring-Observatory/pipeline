@@ -1,44 +1,44 @@
-import map from 'lodash/map';
-import { FilterIcon } from 'lucide-react';
-import type { ReactElement } from 'react';
-import { Badge } from './badge';
-import { Button } from './button';
-import FiltersItem from './filtersItem';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
+import map from "lodash/map";
+import { FilterIcon } from "lucide-react";
+import type { ReactElement } from "react";
+import { Badge } from "./badge";
+import { Button } from "./button";
+import FiltersItem from "./filtersItem";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
 export type Filter = {
-  icon?: ReactElement,
-  category: string,
-  text: string,
-  options: FilterOption[]
-}
+  icon?: ReactElement;
+  category: string;
+  text: string;
+  options: FilterOption[];
+};
 
 export type FilterOption = {
-  value: string,
-  text: string
-}
+  value: string;
+  text: string;
+};
 
 export type FiltersProps = {
-  filters: Filter[],
-  filtersValues: any,
-  onFiltersValueChanged?: (filtersValue: {}) => any,
-}
+  filters: Filter[];
+  filtersValues: any;
+  onFiltersValueChanged?: (filtersValue: {}) => any;
+};
 
 const Filters = ({
   filters,
   filtersValues = {},
   onFiltersValueChanged,
 }: FiltersProps) => {
-  const hasAtLeastOneFilter = Object.values(filtersValues).some(value => value !== null);
+  const hasAtLeastOneFilter = Object.values(filtersValues).some(
+    (value) => value !== null,
+  );
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <FilterIcon />
-          {(hasAtLeastOneFilter) && (
-            <Badge
-              className="bg-blue-500 text-white dark:bg-blue-600 absolute top-1 right-1 h-1.5 w-1.5 p-0"
-            />
+          {hasAtLeastOneFilter && (
+            <Badge className="absolute top-1 right-1 h-1.5 w-1.5 bg-blue-500 p-0 text-white dark:bg-blue-600" />
           )}
         </Button>
       </PopoverTrigger>
@@ -59,7 +59,7 @@ const Filters = ({
                   value={filtersValues[filter.category]}
                   onFiltersValueChanged={onFiltersValueChanged}
                 />
-              )
+              );
             })}
           </div>
         </div>

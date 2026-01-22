@@ -1,6 +1,12 @@
-import { Outlet, redirect, useFetcher, useLoaderData, useParams } from "react-router";
-import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
-import SystemAdminAuthorization from '~/modules/authorization/systemAdminAuthorization';
+import {
+  Outlet,
+  redirect,
+  useFetcher,
+  useLoaderData,
+  useParams,
+} from "react-router";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
 import type { User } from "~/modules/users/users.types";
 import QueueControls from "../components/queueControls";
 import QueueStateTabs from "../components/queueStateTabs";
@@ -8,9 +14,9 @@ import getQueue from "../helpers/getQueue";
 import type { Route } from "./+types/queue.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!SystemAdminAuthorization.Queues.canManage(user)) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const queueType = params.type as string;
@@ -22,14 +28,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return {
     queueType,
     jobCounts,
-    isPaused
+    isPaused,
   };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!SystemAdminAuthorization.Queues.canManage(user)) {
-    throw new Error('Access denied');
+    throw new Error("Access denied");
   }
 
   const { intent } = await request.json();
@@ -41,11 +47,11 @@ export async function action({ request, params }: Route.ActionArgs) {
   }
 
   switch (intent) {
-    case 'PAUSE_QUEUE':
+    case "PAUSE_QUEUE":
       await queue.pause();
       return { success: true, message: `${queueType} queue paused` };
 
-    case 'RESUME_QUEUE':
+    case "RESUME_QUEUE":
       await queue.resume();
       return { success: true, message: `${queueType} queue resumed` };
 
@@ -61,34 +67,35 @@ export default function QueueRoute() {
   const queueType = params.type as string;
 
   const states = [
-    { key: 'active', label: 'Active', count: data.jobCounts.active },
-    { key: 'waiting', label: 'Waiting', count: data.jobCounts.waiting },
-    { key: 'completed', label: 'Completed', count: data.jobCounts.completed },
-    { key: 'failed', label: 'Failed', count: data.jobCounts.failed },
-    { key: 'delayed', label: 'Delayed', count: data.jobCounts.delayed },
-    { key: 'paused', label: 'Paused', count: data.jobCounts.paused },
-    { key: 'waiting-children', label: 'Waiting Children', count: data.jobCounts['waiting-children'] },
+    { key: "active", label: "Active", count: data.jobCounts.active },
+    { key: "waiting", label: "Waiting", count: data.jobCounts.waiting },
+    { key: "completed", label: "Completed", count: data.jobCounts.completed },
+    { key: "failed", label: "Failed", count: data.jobCounts.failed },
+    { key: "delayed", label: "Delayed", count: data.jobCounts.delayed },
+    { key: "paused", label: "Paused", count: data.jobCounts.paused },
+    {
+      key: "waiting-children",
+      label: "Waiting Children",
+      count: data.jobCounts["waiting-children"],
+    },
   ];
 
   const handlePauseResume = () => {
-    const intent = data.isPaused ? 'RESUME_QUEUE' : 'PAUSE_QUEUE';
+    const intent = data.isPaused ? "RESUME_QUEUE" : "PAUSE_QUEUE";
     fetcher.submit(
       { intent },
       {
-        method: 'POST',
-        encType: 'application/json'
-      }
+        method: "POST",
+        encType: "application/json",
+      },
     );
   };
 
   return (
     <div>
       <div className="mb-6">
-        <div className="flex items-center justify-between gap-4 mb-6">
-          <QueueStateTabs
-            queueType={queueType}
-            states={states}
-          />
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <QueueStateTabs queueType={queueType} states={states} />
 
           <QueueControls
             queueType={queueType}

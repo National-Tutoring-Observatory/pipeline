@@ -1,6 +1,5 @@
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
-import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
 
 /**
  * Snapshot sections that can be added to a run
@@ -9,17 +8,17 @@ import type { Prompt, PromptVersion } from "~/modules/prompts/prompts.types";
  */
 export interface RunSnapshot {
   prompt: {
-    name: string
-    userPrompt: string
-    annotationSchema: any[]
-    annotationType: string
-    version: number
-  }
+    name: string;
+    userPrompt: string;
+    annotationSchema: any[];
+    annotationType: string;
+    version: number;
+  };
   model: {
-    code: string
-    provider: string
-    name: string
-  }
+    code: string;
+    provider: string;
+    name: string;
+  };
 }
 
 interface BuildPromptSnapshotProps {
@@ -38,16 +37,18 @@ interface BuildModelSnapshotProps {
  */
 async function buildPromptSnapshot({
   promptId,
-  promptVersionNumber
+  promptVersionNumber,
 }: BuildPromptSnapshotProps) {
   const prompt = await PromptService.findById(promptId);
   const promptVersion = await PromptVersionService.findOne({
     prompt: promptId,
-    version: promptVersionNumber
+    version: promptVersionNumber,
   });
 
   if (!promptVersion) {
-    throw new Error(`Prompt version not found: ${promptId} v${promptVersionNumber}`);
+    throw new Error(
+      `Prompt version not found: ${promptId} v${promptVersionNumber}`,
+    );
   }
 
   if (!prompt) {
@@ -59,7 +60,7 @@ async function buildPromptSnapshot({
     userPrompt: promptVersion.userPrompt,
     annotationSchema: promptVersion.annotationSchema,
     annotationType: prompt.annotationType,
-    version: promptVersion.version
+    version: promptVersion.version,
   };
 }
 
@@ -69,9 +70,7 @@ async function buildPromptSnapshot({
  */
 import findModelByCode from "~/modules/llm/helpers/findModelByCode";
 
-async function buildModelSnapshot({
-  modelCode,
-}: BuildModelSnapshotProps) {
+async function buildModelSnapshot({ modelCode }: BuildModelSnapshotProps) {
   // Look up the display name for the model
   const modelInfo = findModelByCode(modelCode);
   if (!modelInfo) {
@@ -80,7 +79,7 @@ async function buildModelSnapshot({
   return {
     code: modelCode,
     provider: modelInfo.provider,
-    name: modelInfo.name
+    name: modelInfo.name,
   };
 }
 
@@ -88,20 +87,18 @@ async function buildModelSnapshot({
  * Main snapshot builder that composes all sections
  * Add new snapshot types here as they're needed
  */
-export async function buildRunSnapshot(
-  {
-    promptId,
-    promptVersionNumber,
-    modelCode
-  }: {
-    promptId: string;
-    promptVersionNumber: number;
-    modelCode: string;
-  }
-): Promise<RunSnapshot> {
+export async function buildRunSnapshot({
+  promptId,
+  promptVersionNumber,
+  modelCode,
+}: {
+  promptId: string;
+  promptVersionNumber: number;
+  modelCode: string;
+}): Promise<RunSnapshot> {
   const snapshot: RunSnapshot = {
     prompt: await buildPromptSnapshot({ promptId, promptVersionNumber }),
-    model: await buildModelSnapshot({ modelCode })
+    model: await buildModelSnapshot({ modelCode }),
   };
 
   return snapshot;

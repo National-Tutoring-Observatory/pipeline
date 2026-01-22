@@ -1,14 +1,19 @@
-import type { User } from '~/modules/users/users.types';
-import { userIsTeamAdmin, userIsTeamMember } from '../authorization/helpers/teamMembership';
-import type { Prompt } from './prompts.types';
+import type { User } from "~/modules/users/users.types";
+import {
+  userIsTeamAdmin,
+  userIsTeamMember,
+} from "../authorization/helpers/teamMembership";
+import type { Prompt } from "./prompts.types";
 
 const getTeamId = (prompt: Prompt): string => {
-  return typeof prompt.team === 'string' ? prompt.team : prompt.team._id;
+  return typeof prompt.team === "string" ? prompt.team : prompt.team._id;
 };
 
 const getPromptCreatorId = (prompt: Prompt): string | null => {
   if (!prompt.createdBy) return null;
-  return typeof prompt.createdBy === 'string' ? prompt.createdBy : prompt.createdBy._id;
+  return typeof prompt.createdBy === "string"
+    ? prompt.createdBy
+    : prompt.createdBy._id;
 };
 
 const canUserManagePrompt = (user: User | null, prompt: Prompt): boolean => {

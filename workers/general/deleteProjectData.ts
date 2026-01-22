@@ -6,7 +6,7 @@ import { getProjectStorageDir } from "~/modules/uploads/helpers/projectStorage";
 export default async function deleteProjectData(job: Job) {
   const { projectId } = job.data || {};
   if (!projectId) {
-    throw new Error('missing projectId');
+    throw new Error("missing projectId");
   }
 
   const storage = getStorageAdapter();
@@ -18,5 +18,5 @@ export default async function deleteProjectData(job: Job) {
   const projectStorageDir = getProjectStorageDir(projectId);
   await storage.removeDir({ sourcePath: projectStorageDir });
 
-  return { status: 'OK', projectId };
+  return { status: "OK", projectId };
 }

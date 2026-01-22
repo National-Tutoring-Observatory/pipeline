@@ -1,4 +1,9 @@
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { CircleHelp } from "lucide-react";
@@ -27,17 +32,29 @@ export default function SideBarHelpDropdown() {
             Read the Documentation
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <a href="https://github.com/orgs/National-Tutoring-Observatory/discussions" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://github.com/orgs/National-Tutoring-Observatory/discussions"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Ask a Question
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <a href="https://github.com/National-Tutoring-Observatory/pipeline/issues/new/choose" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://github.com/National-Tutoring-Observatory/pipeline/issues/new/choose"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Report a Bug or Request a Feature
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <a href="https://github.com/National-Tutoring-Observatory/pipeline/issues" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://github.com/National-Tutoring-Observatory/pipeline/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               View Existing Issues
             </a>
           </DropdownMenuItem>

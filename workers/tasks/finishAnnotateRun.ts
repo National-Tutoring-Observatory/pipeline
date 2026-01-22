@@ -1,14 +1,13 @@
-import type { Job } from 'bullmq';
-import find from 'lodash/find.js';
-import { RunService } from '../../app/modules/runs/run';
-import emitFromJob from '../helpers/emitFromJob';
+import type { Job } from "bullmq";
+import find from "lodash/find.js";
+import { RunService } from "../../app/modules/runs/run";
+import emitFromJob from "../helpers/emitFromJob";
 
 export default async function finishAnnotateRun(job: Job) {
-
   const { runId } = job.data;
 
   if (!runId) {
-    throw new Error('finishAnnotateRun: runId is required');
+    throw new Error("finishAnnotateRun: runId is required");
   }
 
   const jobResults = await job.getChildrenValues();
@@ -18,15 +17,14 @@ export default async function finishAnnotateRun(job: Job) {
     isRunning: false,
     isComplete: true,
     hasErrored: hasFailedTasks,
-    finishedAt: new Date()
+    finishedAt: new Date(),
   });
 
   if (!result) {
     throw new Error(`finishAnnotateRun: Run not found: ${runId}`);
   }
 
-  await emitFromJob(job, { runId }, 'FINISHED');
+  await emitFromJob(job, { runId }, "FINISHED");
 
-  return { status: 'SUCCESS' };
-
+  return { status: "SUCCESS" };
 }

@@ -1,23 +1,31 @@
-import map from 'lodash/map.js';
-import { flowProducer } from './createQueue';
+import map from "lodash/map.js";
+import { flowProducer } from "./createQueue";
 import getQueue from "./getQueue";
 
 interface ChildJob {
-  name: string,
-  data: any
+  name: string;
+  data: any;
 }
 
-export default async ({ name, data, children }: { name: string, data: any, children: ChildJob[] }) => {
-  const queue = getQueue('tasks');
+export default async ({
+  name,
+  data,
+  children,
+}: {
+  name: string;
+  data: any;
+  children: ChildJob[];
+}) => {
+  const queue = getQueue("tasks");
 
   if (children && children.length > 0) {
     const flow = {
       name: `${name}:FINISH`,
-      queueName: 'tasks',
+      queueName: "tasks",
       opts: {
         attempts: 3,
         backoff: {
-          type: 'exponential',
+          type: "exponential",
           delay: 1000,
         },
       },
@@ -25,17 +33,17 @@ export default async ({ name, data, children }: { name: string, data: any, child
         ...data,
         props: {
           event: name,
-          task: `${name}:FINISH`
-        }
+          task: `${name}:FINISH`,
+        },
       },
       children: map(children, (child) => {
         return {
           name: child.name,
-          queueName: 'tasks',
+          queueName: "tasks",
           opts: {
             attempts: 3,
             backoff: {
-              type: 'exponential',
+              type: "exponential",
               delay: 1000,
             },
           },
@@ -43,36 +51,40 @@ export default async ({ name, data, children }: { name: string, data: any, child
             ...child.data,
             props: {
               event: name,
-              task: child.name
-            }
-          }
-        }
-      })
+              task: child.name,
+            },
+          },
+        };
+      }),
     };
     const flowTree = await flowProducer.add(flow);
     return flowTree.job;
   }
 
-  const taskJob = await queue.add(name, {
-    ...data,
-    props: {
-      event: name,
-      task: `${name}:FINISH`
-    }
-  }, {
-    attempts: 3,
-    backoff: {
-      type: 'exponential',
-      delay: 1000,
+  const taskJob = await queue.add(
+    name,
+    {
+      ...data,
+      props: {
+        event: name,
+        task: `${name}:FINISH`,
+      },
     },
-    removeOnComplete: {
-      age: 72 * 3600, // keep up to 1 hour
-      count: 2000, // keep up to 2000 jobs
+    {
+      attempts: 3,
+      backoff: {
+        type: "exponential",
+        delay: 1000,
+      },
+      removeOnComplete: {
+        age: 72 * 3600, // keep up to 1 hour
+        count: 2000, // keep up to 2000 jobs
+      },
+      removeOnFail: {
+        age: 72 * 3600,
+        count: 2000,
+      },
     },
-    removeOnFail: {
-      age: 72 * 3600,
-      count: 2000,
-    },
-  });
+  );
   return taskJob;
-}
+};

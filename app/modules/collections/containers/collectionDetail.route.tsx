@@ -27,18 +27,18 @@ import type { User } from '~/modules/users/users.types';
 import type { Route } from './+types/collectionDetail.route';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {
-    return redirect('/');
+    return redirect("/");
   }
 
   if (!ProjectAuthorization.canView(user, project)) {
-    return redirect('/');
+    return redirect("/");
   }
 
   await requireCollectionsFeature(request, params);
@@ -54,48 +54,51 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     : [];
 
   const sessions = collection.sessions?.length
-    ? await SessionService.find({ match: { _id: { $in: collection.sessions || [] } } })
+    ? await SessionService.find({
+      match: { _id: { $in: collection.sessions || [] } },
+    })
     : [];
 
   return {
     collection,
     project,
     runs,
-    sessions
+    sessions,
   };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {
-    return data({ errors: { project: 'Project not found' } }, { status: 404 });
+    return data({ errors: { project: "Project not found" } }, { status: 404 });
   }
 
   if (!ProjectAuthorization.Runs.canManage(user, project)) {
-    return data({ errors: { project: 'Access denied' } }, { status: 403 });
+    return data({ errors: { project: "Access denied" } }, { status: 403 });
   }
 
   const { intent, payload = {} } = await request.json();
 
   switch (intent) {
-    case 'EXPORT_COLLECTION': {
+    case "EXPORT_COLLECTION": {
       const { exportType } = payload;
       await exportCollection({ collectionId: params.collectionId, exportType });
       return {};
     }
     default: {
-      return data({ errors: { intent: 'Invalid intent' } }, { status: 400 });
+      return data({ errors: { intent: "Invalid intent" } }, { status: 400 });
     }
   }
 }
 
 export default function CollectionDetailRoute() {
-  const { collection, project, runs, sessions } = useLoaderData<typeof loader>();
+  const { collection, project, runs, sessions } =
+    useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
   const submit = useSubmit();
   const navigate = useNavigate();
@@ -103,65 +106,70 @@ export default function CollectionDetailRoute() {
   const {
     openEditCollectionDialog,
     openDeleteCollectionDialog,
-    openDuplicateCollectionDialog
+    openDuplicateCollectionDialog,
   } = useCollectionActions({
     projectId: project._id,
     onDeleteSuccess: () => {
       navigate(`/projects/${project._id}/collections`);
-    }
+    },
   });
 
   const debounceRevalidate = throttle(() => {
     revalidator.revalidate();
   }, 500);
 
-  const onExportCollectionButtonClicked = ({ exportType }: { exportType: string }) => {
-    submit(JSON.stringify({
-      intent: 'EXPORT_COLLECTION',
-      payload: {
-        exportType
-      }
-    }), { method: 'POST', encType: 'application/json' });
+  const onExportCollectionButtonClicked = ({
+    exportType,
+  }: {
+    exportType: string;
+  }) => {
+    submit(
+      JSON.stringify({
+        intent: "EXPORT_COLLECTION",
+        payload: {
+          exportType,
+        },
+      }),
+      { method: "POST", encType: "application/json" },
+    );
   };
 
   const onSessionItemClicked = (id: string) => {
     const session = find(sessions, { _id: id });
     if (!session) return;
-    addDialog(
-      <ViewSessionContainer
-        session={session}
-      />
-    );
+    addDialog(<ViewSessionContainer session={session} />);
   };
 
   // Subscribe to run events for real-time updates
   useHandleSockets({
-    event: 'ANNOTATE_RUN',
-    matches: runs.map(run => [
-      {
-        runId: run._id,
-        task: 'ANNOTATE_RUN:START',
-        status: 'FINISHED'
-      },
-      {
-        runId: run._id,
-        task: 'ANNOTATE_RUN:PROCESS',
-        status: 'STARTED'
-      },
-      {
-        runId: run._id,
-        task: 'ANNOTATE_RUN:PROCESS',
-        status: 'FINISHED'
-      },
-      {
-        runId: run._id,
-        task: 'ANNOTATE_RUN:FINISH',
-        status: 'FINISHED'
-      }
-    ]).flat(),
+    event: "ANNOTATE_RUN",
+    matches: runs
+      .map((run) => [
+        {
+          runId: run._id,
+          task: "ANNOTATE_RUN:START",
+          status: "FINISHED",
+        },
+        {
+          runId: run._id,
+          task: "ANNOTATE_RUN:PROCESS",
+          status: "STARTED",
+        },
+        {
+          runId: run._id,
+          task: "ANNOTATE_RUN:PROCESS",
+          status: "FINISHED",
+        },
+        {
+          runId: run._id,
+          task: "ANNOTATE_RUN:FINISH",
+          status: "FINISHED",
+        },
+      ])
+      .flat(),
     callback: () => {
       debounceRevalidate();
-    }
+    },
   });
 
   const breadcrumbs = [
@@ -178,14 +186,14 @@ export default function CollectionDetailRoute() {
       const data = JSON.parse(event.data);
       if (data.collectionId === collection._id) {
         switch (data.event) {
-          case 'EXPORT_COLLECTION':
+          case "EXPORT_COLLECTION":
             debounceRevalidate();
-            if (data.status === 'DONE') {
+            if (data.status === "DONE") {
               const downloadUrl = `/api/downloads/${project._id}/collections/${collection._id}?exportType=CSV`;
-              const a = document.createElement('a');
+              const a = document.createElement("a");
               a.href = downloadUrl;
-              a.target = '_blank';
-              a.rel = 'noopener';
+              a.target = "_blank";
+              a.rel = "noopener";
               document.body.appendChild(a);
               a.click();
               document.body.removeChild(a);
@@ -197,7 +205,7 @@ export default function CollectionDetailRoute() {
 
     return () => {
       eventSource.close();
-    }
+    };
   }, [collection._id]);
 
   return (
@@ -268,17 +276,19 @@ export default function CollectionDetailRoute() {
         {/* Overview Section */}
         <div className="grid grid-cols-3 gap-6">
           <div>
-            <div className="text-xs text-muted-foreground">Created</div>
+            <div className="text-muted-foreground text-xs">Created</div>
             <div>
-              {collection.createdAt ? new Date(collection.createdAt).toLocaleDateString() : '--'}
+              {collection.createdAt
+                ? new Date(collection.createdAt).toLocaleDateString()
+                : "--"}
             </div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">Sessions</div>
+            <div className="text-muted-foreground text-xs">Sessions</div>
             <div>{collection.sessions?.length || 0}</div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">Runs</div>
+            <div className="text-muted-foreground text-xs">Runs</div>
             <div>{collection.runs?.length || 0}</div>
           </div>
         </div>
@@ -286,8 +296,8 @@ export default function CollectionDetailRoute() {
         {/* Sessions Section */}
         {sessions.length > 0 && (
           <div className="mt-8">
-            <div className="text-xs text-muted-foreground">Sessions</div>
-            <div className="border rounded-md mt-2">
+            <div className="text-muted-foreground text-xs">Sessions</div>
+            <div className="mt-2 rounded-md border">
               <Collection
                 items={sessions}
                 itemsLayout="list"
@@ -296,8 +306,8 @@ export default function CollectionDetailRoute() {
                 onActionClicked={() => { }}
                 onItemClicked={onSessionItemClicked}
                 emptyAttributes={{
-                  title: 'No sessions found',
-                  description: ''
+                  title: "No sessions found",
+                  description: "",
                 }}
                 currentPage={1}
                 totalPages={1}
@@ -313,8 +323,8 @@ export default function CollectionDetailRoute() {
         {/* Runs Section */}
         {runs.length > 0 && (
           <div className="mt-8">
-            <div className="text-xs text-muted-foreground">Runs</div>
-            <div className="border rounded-md mt-2">
+            <div className="text-muted-foreground text-xs">Runs</div>
+            <div className="mt-2 rounded-md border">
               <Collection
                 items={runs}
                 itemsLayout="list"
@@ -322,8 +332,8 @@ export default function CollectionDetailRoute() {
                 getItemActions={() => []}
                 onActionClicked={() => { }}
                 emptyAttributes={{
-                  title: 'No runs found',
-                  description: ''
+                  title: "No runs found",
+                  description: "",
                 }}
                 currentPage={1}
                 totalPages={1}
@@ -335,10 +345,7 @@ export default function CollectionDetailRoute() {
             </div>
           </div>
         )}
-        <CollectionDownloads
-          collection={collection}
-          projectId={project._id}
-        />
+        <CollectionDownloads collection={collection} projectId={project._id} />
       </div>
     </div>
   );

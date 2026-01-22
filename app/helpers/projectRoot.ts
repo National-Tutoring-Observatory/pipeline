@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 function findRepoRoot(startDir: string, marker: string): string | null {
   let dir = startDir;
@@ -18,9 +18,9 @@ export const PROJECT_ROOT: string = (() => {
   if (process.env.PROJECT_ROOT) {
     return path.resolve(process.env.PROJECT_ROOT);
   }
-  const repoRoot = findRepoRoot(process.cwd(), 'yarn.lock');
+  const repoRoot = findRepoRoot(process.cwd(), "yarn.lock");
   const resolved = repoRoot || process.cwd();
-  console.warn('PROJECT_ROOT env var not set, using:', resolved);
+  console.warn("PROJECT_ROOT env var not set, using:", resolved);
   return resolved;
 })();
 
@@ -30,5 +30,5 @@ export const DATA_PATH: string = (() => {
   if (process.env.DATA_PATH) {
     return path.resolve(process.env.DATA_PATH);
   }
-  return path.join(PROJECT_ROOT, 'data');
+  return path.join(PROJECT_ROOT, "data");
 })();

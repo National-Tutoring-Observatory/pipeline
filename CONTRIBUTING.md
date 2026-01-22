@@ -9,11 +9,13 @@ Welcome! This guide explains how to set up and run the NTO Pipeline project for 
 You can run the app entirely on your machine using in-memory/local adapters. This is the fastest way to develop and test changes.
 
 ### Prerequisites
+
 - **Node.js 20.x**
 - **Yarn 1.22+** (preferred) or npm
 - **Redis** (optional, see below)
 
 ### Environment Setup
+
 1. Copy `.env.example` to `.env` and edit as needed.
 2. For local development, set these in your `.env`:
    ```env
@@ -23,13 +25,16 @@ You can run the app entirely on your machine using in-memory/local adapters. Thi
    ```
 
 ### Start All Processes Manually
+
 Open separate terminals and run:
-- `yarn redis`         # Starts local Redis (in-memory)
-- `yarn app:dev`       # Starts the Vite dev server
-- `yarn workers:dev`   # Starts background workers
+
+- `yarn redis` # Starts local Redis (in-memory)
+- `yarn app:dev` # Starts the Vite dev server
+- `yarn workers:dev` # Starts background workers
 
 Or, use the helper script:
-- `node bin/start-dev.js`  # Starts all the above in one terminal
+
+- `node bin/start-dev.js` # Starts all the above in one terminal
 
 ---
 
@@ -70,7 +75,6 @@ AWS_DEFAULT_REGION=us-east-1
 REDIS_URL='redis://localhost:6379'
 ```
 
-
 ## 3. Running Fully in Containers (Production-like)
 
 To run the entire stack (app, workers, Redis, MongoDB) in Docker containers:
@@ -86,6 +90,7 @@ docker-compose -f docker-compose.yml -f docker-compose.app.yml up --build
 ---
 
 ## 4. Additional Notes
+
 - **Adapters**: The app uses a plugin-based adapter system for storage and database. See `app/storageAdapters/` and `app/documentsAdapters/`.
 - **Build Validation**: Running the full Docker Compose build is the best way to ensure your changes work in production.
 - **Troubleshooting**: See `.github/copilot-instructions.md` for more details on common issues and solutions.

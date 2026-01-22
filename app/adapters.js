@@ -1,10 +1,9 @@
-import fs from 'fs';
-import fse from 'fs-extra';
-import path from 'path';
-const inputDirectory = './app/storageAdapters';
+import fs from "fs";
+import fse from "fs-extra";
+import path from "path";
+const inputDirectory = "./app/storageAdapters";
 
 const init = async () => {
-
   const storageImports = [];
 
   const files = fs.readdirSync(inputDirectory);
@@ -13,7 +12,7 @@ const init = async () => {
     const stat = fs.lstatSync(`${inputDirectory}/${file}`);
 
     if (stat.isDirectory()) {
-      const filePath = path.join(`${inputDirectory}/${file}`, 'index.ts');
+      const filePath = path.join(`${inputDirectory}/${file}`, "index.ts");
       storageImports.push(`import '${filePath}';`);
     }
   });
@@ -25,7 +24,6 @@ const init = async () => {
   });
 
   await fse.outputFile(`./app/modules/storage/storage.ts`, storageImportFile);
-
-}
+};
 
 init();

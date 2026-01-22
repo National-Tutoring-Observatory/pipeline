@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import type { User } from '../users.types';
-import RevokeSuperAdminForm from '../components/revokeSuperAdminForm';
+import { useState } from "react";
+import RevokeSuperAdminForm from "../components/revokeSuperAdminForm";
+import type { User } from "../users.types";
 
 interface RevokeSuperAdminDialogContainerProps {
   targetUser: User;
@@ -11,9 +11,9 @@ interface RevokeSuperAdminDialogContainerProps {
 export default function RevokeSuperAdminDialogContainer({
   targetUser,
   isSubmitting,
-  onRevokeSuperAdminClicked
+  onRevokeSuperAdminClicked,
 }: RevokeSuperAdminDialogContainerProps) {
-  const [reason, setReason] = useState<string>('');
+  const [reason, setReason] = useState<string>("");
 
   const isFormValid = reason.trim().length > 0;
 

@@ -13,8 +13,8 @@ export interface Collection {
 }
 
 export interface CreateCollection {
-  selectedSessions: string[]
-  selectedRuns: string[]
+  selectedSessions: string[];
+  selectedRuns: string[];
 }
 
 export interface PromptReference {

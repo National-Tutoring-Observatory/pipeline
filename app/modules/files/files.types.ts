@@ -10,4 +10,4 @@ export interface File {
   updatedBy?: string;
 }
 
-export type FileType = 'CSV' | 'JSON' | 'JSONL' | 'VTT';
+export type FileType = "CSV" | "JSON" | "JSONL" | "VTT";

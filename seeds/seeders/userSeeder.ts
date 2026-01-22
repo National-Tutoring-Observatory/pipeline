@@ -1,12 +1,14 @@
-import { UserService } from '../../app/modules/users/user.js';
+import { UserService } from "../../app/modules/users/user.js";
 
 // Use SUPER_ADMIN_GITHUB_ID from env if available, otherwise use test ID
-const superAdminGithubId = process.env.SUPER_ADMIN_GITHUB_ID ? parseInt(process.env.SUPER_ADMIN_GITHUB_ID) : 100001;
+const superAdminGithubId = process.env.SUPER_ADMIN_GITHUB_ID
+  ? parseInt(process.env.SUPER_ADMIN_GITHUB_ID)
+  : 100001;
 
 const SEED_USERS = [
   {
-    username: 'testadmin',
-    role: 'SUPER_ADMIN',
+    username: "testadmin",
+    role: "SUPER_ADMIN",
     githubId: superAdminGithubId,
     hasGithubSSO: true,
     isRegistered: true,
@@ -15,24 +17,24 @@ const SEED_USERS = [
     registeredAt: new Date(),
   },
   {
-    username: 'testuser1',
-    role: 'USER',
+    username: "testuser1",
+    role: "USER",
     githubId: 100002,
     hasGithubSSO: true,
     isRegistered: true,
     featureFlags: [],
     teams: [],
-    registeredAt: new Date()
+    registeredAt: new Date(),
   },
   {
-    username: 'testuser2',
-    role: 'USER',
+    username: "testuser2",
+    role: "USER",
     githubId: 100003,
     hasGithubSSO: true,
     isRegistered: true,
     featureFlags: [],
     teams: [],
-    registeredAt: new Date()
+    registeredAt: new Date(),
   },
 ];
 
@@ -40,10 +42,14 @@ export async function seedUsers() {
   for (const userData of SEED_USERS) {
     try {
       // Check if user already exists
-      const existing = await UserService.find({ match: { githubId: userData.githubId } });
+      const existing = await UserService.find({
+        match: { githubId: userData.githubId },
+      });
 
       if (existing.length > 0) {
-        console.log(`  ⏭️  User '${userData.username}' already exists, skipping...`);
+        console.log(
+          `  ⏭️  User '${userData.username}' already exists, skipping...`,
+        );
         continue;
       }
 
@@ -58,6 +64,8 @@ export async function seedUsers() {
 }
 
 export async function getSeededUsers() {
-  const result = await UserService.find({ match: { username: { $in: SEED_USERS.map(u => u.username) } } });
+  const result = await UserService.find({
+    match: { username: { $in: SEED_USERS.map((u) => u.username) } },
+  });
   return result;
 }

@@ -1,12 +1,17 @@
-
-import fse from 'fs-extra';
-import path from 'path';
-import { PROJECT_ROOT } from '~/helpers/projectRoot';
+import fse from "fs-extra";
+import path from "path";
+import { PROJECT_ROOT } from "~/helpers/projectRoot";
 import registerStorageAdapter from "~/modules/storage/helpers/registerStorageAdapter";
-import type { DownloadParams, RemoveDirParams, RemoveParams, RequestParams, UploadParams } from '~/modules/storage/storage.types';
+import type {
+  DownloadParams,
+  RemoveDirParams,
+  RemoveParams,
+  RequestParams,
+  UploadParams,
+} from "~/modules/storage/storage.types";
 
 registerStorageAdapter({
-  name: 'LOCAL',
+  name: "LOCAL",
   download: async ({ sourcePath }: DownloadParams): Promise<string> => {
     const absolutePath = path.resolve(PROJECT_ROOT, sourcePath);
     const exists = await fse.exists(absolutePath);
@@ -14,11 +19,13 @@ registerStorageAdapter({
       throw new Error(`LOCAL: File not found: ${absolutePath}`);
     }
     try {
-      const destinationPath = path.join(PROJECT_ROOT, 'tmp', sourcePath);
+      const destinationPath = path.join(PROJECT_ROOT, "tmp", sourcePath);
       await fse.copy(absolutePath, destinationPath);
       return destinationPath;
     } catch (error) {
-      throw new Error(`LOCAL: Error copying file to tmp for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `LOCAL: Error copying file to tmp for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   },
   upload: async ({ file, uploadPath }: UploadParams): Promise<void> => {
@@ -42,5 +49,5 @@ registerStorageAdapter({
     return new Promise((resolve) => {
       resolve(`/${url}`);
     });
-  }
-})
+  },
+});

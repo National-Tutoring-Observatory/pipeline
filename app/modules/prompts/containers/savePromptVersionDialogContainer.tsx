@@ -1,18 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-import SavePromptVersionDialog from "../components/savePromptVersionDialog";
 import { useFetcher } from "react-router";
+import SavePromptVersionDialog from "../components/savePromptVersionDialog";
 
-export default function SavePromptVersionDialogContainer({ userPrompt, annotationSchema, team, onSaveClicked }: {
-  userPrompt: string,
-  annotationSchema: any,
-  team: string,
-  onSaveClicked: () => void
+export default function SavePromptVersionDialogContainer({
+  userPrompt,
+  annotationSchema,
+  team,
+  onSaveClicked,
+}: {
+  userPrompt: string;
+  annotationSchema: any;
+  team: string;
+  onSaveClicked: () => void;
 }) {
-
   const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true);
   const [isFetching, setIsFetching] = useState(true);
   const [isMatching, setIsMatching] = useState(false);
-  const [reasoning, setReasoning] = useState('');
+  const [reasoning, setReasoning] = useState("");
   const hasInitialized = useRef(false);
 
   const fetcher = useFetcher();
@@ -20,11 +24,14 @@ export default function SavePromptVersionDialogContainer({ userPrompt, annotatio
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
-      fetcher.submit({ userPrompt, annotationSchema, team }, {
-        action: '/api/promptVersionAlignment',
-        method: "post",
-        encType: "application/json"
-      });
+      fetcher.submit(
+        { userPrompt, annotationSchema, team },
+        {
+          action: "/api/promptVersionAlignment",
+          method: "post",
+          encType: "application/json",
+        },
+      );
     }
   }, []);
 
@@ -38,7 +45,7 @@ export default function SavePromptVersionDialogContainer({ userPrompt, annotatio
         setReasoning(fetcher.data.reasoning);
       }
     }
-  }, [fetcher.data])
+  }, [fetcher.data]);
 
   return (
     <SavePromptVersionDialog

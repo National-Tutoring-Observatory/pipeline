@@ -1,13 +1,18 @@
-import find from 'lodash/find';
-import map from 'lodash/map';
+import find from "lodash/find";
+import map from "lodash/map";
 import { useEffect } from "react";
-import { data, redirect, useFetcher, useNavigate, useRevalidator } from "react-router";
+import {
+  data,
+  redirect,
+  useFetcher,
+  useNavigate,
+  useRevalidator,
+} from "react-router";
 import { toast } from "sonner";
-import { getPaginationParams, getTotalPages } from '~/helpers/pagination';
-import buildQueryFromParams from '~/modules/app/helpers/buildQueryFromParams';
-import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
-import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
-import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
+import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
+import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -15,134 +20,145 @@ import type { User } from "~/modules/users/users.types";
 import ProjectAuthorization from "../authorization";
 import CreateProjectDialog from "../components/createProjectDialog";
 import Projects from "../components/projects";
-import { useProjectActions } from '../hooks/useProjectActions';
+import { useProjectActions } from "../hooks/useProjectActions";
 import { ProjectService } from "../project";
 import deleteProject from "../services/deleteProject.server";
 import type { Route } from "./+types/projects.route";
 
-
-
-export async function loader({ request, params, context }: Route.LoaderArgs & { context: any }) {
+export async function loader({
+  request,
+  params,
+  context,
+}: Route.LoaderArgs & { context: any }) {
   const authenticationTeams = await getSessionUserTeams({ request });
-  const teamIds = map(authenticationTeams, 'team');
+  const teamIds = map(authenticationTeams, "team");
 
   const queryParams = getQueryParamsFromRequest(request, {
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sort: 'name',
-    filters: {}
+    sort: "name",
+    filters: {},
   });
 
   const query = buildQueryFromParams({
     match: { team: { $in: teamIds } },
     queryParams,
-    searchableFields: ['name'],
-    sortableFields: ['name', 'createdAt']
+    searchableFields: ["name"],
+    sortableFields: ["name", "createdAt"],
   });
 
-  const projects = await ProjectService.paginate(query)
+  const projects = await ProjectService.paginate(query);
 
   return {
-    projects
+    projects,
   };
 }
 
-export async function action({
-  request,
-}: Route.ActionArgs) {
-  const user = await getSessionUser({ request }) as User;
+export async function action({ request }: Route.ActionArgs) {
+  const user = (await getSessionUser({ request })) as User;
 
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const { intent, entityId, payload = {} } = await request.json();
   const { name, team } = payload;
 
   switch (intent) {
-    case 'CREATE_PROJECT': {
-      if (typeof name !== 'string' || !name.trim()) {
+    case "CREATE_PROJECT": {
+      if (typeof name !== "string" || !name.trim()) {
         return data(
-          { errors: { general: 'Project name is required' } },
-          { status: 400 }
+          { errors: { general: "Project name is required" } },
+          { status: 400 },
         );
       }
 
       if (!ProjectAuthorization.canCreate(user, team)) {
         return data(
-          { errors: { general: 'You do not have permission to create projects in this team' } },
-          { status: 403 }
+          {
+            errors: {
+              general:
+                "You do not have permission to create projects in this team",
+            },
+          },
+          { status: 403 },
         );
       }
 
       const project = await ProjectService.create({
         name: name.trim(),
         team,
-        createdBy: user._id
+        createdBy: user._id,
       });
 
-      return data({ success: true, intent: 'CREATE_PROJECT', data: project });
+      return data({ success: true, intent: "CREATE_PROJECT", data: project });
     }
 
-    case 'UPDATE_PROJECT': {
-      if (typeof name !== 'string' || !name.trim()) {
+    case "UPDATE_PROJECT": {
+      if (typeof name !== "string" || !name.trim()) {
         return data(
-          { errors: { general: 'Project name is required' } },
-          { status: 400 }
+          { errors: { general: "Project name is required" } },
+          { status: 400 },
         );
       }
 
       const project = await ProjectService.findById(entityId);
       if (!project) {
         return data(
-          { errors: { general: 'Project not found' } },
-          { status: 404 }
+          { errors: { general: "Project not found" } },
+          { status: 404 },
         );
       }
 
       if (!ProjectAuthorization.canUpdate(user, project)) {
         return data(
-          { errors: { general: 'You do not have permission to update this project' } },
-          { status: 403 }
+          {
+            errors: {
+              general: "You do not have permission to update this project",
+            },
+          },
+          { status: 403 },
         );
       }
 
-      const updated = await ProjectService.updateById(entityId, { name: name.trim() });
-      return data({ success: true, intent: 'UPDATE_PROJECT', data: updated });
+      const updated = await ProjectService.updateById(entityId, {
+        name: name.trim(),
+      });
+      return data({ success: true, intent: "UPDATE_PROJECT", data: updated });
     }
 
-    case 'DELETE_PROJECT': {
+    case "DELETE_PROJECT": {
       const project = await ProjectService.findById(entityId);
       if (!project) {
         return data(
-          { errors: { general: 'Project not found' } },
-          { status: 404 }
+          { errors: { general: "Project not found" } },
+          { status: 404 },
         );
       }
 
       if (!ProjectAuthorization.canDelete(user, project)) {
         return data(
-          { errors: { general: 'You do not have permission to delete this project' } },
-          { status: 403 }
+          {
+            errors: {
+              general: "You do not have permission to delete this project",
+            },
+          },
+          { status: 403 },
         );
       }
 
       await deleteProject({ projectId: entityId });
-      return data({ success: true, intent: 'DELETE_PROJECT' });
+      return data({ success: true, intent: "DELETE_PROJECT" });
     }
 
     default:
-      return data(
-        { errors: { general: 'Invalid intent' } },
-        { status: 400 }
-      );
+      return data({ errors: { general: "Invalid intent" } }, { status: 400 });
   }
 }
 
 export function HydrateFallback() {
   return <div>Loading...</div>;
 }
-
 
 export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const { projects } = loaderData;
@@ -151,96 +167,113 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const { revalidate } = useRevalidator();
 
   const { openEditProjectDialog, openDeleteProjectDialog } = useProjectActions({
-    onDeleteSuccess: revalidate
+    onDeleteSuccess: revalidate,
   });
 
   const {
-    searchValue, setSearchValue,
-    currentPage, setCurrentPage,
-    sortValue, setSortValue,
-    filtersValues, setFiltersValues,
-    isSyncing
+    searchValue,
+    setSearchValue,
+    currentPage,
+    setCurrentPage,
+    sortValue,
+    setSortValue,
+    filtersValues,
+    setFiltersValues,
+    isSyncing,
   } = useSearchQueryParams({
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sortValue: 'name',
-    filters: {}
+    sortValue: "name",
+    filters: {},
   });
 
   useEffect(() => {
-    if (createFetcher.state === 'idle' && createFetcher.data) {
-      if (createFetcher.data.success && createFetcher.data.intent === 'CREATE_PROJECT') {
-        toast.success('Project created');
+    if (createFetcher.state === "idle" && createFetcher.data) {
+      if (
+        createFetcher.data.success &&
+        createFetcher.data.intent === "CREATE_PROJECT"
+      ) {
+        toast.success("Project created");
         addDialog(null);
         navigate(`/projects/${createFetcher.data.data._id}`);
       } else if (createFetcher.data.errors) {
-        toast.error(createFetcher.data.errors.general || 'An error occurred');
+        toast.error(createFetcher.data.errors.general || "An error occurred");
       }
     }
   }, [createFetcher.state, createFetcher.data, navigate]);
 
   useHandleSockets({
-    event: 'DELETE_PROJECT',
-    matches: [{ status: 'FINISHED' }],
-    callback: revalidate
+    event: "DELETE_PROJECT",
+    matches: [{ status: "FINISHED" }],
+    callback: revalidate,
   });
 
-  const breadcrumbs = [{ text: 'Projects' }];
+  const breadcrumbs = [{ text: "Projects" }];
 
   const openCreateProjectDialog = () => {
     addDialog(
       <CreateProjectDialog
         hasTeamSelection={true}
         onCreateNewProjectClicked={submitCreateProject}
-        isSubmitting={createFetcher.state === 'submitting'}
-      />
+        isSubmitting={createFetcher.state === "submitting"}
+      />,
     );
-  }
+  };
 
-  const submitCreateProject = ({ name, team }: {
-    name: string, team: string | null
+  const submitCreateProject = ({
+    name,
+    team,
+  }: {
+    name: string;
+    team: string | null;
   }) => {
     createFetcher.submit(
-      JSON.stringify({ intent: 'CREATE_PROJECT', payload: { name, team } }),
-      { method: 'POST', encType: 'application/json' }
+      JSON.stringify({ intent: "CREATE_PROJECT", payload: { name, team } }),
+      { method: "POST", encType: "application/json" },
     );
-  }
+  };
 
   const onActionClicked = (action: String) => {
-    if (action === 'CREATE') {
+    if (action === "CREATE") {
       openCreateProjectDialog();
     }
-  }
+  };
 
-  const onItemActionClicked = ({ id, action }: { id: string, action: string }) => {
+  const onItemActionClicked = ({
+    id,
+    action,
+  }: {
+    id: string;
+    action: string;
+  }) => {
     const project = find(projects.data, { _id: id });
     if (!project) return null;
     switch (action) {
-      case 'EDIT':
+      case "EDIT":
         openEditProjectDialog(project);
         break;
 
-      case 'DELETE':
+      case "DELETE":
         openDeleteProjectDialog(project);
         break;
     }
-  }
+  };
 
   const onSearchValueChanged = (searchValue: string) => {
     setSearchValue(searchValue);
-  }
+  };
 
   const onPaginationChanged = (currentPage: number) => {
     setCurrentPage(currentPage);
-  }
+  };
 
   const onFiltersValueChanged = (filterValue: any) => {
     setFiltersValues({ ...filtersValues, ...filterValue });
-  }
+  };
 
   const onSortValueChanged = (sortValue: string) => {
     setSortValue(sortValue);
-  }
+  };
 
   return (
     <Projects

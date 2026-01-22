@@ -1,98 +1,110 @@
-import type { Db } from 'mongodb'
-import findModelByCode from '~/modules/llm/helpers/findModelByCode'
-import type { MigrationFile, MigrationResult } from '~/modules/migrations/types'
+import type { Db } from "mongodb";
+import findModelByCode from "~/modules/llm/helpers/findModelByCode";
+import type {
+  MigrationFile,
+  MigrationResult,
+} from "~/modules/migrations/types";
 
 /**
  * Maps old provider names to high-quality model codes
  * These were the defaults used before the system was refactored
  */
 const OLD_PROVIDER_TO_MODEL_CODE: Record<string, string> = {
-  'CHAT_GPT': 'openai.gpt-4.1',
-  'GEMINI': 'google.gemini-2.5-flash',
-  'CLAUDE': 'anthropic.claude-4-sonnet'
-}
+  CHAT_GPT: "openai.gpt-4.1",
+  GEMINI: "google.gemini-2.5-flash",
+  CLAUDE: "anthropic.claude-4-sonnet",
+};
 
 /**
  * Maps old provider names to new provider names
  */
 const OLD_PROVIDER_TO_NEW_NAME: Record<string, string> = {
-  'CHAT_GPT': 'OpenAI',
-  'GEMINI': 'Google',
-  'CLAUDE': 'Anthropic'
-}
+  CHAT_GPT: "OpenAI",
+  GEMINI: "Google",
+  CLAUDE: "Anthropic",
+};
 
 export default {
-  id: '20251222144407-add-model-to-snapshot',
-  name: 'Add Model To Snapshot',
-  description: 'Backfill runs with structured model information in snapshots, mapping old provider names to new model codes',
+  id: "20251222144407-add-model-to-snapshot",
+  name: "Add Model To Snapshot",
+  description:
+    "Backfill runs with structured model information in snapshots, mapping old provider names to new model codes",
 
   async up(db: Db): Promise<MigrationResult> {
-    const runsCollection = db.collection('runs')
+    const runsCollection = db.collection("runs");
 
     const runs = runsCollection.find({
       model: { $exists: true, $ne: null },
-      'snapshot.model': { $exists: false }
-    })
+      "snapshot.model": { $exists: false },
+    });
 
-    let total = 0
-    let migrated = 0
-    let failed = 0
-    let mappedFromOldProvider = 0
-    let missingModelConfig = 0
+    let total = 0;
+    let migrated = 0;
+    let failed = 0;
+    let mappedFromOldProvider = 0;
+    let missingModelConfig = 0;
 
-    console.log(`Processing runs that need model snapshot backfill`)
+    console.log(`Processing runs that need model snapshot backfill`);
 
     for await (const run of runs) {
-      total++
-      if (!run.model) continue
+      total++;
+      if (!run.model) continue;
 
       try {
         // Step 1: Check if this is an old provider name or already a model code
-        let modelCode = run.model
-        let providerName: string | undefined
+        let modelCode = run.model;
+        let providerName: string | undefined;
 
-        const oldProviderName = OLD_PROVIDER_TO_MODEL_CODE[run.model]
-        const newProviderName = OLD_PROVIDER_TO_NEW_NAME[run.model]
+        const oldProviderName = OLD_PROVIDER_TO_MODEL_CODE[run.model];
+        const newProviderName = OLD_PROVIDER_TO_NEW_NAME[run.model];
 
         if (oldProviderName) {
-          console.log(`Mapping old provider name "${run.model}" to model code "${oldProviderName}"`)
-          modelCode = oldProviderName
-          providerName = newProviderName
-          mappedFromOldProvider++
-        } else if (run.model.includes('.')) {
+          console.log(
+            `Mapping old provider name "${run.model}" to model code "${oldProviderName}"`,
+          );
+          modelCode = oldProviderName;
+          providerName = newProviderName;
+          mappedFromOldProvider++;
+        } else if (run.model.includes(".")) {
           // Already a model code (e.g., 'google.gemini-2.5-flash')
           // This happens when runs were created after the refactor but before migration
-          console.log(`Run ${run._id} already has model code format: ${run.model}`)
+          console.log(
+            `Run ${run._id} already has model code format: ${run.model}`,
+          );
         }
 
         // Step 2: Look up the model in the current config
-        const modelInfo = findModelByCode(modelCode)
-        const provider = modelInfo?.provider || providerName || 'Unknown'
-        const name = modelInfo?.name || modelCode
+        const modelInfo = findModelByCode(modelCode);
+        const provider = modelInfo?.provider || providerName || "Unknown";
+        const name = modelInfo?.name || modelCode;
 
         // Step 3: Update the run with snapshot.model (now includes display name)
         await runsCollection.updateOne(
           { _id: run._id },
           {
             $set: {
-              'snapshot.model': { code: modelCode, provider, name }
-            }
-          }
-        )
-        console.log(`Updated run ${run._id} with model code: ${modelCode}, provider: ${provider}, name: ${name}`)
-        migrated++
+              "snapshot.model": { code: modelCode, provider, name },
+            },
+          },
+        );
+        console.log(
+          `Updated run ${run._id} with model code: ${modelCode}, provider: ${provider}, name: ${name}`,
+        );
+        migrated++;
 
         if (!modelInfo) {
-          console.warn(`Model config not found for run ${run._id} with code: ${modelCode}`)
-          missingModelConfig++
+          console.warn(
+            `Model config not found for run ${run._id} with code: ${modelCode}`,
+          );
+          missingModelConfig++;
         }
       } catch (error) {
-        failed++
-        console.error(`Failed to migrate run ${run._id}:`, error)
+        failed++;
+        console.error(`Failed to migrate run ${run._id}:`, error);
       }
     }
 
-    const message = `Migration completed: ${migrated} runs updated, ${mappedFromOldProvider} mapped from old provider names, ${missingModelConfig} with missing config, ${failed} failed`
+    const message = `Migration completed: ${migrated} runs updated, ${mappedFromOldProvider} mapped from old provider names, ${missingModelConfig} with missing config, ${failed} failed`;
 
     return {
       success: failed === 0,
@@ -102,8 +114,8 @@ export default {
         migrated,
         failed,
         mappedFromOldProvider,
-        missingModelConfig
-      }
-    }
-  }
-} satisfies MigrationFile
+        missingModelConfig,
+      },
+    };
+  },
+} satisfies MigrationFile;

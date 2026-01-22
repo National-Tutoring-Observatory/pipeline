@@ -1,20 +1,30 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { PageHeader, PageHeaderLeft, PageHeaderRight } from "@/components/ui/pageHeader";
+import {
+  PageHeader,
+  PageHeaderLeft,
+  PageHeaderRight,
+} from "@/components/ui/pageHeader";
 import { Progress } from "@/components/ui/progress";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import dayjs from "dayjs";
-import find from 'lodash/find';
-import map from 'lodash/map';
+import find from "lodash/find";
+import map from "lodash/map";
 import { Pencil } from "lucide-react";
 import { Link } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
-import ProjectDownloadDropdown from "./projectDownloadDropdown";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
+import ProjectDownloadDropdown from "./projectDownloadDropdown";
 import ProjectRunDownloads from "./projectRunDownloads";
 
 export default function ProjectRun({
@@ -26,19 +36,18 @@ export default function ProjectRun({
   onExportRunButtonClicked,
   onReRunClicked,
   onEditRunButtonClicked,
-  onCreateCollectionButtonClicked
+  onCreateCollectionButtonClicked,
 }: {
-  run: Run,
-  promptInfo: { name: string, version: number },
-  runSessionsProgress: number,
-  runSessionsStep: string,
-  breadcrumbs: Breadcrumb[]
-  onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void
-  onReRunClicked: () => void
-  onEditRunButtonClicked?: (run: Run) => void
-  onCreateCollectionButtonClicked?: (run: Run) => void
+  run: Run;
+  promptInfo: { name: string; version: number };
+  runSessionsProgress: number;
+  runSessionsStep: string;
+  breadcrumbs: Breadcrumb[];
+  onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void;
+  onReRunClicked: () => void;
+  onEditRunButtonClicked?: (run: Run) => void;
+  onCreateCollectionButtonClicked?: (run: Run) => void;
 }) {
-
   return (
     <div className="max-w-6xl p-8">
       <PageHeader>
@@ -46,7 +55,7 @@ export default function ProjectRun({
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
         <PageHeaderRight>
-          {(run.isComplete && (!run.hasExportedCSV || !run.hasExportedJSONL)) && (
+          {run.isComplete && (!run.hasExportedCSV || !run.hasExportedJSONL) && (
             <ProjectDownloadDropdown
               isExporting={run.isExporting || false}
               hasExportedCSV={run.hasExportedCSV}
@@ -55,17 +64,23 @@ export default function ProjectRun({
             />
           )}
           {onEditRunButtonClicked && (
-            <Button variant="ghost" onClick={() => onEditRunButtonClicked(run)} className="ml-2">
+            <Button
+              variant="ghost"
+              onClick={() => onEditRunButtonClicked(run)}
+              className="ml-2"
+            >
               <Pencil />
               Edit
             </Button>
           )}
         </PageHeaderRight>
       </PageHeader>
-      <div className="mb-8 relative">
-        {(run.isRunning) && (
+      <div className="relative mb-8">
+        {run.isRunning && (
           <div className="relative">
-            <div className="text-xs opacity-40 absolute right-0 top-3">Annotating {runSessionsStep}</div>
+            <div className="absolute top-3 right-0 text-xs opacity-40">
+              Annotating {runSessionsStep}
+            </div>
             <Progress value={runSessionsProgress} />
           </div>
         )}
@@ -73,39 +88,33 @@ export default function ProjectRun({
       <div>
         <div className="grid grid-cols-3 gap-6">
           <div>
-            <div className="text-xs text-muted-foreground">Annotation type</div>
+            <div className="text-muted-foreground text-xs">Annotation type</div>
             <div>
               {find(annotationTypes, { value: run.annotationType })?.name}
             </div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">Selected prompt</div>
+            <div className="text-muted-foreground text-xs">Selected prompt</div>
             <div>
+              <div>{promptInfo.name}</div>
               <div>
-                {promptInfo.name}
-              </div>
-              <div>
-                <Badge >
-                  Version {promptInfo.version}
-                </Badge>
+                <Badge>Version {promptInfo.version}</Badge>
               </div>
             </div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">Selected model</div>
-            <div>
-              {getRunModelDisplayName(run)}
-            </div>
+            <div className="text-muted-foreground text-xs">Selected model</div>
+            <div>{getRunModelDisplayName(run)}</div>
           </div>
         </div>
         <div className="mt-8">
-          <div className="flex justify-between items-end">
-            <div className="text-xs text-muted-foreground">Sessions</div>
-            {(run.hasErrored) && (
+          <div className="flex items-end justify-between">
+            <div className="text-muted-foreground text-xs">Sessions</div>
+            {run.hasErrored && (
               <Button onClick={onReRunClicked}>Re-run errored</Button>
             )}
           </div>
-          <div className="border rounded-md h-80 overflow-y-auto mt-2">
+          <div className="mt-2 h-80 overflow-y-auto rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -117,33 +126,53 @@ export default function ProjectRun({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {map(run.sessions, (session: { sessionId: number, name: string, startedAt: string, finishedAt: string, fileType: string, status: string }) => {
-                  return (
-                    <TableRow key={session.sessionId}>
-                      <TableCell className="font-medium">
-                        {(session.status === 'DONE') && (
-
-                          <Link to={`/projects/${run.project}/runs/${run._id}/sessions/${session.sessionId}`}>
-                            {session.name}
-                          </Link>
-                        ) || (
-                            session.name
-                          )}
-                      </TableCell>
-                      <TableCell>{session.status !== 'NOT_STARTED' ? dayjs(session.startedAt).format('ddd, MMM D, YYYY - h:mm A') : '--'}</TableCell>
-                      <TableCell>{session.finishedAt ? dayjs(session.finishedAt).format('ddd, MMM D, YYYY - h:mm A') : '--'}</TableCell>
-                      <TableCell>{session.fileType}</TableCell>
-                      <TableCell>{session.status}</TableCell>
-                    </TableRow>
-                  );
-                })}
+                {map(
+                  run.sessions,
+                  (session: {
+                    sessionId: number;
+                    name: string;
+                    startedAt: string;
+                    finishedAt: string;
+                    fileType: string;
+                    status: string;
+                  }) => {
+                    return (
+                      <TableRow key={session.sessionId}>
+                        <TableCell className="font-medium">
+                          {(session.status === "DONE" && (
+                            <Link
+                              to={`/projects/${run.project}/runs/${run._id}/sessions/${session.sessionId}`}
+                            >
+                              {session.name}
+                            </Link>
+                          )) ||
+                            session.name}
+                        </TableCell>
+                        <TableCell>
+                          {session.status !== "NOT_STARTED"
+                            ? dayjs(session.startedAt).format(
+                                "ddd, MMM D, YYYY - h:mm A",
+                              )
+                            : "--"}
+                        </TableCell>
+                        <TableCell>
+                          {session.finishedAt
+                            ? dayjs(session.finishedAt).format(
+                                "ddd, MMM D, YYYY - h:mm A",
+                              )
+                            : "--"}
+                        </TableCell>
+                        <TableCell>{session.fileType}</TableCell>
+                        <TableCell>{session.status}</TableCell>
+                      </TableRow>
+                    );
+                  },
+                )}
               </TableBody>
             </Table>
           </div>
         </div>
-        <ProjectRunDownloads
-          run={run}
-        />
+        <ProjectRunDownloads run={run} />
       </div>
     </div>
   );

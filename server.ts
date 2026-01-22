@@ -1,13 +1,13 @@
 import compression from "compression";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 import express from "express";
-import http from 'http';
+import http from "http";
 import morgan from "morgan";
+import { initializeDatabase } from "./app/lib/database";
+import "./app/modules/storage/storage";
 import { UserService } from "./app/modules/users/user";
 import { setupSockets } from "./sockets";
-import { initializeDatabase } from "./app/lib/database";
-import './app/modules/storage/storage';
-dotenv.config({ path: '.env' })
+dotenv.config({ path: ".env" });
 
 // Short-circuit the type-checking of the built output.
 const BUILD_PATH = "./build/server/index.js";
@@ -48,7 +48,11 @@ if (DEVELOPMENT) {
     "/assets",
     express.static("build/client/assets", { immutable: true, maxAge: "1y" }),
   );
-  app.use(morgan("[app] :method :url :status :res[content-length] - :response-time ms"));
+  app.use(
+    morgan(
+      "[app] :method :url :status :res[content-length] - :response-time ms",
+    ),
+  );
   app.use(express.static("build/client", { maxAge: "1h" }));
   app.use(await import(BUILD_PATH).then((mod) => mod.app));
 }
@@ -56,22 +60,22 @@ if (DEVELOPMENT) {
 const checkSuperAdminExists = async () => {
   const users = await UserService.find({
     match: {
-      role: 'SUPER_ADMIN',
-      githubId: parseInt(process.env.SUPER_ADMIN_GITHUB_ID as string)
-    }
+      role: "SUPER_ADMIN",
+      githubId: parseInt(process.env.SUPER_ADMIN_GITHUB_ID as string),
+    },
   });
 
   if (users.length === 0) {
     await UserService.create({
-      role: 'SUPER_ADMIN',
-      username: 'local',
+      role: "SUPER_ADMIN",
+      username: "local",
       githubId: parseInt(process.env.SUPER_ADMIN_GITHUB_ID as string),
       hasGithubSSO: process.env.SUPER_ADMIN_GITHUB_ID ? true : false,
       isRegistered: true,
-      registeredAt: new Date()
-    })
+      registeredAt: new Date(),
+    });
   }
-}
+};
 
 server.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);

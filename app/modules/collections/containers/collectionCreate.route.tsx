@@ -16,37 +16,40 @@ import type { Route } from './+types/collectionCreate.route';
 import CollectionCreatorFormContainer from './collectionCreatorForm.container';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {
-    return redirect('/');
+    return redirect("/");
   }
 
   if (!ProjectAuthorization.canView(user, project)) {
-    return redirect('/');
+    return redirect("/");
   }
 
   await requireCollectionsFeature(request, params);
 
   // Check for fromRun or fromCollection query parameter
   const url = new URL(request.url);
-  const fromRunId = url.searchParams.get('fromRun');
-  const fromCollectionId = url.searchParams.get('fromCollection');
+  const fromRunId = url.searchParams.get("fromRun");
+  const fromCollectionId = url.searchParams.get("fromCollection");
 
   let prefillData: PrefillData | null = null;
 
   if (fromRunId) {
     try {
-      const run = await RunService.findOne({ _id: fromRunId, project: params.projectId });
+      const run = await RunService.findOne({
+        _id: fromRunId,
+        project: params.projectId,
+      });
 
       // Validate run exists and belongs to this project
       if (run) {
         // Extract session IDs
-        const sessionIds = run.sessions.map(s => s.sessionId);
+        const sessionIds = run.sessions.map((s) => s.sessionId);
 
         // Fetch prompt details for display
         const prompt = await PromptService.findById(run.prompt as string);
@@ -55,18 +58,20 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           sourceRunId: run._id,
           sourceRunName: run.name,
           annotationType: run.annotationType,
-          selectedPrompts: [{
-            promptId: run.prompt as string,
-            promptName: prompt?.name || '',
-            version: run.promptVersion
-          }],
+          selectedPrompts: [
+            {
+              promptId: run.prompt as string,
+              promptName: prompt?.name || "",
+              version: run.promptVersion,
+            },
+          ],
           selectedModels: [run.model],
-          selectedSessions: sessionIds
+          selectedSessions: sessionIds,
         };
       }
     } catch (error) {
       // If there's an error fetching run data, just continue with empty form
-      console.error('Error fetching run for prefill:', error);
+      console.error("Error fetching run for prefill:", error);
     }
   } else if (fromCollectionId) {
     try {
@@ -81,14 +86,19 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           : [];
 
         if (runs.length === 0) {
-          validationErrors.push('Source collection has no runs to use as template');
+          validationErrors.push(
+            "Source collection has no runs to use as template",
+          );
         }
 
         // Get annotation type from first run (all runs should have same type)
-        const annotationType = runs[0]?.annotationType || 'PER_UTTERANCE';
+        const annotationType = runs[0]?.annotationType || "PER_UTTERANCE";
 
         // Collect unique prompts and models from all runs
-        const promptMap = new Map<string, { promptId: string; version: number }>();
+        const promptMap = new Map<
+          string,
+          { promptId: string; version: number }
+        >();
         const modelSet = new Set<string>();
 
         for (const run of runs) {
@@ -96,16 +106,18 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           if (!promptMap.has(key)) {
             promptMap.set(key, {
               promptId: run.prompt as string,
-              version: run.promptVersion
+              version: run.promptVersion,
             });
           }
           modelSet.add(run.model);
         }
 
         // Fetch all prompts in a single query
-        const promptIds = Array.from(promptMap.values()).map(p => p.promptId);
-        const prompts = await PromptService.find({ match: { _id: { $in: promptIds } } });
-        const promptsById = new Map(prompts.map(p => [p._id, p]));
+        const promptIds = Array.from(promptMap.values()).map((p) => p.promptId);
+        const prompts = await PromptService.find({
+          match: { _id: { $in: promptIds } },
+        });
+        const promptsById = new Map(prompts.map((p) => [p._id, p]));
 
         // Validate prompts still exist and build selected prompts
         const selectedPrompts: PromptReference[] = [];
@@ -115,23 +127,27 @@ export async function loader({ request, params }: Route.LoaderArgs) {
             selectedPrompts.push({
               promptId: promptRef.promptId,
               promptName: prompt.name,
-              version: promptRef.version
+              version: promptRef.version,
             });
           } else {
-            validationErrors.push(`Prompt "${promptRef.promptId}" no longer exists`);
+            validationErrors.push(
+              `Prompt "${promptRef.promptId}" no longer exists`,
+            );
           }
         }
 
         // Validate models exist in config
         const availableModelCodes = new Set(
-          aiGatewayConfig.providers.flatMap(p => p.models.map(m => m.code))
+          aiGatewayConfig.providers.flatMap((p) => p.models.map((m) => m.code)),
         );
         const selectedModels: string[] = [];
         for (const modelCode of modelSet) {
           if (availableModelCodes.has(modelCode)) {
             selectedModels.push(modelCode);
           } else {
-            validationErrors.push(`Model "${modelCode}" is no longer available`);
+            validationErrors.push(
+              `Model "${modelCode}" is no longer available`,
+            );
           }
         }
 
@@ -142,68 +158,59 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           selectedPrompts,
           selectedModels,
           selectedSessions: collection.sessions || [],
-          validationErrors: validationErrors.length > 0 ? validationErrors : undefined
+          validationErrors:
+            validationErrors.length > 0 ? validationErrors : undefined,
         };
       }
     } catch (error) {
-      console.error('Error fetching collection for prefill:', error);
+      console.error("Error fetching collection for prefill:", error);
     }
   }
 
   return { project, prefillData };
 }
 
-export async function action({
-  request,
-  params,
-  context
-}: Route.ActionArgs) {
-  const user = await getSessionUser({ request }) as User;
+export async function action({ request, params, context }: Route.ActionArgs) {
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {
-    return data({ errors: { project: 'Project not found' } }, { status: 404 });
+    return data({ errors: { project: "Project not found" } }, { status: 404 });
   }
 
   if (!ProjectAuthorization.Runs.canManage(user, project)) {
-    return data({ errors: { project: 'Access denied' } }, { status: 403 });
+    return data({ errors: { project: "Access denied" } }, { status: 403 });
   }
 
   const { intent, payload = {} } = await request.json();
 
-  const {
-    name,
-    annotationType,
-    prompts,
-    models,
-    sessions
-  } = payload;
+  const { name, annotationType, prompts, models, sessions } = payload;
 
   switch (intent) {
-    case 'CREATE_COLLECTION': {
+    case "CREATE_COLLECTION": {
       const errors: Record<string, string> = {};
 
-      if (typeof name !== 'string' || name.trim().length < 1) {
-        errors.name = 'Collection name is required';
+      if (typeof name !== "string" || name.trim().length < 1) {
+        errors.name = "Collection name is required";
       }
 
-      if (!['PER_UTTERANCE', 'PER_SESSION'].includes(annotationType)) {
-        errors.annotationType = 'Invalid annotation type';
+      if (!["PER_UTTERANCE", "PER_SESSION"].includes(annotationType)) {
+        errors.annotationType = "Invalid annotation type";
       }
 
       if (!Array.isArray(prompts) || prompts.length === 0) {
-        errors.prompts = 'At least one prompt is required';
+        errors.prompts = "At least one prompt is required";
       }
 
       if (!Array.isArray(models) || models.length === 0) {
-        errors.models = 'At least one model is required';
+        errors.models = "At least one model is required";
       }
 
       if (!Array.isArray(sessions) || sessions.length === 0) {
-        errors.sessions = 'At least one session is required';
+        errors.sessions = "At least one session is required";
       }
 
       if (Object.keys(errors).length > 0) {
@@ -216,21 +223,21 @@ export async function action({
         sessions,
         prompts,
         models,
-        annotationType: annotationType as RunAnnotationType
+        annotationType: annotationType as RunAnnotationType,
       });
 
       return {
-        intent: 'CREATE_COLLECTION',
+        intent: "CREATE_COLLECTION",
         data: {
           collectionId: result.collection._id,
           projectId: params.projectId,
-          errors: result.errors
-        }
+          errors: result.errors,
+        },
       };
     }
 
     default: {
-      return data({ errors: { intent: 'Invalid intent' } }, { status: 400 });
+      return data({ errors: { intent: "Invalid intent" } }, { status: 400 });
     }
   }
 }
@@ -253,11 +260,16 @@ export default function CollectionCreateRoute() {
         </PageHeaderLeft>
       </PageHeader>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Create Collection</h1>
-        <p className="text-muted-foreground">Set up a new collection with your preferred annotation settings</p>
+        <h1 className="mb-2 text-3xl font-bold">Create Collection</h1>
+        <p className="text-muted-foreground">
+          Set up a new collection with your preferred annotation settings
+        </p>
       </div>
 
-      <CollectionCreatorFormContainer projectId={project._id} prefillData={prefillData} />
+      <CollectionCreatorFormContainer
+        projectId={project._id}
+        prefillData={prefillData}
+      />
     </div>
   );
 }

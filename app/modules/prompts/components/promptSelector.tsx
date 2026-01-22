@@ -1,13 +1,35 @@
-import { Button } from "@/components/ui/button"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import clsx from "clsx"
-import { BookCheck, CheckIcon, ChevronsUpDownIcon, ViewIcon } from "lucide-react"
-import type { Prompt, PromptVersion } from "../prompts.types"
-import { Badge } from "@/components/ui/badge"
-import find from 'lodash/find';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Textarea } from "@/components/ui/textarea";
+import clsx from "clsx";
+import find from "lodash/find";
+import {
+  BookCheck,
+  CheckIcon,
+  ChevronsUpDownIcon,
+  ViewIcon,
+} from "lucide-react";
+import type { Prompt, PromptVersion } from "../prompts.types";
 
 export default function PromptSelector({
   prompts,
@@ -22,26 +44,27 @@ export default function PromptSelector({
   onTogglePromptPopover,
   onTogglePromptVersionsPopover,
   onSelectedPromptChange,
-  onSelectedPromptVersionChange
+  onSelectedPromptVersionChange,
 }: {
-  prompts: Prompt[],
-  promptVersions: PromptVersion[],
-  selectedPrompt: string | null,
-  selectedPromptVersion: number | null,
-  productionVersion: number,
-  isLoadingPrompts: boolean,
-  isLoadingPromptVersions: boolean,
-  isPromptsOpen: boolean,
-  isPromptVersionsOpen: boolean,
-  onTogglePromptPopover: (isPromptsOpen: boolean) => void,
-  onTogglePromptVersionsPopover: (isPromptVersionsOpen: boolean) => void,
-  onSelectedPromptChange: (selectedPrompt: string) => void,
-  onSelectedPromptVersionChange: (selectedPromptVersion: number) => void,
+  prompts: Prompt[];
+  promptVersions: PromptVersion[];
+  selectedPrompt: string | null;
+  selectedPromptVersion: number | null;
+  productionVersion: number;
+  isLoadingPrompts: boolean;
+  isLoadingPromptVersions: boolean;
+  isPromptsOpen: boolean;
+  isPromptVersionsOpen: boolean;
+  onTogglePromptPopover: (isPromptsOpen: boolean) => void;
+  onTogglePromptVersionsPopover: (isPromptVersionsOpen: boolean) => void;
+  onSelectedPromptChange: (selectedPrompt: string) => void;
+  onSelectedPromptVersionChange: (selectedPromptVersion: number) => void;
 }) {
-
   let selectedPromptVersionItem = null;
   if (selectedPromptVersion) {
-    selectedPromptVersionItem = find(promptVersions, { version: Number(selectedPromptVersion) });
+    selectedPromptVersionItem = find(promptVersions, {
+      version: Number(selectedPromptVersion),
+    });
   }
 
   return (
@@ -55,7 +78,8 @@ export default function PromptSelector({
             className="w-[200px] justify-between"
           >
             {selectedPrompt
-              ? prompts.find((prompt: Prompt) => prompt._id === selectedPrompt)?.name
+              ? prompts.find((prompt: Prompt) => prompt._id === selectedPrompt)
+                  ?.name
               : "Select prompt..."}
             <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -64,16 +88,12 @@ export default function PromptSelector({
           <Command>
             <CommandInput placeholder="Search prompts..." />
             <CommandList>
-              {(isLoadingPrompts) && (
-                <div className="flex justify-center">
-                  Loading
-                </div>
+              {isLoadingPrompts && (
+                <div className="flex justify-center">Loading</div>
               )}
-              {(!isLoadingPrompts) && (
+              {!isLoadingPrompts && (
                 <CommandEmpty>
-                  <div>
-                    No prompts found.
-                  </div>
+                  <div>No prompts found.</div>
                   {/* <Button >Create</Button> */}
                 </CommandEmpty>
               )}
@@ -83,14 +103,16 @@ export default function PromptSelector({
                     key={prompt._id}
                     value={prompt._id}
                     onSelect={(currentValue) => {
-                      onSelectedPromptChange(prompt._id)
-                      onTogglePromptPopover(false)
+                      onSelectedPromptChange(prompt._id);
+                      onTogglePromptPopover(false);
                     }}
                   >
                     <CheckIcon
                       className={clsx(
                         "mr-2 h-4 w-4",
-                        selectedPrompt === prompt._id ? "opacity-100" : "opacity-0"
+                        selectedPrompt === prompt._id
+                          ? "opacity-100"
+                          : "opacity-0",
                       )}
                     />
                     {prompt.name}
@@ -101,9 +123,12 @@ export default function PromptSelector({
           </Command>
         </PopoverContent>
       </Popover>
-      {(selectedPrompt) && (
+      {selectedPrompt && (
         <div className="ml-2">
-          <Popover open={isPromptVersionsOpen} onOpenChange={onTogglePromptVersionsPopover}>
+          <Popover
+            open={isPromptVersionsOpen}
+            onOpenChange={onTogglePromptVersionsPopover}
+          >
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -111,16 +136,23 @@ export default function PromptSelector({
                 aria-expanded={isPromptVersionsOpen}
                 className="w-[200px] justify-between"
               >
-                {(selectedPromptVersion && selectedPromptVersionItem) && (
+                {(selectedPromptVersion && selectedPromptVersionItem && (
                   <div className="flex items-center">
                     {`#${selectedPromptVersionItem.version}`}
-                    {(productionVersion && productionVersion === selectedPromptVersionItem.version) && (
-                      <Badge variant="secondary" className="bg-indigo-100 ml-2"><BookCheck className="size-3" />Production</Badge>
-                    )}
+                    {productionVersion &&
+                      productionVersion ===
+                        selectedPromptVersionItem.version && (
+                        <Badge
+                          variant="secondary"
+                          className="ml-2 bg-indigo-100"
+                        >
+                          <BookCheck className="size-3" />
+                          Production
+                        </Badge>
+                      )}
                   </div>
-                ) || (
-                    "Select version..."
-                  )}
+                )) ||
+                  "Select version..."}
                 <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -128,17 +160,13 @@ export default function PromptSelector({
               <Command>
                 <CommandInput placeholder="Search versions..." />
                 <CommandList>
-                  {(isLoadingPromptVersions) && (
-                    <div className="flex justify-center">
-                      Loading
-                    </div>
+                  {isLoadingPromptVersions && (
+                    <div className="flex justify-center">Loading</div>
                   )}
-                  {(!isLoadingPromptVersions) && (
+                  {!isLoadingPromptVersions && (
                     <CommandEmpty>
-                      <div>
-                        No versions found.
-                      </div>
-                      <Button >Create</Button>
+                      <div>No versions found.</div>
+                      <Button>Create</Button>
                     </CommandEmpty>
                   )}
                   <CommandGroup>
@@ -147,21 +175,30 @@ export default function PromptSelector({
                         key={promptVersion._id}
                         value={`${promptVersion.version}`}
                         onSelect={(currentValue) => {
-                          onSelectedPromptVersionChange(promptVersion.version)
-                          onTogglePromptVersionsPopover(false)
+                          onSelectedPromptVersionChange(promptVersion.version);
+                          onTogglePromptVersionsPopover(false);
                         }}
                       >
                         <CheckIcon
                           className={clsx(
                             "mr-2 h-4 w-4",
-                            selectedPromptVersion === promptVersion.version ? "opacity-100" : "opacity-0"
+                            selectedPromptVersion === promptVersion.version
+                              ? "opacity-100"
+                              : "opacity-0",
                           )}
                         />
                         <div>
                           {`#${promptVersion.version}`}
-                          {(productionVersion && productionVersion === promptVersion.version) && (
-                            <Badge variant="secondary" className="bg-indigo-100 ml-2"><BookCheck className="size-3" />Production</Badge>
-                          )}
+                          {productionVersion &&
+                            productionVersion === promptVersion.version && (
+                              <Badge
+                                variant="secondary"
+                                className="ml-2 bg-indigo-100"
+                              >
+                                <BookCheck className="size-3" />
+                                Production
+                              </Badge>
+                            )}
                           <div className="text-muted-foreground">
                             {promptVersion.name}
                           </div>
@@ -175,7 +212,7 @@ export default function PromptSelector({
           </Popover>
         </div>
       )}
-      {(selectedPrompt && selectedPromptVersion && selectedPromptVersionItem) && (
+      {selectedPrompt && selectedPromptVersion && selectedPromptVersionItem && (
         <div className="ml-2">
           <Sheet>
             <SheetTrigger asChild>
@@ -183,16 +220,23 @@ export default function PromptSelector({
                 <ViewIcon />
               </Button>
             </SheetTrigger>
-            <SheetContent className="overflow-y-auto !max-w-1/2">
+            <SheetContent className="!max-w-1/2 overflow-y-auto">
               <SheetHeader>
                 <SheetTitle>Selected prompt version</SheetTitle>
-                <div className="inline-flex items-center p-2 border rounded-t-md mb-[-1px]">
+                <div className="mb-[-1px] inline-flex items-center rounded-t-md border p-2">
                   {`#${selectedPromptVersionItem.version}`}
-                  {(productionVersion && productionVersion === selectedPromptVersionItem.version) && (
-                    <Badge variant="secondary" className="bg-indigo-100 ml-2"><BookCheck />Production</Badge>
-                  )}
+                  {productionVersion &&
+                    productionVersion === selectedPromptVersionItem.version && (
+                      <Badge variant="secondary" className="ml-2 bg-indigo-100">
+                        <BookCheck />
+                        Production
+                      </Badge>
+                    )}
                 </div>
-                <Textarea disabled className="max-h-[calc(100vh-120px)] !opacity-100 !rounded-tl-none">
+                <Textarea
+                  disabled
+                  className="max-h-[calc(100vh-120px)] !rounded-tl-none !opacity-100"
+                >
                   {selectedPromptVersionItem?.userPrompt}
                 </Textarea>
               </SheetHeader>
@@ -200,7 +244,6 @@ export default function PromptSelector({
           </Sheet>
         </div>
       )}
-    </div >
-
-  )
+    </div>
+  );
 }

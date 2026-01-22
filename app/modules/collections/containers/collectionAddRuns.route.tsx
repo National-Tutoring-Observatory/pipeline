@@ -22,18 +22,18 @@ import type { User } from '~/modules/users/users.types';
 import type { Route } from './+types/collectionAddRuns.route';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {
-    return redirect('/');
+    return redirect("/");
   }
 
   if (!ProjectAuthorization.canView(user, project)) {
-    return redirect('/');
+    return redirect("/");
   }
 
   await requireCollectionsFeature(request, params);
@@ -44,60 +44,61 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   const queryParams = getQueryParamsFromRequest(request, {
-    searchValue: '',
+    searchValue: "",
     currentPage: 1,
-    sort: '-createdAt'
+    sort: "-createdAt",
   });
 
-  const eligibleRunsResult = await CollectionService.findEligibleRunsForCollection(
-    params.collectionId,
-    {
+  const eligibleRunsResult =
+    await CollectionService.findEligibleRunsForCollection(params.collectionId, {
       page: queryParams.currentPage || 1,
       pageSize: 10,
-      search: queryParams.searchValue || ''
-    }
-  );
+      search: queryParams.searchValue || "",
+    });
 
   return {
     collection,
     project,
     eligibleRuns: eligibleRunsResult.data,
     totalEligibleRuns: eligibleRunsResult.count,
-    totalPages: eligibleRunsResult.totalPages
+    totalPages: eligibleRunsResult.totalPages,
   };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = await getSessionUser({ request }) as User;
+  const user = (await getSessionUser({ request })) as User;
   if (!user) {
-    return redirect('/');
+    return redirect("/");
   }
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {
-    return data({ errors: { project: 'Project not found' } }, { status: 404 });
+    return data({ errors: { project: "Project not found" } }, { status: 404 });
   }
 
   if (!ProjectAuthorization.Runs.canManage(user, project)) {
-    return data({ errors: { project: 'Access denied' } }, { status: 403 });
+    return data({ errors: { project: "Access denied" } }, { status: 403 });
   }
 
   const { intent, payload = {} } = await request.json();
 
   switch (intent) {
-    case 'ADD_RUNS': {
+    case "ADD_RUNS": {
       const { runIds } = payload;
       await CollectionService.addRunsToCollection(params.collectionId, runIds);
-      return redirect(`/projects/${params.projectId}/collections/${params.collectionId}`);
+      return redirect(
+        `/projects/${params.projectId}/collections/${params.collectionId}`,
+      );
     }
     default: {
-      return data({ errors: { intent: 'Invalid intent' } }, { status: 400 });
+      return data({ errors: { intent: "Invalid intent" } }, { status: 400 });
     }
   }
 }
 
 export default function CollectionAddRunsRoute() {
-  const { collection, project, eligibleRuns, totalEligibleRuns, totalPages } = useLoaderData<typeof loader>();
+  const { collection, project, eligibleRuns, totalEligibleRuns, totalPages } =
+    useLoaderData<typeof loader>();
   const submit = useSubmit();
   const navigate = useNavigate();
   const [selectedRuns, setSelectedRuns] = useState<string[]>([]);
@@ -107,15 +108,15 @@ export default function CollectionAddRunsRoute() {
     setSearchValue,
     currentPage,
     setCurrentPage,
-    isSyncing
+    isSyncing,
   } = useSearchQueryParams({
-    searchValue: '',
-    currentPage: 1
+    searchValue: "",
+    currentPage: 1,
   });
 
   const onSelectAllToggled = (isChecked: boolean) => {
     if (isChecked) {
-      setSelectedRuns(map(eligibleRuns, '_id'));
+      setSelectedRuns(map(eligibleRuns, "_id"));
     } else {
       setSelectedRuns([]);
     }
@@ -135,10 +136,10 @@ export default function CollectionAddRunsRoute() {
   const onAddRunsClicked = () => {
     submit(
       JSON.stringify({
-        intent: 'ADD_RUNS',
-        payload: { runIds: selectedRuns }
+        intent: "ADD_RUNS",
+        payload: { runIds: selectedRuns },
       }),
-      { method: 'POST', encType: 'application/json' }
+      { method: "POST", encType: "application/json" },
     );
   };
 
@@ -150,23 +151,34 @@ export default function CollectionAddRunsRoute() {
     id: run._id,
     title: run.name,
     meta: [
-      { text: `Model: ${getRunModelDisplayName(run) || '-'}` },
-      { text: `Status: ${run.isComplete ? 'Complete' : run.isRunning ? 'Running' : 'Pending'}` }
-    ]
+      { text: `Model: ${getRunModelDisplayName(run) || "-"}` },
+      {
+        text: `Status: ${run.isComplete ? "Complete" : run.isRunning ? "Running" : "Pending"}`,
+      },
+    ],
   });
 
   const renderItem = (run: Run) => (
-    <div className="flex items-center gap-4 p-4 w-full">
+    <div className="flex w-full items-center gap-4 p-4">
       <Checkbox
         checked={includes(selectedRuns, run._id)}
-        onCheckedChange={(checked) => onSelectRunToggled(run._id, Boolean(checked))}
+        onCheckedChange={(checked) =>
+          onSelectRunToggled(run._id, Boolean(checked))
+        }
         onClick={(e) => e.stopPropagation()}
       />
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="font-medium">{run.name}</div>
-        <div className="text-sm text-muted-foreground flex gap-4">
-          <span>Model: {getRunModelDisplayName(run) || '-'}</span>
-          <span>Status: {run.isComplete ? 'Complete' : run.isRunning ? 'Running' : 'Pending'}</span>
+        <div className="text-muted-foreground flex gap-4 text-sm">
+          <span>Model: {getRunModelDisplayName(run) || "-"}</span>
+          <span>
+            Status:{" "}
+            {run.isComplete
+              ? "Complete"
+              : run.isRunning
+                ? "Running"
+                : "Pending"}
+          </span>
         </div>
       </div>
     </div>
@@ -180,7 +192,8 @@ export default function CollectionAddRunsRoute() {
     { text: 'Add Runs' }
   ];
 
-  const allSelected = eligibleRuns.length > 0 && selectedRuns.length === eligibleRuns.length;
+  const allSelected =
+    eligibleRuns.length > 0 && selectedRuns.length === eligibleRuns.length;
 
   return (
     <div className="p-8">
@@ -190,28 +203,36 @@ export default function CollectionAddRunsRoute() {
         </PageHeaderLeft>
       </PageHeader>
       <div className="mb-8">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">Add Runs</h1>
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
+          Add Runs
+        </h1>
         <p className="text-muted-foreground mt-2">
-          Select runs to add to "{collection.name}". Only compatible runs are shown.
+          Select runs to add to "{collection.name}". Only compatible runs are
+          shown.
         </p>
       </div>
 
       {totalEligibleRuns === 0 && !searchValue ? (
-        <div className="text-center py-12 text-muted-foreground">
+        <div className="text-muted-foreground py-12 text-center">
           <p>No eligible runs found.</p>
-          <p className="text-sm mt-2">Runs must have the same sessions and annotation type as this collection.</p>
+          <p className="mt-2 text-sm">
+            Runs must have the same sessions and annotation type as this
+            collection.
+          </p>
           <Button variant="outline" className="mt-4" onClick={onCancelClicked}>
             Go Back
           </Button>
         </div>
       ) : (
         <>
-          <div className="flex items-center gap-4 mb-4">
+          <div className="mb-4 flex items-center gap-4">
             <Checkbox
               checked={allSelected}
-              onCheckedChange={(checked) => onSelectAllToggled(Boolean(checked))}
+              onCheckedChange={(checked) =>
+                onSelectAllToggled(Boolean(checked))
+              }
             />
-            <span className="text-sm text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               Select all ({selectedRuns.length} of {totalEligibleRuns} selected)
             </span>
           </div>
@@ -226,8 +247,10 @@ export default function CollectionAddRunsRoute() {
             totalPages={totalPages}
             isSyncing={isSyncing}
             emptyAttributes={{
-              title: 'No runs found',
-              description: searchValue ? 'Try a different search term' : 'No eligible runs available'
+              title: "No runs found",
+              description: searchValue
+                ? "Try a different search term"
+                : "No eligible runs available",
             }}
             getItemAttributes={getItemAttributes}
             getItemActions={() => []}
@@ -245,12 +268,16 @@ export default function CollectionAddRunsRoute() {
             filtersValues={{}}
           />
 
-          <div className="flex justify-end gap-2 mt-6">
+          <div className="mt-6 flex justify-end gap-2">
             <Button variant="outline" onClick={onCancelClicked}>
               Cancel
             </Button>
-            <Button onClick={onAddRunsClicked} disabled={selectedRuns.length === 0}>
-              Add {selectedRuns.length} Run{selectedRuns.length !== 1 ? 's' : ''}
+            <Button
+              onClick={onAddRunsClicked}
+              disabled={selectedRuns.length === 0}
+            >
+              Add {selectedRuns.length} Run
+              {selectedRuns.length !== 1 ? "s" : ""}
             </Button>
           </div>
         </>

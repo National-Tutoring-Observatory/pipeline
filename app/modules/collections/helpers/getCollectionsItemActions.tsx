@@ -1,33 +1,33 @@
-import type { CollectionItemAction } from "@/components/ui/collectionContentItem"
-import { Edit, Copy, FileInput, Trash2 } from "lucide-react"
+import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
+import { Copy, Edit, FileInput, Trash2 } from "lucide-react";
 import type { Collection } from "../collections.types";
 
 export default (item: Collection): CollectionItemAction[] => {
   const actions: CollectionItemAction[] = [];
 
   actions.push({
-    action: 'EDIT',
+    action: "EDIT",
     icon: <Edit />,
-    text: 'Edit'
+    text: "Edit",
   });
 
   actions.push({
-    action: 'DUPLICATE',
+    action: "DUPLICATE",
     icon: <Copy />,
-    text: 'Duplicate'
+    text: "Duplicate",
   });
 
   actions.push({
-    action: 'USE_AS_TEMPLATE',
+    action: "USE_AS_TEMPLATE",
     icon: <FileInput />,
-    text: 'Use as template'
+    text: "Use as template",
   });
 
   actions.push({
-    action: 'DELETE',
+    action: "DELETE",
     icon: <Trash2 />,
-    text: 'Delete'
+    text: "Delete",
   });
 
   return actions;
-}
+};

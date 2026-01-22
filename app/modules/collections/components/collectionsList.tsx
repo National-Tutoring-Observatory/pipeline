@@ -39,30 +39,36 @@ export default function CollectionsList({
   onDeleteCollectionButtonClicked,
   onSearchValueChanged,
   onPaginationChanged,
-  onSortValueChanged
+  onSortValueChanged,
 }: CollectionsListProps) {
-  const handleItemActionClicked = ({ id, action }: { id: string; action: string }) => {
-    const collection = collections?.find(c => c._id === id);
+  const handleItemActionClicked = ({
+    id,
+    action,
+  }: {
+    id: string;
+    action: string;
+  }) => {
+    const collection = collections?.find((c) => c._id === id);
     if (!collection) return;
 
     switch (action) {
-      case 'EDIT':
+      case "EDIT":
         onEditCollectionButtonClicked(collection);
         break;
-      case 'DUPLICATE':
+      case "DUPLICATE":
         onDuplicateCollectionButtonClicked(collection);
         break;
-      case 'USE_AS_TEMPLATE':
+      case "USE_AS_TEMPLATE":
         onUseAsTemplateButtonClicked(collection);
         break;
-      case 'DELETE':
+      case "DELETE":
         onDeleteCollectionButtonClicked(collection);
         break;
     }
   };
 
   const handleActionClicked = (action: string) => {
-    if (action === 'CREATE') {
+    if (action === "CREATE") {
       onCreateCollectionButtonClicked();
     }
   };
@@ -78,8 +84,8 @@ export default function CollectionsList({
           filters={[]}
           filtersValues={{}}
           emptyAttributes={{
-            title: 'Coming soon',
-            description: 'Collections will be available in a future update.'
+            title: "Coming soon",
+            description: "Collections will be available in a future update.",
           }}
           getItemAttributes={getCollectionsItemAttributes}
           getItemActions={() => []}

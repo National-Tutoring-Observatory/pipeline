@@ -1,6 +1,6 @@
-import type { Collection } from '../collections.types';
-import { CollectionService } from '../collection';
-import { sessionsMatch } from '../helpers/sessionsMatch';
+import { CollectionService } from "../collection";
+import type { Collection } from "../collections.types";
+import { sessionsMatch } from "../helpers/sessionsMatch";
 
 interface MergeResult {
   collection: Collection;
@@ -10,30 +10,32 @@ interface MergeResult {
 
 function validateSourceCollection(
   sourceCollection: Collection,
-  targetCollection: Collection
+  targetCollection: Collection,
 ): void {
   if (targetCollection.project !== sourceCollection.project) {
-    throw new Error('Collections are not compatible for merging');
+    throw new Error("Collections are not compatible for merging");
   }
 
   if (!sessionsMatch(targetCollection.sessions, sourceCollection.sessions)) {
-    throw new Error('Collections are not compatible for merging');
+    throw new Error("Collections are not compatible for merging");
   }
 
   if (sourceCollection.annotationType !== targetCollection.annotationType) {
-    throw new Error('Collections are not compatible for merging');
+    throw new Error("Collections are not compatible for merging");
   }
 }
 
 export default async function mergeCollections(
   targetCollectionId: string,
-  sourceCollectionIds: string | string[]
+  sourceCollectionIds: string | string[],
 ): Promise<MergeResult> {
-  const sourceIds = Array.isArray(sourceCollectionIds) ? sourceCollectionIds : [sourceCollectionIds];
+  const sourceIds = Array.isArray(sourceCollectionIds)
+    ? sourceCollectionIds
+    : [sourceCollectionIds];
 
   const targetCollection = await CollectionService.findById(targetCollectionId);
   if (!targetCollection) {
-    throw new Error('Target collection not found');
+    throw new Error("Target collection not found");
   }
 
   const existingRunIds = new Set(targetCollection.runs || []);
@@ -41,9 +43,10 @@ export default async function mergeCollections(
   const skipped: string[] = [];
 
   for (const sourceCollectionId of sourceIds) {
-    const sourceCollection = await CollectionService.findById(sourceCollectionId);
+    const sourceCollection =
+      await CollectionService.findById(sourceCollectionId);
     if (!sourceCollection) {
-      throw new Error('Source collection not found');
+      throw new Error("Source collection not found");
     }
 
     validateSourceCollection(sourceCollection, targetCollection);
@@ -59,11 +62,14 @@ export default async function mergeCollections(
   }
 
   const updatedRuns = [...(targetCollection.runs || []), ...added];
-  const updatedCollection = await CollectionService.updateById(targetCollectionId, { runs: updatedRuns });
+  const updatedCollection = await CollectionService.updateById(
+    targetCollectionId,
+    { runs: updatedRuns },
+  );
 
   return {
     collection: updatedCollection!,
     added,
-    skipped
+    skipped,
   };
 }

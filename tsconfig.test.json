@@ -1,15 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": [
-      "node",
-      "vite/client",
-      "vitest"
-    ]
+    "types": ["node", "vite/client", "vitest"]
   },
-  "include": [
-    "app/**/__tests__/**/*",
-    "app/**/*.test.ts",
-    "app/**/*.test.tsx"
-  ]
+  "include": ["app/**/__tests__/**/*", "app/**/*.test.ts", "app/**/*.test.tsx"]
 }

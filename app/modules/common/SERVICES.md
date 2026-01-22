@@ -9,16 +9,17 @@ The service layer provides a consistent interface for data operations across dom
 All services share the `FindOptions` interface for consistent query API:
 
 ```typescript
-import type { FindOptions } from '~/modules/common/types';
+import type { FindOptions } from "~/modules/common/types";
 
 interface FindOptions {
-  match?: Record<string, any>;        // MongoDB query filter
-  sort?: Record<string, 1 | -1>;      // Sort fields (1 = asc, -1 = desc)
-  pagination?: {                       // Pagination control
-    skip: number;                      // Skip N documents
-    limit: number;                     // Return N documents
+  match?: Record<string, any>; // MongoDB query filter
+  sort?: Record<string, 1 | -1>; // Sort fields (1 = asc, -1 = desc)
+  pagination?: {
+    // Pagination control
+    skip: number; // Skip N documents
+    limit: number; // Return N documents
   };
-  populate?: string[];                // Populate references
+  populate?: string[]; // Populate references
 }
 ```
 
@@ -29,14 +30,14 @@ All services follow this pattern:
 ```typescript
 export class ServiceName {
   // Query operations
-  static async find(options?: FindOptions): Promise<T[]>
-  static async findById(id: string | undefined): Promise<T | null>
-  static async count(match?: Record<string, any>): Promise<number>
+  static async find(options?: FindOptions): Promise<T[]>;
+  static async findById(id: string | undefined): Promise<T | null>;
+  static async count(match?: Record<string, any>): Promise<number>;
 
   // Mutation operations
-  static async create(data: Partial<T>): Promise<T>
-  static async updateById(id: string, updates: Partial<T>): Promise<T | null>
-  static async deleteById(id: string): Promise<T | null>
+  static async create(data: Partial<T>): Promise<T>;
+  static async updateById(id: string, updates: Partial<T>): Promise<T | null>;
+  static async deleteById(id: string): Promise<T | null>;
 }
 ```
 
@@ -46,7 +47,7 @@ export class ServiceName {
 
 ```typescript
 const users = await UserService.find({
-  match: { role: 'ADMIN' }
+  match: { role: "ADMIN" },
 });
 ```
 
@@ -54,7 +55,7 @@ const users = await UserService.find({
 
 ```typescript
 const teams = await TeamService.find({
-  sort: { name: 1 }  // Sort by name ascending
+  sort: { name: 1 }, // Sort by name ascending
 });
 ```
 
@@ -62,7 +63,7 @@ const teams = await TeamService.find({
 
 ```typescript
 const users = await UserService.find({
-  pagination: { skip: 10, limit: 20 }
+  pagination: { skip: 10, limit: 20 },
 });
 ```
 
@@ -73,14 +74,14 @@ const users = await UserService.find({
   match: { isRegistered: true },
   sort: { username: 1 },
   pagination: { skip: 0, limit: 50 },
-  populate: ['teams']
+  populate: ["teams"],
 });
 ```
 
 ### Count documents
 
 ```typescript
-const adminCount = await UserService.count({ role: 'SUPER_ADMIN' });
+const adminCount = await UserService.count({ role: "SUPER_ADMIN" });
 const totalUsers = await UserService.count();
 ```
 
@@ -88,8 +89,8 @@ const totalUsers = await UserService.count();
 
 ```typescript
 const user = await UserService.findById(userId);
-const created = await UserService.create({ username: 'new' });
-const updated = await UserService.updateById(id, { username: 'updated' });
+const created = await UserService.create({ username: "new" });
+const updated = await UserService.updateById(id, { username: "updated" });
 const deleted = await UserService.deleteById(id);
 ```
 
@@ -98,12 +99,12 @@ const deleted = await UserService.deleteById(id);
 When creating a new service:
 
 ```typescript
-import mongoose from 'mongoose';
-import schema from '~/modules/documents/schemas/model.schema';
-import type { ModelType } from './model.types';
-import type { FindOptions } from '~/modules/common/types';
+import mongoose from "mongoose";
+import schema from "~/modules/documents/schemas/model.schema";
+import type { ModelType } from "./model.types";
+import type { FindOptions } from "~/modules/common/types";
 
-const Model = mongoose.model('ModelName', schema);
+const Model = mongoose.model("ModelName", schema);
 
 export class ModelService {
   private static toModel(doc: any): ModelType {
@@ -129,7 +130,7 @@ export class ModelService {
     }
 
     const docs = await query.exec();
-    return docs.map(doc => this.toModel(doc));
+    return docs.map((doc) => this.toModel(doc));
   }
 
   static async count(match: Record<string, any> = {}): Promise<number> {
@@ -149,7 +150,7 @@ export class ModelService {
 
   static async updateById(
     id: string,
-    updates: Partial<ModelType>
+    updates: Partial<ModelType>,
   ): Promise<ModelType | null> {
     const doc = await Model.findByIdAndUpdate(id, updates, {
       new: true,
@@ -180,6 +181,7 @@ export class ModelService {
 ## Testing
 
 Services should be tested with:
+
 - Query filtering (match)
 - Sorting (ascending/descending)
 - Pagination (skip/limit)

@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import findModelByCode from '../findModelByCode';
-import aiGatewayConfig from '~/config/ai_gateway.json';
+import { describe, expect, it } from "vitest";
+import aiGatewayConfig from "~/config/ai_gateway.json";
+import findModelByCode from "../findModelByCode";
 
-describe('findModelByCode', () => {
-  it('should find any valid model code from config', () => {
+describe("findModelByCode", () => {
+  it("should find any valid model code from config", () => {
     // Pick first model from first provider
     const firstProvider = aiGatewayConfig.providers[0];
     const firstModel = firstProvider.models[0];
@@ -16,17 +16,17 @@ describe('findModelByCode', () => {
     expect(result?.provider).toBe(firstProvider.name);
   });
 
-  it('should return null for unknown code', () => {
-    const result = findModelByCode('nonexistent.code');
+  it("should return null for unknown code", () => {
+    const result = findModelByCode("nonexistent.code");
     expect(result).toBeNull();
   });
 
-  it('should return null for empty string', () => {
-    const result = findModelByCode('');
+  it("should return null for empty string", () => {
+    const result = findModelByCode("");
     expect(result).toBeNull();
   });
 
-  it('should be case-sensitive', () => {
+  it("should be case-sensitive", () => {
     const firstProvider = aiGatewayConfig.providers[0];
     const firstModel = firstProvider.models[0];
 

@@ -4,23 +4,24 @@ import SupportArticleDetail from "./supportArticleDetail";
 import SupportArticleList from "./supportArticleList";
 import SupportArticlesHeader from "./supportArticlesHeader";
 
-
 export default function SupportArticles({
   isLoading,
   supportArticles,
   selectedDocumentId,
   onSupportArticleClicked,
   onBackToSupportArticlesClicked,
-  onSearchClicked
+  onSearchClicked,
 }: {
-  isLoading: boolean,
-  supportArticles: SupportArticle[],
-  selectedDocumentId: string | null,
-  onSupportArticleClicked: (selectedDocumentId: string) => void,
-  onBackToSupportArticlesClicked: () => void,
-  onSearchClicked: () => void,
+  isLoading: boolean;
+  supportArticles: SupportArticle[];
+  selectedDocumentId: string | null;
+  onSupportArticleClicked: (selectedDocumentId: string) => void;
+  onBackToSupportArticlesClicked: () => void;
+  onSearchClicked: () => void;
 }) {
-  const selectedSupportArticle = supportArticles.find(sa => sa.documentId === selectedDocumentId);
+  const selectedSupportArticle = supportArticles.find(
+    (sa) => sa.documentId === selectedDocumentId,
+  );
   return (
     <div>
       <SupportArticlesHeader

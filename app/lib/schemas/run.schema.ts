@@ -1,33 +1,35 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 export default new mongoose.Schema({
   name: { type: String },
-  project: { type: mongoose.Types.ObjectId, ref: 'Project' },
-  annotationType: { type: String, enum: ['PER_UTTERANCE', 'PER_SESSION'] },
-  prompt: { type: mongoose.Types.ObjectId, ref: 'Prompt' },
+  project: { type: mongoose.Types.ObjectId, ref: "Project" },
+  annotationType: { type: String, enum: ["PER_UTTERANCE", "PER_SESSION"] },
+  prompt: { type: mongoose.Types.ObjectId, ref: "Prompt" },
   promptVersion: { type: Number },
   model: { type: String },
-  sessions: [{
-    sessionId: { type: mongoose.Types.ObjectId, ref: 'Session' },
-    status: { type: String },
-    name: { type: String },
-    fileType: { type: String },
-    startedAt: { type: Date, default: Date.now },
-    finishedAt: { type: Date, default: Date.now }
-  }],
+  sessions: [
+    {
+      sessionId: { type: mongoose.Types.ObjectId, ref: "Session" },
+      status: { type: String },
+      name: { type: String },
+      fileType: { type: String },
+      startedAt: { type: Date, default: Date.now },
+      finishedAt: { type: Date, default: Date.now },
+    },
+  ],
   snapshot: {
     prompt: {
       name: String,
       userPrompt: String,
       annotationSchema: [mongoose.Schema.Types.Mixed],
       annotationType: String,
-      version: Number
+      version: Number,
     },
     model: {
       code: String,
       name: String,
-      provider: String
-    }
+      provider: String,
+    },
   },
   isRunning: { type: Boolean, default: false },
   isComplete: { type: Boolean, default: false },
@@ -38,7 +40,7 @@ export default new mongoose.Schema({
   startedAt: { type: Date },
   finishedAt: { type: Date },
   createdAt: { type: Date, default: Date.now },
-  createdBy: { type: mongoose.Types.ObjectId, ref: 'User' },
+  createdBy: { type: mongoose.Types.ObjectId, ref: "User" },
   updatedAt: { type: Date },
-  updatedBy: { type: mongoose.Types.ObjectId, ref: 'User' }
+  updatedBy: { type: mongoose.Types.ObjectId, ref: "User" },
 });

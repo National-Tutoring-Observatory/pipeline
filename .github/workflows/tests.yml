@@ -3,7 +3,7 @@ name: CI — typecheck & tests
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   ci:
@@ -41,8 +41,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '25'
-          cache: 'yarn'
+          node-version: "25"
+          cache: "yarn"
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -61,6 +61,9 @@ jobs:
 
       - name: TypeScript type check
         run: yarn typecheck
+
+      - name: Check formatting
+        run: yarn format:check
 
       - name: Run tests
         run: yarn test

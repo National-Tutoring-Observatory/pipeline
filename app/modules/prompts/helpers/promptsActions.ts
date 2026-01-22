@@ -1,4 +1,6 @@
-export default [{
-  action: 'CREATE',
-  text: 'Create prompt'
-}]
+export default [
+  {
+    action: "CREATE",
+    text: "Create prompt",
+  },
+];
