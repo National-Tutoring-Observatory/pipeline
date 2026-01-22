@@ -1,13 +1,14 @@
 import { Button } from '@/components/ui/button';
 import { Collection } from '@/components/ui/collection';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { PageHeader, PageHeaderLeft, PageHeaderRight } from '@/components/ui/pageHeader';
 import find from 'lodash/find';
 import throttle from 'lodash/throttle';
 import { Copy, Download, GitMerge, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { data, redirect, useLoaderData, useNavigate, useRevalidator, useSubmit } from 'react-router';
+import Breadcrumbs from '~/modules/app/components/breadcrumbs';
 import useHandleSockets from '~/modules/app/hooks/useHandleSockets';
-import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { CollectionService } from '~/modules/collections/collection';
 import CollectionDownloads from '~/modules/collections/components/collectionDownloads';
@@ -163,14 +164,12 @@ export default function CollectionDetailRoute() {
     }
   });
 
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: 'Projects', link: '/' },
-      { text: project.name, link: `/projects/${project._id}` },
-      { text: 'Collections', link: `/projects/${project._id}/collections` },
-      { text: collection.name }
-    ]);
-  }, [project._id, project.name, collection.name]);
+  const breadcrumbs = [
+    { text: 'Projects', link: '/' },
+    { text: project.name, link: `/projects/${project._id}` },
+    { text: 'Collections', link: `/projects/${project._id}/collections` },
+    { text: collection.name }
+  ];
 
   useEffect(() => {
     const eventSource = new EventSource("/api/events");
@@ -203,65 +202,68 @@ export default function CollectionDetailRoute() {
 
   return (
     <div className="p-8">
-      <div className="mb-8 flex justify-between items-start">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">{collection.name}</h1>
-        <div className="flex text-muted-foreground gap-1">
-          {!collection.hasExportedCSV && (
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+        <PageHeaderRight>
+          <div className="flex text-muted-foreground gap-1">
+            {!collection.hasExportedCSV && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    disabled={collection.isExporting}
+                    className="data-[state=open]:bg-muted flex"
+                  >
+                    <Download />
+                    {collection.isExporting ? <span>Exporting</span> : <span>Export</span>}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onExportCollectionButtonClicked({ exportType: 'CSV' })}>
+                    As Table (.csv file)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  disabled={collection.isExporting}
-                  className="data-[state=open]:bg-muted flex"
+                  className="data-[state=open]:bg-muted"
                 >
-                  <Download />
-                  {collection.isExporting ? <span>Exporting</span> : <span>Export</span>}
+                  <MoreHorizontal />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onExportCollectionButtonClicked({ exportType: 'CSV' })}>
-                  As Table (.csv file)
+                <DropdownMenuItem onClick={() => navigate(`/projects/${project._id}/collections/${collection._id}/add-runs`)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Runs
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate(`/projects/${project._id}/collections/${collection._id}/merge`)}>
+                  <GitMerge className="mr-2 h-4 w-4" />
+                  Merge
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => openDuplicateCollectionDialog(collection)}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => openEditCollectionDialog(collection)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => openDeleteCollectionDialog(collection)} className="text-destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="data-[state=open]:bg-muted"
-              >
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => navigate(`/projects/${project._id}/collections/${collection._id}/add-runs`)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Runs
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate(`/projects/${project._id}/collections/${collection._id}/merge`)}>
-                <GitMerge className="mr-2 h-4 w-4" />
-                Merge
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => openDuplicateCollectionDialog(collection)}>
-                <Copy className="mr-2 h-4 w-4" />
-                Duplicate
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => openEditCollectionDialog(collection)}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => openDeleteCollectionDialog(collection)} className="text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-
+          </div>
+        </PageHeaderRight>
+      </PageHeader>
       <div>
         {/* Overview Section */}
         <div className="grid grid-cols-3 gap-6">
@@ -291,7 +293,7 @@ export default function CollectionDetailRoute() {
                 itemsLayout="list"
                 getItemAttributes={getProjectSessionsItemAttributes}
                 getItemActions={() => []}
-                onActionClicked={() => {}}
+                onActionClicked={() => { }}
                 onItemClicked={onSessionItemClicked}
                 emptyAttributes={{
                   title: 'No sessions found',
@@ -299,10 +301,10 @@ export default function CollectionDetailRoute() {
                 }}
                 currentPage={1}
                 totalPages={1}
-                onPaginationChanged={() => {}}
+                onPaginationChanged={() => { }}
                 filters={[]}
                 filtersValues={{}}
-                onSortValueChanged={() => {}}
+                onSortValueChanged={() => { }}
               />
             </div>
           </div>
@@ -318,17 +320,17 @@ export default function CollectionDetailRoute() {
                 itemsLayout="list"
                 getItemAttributes={getProjectRunsItemAttributes}
                 getItemActions={() => []}
-                onActionClicked={() => {}}
+                onActionClicked={() => { }}
                 emptyAttributes={{
                   title: 'No runs found',
                   description: ''
                 }}
                 currentPage={1}
                 totalPages={1}
-                onPaginationChanged={() => {}}
+                onPaginationChanged={() => { }}
                 filters={[]}
                 filtersValues={{}}
-                onSortValueChanged={() => {}}
+                onSortValueChanged={() => { }}
               />
             </div>
           </div>

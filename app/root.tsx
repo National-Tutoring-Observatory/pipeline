@@ -45,9 +45,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <AppSidebar />
             <SidebarInset>
               <main>
-                {/* <div className="pt-8 px-8 flex items-center">
-                  <BreadcrumbsContainer />
-                </div> */}
                 {children}
               </main>
             </SidebarInset>

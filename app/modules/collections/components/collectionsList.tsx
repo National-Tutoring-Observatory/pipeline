@@ -1,10 +1,10 @@
 import { Collection as CollectionComponent } from "@/components/ui/collection";
+import type { Collection } from "~/modules/collections/collections.types";
+import collectionsActions from "~/modules/collections/helpers/collectionsActions";
+import collectionsSortOptions from "~/modules/collections/helpers/collectionsSortOptions";
 import getCollectionsEmptyAttributes from "~/modules/collections/helpers/getCollectionsEmptyAttributes";
 import getCollectionsItemActions from "~/modules/collections/helpers/getCollectionsItemActions";
 import getCollectionsItemAttributes from "~/modules/collections/helpers/getCollectionsItemAttributes";
-import collectionsActions from "~/modules/collections/helpers/collectionsActions";
-import collectionsSortOptions from "~/modules/collections/helpers/collectionsSortOptions";
-import type { Collection } from "~/modules/collections/collections.types";
 
 interface CollectionsListProps {
   collections: Collection[];
@@ -83,12 +83,12 @@ export default function CollectionsList({
           }}
           getItemAttributes={getCollectionsItemAttributes}
           getItemActions={() => []}
-          onActionClicked={() => {}}
-          onItemActionClicked={() => {}}
-          onSearchValueChanged={() => {}}
-          onPaginationChanged={() => {}}
-          onFiltersValueChanged={() => {}}
-          onSortValueChanged={() => {}}
+          onActionClicked={() => { }}
+          onItemActionClicked={() => { }}
+          onSearchValueChanged={() => { }}
+          onPaginationChanged={() => { }}
+          onFiltersValueChanged={() => { }}
+          onSortValueChanged={() => { }}
           currentPage={1}
           totalPages={1}
         />
@@ -119,7 +119,7 @@ export default function CollectionsList({
         onItemActionClicked={handleItemActionClicked}
         onSearchValueChanged={onSearchValueChanged}
         onPaginationChanged={onPaginationChanged}
-        onFiltersValueChanged={() => {}}
+        onFiltersValueChanged={() => { }}
         onSortValueChanged={onSortValueChanged}
       />
     </div>

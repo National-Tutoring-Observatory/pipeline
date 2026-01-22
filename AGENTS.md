@@ -449,47 +449,6 @@ const onEditProjectClicked = (project: Project) => {  // Submits action
 
 This pattern clarifies intent and prevents wiring dialogs to wrong callbacks.
 
-### Breadcrumbs
-
-**CRITICAL**: Always add breadcrumbs to new routes using the `updateBreadcrumb` pattern.
-
-```typescript
-import { useEffect } from 'react';
-import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
-
-export default function MyRoute() {
-  const { project, resource } = useLoaderData<typeof loader>();
-
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: 'Projects', link: '/' },
-      { text: project.name, link: `/projects/${project._id}` },
-      { text: 'Collections', link: `/projects/${project._id}/collections` },
-      { text: resource.name } // No link for current page
-    ]);
-  }, [project._id, project.name, resource.name]);
-
-  return (
-    // ... component JSX
-  );
-}
-```
-
-**Breadcrumb Interface**:
-```typescript
-interface Breadcrumb {
-  text: string    // Display text
-  link?: string   // Optional link (omit for current page)
-}
-```
-
-**Guidelines**:
-- Add breadcrumbs to ALL routes that need navigation context
-- Omit `link` property for the current/active page
-- Include all parent levels (Projects → Project → Section → Current)
-- Use `useEffect` with appropriate dependencies to update when data changes
-- Breadcrumbs are displayed globally in the app's breadcrumb container
-
 ## UI Components
 
 ### Component Library
@@ -622,10 +581,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 3. Add types: `newFeature.types.ts`
 4. Add authorization: `authorization.ts`
 5. Create route: `containers/newFeature.route.tsx` (loader + action)
-6. **Add breadcrumbs** using `updateBreadcrumb()` in `useEffect`
-7. Create components: `components/`
-8. Add tests: `__tests__/`
-9. Register route in `app/routes.ts`
+6. Create components: `components/`
+7. Add tests: `__tests__/`
+8. Register route in `app/routes.ts`
 
 ### Adding a Background Job
 

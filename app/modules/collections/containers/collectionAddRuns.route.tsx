@@ -1,23 +1,24 @@
-import { useEffect, useState } from 'react';
-import { data, redirect, useLoaderData, useNavigate, useSubmit } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collection } from '@/components/ui/collection';
-import includes from 'lodash/includes';
+import { PageHeader, PageHeaderLeft } from '@/components/ui/pageHeader';
 import cloneDeep from 'lodash/cloneDeep';
-import pull from 'lodash/pull';
+import includes from 'lodash/includes';
 import map from 'lodash/map';
-import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
+import pull from 'lodash/pull';
+import { useState } from 'react';
+import { data, redirect, useLoaderData, useNavigate, useSubmit } from 'react-router';
+import Breadcrumbs from '~/modules/app/components/breadcrumbs';
 import getQueryParamsFromRequest from '~/modules/app/helpers/getQueryParamsFromRequest.server';
 import { useSearchQueryParams } from '~/modules/app/hooks/useSearchQueryParams';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { CollectionService } from '~/modules/collections/collection';
 import requireCollectionsFeature from '~/modules/collections/helpers/requireCollectionsFeature';
-import { ProjectService } from '~/modules/projects/project';
 import ProjectAuthorization from '~/modules/projects/authorization';
-import type { User } from '~/modules/users/users.types';
-import type { Run } from '~/modules/runs/runs.types';
+import { ProjectService } from '~/modules/projects/project';
 import { getRunModelDisplayName } from '~/modules/runs/helpers/runModel';
+import type { Run } from '~/modules/runs/runs.types';
+import type { User } from '~/modules/users/users.types';
 import type { Route } from './+types/collectionAddRuns.route';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -171,20 +172,23 @@ export default function CollectionAddRunsRoute() {
     </div>
   );
 
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: 'Projects', link: '/' },
-      { text: project.name, link: `/projects/${project._id}` },
-      { text: 'Collections', link: `/projects/${project._id}/collections` },
-      { text: collection.name, link: `/projects/${project._id}/collections/${collection._id}` },
-      { text: 'Add Runs' }
-    ]);
-  }, [project._id, project.name, collection._id, collection.name]);
+  const breadcrumbs = [
+    { text: 'Projects', link: '/' },
+    { text: project.name, link: `/projects/${project._id}` },
+    { text: 'Collections', link: `/projects/${project._id}/collections` },
+    { text: collection.name, link: `/projects/${project._id}/collections/${collection._id}` },
+    { text: 'Add Runs' }
+  ];
 
   const allSelected = eligibleRuns.length > 0 && selectedRuns.length === eligibleRuns.length;
 
   return (
     <div className="p-8">
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+      </PageHeader>
       <div className="mb-8">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">Add Runs</h1>
         <p className="text-muted-foreground mt-2">
@@ -232,11 +236,11 @@ export default function CollectionAddRunsRoute() {
               const isSelected = includes(selectedRuns, id);
               onSelectRunToggled(id, !isSelected);
             }}
-            onActionClicked={() => {}}
+            onActionClicked={() => { }}
             onSearchValueChanged={setSearchValue}
             onPaginationChanged={setCurrentPage}
-            onFiltersValueChanged={() => {}}
-            onSortValueChanged={() => {}}
+            onFiltersValueChanged={() => { }}
+            onSortValueChanged={() => { }}
             filters={[]}
             filtersValues={{}}
           />

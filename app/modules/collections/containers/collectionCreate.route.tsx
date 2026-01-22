@@ -1,18 +1,17 @@
-import { useEffect } from 'react';
-import { data, redirect } from 'react-router';
-import { useLoaderData } from 'react-router';
+import { PageHeader, PageHeaderLeft } from '@/components/ui/pageHeader';
+import { data, redirect, useLoaderData } from 'react-router';
 import aiGatewayConfig from '~/config/ai_gateway.json';
-import updateBreadcrumb from '~/modules/app/updateBreadcrumb';
+import Breadcrumbs from '~/modules/app/components/breadcrumbs';
 import getSessionUser from '~/modules/authentication/helpers/getSessionUser';
 import { CollectionService } from '~/modules/collections/collection';
 import type { PrefillData, PromptReference } from '~/modules/collections/collections.types';
 import requireCollectionsFeature from '~/modules/collections/helpers/requireCollectionsFeature';
-import { ProjectService } from '~/modules/projects/project';
-import { RunService } from '~/modules/runs/run';
-import { PromptService } from '~/modules/prompts/prompt';
-import type { User } from '~/modules/users/users.types';
-import type { RunAnnotationType } from '~/modules/runs/runs.types';
 import ProjectAuthorization from '~/modules/projects/authorization';
+import { ProjectService } from '~/modules/projects/project';
+import { PromptService } from '~/modules/prompts/prompt';
+import { RunService } from '~/modules/runs/run';
+import type { RunAnnotationType } from '~/modules/runs/runs.types';
+import type { User } from '~/modules/users/users.types';
 import type { Route } from './+types/collectionCreate.route';
 import CollectionCreatorFormContainer from './collectionCreatorForm.container';
 
@@ -239,17 +238,20 @@ export async function action({
 export default function CollectionCreateRoute() {
   const { project, prefillData } = useLoaderData<typeof loader>();
 
-  useEffect(() => {
-    updateBreadcrumb([
-      { text: 'Projects', link: '/' },
-      { text: project.name, link: `/projects/${project._id}` },
-      { text: 'Collections', link: `/projects/${project._id}/collections` },
-      { text: 'Create Collection' }
-    ]);
-  }, [project._id, project.name]);
+  const breadcrumbs = [
+    { text: 'Projects', link: '/' },
+    { text: project.name, link: `/projects/${project._id}` },
+    { text: 'Collections', link: `/projects/${project._id}/collections` },
+    { text: 'Create Collection' }
+  ];
 
   return (
     <div className="p-8">
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+      </PageHeader>
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Create Collection</h1>
         <p className="text-muted-foreground">Set up a new collection with your preferred annotation settings</p>
