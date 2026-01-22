@@ -3,6 +3,7 @@
   "files.trimFinalNewlines": true,
   "files.insertFinalNewline": true,
   "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit"
@@ -10,5 +11,6 @@
   "typescript.format.enable": true,
   "typescript.format.insertSpaceAfterCommaDelimiter": true,
   "typescript.format.insertSpaceAfterSemicolonInForStatements": true,
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "eslint.codeActionsOnSave.rules": null
 }
