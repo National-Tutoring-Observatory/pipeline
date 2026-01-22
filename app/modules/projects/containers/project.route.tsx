@@ -207,11 +207,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     }
   }, []);
 
-  const breadcrumbSuffix = 'Runs';
-
   const breadcrumbs = [{ text: 'Projects', link: '/' }, { text: project.name }, { text: capitalize(get(matches, '2.id', '')) }];
-
-  console.log(matches);
 
   return (
     <Project
