@@ -319,3 +319,23 @@ jobs:
 
           trap - ERR
           echo "✅ Worker service deployed successfully"
+
+      - name: Publish staging access links
+        if: success()
+        run: |
+          cat <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          ## 🚀 Staging Deployment Complete
+
+          **Environment:** Staging  
+          **Status:** ✅ Healthy
+
+          ### 🔗 Application Links
+          - 🌐 **Web App:** https://staging.app.nationaltutoringobservatory.org/
+
+          ### 🐳 Deployed Images
+          - **Web:** \`${{ env.WEB_IMAGE }}\`
+          - **Worker:** \`${{ env.WORKER_IMAGE }}\`
+
+          ---
+          _Tip: Bookmark the staging URL for quick testing._
+          EOF
