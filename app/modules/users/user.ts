@@ -124,44 +124,48 @@ export class UserService {
   }
 
   static async assignSuperAdminRole({
-    targetUserId,
-    performedByUserId,
+    targetUser,
+    performedByUser,
     reason,
-    performedByUsername,
   }: {
-    targetUserId: string;
-    performedByUserId: string;
+    targetUser: User;
+    performedByUser: User;
     reason: string;
-    performedByUsername: string;
   }): Promise<void> {
-    await this.updateById(targetUserId, { role: "SUPER_ADMIN" });
+    await this.updateById(targetUser._id, { role: "SUPER_ADMIN" });
 
     await AuditService.create({
       action: "ADD_SUPERADMIN",
-      performedBy: performedByUserId,
-      performedByUsername,
-      context: { target: targetUserId, reason },
+      performedBy: performedByUser._id,
+      performedByUsername: performedByUser.username,
+      context: {
+        target: targetUser._id,
+        targetUsername: targetUser.username,
+        reason,
+      },
     });
   }
 
   static async revokeSuperAdminRole({
-    targetUserId,
-    performedByUserId,
+    targetUser,
+    performedByUser,
     reason,
-    performedByUsername,
   }: {
-    targetUserId: string;
-    performedByUserId: string;
+    targetUser: User;
+    performedByUser: User;
     reason: string;
-    performedByUsername: string;
   }): Promise<void> {
-    await this.updateById(targetUserId, { role: "USER" });
+    await this.updateById(targetUser._id, { role: "USER" });
 
     await AuditService.create({
       action: "REMOVE_SUPERADMIN",
-      performedBy: performedByUserId,
-      performedByUsername,
-      context: { target: targetUserId, reason },
+      performedBy: performedByUser._id,
+      performedByUsername: performedByUser.username,
+      context: {
+        target: targetUser._id,
+        targetUsername: targetUser.username,
+        reason,
+      },
     });
   }
 }

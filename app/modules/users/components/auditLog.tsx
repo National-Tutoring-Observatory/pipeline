@@ -54,6 +54,13 @@ export default function AuditLog({ audits }: AuditLogProps) {
             </div>
 
             <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+              {audit.context?.targetUsername && (
+                <p>
+                  <span className="font-medium">User:</span>{" "}
+                  {audit.context.targetUsername}
+                </p>
+              )}
+
               {audit.context?.reason && (
                 <p>
                   <span className="font-medium">Reason:</span>{" "}

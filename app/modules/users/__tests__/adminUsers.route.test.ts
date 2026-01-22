@@ -287,6 +287,7 @@ describe("adminUsers.route", () => {
       expect(audits).toHaveLength(1);
       const audit = audits[0];
       expect(audit.performedBy?.toString()).toBe(superAdmin._id.toString());
+      expect(audit.context?.targetUsername).toBe(targetUser.username);
       expect(audit.context?.reason).toBe("Trusted deployment manager");
     });
 
@@ -478,6 +479,7 @@ describe("adminUsers.route", () => {
       expect(audits).toHaveLength(1);
       const audit = audits[0];
       expect(audit.performedBy?.toString()).toBe(superAdmin1._id.toString());
+      expect(audit.context?.targetUsername).toBe(superAdmin2.username);
       expect(audit.context?.reason).toBe("Unauthorized activity detected");
     });
   });

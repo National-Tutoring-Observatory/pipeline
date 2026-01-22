@@ -101,10 +101,9 @@ export async function action({ request }: Route.ActionArgs) {
 
       try {
         await UserService.assignSuperAdminRole({
-          targetUserId: targetUserId.toString(),
-          performedByUserId: user._id.toString(),
+          targetUser,
+          performedByUser: user,
           reason: reason.trim(),
-          performedByUsername: user.username,
         });
       } catch (error) {
         const errorMessage =
@@ -157,10 +156,9 @@ export async function action({ request }: Route.ActionArgs) {
 
       try {
         await UserService.revokeSuperAdminRole({
-          targetUserId: targetUserId.toString(),
-          performedByUserId: user._id.toString(),
+          targetUser,
+          performedByUser: user,
           reason: reason.trim(),
-          performedByUsername: user.username,
         });
       } catch (error) {
         const errorMessage =
