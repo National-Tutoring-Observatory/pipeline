@@ -78,7 +78,6 @@ export default [
   ...prefix("teams", [
     index("modules/teams/containers/teams.route.tsx"),
     route(":id", "modules/teams/containers/team.route.tsx", { id: "team" }, [
-      index("modules/teams/containers/teamIndex.route.tsx"),
       route("projects", "modules/teams/containers/teamProjects.route.tsx", {
         id: "teamProjects",
       }),
