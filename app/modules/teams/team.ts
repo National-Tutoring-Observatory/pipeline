@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import teamSchema from "~/lib/schemas/team.schema";
-import type { FindOptions } from "~/modules/common/types";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Team } from "./teams.types";
 
 const TeamModel = mongoose.model("Team", teamSchema);
@@ -34,6 +35,33 @@ export class TeamService {
 
   static async count(match: Record<string, any> = {}): Promise<number> {
     return TeamModel.countDocuments(match);
+  }
+
+  static async paginate({
+    match,
+    sort,
+    page,
+    pageSize,
+  }: PaginateProps): Promise<{
+    data: Team[];
+    count: number;
+    totalPages: number;
+  }> {
+    const pagination = getPaginationParams(page, pageSize);
+
+    const results = await this.find({
+      match,
+      sort,
+      pagination,
+    });
+
+    const count = await this.count(match);
+
+    return {
+      data: results,
+      count,
+      totalPages: getTotalPages(count, pageSize),
+    };
   }
 
   static async findById(id: string | undefined): Promise<Team | null> {

@@ -100,6 +100,7 @@ const CollectionItemContent = ({
                       variant={action.variant}
                       onClick={(event) => {
                         event.stopPropagation();
+                        event.preventDefault();
                         if (onItemActionClicked) {
                           onItemActionClicked({ id, action: action.action });
                         }
@@ -119,6 +120,7 @@ const CollectionItemContent = ({
             variant="ghost"
             onClick={(event) => {
               event.stopPropagation();
+              event.preventDefault();
               if (onItemActionClicked) {
                 onItemActionClicked({ id, action: actions[0].action });
               }
