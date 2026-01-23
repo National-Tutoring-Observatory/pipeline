@@ -167,10 +167,8 @@ export default [
     "modules/authentication/containers/authCallback.route.tsx",
   ),
   ...prefix("queues", [
-    index("modules/queues/containers/queues.route.tsx"),
     layout("modules/queues/containers/queuesLayout.route.tsx", [
       route(":type", "modules/queues/containers/queue.route.tsx", [
-        index("modules/queues/containers/queueIndex.route.tsx"),
         route(":state", "modules/queues/containers/queueJobs.route.tsx"),
       ]),
     ]),
