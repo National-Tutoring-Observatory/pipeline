@@ -169,4 +169,128 @@ describe("buildQueryFromParams", () => {
     });
     expect(query.page).toBeUndefined();
   });
+
+  describe("authorization security", () => {
+    it("should preserve match conditions with $in operator when adding search", () => {
+      const teamIds = ["team1", "team2", "team3"];
+      const authMatch = { _id: { $in: teamIds } };
+
+      const query = buildQueryFromParams({
+        match: authMatch,
+        queryParams: {
+          searchValue: "project",
+          currentPage: 1,
+        },
+        searchableFields: ["name", "description"],
+        sortableFields: ["name"],
+      });
+
+      const expected = {
+        $and: [
+          { _id: { $in: teamIds } },
+          {
+            $or: [
+              { name: { $regex: /project/i } },
+              { description: { $regex: /project/i } },
+            ],
+          },
+        ],
+      };
+
+      expect(query.match).toEqual(expected);
+    });
+
+    it("should preserve match conditions with $or operator when adding search", () => {
+      const authMatch = {
+        $or: [{ team: "team1" }, { isPublic: true }],
+      };
+
+      const query = buildQueryFromParams({
+        match: authMatch,
+        queryParams: {
+          searchValue: "test",
+          currentPage: 1,
+        },
+        searchableFields: ["name", "description"],
+        sortableFields: ["name"],
+      });
+
+      const expected = {
+        $and: [
+          { $or: [{ team: "team1" }, { isPublic: true }] },
+          {
+            $or: [
+              { name: { $regex: /test/i } },
+              { description: { $regex: /test/i } },
+            ],
+          },
+        ],
+      };
+
+      expect(query.match).toEqual(expected);
+    });
+
+    it("should preserve match conditions with complex $or and additional fields when adding search", () => {
+      const authMatch = {
+        $or: [{ owner: "user1" }, { collaborators: { $in: ["user1"] } }],
+        deletedAt: { $exists: false },
+      };
+
+      const query = buildQueryFromParams({
+        match: authMatch,
+        queryParams: {
+          searchValue: "important",
+          currentPage: 1,
+        },
+        searchableFields: ["name", "content"],
+        sortableFields: ["name"],
+      });
+
+      const expected = {
+        $and: [
+          {
+            $or: [{ owner: "user1" }, { collaborators: { $in: ["user1"] } }],
+            deletedAt: { $exists: false },
+          },
+          {
+            $or: [
+              { name: { $regex: /important/i } },
+              { content: { $regex: /important/i } },
+            ],
+          },
+        ],
+      };
+
+      expect(query.match).toEqual(expected);
+    });
+
+    it("should combine filters with authorization using $and instead of overwriting", () => {
+      const authMatch = {
+        team: { $in: ["team1", "team2"] },
+        deletedAt: { $exists: false },
+      };
+
+      const query = buildQueryFromParams({
+        match: authMatch,
+        queryParams: {
+          filters: { team: "team2" },
+        },
+        searchableFields: [],
+        sortableFields: [],
+        filterableFields: ["team"],
+      });
+
+      const expected = {
+        $and: [
+          {
+            team: { $in: ["team1", "team2"] },
+            deletedAt: { $exists: false },
+          },
+          { team: "team2" },
+        ],
+      };
+
+      expect(query.match).toEqual(expected);
+    });
+  });
 });
