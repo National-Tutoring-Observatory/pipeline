@@ -3,6 +3,11 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      'e2e/**',
+    ],
     globalSetup: "./test/vitest.globalSetup.ts",
     setupFiles: ["./test/vitest.dbSetup.ts"],
     coverage: {
@@ -17,6 +22,7 @@ export default defineConfig({
         "public/**",
         "data/**",
         "tmp/**",
+        "e2e/**",
       ],
     },
   },
