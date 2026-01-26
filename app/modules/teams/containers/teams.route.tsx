@@ -1,7 +1,7 @@
 import find from "lodash/find";
 import map from "lodash/map";
 import { useEffect } from "react";
-import { redirect, useActionData, useNavigate, useSubmit } from "react-router";
+import { data, redirect, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
@@ -48,9 +48,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: [],
   });
 
-  const data = await TeamService.find({ match });
+  const teams = await TeamService.paginate({
+    match: query.match,
+    sort: query.sort,
+    page: query.page,
+  });
 
-  return { teams: { data, totalPages: 1 } };
+  return { teams };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -67,28 +71,52 @@ export async function action({ request }: Route.ActionArgs) {
   switch (intent) {
     case "CREATE_TEAM":
       if (!TeamAuthorization.canCreate(user)) {
-        throw new Error(
-          "Insufficient permissions. Only super admins can create teams.",
+        return data(
+          {
+            errors: {
+              general:
+                "Insufficient permissions. Only super admins can create teams.",
+            },
+          },
+          { status: 403 },
         );
       }
       if (typeof name !== "string") {
-        throw new Error("Team name is required and must be a string.");
+        return data(
+          {
+            errors: {
+              general: "Team name is required and must be a string.",
+            },
+          },
+          { status: 400 },
+        );
       }
       const team = await TeamService.create({ name });
-      return {
+      return data({
+        success: true,
         intent: "CREATE_TEAM",
         data: team,
-      };
+      });
     case "UPDATE_TEAM":
       if (!TeamAuthorization.canUpdate(user, entityId)) {
-        throw new Error(
-          "Insufficient permissions. Only team admins can update teams.",
+        return data(
+          {
+            errors: {
+              general:
+                "Insufficient permissions. Only team admins can update teams.",
+            },
+          },
+          { status: 403 },
         );
       }
       const updated = await TeamService.updateById(entityId, { name });
-      return { data: updated };
+      return data({
+        success: true,
+        intent: "UPDATE_TEAM",
+        data: updated,
+      });
     default:
-      return {};
+      return data({ errors: { general: "Invalid intent" } }, { status: 400 });
   }
 }
 
@@ -98,8 +126,7 @@ export function HydrateFallback() {
 
 export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   const { teams } = loaderData;
-  const submit = useSubmit();
-  const actionData = useActionData();
+  const fetcher = useFetcher();
   const navigate = useNavigate();
 
   const {
@@ -120,10 +147,21 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   });
 
   useEffect(() => {
-    if (actionData?.intent === "CREATE_TEAM") {
-      navigate(`/teams/${actionData.data._id}/users`);
+    if (fetcher.state === "idle" && fetcher.data) {
+      if (fetcher.data.success && fetcher.data.intent === "CREATE_TEAM") {
+        toast.success("Team created");
+        navigate(`/teams/${fetcher.data.data._id}/users`);
+      } else if (
+        fetcher.data.success &&
+        fetcher.data.intent === "UPDATE_TEAM"
+      ) {
+        toast.success("Team updated");
+        addDialog(null);
+      } else if (fetcher.data.errors) {
+        toast.error(fetcher.data.errors.general || "An error occurred");
+      }
     }
-  }, [actionData]);
+  }, [fetcher.state, fetcher.data, navigate]);
 
   const breadcrumbs = [{ text: "Teams" }];
 
@@ -138,23 +176,24 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   };
 
   const submitCreateTeam = (name: string) => {
-    submit(JSON.stringify({ intent: "CREATE_TEAM", payload: { name } }), {
-      method: "POST",
-      encType: "application/json",
-    });
+    fetcher.submit(
+      JSON.stringify({ intent: "CREATE_TEAM", payload: { name } }),
+      {
+        method: "POST",
+        encType: "application/json",
+      },
+    );
   };
 
   const submitEditTeam = (team: Team) => {
-    submit(
+    fetcher.submit(
       JSON.stringify({
         intent: "UPDATE_TEAM",
         entityId: team._id,
         payload: { name: team.name },
       }),
       { method: "PUT", encType: "application/json" },
-    ).then(() => {
-      toast.success("Updated team");
-    });
+    );
   };
 
   const onActionClicked = (action: String) => {

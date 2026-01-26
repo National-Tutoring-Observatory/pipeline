@@ -78,7 +78,7 @@ describe("teams.route", () => {
 
       const cookieHeader = await loginUser(admin._id);
 
-      const result = (await action({
+      const response = (await action({
         request: new Request("http://localhost/teams", {
           method: "POST",
           headers: { cookie: cookieHeader },
@@ -90,6 +90,9 @@ describe("teams.route", () => {
         params: {},
       } as any)) as any;
 
+      const result = response.data;
+
+      expect(result.success).toBe(true);
       expect(result.intent).toBe("CREATE_TEAM");
       expect(result.data._id).toBeDefined();
       expect(result.data.name).toBe("new team");
@@ -99,7 +102,7 @@ describe("teams.route", () => {
       expect(retrieved?.name).toBe("new team");
     });
 
-    it("throws when team name is missing", async () => {
+    it("returns error when team name is missing", async () => {
       const admin = await UserService.create({
         username: "admin",
         role: "SUPER_ADMIN",
@@ -107,16 +110,19 @@ describe("teams.route", () => {
 
       const cookieHeader = await loginUser(admin._id);
 
-      await expect(
-        action({
-          request: new Request("http://localhost/teams", {
-            method: "POST",
-            headers: { cookie: cookieHeader },
-            body: JSON.stringify({ intent: "CREATE_TEAM", payload: {} }),
-          }),
-          params: {},
-        } as any),
-      ).rejects.toThrow(/Team name is required/);
+      const response = (await action({
+        request: new Request("http://localhost/teams", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body: JSON.stringify({ intent: "CREATE_TEAM", payload: {} }),
+        }),
+        params: {},
+      } as any)) as any;
+
+      const result = response.data;
+
+      expect(result.errors).toBeDefined();
+      expect(result.errors.general).toMatch(/Team name is required/);
     });
   });
 
@@ -131,7 +137,7 @@ describe("teams.route", () => {
 
       const cookieHeader = await loginUser(user._id);
 
-      const result = (await action({
+      const response = (await action({
         request: new Request("http://localhost/teams", {
           method: "PUT",
           headers: { cookie: cookieHeader },
@@ -144,6 +150,9 @@ describe("teams.route", () => {
         params: {},
       } as any)) as any;
 
+      const result = response.data;
+
+      expect(result.success).toBe(true);
       expect(result.data._id).toBe(team._id);
       expect(result.data.name).toBe("updated");
 

@@ -20,6 +20,15 @@ function regexMatch(field: string, value: string) {
   return { [field]: { $regex: new RegExp(escapeRegExp(value), "i") } };
 }
 
+function addConditionToMatch(currentMatch: any, newCondition: any) {
+  if (Object.keys(currentMatch).length === 0) {
+    return newCondition;
+  }
+  return {
+    $and: [currentMatch, newCondition],
+  };
+}
+
 export function buildQueryFromParams({
   match = {},
   queryParams,
@@ -40,11 +49,11 @@ export function buildQueryFromParams({
     for (const field of searchableFields) {
       conditions.push(regexMatch(field, searchValue));
     }
-    if (conditions.length == 1) {
-      query.match = { ...query.match, ...conditions[0] };
-    } else if (conditions.length > 1) {
-      query.match = { ...query.match, $or: conditions };
-    }
+
+    const searchCondition =
+      conditions.length === 1 ? conditions[0] : { $or: conditions };
+
+    query.match = addConditionToMatch(query.match, searchCondition);
   }
 
   const filters = queryParams.filters;
@@ -55,10 +64,15 @@ export function buildQueryFromParams({
       );
     }
 
+    const filterConditions: any = {};
     for (const field of filterableFields) {
       if (has(filters, field)) {
-        query.match[field] = filters[field];
+        filterConditions[field] = filters[field];
       }
+    }
+
+    if (Object.keys(filterConditions).length > 0) {
+      query.match = addConditionToMatch(query.match, filterConditions);
     }
   }
 
