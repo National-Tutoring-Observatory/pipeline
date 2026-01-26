@@ -19,11 +19,12 @@ export const handler = async (event: {
 
     let utteranceKeys = [
       "_id",
-      "sessionId",
+      "session_id",
+      "sequence_id",
       "role",
+      "content",
       "start_time",
       "end_time",
-      "content",
     ];
     let utteranceAnnotationKeysAsObject: { [key: string]: boolean } = {};
     let sessionAnnotationKeysAsObject: { [key: string]: boolean } = {};
