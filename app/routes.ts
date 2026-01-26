@@ -78,7 +78,6 @@ export default [
   ...prefix("teams", [
     index("modules/teams/containers/teams.route.tsx"),
     route(":id", "modules/teams/containers/team.route.tsx", { id: "team" }, [
-      index("modules/teams/containers/teamIndex.route.tsx"),
       route("projects", "modules/teams/containers/teamProjects.route.tsx", {
         id: "teamProjects",
       }),
@@ -167,10 +166,8 @@ export default [
     "modules/authentication/containers/authCallback.route.tsx",
   ),
   ...prefix("queues", [
-    index("modules/queues/containers/queues.route.tsx"),
     layout("modules/queues/containers/queuesLayout.route.tsx", [
       route(":type", "modules/queues/containers/queue.route.tsx", [
-        index("modules/queues/containers/queueIndex.route.tsx"),
         route(":state", "modules/queues/containers/queueJobs.route.tsx"),
       ]),
     ]),

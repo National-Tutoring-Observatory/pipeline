@@ -121,7 +121,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
 
   useEffect(() => {
     if (actionData?.intent === "CREATE_TEAM") {
-      navigate(`/teams/${actionData.data._id}`);
+      navigate(`/teams/${actionData.data._id}/users`);
     }
   }, [actionData]);
 
