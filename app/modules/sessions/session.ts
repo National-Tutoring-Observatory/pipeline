@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import sessionSchema from "~/lib/schemas/session.schema";
-import type { FindOptions } from "~/modules/common/types";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Session } from "./sessions.types";
 
 const SessionModel = mongoose.model("Session", sessionSchema);
@@ -74,5 +75,32 @@ export class SessionService {
   static async deleteByProject(projectId: string): Promise<number> {
     const result = await SessionModel.deleteMany({ project: projectId });
     return result.deletedCount || 0;
+  }
+
+  static async paginate({
+    match,
+    sort,
+    page,
+    pageSize,
+  }: PaginateProps): Promise<{
+    data: Session[];
+    count: number;
+    totalPages: number;
+  }> {
+    const pagination = getPaginationParams(page, pageSize);
+
+    const results = await this.find({
+      match,
+      sort,
+      pagination,
+    });
+
+    const count = await this.count(match);
+
+    return {
+      data: results,
+      count,
+      totalPages: getTotalPages(count, pageSize),
+    };
   }
 }
