@@ -36,18 +36,22 @@ export default function CollectionDetail({
   runs,
   runsTotalPages,
   runsCurrentPage,
+  runsSearchValue,
   runsSortValue,
   isRunsSyncing,
   sessions,
   sessionsTotalPages,
   sessionsCurrentPage,
+  sessionsSearchValue,
   sessionsSortValue,
   isSessionsSyncing,
   breadcrumbs,
   onExportCollectionButtonClicked,
   onSessionItemClicked,
+  onRunsSearchValueChanged,
   onRunsCurrentPageChanged,
   onRunsSortValueChanged,
+  onSessionsSearchValueChanged,
   onSessionsCurrentPageChanged,
   onSessionsSortValueChanged,
   onAddRunsClicked,
@@ -61,11 +65,13 @@ export default function CollectionDetail({
   runs: Run[];
   runsTotalPages: number;
   runsCurrentPage: number;
+  runsSearchValue: string;
   runsSortValue: string;
   isRunsSyncing: boolean;
   sessions: Session[];
   sessionsTotalPages: number;
   sessionsCurrentPage: number;
+  sessionsSearchValue: string;
   sessionsSortValue: string;
   isSessionsSyncing: boolean;
   breadcrumbs: Breadcrumb[];
@@ -75,8 +81,10 @@ export default function CollectionDetail({
     exportType: string;
   }) => void;
   onSessionItemClicked: (id: string) => void;
+  onRunsSearchValueChanged: (value: string) => void;
   onRunsCurrentPageChanged: (page: number) => void;
   onRunsSortValueChanged: (sort: string) => void;
+  onSessionsSearchValueChanged: (value: string) => void;
   onSessionsCurrentPageChanged: (page: number) => void;
   onSessionsSortValueChanged: (sort: string) => void;
   onAddRunsClicked: () => void;
@@ -170,6 +178,9 @@ export default function CollectionDetail({
                 title: "No sessions found",
                 description: "",
               }}
+              hasSearch
+              searchValue={sessionsSearchValue}
+              onSearchValueChanged={onSessionsSearchValueChanged}
               hasPagination
               currentPage={sessionsCurrentPage}
               totalPages={sessionsTotalPages}
@@ -200,6 +211,9 @@ export default function CollectionDetail({
                 title: "No runs found",
                 description: "",
               }}
+              hasSearch
+              searchValue={runsSearchValue}
+              onSearchValueChanged={onRunsSearchValueChanged}
               hasPagination
               currentPage={runsCurrentPage}
               totalPages={runsTotalPages}

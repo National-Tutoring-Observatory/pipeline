@@ -143,6 +143,8 @@ export default function CollectionDetailRoute() {
   const navigate = useNavigate();
 
   const {
+    searchValue: runsSearchValue,
+    setSearchValue: setRunsSearchValue,
     currentPage: runsCurrentPage,
     setCurrentPage: setRunsCurrentPage,
     sortValue: runsSortValue,
@@ -159,6 +161,8 @@ export default function CollectionDetailRoute() {
   );
 
   const {
+    searchValue: sessionsSearchValue,
+    setSearchValue: setSessionsSearchValue,
     currentPage: sessionsCurrentPage,
     setCurrentPage: setSessionsCurrentPage,
     sortValue: sessionsSortValue,
@@ -284,18 +288,22 @@ export default function CollectionDetailRoute() {
       runs={runs.data}
       runsTotalPages={runs.totalPages}
       runsCurrentPage={runsCurrentPage}
+      runsSearchValue={runsSearchValue}
       runsSortValue={runsSortValue}
       isRunsSyncing={isRunsSyncing}
       sessions={sessions.data}
       sessionsTotalPages={sessions.totalPages}
       sessionsCurrentPage={sessionsCurrentPage}
+      sessionsSearchValue={sessionsSearchValue}
       sessionsSortValue={sessionsSortValue}
       isSessionsSyncing={isSessionsSyncing}
       breadcrumbs={breadcrumbs}
       onExportCollectionButtonClicked={onExportCollectionButtonClicked}
       onSessionItemClicked={onSessionItemClicked}
+      onRunsSearchValueChanged={setRunsSearchValue}
       onRunsCurrentPageChanged={setRunsCurrentPage}
       onRunsSortValueChanged={setRunsSortValue}
+      onSessionsSearchValueChanged={setSessionsSearchValue}
       onSessionsCurrentPageChanged={setSessionsCurrentPage}
       onSessionsSortValueChanged={setSessionsSortValue}
       onAddRunsClicked={() =>
