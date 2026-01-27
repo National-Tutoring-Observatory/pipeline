@@ -35,9 +35,15 @@ export default function CollectionDetail({
   project,
   runs,
   sessions,
+  sessionsTotalPages,
+  sessionsCurrentPage,
+  sessionsSortValue,
+  isSessionsSyncing,
   breadcrumbs,
   onExportCollectionButtonClicked,
   onSessionItemClicked,
+  onSessionsCurrentPageChanged,
+  onSessionsSortValueChanged,
   onAddRunsClicked,
   onMergeClicked,
   onDuplicateClicked,
@@ -48,6 +54,10 @@ export default function CollectionDetail({
   project: { _id: string; name: string };
   runs: Run[];
   sessions: Session[];
+  sessionsTotalPages: number;
+  sessionsCurrentPage: number;
+  sessionsSortValue: string;
+  isSessionsSyncing: boolean;
   breadcrumbs: Breadcrumb[];
   onExportCollectionButtonClicked: ({
     exportType,
@@ -55,6 +65,8 @@ export default function CollectionDetail({
     exportType: string;
   }) => void;
   onSessionItemClicked: (id: string) => void;
+  onSessionsCurrentPageChanged: (page: number) => void;
+  onSessionsSortValueChanged: (sort: string) => void;
   onAddRunsClicked: () => void;
   onMergeClicked: () => void;
   onDuplicateClicked: () => void;
@@ -146,12 +158,19 @@ export default function CollectionDetail({
                 title: "No sessions found",
                 description: "",
               }}
-              currentPage={1}
-              totalPages={1}
-              onPaginationChanged={() => {}}
+              hasPagination
+              currentPage={sessionsCurrentPage}
+              totalPages={sessionsTotalPages}
+              onPaginationChanged={onSessionsCurrentPageChanged}
+              sortValue={sessionsSortValue}
+              sortOptions={[
+                { text: "Name", value: "name" },
+                { text: "Created", value: "createdAt" },
+              ]}
+              onSortValueChanged={onSessionsSortValueChanged}
+              isSyncing={isSessionsSyncing}
               filters={[]}
               filtersValues={{}}
-              onSortValueChanged={() => {}}
             />
           </div>
         </div>
