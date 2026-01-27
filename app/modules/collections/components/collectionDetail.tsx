@@ -157,8 +157,8 @@ export default function CollectionDetail({
         </div>
 
         <div className="mt-8">
-          <div className="text-muted-foreground text-xs">Sessions</div>
-          <div className="mt-2 rounded-md border">
+          <div className="text-muted-foreground">Sessions</div>
+          <div className="mt-2">
             <CollectionUI
               items={sessions}
               itemsLayout="list"
@@ -188,8 +188,8 @@ export default function CollectionDetail({
         </div>
 
         <div className="mt-8">
-          <div className="text-muted-foreground text-xs">Runs</div>
-          <div className="mt-2 rounded-md border">
+          <div className="text-muted-foreground">Runs</div>
+          <div className="mt-2">
             <CollectionUI
               items={runs}
               itemsLayout="list"
