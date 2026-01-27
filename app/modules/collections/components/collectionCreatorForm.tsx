@@ -20,6 +20,8 @@ import annotationTypes from "~/modules/prompts/annotationTypes";
 import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
 import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
+import { calculateEstimates } from "../helpers/calculateEstimates";
+import EstimateSummary from "./estimateSummary";
 
 export default function CollectionCreatorForm({
   name,
@@ -58,6 +60,12 @@ export default function CollectionCreatorForm({
     null,
   );
   const [tempModel, setTempModel] = useState<string>("");
+
+  const estimation = calculateEstimates(
+    selectedPrompts,
+    selectedModels,
+    selectedSessions,
+  );
 
   const onAddPrompt = () => {
     if (!tempPromptId || !tempPromptName || tempPromptVersion == null) return;
@@ -374,13 +382,18 @@ export default function CollectionCreatorForm({
       <div className="sticky bottom-0 flex items-center gap-8 rounded-b-4xl border-t bg-white px-8 py-4">
         <div className="flex-1">
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-            <p className="text-sm text-blue-900">
-              This will create{" "}
-              <strong>{selectedPrompts.length * selectedModels.length}</strong>{" "}
-              run(s) with {selectedPrompts.length} prompt(s) ×{" "}
-              {selectedModels.length} model(s) across {selectedSessions.length}{" "}
-              session(s)
-            </p>
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm text-blue-900">
+                This will create{" "}
+                <strong>
+                  {selectedPrompts.length * selectedModels.length}
+                </strong>{" "}
+                run(s) with {selectedPrompts.length} prompt(s) ×{" "}
+                {selectedModels.length} model(s) across{" "}
+                {selectedSessions.length} session(s)
+              </p>
+              <EstimateSummary estimation={estimation} />
+            </div>
           </div>
         </div>
         <Button size="lg" onClick={onCreateClicked} disabled={isSubmitDisabled}>
