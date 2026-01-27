@@ -39,14 +39,14 @@
       "name": "Anthropic",
       "models": [
         {
-          "name": "Claude 3.7 Sonnet",
-          "code": "anthropic.claude-3.7-sonnet",
+          "name": "Claude 4 Sonnet",
+          "code": "anthropic.claude-4-sonnet",
           "inputCostPer1M": 3.0,
           "outputCostPer1M": 15.0
         },
         {
-          "name": "Claude 4 Sonnet",
-          "code": "anthropic.claude-4-sonnet",
+          "name": "Claude 4.5 Sonnet",
+          "code": "anthropic.claude-4.5-sonnet",
           "inputCostPer1M": 3.0,
           "outputCostPer1M": 15.0
         }
