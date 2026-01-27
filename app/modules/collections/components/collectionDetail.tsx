@@ -34,6 +34,10 @@ export default function CollectionDetail({
   collection,
   project,
   runs,
+  runsTotalPages,
+  runsCurrentPage,
+  runsSortValue,
+  isRunsSyncing,
   sessions,
   sessionsTotalPages,
   sessionsCurrentPage,
@@ -42,6 +46,8 @@ export default function CollectionDetail({
   breadcrumbs,
   onExportCollectionButtonClicked,
   onSessionItemClicked,
+  onRunsCurrentPageChanged,
+  onRunsSortValueChanged,
   onSessionsCurrentPageChanged,
   onSessionsSortValueChanged,
   onAddRunsClicked,
@@ -53,6 +59,10 @@ export default function CollectionDetail({
   collection: Collection;
   project: { _id: string; name: string };
   runs: Run[];
+  runsTotalPages: number;
+  runsCurrentPage: number;
+  runsSortValue: string;
+  isRunsSyncing: boolean;
   sessions: Session[];
   sessionsTotalPages: number;
   sessionsCurrentPage: number;
@@ -65,6 +75,8 @@ export default function CollectionDetail({
     exportType: string;
   }) => void;
   onSessionItemClicked: (id: string) => void;
+  onRunsCurrentPageChanged: (page: number) => void;
+  onRunsSortValueChanged: (sort: string) => void;
   onSessionsCurrentPageChanged: (page: number) => void;
   onSessionsSortValueChanged: (sort: string) => void;
   onAddRunsClicked: () => void;
@@ -188,12 +200,19 @@ export default function CollectionDetail({
                 title: "No runs found",
                 description: "",
               }}
-              currentPage={1}
-              totalPages={1}
-              onPaginationChanged={() => {}}
+              hasPagination
+              currentPage={runsCurrentPage}
+              totalPages={runsTotalPages}
+              onPaginationChanged={onRunsCurrentPageChanged}
+              sortValue={runsSortValue}
+              sortOptions={[
+                { text: "Name", value: "name" },
+                { text: "Created", value: "createdAt" },
+              ]}
+              onSortValueChanged={onRunsSortValueChanged}
+              isSyncing={isRunsSyncing}
               filters={[]}
               filtersValues={{}}
-              onSortValueChanged={() => {}}
             />
           </div>
         </div>

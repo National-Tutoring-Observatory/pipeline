@@ -50,9 +50,29 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect(`/projects/${params.projectId}/collections`);
   }
 
-  const runs = collection.runs?.length
-    ? await RunService.find({ match: { _id: { $in: collection.runs || [] } } })
-    : [];
+  const runsQueryParams = getQueryParamsFromRequest(
+    request,
+    {
+      searchValue: "",
+      currentPage: 1,
+      sort: "-createdAt",
+      filters: {},
+    },
+    { paramPrefix: "runs" },
+  );
+
+  const runsQuery = buildQueryFromParams({
+    match: { _id: { $in: collection.runs || [] } },
+    queryParams: runsQueryParams,
+    searchableFields: ["name"],
+    sortableFields: ["name", "createdAt"],
+  });
+
+  const runs = await RunService.paginate({
+    match: runsQuery.match,
+    sort: runsQuery.sort,
+    page: runsQuery.page,
+  });
 
   const sessionsQueryParams = getQueryParamsFromRequest(
     request,
@@ -123,6 +143,22 @@ export default function CollectionDetailRoute() {
   const navigate = useNavigate();
 
   const {
+    currentPage: runsCurrentPage,
+    setCurrentPage: setRunsCurrentPage,
+    sortValue: runsSortValue,
+    setSortValue: setRunsSortValue,
+    isSyncing: isRunsSyncing,
+  } = useSearchQueryParams(
+    {
+      searchValue: "",
+      currentPage: 1,
+      sortValue: "-createdAt",
+      filters: {},
+    },
+    { paramPrefix: "runs" },
+  );
+
+  const {
     currentPage: sessionsCurrentPage,
     setCurrentPage: setSessionsCurrentPage,
     sortValue: sessionsSortValue,
@@ -177,7 +213,7 @@ export default function CollectionDetailRoute() {
 
   useHandleSockets({
     event: "ANNOTATE_RUN",
-    matches: runs
+    matches: runs.data
       .map((run) => [
         {
           runId: run._id,
@@ -245,7 +281,11 @@ export default function CollectionDetailRoute() {
     <CollectionDetail
       collection={collection}
       project={project}
-      runs={runs}
+      runs={runs.data}
+      runsTotalPages={runs.totalPages}
+      runsCurrentPage={runsCurrentPage}
+      runsSortValue={runsSortValue}
+      isRunsSyncing={isRunsSyncing}
       sessions={sessions.data}
       sessionsTotalPages={sessions.totalPages}
       sessionsCurrentPage={sessionsCurrentPage}
@@ -254,6 +294,8 @@ export default function CollectionDetailRoute() {
       breadcrumbs={breadcrumbs}
       onExportCollectionButtonClicked={onExportCollectionButtonClicked}
       onSessionItemClicked={onSessionItemClicked}
+      onRunsCurrentPageChanged={setRunsCurrentPage}
+      onRunsSortValueChanged={setRunsSortValue}
       onSessionsCurrentPageChanged={setSessionsCurrentPage}
       onSessionsSortValueChanged={setSessionsSortValue}
       onAddRunsClicked={() =>

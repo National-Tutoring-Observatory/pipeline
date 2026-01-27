@@ -20,7 +20,7 @@ import { loader } from "../containers/collectionDetail.route";
 type LoaderResult = {
   collection: Collection;
   project: Project;
-  runs: Run[];
+  runs: { data: Run[]; count: number; totalPages: number };
   sessions: { data: Session[]; count: number; totalPages: number };
 };
 
@@ -159,7 +159,9 @@ describe("collectionDetail.route loader", () => {
     const data = res as LoaderResult;
     expect(data.collection._id).toBe(emptyCollection._id);
     expect(data.collection.name).toBe("Empty Collection");
-    expect(data.runs).toEqual([]);
+    expect(data.runs.data).toEqual([]);
+    expect(data.runs.count).toBe(0);
+    expect(data.runs.totalPages).toBe(0);
     expect(data.sessions.data).toEqual([]);
     expect(data.sessions.count).toBe(0);
     expect(data.sessions.totalPages).toBe(0);
@@ -179,8 +181,10 @@ describe("collectionDetail.route loader", () => {
     const data = res as LoaderResult;
     expect(data.collection._id).toBe(collection._id);
     expect(data.collection.name).toBe("Test Collection");
-    expect(data.runs).toHaveLength(1);
-    expect(data.runs[0]._id).toBe(run._id);
+    expect(data.runs.data).toHaveLength(1);
+    expect(data.runs.data[0]._id).toBe(run._id);
+    expect(data.runs.count).toBe(1);
+    expect(data.runs.totalPages).toBe(1);
     expect(data.sessions.data).toHaveLength(1);
     expect(data.sessions.data[0]._id).toBe(session._id);
     expect(data.sessions.count).toBe(1);
@@ -221,7 +225,8 @@ describe("collectionDetail.route loader", () => {
     expect(res).not.toBeInstanceOf(Response);
     const data = res as LoaderResult;
     expect(data.collection._id).toBe(multiCollection._id);
-    expect(data.runs).toHaveLength(2);
+    expect(data.runs.data).toHaveLength(2);
+    expect(data.runs.count).toBe(2);
     expect(data.sessions.data).toHaveLength(2);
     expect(data.sessions.count).toBe(2);
   });
@@ -249,6 +254,10 @@ describe("collectionDetail.route loader", () => {
     expect(data.collection).toHaveProperty("project");
     expect(data.collection).toHaveProperty("sessions");
     expect(data.collection).toHaveProperty("runs");
+
+    expect(data.runs).toHaveProperty("data");
+    expect(data.runs).toHaveProperty("count");
+    expect(data.runs).toHaveProperty("totalPages");
 
     expect(data.sessions).toHaveProperty("data");
     expect(data.sessions).toHaveProperty("count");
