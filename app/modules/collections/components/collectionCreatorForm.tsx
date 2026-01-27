@@ -1,5 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Empty, EmptyContent, EmptyTitle } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -114,11 +115,11 @@ export default function CollectionCreatorForm({
     selectedSessions.length === 0;
 
   return (
-    <div className="space-y-6">
+    <div className="">
       {/* Top Section - Form and Cards */}
-      <div className="flex gap-8">
+      <div className="flex gap-8 p-8">
         {/* Left Column - Form */}
-        <div className="w-[480px] flex-shrink-0 space-y-8">
+        <div className="w-[480px] shrink-0 space-y-8">
           {prefillData && (
             <Alert
               variant={
@@ -161,7 +162,9 @@ export default function CollectionCreatorForm({
 
           {/* Collection Name */}
           <div className="space-y-2">
-            <Label htmlFor="name">Collection Name</Label>
+            <Label className="font-bold" htmlFor="name">
+              Collection Name
+            </Label>
             <Input
               id="name"
               placeholder="e.g., Question Asking Experiment"
@@ -172,7 +175,9 @@ export default function CollectionCreatorForm({
 
           {/* Annotation Type */}
           <div className="space-y-2">
-            <Label htmlFor="annotationType">Annotation Type</Label>
+            <Label className="font-bold" htmlFor="annotationType">
+              Annotation Type
+            </Label>
             <Select
               value={annotationType}
               onValueChange={handleAnnotationTypeChange}
@@ -192,8 +197,8 @@ export default function CollectionCreatorForm({
 
           {/* Prompts */}
           <div className="space-y-2">
-            <Label>Prompts</Label>
-            <div className="space-y-3 rounded-lg bg-slate-50 p-4">
+            <Label className="font-bold">Prompts</Label>
+            <div className="space-y-3">
               <div className="space-y-2">
                 <PromptSelectorContainer
                   annotationType={annotationType}
@@ -254,8 +259,8 @@ export default function CollectionCreatorForm({
 
           {/* Models */}
           <div className="space-y-2">
-            <Label>Models</Label>
-            <div className="space-y-3 rounded-lg bg-slate-50 p-4">
+            <Label className="font-bold">Models</Label>
+            <div className="space-y-3">
               <div className="space-y-2">
                 <ModelSelectorContainer
                   selectedModel={tempModel}
@@ -298,8 +303,8 @@ export default function CollectionCreatorForm({
 
           {/* Sessions */}
           <div className="space-y-2">
-            <Label>Sessions</Label>
-            <div className="rounded-lg bg-slate-50 p-4">
+            <Label className="font-bold">Sessions</Label>
+            <div>
               <SessionSelectorContainer
                 selectedSessions={selectedSessions}
                 onSelectedSessionsChanged={onSessionsChanged}
@@ -309,22 +314,25 @@ export default function CollectionCreatorForm({
         </div>
 
         {/* Right Column - Run Preview */}
-        <div className="min-w-0 flex-1">
+        <div
+          className="sticky top-4 min-w-0 flex-1 self-start overflow-y-auto rounded-lg border bg-slate-50"
+          style={{ height: "calc(100vh - 144px)" }}
+        >
           {selectedPrompts.length > 0 && selectedModels.length > 0 ? (
-            <div className="sticky top-8 space-y-4">
-              <div>
+            <div className="space-y-4">
+              <div className="sticky top-0 rounded-t-lg border-b bg-white px-4 py-4">
                 <h3 className="mb-2 text-sm font-semibold">Generated Runs</h3>
-                <p className="text-muted-foreground mb-4 text-xs">
+                <p className="text-muted-foreground text-xs">
                   {selectedPrompts.length * selectedModels.length} run(s) •{" "}
                   {selectedSessions.length} session(s)
                 </p>
               </div>
-              <div className="grid max-h-[600px] grid-cols-2 gap-2 overflow-y-auto pr-2 2xl:grid-cols-3">
+              <div className="grid grid-cols-2 gap-2 px-4 pb-4 2xl:grid-cols-3">
                 {selectedPrompts.map((prompt) =>
                   selectedModels.map((model) => (
                     <div
                       key={`${prompt.promptId}-${model}`}
-                      className="rounded-lg border bg-slate-50 p-3 text-sm"
+                      className="rounded-lg border bg-white p-3 text-sm"
                     >
                       <p className="text-muted-foreground mb-2 text-xs font-medium">
                         Run
@@ -349,17 +357,21 @@ export default function CollectionCreatorForm({
               </div>
             </div>
           ) : (
-            <div className="sticky top-8 rounded-lg border bg-slate-50 p-4 text-center">
-              <p className="text-muted-foreground text-xs">
-                Select prompts and models to preview runs
-              </p>
+            <div className="sticky top-8 p-8">
+              <Empty className="border border-slate-300">
+                <EmptyContent>
+                  <EmptyTitle>
+                    Select prompts and models to preview runs
+                  </EmptyTitle>
+                </EmptyContent>
+              </Empty>
             </div>
           )}
         </div>
       </div>
 
       {/* Bottom Section - Summary and Button */}
-      <div className="flex items-center gap-8">
+      <div className="sticky bottom-0 flex items-center gap-8 rounded-b-4xl border-t bg-white px-8 py-4">
         <div className="flex-1">
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
             <p className="text-sm text-blue-900">
