@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collection } from "@/components/ui/collection";
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
+import { Spinner } from "@/components/ui/spinner";
 import cloneDeep from "lodash/cloneDeep";
 import includes from "lodash/includes";
 import map from "lodash/map";
@@ -12,6 +13,7 @@ import {
   redirect,
   useLoaderData,
   useNavigate,
+  useNavigation,
   useSubmit,
 } from "react-router";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
@@ -107,7 +109,10 @@ export default function CollectionAddRunsRoute() {
     useLoaderData<typeof loader>();
   const submit = useSubmit();
   const navigate = useNavigate();
+  const navigation = useNavigation();
   const [selectedRuns, setSelectedRuns] = useState<string[]>([]);
+
+  const isSubmitting = navigation.state === "submitting";
 
   const {
     searchValue,
@@ -278,15 +283,21 @@ export default function CollectionAddRunsRoute() {
           />
 
           <div className="mt-6 flex justify-end gap-2">
-            <Button variant="outline" onClick={onCancelClicked}>
+            <Button
+              variant="outline"
+              onClick={onCancelClicked}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
             <Button
               onClick={onAddRunsClicked}
-              disabled={selectedRuns.length === 0}
+              disabled={selectedRuns.length === 0 || isSubmitting}
             >
-              Add {selectedRuns.length} Run
-              {selectedRuns.length !== 1 ? "s" : ""}
+              {isSubmitting && <Spinner />}
+              {isSubmitting
+                ? "Adding..."
+                : `Add ${selectedRuns.length} Run${selectedRuns.length !== 1 ? "s" : ""}`}
             </Button>
           </div>
         </>
