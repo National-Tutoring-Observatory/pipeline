@@ -256,17 +256,19 @@ export default function CollectionCreateRoute() {
   ];
 
   return (
-    <div className="p-8">
-      <PageHeader>
-        <PageHeaderLeft>
-          <Breadcrumbs breadcrumbs={breadcrumbs} />
-        </PageHeaderLeft>
-      </PageHeader>
-      <div className="mb-8">
-        <h1 className="mb-2 text-3xl font-bold">Create Collection</h1>
-        <p className="text-muted-foreground">
-          Set up a new collection with your preferred annotation settings
-        </p>
+    <div>
+      <div className="px-8 pt-8">
+        <PageHeader>
+          <PageHeaderLeft>
+            <Breadcrumbs breadcrumbs={breadcrumbs} />
+          </PageHeaderLeft>
+        </PageHeader>
+        <div className="mb-8">
+          <h1 className="mb-2 text-3xl font-bold">Create Collection</h1>
+          <p className="text-muted-foreground">
+            Set up a new collection with your preferred annotation settings
+          </p>
+        </div>
       </div>
 
       <CollectionCreatorFormContainer
