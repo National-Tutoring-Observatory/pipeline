@@ -247,21 +247,31 @@ export default function ProjectRoute() {
 
 ### Search, Pagination, and Querying Pattern
 
-**CRITICAL**: For ANY list with search or pagination, ALWAYS use the Collection component and the established query pattern.
+**CRITICAL**: For ANY list with search or pagination, you MUST use these files:
+
+```typescript
+// REQUIRED IMPORTS - use these exact files:
+import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import { Collection } from "@/components/ui/collection";
+```
+
+**Checklist for adding pagination:**
+
+- [ ] Loader imports `getQueryParamsFromRequest` and `buildQueryFromParams`
+- [ ] Loader calls `getQueryParamsFromRequest()` to extract URL params
+- [ ] Loader calls `buildQueryFromParams()` to build the database query
+- [ ] Loader calls `Service.paginate()` with the query
+- [ ] Component uses `useSearchQueryParams()` hook for state
+- [ ] Component uses `<Collection>` with `hasSearch` and `hasPagination` props
+- [ ] For multiple lists on same page: use `{ paramPrefix: "name" }` option
 
 **DO NOT**:
 
-- Build custom search UI with `<Search>` component
-- Build custom pagination UI with `<Pagination>` component
-- Map over items manually with custom markup
-- Create custom empty states or filter/sort UI
-
-**DO**:
-
-- Use `<Collection>` component for ALL lists
-- Define helper functions for `getItemAttributes` (returns CollectionItemAttributes)
-- Define helper functions for `getItemActions` (returns CollectionItemAction[])
-- Pass search/pagination props from `useSearchQueryParams`
+- Build custom search/pagination UI
+- Write manual regex queries for search
+- Skip `buildQueryFromParams` - it handles search, sort, filters, and pagination correctly
 
 #### The Three-Part Pattern
 
