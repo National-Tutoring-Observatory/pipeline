@@ -34,3 +34,8 @@ export interface PrefillData {
   selectedSessions: string[];
   validationErrors?: string[];
 }
+
+export interface EstimationResult {
+  estimatedCost: number;
+  estimatedTimeSeconds: number;
+}

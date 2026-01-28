@@ -6,11 +6,15 @@
       "models": [
         {
           "name": "GPT-4 Mini",
-          "code": "openai.gpt-4.1-mini"
+          "code": "openai.gpt-4.1-mini",
+          "inputCostPer1M": 0.4,
+          "outputCostPer1M": 1.6
         },
         {
           "name": "GPT-4 Turbo",
-          "code": "openai.gpt-4.1"
+          "code": "openai.gpt-4.1",
+          "inputCostPer1M": 2.0,
+          "outputCostPer1M": 8.0
         }
       ]
     },
@@ -19,11 +23,15 @@
       "models": [
         {
           "name": "Gemini 2.0 Flash Lite",
-          "code": "google.gemini-2.0-flash-lite"
+          "code": "google.gemini-2.0-flash-lite",
+          "inputCostPer1M": 0.1,
+          "outputCostPer1M": 0.4
         },
         {
           "name": "Gemini 2.5 Flash",
-          "code": "google.gemini-2.5-flash"
+          "code": "google.gemini-2.5-flash",
+          "inputCostPer1M": 0.3,
+          "outputCostPer1M": 2.5
         }
       ]
     },
@@ -31,12 +39,16 @@
       "name": "Anthropic",
       "models": [
         {
-          "name": "Claude 3.7 Sonnet",
-          "code": "anthropic.claude-3.7-sonnet"
+          "name": "Claude 4 Sonnet",
+          "code": "anthropic.claude-4-sonnet",
+          "inputCostPer1M": 3.0,
+          "outputCostPer1M": 15.0
         },
         {
-          "name": "Claude 4 Sonnet",
-          "code": "anthropic.claude-4-sonnet"
+          "name": "Claude 4.5 Sonnet",
+          "code": "anthropic.claude-4.5-sonnet",
+          "inputCostPer1M": 3.0,
+          "outputCostPer1M": 15.0
         }
       ]
     }

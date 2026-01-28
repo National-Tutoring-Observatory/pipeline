@@ -36,10 +36,26 @@ export default function CollectionDetail({
   collection,
   project,
   runs,
+  runsTotalPages,
+  runsCurrentPage,
+  runsSearchValue,
+  runsSortValue,
+  isRunsSyncing,
   sessions,
+  sessionsTotalPages,
+  sessionsCurrentPage,
+  sessionsSearchValue,
+  sessionsSortValue,
+  isSessionsSyncing,
   breadcrumbs,
   onExportCollectionButtonClicked,
   onSessionItemClicked,
+  onRunsSearchValueChanged,
+  onRunsCurrentPageChanged,
+  onRunsSortValueChanged,
+  onSessionsSearchValueChanged,
+  onSessionsCurrentPageChanged,
+  onSessionsSortValueChanged,
   onAddRunsClicked,
   onMergeClicked,
   onDuplicateClicked,
@@ -49,7 +65,17 @@ export default function CollectionDetail({
   collection: Collection;
   project: { _id: string; name: string };
   runs: Run[];
+  runsTotalPages: number;
+  runsCurrentPage: number;
+  runsSearchValue: string;
+  runsSortValue: string;
+  isRunsSyncing: boolean;
   sessions: Session[];
+  sessionsTotalPages: number;
+  sessionsCurrentPage: number;
+  sessionsSearchValue: string;
+  sessionsSortValue: string;
+  isSessionsSyncing: boolean;
   breadcrumbs: Breadcrumb[];
   onExportCollectionButtonClicked: ({
     exportType,
@@ -57,6 +83,12 @@ export default function CollectionDetail({
     exportType: string;
   }) => void;
   onSessionItemClicked: (id: string) => void;
+  onRunsSearchValueChanged: (value: string) => void;
+  onRunsCurrentPageChanged: (page: number) => void;
+  onRunsSortValueChanged: (sort: string) => void;
+  onSessionsSearchValueChanged: (value: string) => void;
+  onSessionsCurrentPageChanged: (page: number) => void;
+  onSessionsSortValueChanged: (sort: string) => void;
   onAddRunsClicked: () => void;
   onMergeClicked: () => void;
   onDuplicateClicked: () => void;
@@ -128,7 +160,7 @@ export default function CollectionDetail({
         <div className="grid grid-cols-2 gap-6">
           <div className="mt-8">
             <div className="text-muted-foreground text-xs">Sessions</div>
-            <div className="mt-2 rounded-md border">
+            <div className="mt-2">
               <CollectionUI
                 items={sessions}
                 itemsLayout="list"
@@ -140,19 +172,29 @@ export default function CollectionDetail({
                   title: "No sessions found",
                   description: "",
                 }}
-                currentPage={1}
-                totalPages={1}
-                onPaginationChanged={() => {}}
+                hasSearch
+                searchValue={sessionsSearchValue}
+                onSearchValueChanged={onSessionsSearchValueChanged}
+                hasPagination
+                currentPage={sessionsCurrentPage}
+                totalPages={sessionsTotalPages}
+                onPaginationChanged={onSessionsCurrentPageChanged}
+                sortValue={sessionsSortValue}
+                sortOptions={[
+                  { text: "Name", value: "name" },
+                  { text: "Created", value: "createdAt" },
+                ]}
+                onSortValueChanged={onSessionsSortValueChanged}
+                isSyncing={isSessionsSyncing}
                 filters={[]}
                 filtersValues={{}}
-                onSortValueChanged={() => {}}
               />
             </div>
           </div>
 
           <div className="mt-8">
             <div className="text-muted-foreground text-xs">Runs</div>
-            <div className="mt-2 rounded-md border">
+            <div className="mt-2">
               <CollectionUI
                 items={runs}
                 itemsLayout="list"
@@ -163,12 +205,22 @@ export default function CollectionDetail({
                   title: "No runs found",
                   description: "",
                 }}
-                currentPage={1}
-                totalPages={1}
-                onPaginationChanged={() => {}}
+                hasSearch
+                searchValue={runsSearchValue}
+                onSearchValueChanged={onRunsSearchValueChanged}
+                hasPagination
+                currentPage={runsCurrentPage}
+                totalPages={runsTotalPages}
+                onPaginationChanged={onRunsCurrentPageChanged}
+                sortValue={runsSortValue}
+                sortOptions={[
+                  { text: "Name", value: "name" },
+                  { text: "Created", value: "createdAt" },
+                ]}
+                onSortValueChanged={onRunsSortValueChanged}
+                isSyncing={isRunsSyncing}
                 filters={[]}
                 filtersValues={{}}
-                onSortValueChanged={() => {}}
               />
             </div>
           </div>

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import auditSchema from "~/lib/schemas/audit.schema";
-import type { PaginateProps } from "../common/types";
+import type { FindOptions, PaginateProps } from "../common/types";
 import { UserService } from "../users/user";
 import type { AuditRecord } from "./audit.types";
 
@@ -52,11 +52,7 @@ export class AuditService {
     return this.toAudit(doc);
   }
 
-  static async find(options?: {
-    match?: Record<string, any>;
-    sort?: Record<string, 1 | -1>;
-    pagination?: { skip: number; limit: number };
-  }): Promise<AuditRecord[]> {
+  static async find(options?: FindOptions): Promise<AuditRecord[]> {
     const match = options?.match || {};
     let query = AuditModel.find(match);
 

@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nto-pipeline.example.com/schemas/transcript.json",
+  "title": "NTO Pipeline Transcript",
+  "description": "Schema for tutoring session transcripts used in the NTO Pipeline for annotation",
+  "type": "object",
+  "required": ["transcript"],
+  "properties": {
+    "transcript": {
+      "type": "array",
+      "description": "Array of utterances in the conversation",
+      "items": {
+        "type": "object",
+        "required": ["_id", "role", "content"],
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Unique identifier for this utterance within the session"
+          },
+          "role": {
+            "type": "string",
+            "description": "Speaker role (e.g., 'Tutor', 'Student', 'Teacher', 'STUDENT_1')"
+          },
+          "content": {
+            "type": "string",
+            "description": "The actual text content of the utterance"
+          },
+          "start_time": {
+            "type": "string",
+            "description": "Start timestamp of the utterance (optional)"
+          },
+          "end_time": {
+            "type": "string",
+            "description": "End timestamp of the utterance (optional)"
+          },
+          "session_id": {
+            "type": "string",
+            "description": "Session identifier (optional, may be added during processing)"
+          },
+          "sequence_id": {
+            "type": "string",
+            "description": "Sequence number within the session (optional)"
+          },
+          "annotations": {
+            "type": "array",
+            "description": "Array of annotations for this utterance (PER_UTTERANCE annotation type)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string",
+                  "description": "Reference to the utterance _id this annotation belongs to"
+                }
+              },
+              "additionalProperties": true,
+              "description": "Annotation object with dynamic fields based on annotation schema"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "leadRole": {
+      "type": "string",
+      "description": "Primary instructor role in the session (e.g., 'Tutor', 'Teacher')"
+    },
+    "annotations": {
+      "type": "array",
+      "description": "Array of session-level annotations (PER_SESSION annotation type)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Identifier for this annotation"
+          }
+        },
+        "additionalProperties": true,
+        "description": "Annotation object with dynamic fields based on annotation schema"
+      }
+    }
+  },
+  "additionalProperties": false
+}

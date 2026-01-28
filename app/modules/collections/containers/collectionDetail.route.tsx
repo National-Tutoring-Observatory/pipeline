@@ -9,7 +9,10 @@ import {
   useRevalidator,
   useSubmit,
 } from "react-router";
+import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import CollectionDetail from "~/modules/collections/components/collectionDetail";
@@ -47,15 +50,53 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect(`/projects/${params.projectId}/collections`);
   }
 
-  const runs = collection.runs?.length
-    ? await RunService.find({ match: { _id: { $in: collection.runs || [] } } })
-    : [];
+  const runsQueryParams = getQueryParamsFromRequest(
+    request,
+    {
+      searchValue: "",
+      currentPage: 1,
+      sort: "-createdAt",
+      filters: {},
+    },
+    { paramPrefix: "runs" },
+  );
 
-  const sessions = collection.sessions?.length
-    ? await SessionService.find({
-        match: { _id: { $in: collection.sessions || [] } },
-      })
-    : [];
+  const runsQuery = buildQueryFromParams({
+    match: { _id: { $in: collection.runs || [] } },
+    queryParams: runsQueryParams,
+    searchableFields: ["name"],
+    sortableFields: ["name", "createdAt"],
+  });
+
+  const runs = await RunService.paginate({
+    match: runsQuery.match,
+    sort: runsQuery.sort,
+    page: runsQuery.page,
+  });
+
+  const sessionsQueryParams = getQueryParamsFromRequest(
+    request,
+    {
+      searchValue: "",
+      currentPage: 1,
+      sort: "-createdAt",
+      filters: {},
+    },
+    { paramPrefix: "sessions" },
+  );
+
+  const sessionsQuery = buildQueryFromParams({
+    match: { _id: { $in: collection.sessions || [] } },
+    queryParams: sessionsQueryParams,
+    searchableFields: ["name"],
+    sortableFields: ["name", "createdAt"],
+  });
+
+  const sessions = await SessionService.paginate({
+    match: sessionsQuery.match,
+    sort: sessionsQuery.sort,
+    page: sessionsQuery.page,
+  });
 
   return {
     collection,
@@ -102,6 +143,42 @@ export default function CollectionDetailRoute() {
   const navigate = useNavigate();
 
   const {
+    searchValue: runsSearchValue,
+    setSearchValue: setRunsSearchValue,
+    currentPage: runsCurrentPage,
+    setCurrentPage: setRunsCurrentPage,
+    sortValue: runsSortValue,
+    setSortValue: setRunsSortValue,
+    isSyncing: isRunsSyncing,
+  } = useSearchQueryParams(
+    {
+      searchValue: "",
+      currentPage: 1,
+      sortValue: "-createdAt",
+      filters: {},
+    },
+    { paramPrefix: "runs" },
+  );
+
+  const {
+    searchValue: sessionsSearchValue,
+    setSearchValue: setSessionsSearchValue,
+    currentPage: sessionsCurrentPage,
+    setCurrentPage: setSessionsCurrentPage,
+    sortValue: sessionsSortValue,
+    setSortValue: setSessionsSortValue,
+    isSyncing: isSessionsSyncing,
+  } = useSearchQueryParams(
+    {
+      searchValue: "",
+      currentPage: 1,
+      sortValue: "-createdAt",
+      filters: {},
+    },
+    { paramPrefix: "sessions" },
+  );
+
+  const {
     openEditCollectionDialog,
     openDeleteCollectionDialog,
     openDuplicateCollectionDialog,
@@ -133,14 +210,14 @@ export default function CollectionDetailRoute() {
   };
 
   const onSessionItemClicked = (id: string) => {
-    const session = find(sessions, { _id: id });
+    const session = find(sessions.data, { _id: id });
     if (!session) return;
     addDialog(<ViewSessionContainer session={session} />);
   };
 
   useHandleSockets({
     event: "ANNOTATE_RUN",
-    matches: runs
+    matches: runs.data
       .map((run) => [
         {
           runId: run._id,
@@ -208,11 +285,27 @@ export default function CollectionDetailRoute() {
     <CollectionDetail
       collection={collection}
       project={project}
-      runs={runs}
-      sessions={sessions}
+      runs={runs.data}
+      runsTotalPages={runs.totalPages}
+      runsCurrentPage={runsCurrentPage}
+      runsSearchValue={runsSearchValue}
+      runsSortValue={runsSortValue}
+      isRunsSyncing={isRunsSyncing}
+      sessions={sessions.data}
+      sessionsTotalPages={sessions.totalPages}
+      sessionsCurrentPage={sessionsCurrentPage}
+      sessionsSearchValue={sessionsSearchValue}
+      sessionsSortValue={sessionsSortValue}
+      isSessionsSyncing={isSessionsSyncing}
       breadcrumbs={breadcrumbs}
       onExportCollectionButtonClicked={onExportCollectionButtonClicked}
       onSessionItemClicked={onSessionItemClicked}
+      onRunsSearchValueChanged={setRunsSearchValue}
+      onRunsCurrentPageChanged={setRunsCurrentPage}
+      onRunsSortValueChanged={setRunsSortValue}
+      onSessionsSearchValueChanged={setSessionsSearchValue}
+      onSessionsCurrentPageChanged={setSessionsCurrentPage}
+      onSessionsSortValueChanged={setSessionsSortValue}
       onAddRunsClicked={() =>
         navigate(
           `/projects/${project._id}/collections/${collection._id}/add-runs`,
