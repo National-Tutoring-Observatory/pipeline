@@ -84,6 +84,7 @@ export default function ProjectRunCreator({
               autoComplete="off"
               onChange={(e) => handleRunNameChange(e.target.value)}
               className="w-96"
+              autoFocus
             />
             {runNameTouched && <RunNameAlert name={runName} />}
           </div>

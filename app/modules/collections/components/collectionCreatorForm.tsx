@@ -178,6 +178,7 @@ export default function CollectionCreatorForm({
               placeholder="e.g., Question Asking Experiment"
               value={name}
               onChange={(e) => onNameChanged(e.target.value)}
+              autoFocus
             />
           </div>
 
