@@ -50,22 +50,32 @@ export async function action({ request, params }: Route.ActionArgs) {
   const downloadedPath = await storage.download({ sourcePath: sessionPath });
   const sessionFile = await fse.readJSON(downloadedPath);
 
-  const annotationIndex = parseInt(params.annotationIndex, 10);
+  const annotationIndex = Number(params.annotationIndex);
 
   if (run.annotationType === "PER_UTTERANCE") {
     const currentUtterance = sessionFile.transcript.find(
-      (u: { _id: string }) => u._id === params.utteranceId,
+      (utterance: { _id: string }) => utterance._id === params.utteranceId,
     );
 
     if (
       currentUtterance?.annotations &&
       currentUtterance.annotations[annotationIndex]
     ) {
-      currentUtterance.annotations[annotationIndex].markedAs = markedAs;
+      const annotation = currentUtterance.annotations[annotationIndex];
+      if (annotation.markedAs === markedAs) {
+        delete annotation.markedAs;
+      } else {
+        annotation.markedAs = markedAs;
+      }
     }
   } else {
     if (sessionFile.annotations && sessionFile.annotations[annotationIndex]) {
-      sessionFile.annotations[annotationIndex].markedAs = markedAs;
+      const annotation = sessionFile.annotations[annotationIndex];
+      if (annotation.markedAs === markedAs) {
+        delete annotation.markedAs;
+      } else {
+        annotation.markedAs = markedAs;
+      }
     }
   }
 
