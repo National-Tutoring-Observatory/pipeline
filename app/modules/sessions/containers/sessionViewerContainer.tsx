@@ -78,22 +78,22 @@ export default function SessionViewerContainer({
     }
   };
 
-  const onDownVoteClicked = (annotationId: string) => {
+  const onDownVoteClicked = (utteranceId: string, annotationIndex: number) => {
     fetcher.submit(
       { markedAs: "DOWN_VOTED" },
       {
-        action: `/api/annotations/${run._id}/${session.sessionId}/${annotationId}`,
+        action: `/api/annotations/${run._id}/${session.sessionId}/${utteranceId}/${annotationIndex}`,
         method: "post",
         encType: "application/json",
       },
     );
   };
 
-  const onUpVoteClicked = (annotationId: string) => {
+  const onUpVoteClicked = (utteranceId: string, annotationIndex: number) => {
     fetcher.submit(
       { markedAs: "UP_VOTED" },
       {
-        action: `/api/annotations/${run._id}/${session.sessionId}/${annotationId}`,
+        action: `/api/annotations/${run._id}/${session.sessionId}/${utteranceId}/${annotationIndex}`,
         method: "post",
         encType: "application/json",
       },

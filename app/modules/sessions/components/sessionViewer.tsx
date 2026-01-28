@@ -39,8 +39,8 @@ export default function SessionViewer({
   onPreviousAnnotationClicked: () => void;
   onNextAnnotationClicked: () => void;
   onJumpToFirstAnnotation: () => void;
-  onDownVoteClicked: (annotationId: string) => void;
-  onUpVoteClicked: (annotationId: string) => void;
+  onDownVoteClicked: (utteranceId: string, annotationIndex: number) => void;
+  onUpVoteClicked: (utteranceId: string, annotationIndex: number) => void;
 }) {
   const hasSelectedAnnotation = selectedUtteranceIndex !== null;
 
