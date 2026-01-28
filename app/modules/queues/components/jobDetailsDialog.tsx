@@ -118,7 +118,7 @@ export default function JobDetailsDialog({
         </div>
       </div>
 
-      <DialogFooter className="flex-shrink-0 border-t pt-4">
+      <DialogFooter className="shrink-0 border-t pt-4">
         <DialogClose asChild>
           <Button variant="outline">Cancel</Button>
         </DialogClose>
