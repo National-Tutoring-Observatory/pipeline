@@ -273,6 +273,7 @@ export default function CollectionCreatorForm({
               <div className="space-y-2">
                 <ModelSelectorContainer
                   selectedModel={tempModel}
+                  excludeModels={selectedModels}
                   onSelectedModelChanged={setTempModel}
                 />
                 <Button
