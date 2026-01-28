@@ -1,7 +1,8 @@
-import extend from "lodash/extend.js";
-import find from "lodash/find.js";
-import { RunService } from "../../app/modules/runs/run";
+import mongoose from "mongoose";
+import runSchema from "../../app/lib/schemas/run.schema";
 import type { RunSession } from "../../app/modules/runs/runs.types";
+
+const RunModel = mongoose.models.Run || mongoose.model("Run", runSchema);
 
 export default async function updateRunSession({
   runId,
@@ -12,17 +13,22 @@ export default async function updateRunSession({
   sessionId: string;
   update: Partial<RunSession>;
 }) {
-  const run = await RunService.findById(runId);
-
-  if (!run) {
-    throw new Error(`Run not found: ${runId}`);
+  // Build dot notation updates for atomic operation
+  const setUpdate: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(update)) {
+    setUpdate[`sessions.$[elem].${key}`] = value;
   }
 
-  let session = find(run.sessions, { sessionId }) as RunSession;
+  const result = await RunModel.findByIdAndUpdate(
+    runId,
+    { $set: setUpdate },
+    {
+      arrayFilters: [{ "elem.sessionId": sessionId }],
+      new: true,
+    },
+  );
 
-  extend(session, update);
-
-  await RunService.updateById(runId, {
-    sessions: run.sessions,
-  });
+  if (!result) {
+    throw new Error(`Run not found: ${runId}`);
+  }
 }
