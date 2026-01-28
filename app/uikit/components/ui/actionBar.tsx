@@ -78,7 +78,7 @@ function ActionBar({
 
   return (
     <>
-      <div ref={sentinelRef} className="h-4" aria-hidden />
+      <div ref={sentinelRef} aria-hidden style={{ height: "1px" }} />
 
       <div
         className={clsx(
