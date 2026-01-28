@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
 import { Zap } from "lucide-react";
+import getDateString from "~/modules/app/helpers/getDateString";
 import type { Collection } from "../collections.types";
 
 export default (item: Collection) => {
@@ -15,7 +15,7 @@ export default (item: Collection) => {
         text: `${runCount} run${runCount !== 1 ? "s" : ""}`,
       },
       {
-        text: `Created at - ${dayjs(item.createdAt).format("ddd, MMM D, YYYY - h:mm A")}`,
+        text: `Created at - ${getDateString(item.createdAt)}`,
       },
     ],
   };

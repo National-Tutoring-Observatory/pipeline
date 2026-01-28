@@ -10,12 +10,12 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
-import dayjs from "dayjs";
 import { PlayIcon } from "lucide-react";
 import React from "react";
 import { useRevalidator } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import getDateString from "~/modules/app/helpers/getDateString";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 
 type MigrationWithStatus = {
@@ -82,9 +82,7 @@ export default function Migrations({
                         <div className="text-muted-foreground mt-1 space-y-1 text-xs">
                           <div>
                             Last run:{" "}
-                            {dayjs(migration.lastRun.startedAt).format(
-                              "MMM D, YYYY h:mm A",
-                            )}
+                            {getDateString(migration.lastRun.startedAt)}
                           </div>
                           {migration.lastRun.result && (
                             <div

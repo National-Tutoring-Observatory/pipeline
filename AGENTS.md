@@ -509,12 +509,14 @@ Helper functions for Collection components belong in `helpers/` directory:
 
 ```typescript
 // helpers/getItemAttributes.tsx - Shapes data for display
+import getDateString from "~/modules/app/helpers/getDateString";
+
 export default (item: ItemType): CollectionItemAttributes => ({
   id: item._id,
   title: item.name,
   description: item.description,
   meta: [
-    { text: dayjs(item.createdAt).format("MMM D, YYYY") }
+    { text: getDateString(item.createdAt) }
   ],
   to: `/path/${item._id}`,  // Optional link
 });
@@ -677,6 +679,41 @@ import { getProjects } from "~/modules/projects/queries"; // ~/* → ./app/*
 - **No trailing whitespace**
 - **Single newline** at end of file
 - **Always save files** after editing to apply auto-formatting
+
+### Date Formatting
+
+**ALWAYS** use the `getDateString` helper for displaying dates in the UI. Never use `new Date().toLocaleDateString()` or `dayjs().format()` directly.
+
+```typescript
+// ✅ CORRECT - Use the helper
+import getDateString from "~/modules/app/helpers/getDateString";
+
+<div>{getDateString(item.createdAt)}</div>
+// Output: "Mon, Jan 27, 2025 - 3:45 PM"
+
+// ❌ WRONG - Don't use dayjs directly
+import dayjs from "dayjs";
+<div>{dayjs(item.createdAt).format("MMM D, YYYY")}</div>
+
+// ❌ WRONG - Don't use native Date methods
+<div>{new Date(item.createdAt).toLocaleDateString()}</div>
+```
+
+**The helper**:
+
+- Location: `~/modules/app/helpers/getDateString.ts`
+- Format: `"ddd, MMM D, YYYY - h:mm A"` (e.g., "Mon, Jan 27, 2025 - 3:45 PM")
+- Accepts `string | Date | undefined | null` as first parameter
+- Optional second parameter `fallback` (default: `"--"`) for custom fallback text
+
+```typescript
+// Default fallback "--"
+getDateString(item.createdAt);
+
+// Custom fallback
+getDateString(item.processedOn, "Not processed yet");
+getDateString(item.finishedAt, "In progress");
+```
 
 ### Comments
 

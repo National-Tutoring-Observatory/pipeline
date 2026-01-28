@@ -7,9 +7,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import dayjs from "dayjs";
 import includes from "lodash/includes";
 import map from "lodash/map";
+import getDateString from "~/modules/app/helpers/getDateString";
 import type { Session } from "../sessions.types";
 import SessionRandomizer from "./sessionRandomizer";
 
@@ -80,11 +80,7 @@ export default function SessionSelector({
                     ></Checkbox>
                   </TableCell>
                   <TableCell className="font-medium">{session.name}</TableCell>
-                  <TableCell>
-                    {dayjs(session.createdAt).format(
-                      "ddd, MMM D, YYYY - h:mm A",
-                    )}
-                  </TableCell>
+                  <TableCell>{getDateString(session.createdAt)}</TableCell>
                   <TableCell>{session.fileType}</TableCell>
                 </TableRow>
               );

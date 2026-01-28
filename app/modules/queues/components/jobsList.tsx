@@ -1,5 +1,5 @@
 import { Collection } from "@/components/ui/collection";
-import dayjs from "dayjs";
+import getDateString from "~/modules/app/helpers/getDateString";
 import queueJobsSortOptions from "../helpers/queueJobsSortOptions";
 import type { Job } from "../queues.types";
 
@@ -34,12 +34,12 @@ export default function JobsList({
     const meta = [];
     if (job.processedOn) {
       meta.push({
-        text: `Processed: ${dayjs(job.processedOn).format("MMM D, h:mm A")}`,
+        text: `Processed: ${getDateString(job.processedOn)}`,
       });
     }
     if (job.finishedOn) {
       meta.push({
-        text: `Finished: ${dayjs(job.finishedOn).format("MMM D, h:mm A")}`,
+        text: `Finished: ${getDateString(job.finishedOn)}`,
       });
     }
     meta.push({ text: `Attempts: ${job.attemptsMade || 0}` });
@@ -48,7 +48,7 @@ export default function JobsList({
       id: job.id,
       title: job.name,
       description: job.timestamp
-        ? `Created ${dayjs(job.timestamp).format("MMM D, h:mm A")}`
+        ? `Created ${getDateString(job.timestamp)}`
         : undefined,
       meta,
     };

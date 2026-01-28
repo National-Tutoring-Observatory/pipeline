@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Pre } from "@/components/ui/pre";
-import dayjs from "dayjs";
+import getDateString from "~/modules/app/helpers/getDateString";
 import type { Job } from "../queues.types";
 import JobDetailField from "./jobDetailField";
 
@@ -60,29 +60,17 @@ export default function JobDetailsDialog({
 
           <JobDetailField
             label="Created"
-            value={
-              job.timestamp
-                ? dayjs(job.timestamp).format("ddd, MMM D, YYYY - h:mm A")
-                : "Unknown"
-            }
+            value={getDateString(job.timestamp, "Unknown")}
           />
 
           <JobDetailField
             label="Processed On"
-            value={
-              job.processedOn
-                ? dayjs(job.processedOn).format("ddd, MMM D, YYYY - h:mm A")
-                : "Not processed yet"
-            }
+            value={getDateString(job.processedOn, "Not processed yet")}
           />
 
           <JobDetailField
             label="Finished On"
-            value={
-              job.finishedOn
-                ? dayjs(job.finishedOn).format("ddd, MMM D, YYYY - h:mm A")
-                : "Not finished yet"
-            }
+            value={getDateString(job.finishedOn, "Not finished yet")}
           />
 
           <JobDetailField label="Attempts Made" value={job.attemptsMade || 0} />

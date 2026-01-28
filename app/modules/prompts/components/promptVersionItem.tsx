@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import clsx from "clsx";
-import dayjs from "dayjs";
 import { BookCheck } from "lucide-react";
 import { Link } from "react-router";
+import getDateString from "~/modules/app/helpers/getDateString";
 import type { Prompt } from "../prompts.types";
 
 type PromptVersionItemProps = {
@@ -38,9 +38,7 @@ export default function PromptVersionItem({
         )}
       </div>
       <div className="text-sm text-black/40">{name}</div>
-      <div className="text-xs text-black/40">
-        {dayjs(createdAt).format("ddd, MMM D, YYYY - h:mm A")}
-      </div>
+      <div className="text-xs text-black/40">{getDateString(createdAt)}</div>
     </Link>
   );
 }

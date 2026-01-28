@@ -1,6 +1,6 @@
 import type { CollectionItemAttributes } from "@/components/ui/collectionContentItem";
-import dayjs from "dayjs";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
+import getDateString from "~/modules/app/helpers/getDateString";
 import type { AuditRecord } from "~/modules/audits/audit.types";
 
 const getActionLabel = (action: string): string => {
@@ -33,7 +33,7 @@ export default (audit: AuditRecord): CollectionItemAttributes => {
     description: details,
     meta: [
       {
-        text: dayjs(audit.createdAt).format("MMM D, YYYY h:mm A"),
+        text: getDateString(audit.createdAt),
         icon: icon || undefined,
       },
     ],

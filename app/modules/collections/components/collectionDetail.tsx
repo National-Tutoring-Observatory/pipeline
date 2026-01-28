@@ -12,6 +12,7 @@ import {
   PageHeaderLeft,
   PageHeaderRight,
 } from "@/components/ui/pageHeader";
+import { StatItem } from "@/components/ui/stat-item";
 import {
   Copy,
   GitMerge,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import getDateString from "~/modules/app/helpers/getDateString";
 import type { Collection } from "~/modules/collections/collections.types";
 import ProjectDownloadDropdown from "~/modules/projects/components/projectDownloadDropdown";
 import getProjectRunsItemAttributes from "~/modules/projects/helpers/getProjectRunsItemAttributes";
@@ -145,89 +147,82 @@ export default function CollectionDetail({
         </PageHeaderRight>
       </PageHeader>
       <div>
-        <div className="grid grid-cols-3 gap-6">
-          <div>
-            <div className="text-muted-foreground text-xs">Created</div>
-            <div>
-              {collection.createdAt
-                ? new Date(collection.createdAt).toLocaleDateString()
-                : "--"}
+        <div className="grid max-w-6xl grid-cols-3 justify-start gap-6">
+          <StatItem label="Created">
+            {getDateString(collection.createdAt)}
+          </StatItem>
+          <StatItem label="Sessions">
+            {collection.sessions?.length || 0}
+          </StatItem>
+          <StatItem label="Runs">{collection.runs?.length || 0}</StatItem>
+        </div>
+
+        <div className="grid grid-cols-2 gap-6">
+          <div className="mt-8">
+            <div className="text-muted-foreground text-xs">Sessions</div>
+            <div className="mt-2">
+              <CollectionUI
+                items={sessions}
+                itemsLayout="list"
+                getItemAttributes={getProjectSessionsItemAttributes}
+                getItemActions={() => []}
+                onActionClicked={() => {}}
+                onItemClicked={onSessionItemClicked}
+                emptyAttributes={{
+                  title: "No sessions found",
+                  description: "",
+                }}
+                hasSearch
+                searchValue={sessionsSearchValue}
+                onSearchValueChanged={onSessionsSearchValueChanged}
+                hasPagination
+                currentPage={sessionsCurrentPage}
+                totalPages={sessionsTotalPages}
+                onPaginationChanged={onSessionsCurrentPageChanged}
+                sortValue={sessionsSortValue}
+                sortOptions={[
+                  { text: "Name", value: "name" },
+                  { text: "Created", value: "createdAt" },
+                ]}
+                onSortValueChanged={onSessionsSortValueChanged}
+                isSyncing={isSessionsSyncing}
+                filters={[]}
+                filtersValues={{}}
+              />
             </div>
           </div>
-          <div>
-            <div className="text-muted-foreground text-xs">Sessions</div>
-            <div>{collection.sessions?.length || 0}</div>
-          </div>
-          <div>
+
+          <div className="mt-8">
             <div className="text-muted-foreground text-xs">Runs</div>
-            <div>{collection.runs?.length || 0}</div>
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <div className="text-muted-foreground">Sessions</div>
-          <div className="mt-2">
-            <CollectionUI
-              items={sessions}
-              itemsLayout="list"
-              getItemAttributes={getProjectSessionsItemAttributes}
-              getItemActions={() => []}
-              onActionClicked={() => {}}
-              onItemClicked={onSessionItemClicked}
-              emptyAttributes={{
-                title: "No sessions found",
-                description: "",
-              }}
-              hasSearch
-              searchValue={sessionsSearchValue}
-              onSearchValueChanged={onSessionsSearchValueChanged}
-              hasPagination
-              currentPage={sessionsCurrentPage}
-              totalPages={sessionsTotalPages}
-              onPaginationChanged={onSessionsCurrentPageChanged}
-              sortValue={sessionsSortValue}
-              sortOptions={[
-                { text: "Name", value: "name" },
-                { text: "Created", value: "createdAt" },
-              ]}
-              onSortValueChanged={onSessionsSortValueChanged}
-              isSyncing={isSessionsSyncing}
-              filters={[]}
-              filtersValues={{}}
-            />
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <div className="text-muted-foreground">Runs</div>
-          <div className="mt-2">
-            <CollectionUI
-              items={runs}
-              itemsLayout="list"
-              getItemAttributes={getProjectRunsItemAttributes}
-              getItemActions={() => []}
-              onActionClicked={() => {}}
-              emptyAttributes={{
-                title: "No runs found",
-                description: "",
-              }}
-              hasSearch
-              searchValue={runsSearchValue}
-              onSearchValueChanged={onRunsSearchValueChanged}
-              hasPagination
-              currentPage={runsCurrentPage}
-              totalPages={runsTotalPages}
-              onPaginationChanged={onRunsCurrentPageChanged}
-              sortValue={runsSortValue}
-              sortOptions={[
-                { text: "Name", value: "name" },
-                { text: "Created", value: "createdAt" },
-              ]}
-              onSortValueChanged={onRunsSortValueChanged}
-              isSyncing={isRunsSyncing}
-              filters={[]}
-              filtersValues={{}}
-            />
+            <div className="mt-2">
+              <CollectionUI
+                items={runs}
+                itemsLayout="list"
+                getItemAttributes={getProjectRunsItemAttributes}
+                getItemActions={() => []}
+                onActionClicked={() => {}}
+                emptyAttributes={{
+                  title: "No runs found",
+                  description: "",
+                }}
+                hasSearch
+                searchValue={runsSearchValue}
+                onSearchValueChanged={onRunsSearchValueChanged}
+                hasPagination
+                currentPage={runsCurrentPage}
+                totalPages={runsTotalPages}
+                onPaginationChanged={onRunsCurrentPageChanged}
+                sortValue={runsSortValue}
+                sortOptions={[
+                  { text: "Name", value: "name" },
+                  { text: "Created", value: "createdAt" },
+                ]}
+                onSortValueChanged={onRunsSortValueChanged}
+                isSyncing={isRunsSyncing}
+                filters={[]}
+                filtersValues={{}}
+              />
+            </div>
           </div>
         </div>
 

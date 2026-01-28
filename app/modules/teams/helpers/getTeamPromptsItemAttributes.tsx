@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
 import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
+import getDateString from "~/modules/app/helpers/getDateString";
 import PromptAuthorization from "~/modules/prompts/authorization";
 import type { Prompt } from "~/modules/prompts/prompts.types";
 import type { User } from "~/modules/users/users.types";
@@ -18,7 +18,7 @@ export default (item: Prompt, teamId: string, user: User | null) => {
         text: `Annotation type - ${getAnnotationLabel(item.annotationType)}`,
       },
       {
-        text: `Created at - ${dayjs(item.createdAt).format("ddd, MMM D, YYYY - h:mm A")}`,
+        text: `Created at - ${getDateString(item.createdAt)}`,
       },
     ],
   };

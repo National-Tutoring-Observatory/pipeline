@@ -1,7 +1,7 @@
-import dayjs from "dayjs";
 import get from "lodash/get";
 import { Users } from "lucide-react";
 import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
+import getDateString from "~/modules/app/helpers/getDateString";
 import type { Prompt } from "../prompts.types";
 
 export default (item: Prompt) => {
@@ -20,7 +20,7 @@ export default (item: Prompt) => {
         text: `Annotation type - ${getAnnotationLabel(item.annotationType)}`,
       },
       {
-        text: `Created at - ${dayjs(item.createdAt).format("ddd, MMM D, YYYY - h:mm A")}`,
+        text: `Created at - ${getDateString(item.createdAt)}`,
       },
     ],
   };
