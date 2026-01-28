@@ -38,9 +38,7 @@ export default function PromptVersionItem({
         )}
       </div>
       <div className="text-sm text-black/40">{name}</div>
-      <div className="text-xs text-black/40">
-        {getDateString(createdAt)}
-      </div>
+      <div className="text-xs text-black/40">{getDateString(createdAt)}</div>
     </Link>
   );
 }

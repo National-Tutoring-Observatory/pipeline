@@ -28,9 +28,7 @@ export default function ProjectFiles({ files }: { files: File[] }) {
               return (
                 <TableRow key={file._id}>
                   <TableCell className="font-medium">{file.name}</TableCell>
-                  <TableCell>
-                    {getDateString(file.createdAt)}
-                  </TableCell>
+                  <TableCell>{getDateString(file.createdAt)}</TableCell>
                   <TableCell>{file.fileType}</TableCell>
                   <TableCell className="flex justify-end text-right">
                     {/* <DropdownMenu>

@@ -35,9 +35,9 @@ function calculateCohensKappa(labelsA: string[], labelsB: string[]): number {
   const categories = [...new Set([...labelsA, ...labelsB])];
 
   // Build confusion matrix counts
-  const countA: Record<string, number> = {};  // How often A chose each category
-  const countB: Record<string, number> = {};  // How often B chose each category
-  let agreements = 0;                          // Diagonal sum
+  const countA: Record<string, number> = {}; // How often A chose each category
+  const countB: Record<string, number> = {}; // How often B chose each category
+  let agreements = 0; // Diagonal sum
 
   for (const cat of categories) {
     countA[cat] = 0;
@@ -73,12 +73,12 @@ function calculateCohensKappa(labelsA: string[], labelsB: string[]): number {
 ### Interpretation (Landis & Koch, 1977)
 
 | Kappa Range | Interpretation |
-|-------------|----------------|
-| < 0.00 | Poor |
-| 0.00 – 0.20 | Slight |
-| 0.21 – 0.40 | Fair |
-| 0.41 – 0.60 | Moderate |
-| 0.61 – 0.80 | Substantial |
+| ----------- | -------------- |
+| < 0.00      | Poor           |
+| 0.00 – 0.20 | Slight         |
+| 0.21 – 0.40 | Fair           |
+| 0.41 – 0.60 | Moderate       |
+| 0.61 – 0.80 | Substantial    |
 | 0.81 – 1.00 | Almost Perfect |
 
 ---
@@ -129,18 +129,20 @@ function calculatePRF1(predictions: string[], goldLabels: string[]): Metrics {
 
   // Calculate per-class metrics, then average (macro)
   for (const targetClass of classes) {
-    let tp = 0, fp = 0, fn = 0;
+    let tp = 0,
+      fp = 0,
+      fn = 0;
 
     for (let i = 0; i < n; i++) {
       const predicted = predictions[i];
       const actual = goldLabels[i];
 
       if (predicted === targetClass && actual === targetClass) {
-        tp++;  // True positive
+        tp++; // True positive
       } else if (predicted === targetClass && actual !== targetClass) {
-        fp++;  // False positive
+        fp++; // False positive
       } else if (predicted !== targetClass && actual === targetClass) {
-        fn++;  // False negative
+        fn++; // False negative
       }
     }
 
@@ -157,9 +159,10 @@ function calculatePRF1(predictions: string[], goldLabels: string[]): Metrics {
   const avgRecall = totalRecall / classes.length;
 
   // F1 = harmonic mean
-  const f1 = avgPrecision + avgRecall > 0
-    ? (2 * avgPrecision * avgRecall) / (avgPrecision + avgRecall)
-    : 0;
+  const f1 =
+    avgPrecision + avgRecall > 0
+      ? (2 * avgPrecision * avgRecall) / (avgPrecision + avgRecall)
+      : 0;
 
   return {
     precision: Math.round(avgPrecision * 100) / 100,
@@ -183,8 +186,10 @@ Average Kappa across all pairwise run comparisons.
  * @param pairs - Array of pairwise Kappa results
  * @returns Mean Kappa (excludes pairs with 0 samples)
  */
-function calculateMeanKappa(pairs: { kappa: number; sampleSize: number }[]): number {
-  const validPairs = pairs.filter(p => p.sampleSize > 0);
+function calculateMeanKappa(
+  pairs: { kappa: number; sampleSize: number }[],
+): number {
+  const validPairs = pairs.filter((p) => p.sampleSize > 0);
   if (validPairs.length === 0) return 0;
 
   const sum = validPairs.reduce((acc, p) => acc + p.kappa, 0);
@@ -198,14 +203,32 @@ function calculateMeanKappa(pairs: { kappa: number; sampleSize: number }[]): num
 
 ```typescript
 // Two LLM runs annotating the same 5 sessions
-const runA = ["CREATIVE", "NOT_CREATIVE", "CREATIVE", "CREATIVE", "NOT_CREATIVE"];
-const runB = ["CREATIVE", "NOT_CREATIVE", "NOT_CREATIVE", "CREATIVE", "NOT_CREATIVE"];
+const runA = [
+  "CREATIVE",
+  "NOT_CREATIVE",
+  "CREATIVE",
+  "CREATIVE",
+  "NOT_CREATIVE",
+];
+const runB = [
+  "CREATIVE",
+  "NOT_CREATIVE",
+  "NOT_CREATIVE",
+  "CREATIVE",
+  "NOT_CREATIVE",
+];
 
 const kappa = calculateCohensKappa(runA, runB);
-console.log(`Kappa: ${kappa.toFixed(2)}`);  // Output: Kappa: 0.58 (Moderate)
+console.log(`Kappa: ${kappa.toFixed(2)}`); // Output: Kappa: 0.58 (Moderate)
 
 // With gold standard labels
-const gold = ["CREATIVE", "NOT_CREATIVE", "CREATIVE", "CREATIVE", "NOT_CREATIVE"];
+const gold = [
+  "CREATIVE",
+  "NOT_CREATIVE",
+  "CREATIVE",
+  "CREATIVE",
+  "NOT_CREATIVE",
+];
 const metrics = calculatePRF1(runA, gold);
 console.log(`P: ${metrics.precision}, R: ${metrics.recall}, F1: ${metrics.f1}`);
 // Output: P: 1.00, R: 1.00, F1: 1.00 (runA matches gold perfectly)
@@ -215,9 +238,9 @@ console.log(`P: ${metrics.precision}, R: ${metrics.recall}, F1: ${metrics.f1}`);
 
 ## Key Design Decisions
 
-| Decision | Rationale |
-|----------|-----------|
-| **Macro-averaging for P/R/F1** | Treats all classes equally, appropriate for imbalanced annotation tasks |
-| **Standard Cohen's Kappa** | Simplest inter-rater metric; Fleiss' Kappa (3+ raters) deferred to future |
-| **Round to 2 decimals** | Sufficient precision for research comparison |
-| **Exclude zero-sample pairs** | Pairs with no overlapping sessions shouldn't affect mean |
+| Decision                       | Rationale                                                                 |
+| ------------------------------ | ------------------------------------------------------------------------- |
+| **Macro-averaging for P/R/F1** | Treats all classes equally, appropriate for imbalanced annotation tasks   |
+| **Standard Cohen's Kappa**     | Simplest inter-rater metric; Fleiss' Kappa (3+ raters) deferred to future |
+| **Round to 2 decimals**        | Sufficient precision for research comparison                              |
+| **Exclude zero-sample pairs**  | Pairs with no overlapping sessions shouldn't affect mean                  |

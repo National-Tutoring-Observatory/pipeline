@@ -700,6 +700,7 @@ import dayjs from "dayjs";
 ```
 
 **The helper**:
+
 - Location: `~/modules/app/helpers/getDateString.ts`
 - Format: `"ddd, MMM D, YYYY - h:mm A"` (e.g., "Mon, Jan 27, 2025 - 3:45 PM")
 - Accepts `string | Date | undefined | null` as first parameter
@@ -707,11 +708,11 @@ import dayjs from "dayjs";
 
 ```typescript
 // Default fallback "--"
-getDateString(item.createdAt)
+getDateString(item.createdAt);
 
 // Custom fallback
-getDateString(item.processedOn, "Not processed yet")
-getDateString(item.finishedAt, "In progress")
+getDateString(item.processedOn, "Not processed yet");
+getDateString(item.finishedAt, "In progress");
 ```
 
 ### Comments

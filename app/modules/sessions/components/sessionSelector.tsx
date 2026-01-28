@@ -80,9 +80,7 @@ export default function SessionSelector({
                     ></Checkbox>
                   </TableCell>
                   <TableCell className="font-medium">{session.name}</TableCell>
-                  <TableCell>
-                    {getDateString(session.createdAt)}
-                  </TableCell>
+                  <TableCell>{getDateString(session.createdAt)}</TableCell>
                   <TableCell>{session.fileType}</TableCell>
                 </TableRow>
               );
