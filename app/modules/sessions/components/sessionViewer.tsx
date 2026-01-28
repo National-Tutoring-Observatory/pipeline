@@ -39,8 +39,8 @@ export default function SessionViewer({
   onPreviousAnnotationClicked: () => void;
   onNextAnnotationClicked: () => void;
   onJumpToFirstAnnotation: () => void;
-  onDownVoteClicked: (annotationId: string) => void;
-  onUpVoteClicked: (annotationId: string) => void;
+  onDownVoteClicked: (utteranceId: string, annotationIndex: number) => void;
+  onUpVoteClicked: (utteranceId: string, annotationIndex: number) => void;
 }) {
   const hasSelectedAnnotation = selectedUtteranceIndex !== null;
 
@@ -75,14 +75,18 @@ export default function SessionViewer({
               Session annotations
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto">
-              {map(sessionFile.annotations, (annotation) => {
+              {map(sessionFile.annotations, (annotation, index) => {
                 return (
                   <SessionViewerAnnotation
-                    key={annotation._id}
+                    key={`${annotation._id}-${index}`}
                     annotation={annotation}
                     isVoting={isVoting}
-                    onDownVoteClicked={() => onDownVoteClicked(annotation._id)}
-                    onUpVoteClicked={() => onUpVoteClicked(annotation._id)}
+                    onDownVoteClicked={() =>
+                      onDownVoteClicked(annotation._id, index)
+                    }
+                    onUpVoteClicked={() =>
+                      onUpVoteClicked(annotation._id, index)
+                    }
                   />
                 );
               })}
@@ -146,8 +150,12 @@ export default function SessionViewer({
                     key={`${annotation._id}-${index}`}
                     annotation={annotation}
                     isVoting={isVoting}
-                    onDownVoteClicked={() => onDownVoteClicked(annotation._id)}
-                    onUpVoteClicked={() => onUpVoteClicked(annotation._id)}
+                    onDownVoteClicked={() =>
+                      onDownVoteClicked(annotation._id, index)
+                    }
+                    onUpVoteClicked={() =>
+                      onUpVoteClicked(annotation._id, index)
+                    }
                   />
                 );
               })}

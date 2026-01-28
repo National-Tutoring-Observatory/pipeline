@@ -1,5 +1,4 @@
 import fse from "fs-extra";
-import find from "lodash/find";
 import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -51,25 +50,32 @@ export async function action({ request, params }: Route.ActionArgs) {
   const downloadedPath = await storage.download({ sourcePath: sessionPath });
   const sessionFile = await fse.readJSON(downloadedPath);
 
+  const annotationIndex = Number(params.annotationIndex);
+
   if (run.annotationType === "PER_UTTERANCE") {
-    const currentUtterance = find(sessionFile.transcript, {
-      _id: params.annotationId,
-    });
+    const currentUtterance = sessionFile.transcript.find(
+      (utterance: { _id: string }) => utterance._id === params.utteranceId,
+    );
 
-    const currentAnnotation = find(currentUtterance.annotations, {
-      _id: params.annotationId,
-    });
-
-    if (currentAnnotation) {
-      currentAnnotation.markedAs = markedAs;
+    if (
+      currentUtterance?.annotations &&
+      currentUtterance.annotations[annotationIndex]
+    ) {
+      const annotation = currentUtterance.annotations[annotationIndex];
+      if (annotation.markedAs === markedAs) {
+        delete annotation.markedAs;
+      } else {
+        annotation.markedAs = markedAs;
+      }
     }
   } else {
-    const currentAnnotation = find(sessionFile.annotations, {
-      _id: params.annotationId,
-    });
-
-    if (currentAnnotation) {
-      currentAnnotation.markedAs = markedAs;
+    if (sessionFile.annotations && sessionFile.annotations[annotationIndex]) {
+      const annotation = sessionFile.annotations[annotationIndex];
+      if (annotation.markedAs === markedAs) {
+        delete annotation.markedAs;
+      } else {
+        annotation.markedAs = markedAs;
+      }
     }
   }
 
