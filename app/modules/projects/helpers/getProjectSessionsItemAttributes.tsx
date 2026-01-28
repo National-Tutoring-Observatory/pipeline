@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import getDateString from "~/modules/app/helpers/getDateString";
 import type { Session } from "~/modules/sessions/sessions.types";
 
 export default (item: Session) => {
@@ -22,7 +22,7 @@ export default (item: Session) => {
         text: `Status - ${status}`,
       },
       {
-        text: `Created at - ${dayjs(item.createdAt).format("ddd, MMM D, YYYY - h:mm A")}`,
+        text: `Created at - ${getDateString(item.createdAt)}`,
       },
     ],
   };

@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
 import { useContext } from "react";
+import getDateString from "~/modules/app/helpers/getDateString";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import type { Project } from "~/modules/projects/projects.types";
@@ -15,7 +15,7 @@ export default (item: Project, teamId: string) => {
     to: canCreate ? `/projects/${item._id}` : undefined,
     meta: [
       {
-        text: `Created at - ${dayjs(item.createdAt).format("ddd, MMM D, YYYY - h:mm A")}`,
+        text: `Created at - ${getDateString(item.createdAt)}`,
       },
     ],
   };

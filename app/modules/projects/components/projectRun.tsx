@@ -6,6 +6,7 @@ import {
   PageHeaderRight,
 } from "@/components/ui/pageHeader";
 import { Progress } from "@/components/ui/progress";
+import { StatItem } from "@/components/ui/stat-item";
 import {
   Table,
   TableBody,
@@ -14,13 +15,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import dayjs from "dayjs";
 import find from "lodash/find";
 import map from "lodash/map";
 import { Pencil } from "lucide-react";
 import { Link } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import getDateString from "~/modules/app/helpers/getDateString";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
@@ -87,25 +88,18 @@ export default function ProjectRun({
       </div>
       <div>
         <div className="grid grid-cols-3 gap-6">
-          <div>
-            <div className="text-muted-foreground text-xs">Annotation type</div>
+          <StatItem label="Annotation type">
+            {find(annotationTypes, { value: run.annotationType })?.name}
+          </StatItem>
+          <StatItem label="Selected prompt">
+            <div>{promptInfo.name}</div>
             <div>
-              {find(annotationTypes, { value: run.annotationType })?.name}
+              <Badge>Version {promptInfo.version}</Badge>
             </div>
-          </div>
-          <div>
-            <div className="text-muted-foreground text-xs">Selected prompt</div>
-            <div>
-              <div>{promptInfo.name}</div>
-              <div>
-                <Badge>Version {promptInfo.version}</Badge>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div className="text-muted-foreground text-xs">Selected model</div>
-            <div>{getRunModelDisplayName(run)}</div>
-          </div>
+          </StatItem>
+          <StatItem label="Selected model">
+            {getRunModelDisplayName(run)}
+          </StatItem>
         </div>
         <div className="mt-8">
           <div className="flex items-end justify-between">
@@ -150,17 +144,11 @@ export default function ProjectRun({
                         </TableCell>
                         <TableCell>
                           {session.status !== "NOT_STARTED"
-                            ? dayjs(session.startedAt).format(
-                                "ddd, MMM D, YYYY - h:mm A",
-                              )
+                            ? getDateString(session.startedAt)
                             : "--"}
                         </TableCell>
                         <TableCell>
-                          {session.finishedAt
-                            ? dayjs(session.finishedAt).format(
-                                "ddd, MMM D, YYYY - h:mm A",
-                              )
-                            : "--"}
+                          {getDateString(session.finishedAt)}
                         </TableCell>
                         <TableCell>{session.fileType}</TableCell>
                         <TableCell>{session.status}</TableCell>

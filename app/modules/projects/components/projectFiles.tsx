@@ -6,8 +6,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import dayjs from "dayjs";
 import map from "lodash/map";
+import getDateString from "~/modules/app/helpers/getDateString";
 import type { File } from "~/modules/files/files.types";
 
 export default function ProjectFiles({ files }: { files: File[] }) {
@@ -29,7 +29,7 @@ export default function ProjectFiles({ files }: { files: File[] }) {
                 <TableRow key={file._id}>
                   <TableCell className="font-medium">{file.name}</TableCell>
                   <TableCell>
-                    {dayjs(file.createdAt).format("ddd, MMM D, YYYY - h:mm A")}
+                    {getDateString(file.createdAt)}
                   </TableCell>
                   <TableCell>{file.fileType}</TableCell>
                   <TableCell className="flex justify-end text-right">

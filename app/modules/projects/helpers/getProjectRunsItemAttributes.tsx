@@ -1,6 +1,6 @@
-import dayjs from "dayjs";
 import get from "lodash/get";
 import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
+import getDateString from "~/modules/app/helpers/getDateString";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 
@@ -27,7 +27,7 @@ export default (item: Run) => {
   }
 
   meta.push({
-    text: `Created at - ${dayjs(item.createdAt).format("ddd, MMM D, YYYY - h:mm A")}`,
+    text: `Created at - ${getDateString(item.createdAt)}`,
   });
 
   return {

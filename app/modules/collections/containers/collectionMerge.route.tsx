@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collection } from "@/components/ui/collection";
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
-import dayjs from "dayjs";
 import cloneDeep from "lodash/cloneDeep";
 import includes from "lodash/includes";
 import map from "lodash/map";
@@ -16,6 +15,7 @@ import {
   useSubmit,
 } from "react-router";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import getDateString from "~/modules/app/helpers/getDateString";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
@@ -174,7 +174,7 @@ export default function CollectionMergeRoute() {
     meta: [
       { text: `${coll.runs?.length || 0} runs` },
       {
-        text: coll.createdAt ? dayjs(coll.createdAt).format("MMM D, YYYY") : "",
+        text: getDateString(coll.createdAt),
       },
     ],
   });
@@ -192,9 +192,7 @@ export default function CollectionMergeRoute() {
         <div className="font-medium">{coll.name}</div>
         <div className="text-muted-foreground flex gap-4 text-sm">
           <span>{coll.runs?.length || 0} runs</span>
-          <span>
-            {coll.createdAt ? dayjs(coll.createdAt).format("MMM D, YYYY") : ""}
-          </span>
+          <span>{getDateString(coll.createdAt)}</span>
         </div>
       </div>
     </div>

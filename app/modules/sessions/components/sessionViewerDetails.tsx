@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import getDateString from "~/modules/app/helpers/getDateString";
 import type { Session } from "../sessions.types";
 
 interface SessionViewerDetailsProps {
@@ -17,18 +17,12 @@ export default function SessionViewerDetails({
       <div className="mb-2">
         <div className="mb-2 flex items-center justify-between">
           <span className="text-muted-foreground">Started</span>
-          <span className="text-right">
-            {session.startedAt
-              ? dayjs(session.startedAt).format("MMM DD, YYYY, h:mm A")
-              : "--"}
-          </span>
+          <span className="text-right">{getDateString(session.startedAt)}</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Finished</span>
           <span className="text-right">
-            {session.finishedAt
-              ? dayjs(session.finishedAt).format("MMM DD, YYYY, h:mm A")
-              : "--"}
+            {getDateString(session.finishedAt)}
           </span>
         </div>
         {annotatedUtteranceCount > 0 && (

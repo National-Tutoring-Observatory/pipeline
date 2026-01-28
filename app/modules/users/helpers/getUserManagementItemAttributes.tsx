@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import getDateString from "~/modules/app/helpers/getDateString";
 import type { User } from "../users.types";
 
 export default (item: User) => {
@@ -11,7 +11,7 @@ export default (item: User) => {
         text: item.role || "USER",
       },
       {
-        text: `Created ${dayjs(item.createdAt).format("MMM D, YYYY")}`,
+        text: `Created ${getDateString(item.createdAt)}`,
       },
     ],
   };

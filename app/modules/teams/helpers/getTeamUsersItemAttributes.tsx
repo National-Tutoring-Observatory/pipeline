@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import getDateString from "~/modules/app/helpers/getDateString";
 import type { User } from "~/modules/users/users.types";
 import type { Team } from "../teams.types";
 import getUserRoleInTeam from "./getUserRoleInTeam";
@@ -27,7 +27,7 @@ export default (item: User, team: Team) => {
         text: roleName || "Member",
       },
       {
-        text: `Created at - ${dayjs(item.createdAt).format("ddd, MMM D, YYYY - h:mm A")}`,
+        text: `Created at - ${getDateString(item.createdAt)}`,
       },
     ],
   };
