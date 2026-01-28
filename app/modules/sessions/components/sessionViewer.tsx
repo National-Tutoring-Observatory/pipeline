@@ -45,7 +45,7 @@ export default function SessionViewer({
   const hasSelectedAnnotation = selectedUtteranceIndex !== null;
 
   return (
-    <div className="flex h-[calc(100vh-200px)] rounded-md border">
+    <div className="flex h-[calc(100vh-140px)] rounded-md border">
       <div
         id="session-viewer-scroll-container"
         className="flex h-full w-3/5 flex-col overflow-y-scroll scroll-smooth border-r p-4"
@@ -63,32 +63,34 @@ export default function SessionViewer({
           );
         })}
       </div>
-      <div className="h-full w-2/5 py-8">
+      <div className="flex h-full w-2/5 flex-col pt-8">
         <SessionViewerDetails
           session={session}
           utteranceCount={utteranceCount}
           annotatedUtteranceCount={annotatedUtteranceCount}
         />
         {sessionFile.annotations && sessionFile.annotations.length > 0 && (
-          <div className="p-4">
+          <div className="flex min-h-0 flex-1 flex-col p-4 pb-0">
             <div className="text-muted-foreground mb-2">
               Session annotations
             </div>
-            {map(sessionFile.annotations, (annotation) => {
-              return (
-                <SessionViewerAnnotation
-                  key={annotation._id}
-                  annotation={annotation}
-                  isVoting={isVoting}
-                  onDownVoteClicked={() => onDownVoteClicked(annotation._id)}
-                  onUpVoteClicked={() => onUpVoteClicked(annotation._id)}
-                />
-              );
-            })}
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              {map(sessionFile.annotations, (annotation) => {
+                return (
+                  <SessionViewerAnnotation
+                    key={annotation._id}
+                    annotation={annotation}
+                    isVoting={isVoting}
+                    onDownVoteClicked={() => onDownVoteClicked(annotation._id)}
+                    onUpVoteClicked={() => onUpVoteClicked(annotation._id)}
+                  />
+                );
+              })}
+            </div>
           </div>
         )}
         {annotatedUtteranceCount > 0 && (
-          <div className="p-4">
+          <div className="flex min-h-0 flex-1 flex-col p-4 pb-0">
             <div className="mb-2 flex items-center justify-between">
               <div>
                 View Annotations
@@ -137,17 +139,19 @@ export default function SessionViewer({
                 </div>
               </div>
             </div>
-            {map(selectedUtteranceAnnotations, (annotation) => {
-              return (
-                <SessionViewerAnnotation
-                  key={annotation._id}
-                  annotation={annotation}
-                  isVoting={isVoting}
-                  onDownVoteClicked={() => onDownVoteClicked(annotation._id)}
-                  onUpVoteClicked={() => onUpVoteClicked(annotation._id)}
-                />
-              );
-            })}
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              {map(selectedUtteranceAnnotations, (annotation, index) => {
+                return (
+                  <SessionViewerAnnotation
+                    key={`${annotation._id}-${index}`}
+                    annotation={annotation}
+                    isVoting={isVoting}
+                    onDownVoteClicked={() => onDownVoteClicked(annotation._id)}
+                    onUpVoteClicked={() => onUpVoteClicked(annotation._id)}
+                  />
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
