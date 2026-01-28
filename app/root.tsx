@@ -29,6 +29,8 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export const meta: Route.MetaFunction = () => [{ title: "Sandpiper - NTO" }];
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
