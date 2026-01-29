@@ -9,7 +9,6 @@ import {
 const createRun = (overrides: Partial<Run> = {}): Run =>
   ({
     _id: "run1",
-    model: "fallback-model",
     ...overrides,
   }) as Run;
 
@@ -48,9 +47,8 @@ describe("Run Model Helpers", () => {
   });
 
   describe("getRunModelCode", () => {
-    it("should prefer snapshot.model.code over model field", () => {
+    it("should return snapshot.model.code when available", () => {
       const run = createRun({
-        model: "old-value",
         snapshot: {
           prompt: {
             name: "p",
@@ -66,16 +64,15 @@ describe("Run Model Helpers", () => {
       expect(getRunModelCode(run)).toBe("new-code");
     });
 
-    it("should fallback to model field when snapshot unavailable", () => {
-      const run = createRun({ model: "some-code" });
-      expect(getRunModelCode(run)).toBe("some-code");
+    it("should return undefined when snapshot unavailable", () => {
+      const run = createRun();
+      expect(getRunModelCode(run)).toBeUndefined();
     });
   });
 
   describe("getRunModelDisplayName", () => {
     it("should use snapshot name when available", () => {
       const run = createRun({
-        model: "old-value",
         snapshot: {
           prompt: {
             name: "p",
@@ -91,9 +88,9 @@ describe("Run Model Helpers", () => {
       expect(getRunModelDisplayName(run)).toBe("Display Name");
     });
 
-    it("should fallback to raw model value when no snapshot", () => {
-      const run = createRun({ model: "raw-value" });
-      expect(getRunModelDisplayName(run)).toBe("raw-value");
+    it("should return undefined when no snapshot", () => {
+      const run = createRun();
+      expect(getRunModelDisplayName(run)).toBeUndefined();
     });
   });
 });
