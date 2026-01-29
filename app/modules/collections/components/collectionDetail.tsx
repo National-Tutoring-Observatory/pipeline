@@ -198,7 +198,11 @@ export default function CollectionDetail({
               <CollectionUI
                 items={runs}
                 itemsLayout="list"
-                getItemAttributes={getProjectRunsItemAttributes}
+                getItemAttributes={(item) =>
+                  getProjectRunsItemAttributes(item, {
+                    collectionId: collection._id,
+                  })
+                }
                 getItemActions={() => []}
                 onActionClicked={() => {}}
                 emptyAttributes={{

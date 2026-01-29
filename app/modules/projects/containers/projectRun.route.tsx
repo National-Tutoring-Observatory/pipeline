@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import { CollectionService } from "~/modules/collections/collection";
 import addDialog from "~/modules/dialogs/addDialog";
 import { ProjectService } from "~/modules/projects/project";
 import exportRun from "~/modules/runs/helpers/exportRun";
@@ -51,7 +52,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     version: run.snapshot.prompt.version,
   };
 
-  return { project, run, promptInfo };
+  const url = new URL(request.url);
+  const collectionId = url.searchParams.get("collectionId");
+  const collection = collectionId
+    ? await CollectionService.findById(collectionId)
+    : null;
+
+  return { project, run, promptInfo, collection };
 }
 
 export async function action({ request, params, context }: Route.ActionArgs) {
@@ -100,7 +107,7 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRunRoute() {
-  const { project, run, promptInfo } = useLoaderData();
+  const { project, run, promptInfo, collection } = useLoaderData();
   const [runSessionsProgress, setRunSessionsProgress] = useState(0);
   const [runSessionsStep, setRunSessionsStep] = useState("");
   const submit = useSubmit();
@@ -235,22 +242,21 @@ export default function ProjectRunRoute() {
     };
   }, []);
 
+  const parentBreadcrumbs = collection
+    ? [
+        { text: "Collections", link: `/projects/${project._id}/collections` },
+        {
+          text: collection.name,
+          link: `/projects/${project._id}/collections/${collection._id}`,
+        },
+      ]
+    : [{ text: "Runs", link: `/projects/${project._id}` }];
+
   const breadcrumbs = [
-    {
-      text: "Projects",
-      link: `/`,
-    },
-    {
-      text: project.name,
-      link: `/projects/${project._id}`,
-    },
-    {
-      text: "Runs",
-      link: `/projects/${project._id}`,
-    },
-    {
-      text: run.name,
-    },
+    { text: "Projects", link: `/` },
+    { text: project.name, link: `/projects/${project._id}` },
+    ...parentBreadcrumbs,
+    { text: run.name },
   ];
 
   return (
