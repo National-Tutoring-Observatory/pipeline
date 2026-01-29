@@ -35,6 +35,7 @@ export interface RunSession {
 }
 
 export interface CreateRun {
+  name: string;
   selectedAnnotationType: string;
   selectedPrompt: string | null;
   selectedPromptVersion: number | null;
