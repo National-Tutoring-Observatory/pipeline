@@ -63,8 +63,6 @@ export default async function annotatePerUtterance(job: any) {
 
     const response = await llm.createChat();
 
-    console.log(response);
-
     const annotations = response.annotations || [];
 
     for (const annotation of annotations) {
@@ -125,7 +123,6 @@ export default async function annotatePerUtterance(job: any) {
       "FINISHED",
     );
   } catch (error: any) {
-    console.log(error);
     await updateRunSession({
       runId,
       sessionId,
