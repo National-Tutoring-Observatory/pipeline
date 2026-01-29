@@ -3,37 +3,36 @@ import sampleSize from "lodash/sampleSize";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import aiGatewayConfig from "~/config/ai_gateway.json";
-import type { CreateRun } from "~/modules/runs/runs.types";
+import type { CreateRun, Run } from "~/modules/runs/runs.types";
 import ProjectRunCreator from "../components/projectRunCreator";
 
 interface ProjectRunCreatorContainerProps {
-  runName: string;
-  onStartRunClicked: ({
-    selectedAnnotationType,
-    selectedPrompt,
-    selectedPromptVersion,
-    selectedModel,
-    selectedSessions,
-  }: CreateRun) => void;
-  onRunNameChanged: (name: string) => void;
+  onStartRunClicked: (createRun: CreateRun) => void;
+  initialRun?: Run | null;
 }
 
 export default function ProjectRunCreatorContainer({
-  runName: initialRunName,
   onStartRunClicked,
-  onRunNameChanged,
+  initialRun,
 }: ProjectRunCreatorContainerProps) {
-  const [runName, setRunName] = useState(initialRunName);
-  const [selectedAnnotationType, setSelectedAnnotationType] =
-    useState("PER_UTTERANCE");
-  const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
+  const [runName, setRunName] = useState(
+    initialRun ? `${initialRun.name} (copy)` : "",
+  );
+  const [selectedAnnotationType, setSelectedAnnotationType] = useState(
+    initialRun?.annotationType || "PER_UTTERANCE",
+  );
+  const [selectedPrompt, setSelectedPrompt] = useState<string | null>(
+    (initialRun?.prompt as string) || null,
+  );
   const [selectedPromptVersion, setSelectedPromptVersion] = useState<
     number | null
-  >(null);
+  >(initialRun?.promptVersion || null);
   const [selectedModel, setSelectedModel] = useState(
-    aiGatewayConfig.defaultModel,
+    initialRun?.snapshot?.model?.code || aiGatewayConfig.defaultModel,
   );
-  const [selectedSessions, setSelectedSessions] = useState<string[]>([]);
+  const [selectedSessions, setSelectedSessions] = useState<string[]>(
+    initialRun?.sessions?.map((s) => s.sessionId) || [],
+  );
   const [randomSampleSize, setRandomSampleSize] = useState(0);
   const [isRunButtonDisabled, setIsRunButtonDisabled] = useState(true);
 
@@ -75,11 +74,11 @@ export default function ProjectRunCreatorContainer({
 
   const onRunNameChangedHandler = (name: string) => {
     setRunName(name);
-    onRunNameChanged(name);
   };
 
   const onStartRunButtonClicked = () => {
     onStartRunClicked({
+      name: runName,
       selectedAnnotationType,
       selectedPrompt,
       selectedPromptVersion,
