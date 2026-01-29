@@ -1,4 +1,4 @@
-export function applySchemaToRequest(requestParams: any, schema?: object) {
+export default function applySchemaToRequest(requestParams: any, schema?: object) {
   if (schema) {
     requestParams.tools = [
       {

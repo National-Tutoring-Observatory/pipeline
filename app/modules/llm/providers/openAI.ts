@@ -1,5 +1,5 @@
 import { OpenAI } from "openai";
-import { applySchemaToRequest } from "../helpers/applySchemaToRequest.js";
+import applySchemaToRequest from "../helpers/applySchemaToRequest.js";
 import registerLLM from "../helpers/registerLLM.js";
 
 registerLLM("OPEN_AI", {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applySchemaToRequest } from "../applySchemaToRequest";
+import applySchemaToRequest from "../applySchemaToRequest";
 
 describe("applySchemaToRequest", () => {
   it("should add tools and tool_choice when schema is provided", () => {
