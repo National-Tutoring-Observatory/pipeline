@@ -4,7 +4,11 @@ import getDateString from "~/modules/app/helpers/getDateString";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 
-export default (item: Run) => {
+interface Options {
+  collectionId?: string;
+}
+
+export default (item: Run, options?: Options) => {
   const promptName = get(item, "snapshot.prompt.name", "");
 
   const meta = [
@@ -30,10 +34,15 @@ export default (item: Run) => {
     text: `Created at - ${getDateString(item.createdAt)}`,
   });
 
+  let to = `/projects/${item.project}/runs/${item._id}`;
+  if (options?.collectionId) {
+    to += `?collectionId=${options.collectionId}`;
+  }
+
   return {
     id: item._id,
     title: item.name,
-    to: `/projects/${item.project}/runs/${item._id}`,
+    to,
     meta: meta,
   };
 };
