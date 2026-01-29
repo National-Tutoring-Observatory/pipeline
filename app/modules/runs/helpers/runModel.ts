@@ -12,21 +12,12 @@ export function getRunModelInfo(run: Run): ModelInfo | undefined {
   return undefined;
 }
 
-export function getRunModelCode(run: Run): string {
-  if (run.snapshot?.model) {
-    return run.snapshot?.model?.code;
-  } else {
-    return run.model;
-  }
+export function getRunModelCode(run: Run): string | undefined {
+  return run.snapshot?.model?.code;
 }
 
-export function getRunModelDisplayName(run: Run): string {
-  const modelInfo = getRunModelInfo(run);
-  if (!modelInfo) {
-    return run.model;
-  } else {
-    return modelInfo.name;
-  }
+export function getRunModelDisplayName(run: Run): string | undefined {
+  return run.snapshot?.model?.name;
 }
 
 export default getRunModelInfo;

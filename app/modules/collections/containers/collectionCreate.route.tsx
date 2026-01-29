@@ -12,6 +12,7 @@ import requireCollectionsFeature from "~/modules/collections/helpers/requireColl
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { PromptService } from "~/modules/prompts/prompt";
+import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import { RunService } from "~/modules/runs/run";
 import type { RunAnnotationType } from "~/modules/runs/runs.types";
 import type { User } from "~/modules/users/users.types";
@@ -57,6 +58,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         // Fetch prompt details for display
         const prompt = await PromptService.findById(run.prompt as string);
 
+        const modelCode = getRunModelCode(run);
         prefillData = {
           sourceRunId: run._id,
           sourceRunName: run.name,
@@ -68,7 +70,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
               version: run.promptVersion,
             },
           ],
-          selectedModels: [run.model],
+          selectedModels: modelCode ? [modelCode] : [],
           selectedSessions: sessionIds,
         };
       }
@@ -112,7 +114,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
               version: run.promptVersion,
             });
           }
-          modelSet.add(run.model);
+          const modelCode = getRunModelCode(run);
+          if (modelCode) {
+            modelSet.add(modelCode);
+          }
         }
 
         // Fetch all prompts in a single query

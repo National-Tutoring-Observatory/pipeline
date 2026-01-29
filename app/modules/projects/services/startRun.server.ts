@@ -45,7 +45,6 @@ export default async function startRun({
     annotationType,
     prompt,
     promptVersion,
-    model: modelCode,
     sessions: sessionsAsObjects,
     snapshot,
   });
