@@ -22,15 +22,19 @@ import { Link } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getDateString from "~/modules/app/helpers/getDateString";
+import type { Collection } from "~/modules/collections/collections.types";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import ProjectDownloadDropdown from "./projectDownloadDropdown";
 import ProjectRunDownloads from "./projectRunDownloads";
+import RunCollections from "./runCollections";
 
 export default function ProjectRun({
   run,
   promptInfo,
+  collections,
+  collectionsCount,
   runSessionsProgress,
   runSessionsStep,
   breadcrumbs,
@@ -41,6 +45,8 @@ export default function ProjectRun({
 }: {
   run: Run;
   promptInfo: { name: string; version: number };
+  collections: Collection[];
+  collectionsCount: number;
   runSessionsProgress: number;
   runSessionsStep: string;
   breadcrumbs: Breadcrumb[];
@@ -49,6 +55,8 @@ export default function ProjectRun({
   onEditRunButtonClicked?: (run: Run) => void;
   onCreateCollectionButtonClicked?: (run: Run) => void;
 }) {
+  const projectId =
+    typeof run.project === "string" ? run.project : run.project._id;
   return (
     <div className="max-w-6xl p-8">
       <PageHeader>
@@ -101,6 +109,14 @@ export default function ProjectRun({
             {getRunModelDisplayName(run)}
           </StatItem>
         </div>
+        <div className="mt-6">
+          <RunCollections
+            projectId={projectId}
+            runId={run._id}
+            collections={collections}
+            collectionsCount={collectionsCount}
+          />
+        </div>
         <div className="mt-8">
           <div className="flex items-end justify-between">
             <div className="text-muted-foreground text-xs">Sessions</div>
@@ -135,7 +151,7 @@ export default function ProjectRun({
                         <TableCell className="font-medium">
                           {(session.status === "DONE" && (
                             <Link
-                              to={`/projects/${run.project}/runs/${run._id}/sessions/${session.sessionId}`}
+                              to={`/projects/${projectId}/runs/${run._id}/sessions/${session.sessionId}`}
                             >
                               {session.name}
                             </Link>

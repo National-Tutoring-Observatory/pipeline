@@ -58,7 +58,30 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     ? await CollectionService.findById(collectionId)
     : null;
 
-  return { project, run, promptInfo, collection };
+  const intent = url.searchParams.get("intent");
+  if (intent === "GET_ALL_COLLECTIONS") {
+    const runCollections = await CollectionService.paginate({
+      match: { runs: params.runId },
+      page: 1,
+      pageSize: 100,
+    });
+    return { collections: runCollections.data };
+  }
+
+  const runCollections = await CollectionService.paginate({
+    match: { runs: params.runId },
+    page: 1,
+    pageSize: 4,
+  });
+
+  return {
+    project,
+    run,
+    promptInfo,
+    collection,
+    runCollections: runCollections.data,
+    runCollectionsCount: runCollections.count,
+  };
 }
 
 export async function action({ request, params, context }: Route.ActionArgs) {
@@ -107,7 +130,14 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRunRoute() {
-  const { project, run, promptInfo, collection } = useLoaderData();
+  const {
+    project,
+    run,
+    promptInfo,
+    collection,
+    runCollections,
+    runCollectionsCount,
+  } = useLoaderData();
   const [runSessionsProgress, setRunSessionsProgress] = useState(0);
   const [runSessionsStep, setRunSessionsStep] = useState("");
   const submit = useSubmit();
@@ -263,6 +293,8 @@ export default function ProjectRunRoute() {
     <ProjectRun
       run={run}
       promptInfo={promptInfo}
+      collections={runCollections || []}
+      collectionsCount={runCollectionsCount || 0}
       runSessionsProgress={runSessionsProgress}
       runSessionsStep={runSessionsStep}
       breadcrumbs={breadcrumbs}
