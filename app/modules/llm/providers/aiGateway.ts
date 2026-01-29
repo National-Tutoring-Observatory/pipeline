@@ -1,6 +1,6 @@
 import { OpenAI } from "openai";
-import registerLLM from "../helpers/registerLLM";
 import { applySchemaToRequest } from "../helpers/applySchemaToRequest";
+import registerLLM from "../helpers/registerLLM";
 
 registerLLM("AI_GATEWAY", {
   init: () => {

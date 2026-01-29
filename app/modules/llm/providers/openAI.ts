@@ -1,6 +1,6 @@
 import { OpenAI } from "openai";
-import registerLLM from "../helpers/registerLLM.js";
 import { applySchemaToRequest } from "../helpers/applySchemaToRequest.js";
+import registerLLM from "../helpers/registerLLM.js";
 
 registerLLM("OPEN_AI", {
   init: () => {
