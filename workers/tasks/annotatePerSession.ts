@@ -2,6 +2,7 @@ import fse from "fs-extra";
 import filter from "lodash/filter";
 import map from "lodash/map.js";
 import getConversationFromJSON from "workers/helpers/getConversationFromJSON";
+import buildAnnotationSchema from "../../app/modules/llm/helpers/buildAnnotationSchema";
 import LLM from "../../app/modules/llm/llm";
 import { RunService } from "../../app/modules/runs/run";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
@@ -55,7 +56,9 @@ export default async function annotatePerSession(job: any) {
 
     const conversation = getConversationFromJSON(originalJSON);
 
-    const llm = new LLM({ model, user: team });
+    const responseSchema = buildAnnotationSchema(prompt.annotationSchema);
+
+    const llm = new LLM({ model, user: team, schema: responseSchema });
 
     llm.addSystemMessage(annotationPerSessionPrompts.system, {
       annotationSchema: JSON.stringify(prompt.annotationSchema),

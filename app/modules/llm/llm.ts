@@ -30,11 +30,13 @@ class LLM {
   methods: any;
   retries: number;
   llm: any;
+  schema: object | undefined;
 
-  constructor(options = {}) {
+  constructor(options: Record<string, any> = {}) {
     this.options = { ...DEFAULTS, ...options };
     this.messages = [];
     this.orchestratorMessage;
+    this.schema = options.schema;
     const llm = getLLM(process.env.LLM_PROVIDER || "");
     this.retries = 0;
     if (llm && llm.methods) {

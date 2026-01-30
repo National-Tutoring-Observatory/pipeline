@@ -1,4 +1,5 @@
 import { OpenAI } from "openai";
+import applySchemaToRequest from "../helpers/applySchemaToRequest.js";
 import registerLLM from "../helpers/registerLLM.js";
 
 registerLLM("OPEN_AI", {
@@ -10,17 +11,27 @@ registerLLM("OPEN_AI", {
     llm,
     options,
     messages,
+    schema,
   }: {
     llm: any;
     options: any;
     messages: Array<{ role: string; content: string }>;
+    schema?: object;
   }) => {
-    const chatCompletion = await llm.chat.completions.create({
+    const requestParams: any = {
       model: "gpt-4o",
       messages: messages,
-      response_format: { type: "json_object" },
-    });
+    };
 
-    return JSON.parse(chatCompletion.choices[0].message.content);
+    applySchemaToRequest(requestParams, schema);
+
+    const chatCompletion = await llm.chat.completions.create(requestParams);
+    const message = chatCompletion.choices[0].message;
+
+    if (message.tool_calls?.length > 0) {
+      return JSON.parse(message.tool_calls[0].function.arguments);
+    }
+
+    return JSON.parse(message.content);
   },
 });
