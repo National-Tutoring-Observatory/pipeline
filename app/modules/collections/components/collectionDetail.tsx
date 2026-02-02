@@ -61,6 +61,7 @@ export default function CollectionDetail({
   onDuplicateClicked,
   onEditClicked,
   onDeleteClicked,
+  onRunActionClicked,
 }: {
   collection: Collection;
   project: { _id: string; name: string };
@@ -94,6 +95,7 @@ export default function CollectionDetail({
   onDuplicateClicked: () => void;
   onEditClicked: () => void;
   onDeleteClicked: () => void;
+  onRunActionClicked: ({ id, action }: { id: string; action: string }) => void;
 }) {
   return (
     <div className="p-8">
@@ -203,8 +205,16 @@ export default function CollectionDetail({
                     collectionId: collection._id,
                   })
                 }
-                getItemActions={() => []}
+                getItemActions={() => [
+                  {
+                    action: "REMOVE_FROM_COLLECTION",
+                    text: "Remove",
+                    icon: <Trash2 className="h-4 w-4" />,
+                    variant: "destructive",
+                  },
+                ]}
                 onActionClicked={() => {}}
+                onItemActionClicked={onRunActionClicked}
                 emptyAttributes={{
                   title: "No runs found",
                   description: "",
