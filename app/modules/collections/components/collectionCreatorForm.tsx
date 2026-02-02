@@ -213,6 +213,7 @@ export default function CollectionCreatorForm({
                   annotationType={annotationType}
                   selectedPrompt={tempPromptId}
                   selectedPromptVersion={tempPromptVersion}
+                  selectedPrompts={selectedPrompts}
                   onSelectedPromptChanged={(id, name) => {
                     setTempPromptId(id);
                     setTempPromptName(name || null);
