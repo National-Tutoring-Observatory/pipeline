@@ -160,4 +160,16 @@ export class CollectionService {
   ): Promise<{ collection: Collection; added: string[]; skipped: string[] }> {
     return mergeCollectionsService(targetCollectionId, sourceCollectionIds);
   }
+
+  static async removeRunFromCollection(
+    collectionId: string,
+    runId: string,
+  ): Promise<Collection | null> {
+    const doc = await CollectionModel.findByIdAndUpdate(
+      collectionId,
+      { $pull: { runs: runId } },
+      { new: true },
+    );
+    return doc ? this.toCollection(doc) : null;
+  }
 }

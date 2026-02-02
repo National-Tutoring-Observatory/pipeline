@@ -16,6 +16,7 @@ import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import CollectionDetail from "~/modules/collections/components/collectionDetail";
+import RemoveRunFromCollectionDialog from "~/modules/collections/components/removeRunFromCollectionDialog";
 import exportCollection from "~/modules/collections/helpers/exportCollection";
 import requireCollectionsFeature from "~/modules/collections/helpers/requireCollectionsFeature";
 import { useCollectionActions } from "~/modules/collections/hooks/useCollectionActions";
@@ -23,6 +24,7 @@ import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
+import type { Run } from "~/modules/runs/runs.types";
 import ViewSessionContainer from "~/modules/sessions/containers/viewSessionContainer";
 import { SessionService } from "~/modules/sessions/session";
 import type { User } from "~/modules/users/users.types";
@@ -129,6 +131,14 @@ export async function action({ request, params }: Route.ActionArgs) {
       await exportCollection({ collectionId: params.collectionId, exportType });
       return {};
     }
+    case "REMOVE_RUN_FROM_COLLECTION": {
+      const { runId } = payload;
+      await CollectionService.removeRunFromCollection(
+        params.collectionId,
+        runId,
+      );
+      return { intent: "REMOVE_RUN_FROM_COLLECTION" };
+    }
     default: {
       return data({ errors: { intent: "Invalid intent" } }, { status: 400 });
     }
@@ -213,6 +223,40 @@ export default function CollectionDetailRoute() {
     const session = find(sessions.data, { _id: id });
     if (!session) return;
     addDialog(<ViewSessionContainer session={session} />);
+  };
+
+  const submitRemoveRunFromCollection = (runId: string) => {
+    submit(
+      JSON.stringify({
+        intent: "REMOVE_RUN_FROM_COLLECTION",
+        payload: { runId },
+      }),
+      { method: "POST", encType: "application/json" },
+    );
+  };
+
+  const openRemoveRunDialog = (run: Run) => {
+    addDialog(
+      <RemoveRunFromCollectionDialog
+        run={run}
+        onRemoveRunClicked={submitRemoveRunFromCollection}
+      />,
+    );
+  };
+
+  const onRunActionClicked = ({
+    id,
+    action,
+  }: {
+    id: string;
+    action: string;
+  }) => {
+    if (action === "REMOVE_FROM_COLLECTION") {
+      const run = find(runs.data, { _id: id });
+      if (run) {
+        openRemoveRunDialog(run);
+      }
+    }
   };
 
   useHandleSockets({
@@ -317,6 +361,7 @@ export default function CollectionDetailRoute() {
       onDuplicateClicked={() => openDuplicateCollectionDialog(collection)}
       onEditClicked={() => openEditCollectionDialog(collection)}
       onDeleteClicked={() => openDeleteCollectionDialog(collection)}
+      onRunActionClicked={onRunActionClicked}
     />
   );
 }
