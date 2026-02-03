@@ -24,6 +24,7 @@ import { Outlet } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Collection } from "~/modules/collections/collections.types";
+import Flag from "~/modules/featureFlags/components/flag";
 import ProjectDownloadDropdown from "~/modules/projects/components/projectDownloadDropdown";
 
 export default function CollectionDetail({
@@ -106,16 +107,18 @@ export default function CollectionDetail({
           </div>
         </PageHeaderRight>
       </PageHeader>
-      <Tabs
-        value={activeView}
-        onValueChange={onActiveViewChange}
-        className="mb-4"
-      >
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="evaluations">Evaluations</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <Flag flag="HAS_EVALUATIONS">
+        <Tabs
+          value={activeView}
+          onValueChange={onActiveViewChange}
+          className="mb-4"
+        >
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="evaluations">Evaluations</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </Flag>
       <Outlet context={{ collection, project }} />
     </div>
   );
