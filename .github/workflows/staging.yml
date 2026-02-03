@@ -184,8 +184,11 @@ jobs:
   # ------------------------------------------------------------
   # DEPLOY
   # ------------------------------------------------------------
-  deploy-staging:
-    name: Deploy to Staging ECS
+  # ------------------------------------------------------------
+  # WEB (PARALLEL)
+  # ------------------------------------------------------------
+  deploy-web-staging:
+    name: Deploy Web Service
     runs-on: ubuntu-latest
     environment: staging
     needs: build-and-push-staging
@@ -197,18 +200,16 @@ jobs:
     env:
       AWS_REGION: us-east-1
       WEB_IMAGE: ${{ needs.build-and-push-staging.outputs.web_image }}
-      WORKER_IMAGE: ${{ needs.build-and-push-staging.outputs.worker_image }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Deploy web service to staging
+      - name: Deploy web service
         run: |
           set -Eeuo pipefail
 
@@ -218,7 +219,7 @@ jobs:
           image="$WEB_IMAGE"
 
           rollback() {
-            echo "⚠️ Deployment failed. Rolling back web service..."
+            echo "⚠️ Rolling back web service"
             aws ecs update-service \
               --cluster "$cluster" \
               --service "$service" \
@@ -227,13 +228,9 @@ jobs:
             aws ecs wait services-stable \
               --cluster "$cluster" \
               --services "$service"
-
-            echo "🔙 Web service rolled back to $OLD_TD_ARN"
           }
 
           trap rollback ERR
-
-          echo "🚀 Deploying web image: $image"
 
           OLD_TD_ARN=$(aws ecs describe-services \
             --cluster "$cluster" \
@@ -275,9 +272,34 @@ jobs:
             --services "$service"
 
           trap - ERR
-          echo "✅ Web service deployed successfully"
+          echo "✅ Web service deployed"
 
-      - name: Deploy worker service to staging
+  # ------------------------------------------------------------
+  # Worker (PARALLEL)
+  # ------------------------------------------------------------
+  deploy-worker-staging:
+    name: Deploy Worker Service
+    runs-on: ubuntu-latest
+    environment: staging
+    needs: build-and-push-staging
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      AWS_REGION: us-east-1
+      WORKER_IMAGE: ${{ needs.build-and-push-staging.outputs.worker_image }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy worker service
         run: |
           set -Eeuo pipefail
 
@@ -287,7 +309,7 @@ jobs:
           image="$WORKER_IMAGE"
 
           rollback() {
-            echo "⚠️ Deployment failed. Rolling back worker service..."
+            echo "⚠️ Rolling back worker service"
             aws ecs update-service \
               --cluster "$cluster" \
               --service "$service" \
@@ -296,13 +318,9 @@ jobs:
             aws ecs wait services-stable \
               --cluster "$cluster" \
               --services "$service"
-
-            echo "🔙 Worker service rolled back to $OLD_TD_ARN"
           }
 
           trap rollback ERR
-
-          echo "🚀 Deploying worker image: $image"
 
           OLD_TD_ARN=$(aws ecs describe-services \
             --cluster "$cluster" \
@@ -344,24 +362,4 @@ jobs:
             --services "$service"
 
           trap - ERR
-          echo "✅ Worker service deployed successfully"
-
-      - name: Publish staging access links
-        if: success()
-        run: |
-          cat <<'EOF' >> "$GITHUB_STEP_SUMMARY"
-          ## 🚀 Staging Deployment Complete
-
-          **Environment:** Staging  
-          **Status:** ✅ Healthy
-
-          ### 🔗 Application Links
-          - 🌐 **Web App:** https://staging.app.nationaltutoringobservatory.org/
-
-          ### 🐳 Deployed Images
-          - **Web:** \`${{ env.WEB_IMAGE }}\`
-          - **Worker:** \`${{ env.WORKER_IMAGE }}\`
-
-          ---
-          _Tip: Bookmark the staging URL for quick testing._
-          EOF
+          echo "✅ Worker service deployed"
