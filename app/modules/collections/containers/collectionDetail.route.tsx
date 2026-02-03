@@ -1,4 +1,11 @@
-import { data, redirect, useLoaderData, useNavigate, useSubmit } from "react-router";
+import {
+  data,
+  redirect,
+  useLoaderData,
+  useLocation,
+  useNavigate,
+  useSubmit,
+} from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import CollectionDetail from "~/modules/collections/components/collectionDetail";
@@ -71,6 +78,20 @@ export default function CollectionDetailRoute() {
   const { collection, project } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const parts = location.pathname.split("/").filter(Boolean);
+  const last = parts[parts.length - 1];
+  const activeView = last === "evaluations" ? "evaluations" : "overview";
+
+  const onActiveViewChange = (value: string) => {
+    const basePath = `/projects/${project._id}/collections/${collection._id}`;
+    if (value === "overview") {
+      navigate(basePath);
+    } else {
+      navigate(`${basePath}/${value}`);
+    }
+  };
 
   const {
     openEditCollectionDialog,
@@ -123,6 +144,8 @@ export default function CollectionDetailRoute() {
       onDuplicateClicked={() => openDuplicateCollectionDialog(collection)}
       onEditClicked={() => openEditCollectionDialog(collection)}
       onDeleteClicked={() => openDeleteCollectionDialog(collection)}
+      activeView={activeView}
+      onActiveViewChange={onActiveViewChange}
     />
   );
 }

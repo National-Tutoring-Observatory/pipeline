@@ -64,9 +64,7 @@ export default function CollectionOverview({
         <StatItem label="Created">
           {getDateString(collection.createdAt)}
         </StatItem>
-        <StatItem label="Sessions">
-          {collection.sessions?.length || 0}
-        </StatItem>
+        <StatItem label="Sessions">{collection.sessions?.length || 0}</StatItem>
         <StatItem label="Runs">{collection.runs?.length || 0}</StatItem>
       </div>
 

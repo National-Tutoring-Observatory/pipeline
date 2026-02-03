@@ -20,7 +20,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { Outlet } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Collection } from "~/modules/collections/collections.types";
@@ -36,6 +36,8 @@ export default function CollectionDetail({
   onDuplicateClicked,
   onEditClicked,
   onDeleteClicked,
+  activeView,
+  onActiveViewChange,
 }: {
   collection: Collection;
   project: { _id: string; name: string };
@@ -50,23 +52,9 @@ export default function CollectionDetail({
   onDuplicateClicked: () => void;
   onEditClicked: () => void;
   onDeleteClicked: () => void;
+  activeView: "overview" | "evaluations";
+  onActiveViewChange: (value: string) => void;
 }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const parts = location.pathname.split("/").filter(Boolean);
-  const last = parts[parts.length - 1];
-  const active = last === "evaluations" ? "evaluations" : "overview";
-
-  const handleTabChange = (value: string) => {
-    const basePath = `/projects/${project._id}/collections/${collection._id}`;
-    if (value === "overview") {
-      navigate(basePath);
-    } else {
-      navigate(`${basePath}/${value}`);
-    }
-  };
-
   return (
     <div className="p-8">
       <PageHeader>
@@ -118,7 +106,11 @@ export default function CollectionDetail({
           </div>
         </PageHeaderRight>
       </PageHeader>
-      <Tabs value={active} onValueChange={handleTabChange} className="mb-4">
+      <Tabs
+        value={activeView}
+        onValueChange={onActiveViewChange}
+        className="mb-4"
+      >
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="evaluations">Evaluations</TabsTrigger>
