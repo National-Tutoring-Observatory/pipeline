@@ -10,10 +10,31 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import { CollectionService } from "../collection";
 import createRunsForCollection from "../services/createRunsForCollection.server";
 
-vi.mock("~/modules/projects/services/startRun.server", () => ({
-  default: vi.fn(async () => {
-    return { _id: "mock-run-id" };
-  }),
+vi.mock("~/modules/runs/helpers/buildRunSessions.server", () => ({
+  default: vi.fn(async (sessionIds: string[]) =>
+    sessionIds.map((id) => ({
+      sessionId: id,
+      name: "Mock Session",
+      fileType: "",
+      status: "RUNNING",
+      startedAt: new Date(),
+      finishedAt: new Date(),
+    })),
+  ),
+}));
+
+vi.mock("~/modules/runs/services/buildRunSnapshot.server", () => ({
+  default: vi.fn(async ({ promptId, promptVersionNumber, modelCode }: any) => ({
+    prompt: {
+      name: "Mock Prompt",
+      userPrompt: "Mock",
+      annotationSchema: [],
+      annotationType: "PER_UTTERANCE",
+      version: promptVersionNumber,
+    },
+    model: { code: modelCode, provider: "openai", name: modelCode },
+  })),
+  buildRunSnapshot: vi.fn(),
 }));
 
 vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
@@ -101,21 +122,13 @@ describe("createRunsForCollection", () => {
 
   it("skips duplicate prompt/model combinations", async () => {
     const existingRun = await RunService.create({
-      name: "Existing Run",
       project: projectId,
+      name: "Existing Run",
+      sessions,
       annotationType: "PER_UTTERANCE",
       prompt: prompt1._id,
       promptVersion: 1,
-      snapshot: {
-        prompt: {
-          name: "Prompt 1",
-          userPrompt: "Test",
-          annotationSchema: [],
-          annotationType: "PER_UTTERANCE",
-          version: 1,
-        },
-        model: { code: "gpt-4", name: "GPT-4", provider: "openai" },
-      },
+      modelCode: "gpt-4",
     });
 
     await CollectionService.updateById(collectionId, {
@@ -134,21 +147,13 @@ describe("createRunsForCollection", () => {
 
   it("creates only new combinations when mix of new and duplicate", async () => {
     const existingRun = await RunService.create({
-      name: "Existing Run",
       project: projectId,
+      name: "Existing Run",
+      sessions,
       annotationType: "PER_UTTERANCE",
       prompt: prompt1._id,
       promptVersion: 1,
-      snapshot: {
-        prompt: {
-          name: "Prompt 1",
-          userPrompt: "Test",
-          annotationSchema: [],
-          annotationType: "PER_UTTERANCE",
-          version: 1,
-        },
-        model: { code: "gpt-4", name: "GPT-4", provider: "openai" },
-      },
+      modelCode: "gpt-4",
     });
 
     await CollectionService.updateById(collectionId, {

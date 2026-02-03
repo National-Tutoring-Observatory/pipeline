@@ -1,4 +1,3 @@
-import startRun from "~/modules/projects/services/startRun.server";
 import { RunService } from "~/modules/runs/run";
 import type { RunAnnotationType } from "~/modules/runs/runs.types";
 import { CollectionService } from "../collection";
@@ -58,20 +57,10 @@ export default async function createRunsForCollection(
         : prompt.promptId;
       const runName = `${collection.name} - ${promptLabel} - ${model}`;
 
-      const newRun = await RunService.create({
-        project: collection.project,
-        name: runName,
-        annotationType: collection.annotationType as RunAnnotationType,
-        isRunning: false,
-        isComplete: false,
-      });
-
-      generatedRunIds.push(newRun._id);
-
       try {
-        const startedRun = await startRun({
-          runId: newRun._id,
-          projectId: collection.project,
+        const newRun = await RunService.create({
+          project: collection.project,
+          name: runName,
           sessions: collection.sessions || [],
           annotationType: collection.annotationType as RunAnnotationType,
           prompt: prompt.promptId,
@@ -79,14 +68,9 @@ export default async function createRunsForCollection(
           modelCode: model,
         });
 
-        if (!startedRun) {
-          runErrors.push(
-            `Failed to start run for prompt ${prompt.promptId} and model ${model}`,
-          );
-          continue;
-        }
+        generatedRunIds.push(newRun._id);
 
-        await RunService.createAnnotations(startedRun);
+        await RunService.start(newRun);
       } catch (error) {
         runErrors.push(
           `Error creating run for prompt ${prompt.promptId} and model ${model}: ${error}`,

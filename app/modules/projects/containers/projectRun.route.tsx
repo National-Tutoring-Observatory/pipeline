@@ -21,7 +21,6 @@ import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import EditRunDialog from "../components/editRunDialog";
 import ProjectRun from "../components/projectRun";
-import startRun from "../services/startRun.server";
 import type { Route } from "./+types/projectRun.route";
 
 interface PromptInfo {
@@ -84,35 +83,16 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   };
 }
 
-export async function action({ request, params, context }: Route.ActionArgs) {
-  const { intent, entityId, payload = {} } = await request.json();
+export async function action({ request, params }: Route.ActionArgs) {
+  const { intent, payload = {} } = await request.json();
 
-  const { annotationType, prompt, promptVersion, model, sessions, exportType } =
-    payload;
+  const { exportType } = payload;
 
   switch (intent) {
-    case "START_RUN": {
-      const { runId, projectId } = params;
-
-      const run = await startRun({
-        runId,
-        projectId,
-        sessions,
-        annotationType,
-        prompt,
-        promptVersion,
-        modelCode: model,
-      });
-
-      if (!run) throw new Error("Run not created");
-      await RunService.createAnnotations(run);
-
-      return {};
-    }
     case "RE_RUN": {
       const run = await RunService.findById(params.runId);
       if (!run) throw new Error("Run not found");
-      await RunService.createAnnotations(run);
+      await RunService.start(run);
 
       return {};
     }

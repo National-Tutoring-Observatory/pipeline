@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { CollectionService } from "~/modules/collections/collection";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { ProjectService } from "~/modules/projects/project";
-import { RunService } from "~/modules/runs/run";
 import { SessionService } from "~/modules/sessions/session";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/collectionAddRuns.route";
 
@@ -75,7 +75,7 @@ describe("collectionAddRuns.route loader", () => {
       runs: [],
       annotationType: "PER_UTTERANCE",
     });
-    const eligibleRun = await RunService.create({
+    const eligibleRun = await createTestRun({
       name: "Eligible Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -124,7 +124,7 @@ describe("collectionAddRuns.route loader", () => {
       name: "Test Session",
       project: project._id,
     });
-    const existingRun = await RunService.create({
+    const existingRun = await createTestRun({
       name: "Existing Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -234,7 +234,7 @@ describe("collectionAddRuns.route action", () => {
       runs: [],
       annotationType: "PER_UTTERANCE",
     });
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",

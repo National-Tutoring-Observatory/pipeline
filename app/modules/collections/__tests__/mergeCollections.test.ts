@@ -3,7 +3,6 @@ import { CollectionService } from "~/modules/collections/collection";
 import type { Collection } from "~/modules/collections/collections.types";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
-import { RunService } from "~/modules/runs/run";
 import { SessionService } from "~/modules/sessions/session";
 import type { Session } from "~/modules/sessions/sessions.types";
 import { TeamService } from "~/modules/teams/team";
@@ -11,6 +10,7 @@ import type { Team } from "~/modules/teams/teams.types";
 import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 
 describe("CollectionService.findMergeableCollections", () => {
   let user: User;
@@ -131,7 +131,7 @@ describe("CollectionService.findMergeableCollections", () => {
   });
 
   it("excludes collections with incompatible annotation types", async () => {
-    const targetRun = await RunService.create({
+    const targetRun = await createTestRun({
       name: "Target Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -155,7 +155,7 @@ describe("CollectionService.findMergeableCollections", () => {
       annotationType: "PER_UTTERANCE",
     });
 
-    const incompatibleRun = await RunService.create({
+    const incompatibleRun = await createTestRun({
       name: "Incompatible Run",
       project: project._id,
       annotationType: "PER_SESSION",
@@ -274,7 +274,7 @@ describe("CollectionService.mergeCollections", () => {
       annotationType: "PER_UTTERANCE",
     });
 
-    const sourceRun = await RunService.create({
+    const sourceRun = await createTestRun({
       name: "Source Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -311,7 +311,7 @@ describe("CollectionService.mergeCollections", () => {
   });
 
   it("skips duplicate runs", async () => {
-    const existingRun = await RunService.create({
+    const existingRun = await createTestRun({
       name: "Existing Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -335,7 +335,7 @@ describe("CollectionService.mergeCollections", () => {
       annotationType: "PER_UTTERANCE",
     });
 
-    const newRun = await RunService.create({
+    const newRun = await createTestRun({
       name: "New Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -372,7 +372,7 @@ describe("CollectionService.mergeCollections", () => {
   });
 
   it("keeps source collection intact", async () => {
-    const sourceRun = await RunService.create({
+    const sourceRun = await createTestRun({
       name: "Source Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -443,7 +443,7 @@ describe("CollectionService.mergeCollections", () => {
   });
 
   it("returns added and skipped counts", async () => {
-    const existingRun = await RunService.create({
+    const existingRun = await createTestRun({
       name: "Existing Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -467,7 +467,7 @@ describe("CollectionService.mergeCollections", () => {
       annotationType: "PER_UTTERANCE",
     });
 
-    const newRun1 = await RunService.create({
+    const newRun1 = await createTestRun({
       name: "New Run 1",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -483,7 +483,7 @@ describe("CollectionService.mergeCollections", () => {
       ],
     });
 
-    const newRun2 = await RunService.create({
+    const newRun2 = await createTestRun({
       name: "New Run 2",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -526,7 +526,7 @@ describe("CollectionService.mergeCollections", () => {
       annotationType: "PER_UTTERANCE",
     });
 
-    const run1 = await RunService.create({
+    const run1 = await createTestRun({
       name: "Run 1",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -542,7 +542,7 @@ describe("CollectionService.mergeCollections", () => {
       ],
     });
 
-    const run2 = await RunService.create({
+    const run2 = await createTestRun({
       name: "Run 2",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -558,7 +558,7 @@ describe("CollectionService.mergeCollections", () => {
       ],
     });
 
-    const run3 = await RunService.create({
+    const run3 = await createTestRun({
       name: "Run 3",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -604,7 +604,7 @@ describe("CollectionService.mergeCollections", () => {
   });
 
   it("deduplicates runs when merging multiple collections with overlapping runs", async () => {
-    const sharedRun = await RunService.create({
+    const sharedRun = await createTestRun({
       name: "Shared Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -620,7 +620,7 @@ describe("CollectionService.mergeCollections", () => {
       ],
     });
 
-    const uniqueRun1 = await RunService.create({
+    const uniqueRun1 = await createTestRun({
       name: "Unique Run 1",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -636,7 +636,7 @@ describe("CollectionService.mergeCollections", () => {
       ],
     });
 
-    const uniqueRun2 = await RunService.create({
+    const uniqueRun2 = await createTestRun({
       name: "Unique Run 2",
       project: project._id,
       annotationType: "PER_UTTERANCE",

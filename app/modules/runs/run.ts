@@ -3,7 +3,9 @@ import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import runSchema from "~/lib/schemas/run.schema";
 import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import createRunAnnotations from "~/modules/projects/services/createRunAnnotations.server";
-import type { Run } from "./runs.types";
+import buildRunSessions from "./helpers/buildRunSessions.server";
+import type { CreateRunProps, Run } from "./runs.types";
+import buildRunSnapshot from "./services/buildRunSnapshot.server";
 
 const RunModel = mongoose.model("Run", runSchema);
 
@@ -64,9 +66,30 @@ export class RunService {
     return doc ? this.toRun(doc) : null;
   }
 
-  static async create(data: Partial<Run>): Promise<Run> {
-    const doc = await RunModel.create(data);
+  static async create(props: CreateRunProps): Promise<Run> {
+    const sessions = await buildRunSessions(props.sessions);
+    const snapshot = await buildRunSnapshot({
+      promptId: props.prompt,
+      promptVersionNumber: props.promptVersion,
+      modelCode: props.modelCode,
+    });
+
+    const doc = await RunModel.create({
+      project: props.project,
+      name: props.name,
+      annotationType: props.annotationType,
+      prompt: props.prompt,
+      promptVersion: props.promptVersion,
+      sessions,
+      snapshot,
+      isRunning: false,
+      isComplete: false,
+    });
     return this.toRun(doc);
+  }
+
+  static async start(run: Run): Promise<void> {
+    await createRunAnnotations(run);
   }
 
   static async updateById(
@@ -87,9 +110,5 @@ export class RunService {
   static async findOne(match: Record<string, any>): Promise<Run | null> {
     const docs = await this.find({ match });
     return docs[0] || null;
-  }
-
-  static async createAnnotations(run: Run): Promise<void> {
-    await createRunAnnotations(run);
   }
 }

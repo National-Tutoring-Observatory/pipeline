@@ -13,7 +13,6 @@ import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import type { CreateRun } from "~/modules/runs/runs.types";
 import ProjectCreateRun from "../components/projectCreateRun";
-import startRun from "../services/startRun.server";
 import type { Route } from "./+types/projectCreateRun.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -53,33 +52,21 @@ export async function action({ request, params, context }: Route.ActionArgs) {
         throw new Error("Invalid annotation type.");
       }
 
-      const newRun = await RunService.create({
+      const run = await RunService.create({
         project: params.projectId,
         name,
-        annotationType,
-        isRunning: false,
-        isComplete: false,
-      });
-
-      const startedRun = await startRun({
-        runId: newRun._id,
-        projectId: params.projectId,
         sessions,
-        annotationType: annotationType,
+        annotationType,
         prompt,
         promptVersion: Number(promptVersion),
         modelCode: model,
       });
 
-      if (!startedRun) {
-        throw new Error("Failed to start run");
-      }
-
-      await RunService.createAnnotations(startedRun);
+      await RunService.start(run);
 
       return {
         intent: "CREATE_AND_START_RUN",
-        data: startedRun,
+        data: run,
       };
     }
     default: {

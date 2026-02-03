@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { RunService } from "~/modules/runs/run";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
@@ -8,6 +8,37 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/projectRun.route";
 import { ProjectService } from "../project";
+
+vi.mock("~/modules/runs/helpers/buildRunSessions.server", () => ({
+  default: vi.fn(async (sessionIds: string[]) =>
+    sessionIds.map((id) => ({
+      sessionId: id,
+      name: "Mock Session",
+      fileType: "",
+      status: "RUNNING",
+      startedAt: new Date(),
+      finishedAt: new Date(),
+    })),
+  ),
+}));
+
+vi.mock("~/modules/runs/services/buildRunSnapshot.server", () => ({
+  default: vi.fn(async ({ promptId, promptVersionNumber, modelCode }: any) => ({
+    prompt: {
+      name: "Mock Prompt",
+      userPrompt: "Mock",
+      annotationSchema: [],
+      annotationType: "PER_UTTERANCE",
+      version: promptVersionNumber,
+    },
+    model: { code: modelCode, provider: "openai", name: modelCode },
+  })),
+  buildRunSnapshot: vi.fn(),
+}));
+
+vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
+  default: vi.fn(async () => {}),
+}));
 
 describe("projectRun.route loader", () => {
   beforeEach(async () => {
@@ -56,22 +87,13 @@ describe("projectRun.route loader", () => {
     });
 
     const run = await RunService.create({
-      name: "Test Run",
       project: project._id,
-      isRunning: false,
-      isComplete: false,
+      name: "Test Run",
+      sessions: [],
+      annotationType: "PER_UTTERANCE",
       prompt: new Types.ObjectId().toString(),
       promptVersion: 1,
-      snapshot: {
-        prompt: {
-          name: "Test Prompt",
-          userPrompt: "Test user prompt",
-          annotationSchema: [],
-          annotationType: "CLASSIFICATION",
-          version: 1,
-        },
-        model: { code: "gpt-4", provider: "openai", name: "GPT-4" },
-      },
+      modelCode: "gpt-4",
     });
 
     const cookieHeader = await loginUser(user._id);
@@ -87,7 +109,7 @@ describe("projectRun.route loader", () => {
     expect(res).not.toBeInstanceOf(Response);
     const loaderData = res as any;
     expect(loaderData.promptInfo).toBeDefined();
-    expect(loaderData.promptInfo.name).toBe("Test Prompt");
+    expect(loaderData.promptInfo.name).toBe("Mock Prompt");
     expect(loaderData.promptInfo.version).toBe(1);
   });
 
@@ -110,10 +132,13 @@ describe("projectRun.route loader", () => {
     });
 
     const run = await RunService.create({
-      name: "Test Run",
       project: project._id,
-      isRunning: false,
-      isComplete: false,
+      name: "Test Run",
+      sessions: [],
+      annotationType: "PER_UTTERANCE",
+      prompt: new Types.ObjectId().toString(),
+      promptVersion: 1,
+      modelCode: "gpt-4",
     });
 
     const cookieHeader = await loginUser(otherUser._id);

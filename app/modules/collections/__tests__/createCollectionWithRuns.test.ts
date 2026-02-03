@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ProjectService } from "~/modules/projects/project";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
@@ -7,6 +7,37 @@ import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createCollectionWithRuns from "../services/createCollectionWithRuns.server";
+
+vi.mock("~/modules/runs/helpers/buildRunSessions.server", () => ({
+  default: vi.fn(async (sessionIds: string[]) =>
+    sessionIds.map((id) => ({
+      sessionId: id,
+      name: "Mock Session",
+      fileType: "",
+      status: "RUNNING",
+      startedAt: new Date(),
+      finishedAt: new Date(),
+    })),
+  ),
+}));
+
+vi.mock("~/modules/runs/services/buildRunSnapshot.server", () => ({
+  default: vi.fn(async ({ promptId, promptVersionNumber, modelCode }: any) => ({
+    prompt: {
+      name: "Mock Prompt",
+      userPrompt: "Mock",
+      annotationSchema: [],
+      annotationType: "PER_UTTERANCE",
+      version: promptVersionNumber,
+    },
+    model: { code: modelCode, provider: "openai", name: modelCode },
+  })),
+  buildRunSnapshot: vi.fn(),
+}));
+
+vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
+  default: vi.fn(async () => {}),
+}));
 
 describe("createCollectionWithRuns", () => {
   let projectId: string;
