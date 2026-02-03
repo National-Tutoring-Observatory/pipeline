@@ -165,6 +165,9 @@ export default function ProjectRunsRoute() {
       case "DUPLICATE":
         onDuplicateRunButtonClicked(run);
         break;
+      case "ADD_TO_COLLECTION":
+        navigate(`/projects/${projectId}/runs/${id}/add-to-collection`);
+        break;
       case "CREATE_COLLECTION":
         navigate(`/projects/${projectId}/create-collection?fromRun=${id}`);
         break;

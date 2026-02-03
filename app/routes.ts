@@ -51,6 +51,10 @@ export default [
       "modules/projects/containers/projectRun.route.tsx",
     ),
     route(
+      ":projectId/runs/:runId/add-to-collection",
+      "modules/runs/containers/runAddToCollection.route.tsx",
+    ),
+    route(
       ":projectId/runs/:runId/sessions/:sessionId",
       "modules/projects/containers/projectRunSessions.route.tsx",
     ),

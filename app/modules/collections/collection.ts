@@ -5,9 +5,11 @@ import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Run, RunAnnotationType } from "~/modules/runs/runs.types";
 import type { Collection, PromptReference } from "./collections.types";
 import addRunsToCollectionService from "./services/addRunsToCollection.server";
+import createCollectionForRunService from "./services/createCollectionForRun.server";
 import createCollectionWithRuns from "./services/createCollectionWithRuns.server";
 import createRunsForCollectionService from "./services/createRunsForCollection.server";
 import deleteCollectionService from "./services/deleteCollection.server";
+import findEligibleCollectionsForRunService from "./services/findEligibleCollectionsForRun.server";
 import findEligibleRunsService from "./services/findEligibleRuns.server";
 import findMergeableCollectionsService from "./services/findMergeableCollections.server";
 import mergeCollectionsService from "./services/mergeCollections.server";
@@ -127,6 +129,20 @@ export class CollectionService {
     collectionId: string,
   ): Promise<{ status: string }> {
     return deleteCollectionService({ collectionId });
+  }
+
+  static async findEligibleCollectionsForRun(
+    runId: string,
+    options?: { page?: number; pageSize?: number; search?: string },
+  ): Promise<{ data: Collection[]; count: number; totalPages: number }> {
+    return findEligibleCollectionsForRunService(runId, options);
+  }
+
+  static async createCollectionForRun(
+    runId: string,
+    name: string,
+  ): Promise<Collection> {
+    return createCollectionForRunService(runId, name);
   }
 
   static async findEligibleRunsForCollection(
