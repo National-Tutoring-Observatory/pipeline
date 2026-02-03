@@ -6,6 +6,7 @@ import type { Run, RunAnnotationType } from "~/modules/runs/runs.types";
 import type { Collection, PromptReference } from "./collections.types";
 import addRunsToCollectionService from "./services/addRunsToCollection.server";
 import createCollectionWithRuns from "./services/createCollectionWithRuns.server";
+import createRunsForCollectionService from "./services/createRunsForCollection.server";
 import deleteCollectionService from "./services/deleteCollection.server";
 import findEligibleRunsService from "./services/findEligibleRuns.server";
 import findMergeableCollectionsService from "./services/findMergeableCollections.server";
@@ -171,5 +172,13 @@ export class CollectionService {
       { new: true },
     );
     return doc ? this.toCollection(doc) : null;
+  }
+
+  static async createRunsForCollection(payload: {
+    collectionId: string;
+    prompts: PromptReference[];
+    models: string[];
+  }) {
+    return createRunsForCollectionService(payload);
   }
 }
