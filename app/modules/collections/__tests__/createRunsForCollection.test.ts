@@ -10,33 +10,6 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import { CollectionService } from "../collection";
 import createRunsForCollection from "../services/createRunsForCollection.server";
 
-vi.mock("~/modules/runs/helpers/buildRunSessions.server", () => ({
-  default: vi.fn(async (sessionIds: string[]) =>
-    sessionIds.map((id) => ({
-      sessionId: id,
-      name: "Mock Session",
-      fileType: "",
-      status: "RUNNING",
-      startedAt: new Date(),
-      finishedAt: new Date(),
-    })),
-  ),
-}));
-
-vi.mock("~/modules/runs/services/buildRunSnapshot.server", () => ({
-  default: vi.fn(async ({ promptId, promptVersionNumber, modelCode }: any) => ({
-    prompt: {
-      name: "Mock Prompt",
-      userPrompt: "Mock",
-      annotationSchema: [],
-      annotationType: "PER_UTTERANCE",
-      version: promptVersionNumber,
-    },
-    model: { code: modelCode, provider: "openai", name: modelCode },
-  })),
-  buildRunSnapshot: vi.fn(),
-}));
-
 vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),
 }));
@@ -97,7 +70,7 @@ describe("createRunsForCollection", () => {
     const result = await createRunsForCollection({
       collectionId: "000000000000000000000000",
       prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: ["gpt-4"],
+      models: ["openai.gpt-4.1"],
     });
 
     expect(result.collection).toBeNull();
@@ -109,7 +82,7 @@ describe("createRunsForCollection", () => {
     const result = await createRunsForCollection({
       collectionId,
       prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: ["gpt-4"],
+      models: ["openai.gpt-4.1"],
     });
 
     expect(result.collection).not.toBeNull();
@@ -128,7 +101,7 @@ describe("createRunsForCollection", () => {
       annotationType: "PER_UTTERANCE",
       prompt: prompt1._id,
       promptVersion: 1,
-      modelCode: "gpt-4",
+      modelCode: "openai.gpt-4.1",
     });
 
     await CollectionService.updateById(collectionId, {
@@ -138,7 +111,7 @@ describe("createRunsForCollection", () => {
     const result = await createRunsForCollection({
       collectionId,
       prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: ["gpt-4"],
+      models: ["openai.gpt-4.1"],
     });
 
     expect(result.collection).not.toBeNull();
@@ -153,7 +126,7 @@ describe("createRunsForCollection", () => {
       annotationType: "PER_UTTERANCE",
       prompt: prompt1._id,
       promptVersion: 1,
-      modelCode: "gpt-4",
+      modelCode: "openai.gpt-4.1",
     });
 
     await CollectionService.updateById(collectionId, {
@@ -163,7 +136,7 @@ describe("createRunsForCollection", () => {
     const result = await createRunsForCollection({
       collectionId,
       prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: ["gpt-4", "gpt-3.5-turbo"],
+      models: ["openai.gpt-4.1", "openai.gpt-4.1-mini"],
     });
 
     expect(result.collection).not.toBeNull();
@@ -178,7 +151,7 @@ describe("createRunsForCollection", () => {
     const result = await createRunsForCollection({
       collectionId,
       prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: ["gpt-4", "gpt-3.5-turbo"],
+      models: ["openai.gpt-4.1", "openai.gpt-4.1-mini"],
     });
 
     expect(result.createdRunIds).toHaveLength(2);
@@ -198,7 +171,7 @@ describe("createRunsForCollection", () => {
     await createRunsForCollection({
       collectionId,
       prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: ["gpt-4"],
+      models: ["openai.gpt-4.1"],
     });
 
     const updatedCollection = await CollectionService.findById(collectionId);
