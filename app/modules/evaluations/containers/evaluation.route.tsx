@@ -1,6 +1,4 @@
-import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import { redirect, useLoaderData } from "react-router";
-import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import Evaluation from "~/modules/evaluations/components/evaluation";
@@ -58,15 +56,5 @@ export default function EvaluationRoute() {
     { text: evaluation.name },
   ];
 
-  return (
-    <div className="px-8 pt-8">
-      <PageHeader>
-        <PageHeaderLeft>
-          <Breadcrumbs breadcrumbs={breadcrumbs} />
-        </PageHeaderLeft>
-      </PageHeader>
-
-      <Evaluation evaluation={evaluation} />
-    </div>
-  );
+  return <Evaluation evaluation={evaluation} breadcrumbs={breadcrumbs} />;
 }
