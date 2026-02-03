@@ -291,6 +291,7 @@ export default function ProjectRoute() {
 Route files (`containers/*.route.tsx`) are **containers** — they handle all wiring. Components (`components/*.tsx`) are **dumb** — they receive data and callbacks as props.
 
 **Route file (container) responsibilities:**
+
 - `loader` and `action` functions
 - `useFetcher` / `useSubmit` / `useNavigate` / `useLoaderData`
 - `useSearchQueryParams` hook
@@ -299,6 +300,7 @@ Route files (`containers/*.route.tsx`) are **containers** — they handle all wi
 - Passes everything to the component as props
 
 **Component responsibilities:**
+
 - Receives all data and callbacks as props
 - Manages only local UI state (e.g., selected checkboxes, form inputs)
 - No router hooks (`useFetcher`, `useNavigate`, `useLoaderData`, etc.)
@@ -362,8 +364,10 @@ useEffect(() => {
 }, [fetcher.state, fetcher.data, navigate]);
 
 const submitAction = () => {
-  fetcher.submit(JSON.stringify({ intent: "DO_THING", payload: {} }),
-    { method: "POST", encType: "application/json" });
+  fetcher.submit(JSON.stringify({ intent: "DO_THING", payload: {} }), {
+    method: "POST",
+    encType: "application/json",
+  });
 };
 
 // ❌ useSubmit — causes navigation, toast gets lost
