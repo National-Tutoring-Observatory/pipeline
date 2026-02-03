@@ -77,6 +77,10 @@ export default [
       ":projectId/collections/:collectionId/merge",
       "modules/collections/containers/collectionMerge.route.tsx",
     ),
+    route(
+      ":projectId/collections/:collectionId/create-evaluation",
+      "modules/evaluations/containers/evaluationCreate.route.tsx",
+    ),
   ]),
   ...prefix("prompts", [
     index("modules/prompts/containers/prompts.route.tsx"),
