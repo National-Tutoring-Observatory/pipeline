@@ -1,9 +1,11 @@
 import { Collection as CollectionUI } from "@/components/ui/collection";
-import type { Collection } from "~/modules/collections/collections.types";
 import type { Evaluation } from "~/modules/evaluations/evaluations.types";
+import evaluationsActions from "../helpers/evaluationsActions";
+import evaluationsSortOptions from "../helpers/evaluationsSortOptions";
+import getEvaluationsEmptyAttributes from "../helpers/getEvaluationsEmptyAttributes";
+import getEvaluationsItemAttributes from "../helpers/getEvaluationsItemAttributes";
 
 export default function CollectionEvaluations({
-  collection,
   evaluations,
   totalPages,
   currentPage,
@@ -16,7 +18,6 @@ export default function CollectionEvaluations({
   onItemClicked,
   onActionClicked,
 }: {
-  collection: Collection;
   evaluations: Evaluation[];
   totalPages: number;
   currentPage: number;
@@ -33,18 +34,12 @@ export default function CollectionEvaluations({
     <CollectionUI
       items={evaluations}
       itemsLayout="list"
-      getItemAttributes={(item) => ({
-        id: item._id,
-        title: item.name,
-        description: `${item.runs?.length || 0} runs`,
-      })}
+      actions={evaluationsActions}
+      getItemAttributes={getEvaluationsItemAttributes}
       getItemActions={() => []}
       onActionClicked={onActionClicked}
       onItemClicked={onItemClicked}
-      emptyAttributes={{
-        title: "No evaluations found",
-        description: "Create an evaluation to get started",
-      }}
+      emptyAttributes={getEvaluationsEmptyAttributes()}
       hasSearch
       searchValue={searchValue}
       onSearchValueChanged={onSearchValueChanged}
@@ -53,10 +48,7 @@ export default function CollectionEvaluations({
       totalPages={totalPages}
       onPaginationChanged={onCurrentPageChanged}
       sortValue={sortValue}
-      sortOptions={[
-        { text: "Name", value: "name" },
-        { text: "Created", value: "createdAt" },
-      ]}
+      sortOptions={evaluationsSortOptions}
       onSortValueChanged={onSortValueChanged}
       isSyncing={isSyncing}
       filters={[]}

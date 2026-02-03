@@ -1,4 +1,9 @@
-import { redirect, useLoaderData, useOutletContext } from "react-router";
+import {
+  redirect,
+  useLoaderData,
+  useNavigate,
+  useOutletContext,
+} from "react-router";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
@@ -42,10 +47,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export default function CollectionEvaluationsRoute() {
   const { evaluations } = useLoaderData<typeof loader>();
-  const { collection } = useOutletContext<{
+  const { collection, project } = useOutletContext<{
     collection: Collection;
     project: { _id: string; name: string };
   }>();
+  const navigate = useNavigate();
 
   const {
     searchValue,
@@ -64,11 +70,16 @@ export default function CollectionEvaluationsRoute() {
 
   const onItemClicked = (_id: string) => {};
 
-  const onActionClicked = (_action: string) => {};
+  const onActionClicked = (action: string) => {
+    if (action === "CREATE_EVALUATION") {
+      navigate(
+        `/projects/${project._id}/collections/${collection._id}/create-evaluation`,
+      );
+    }
+  };
 
   return (
     <CollectionEvaluations
-      collection={collection}
       evaluations={evaluations.data}
       totalPages={evaluations.totalPages}
       currentPage={currentPage}
