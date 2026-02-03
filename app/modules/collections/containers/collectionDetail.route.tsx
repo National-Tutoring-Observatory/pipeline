@@ -355,6 +355,11 @@ export default function CollectionDetailRoute() {
           `/projects/${project._id}/collections/${collection._id}/add-runs`,
         )
       }
+      onCreateRunsClicked={() =>
+        navigate(
+          `/projects/${project._id}/collections/${collection._id}/create-runs`,
+        )
+      }
       onMergeClicked={() =>
         navigate(`/projects/${project._id}/collections/${collection._id}/merge`)
       }

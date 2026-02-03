@@ -63,6 +63,10 @@ export default [
       "modules/collections/containers/collectionAddRuns.route.tsx",
     ),
     route(
+      ":projectId/collections/:collectionId/create-runs",
+      "modules/collections/containers/collectionCreateRuns.route.tsx",
+    ),
+    route(
       ":projectId/collections/:collectionId/merge",
       "modules/collections/containers/collectionMerge.route.tsx",
     ),

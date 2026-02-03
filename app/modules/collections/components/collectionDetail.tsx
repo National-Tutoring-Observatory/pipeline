@@ -13,11 +13,13 @@ import {
   PageHeaderRight,
 } from "@/components/ui/pageHeader";
 import { StatItem } from "@/components/ui/stat-item";
+
 import {
   Copy,
   GitMerge,
   MoreHorizontal,
   Pencil,
+  Play,
   Plus,
   Trash2,
 } from "lucide-react";
@@ -57,6 +59,7 @@ export default function CollectionDetail({
   onSessionsCurrentPageChanged,
   onSessionsSortValueChanged,
   onAddRunsClicked,
+  onCreateRunsClicked,
   onMergeClicked,
   onDuplicateClicked,
   onEditClicked,
@@ -91,6 +94,7 @@ export default function CollectionDetail({
   onSessionsCurrentPageChanged: (page: number) => void;
   onSessionsSortValueChanged: (sort: string) => void;
   onAddRunsClicked: () => void;
+  onCreateRunsClicked: () => void;
   onMergeClicked: () => void;
   onDuplicateClicked: () => void;
   onEditClicked: () => void;
@@ -200,6 +204,13 @@ export default function CollectionDetail({
               <CollectionUI
                 items={runs}
                 itemsLayout="list"
+                actions={[
+                  {
+                    action: "CREATE_RUNS",
+                    text: "Create",
+                    icon: <Play className="mr-1 h-4 w-4" />,
+                  },
+                ]}
                 getItemAttributes={(item) =>
                   getProjectRunsItemAttributes(item, {
                     collectionId: collection._id,
@@ -213,7 +224,11 @@ export default function CollectionDetail({
                     variant: "destructive",
                   },
                 ]}
-                onActionClicked={() => {}}
+                onActionClicked={(action) => {
+                  if (action === "CREATE_RUNS") {
+                    onCreateRunsClicked();
+                  }
+                }}
                 onItemActionClicked={onRunActionClicked}
                 emptyAttributes={{
                   title: "No runs found",
