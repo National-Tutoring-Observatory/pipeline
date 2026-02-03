@@ -179,6 +179,10 @@ export default function ProjectRunRoute() {
     navigate(`/projects/${project._id}/create-collection?fromRun=${run._id}`);
   };
 
+  const onAddToCollectionButtonClicked = (run: Run) => {
+    navigate(`/projects/${project._id}/runs/${run._id}/add-to-collection`);
+  };
+
   useHandleSockets({
     event: "ANNOTATE_RUN",
     matches: [
@@ -282,6 +286,7 @@ export default function ProjectRunRoute() {
       onReRunClicked={onReRunClicked}
       onEditRunButtonClicked={onEditRunButtonClicked}
       onCreateCollectionButtonClicked={onCreateCollectionButtonClicked}
+      onAddToCollectionButtonClicked={onAddToCollectionButtonClicked}
     />
   );
 }

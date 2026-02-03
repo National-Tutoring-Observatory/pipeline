@@ -1,7 +1,7 @@
 import { Collection } from "@/components/ui/collection";
 import type { Run } from "~/modules/runs/runs.types";
 import getProjectRunsEmptyAttributes from "../helpers/getProjectRunsEmptyAttributes";
-import getProjectRunsItemActions from "../helpers/getProjectRunsItemActions";
+import useProjectRunsItemActions from "../helpers/getProjectRunsItemActions";
 import getProjectRunsItemAttributes from "../helpers/getProjectRunsItemAttributes";
 import projectRunsActions from "../helpers/projectRunsActions";
 import projectRunsFilters from "../helpers/projectRunsFilters";
@@ -36,6 +36,8 @@ export default function ProjectRuns({
   onFiltersValueChanged: (filterValue: any) => void;
   onSortValueChanged: (sortValue: any) => void;
 }) {
+  const getItemActions = useProjectRunsItemActions();
+
   return (
     <div className="mt-8">
       <Collection
@@ -54,7 +56,7 @@ export default function ProjectRuns({
         isSyncing={isSyncing}
         emptyAttributes={getProjectRunsEmptyAttributes()}
         getItemAttributes={getProjectRunsItemAttributes}
-        getItemActions={getProjectRunsItemActions}
+        getItemActions={getItemActions}
         onActionClicked={onActionClicked}
         onItemActionClicked={onItemActionClicked}
         onSearchValueChanged={onSearchValueChanged}

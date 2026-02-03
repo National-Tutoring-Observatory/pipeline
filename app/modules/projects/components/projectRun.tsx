@@ -1,6 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   PageHeader,
   PageHeaderLeft,
   PageHeaderRight,
@@ -17,12 +24,13 @@ import {
 } from "@/components/ui/table";
 import find from "lodash/find";
 import map from "lodash/map";
-import { Pencil } from "lucide-react";
+import { FolderPlus, ListPlus, MoreHorizontal, Pencil } from "lucide-react";
 import { Link } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { Collection } from "~/modules/collections/collections.types";
+import Flag from "~/modules/featureFlags/components/flag";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
@@ -42,6 +50,7 @@ export default function ProjectRun({
   onReRunClicked,
   onEditRunButtonClicked,
   onCreateCollectionButtonClicked,
+  onAddToCollectionButtonClicked,
 }: {
   run: Run;
   promptInfo: { name: string; version: number };
@@ -52,8 +61,9 @@ export default function ProjectRun({
   breadcrumbs: Breadcrumb[];
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void;
   onReRunClicked: () => void;
-  onEditRunButtonClicked?: (run: Run) => void;
-  onCreateCollectionButtonClicked?: (run: Run) => void;
+  onEditRunButtonClicked: (run: Run) => void;
+  onCreateCollectionButtonClicked: (run: Run) => void;
+  onAddToCollectionButtonClicked: (run: Run) => void;
 }) {
   const projectId =
     typeof run.project === "string" ? run.project : run.project._id;
@@ -72,16 +82,36 @@ export default function ProjectRun({
               onExportButtonClicked={onExportRunButtonClicked}
             />
           )}
-          {onEditRunButtonClicked && (
-            <Button
-              variant="ghost"
-              onClick={() => onEditRunButtonClicked(run)}
-              className="ml-2"
-            >
-              <Pencil />
-              Edit
-            </Button>
-          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="data-[state=open]:bg-muted">
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <Flag flag="HAS_PROJECT_COLLECTIONS">
+                <>
+                  <DropdownMenuItem
+                    onClick={() => onAddToCollectionButtonClicked(run)}
+                  >
+                    <ListPlus className="mr-2 h-4 w-4" />
+                    Add to Collection
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => onCreateCollectionButtonClicked(run)}
+                  >
+                    <FolderPlus className="mr-2 h-4 w-4" />
+                    Create Collection
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              </Flag>
+              <DropdownMenuItem onClick={() => onEditRunButtonClicked(run)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </PageHeaderRight>
       </PageHeader>
       <div className="relative mb-8">
