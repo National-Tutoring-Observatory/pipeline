@@ -8,6 +8,7 @@ export default (item: Evaluation) => {
   return {
     id: item._id,
     title: item.name,
+    to: `/projects/${item.project}/collections/${item.collection}/evaluations/${item._id}`,
     meta: [
       {
         icon: <Play />,
