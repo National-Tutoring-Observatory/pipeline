@@ -57,6 +57,13 @@ export default [
     route(
       ":projectId/collections/:collectionId",
       "modules/collections/containers/collectionDetail.route.tsx",
+      [
+        index("modules/collections/containers/collectionOverview.route.tsx"),
+        route(
+          "evaluations",
+          "modules/collections/containers/collectionEvaluations.route.tsx",
+        ),
+      ],
     ),
     route(
       ":projectId/collections/:collectionId/add-runs",
