@@ -17,33 +17,6 @@ import { CollectionService } from "../collection";
 import type { Collection } from "../collections.types";
 import { action, loader } from "../containers/collectionCreateRuns.route";
 
-vi.mock("~/modules/runs/helpers/buildRunSessions.server", () => ({
-  default: vi.fn(async (sessionIds: string[]) =>
-    sessionIds.map((id) => ({
-      sessionId: id,
-      name: "Mock Session",
-      fileType: "",
-      status: "RUNNING",
-      startedAt: new Date(),
-      finishedAt: new Date(),
-    })),
-  ),
-}));
-
-vi.mock("~/modules/runs/services/buildRunSnapshot.server", () => ({
-  default: vi.fn(async ({ promptId, promptVersionNumber, modelCode }: any) => ({
-    prompt: {
-      name: "Mock Prompt",
-      userPrompt: "Mock",
-      annotationSchema: [],
-      annotationType: "PER_UTTERANCE",
-      version: promptVersionNumber,
-    },
-    model: { code: modelCode, provider: "openai", name: modelCode },
-  })),
-  buildRunSnapshot: vi.fn(),
-}));
-
 vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),
 }));
@@ -161,7 +134,7 @@ describe("collectionCreateRuns.route", () => {
             prompts: [
               { promptId: prompt._id, promptName: "Test Prompt", version: 1 },
             ],
-            models: ["gpt-4"],
+            models: ["openai.gpt-4.1"],
           },
         }),
       });
@@ -182,7 +155,7 @@ describe("collectionCreateRuns.route", () => {
           intent: "CREATE_RUNS",
           payload: {
             prompts: [],
-            models: ["gpt-4"],
+            models: ["openai.gpt-4.1"],
           },
         }),
       });
@@ -228,7 +201,7 @@ describe("collectionCreateRuns.route", () => {
             prompts: [
               { promptId: prompt._id, promptName: "Test Prompt", version: 1 },
             ],
-            models: ["gpt-4"],
+            models: ["openai.gpt-4.1"],
           },
         }),
       });

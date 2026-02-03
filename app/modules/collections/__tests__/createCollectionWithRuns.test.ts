@@ -8,33 +8,6 @@ import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createCollectionWithRuns from "../services/createCollectionWithRuns.server";
 
-vi.mock("~/modules/runs/helpers/buildRunSessions.server", () => ({
-  default: vi.fn(async (sessionIds: string[]) =>
-    sessionIds.map((id) => ({
-      sessionId: id,
-      name: "Mock Session",
-      fileType: "",
-      status: "RUNNING",
-      startedAt: new Date(),
-      finishedAt: new Date(),
-    })),
-  ),
-}));
-
-vi.mock("~/modules/runs/services/buildRunSnapshot.server", () => ({
-  default: vi.fn(async ({ promptId, promptVersionNumber, modelCode }: any) => ({
-    prompt: {
-      name: "Mock Prompt",
-      userPrompt: "Mock",
-      annotationSchema: [],
-      annotationType: "PER_UTTERANCE",
-      version: promptVersionNumber,
-    },
-    model: { code: modelCode, provider: "openai", name: modelCode },
-  })),
-  buildRunSnapshot: vi.fn(),
-}));
-
 vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),
 }));
@@ -87,7 +60,7 @@ describe("createCollectionWithRuns", () => {
       name: "Test Collection",
       sessions,
       prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: ["gpt-4"],
+      models: ["openai.gpt-4.1"],
       annotationType: "PER_UTTERANCE",
     });
 
