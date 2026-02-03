@@ -42,9 +42,9 @@ export interface CreateRun {
   selectedSessions: string[];
 }
 
-export interface StartRunProps {
-  runId: string;
-  projectId: string;
+export interface CreateRunProps {
+  project: string;
+  name: string;
   sessions: string[];
   annotationType: RunAnnotationType;
   prompt: string;

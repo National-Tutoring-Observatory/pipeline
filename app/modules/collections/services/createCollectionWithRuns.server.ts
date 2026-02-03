@@ -1,4 +1,3 @@
-import startRun from "~/modules/projects/services/startRun.server";
 import { RunService } from "~/modules/runs/run";
 import type { RunAnnotationType } from "~/modules/runs/runs.types";
 import { CollectionService } from "../collection";
@@ -34,20 +33,10 @@ export default async function createCollectionWithRuns(
         : prompt.promptId;
       const runName = `${collection.name} - ${promptLabel} - ${model}`;
 
-      const newRun = await RunService.create({
-        project: payload.project,
-        name: runName,
-        annotationType: payload.annotationType,
-        isRunning: false,
-        isComplete: false,
-      });
-
-      generatedRunIds.push(newRun._id);
-
       try {
-        const startedRun = await startRun({
-          runId: newRun._id,
-          projectId: payload.project,
+        const newRun = await RunService.create({
+          project: payload.project,
+          name: runName,
           sessions: payload.sessions,
           annotationType: payload.annotationType,
           prompt: prompt.promptId,
@@ -55,17 +44,12 @@ export default async function createCollectionWithRuns(
           modelCode: model,
         });
 
-        if (!startedRun) {
-          runErrors.push(
-            `Failed to start run for prompt ${prompt.promptId} and model ${model}`,
-          );
-          continue;
-        }
+        generatedRunIds.push(newRun._id);
 
-        await RunService.createAnnotations(startedRun);
+        await RunService.start(newRun);
       } catch (error) {
         runErrors.push(
-          `Error creating run for prompt ${prompt.promptId} and model ${model}: ${error}`,
+          `Error starting run for prompt ${prompt.promptId} and model ${model}: ${error}`,
         );
       }
     }

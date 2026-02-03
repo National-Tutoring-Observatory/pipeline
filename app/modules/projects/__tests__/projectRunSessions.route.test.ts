@@ -1,10 +1,10 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { RunService } from "~/modules/runs/run";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/projectRunSessions.route";
 import { ProjectService } from "../project";
@@ -114,7 +114,7 @@ describe("projectRunSessions.route loader", () => {
       team: team._id,
     });
 
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       isRunning: false,
@@ -154,7 +154,7 @@ describe("projectRunSessions.route loader", () => {
     });
 
     const sessionId = new Types.ObjectId().toString();
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       isRunning: false,

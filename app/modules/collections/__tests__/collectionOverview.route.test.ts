@@ -4,7 +4,6 @@ import type { Collection } from "~/modules/collections/collections.types";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
-import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import { SessionService } from "~/modules/sessions/session";
 import type { Session } from "~/modules/sessions/sessions.types";
@@ -13,6 +12,7 @@ import type { Team } from "~/modules/teams/teams.types";
 import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/collectionOverview.route";
 
@@ -52,7 +52,7 @@ describe("collectionOverview.route loader", () => {
       name: "Test Session",
       project: project._id,
     });
-    run = await RunService.create({
+    run = await createTestRun({
       name: "Test Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -137,7 +137,7 @@ describe("collectionOverview.route loader", () => {
       name: "Test Session 2",
       project: project._id,
     });
-    const run2 = await RunService.create({
+    const run2 = await createTestRun({
       name: "Test Run 2",
       project: project._id,
       annotationType: "PER_UTTERANCE",

@@ -5,6 +5,7 @@ import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/projectRuns.route";
 import { ProjectService } from "../project";
@@ -55,7 +56,7 @@ describe("projectRuns.route loader", () => {
       team: team._id,
     });
 
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       isRunning: false,
@@ -123,7 +124,7 @@ describe("projectRuns.route action - UPDATE_RUN", () => {
       team: team._id,
     });
 
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Old Name",
       project: project._id,
       isRunning: false,

@@ -3,7 +3,6 @@ import { CollectionService } from "~/modules/collections/collection";
 import type { Collection } from "~/modules/collections/collections.types";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
-import { RunService } from "~/modules/runs/run";
 import { SessionService } from "~/modules/sessions/session";
 import type { Session } from "~/modules/sessions/sessions.types";
 import { TeamService } from "~/modules/teams/team";
@@ -11,6 +10,7 @@ import type { Team } from "~/modules/teams/teams.types";
 import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 
 describe("CollectionService.findEligibleRunsForCollection", () => {
   let user: User;
@@ -67,7 +67,7 @@ describe("CollectionService.findEligibleRunsForCollection", () => {
         annotationType: "PER_UTTERANCE",
       });
 
-      await RunService.create({
+      await createTestRun({
         name: "Run from other project",
         project: project2._id,
         annotationType: "PER_UTTERANCE",
@@ -107,7 +107,7 @@ describe("CollectionService.findEligibleRunsForCollection", () => {
         annotationType: "PER_UTTERANCE",
       });
 
-      const run = await RunService.create({
+      const run = await createTestRun({
         name: "Run from same project",
         project: project._id,
         annotationType: "PER_UTTERANCE",
@@ -150,7 +150,7 @@ describe("CollectionService.findEligibleRunsForCollection", () => {
         annotationType: "PER_UTTERANCE",
       });
 
-      const matchingRun = await RunService.create({
+      const matchingRun = await createTestRun({
         name: "Matching annotation type",
         project: project._id,
         annotationType: "PER_UTTERANCE",
@@ -166,7 +166,7 @@ describe("CollectionService.findEligibleRunsForCollection", () => {
         ],
       });
 
-      await RunService.create({
+      await createTestRun({
         name: "Non-matching annotation type",
         project: project._id,
         annotationType: "PER_SESSION",
@@ -201,7 +201,7 @@ describe("CollectionService.findEligibleRunsForCollection", () => {
         annotationType: "PER_UTTERANCE",
       });
 
-      await RunService.create({
+      await createTestRun({
         name: "Run with different sessions",
         project: project._id,
         annotationType: "PER_UTTERANCE",
@@ -241,7 +241,7 @@ describe("CollectionService.findEligibleRunsForCollection", () => {
         annotationType: "PER_UTTERANCE",
       });
 
-      const run = await RunService.create({
+      const run = await createTestRun({
         name: "Run with same sessions different order",
         project: project._id,
         annotationType: "PER_UTTERANCE",
@@ -282,7 +282,7 @@ describe("CollectionService.findEligibleRunsForCollection", () => {
         annotationType: "PER_UTTERANCE",
       });
 
-      await RunService.create({
+      await createTestRun({
         name: "Run with subset of sessions",
         project: project._id,
         annotationType: "PER_UTTERANCE",
@@ -314,7 +314,7 @@ describe("CollectionService.findEligibleRunsForCollection", () => {
         annotationType: "PER_UTTERANCE",
       });
 
-      await RunService.create({
+      await createTestRun({
         name: "Run with superset of sessions",
         project: project._id,
         annotationType: "PER_UTTERANCE",
@@ -348,7 +348,7 @@ describe("CollectionService.findEligibleRunsForCollection", () => {
 
   describe("duplicates", () => {
     it("excludes runs already in collection", async () => {
-      const existingRun = await RunService.create({
+      const existingRun = await createTestRun({
         name: "Existing Run",
         project: project._id,
         annotationType: "PER_UTTERANCE",
@@ -372,7 +372,7 @@ describe("CollectionService.findEligibleRunsForCollection", () => {
         annotationType: "PER_UTTERANCE",
       });
 
-      const newRun = await RunService.create({
+      const newRun = await createTestRun({
         name: "New Run",
         project: project._id,
         annotationType: "PER_UTTERANCE",
@@ -408,7 +408,7 @@ describe("CollectionService.findEligibleRunsForCollection", () => {
       });
 
       for (let i = 0; i < 5; i++) {
-        await RunService.create({
+        await createTestRun({
           name: `Run ${i}`,
           project: project._id,
           annotationType: "PER_UTTERANCE",
@@ -494,7 +494,7 @@ describe("CollectionService.addRunsToCollection", () => {
       annotationType: "PER_UTTERANCE",
     });
 
-    const run1 = await RunService.create({
+    const run1 = await createTestRun({
       name: "Run 1",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -510,7 +510,7 @@ describe("CollectionService.addRunsToCollection", () => {
       ],
     });
 
-    const run2 = await RunService.create({
+    const run2 = await createTestRun({
       name: "Run 2",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -540,7 +540,7 @@ describe("CollectionService.addRunsToCollection", () => {
   });
 
   it("skips runs already in collection", async () => {
-    const existingRun = await RunService.create({
+    const existingRun = await createTestRun({
       name: "Existing Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -564,7 +564,7 @@ describe("CollectionService.addRunsToCollection", () => {
       annotationType: "PER_UTTERANCE",
     });
 
-    const newRun = await RunService.create({
+    const newRun = await createTestRun({
       name: "New Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -601,7 +601,7 @@ describe("CollectionService.addRunsToCollection", () => {
       annotationType: "PER_UTTERANCE",
     });
 
-    const invalidRun = await RunService.create({
+    const invalidRun = await createTestRun({
       name: "Invalid Run - wrong sessions",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -644,7 +644,7 @@ describe("CollectionService.addRunsToCollection", () => {
       annotationType: "PER_UTTERANCE",
     });
 
-    const validRun = await RunService.create({
+    const validRun = await createTestRun({
       name: "Valid Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -660,7 +660,7 @@ describe("CollectionService.addRunsToCollection", () => {
       ],
     });
 
-    const invalidRun = await RunService.create({
+    const invalidRun = await createTestRun({
       name: "Invalid Run - wrong project",
       project: project2._id,
       annotationType: "PER_UTTERANCE",

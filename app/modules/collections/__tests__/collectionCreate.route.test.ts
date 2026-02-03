@@ -16,10 +16,35 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/collectionCreate.route";
 
-vi.mock("~/modules/projects/services/startRun.server", () => ({
-  default: vi.fn(async () => {
-    return { _id: "mock-run-id" };
-  }),
+vi.mock("~/modules/runs/helpers/buildRunSessions.server", () => ({
+  default: vi.fn(async (sessionIds: string[]) =>
+    sessionIds.map((id) => ({
+      sessionId: id,
+      name: "Mock Session",
+      fileType: "",
+      status: "RUNNING",
+      startedAt: new Date(),
+      finishedAt: new Date(),
+    })),
+  ),
+}));
+
+vi.mock("~/modules/runs/services/buildRunSnapshot.server", () => ({
+  default: vi.fn(async ({ promptId, promptVersionNumber, modelCode }: any) => ({
+    prompt: {
+      name: "Mock Prompt",
+      userPrompt: "Mock",
+      annotationSchema: [],
+      annotationType: "PER_UTTERANCE",
+      version: promptVersionNumber,
+    },
+    model: { code: modelCode, provider: "openai", name: modelCode },
+  })),
+  buildRunSnapshot: vi.fn(),
+}));
+
+vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
+  default: vi.fn(async () => {}),
 }));
 
 describe("collectionCreate.route", () => {

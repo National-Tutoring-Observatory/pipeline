@@ -4,6 +4,7 @@ import { TeamService } from "app/modules/teams/team";
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import clearDocumentDB from "../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../test/helpers/createTestRun";
 import updateRunSession from "../updateRunSession";
 
 describe("updateRunSession helper", () => {
@@ -32,7 +33,7 @@ describe("updateRunSession helper", () => {
       createdBy: new Types.ObjectId().toString(),
     });
     const sessionId = new Types.ObjectId().toString();
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       isRunning: false,
@@ -73,7 +74,7 @@ describe("updateRunSession helper", () => {
       createdBy: new Types.ObjectId().toString(),
     });
     const sessionId = new Types.ObjectId().toString();
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       isRunning: false,
@@ -113,7 +114,7 @@ describe("updateRunSession helper", () => {
     });
     const sessionId1 = new Types.ObjectId().toString();
     const sessionId2 = new Types.ObjectId().toString();
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       isRunning: false,

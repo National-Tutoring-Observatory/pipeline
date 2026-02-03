@@ -5,13 +5,15 @@ import type { Collection } from "~/modules/collections/collections.types";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
-import { RunService } from "~/modules/runs/run";
+import type { Run } from "~/modules/runs/runs.types";
 import { SessionService } from "~/modules/sessions/session";
+import type { Session } from "~/modules/sessions/sessions.types";
 import { TeamService } from "~/modules/teams/team";
 import type { Team } from "~/modules/teams/teams.types";
 import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/collectionDetail.route";
 
@@ -25,6 +27,8 @@ describe("collectionDetail.route loader", () => {
   let team: Team;
   let project: Project;
   let collection: Collection;
+  let session: Session;
+  let run: Run;
   let cookieHeader: string;
 
   beforeEach(async () => {
@@ -45,11 +49,11 @@ describe("collectionDetail.route loader", () => {
       createdBy: user._id,
       team: team._id,
     });
-    const session = await SessionService.create({
+    session = await SessionService.create({
       name: "Test Session",
       project: project._id,
     });
-    const run = await RunService.create({
+    run = await createTestRun({
       name: "Test Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -146,6 +150,43 @@ describe("collectionDetail.route loader", () => {
     expect(data.collection._id).toBe(collection._id);
     expect(data.collection.name).toBe("Test Collection");
     expect(data.project._id).toBe(project._id);
+  });
+
+  it("returns collection with multiple runs and sessions", async () => {
+    const session2 = await SessionService.create({
+      name: "Test Session 2",
+      project: project._id,
+    });
+    const run2 = await createTestRun({
+      name: "Test Run 2",
+      project: project._id,
+      annotationType: "PER_UTTERANCE",
+      isRunning: true,
+      isComplete: false,
+    });
+
+    const multiCollection = await CollectionService.create({
+      name: "Multi Collection",
+      project: project._id,
+      sessions: [session._id, session2._id],
+      runs: [run._id, run2._id],
+      annotationType: "PER_UTTERANCE",
+    });
+
+    const res = await loader({
+      request: new Request("http://localhost/", {
+        headers: { cookie: cookieHeader },
+      }),
+      params: { projectId: project._id, collectionId: multiCollection._id },
+      unstable_pattern: "",
+      context: {},
+    } as any);
+
+    expect(res).not.toBeInstanceOf(Response);
+    const data = res as LoaderResult;
+    expect(data.collection._id).toBe(multiCollection._id);
+    expect(data.collection.runs).toHaveLength(2);
+    expect(data.collection.sessions).toHaveLength(2);
   });
 
   it("returns collection data in correct format", async () => {

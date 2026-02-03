@@ -6,7 +6,6 @@ import type { Collection } from "~/modules/collections/collections.types";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
-import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import { TeamService } from "~/modules/teams/team";
@@ -15,6 +14,7 @@ import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import "~/storageAdapters/local";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/downloadCollection.route";
 
@@ -45,7 +45,7 @@ describe("downloadCollection.route loader", () => {
       createdBy: user._id,
       team: team._id,
     });
-    run = await RunService.create({
+    run = await createTestRun({
       name: "Test Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
