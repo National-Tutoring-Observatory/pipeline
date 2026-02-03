@@ -53,20 +53,22 @@ export default async function createRunsForCollection(
         continue;
       }
 
+      const promptLabel = prompt.promptName
+        ? `${prompt.promptName} v${prompt.version}`
+        : prompt.promptId;
+      const runName = `${collection.name} - ${promptLabel} - ${model}`;
+
+      const newRun = await RunService.create({
+        project: collection.project,
+        name: runName,
+        annotationType: collection.annotationType as RunAnnotationType,
+        isRunning: false,
+        isComplete: false,
+      });
+
+      generatedRunIds.push(newRun._id);
+
       try {
-        const promptLabel = prompt.promptName
-          ? `${prompt.promptName} v${prompt.version}`
-          : prompt.promptId;
-        const runName = `${collection.name} - ${promptLabel} - ${model}`;
-
-        const newRun = await RunService.create({
-          project: collection.project,
-          name: runName,
-          annotationType: collection.annotationType as RunAnnotationType,
-          isRunning: false,
-          isComplete: false,
-        });
-
         const startedRun = await startRun({
           runId: newRun._id,
           projectId: collection.project,
@@ -85,7 +87,6 @@ export default async function createRunsForCollection(
         }
 
         await RunService.createAnnotations(startedRun);
-        generatedRunIds.push(newRun._id);
       } catch (error) {
         runErrors.push(
           `Error creating run for prompt ${prompt.promptId} and model ${model}: ${error}`,
