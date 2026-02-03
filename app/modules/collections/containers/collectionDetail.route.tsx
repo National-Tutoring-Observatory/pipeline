@@ -6,6 +6,7 @@ import {
   useNavigate,
   useSubmit,
 } from "react-router";
+import type { Breadcrumb } from "~/modules/app/app.types";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import CollectionDetail from "~/modules/collections/components/collectionDetail";
@@ -124,8 +125,21 @@ export default function CollectionDetailRoute() {
     { text: "Projects", link: "/" },
     { text: project.name, link: `/projects/${project._id}` },
     { text: "Collections", link: `/projects/${project._id}/collections` },
-    { text: collection.name },
-  ];
+  ] as Breadcrumb[];
+
+  if (activeView === "evaluations") {
+    breadcrumbs.push(
+      {
+        text: collection.name,
+        link: `/projects/${project._id}/collections/${collection._id}`,
+      },
+      {
+        text: "Evaluations",
+      },
+    );
+  } else {
+    breadcrumbs.push({ text: collection.name });
+  }
 
   return (
     <CollectionDetail
