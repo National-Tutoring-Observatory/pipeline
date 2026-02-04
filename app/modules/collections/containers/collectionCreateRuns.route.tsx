@@ -19,8 +19,8 @@ import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import type { User } from "~/modules/users/users.types";
-import CollectionCreateRunsContainer from "./collectionCreateRuns.container";
 import type { Route } from "./+types/collectionCreateRuns.route";
+import CollectionCreateRunsContainer from "./collectionCreateRuns.container";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = (await getSessionUser({ request })) as User;
