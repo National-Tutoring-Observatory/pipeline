@@ -4,6 +4,7 @@ import { Empty, EmptyContent, EmptyTitle } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
 import { StatItem } from "@/components/ui/stat-item";
 import { AlertTriangle, Info } from "lucide-react";
+import { useState } from "react";
 import type { Collection, PromptReference } from "../collections.types";
 import { calculateEstimates } from "../helpers/calculateEstimates";
 import {
@@ -11,35 +12,30 @@ import {
   buildUsedPromptModelSet,
   type PromptModelPair,
 } from "../helpers/getUsedPromptModels";
-import CollectionCreatorModels from "./collectionCreatorModels";
-import CollectionCreatorPrompts from "./collectionCreatorPrompts";
-import EstimateSummary from "./estimateSummary";
+import CollectionCreatorModels from "../components/collectionCreatorModels";
+import CollectionCreatorPrompts from "../components/collectionCreatorPrompts";
+import EstimateSummary from "../components/estimateSummary";
 
-interface CollectionCreateRunsFormProps {
+interface CollectionCreateRunsContainerProps {
   collection: Collection;
-  selectedPrompts: PromptReference[];
-  selectedModels: string[];
   usedPromptModels: PromptModelPair[];
-  onPromptsChanged: (prompts: PromptReference[]) => void;
-  onModelsChanged: (models: string[]) => void;
-  onCreateClicked: () => void;
-  onCancelClicked: () => void;
+  onSubmit: (requestBody: string) => void;
+  onCancel: () => void;
   isLoading: boolean;
   errors: Record<string, string>;
 }
 
-export default function CollectionCreateRunsForm({
+export default function CollectionCreateRunsContainer({
   collection,
-  selectedPrompts,
-  selectedModels,
   usedPromptModels,
-  onPromptsChanged,
-  onModelsChanged,
-  onCreateClicked,
-  onCancelClicked,
+  onSubmit,
+  onCancel,
   isLoading,
   errors,
-}: CollectionCreateRunsFormProps) {
+}: CollectionCreateRunsContainerProps) {
+  const [selectedPrompts, setSelectedPrompts] = useState<PromptReference[]>([]);
+  const [selectedModels, setSelectedModels] = useState<string[]>([]);
+
   const usedKeys = buildUsedPromptModelSet(usedPromptModels);
 
   const estimation = calculateEstimates(
@@ -90,6 +86,17 @@ export default function CollectionCreateRunsForm({
     selectedModels.length === 0 ||
     newRunsCount === 0;
 
+  const handleCreateRuns = () => {
+    const requestBody = JSON.stringify({
+      intent: "CREATE_RUNS",
+      payload: {
+        prompts: selectedPrompts,
+        models: selectedModels,
+      },
+    });
+    onSubmit(requestBody);
+  };
+
   return (
     <div>
       <div className="flex gap-8 p-8">
@@ -128,12 +135,12 @@ export default function CollectionCreateRunsForm({
           <CollectionCreatorPrompts
             annotationType={collection.annotationType}
             selectedPrompts={selectedPrompts}
-            onPromptsChanged={onPromptsChanged}
+            onPromptsChanged={setSelectedPrompts}
           />
 
           <CollectionCreatorModels
             selectedModels={selectedModels}
-            onModelsChanged={onModelsChanged}
+            onModelsChanged={setSelectedModels}
           />
         </div>
 
@@ -260,10 +267,10 @@ export default function CollectionCreateRunsForm({
           )}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={onCancelClicked}>
+          <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button onClick={onCreateClicked} disabled={isSubmitDisabled}>
+          <Button onClick={handleCreateRuns} disabled={isSubmitDisabled}>
             {isLoading && <Spinner className="mr-2" />}
             {isLoading ? "Creating..." : `Create ${newRunsCount} Run(s)`}
           </Button>

@@ -1,5 +1,5 @@
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   data,
   redirect,
@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
-import type { PromptReference } from "~/modules/collections/collections.types";
 import getUsedPromptModels, {
   type PromptModelPair,
 } from "~/modules/collections/helpers/getUsedPromptModels";
@@ -20,7 +19,7 @@ import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import type { User } from "~/modules/users/users.types";
-import CollectionCreateRunsForm from "../components/collectionCreateRunsForm";
+import CollectionCreateRunsContainer from "./collectionCreateRuns.container";
 import type { Route } from "./+types/collectionCreateRuns.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -136,9 +135,6 @@ export default function CollectionCreateRunsRoute() {
   const navigate = useNavigate();
   const fetcher = useFetcher();
 
-  const [selectedPrompts, setSelectedPrompts] = useState<PromptReference[]>([]);
-  const [selectedModels, setSelectedModels] = useState<string[]>([]);
-
   useEffect(() => {
     if (fetcher.state !== "idle") return;
     if (fetcher.data?.intent !== "CREATE_RUNS") return;
@@ -157,17 +153,11 @@ export default function CollectionCreateRunsRoute() {
     }
   }, [fetcher.state, fetcher.data, navigate, project._id, collection._id]);
 
-  const handleCreateRuns = () => {
-    fetcher.submit(
-      JSON.stringify({
-        intent: "CREATE_RUNS",
-        payload: {
-          prompts: selectedPrompts,
-          models: selectedModels,
-        },
-      }),
-      { method: "POST", encType: "application/json" },
-    );
+  const handleSubmit = (requestBody: string) => {
+    fetcher.submit(requestBody, {
+      method: "POST",
+      encType: "application/json",
+    });
   };
 
   const handleCancel = () => {
@@ -200,15 +190,11 @@ export default function CollectionCreateRunsRoute() {
         </div>
       </div>
 
-      <CollectionCreateRunsForm
+      <CollectionCreateRunsContainer
         collection={collection}
-        selectedPrompts={selectedPrompts}
-        selectedModels={selectedModels}
         usedPromptModels={usedPromptModels as PromptModelPair[]}
-        onPromptsChanged={setSelectedPrompts}
-        onModelsChanged={setSelectedModels}
-        onCreateClicked={handleCreateRuns}
-        onCancelClicked={handleCancel}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
         isLoading={fetcher.state !== "idle"}
         errors={(fetcher.data as any)?.errors || {}}
       />
