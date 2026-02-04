@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { PrefillData, PromptReference } from "../collections.types";
-import { calculateEstimates } from "../helpers/calculateEstimates";
 import CollectionCreatorAnnotationType from "../components/collectionCreatorAnnotationType";
 import CollectionCreatorFooter from "../components/collectionCreatorFooter";
 import CollectionCreatorFormAlerts from "../components/collectionCreatorFormAlerts";
@@ -9,6 +8,7 @@ import CollectionCreatorName from "../components/collectionCreatorName";
 import CollectionCreatorPrompts from "../components/collectionCreatorPrompts";
 import CollectionCreatorSessions from "../components/collectionCreatorSessions";
 import CollectionRunPreview from "../components/collectionRunPreview";
+import { calculateEstimates } from "../helpers/calculateEstimates";
 
 function getDefaultName(prefillData?: PrefillData | null): string {
   if (!prefillData) return "";
