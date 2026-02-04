@@ -1,13 +1,9 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyContent, EmptyTitle } from "@/components/ui/empty";
-import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { StatItem } from "@/components/ui/stat-item";
-import { AlertTriangle, Info, Plus, X } from "lucide-react";
-import { useState } from "react";
-import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
-import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
+import { AlertTriangle, Info } from "lucide-react";
 import type { Collection, PromptReference } from "../collections.types";
 import { calculateEstimates } from "../helpers/calculateEstimates";
 import {
@@ -15,6 +11,8 @@ import {
   buildUsedPromptModelSet,
   type PromptModelPair,
 } from "../helpers/getUsedPromptModels";
+import CollectionCreatorModels from "./collectionCreatorModels";
+import CollectionCreatorPrompts from "./collectionCreatorPrompts";
 import EstimateSummary from "./estimateSummary";
 
 interface CollectionCreateRunsFormProps {
@@ -42,13 +40,6 @@ export default function CollectionCreateRunsForm({
   isLoading,
   errors,
 }: CollectionCreateRunsFormProps) {
-  const [tempPromptId, setTempPromptId] = useState<string | null>(null);
-  const [tempPromptName, setTempPromptName] = useState<string | null>(null);
-  const [tempPromptVersion, setTempPromptVersion] = useState<number | null>(
-    null,
-  );
-  const [tempModel, setTempModel] = useState<string>("");
-
   const usedKeys = buildUsedPromptModelSet(usedPromptModels);
 
   const estimation = calculateEstimates(
@@ -88,46 +79,6 @@ export default function CollectionCreateRunsForm({
       }
     }
     return count;
-  };
-
-  const onAddPrompt = () => {
-    if (!tempPromptId || !tempPromptName || tempPromptVersion == null) return;
-
-    const newPrompt: PromptReference = {
-      promptId: tempPromptId,
-      promptName: tempPromptName,
-      version: tempPromptVersion,
-    };
-
-    if (
-      !selectedPrompts.some(
-        (p) => p.promptId === tempPromptId && p.version === tempPromptVersion,
-      )
-    ) {
-      onPromptsChanged([...selectedPrompts, newPrompt]);
-    }
-
-    setTempPromptId(null);
-    setTempPromptName(null);
-    setTempPromptVersion(null);
-  };
-
-  const onRemovePrompt = (promptId: string, version: number) => {
-    onPromptsChanged(
-      selectedPrompts.filter(
-        (p) => !(p.promptId === promptId && p.version === version),
-      ),
-    );
-  };
-
-  const onAddModel = () => {
-    if (!tempModel || selectedModels.includes(tempModel)) return;
-    onModelsChanged([...selectedModels, tempModel]);
-    setTempModel("");
-  };
-
-  const onRemoveModel = (model: string) => {
-    onModelsChanged(selectedModels.filter((m) => m !== model));
   };
 
   const newRunsCount = getNewRunsCount();
@@ -174,111 +125,16 @@ export default function CollectionCreateRunsForm({
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label className="font-bold">Prompts</Label>
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <PromptSelectorContainer
-                  annotationType={collection.annotationType}
-                  selectedPrompt={tempPromptId}
-                  selectedPromptVersion={tempPromptVersion}
-                  selectedPrompts={selectedPrompts}
-                  onSelectedPromptChanged={(id, name) => {
-                    setTempPromptId(id);
-                    setTempPromptName(name || null);
-                  }}
-                  onSelectedPromptVersionChanged={setTempPromptVersion}
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={onAddPrompt}
-                  disabled={
-                    !tempPromptId ||
-                    tempPromptVersion == null ||
-                    selectedPrompts.some(
-                      (p) =>
-                        p.promptId === tempPromptId &&
-                        p.version === tempPromptVersion,
-                    )
-                  }
-                  className="gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add Prompt
-                </Button>
-              </div>
+          <CollectionCreatorPrompts
+            annotationType={collection.annotationType}
+            selectedPrompts={selectedPrompts}
+            onPromptsChanged={onPromptsChanged}
+          />
 
-              {selectedPrompts.length > 0 && (
-                <div className="space-y-2 border-t pt-2">
-                  {selectedPrompts.map((prompt) => (
-                    <div
-                      key={`${prompt.promptId}-${prompt.version}`}
-                      className="flex items-center justify-between rounded bg-white p-2"
-                    >
-                      <span className="text-sm">
-                        {prompt.promptName} (v{prompt.version})
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() =>
-                          onRemovePrompt(prompt.promptId, prompt.version)
-                        }
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="font-bold">Models</Label>
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <ModelSelectorContainer
-                  selectedModel={tempModel}
-                  excludeModels={selectedModels}
-                  onSelectedModelChanged={setTempModel}
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={onAddModel}
-                  disabled={!tempModel || selectedModels.includes(tempModel)}
-                  className="gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add Model
-                </Button>
-              </div>
-
-              {selectedModels.length > 0 && (
-                <div className="space-y-2 border-t pt-2">
-                  {selectedModels.map((model) => (
-                    <div
-                      key={model}
-                      className="flex items-center justify-between rounded bg-white p-2"
-                    >
-                      <span className="text-sm">{model}</span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => onRemoveModel(model)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <CollectionCreatorModels
+            selectedModels={selectedModels}
+            onModelsChanged={onModelsChanged}
+          />
         </div>
 
         <div
