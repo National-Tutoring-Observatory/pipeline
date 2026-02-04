@@ -22,98 +22,28 @@ jobs:
       aws-region: us-east-1
     secrets:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
-  # ------------------------------------------------------------
-  # BUILD WEB (PARALLEL)
-  # ------------------------------------------------------------
   build-web-staging:
-    name: Build & Push Web Container
-    runs-on: ubuntu-latest
-    environment: staging
     needs: preflight
-
-    permissions:
-      id-token: write
-      contents: read
-
-    outputs:
-      web_image: ${{ steps.image.outputs.web_image }}
-
-    env:
-      AWS_REGION: us-east-1
-      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - uses: aws-actions/amazon-ecr-login@v2
-
-      - id: tag
-        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
-
-      - id: image
-        env:
-          TAG: ${{ steps.tag.outputs.tag }}
-        run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
-
-          docker build -t "$ECR_REPOSITORY:$TAG" .
-          docker tag "$ECR_REPOSITORY:$TAG" "$ECR_URI:$TAG"
-          docker push "$ECR_URI:$TAG"
-
-          echo "web_image=$ECR_URI:$TAG" >> "$GITHUB_OUTPUT"
-
-  # ------------------------------------------------------------
-  # BUILD WORKER (PARALLEL)
-  # ------------------------------------------------------------
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
+    with:
+      environment: staging
+      aws-region: us-east-1
+      dockerfile: Dockerfile
+      image-suffix: ""
+      output-name: web_image
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   build-worker-staging:
-    name: Build & Push Worker Container
-    runs-on: ubuntu-latest
-    environment: staging
     needs: preflight
-
-    permissions:
-      id-token: write
-      contents: read
-
-    outputs:
-      worker_image: ${{ steps.image.outputs.worker_image }}
-
-    env:
-      AWS_REGION: us-east-1
-      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - uses: aws-actions/amazon-ecr-login@v2
-
-      - id: tag
-        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
-
-      - id: image
-        env:
-          TAG: ${{ steps.tag.outputs.tag }}
-        run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
-
-          docker build -f workers/Dockerfile -t "$ECR_REPOSITORY:$TAG-worker" .
-          docker tag "$ECR_REPOSITORY:$TAG-worker" "$ECR_URI:$TAG-worker"
-          docker push "$ECR_URI:$TAG-worker"
-
-          echo "worker_image=$ECR_URI:$TAG-worker" >> "$GITHUB_OUTPUT"
-
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
+    with:
+      environment: staging
+      aws-region: us-east-1
+      dockerfile: workers/Dockerfile
+      image-suffix: "-worker"
+      output-name: worker_image
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   # ------------------------------------------------------------
   # DEPLOY
   # ------------------------------------------------------------
@@ -132,7 +62,7 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      WEB_IMAGE: ${{ needs.build-web-staging.outputs.web_image }}
+      WEB_IMAGE: ${{ needs.build-web-staging.outputs.image }}
 
     steps:
       - uses: actions/checkout@v4
@@ -222,7 +152,7 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      WORKER_IMAGE: ${{ needs.build-worker-staging.outputs.worker_image }}
+      WORKER_IMAGE: ${{ needs.build-worker-staging.outputs.image }}
 
     steps:
       - uses: actions/checkout@v4
@@ -319,8 +249,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.run_id }}
           REPO: ${{ github.repository }}
-          WEB_IMAGE: ${{ needs.build-web-staging.outputs.web_image }}
-          WORKER_IMAGE: ${{ needs.build-worker-staging.outputs.worker_image }}
+          WEB_IMAGE: ${{ needs.build-web-staging.outputs.image }}
+          WORKER_IMAGE: ${{ needs.build-worker-staging.outputs.image }}
         run: |
           set -euo pipefail
 
