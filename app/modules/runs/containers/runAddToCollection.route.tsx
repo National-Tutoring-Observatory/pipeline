@@ -12,12 +12,10 @@ import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import requireCollectionsFeature from "~/modules/collections/helpers/requireCollectionsFeature";
-import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import type { User } from "~/modules/users/users.types";
-import CreateCollectionForRunDialog from "../components/createCollectionForRunDialog";
 import RunAddToCollection from "../components/runAddToCollection";
 import type { Route } from "./+types/runAddToCollection.route";
 
@@ -106,7 +104,11 @@ export async function action({ request, params }: Route.ActionArgs) {
       const { name } = payload;
       if (typeof name !== "string" || name.trim().length < 3) {
         return data(
-          { errors: { name: "Collection name must be at least 3 characters" } },
+          {
+            errors: {
+              name: "Collection name must be at least 3 characters",
+            },
+          },
           { status: 400 },
         );
       }
@@ -118,7 +120,6 @@ export async function action({ request, params }: Route.ActionArgs) {
         success: true,
         intent: "CREATE_COLLECTION",
         data: {
-          collectionId: collection._id,
           redirectTo: `/projects/${params.projectId}/collections/${collection._id}`,
         },
       });
@@ -162,11 +163,6 @@ export default function RunAddToCollectionRoute() {
       toast.success(`Added to ${count} collection${count !== 1 ? "s" : ""}`);
       navigate(fetcher.data.data.redirectTo);
     }
-
-    if (fetcher.data.intent === "CREATE_COLLECTION") {
-      toast.success("Collection created");
-      navigate(fetcher.data.data.redirectTo);
-    }
   }, [fetcher.state, fetcher.data, navigate]);
 
   const submitAddToCollections = (collectionIds: string[]) => {
@@ -176,24 +172,6 @@ export default function RunAddToCollectionRoute() {
         payload: { collectionIds },
       }),
       { method: "POST", encType: "application/json" },
-    );
-  };
-
-  const submitCreateCollection = (name: string) => {
-    fetcher.submit(
-      JSON.stringify({
-        intent: "CREATE_COLLECTION",
-        payload: { name },
-      }),
-      { method: "POST", encType: "application/json" },
-    );
-  };
-
-  const openCreateCollectionDialog = () => {
-    addDialog(
-      <CreateCollectionForRunDialog
-        onCreateCollectionClicked={submitCreateCollection}
-      />,
     );
   };
 
@@ -219,10 +197,13 @@ export default function RunAddToCollectionRoute() {
       currentPage={currentPage}
       isSyncing={isSyncing}
       onAddToCollectionsClicked={submitAddToCollections}
-      onCreateCollectionClicked={openCreateCollectionDialog}
-      onCancelClicked={() =>
-        navigate(`/projects/${project._id}/runs/${run._id}`)
-      }
+      onCancelClicked={() => {
+        if (window.history.length > 1) {
+          navigate(-1);
+        } else {
+          navigate(`/projects/${project._id}/runs/${run._id}`);
+        }
+      }}
       onSearchValueChanged={setSearchValue}
       onPaginationChanged={setCurrentPage}
     />

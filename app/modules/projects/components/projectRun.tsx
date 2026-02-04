@@ -24,7 +24,13 @@ import {
 } from "@/components/ui/table";
 import find from "lodash/find";
 import map from "lodash/map";
-import { FolderPlus, ListPlus, MoreHorizontal, Pencil } from "lucide-react";
+import {
+  FolderPlus,
+  ListPlus,
+  MoreHorizontal,
+  Pencil,
+  Stamp,
+} from "lucide-react";
 import { Link } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
@@ -49,8 +55,9 @@ export default function ProjectRun({
   onExportRunButtonClicked,
   onReRunClicked,
   onEditRunButtonClicked,
-  onCreateCollectionButtonClicked,
-  onAddToCollectionButtonClicked,
+  onAddToExistingCollectionClicked,
+  onAddToNewCollectionClicked,
+  onUseAsTemplateClicked,
 }: {
   run: Run;
   promptInfo: { name: string; version: number };
@@ -62,8 +69,9 @@ export default function ProjectRun({
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void;
   onReRunClicked: () => void;
   onEditRunButtonClicked: (run: Run) => void;
-  onCreateCollectionButtonClicked: (run: Run) => void;
-  onAddToCollectionButtonClicked: (run: Run) => void;
+  onAddToExistingCollectionClicked: (run: Run) => void;
+  onAddToNewCollectionClicked: (run: Run) => void;
+  onUseAsTemplateClicked: (run: Run) => void;
 }) {
   const projectId =
     typeof run.project === "string" ? run.project : run.project._id;
@@ -92,16 +100,20 @@ export default function ProjectRun({
               <Flag flag="HAS_PROJECT_COLLECTIONS">
                 <>
                   <DropdownMenuItem
-                    onClick={() => onAddToCollectionButtonClicked(run)}
+                    onClick={() => onAddToExistingCollectionClicked(run)}
                   >
                     <ListPlus className="mr-2 h-4 w-4" />
-                    Add to Collection
+                    Add to Existing Collection
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => onCreateCollectionButtonClicked(run)}
+                    onClick={() => onAddToNewCollectionClicked(run)}
                   >
                     <FolderPlus className="mr-2 h-4 w-4" />
-                    Create Collection
+                    Add to New Collection
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onUseAsTemplateClicked(run)}>
+                    <Stamp className="mr-2 h-4 w-4" />
+                    Use as Collection Template
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>

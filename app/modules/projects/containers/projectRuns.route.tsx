@@ -18,6 +18,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
+import { useCreateCollectionForRun } from "~/modules/runs/hooks/useCreateCollectionForRun";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import EditRunDialog from "../components/editRunDialog";
@@ -100,6 +101,9 @@ export default function ProjectRunsRoute() {
   const submit = useSubmit();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
+  const { openCreateCollectionDialog } = useCreateCollectionForRun({
+    projectId: projectId!,
+  });
 
   const {
     searchValue,
@@ -165,10 +169,13 @@ export default function ProjectRunsRoute() {
       case "DUPLICATE":
         onDuplicateRunButtonClicked(run);
         break;
-      case "ADD_TO_COLLECTION":
+      case "ADD_TO_EXISTING_COLLECTION":
         navigate(`/projects/${projectId}/runs/${id}/add-to-collection`);
         break;
-      case "CREATE_COLLECTION":
+      case "ADD_TO_NEW_COLLECTION":
+        openCreateCollectionDialog(id);
+        break;
+      case "USE_AS_COLLECTION_TEMPLATE":
         navigate(`/projects/${projectId}/create-collection?fromRun=${id}`);
         break;
     }

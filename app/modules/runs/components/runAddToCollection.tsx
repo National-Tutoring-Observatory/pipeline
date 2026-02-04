@@ -7,7 +7,7 @@ import cloneDeep from "lodash/cloneDeep";
 import includes from "lodash/includes";
 import map from "lodash/map";
 import pull from "lodash/pull";
-import { FolderPlus, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 import { useState } from "react";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
@@ -24,7 +24,6 @@ export default function RunAddToCollection({
   currentPage,
   isSyncing,
   onAddToCollectionsClicked,
-  onCreateCollectionClicked,
   onCancelClicked,
   onSearchValueChanged,
   onPaginationChanged,
@@ -38,7 +37,6 @@ export default function RunAddToCollection({
   currentPage: number;
   isSyncing: boolean;
   onAddToCollectionsClicked: (collectionIds: string[]) => void;
-  onCreateCollectionClicked: () => void;
   onCancelClicked: () => void;
   onSearchValueChanged: (value: string) => void;
   onPaginationChanged: (page: number) => void;
@@ -113,19 +111,8 @@ export default function RunAddToCollection({
         </PageHeaderLeft>
       </PageHeader>
       <p className="text-muted-foreground mb-6">
-        Select existing collections to add this run to, or create a new one.
+        Select existing collections to add this run to.
       </p>
-
-      <div className="mb-6">
-        <Button
-          variant="outline"
-          onClick={onCreateCollectionClicked}
-          disabled={isSubmitting}
-        >
-          <FolderPlus className="mr-2 h-4 w-4" />
-          Create New Collection
-        </Button>
-      </div>
 
       {totalEligibleCollections === 0 && !searchValue ? (
         <div className="text-muted-foreground py-12 text-center">
@@ -180,27 +167,29 @@ export default function RunAddToCollection({
             filters={[]}
             filtersValues={{}}
           />
-
-          <div className="mt-6 flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={onCancelClicked}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => onAddToCollectionsClicked(selectedCollections)}
-              disabled={selectedCollections.length === 0 || isSubmitting}
-            >
-              {isSubmitting && <Spinner />}
-              {isSubmitting
-                ? "Adding..."
-                : `Add to ${selectedCollections.length} Collection${selectedCollections.length !== 1 ? "s" : ""}`}
-            </Button>
-          </div>
         </>
       )}
+
+      <div className="mt-6 flex justify-end gap-2">
+        <Button
+          variant="outline"
+          onClick={onCancelClicked}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </Button>
+        {totalEligibleCollections > 0 && (
+          <Button
+            onClick={() => onAddToCollectionsClicked(selectedCollections)}
+            disabled={selectedCollections.length === 0 || isSubmitting}
+          >
+            {isSubmitting && <Spinner />}
+            {isSubmitting
+              ? "Adding..."
+              : `Add to ${selectedCollections.length} Collection${selectedCollections.length !== 1 ? "s" : ""}`}
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
