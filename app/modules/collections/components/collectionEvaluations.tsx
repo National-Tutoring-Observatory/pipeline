@@ -33,28 +33,30 @@ export default function CollectionEvaluations({
   onActionClicked: (action: string) => void;
 }) {
   return (
-    <CollectionUI
-      items={evaluations}
-      itemsLayout="list"
-      actions={getEvaluationsActions(isAbleToCreateEvaluation)}
-      getItemAttributes={getEvaluationsItemAttributes}
-      getItemActions={() => []}
-      onActionClicked={onActionClicked}
-      onItemClicked={onItemClicked}
-      emptyAttributes={getEvaluationsEmptyAttributes()}
-      hasSearch
-      searchValue={searchValue}
-      onSearchValueChanged={onSearchValueChanged}
-      hasPagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPaginationChanged={onCurrentPageChanged}
-      sortValue={sortValue}
-      sortOptions={evaluationsSortOptions}
-      onSortValueChanged={onSortValueChanged}
-      isSyncing={isSyncing}
-      filters={[]}
-      filtersValues={{}}
-    />
+    <div className="max-w-6xl">
+      <CollectionUI
+        items={evaluations}
+        itemsLayout="list"
+        actions={getEvaluationsActions(isAbleToCreateEvaluation)}
+        getItemAttributes={getEvaluationsItemAttributes}
+        getItemActions={() => []}
+        onActionClicked={onActionClicked}
+        onItemClicked={onItemClicked}
+        emptyAttributes={getEvaluationsEmptyAttributes()}
+        hasSearch
+        searchValue={searchValue}
+        onSearchValueChanged={onSearchValueChanged}
+        hasPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPaginationChanged={onCurrentPageChanged}
+        sortValue={sortValue}
+        sortOptions={evaluationsSortOptions}
+        onSortValueChanged={onSortValueChanged}
+        isSyncing={isSyncing}
+        filters={[]}
+        filtersValues={{}}
+      />
+    </div>
   );
 }

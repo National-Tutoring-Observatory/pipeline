@@ -15,6 +15,7 @@ import { EvaluationService } from "~/modules/evaluations/evaluation";
 import isAbleToCreateEvaluation from "~/modules/evaluations/helpers/isAbleToCreateEvaluation";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
+import { RunService } from "~/modules/runs/run";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/evaluationCreate.route";
 
@@ -38,7 +39,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect(`/projects/${params.projectId}/collections`);
   }
 
-  return { project, collection };
+  const runs = collection.runs?.length
+    ? await RunService.find({ match: { _id: { $in: collection.runs } } })
+    : [];
+
+  return { project, collection, runs };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -79,11 +84,15 @@ export async function action({ request, params }: Route.ActionArgs) {
         );
       }
 
-      const { name } = payload;
+      const { name, runs: selectedRuns } = payload;
       const errors: Record<string, string> = {};
 
       if (typeof name !== "string" || name.trim().length < 1) {
         errors.name = "Evaluation name is required";
+      }
+
+      if (!Array.isArray(selectedRuns) || selectedRuns.length < 2) {
+        errors.runs = "At least 2 runs must be selected";
       }
 
       if (Object.keys(errors).length > 0) {
@@ -94,7 +103,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         name: name.trim(),
         project: params.projectId,
         collection: params.collectionId,
-        runs: collection.runs || [],
+        runs: selectedRuns,
       });
 
       return {
@@ -114,11 +123,14 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function EvaluationCreateRoute() {
-  const { project, collection } = useLoaderData<typeof loader>();
+  const { project, collection, runs } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const submit = useSubmit();
   const [name, setName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedRuns, setSelectedRuns] = useState<string[]>(
+    runs.map((run) => run._id),
+  );
 
   const breadcrumbs = [
     { text: "Projects", link: "/" },
@@ -136,7 +148,7 @@ export default function EvaluationCreateRoute() {
     submit(
       JSON.stringify({
         intent: "CREATE_EVALUATION",
-        payload: { name },
+        payload: { name, runs: selectedRuns },
       }),
       { method: "POST", encType: "application/json" },
     );
@@ -162,13 +174,15 @@ export default function EvaluationCreateRoute() {
       </div>
 
       <EvaluationCreate
-        collectionName={collection.name}
         name={name}
         isSubmitting={isSubmitting}
         isAbleToCreateEvaluation={isAbleToCreateEvaluation(collection)}
         projectId={project._id}
         collectionId={collection._id}
+        runs={runs}
+        selectedRuns={selectedRuns}
         onNameChanged={setName}
+        onSelectedRunsChanged={setSelectedRuns}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
       />

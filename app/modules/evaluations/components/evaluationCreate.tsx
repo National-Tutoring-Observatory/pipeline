@@ -1,28 +1,40 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemGroup,
+  ItemTitle,
+} from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ChevronRight } from "lucide-react";
 import { Link } from "react-router";
 
 export default function EvaluationCreate({
-  collectionName,
   name,
   isSubmitting,
   isAbleToCreateEvaluation,
   projectId,
   collectionId,
+  runs,
+  selectedRuns,
   onNameChanged,
+  onSelectedRunsChanged,
   onSubmit,
   onCancel,
 }: {
-  collectionName: string;
   name: string;
   isSubmitting: boolean;
   isAbleToCreateEvaluation: boolean;
   projectId: string;
   collectionId: string;
+  runs: Array<{ _id: string; name: string }>;
+  selectedRuns: string[];
   onNameChanged: (value: string) => void;
+  onSelectedRunsChanged: (ids: string[]) => void;
   onSubmit: () => void;
   onCancel: () => void;
 }) {
@@ -48,9 +60,73 @@ export default function EvaluationCreate({
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="collection">Collection</Label>
-        <Input id="collection" value={collectionName} disabled />
+      <div className="rounded-md border">
+        <div className="grid grid-cols-2">
+          <div className="border-r p-4">
+            <Label className="text-muted-foreground text-xs uppercase tracking-wide">
+              Select your base run
+            </Label>
+            <ItemGroup className="mt-3">
+              {runs.map((run) => (
+                <Item
+                  key={run._id}
+                  variant="default"
+                  size="sm"
+                  className="cursor-pointer hover:bg-accent"
+                >
+                  <ItemContent>
+                    <ItemTitle>{run.name}</ItemTitle>
+                  </ItemContent>
+                  <ItemActions>
+                    <ChevronRight className="text-muted-foreground size-4" />
+                  </ItemActions>
+                </Item>
+              ))}
+            </ItemGroup>
+          </div>
+          <div className="p-4">
+            <Label className="text-muted-foreground text-xs uppercase tracking-wide">
+              Select your comparison runs
+            </Label>
+            <ItemGroup className="mt-3">
+              {runs.map((run) => (
+                <Item
+                  key={run._id}
+                  variant="default"
+                  size="sm"
+                  className="cursor-pointer hover:bg-accent"
+                  onClick={() => {
+                    if (selectedRuns.includes(run._id)) {
+                      onSelectedRunsChanged(
+                        selectedRuns.filter((id) => id !== run._id),
+                      );
+                    } else {
+                      onSelectedRunsChanged([...selectedRuns, run._id]);
+                    }
+                  }}
+                >
+                  <Checkbox
+                    id={`right-${run._id}`}
+                    checked={selectedRuns.includes(run._id)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        onSelectedRunsChanged([...selectedRuns, run._id]);
+                      } else {
+                        onSelectedRunsChanged(
+                          selectedRuns.filter((id) => id !== run._id),
+                        );
+                      }
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <ItemContent>
+                    <ItemTitle>{run.name}</ItemTitle>
+                  </ItemContent>
+                </Item>
+              ))}
+            </ItemGroup>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-2">
