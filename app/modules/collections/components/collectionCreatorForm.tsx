@@ -21,6 +21,7 @@ import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorCo
 import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 import { calculateEstimates } from "../helpers/calculateEstimates";
+import CollectionValidationAlert from "./collectionValidationAlert";
 import EstimateSummary from "./estimateSummary";
 
 function generateRunName(
@@ -392,20 +393,29 @@ export default function CollectionCreatorForm({
       {/* Bottom Section - Summary and Button */}
       <div className="sticky bottom-0 flex items-center gap-8 rounded-b-4xl border-t bg-white px-8 py-4">
         <div className="flex-1">
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-sm text-blue-900">
-                This will create{" "}
-                <strong>
-                  {selectedPrompts.length * selectedModels.length}
-                </strong>{" "}
-                run(s) with {selectedPrompts.length} prompt(s) ×{" "}
-                {selectedModels.length} model(s) across{" "}
-                {selectedSessions.length} session(s)
-              </p>
-              <EstimateSummary estimation={estimation} />
+          {isSubmitDisabled ? (
+            <CollectionValidationAlert
+              name={name}
+              selectedPrompts={selectedPrompts}
+              selectedModels={selectedModels}
+              selectedSessions={selectedSessions}
+            />
+          ) : (
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-sm text-blue-900">
+                  This will create{" "}
+                  <strong>
+                    {selectedPrompts.length * selectedModels.length}
+                  </strong>{" "}
+                  run(s) with {selectedPrompts.length} prompt(s) ×{" "}
+                  {selectedModels.length} model(s) across{" "}
+                  {selectedSessions.length} session(s)
+                </p>
+                <EstimateSummary estimation={estimation} />
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <Button size="lg" onClick={onCreateClicked} disabled={isSubmitDisabled}>
           Create Collection & Launch Runs
