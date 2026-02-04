@@ -23,6 +23,20 @@ import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelec
 import { calculateEstimates } from "../helpers/calculateEstimates";
 import EstimateSummary from "./estimateSummary";
 
+function generateRunName(
+  collectionName: string,
+  prompt: PromptReference,
+  model: string,
+): string {
+  const promptLabel = prompt.promptName
+    ? `${prompt.promptName} v${prompt.version}`
+    : prompt.promptId;
+
+  const finalCollectionName = collectionName.trim() || "Untitled Collection";
+
+  return `${finalCollectionName} - ${promptLabel} - ${model}`;
+}
+
 export default function CollectionCreatorForm({
   name,
   annotationType,
@@ -350,16 +364,10 @@ export default function CollectionCreatorForm({
                       </p>
                       <div className="space-y-1">
                         <div>
-                          <p className="text-muted-foreground text-xs">
-                            Prompt
-                          </p>
+                          <p className="text-muted-foreground text-xs">Name</p>
                           <p className="truncate font-mono text-xs">
-                            {prompt.promptName} (v{prompt.version})
+                            {generateRunName(name, prompt, model)}
                           </p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground text-xs">Model</p>
-                          <p className="truncate font-mono text-xs">{model}</p>
                         </div>
                       </div>
                     </div>
