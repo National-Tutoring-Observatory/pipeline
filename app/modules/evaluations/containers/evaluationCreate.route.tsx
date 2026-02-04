@@ -12,10 +12,10 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import EvaluationCreate from "~/modules/evaluations/components/evaluationCreate";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
+import isAbleToCreateEvaluation from "~/modules/evaluations/helpers/isAbleToCreateEvaluation";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import type { User } from "~/modules/users/users.types";
-import isAbleToCreateEvaluation from "~/modules/evaluations/helpers/isAbleToCreateEvaluation";
 import type { Route } from "./+types/evaluationCreate.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -68,6 +68,17 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   switch (intent) {
     case "CREATE_EVALUATION": {
+      if (!isAbleToCreateEvaluation(collection)) {
+        return data(
+          {
+            errors: {
+              runs: "At least 2 runs are required to create an evaluation",
+            },
+          },
+          { status: 400 },
+        );
+      }
+
       const { name } = payload;
       const errors: Record<string, string> = {};
 
