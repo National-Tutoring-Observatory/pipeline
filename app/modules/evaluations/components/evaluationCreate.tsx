@@ -20,8 +20,10 @@ export default function EvaluationCreate({
   projectId,
   collectionId,
   runs,
+  baseRun,
   selectedRuns,
   onNameChanged,
+  onBaseRunChanged,
   onSelectedRunsChanged,
   onSubmit,
   onCancel,
@@ -32,8 +34,10 @@ export default function EvaluationCreate({
   projectId: string;
   collectionId: string;
   runs: Array<{ _id: string; name: string }>;
+  baseRun: string | null;
   selectedRuns: string[];
   onNameChanged: (value: string) => void;
+  onBaseRunChanged: (id: string | null) => void;
   onSelectedRunsChanged: (ids: string[]) => void;
   onSubmit: () => void;
   onCancel: () => void;
@@ -60,19 +64,34 @@ export default function EvaluationCreate({
 
   return (
     <div className="max-w-2xl space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="name">Evaluation Name</Label>
+        <Input
+          id="name"
+          value={name}
+          onChange={(e) => onNameChanged(e.target.value)}
+          placeholder="Enter evaluation name"
+        />
+      </div>
+
       <div className="rounded-md border">
         <div className="grid grid-cols-2">
           <div className="border-r p-4">
-            <Label className="text-muted-foreground text-xs uppercase tracking-wide">
+            <Label className="text-muted-foreground text-xs tracking-wide uppercase">
               Select your base run
             </Label>
-            <ItemGroup className="mt-3">
+            <ItemGroup className="mt-3 gap-2">
               {runs.map((run) => (
                 <Item
                   key={run._id}
-                  variant="default"
+                  variant={baseRun === run._id ? "outline" : "default"}
                   size="sm"
-                  className="cursor-pointer hover:bg-accent"
+                  className={
+                    baseRun === run._id
+                      ? "cursor-pointer"
+                      : "hover:bg-accent cursor-pointer"
+                  }
+                  onClick={() => onBaseRunChanged(run._id)}
                 >
                   <ItemContent>
                     <ItemTitle>{run.name}</ItemTitle>
@@ -85,16 +104,16 @@ export default function EvaluationCreate({
             </ItemGroup>
           </div>
           <div className="p-4">
-            <Label className="text-muted-foreground text-xs uppercase tracking-wide">
+            <Label className="text-muted-foreground text-xs tracking-wide uppercase">
               Select your comparison runs
             </Label>
-            <ItemGroup className="mt-3">
+            <ItemGroup className="mt-3 gap-2">
               {runs.map((run) => (
                 <Item
                   key={run._id}
-                  variant="default"
+                  variant="muted"
                   size="sm"
-                  className="cursor-pointer hover:bg-accent"
+                  className="hover:bg-accent cursor-pointer"
                   onClick={() => {
                     if (selectedRuns.includes(run._id)) {
                       onSelectedRunsChanged(
@@ -127,16 +146,6 @@ export default function EvaluationCreate({
             </ItemGroup>
           </div>
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="name">Evaluation Name</Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => onNameChanged(e.target.value)}
-          placeholder="Enter evaluation name"
-        />
       </div>
 
       <div className="flex gap-4">

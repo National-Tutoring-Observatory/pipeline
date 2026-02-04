@@ -128,6 +128,7 @@ export default function EvaluationCreateRoute() {
   const submit = useSubmit();
   const [name, setName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [baseRun, setBaseRun] = useState<string | null>(null);
   const [selectedRuns, setSelectedRuns] = useState<string[]>(
     runs.map((run) => run._id),
   );
@@ -180,8 +181,10 @@ export default function EvaluationCreateRoute() {
         projectId={project._id}
         collectionId={collection._id}
         runs={runs}
+        baseRun={baseRun}
         selectedRuns={selectedRuns}
         onNameChanged={setName}
+        onBaseRunChanged={setBaseRun}
         onSelectedRunsChanged={setSelectedRuns}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
