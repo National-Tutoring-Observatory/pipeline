@@ -1,7 +1,7 @@
 import { Collection as CollectionUI } from "@/components/ui/collection";
 import type { Evaluation } from "~/modules/evaluations/evaluations.types";
-import evaluationsActions from "../helpers/evaluationsActions";
 import evaluationsSortOptions from "../helpers/evaluationsSortOptions";
+import getEvaluationsActions from "../helpers/getEvaluationsActions";
 import getEvaluationsEmptyAttributes from "../helpers/getEvaluationsEmptyAttributes";
 import getEvaluationsItemAttributes from "../helpers/getEvaluationsItemAttributes";
 
@@ -12,6 +12,7 @@ export default function CollectionEvaluations({
   searchValue,
   sortValue,
   isSyncing,
+  isAbleToCreateEvaluation,
   onSearchValueChanged,
   onCurrentPageChanged,
   onSortValueChanged,
@@ -24,6 +25,7 @@ export default function CollectionEvaluations({
   searchValue: string;
   sortValue: string;
   isSyncing: boolean;
+  isAbleToCreateEvaluation: boolean;
   onSearchValueChanged: (value: string) => void;
   onCurrentPageChanged: (page: number) => void;
   onSortValueChanged: (sort: string) => void;
@@ -34,7 +36,7 @@ export default function CollectionEvaluations({
     <CollectionUI
       items={evaluations}
       itemsLayout="list"
-      actions={evaluationsActions}
+      actions={getEvaluationsActions(isAbleToCreateEvaluation)}
       getItemAttributes={getEvaluationsItemAttributes}
       getItemActions={() => []}
       onActionClicked={onActionClicked}
