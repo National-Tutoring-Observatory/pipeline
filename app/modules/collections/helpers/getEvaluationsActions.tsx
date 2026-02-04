@@ -1,6 +1,8 @@
 import { Plus } from "lucide-react";
 
-export default function getEvaluationsActions(isAbleToCreateEvaluation: boolean) {
+export default function getEvaluationsActions(
+  isAbleToCreateEvaluation: boolean,
+) {
   if (!isAbleToCreateEvaluation) {
     return [];
   }
