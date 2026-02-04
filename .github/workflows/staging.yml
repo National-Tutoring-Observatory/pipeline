@@ -165,23 +165,6 @@ jobs:
           echo "worker_image=$ECR_URI:$TAG-worker" >> "$GITHUB_OUTPUT"
 
   # ------------------------------------------------------------
-  # BUILD FAN-IN
-  # ------------------------------------------------------------
-  build-and-push-staging:
-    name: Build & Push Staging Containers
-    runs-on: ubuntu-latest
-    needs:
-      - build-web-staging
-      - build-worker-staging
-
-    outputs:
-      web_image: ${{ needs.build-web-staging.outputs.web_image }}
-      worker_image: ${{ needs.build-worker-staging.outputs.worker_image }}
-
-    steps:
-      - run: echo "Build complete"
-
-  # ------------------------------------------------------------
   # DEPLOY
   # ------------------------------------------------------------
   # ------------------------------------------------------------
@@ -191,7 +174,7 @@ jobs:
     name: Deploy Web Service
     runs-on: ubuntu-latest
     environment: staging
-    needs: build-and-push-staging
+    needs: build-web-staging
 
     permissions:
       id-token: write
@@ -199,7 +182,7 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      WEB_IMAGE: ${{ needs.build-and-push-staging.outputs.web_image }}
+      WEB_IMAGE: ${{ needs.build-web-staging.outputs.web_image }}
 
     steps:
       - uses: actions/checkout@v4
@@ -281,7 +264,7 @@ jobs:
     name: Deploy Worker Service
     runs-on: ubuntu-latest
     environment: staging
-    needs: build-and-push-staging
+    needs: build-worker-staging
 
     permissions:
       id-token: write
@@ -289,7 +272,7 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      WORKER_IMAGE: ${{ needs.build-and-push-staging.outputs.worker_image }}
+      WORKER_IMAGE: ${{ needs.build-worker-staging.outputs.worker_image }}
 
     steps:
       - uses: actions/checkout@v4
@@ -368,13 +351,14 @@ jobs:
   # FINAL SUMMARY (FIXED)
   # ------------------------------------------------------------
   staging-summary:
-    name: Deployment Summary
+    name: Staging Deployment Summary
     runs-on: ubuntu-latest
     needs:
-      - build-and-push-staging
+      - build-web-staging
+      - build-worker-staging
       - deploy-web-staging
       - deploy-worker-staging
-    if: success()
+    if: success() || failure()
   
     permissions:
       actions: read
@@ -385,8 +369,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.run_id }}
           REPO: ${{ github.repository }}
-          WEB_IMAGE: ${{ needs.build-and-push-staging.outputs.web_image }}
-          WORKER_IMAGE: ${{ needs.build-and-push-staging.outputs.worker_image }}
+          WEB_IMAGE: ${{ needs.build-web-staging.outputs.web_image }}
+          WORKER_IMAGE: ${{ needs.build-worker-staging.outputs.worker_image }}
         run: |
           set -euo pipefail
   
