@@ -6,72 +6,22 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 concurrency:
   group: staging-deployment
   cancel-in-progress: true
 
 jobs:
-  # ------------------------------------------------------------
-  # PRE-FLIGHT
-  # ------------------------------------------------------------
-  staging-preflight:
-    name: Staging Preflight – ECS Stability Check
-    runs-on: ubuntu-latest
-    environment: staging
-
-    permissions:
-      id-token: write
-      contents: read
-
-    env:
-      ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
-      ECS_SERVICE: ${{ vars.ECS_SERVICE }}
-      AWS_REGION: us-east-1
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Check ECS service stability
-        shell: bash
-        run: |
-          MAX_WAIT_SECONDS=600
-          SLEEP_SECONDS=30
-          ELAPSED=0
-
-          while true; do
-            STATUS=$(aws ecs describe-services \
-              --cluster "$ECS_CLUSTER" \
-              --services "$ECS_SERVICE" \
-              --query 'services[0].deployments' \
-              --output json)
-
-            DEPLOYMENT_COUNT=$(echo "$STATUS" | jq length)
-
-            if [ "$DEPLOYMENT_COUNT" -eq 1 ]; then
-              ROLLOUT_STATE=$(aws ecs describe-services \
-                --cluster "$ECS_CLUSTER" \
-                --services "$ECS_SERVICE" \
-                --query 'services[0].deployments[0].rolloutState' \
-                --output text)
-
-              if [ "$ROLLOUT_STATE" = "COMPLETED" ]; then
-                exit 0
-              fi
-            fi
-
-            if [ "$ELAPSED" -ge "$MAX_WAIT_SECONDS" ]; then
-              exit 1
-            fi
-
-            sleep "$SLEEP_SECONDS"
-            ELAPSED=$((ELAPSED + SLEEP_SECONDS))
-          done
-
+  preflight:
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_preflight.yml@main
+    with:
+      environment: staging
+      aws-region: us-east-1
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   # ------------------------------------------------------------
   # BUILD WEB (PARALLEL)
   # ------------------------------------------------------------
@@ -79,7 +29,7 @@ jobs:
     name: Build & Push Web Container
     runs-on: ubuntu-latest
     environment: staging
-    needs: staging-preflight
+    needs: preflight
 
     permissions:
       id-token: write
@@ -125,7 +75,7 @@ jobs:
     name: Build & Push Worker Container
     runs-on: ubuntu-latest
     environment: staging
-    needs: staging-preflight
+    needs: preflight
 
     permissions:
       id-token: write
