@@ -12,6 +12,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import EvaluationCreate from "~/modules/evaluations/components/evaluationCreate";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
+import isAbleToCreateEvaluation from "~/modules/evaluations/helpers/isAbleToCreateEvaluation";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import type { User } from "~/modules/users/users.types";
@@ -67,6 +68,17 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   switch (intent) {
     case "CREATE_EVALUATION": {
+      if (!isAbleToCreateEvaluation(collection)) {
+        return data(
+          {
+            errors: {
+              runs: "At least 2 runs are required to create an evaluation",
+            },
+          },
+          { status: 400 },
+        );
+      }
+
       const { name } = payload;
       const errors: Record<string, string> = {};
 
@@ -153,6 +165,9 @@ export default function EvaluationCreateRoute() {
         collectionName={collection.name}
         name={name}
         isSubmitting={isSubmitting}
+        isAbleToCreateEvaluation={isAbleToCreateEvaluation(collection)}
+        projectId={project._id}
+        collectionId={collection._id}
         onNameChanged={setName}
         onSubmit={handleSubmit}
         onCancel={handleCancel}

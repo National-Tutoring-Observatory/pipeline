@@ -11,6 +11,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import type { Collection } from "~/modules/collections/collections.types";
 import CollectionEvaluations from "~/modules/collections/components/collectionEvaluations";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
+import isAbleToCreateEvaluation from "~/modules/evaluations/helpers/isAbleToCreateEvaluation";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/collectionEvaluations.route";
 
@@ -86,6 +87,7 @@ export default function CollectionEvaluationsRoute() {
       searchValue={searchValue}
       sortValue={sortValue}
       isSyncing={isSyncing}
+      isAbleToCreateEvaluation={isAbleToCreateEvaluation(collection)}
       onSearchValueChanged={setSearchValue}
       onCurrentPageChanged={setCurrentPage}
       onSortValueChanged={setSortValue}
