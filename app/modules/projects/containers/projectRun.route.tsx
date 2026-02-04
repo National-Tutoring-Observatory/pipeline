@@ -17,6 +17,7 @@ import { CollectionService } from "~/modules/collections/collection";
 import addDialog from "~/modules/dialogs/addDialog";
 import { ProjectService } from "~/modules/projects/project";
 import exportRun from "~/modules/runs/helpers/exportRun";
+import { useCreateCollectionForRun } from "~/modules/runs/hooks/useCreateCollectionForRun";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import EditRunDialog from "../components/editRunDialog";
@@ -175,12 +176,16 @@ export default function ProjectRunRoute() {
     );
   };
 
-  const onCreateCollectionButtonClicked = (run: Run) => {
-    navigate(`/projects/${project._id}/create-collection?fromRun=${run._id}`);
+  const { openCreateCollectionDialog } = useCreateCollectionForRun({
+    projectId: project._id,
+  });
+
+  const onAddToExistingCollectionClicked = (run: Run) => {
+    navigate(`/projects/${project._id}/runs/${run._id}/add-to-collection`);
   };
 
-  const onAddToCollectionButtonClicked = (run: Run) => {
-    navigate(`/projects/${project._id}/runs/${run._id}/add-to-collection`);
+  const onUseAsTemplateClicked = (run: Run) => {
+    navigate(`/projects/${project._id}/create-collection?fromRun=${run._id}`);
   };
 
   useHandleSockets({
@@ -285,8 +290,9 @@ export default function ProjectRunRoute() {
       onExportRunButtonClicked={onExportRunButtonClicked}
       onReRunClicked={onReRunClicked}
       onEditRunButtonClicked={onEditRunButtonClicked}
-      onCreateCollectionButtonClicked={onCreateCollectionButtonClicked}
-      onAddToCollectionButtonClicked={onAddToCollectionButtonClicked}
+      onAddToExistingCollectionClicked={onAddToExistingCollectionClicked}
+      onAddToNewCollectionClicked={() => openCreateCollectionDialog(run._id)}
+      onUseAsTemplateClicked={onUseAsTemplateClicked}
     />
   );
 }

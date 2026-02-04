@@ -1,6 +1,6 @@
 import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
 import includes from "lodash/includes";
-import { Copy, Edit, FolderPlus, ListPlus } from "lucide-react";
+import { Copy, Edit, FolderPlus, ListPlus, Stamp } from "lucide-react";
 import { useContext } from "react";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import type { User } from "~/modules/users/users.types";
@@ -29,14 +29,19 @@ export default function useProjectRunsItemActions(): () => CollectionItemAction[
     if (hasCollections) {
       actions.push(
         {
-          action: "ADD_TO_COLLECTION",
+          action: "ADD_TO_EXISTING_COLLECTION",
           icon: <ListPlus />,
-          text: "Add to Collection",
+          text: "Add to Existing Collection",
         },
         {
-          action: "CREATE_COLLECTION",
+          action: "ADD_TO_NEW_COLLECTION",
           icon: <FolderPlus />,
-          text: "Create Collection",
+          text: "Add to New Collection",
+        },
+        {
+          action: "USE_AS_COLLECTION_TEMPLATE",
+          icon: <Stamp />,
+          text: "Use as Collection Template",
         },
       );
     }
