@@ -359,10 +359,10 @@ jobs:
       - deploy-web-staging
       - deploy-worker-staging
     if: success() || failure()
-  
+
     permissions:
       actions: read
-  
+
     steps:
       - name: Generate deployment summary
         env:
@@ -373,21 +373,21 @@ jobs:
           WORKER_IMAGE: ${{ needs.build-worker-staging.outputs.worker_image }}
         run: |
           set -euo pipefail
-  
+
           RUN_JSON=$(gh api "repos/$REPO/actions/runs/$RUN_ID")
           JOBS_JSON=$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs")
-  
+
           # --- Total duration (matches GitHub UI closely) ---
           RUN_STARTED=$(echo "$RUN_JSON" | jq -r '.run_started_at // .created_at')
           RUN_ENDED=$(echo "$RUN_JSON" | jq -r '.updated_at // .run_completed_at // .completed_at')
-  
+
           START_EPOCH=$(date -d "$RUN_STARTED" +%s)
           END_EPOCH=$(date -d "$RUN_ENDED" +%s)
-  
+
           TOTAL_SECONDS=$((END_EPOCH - START_EPOCH))
           TOTAL_MIN=$((TOTAL_SECONDS / 60))
           TOTAL_SEC=$((TOTAL_SECONDS % 60))
-  
+
           {
             echo "## 🚀 Staging Deployment Complete"
             echo
@@ -411,7 +411,7 @@ jobs:
             echo "| Job | Duration |"
             echo "|-----|----------|"
           } >> "$GITHUB_STEP_SUMMARY"
-  
+
           # Only completed jobs
           mapfile -t JOB_ROWS < <(
             echo "$JOBS_JSON" | jq -r '
@@ -421,23 +421,23 @@ jobs:
               | @tsv
             '
           )
-  
+
           # Find slowest job
           SLOWEST_SECONDS=0
           SLOWEST_NAME=""
-  
+
           for ROW in "${JOB_ROWS[@]}"; do
             IFS=$'\t' read -r NAME START END <<< "$ROW"
             START_EPOCH=$(date -d "$START" +%s)
             END_EPOCH=$(date -d "$END" +%s)
             DURATION=$((END_EPOCH - START_EPOCH))
-  
+
             if [ "$DURATION" -gt "$SLOWEST_SECONDS" ]; then
               SLOWEST_SECONDS="$DURATION"
               SLOWEST_NAME="$NAME"
             fi
           done
-  
+
           # Render timing table
           for ROW in "${JOB_ROWS[@]}"; do
             IFS=$'\t' read -r NAME START END <<< "$ROW"
@@ -446,14 +446,14 @@ jobs:
             DURATION=$((END_EPOCH - START_EPOCH))
             MIN=$((DURATION / 60))
             SEC=$((DURATION % 60))
-  
+
             if [ "$NAME" = "$SLOWEST_NAME" ]; then
               echo "| **$NAME** | **${MIN}m ${SEC}s** |" >> "$GITHUB_STEP_SUMMARY"
             else
               echo "| $NAME | ${MIN}m ${SEC}s |" >> "$GITHUB_STEP_SUMMARY"
             fi
           done
-  
+
           {
             echo
             echo "_**Bolded row indicates the slowest completed job (critical path).**_"
