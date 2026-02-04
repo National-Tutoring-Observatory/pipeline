@@ -15,6 +15,7 @@ import { EvaluationService } from "~/modules/evaluations/evaluation";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import type { User } from "~/modules/users/users.types";
+import isAbleToCreateEvaluation from "~/modules/evaluations/helpers/isAbleToCreateEvaluation";
 import type { Route } from "./+types/evaluationCreate.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -153,6 +154,9 @@ export default function EvaluationCreateRoute() {
         collectionName={collection.name}
         name={name}
         isSubmitting={isSubmitting}
+        isAbleToCreateEvaluation={isAbleToCreateEvaluation(collection)}
+        projectId={project._id}
+        collectionId={collection._id}
         onNameChanged={setName}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
