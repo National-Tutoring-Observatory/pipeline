@@ -1,5 +1,7 @@
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
-import { data, redirect, useLoaderData } from "react-router";
+import { useEffect } from "react";
+import { data, redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
+import { toast } from "sonner";
 import aiGatewayConfig from "~/config/ai_gateway.json";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
@@ -8,6 +10,7 @@ import type {
   PrefillData,
   PromptReference,
 } from "~/modules/collections/collections.types";
+import CollectionCreatorContainer from "~/modules/collections/containers/collectionCreator.container";
 import requireCollectionsFeature from "~/modules/collections/helpers/requireCollectionsFeature";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
@@ -17,7 +20,6 @@ import { RunService } from "~/modules/runs/run";
 import type { RunAnnotationType } from "~/modules/runs/runs.types";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/collectionCreate.route";
-import CollectionCreatorFormContainer from "./collectionCreatorForm.container";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = (await getSessionUser({ request })) as User;
@@ -252,6 +254,8 @@ export async function action({ request, params, context }: Route.ActionArgs) {
 
 export default function CollectionCreateRoute() {
   const { project, prefillData } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+  const fetcher = useFetcher();
 
   const breadcrumbs = [
     { text: "Projects", link: "/" },
@@ -259,6 +263,31 @@ export default function CollectionCreateRoute() {
     { text: "Collections", link: `/projects/${project._id}/collections` },
     { text: "Create Collection" },
   ];
+
+  useEffect(() => {
+    if (fetcher.state !== "idle") return;
+    if (fetcher.data?.intent !== "CREATE_COLLECTION") return;
+
+    const collectionId = fetcher.data.data?.collectionId;
+    if (collectionId) {
+      const runErrors = fetcher.data?.data?.errors;
+      if (runErrors && runErrors.length > 0) {
+        toast.warning(
+          `Collection created, but ${runErrors.length} run(s) failed to start`,
+        );
+      } else {
+        toast.success("Collection created successfully");
+      }
+      navigate(`/projects/${project._id}/collections/${collectionId}`);
+    }
+  }, [fetcher.state, fetcher.data, navigate, project._id]);
+
+  const handleSubmit = (requestBody: string) => {
+    fetcher.submit(requestBody, {
+      method: "POST",
+      encType: "application/json",
+    });
+  };
 
   return (
     <div>
@@ -275,9 +304,11 @@ export default function CollectionCreateRoute() {
         </div>
       </div>
 
-      <CollectionCreatorFormContainer
-        projectId={project._id}
+      <CollectionCreatorContainer
         prefillData={prefillData}
+        onSubmit={handleSubmit}
+        isLoading={fetcher.state !== "idle"}
+        errors={(fetcher.data as any)?.errors || {}}
       />
     </div>
   );
