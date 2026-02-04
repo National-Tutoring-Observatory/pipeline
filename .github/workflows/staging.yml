@@ -363,3 +363,114 @@ jobs:
 
           trap - ERR
           echo "✅ Worker service deployed"
+
+  # ------------------------------------------------------------
+  # FINAL SUMMARY (FIXED)
+  # ------------------------------------------------------------
+  staging-summary:
+    name: Deployment Summary
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-push-staging
+      - deploy-web-staging
+      - deploy-worker-staging
+    if: success()
+  
+    permissions:
+      actions: read
+  
+    steps:
+      - name: Generate deployment summary
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+          REPO: ${{ github.repository }}
+          WEB_IMAGE: ${{ needs.build-and-push-staging.outputs.web_image }}
+          WORKER_IMAGE: ${{ needs.build-and-push-staging.outputs.worker_image }}
+        run: |
+          set -euo pipefail
+  
+          RUN_JSON=$(gh api "repos/$REPO/actions/runs/$RUN_ID")
+          JOBS_JSON=$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs")
+  
+          # --- Total duration (matches GitHub UI closely) ---
+          RUN_STARTED=$(echo "$RUN_JSON" | jq -r '.run_started_at // .created_at')
+          RUN_ENDED=$(echo "$RUN_JSON" | jq -r '.updated_at // .run_completed_at // .completed_at')
+  
+          START_EPOCH=$(date -d "$RUN_STARTED" +%s)
+          END_EPOCH=$(date -d "$RUN_ENDED" +%s)
+  
+          TOTAL_SECONDS=$((END_EPOCH - START_EPOCH))
+          TOTAL_MIN=$((TOTAL_SECONDS / 60))
+          TOTAL_SEC=$((TOTAL_SECONDS % 60))
+  
+          {
+            echo "## 🚀 Staging Deployment Complete"
+            echo
+            echo "**Environment:** Staging  "
+            echo "**Status:** ✅ Healthy  "
+            echo "**Total Duration:** ⏱️ **${TOTAL_MIN}m ${TOTAL_SEC}s**"
+            echo
+            echo "### 📦 Deployed Containers"
+            echo "- **Web:** \`${WEB_IMAGE}\`"
+            echo "- **Worker:** \`${WORKER_IMAGE}\`"
+            echo
+            echo "### 🔗 Application"
+            echo "- 🌐 **Web App:** https://staging.app.nationaltutoringobservatory.org/"
+            echo
+            echo "### 🧾 Source"
+            echo "- **Branch:** \`${{ github.ref_name }}\`"
+            echo "- **Commit:** \`${{ github.sha }}\`"
+            echo
+            echo "### ⏱️ Job Timings"
+            echo
+            echo "| Job | Duration |"
+            echo "|-----|----------|"
+          } >> "$GITHUB_STEP_SUMMARY"
+  
+          # Only completed jobs
+          mapfile -t JOB_ROWS < <(
+            echo "$JOBS_JSON" | jq -r '
+              .jobs[]
+              | select(.started_at != null and .completed_at != null)
+              | [.name, .started_at, .completed_at]
+              | @tsv
+            '
+          )
+  
+          # Find slowest job
+          SLOWEST_SECONDS=0
+          SLOWEST_NAME=""
+  
+          for ROW in "${JOB_ROWS[@]}"; do
+            IFS=$'\t' read -r NAME START END <<< "$ROW"
+            START_EPOCH=$(date -d "$START" +%s)
+            END_EPOCH=$(date -d "$END" +%s)
+            DURATION=$((END_EPOCH - START_EPOCH))
+  
+            if [ "$DURATION" -gt "$SLOWEST_SECONDS" ]; then
+              SLOWEST_SECONDS="$DURATION"
+              SLOWEST_NAME="$NAME"
+            fi
+          done
+  
+          # Render timing table
+          for ROW in "${JOB_ROWS[@]}"; do
+            IFS=$'\t' read -r NAME START END <<< "$ROW"
+            START_EPOCH=$(date -d "$START" +%s)
+            END_EPOCH=$(date -d "$END" +%s)
+            DURATION=$((END_EPOCH - START_EPOCH))
+            MIN=$((DURATION / 60))
+            SEC=$((DURATION % 60))
+  
+            if [ "$NAME" = "$SLOWEST_NAME" ]; then
+              echo "| **$NAME** | **${MIN}m ${SEC}s** |" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "| $NAME | ${MIN}m ${SEC}s |" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+  
+          {
+            echo
+            echo "_**Bolded row indicates the slowest completed job (critical path).**_"
+          } >> "$GITHUB_STEP_SUMMARY"
