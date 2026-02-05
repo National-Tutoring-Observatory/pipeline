@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import aiGatewayConfig from "~/config/ai_gateway.json";
 import { ProjectService } from "~/modules/projects/project";
-
-const testModel = aiGatewayConfig.providers[0].models[0].code;
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import { SessionService } from "~/modules/sessions/session";
@@ -10,6 +8,8 @@ import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createCollectionWithRuns from "../services/createCollectionWithRuns.server";
+
+const testModel = aiGatewayConfig.providers[0].models[0].code;
 
 vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),

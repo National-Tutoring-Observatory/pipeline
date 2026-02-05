@@ -3,8 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import aiGatewayConfig from "~/config/ai_gateway.json";
 import { CollectionService } from "~/modules/collections/collection";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
-
-const testModel = aiGatewayConfig.providers[0].models[0].code;
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
 import { PromptService } from "~/modules/prompts/prompt";
@@ -19,6 +17,8 @@ import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/collectionCreate.route";
+
+const testModel = aiGatewayConfig.providers[0].models[0].code;
 
 vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),
