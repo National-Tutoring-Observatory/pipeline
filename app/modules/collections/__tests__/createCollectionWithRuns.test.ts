@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import aiGatewayConfig from "~/config/ai_gateway.json";
 import { ProjectService } from "~/modules/projects/project";
+
+const testModel = aiGatewayConfig.providers[0].models[0].code;
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import { SessionService } from "~/modules/sessions/session";
@@ -60,7 +63,7 @@ describe("createCollectionWithRuns", () => {
       name: "Test Collection",
       sessions,
       prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: ["openai.gpt-4.1"],
+      models: [testModel],
       annotationType: "PER_UTTERANCE",
     });
 

@@ -1,7 +1,10 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import aiGatewayConfig from "~/config/ai_gateway.json";
 import { CollectionService } from "~/modules/collections/collection";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
+
+const testModel = aiGatewayConfig.providers[0].models[0].code;
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
 import { PromptService } from "~/modules/prompts/prompt";
@@ -140,7 +143,7 @@ describe("collectionCreate.route", () => {
           prompts: [
             { promptId: prompt._id, promptName: "Prompt 1", version: 1 },
           ],
-          models: ["openai.gpt-4.1"],
+          models: [testModel],
           sessions: [session._id],
         },
       });
@@ -178,7 +181,7 @@ describe("collectionCreate.route", () => {
           name: "Test Collection",
           annotationType: "PER_UTTERANCE",
           prompts: [{ promptId: prompt._id, version: 1 }],
-          models: ["openai.gpt-4.1"],
+          models: [testModel],
           sessions: [session._id],
         },
       });
