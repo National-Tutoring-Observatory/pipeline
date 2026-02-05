@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { calculateEstimates } from "../helpers/calculateEstimates";
 import aiGatewayConfig from "~/config/ai_gateway.json";
+import { calculateEstimates } from "../helpers/calculateEstimates";
 
 const allModels = aiGatewayConfig.providers.flatMap((p) =>
   p.models.map((m) => m.code),
@@ -42,11 +42,7 @@ function expectedTime(
 
 describe("calculateEstimates", () => {
   it("calculates cost and time for single model", () => {
-    const result = calculateEstimates(
-      [{}],
-      [allModels[0]],
-      Array(10).fill({}),
-    );
+    const result = calculateEstimates([{}], [allModels[0]], Array(10).fill({}));
 
     expect(result.estimatedCost).toBeCloseTo(expectedCost(1, [0], 10), 5);
     expect(result.estimatedTimeSeconds).toBeCloseTo(expectedTime(1, 1, 10), 1);
