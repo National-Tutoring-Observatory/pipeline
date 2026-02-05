@@ -18,16 +18,16 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import { FileService } from "~/modules/files/file";
 import { RunService } from "~/modules/runs/run";
+import getAttributeMappingFromFile from "~/modules/sessions/helpers/getAttributeMappingFromFile";
+import createSessionsFromFiles from "~/modules/sessions/services/createSessionsFromFiles.server";
 import { SessionService } from "~/modules/sessions/session";
 import splitMultipleSessionsIntoFiles from "~/modules/uploads/services/splitMultipleSessionsIntoFiles";
 import uploadFiles from "~/modules/uploads/services/uploadFiles";
 import type { User } from "~/modules/users/users.types";
 import ProjectAuthorization from "../authorization";
 import Project from "../components/project";
-import getAttributeMappingFromFile from "../helpers/getAttributeMappingFromFile";
 import { useProjectActions } from "../hooks/useProjectActions";
 import { ProjectService } from "../project";
-import createSessionsFromFiles from "../services/createSessionsFromFiles.server";
 import type { Route } from "./+types/project.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {

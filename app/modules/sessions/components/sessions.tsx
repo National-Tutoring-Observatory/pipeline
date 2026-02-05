@@ -1,14 +1,16 @@
 import { Collection } from "@/components/ui/collection";
-import type { Run } from "~/modules/runs/runs.types";
-import getProjectRunsEmptyAttributes from "../helpers/getProjectRunsEmptyAttributes";
-import useProjectRunsItemActions from "../helpers/getProjectRunsItemActions";
-import getProjectRunsItemAttributes from "../helpers/getProjectRunsItemAttributes";
-import projectRunsActions from "../helpers/projectRunsActions";
-import projectRunsFilters from "../helpers/projectRunsFilters";
-import projectRunsSortOptions from "../helpers/projectRunsSortOptions";
+import type { Project } from "~/modules/projects/projects.types";
+import type { Session } from "~/modules/sessions/sessions.types";
+import getSessionsActions from "../helpers/getSessionsActions";
+import getSessionsEmptyAttributes from "../helpers/getSessionsEmptyAttributes";
+import getSessionsItemActions from "../helpers/getSessionsItemActions";
+import getSessionsItemAttributes from "../helpers/getSessionsItemAttributes";
+import sessionsFilters from "../helpers/sessionsFilters";
+import sessionsSortOptions from "../helpers/sessionsSortOptions";
 
-export default function ProjectRuns({
-  runs,
+export default function Sessions({
+  project,
+  sessions,
   searchValue,
   currentPage,
   totalPages,
@@ -16,13 +18,14 @@ export default function ProjectRuns({
   sortValue,
   isSyncing,
   onActionClicked,
-  onItemActionClicked,
+  onItemClicked,
   onSearchValueChanged,
   onPaginationChanged,
   onFiltersValueChanged,
   onSortValueChanged,
 }: {
-  runs: Run[];
+  project: Project;
+  sessions: Session[];
   searchValue: string;
   currentPage: number;
   totalPages: number;
@@ -30,22 +33,20 @@ export default function ProjectRuns({
   sortValue: string;
   isSyncing: boolean;
   onActionClicked: (action: string) => void;
-  onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
+  onItemClicked: (id: string) => void;
   onSearchValueChanged: (searchValue: string) => void;
   onPaginationChanged: (currentPage: number) => void;
   onFiltersValueChanged: (filterValue: any) => void;
   onSortValueChanged: (sortValue: any) => void;
 }) {
-  const getItemActions = useProjectRunsItemActions();
-
   return (
     <div className="mt-8">
       <Collection
-        items={runs}
+        items={sessions}
         itemsLayout="list"
-        actions={projectRunsActions}
-        filters={projectRunsFilters}
-        sortOptions={projectRunsSortOptions}
+        actions={getSessionsActions(project)}
+        filters={sessionsFilters}
+        sortOptions={sessionsSortOptions}
         hasSearch
         hasPagination
         filtersValues={filtersValues}
@@ -54,11 +55,11 @@ export default function ProjectRuns({
         currentPage={currentPage}
         totalPages={totalPages}
         isSyncing={isSyncing}
-        emptyAttributes={getProjectRunsEmptyAttributes()}
-        getItemAttributes={getProjectRunsItemAttributes}
-        getItemActions={getItemActions}
+        emptyAttributes={getSessionsEmptyAttributes()}
+        getItemAttributes={getSessionsItemAttributes}
+        getItemActions={getSessionsItemActions}
+        onItemClicked={onItemClicked}
         onActionClicked={onActionClicked}
-        onItemActionClicked={onItemActionClicked}
         onSearchValueChanged={onSearchValueChanged}
         onPaginationChanged={onPaginationChanged}
         onFiltersValueChanged={onFiltersValueChanged}

@@ -6,15 +6,15 @@ import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromR
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
+import ProjectAuthorization from "~/modules/projects/authorization";
+import { ProjectService } from "~/modules/projects/project";
 import ViewSessionContainer from "~/modules/sessions/containers/viewSessionContainer";
 import { SessionService } from "~/modules/sessions/session";
 import type { Session } from "~/modules/sessions/sessions.types";
 import type { User } from "~/modules/users/users.types";
-import ProjectAuthorization from "../authorization";
-import ProjectSessions from "../components/projectSessions";
-import { ProjectService } from "../project";
+import Sessions from "../components/sessions";
 import createSessionsFromFiles from "../services/createSessionsFromFiles.server";
-import type { Route } from "./+types/projectSessions.route";
+import type { Route } from "./+types/sessions.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = (await getSessionUser({ request })) as User;
@@ -142,7 +142,7 @@ export default function ProjectSessionsRoute() {
   };
 
   return (
-    <ProjectSessions
+    <Sessions
       project={project}
       sessions={sessions.data}
       searchValue={searchValue}

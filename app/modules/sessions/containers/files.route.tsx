@@ -2,10 +2,10 @@ import { redirect, useLoaderData } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { FileService } from "~/modules/files/file";
 import ProjectAuthorization from "~/modules/projects/authorization";
+import { ProjectService } from "~/modules/projects/project";
 import type { User } from "~/modules/users/users.types";
-import ProjectFiles from "../components/projectFiles";
-import { ProjectService } from "../project";
-import type { Route } from "./+types/projectFiles.route";
+import Files from "../components/files";
+import type { Route } from "./+types/files.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = (await getSessionUser({ request })) as User;
@@ -28,5 +28,5 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export default function ProjectFilesRoute() {
   const { files } = useLoaderData();
-  return <ProjectFiles files={files} />;
+  return <Files files={files} />;
 }

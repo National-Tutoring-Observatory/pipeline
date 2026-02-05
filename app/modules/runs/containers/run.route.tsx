@@ -21,8 +21,8 @@ import { useCreateCollectionForRun } from "~/modules/runs/hooks/useCreateCollect
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import EditRunDialog from "../components/editRunDialog";
-import ProjectRun from "../components/projectRun";
-import type { Route } from "./+types/projectRun.route";
+import RunDetail from "../components/run";
+import type { Route } from "./+types/run.route";
 
 interface PromptInfo {
   name: string;
@@ -279,7 +279,7 @@ export default function ProjectRunRoute() {
   ];
 
   return (
-    <ProjectRun
+    <RunDetail
       run={run}
       promptInfo={promptInfo}
       collections={runCollections || []}

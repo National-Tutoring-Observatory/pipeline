@@ -5,7 +5,7 @@ import { useContext } from "react";
 import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import type { User } from "~/modules/users/users.types";
 
-export default function useProjectRunsItemActions(): () => CollectionItemAction[] {
+export default function useRunsItemActions(): () => CollectionItemAction[] {
   const authentication = useContext(AuthenticationContext) as User | null;
   const hasCollections = includes(
     authentication?.featureFlags,

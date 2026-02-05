@@ -10,7 +10,7 @@ import map from "lodash/map";
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { File } from "~/modules/files/files.types";
 
-export default function ProjectFiles({ files }: { files: File[] }) {
+export default function Files({ files }: { files: File[] }) {
   return (
     <div className="mt-8">
       <div className="rounded-md border">

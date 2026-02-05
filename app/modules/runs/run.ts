@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import runSchema from "~/lib/schemas/run.schema";
 import type { FindOptions, PaginateProps } from "~/modules/common/types";
-import createRunAnnotations from "~/modules/projects/services/createRunAnnotations.server";
 import buildRunSessions from "./helpers/buildRunSessions.server";
 import type { CreateRunProps, Run } from "./runs.types";
 import buildRunSnapshot from "./services/buildRunSnapshot.server";
+import createRunAnnotations from "./services/createRunAnnotations.server";
 
 const RunModel = mongoose.model("Run", runSchema);
 

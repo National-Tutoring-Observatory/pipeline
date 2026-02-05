@@ -1,9 +1,9 @@
 import { FileService } from "~/modules/files/file";
+import { ProjectService } from "~/modules/projects/project";
 import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
 import { SessionService } from "~/modules/sessions/session";
 import { getProjectFileStoragePath } from "~/modules/uploads/helpers/projectFileStorage";
 import { getProjectSessionStorageDir } from "~/modules/uploads/helpers/projectSessionStorage";
-import { ProjectService } from "../project";
 
 export default async function createSessionsFromFiles({
   projectId,

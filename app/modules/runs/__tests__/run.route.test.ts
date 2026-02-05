@@ -1,13 +1,13 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
-import { loader } from "../containers/projectRun.route";
-import { ProjectService } from "../project";
+import { loader } from "../containers/run.route";
 
 vi.mock("~/modules/runs/helpers/buildRunSessions.server", () => ({
   default: vi.fn(async (sessionIds: string[]) =>
@@ -36,11 +36,11 @@ vi.mock("~/modules/runs/services/buildRunSnapshot.server", () => ({
   buildRunSnapshot: vi.fn(),
 }));
 
-vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
+vi.mock("~/modules/runs/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),
 }));
 
-describe("projectRun.route loader", () => {
+describe("run.route loader", () => {
   beforeEach(async () => {
     await clearDocumentDB();
   });

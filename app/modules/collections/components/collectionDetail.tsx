@@ -25,7 +25,7 @@ import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Collection } from "~/modules/collections/collections.types";
 import Flag from "~/modules/featureFlags/components/flag";
-import ProjectDownloadDropdown from "~/modules/projects/components/projectDownloadDropdown";
+import DownloadDropdown from "~/modules/runs/components/downloadDropdown";
 
 export default function CollectionDetail({
   collection,
@@ -64,7 +64,7 @@ export default function CollectionDetail({
         </PageHeaderLeft>
         <PageHeaderRight>
           <div className="text-muted-foreground flex gap-1">
-            <ProjectDownloadDropdown
+            <DownloadDropdown
               isExporting={collection.isExporting || false}
               hasExportedCSV={collection.hasExportedCSV || false}
               hasExportedJSONL={collection.hasExportedJSONL || false}

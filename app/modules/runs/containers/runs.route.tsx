@@ -22,8 +22,8 @@ import { useCreateCollectionForRun } from "~/modules/runs/hooks/useCreateCollect
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import EditRunDialog from "../components/editRunDialog";
-import ProjectRuns from "../components/projectRuns";
-import type { Route } from "./+types/projectRuns.route";
+import Runs from "../components/runs";
+import type { Route } from "./+types/runs.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const queryParams = getQueryParamsFromRequest(request, {
@@ -215,7 +215,7 @@ export default function ProjectRunsRoute() {
   });
 
   return (
-    <ProjectRuns
+    <Runs
       runs={runs.data}
       searchValue={searchValue}
       currentPage={currentPage}

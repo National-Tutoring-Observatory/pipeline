@@ -1,4 +1,4 @@
-import type { Project } from "../projects.types";
+import type { Project } from "~/modules/projects/projects.types";
 
 export default (project: Project) => {
   const actions = [];

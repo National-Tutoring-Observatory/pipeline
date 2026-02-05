@@ -1,14 +1,14 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
+import { ProjectService } from "~/modules/projects/project";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
-import { loader } from "../containers/projectFiles.route";
-import { ProjectService } from "../project";
+import { loader } from "../containers/sessions.route";
 
-describe("projectFiles.route loader", () => {
+describe("sessions.route loader", () => {
   beforeEach(async () => {
     await clearDocumentDB();
   });
@@ -20,7 +20,7 @@ describe("projectFiles.route loader", () => {
 
     const res = await loader({
       request: new Request(
-        "http://localhost/projects/" + fakeProjectId + "/files",
+        "http://localhost/projects/" + fakeProjectId + "/sessions",
         { headers: { cookie: cookieHeader } },
       ),
       params: { id: fakeProjectId },
@@ -30,7 +30,7 @@ describe("projectFiles.route loader", () => {
     expect((res as Response).headers.get("Location")).toBe("/");
   });
 
-  it("returns files for authorized user", async () => {
+  it("returns sessions for authorized user", async () => {
     const user = await UserService.create({ username: "test_user", teams: [] });
     const team = await TeamService.create({ name: "Test Team" });
 
@@ -48,13 +48,13 @@ describe("projectFiles.route loader", () => {
 
     const res = await loader({
       request: new Request(
-        "http://localhost/projects/" + project._id + "/files",
+        "http://localhost/projects/" + project._id + "/sessions",
         { headers: { cookie: cookieHeader } },
       ),
       params: { id: project._id.toString() },
     } as any);
 
     expect(res).not.toBeInstanceOf(Response);
-    expect((res as any).files).toBeDefined();
+    expect((res as any).sessions).toBeDefined();
   });
 });

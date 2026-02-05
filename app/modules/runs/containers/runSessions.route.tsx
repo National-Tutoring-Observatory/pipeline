@@ -6,8 +6,8 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
-import ProjectRunSessions from "../components/projectRunSessions";
-import type { Route } from "./+types/projectRunSessions.route";
+import RunSessions from "../components/runSessions";
+import type { Route } from "./+types/runSessions.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
@@ -67,7 +67,7 @@ export default function ProjectRunSessionsRoute() {
   ];
 
   return (
-    <ProjectRunSessions
+    <RunSessions
       run={run}
       session={session}
       sessionFile={sessionFile}
