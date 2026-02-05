@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -13,7 +12,6 @@ import { useState } from "react";
 import AnnotationTypeSelectorContainer from "~/modules/prompts/containers/annoationTypeSelectorContainer";
 import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
 import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
-import SessionRandomizer from "~/modules/sessions/components/sessionRandomizer";
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 import RunNameAlert from "./runNameAlert";
 
@@ -24,8 +22,6 @@ export default function ProjectRunCreator({
   selectedPromptVersion,
   selectedModel,
   selectedSessions,
-  randomSampleSize,
-  sessionsCount,
   isRunButtonDisabled,
   onRunNameChanged,
   onSelectedAnnotationTypeChanged,
@@ -34,8 +30,6 @@ export default function ProjectRunCreator({
   onSelectedModelChanged,
   onSelectedSessionsChanged,
   onStartRunButtonClicked,
-  onRandomSampleSizeChanged,
-  onSelectRandomSampleSizeButtonClicked,
 }: {
   runName: string;
   selectedAnnotationType: string;
@@ -144,14 +138,6 @@ export default function ProjectRunCreator({
             Choose which sessions to annotate. You can select manually or use
             the randomizer to pick a sample.
           </CardDescription>
-          <CardAction>
-            <SessionRandomizer
-              sampleSize={randomSampleSize}
-              maxSize={sessionsCount}
-              onSampleSizeChanged={onRandomSampleSizeChanged}
-              onRandomizeClicked={onSelectRandomSampleSizeButtonClicked}
-            />
-          </CardAction>
         </CardHeader>
         <CardContent>
           <SessionSelectorContainer
