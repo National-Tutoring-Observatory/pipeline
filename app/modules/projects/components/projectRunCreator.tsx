@@ -22,6 +22,7 @@ export default function ProjectRunCreator({
   selectedPromptVersion,
   selectedModel,
   selectedSessions,
+  isSubmitting,
   isRunButtonDisabled,
   onRunNameChanged,
   onSelectedAnnotationTypeChanged,
@@ -39,6 +40,7 @@ export default function ProjectRunCreator({
   selectedSessions: string[];
   randomSampleSize: number;
   sessionsCount: number;
+  isSubmitting: boolean;
   isRunButtonDisabled: boolean;
   onRunNameChanged: (name: string) => void;
   onSelectedAnnotationTypeChanged: (selectedAnnotationType: string) => void;
@@ -150,7 +152,7 @@ export default function ProjectRunCreator({
               disabled={isRunButtonDisabled}
               onClick={onStartRunButtonClicked}
             >
-              Start run
+              {isSubmitting ? "Starting run..." : "Start run"}
             </Button>
           </div>
         </CardContent>

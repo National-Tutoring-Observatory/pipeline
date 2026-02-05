@@ -7,10 +7,12 @@ import ProjectRunCreatorContainer from "../containers/projectRunCreator.containe
 export default function ProjectCreateRun({
   breadcrumbs,
   onStartRunClicked,
+  isSubmitting,
   initialRun,
 }: {
   breadcrumbs: Breadcrumb[];
   onStartRunClicked: (createRun: CreateRun) => void;
+  isSubmitting: boolean;
   initialRun?: Run | null;
 }) {
   return (
@@ -22,6 +24,7 @@ export default function ProjectCreateRun({
       </PageHeader>
       <ProjectRunCreatorContainer
         onStartRunClicked={onStartRunClicked}
+        isSubmitting={isSubmitting}
         initialRun={initialRun}
       />
     </div>

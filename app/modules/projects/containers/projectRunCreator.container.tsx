@@ -8,11 +8,13 @@ import ProjectRunCreator from "../components/projectRunCreator";
 
 interface ProjectRunCreatorContainerProps {
   onStartRunClicked: (createRun: CreateRun) => void;
+  isSubmitting: boolean;
   initialRun?: Run | null;
 }
 
 export default function ProjectRunCreatorContainer({
   onStartRunClicked,
+  isSubmitting,
   initialRun,
 }: ProjectRunCreatorContainerProps) {
   const [runName, setRunName] = useState(
@@ -113,7 +115,8 @@ export default function ProjectRunCreatorContainer({
       selectedSessions={selectedSessions}
       randomSampleSize={randomSampleSize}
       sessionsCount={sessionsFetcher?.data?.sessions?.count || 0}
-      isRunButtonDisabled={isRunButtonDisabled}
+      isSubmitting={isSubmitting}
+      isRunButtonDisabled={isRunButtonDisabled || isSubmitting}
       onRunNameChanged={onRunNameChangedHandler}
       onSelectedAnnotationTypeChanged={onSelectedAnnotationTypeChanged}
       onSelectedPromptChanged={onSelectedPromptChanged}
