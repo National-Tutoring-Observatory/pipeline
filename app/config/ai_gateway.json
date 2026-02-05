@@ -51,7 +51,7 @@
       "name": "Anthropic",
       "models": [
         {
-          "name": "Claude 4.5 ",
+          "name": "Claude 4.5 Haiku",
           "code": "anthropic.claude-4.5-haiku",
           "inputCostPer1M": 1.0,
           "outputCostPer1M": 5.0
