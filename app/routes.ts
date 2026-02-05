@@ -16,19 +16,15 @@ export default [
       "modules/projects/containers/project.route.tsx",
       { id: "project" },
       [
-        index("modules/projects/containers/projectRuns.route.tsx", {
+        index("modules/runs/containers/runs.route.tsx", {
           id: "RUNS",
         }),
-        route("files", "modules/projects/containers/projectFiles.route.tsx", {
+        route("files", "modules/sessions/containers/files.route.tsx", {
           id: "FILES",
         }),
-        route(
-          "sessions",
-          "modules/projects/containers/projectSessions.route.tsx",
-          {
-            id: "SESSIONS",
-          },
-        ),
+        route("sessions", "modules/sessions/containers/sessions.route.tsx", {
+          id: "SESSIONS",
+        }),
         route(
           "collections",
           "modules/collections/containers/collectionsList.route.tsx",
@@ -40,23 +36,20 @@ export default [
     ),
     route(
       ":projectId/create-run",
-      "modules/projects/containers/projectCreateRun.route.tsx",
+      "modules/runs/containers/createRun.route.tsx",
     ),
     route(
       ":projectId/create-collection",
       "modules/collections/containers/collectionCreate.route.tsx",
     ),
-    route(
-      ":projectId/runs/:runId",
-      "modules/projects/containers/projectRun.route.tsx",
-    ),
+    route(":projectId/runs/:runId", "modules/runs/containers/run.route.tsx"),
     route(
       ":projectId/runs/:runId/add-to-collection",
       "modules/runs/containers/runAddToCollection.route.tsx",
     ),
     route(
       ":projectId/runs/:runId/sessions/:sessionId",
-      "modules/projects/containers/projectRunSessions.route.tsx",
+      "modules/runs/containers/runSessions.route.tsx",
     ),
     route(
       ":projectId/collections/:collectionId",

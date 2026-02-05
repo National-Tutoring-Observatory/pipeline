@@ -40,11 +40,11 @@ import Flag from "~/modules/featureFlags/components/flag";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
-import ProjectDownloadDropdown from "./projectDownloadDropdown";
-import ProjectRunDownloads from "./projectRunDownloads";
+import DownloadDropdown from "./downloadDropdown";
 import RunCollections from "./runCollections";
+import RunDownloads from "./runDownloads";
 
-export default function ProjectRun({
+export default function RunDetail({
   run,
   promptInfo,
   collections,
@@ -83,7 +83,7 @@ export default function ProjectRun({
         </PageHeaderLeft>
         <PageHeaderRight>
           {run.isComplete && (
-            <ProjectDownloadDropdown
+            <DownloadDropdown
               isExporting={run.isExporting || false}
               hasExportedCSV={run.hasExportedCSV}
               hasExportedJSONL={run.hasExportedJSONL}
@@ -218,7 +218,7 @@ export default function ProjectRun({
             </Table>
           </div>
         </div>
-        <ProjectRunDownloads run={run} />
+        <RunDownloads run={run} />
       </div>
     </div>
   );

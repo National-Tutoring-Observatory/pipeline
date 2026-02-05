@@ -11,7 +11,7 @@ import createCollectionWithRuns from "../services/createCollectionWithRuns.serve
 
 const testModel = aiGatewayConfig.providers[0].models[0].code;
 
-vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
+vi.mock("~/modules/runs/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),
 }));
 

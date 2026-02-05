@@ -1,14 +1,14 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
+import { ProjectService } from "~/modules/projects/project";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
-import { loader } from "../containers/projectSessions.route";
-import { ProjectService } from "../project";
+import { loader } from "../containers/files.route";
 
-describe("projectSessions.route loader", () => {
+describe("files.route loader", () => {
   beforeEach(async () => {
     await clearDocumentDB();
   });
@@ -20,7 +20,7 @@ describe("projectSessions.route loader", () => {
 
     const res = await loader({
       request: new Request(
-        "http://localhost/projects/" + fakeProjectId + "/sessions",
+        "http://localhost/projects/" + fakeProjectId + "/files",
         { headers: { cookie: cookieHeader } },
       ),
       params: { id: fakeProjectId },
@@ -30,7 +30,7 @@ describe("projectSessions.route loader", () => {
     expect((res as Response).headers.get("Location")).toBe("/");
   });
 
-  it("returns sessions for authorized user", async () => {
+  it("returns files for authorized user", async () => {
     const user = await UserService.create({ username: "test_user", teams: [] });
     const team = await TeamService.create({ name: "Test Team" });
 
@@ -48,13 +48,13 @@ describe("projectSessions.route loader", () => {
 
     const res = await loader({
       request: new Request(
-        "http://localhost/projects/" + project._id + "/sessions",
+        "http://localhost/projects/" + project._id + "/files",
         { headers: { cookie: cookieHeader } },
       ),
       params: { id: project._id.toString() },
     } as any);
 
     expect(res).not.toBeInstanceOf(Response);
-    expect((res as any).sessions).toBeDefined();
+    expect((res as any).files).toBeDefined();
   });
 });

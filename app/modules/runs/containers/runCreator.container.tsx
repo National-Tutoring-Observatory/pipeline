@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import aiGatewayConfig from "~/config/ai_gateway.json";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
-import ProjectRunCreator from "../components/projectRunCreator";
+import RunCreator from "../components/runCreator";
 
-interface ProjectRunCreatorContainerProps {
+interface RunCreatorContainerProps {
   onStartRunClicked: (createRun: CreateRun) => void;
   isSubmitting: boolean;
   initialRun?: Run | null;
@@ -16,7 +16,7 @@ export default function ProjectRunCreatorContainer({
   onStartRunClicked,
   isSubmitting,
   initialRun,
-}: ProjectRunCreatorContainerProps) {
+}: RunCreatorContainerProps) {
   const [runName, setRunName] = useState(
     initialRun ? `${initialRun.name} (copy)` : "",
   );
@@ -106,7 +106,7 @@ export default function ProjectRunCreatorContainer({
   }, [sessionsFetcher.data]);
 
   return (
-    <ProjectRunCreator
+    <RunCreator
       runName={runName}
       selectedAnnotationType={selectedAnnotationType}
       selectedPrompt={selectedPrompt}

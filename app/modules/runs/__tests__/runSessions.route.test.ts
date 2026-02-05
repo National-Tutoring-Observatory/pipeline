@@ -1,13 +1,13 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ProjectService } from "~/modules/projects/project";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
-import { loader } from "../containers/projectRunSessions.route";
-import { ProjectService } from "../project";
+import { loader } from "../containers/runSessions.route";
 
 // Mock storage adapter to avoid actual file operations
 vi.mock("~/modules/storage/helpers/getStorageAdapter", () => ({
@@ -25,7 +25,7 @@ vi.mock("fs-extra", () => ({
   },
 }));
 
-describe("projectRunSessions.route loader", () => {
+describe("runSessions.route loader", () => {
   beforeEach(async () => {
     await clearDocumentDB();
   });

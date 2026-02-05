@@ -5,9 +5,9 @@ import { toast } from "sonner";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
-import type { CreateRun } from "~/modules/runs/runs.types";
-import ProjectCreateRun from "../components/projectCreateRun";
-import type { Route } from "./+types/projectCreateRun.route";
+import type { CreateRun as CreateRunPayload } from "~/modules/runs/runs.types";
+import CreateRunComponent from "../components/createRun";
+import type { Route } from "./+types/createRun.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
@@ -83,7 +83,7 @@ export default function ProjectCreateRunRoute() {
     selectedPromptVersion,
     selectedModel,
     selectedSessions,
-  }: CreateRun) => {
+  }: CreateRunPayload) => {
     fetcher.submit(
       JSON.stringify({
         intent: "CREATE_AND_START_RUN",
@@ -118,7 +118,7 @@ export default function ProjectCreateRunRoute() {
   ];
 
   return (
-    <ProjectCreateRun
+    <CreateRunComponent
       breadcrumbs={breadcrumbs}
       onStartRunClicked={onStartRunClicked}
       isSubmitting={isSubmitting}

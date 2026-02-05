@@ -15,7 +15,7 @@ import PromptSelectorContainer from "~/modules/prompts/containers/promptSelector
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 import RunNameAlert from "./runNameAlert";
 
-export default function ProjectRunCreator({
+export default function RunCreator({
   runName,
   selectedAnnotationType,
   selectedPrompt,

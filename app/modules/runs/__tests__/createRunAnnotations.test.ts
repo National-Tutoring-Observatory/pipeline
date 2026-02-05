@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ProjectService } from "~/modules/projects/project";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import { TeamService } from "~/modules/teams/team";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createTestRun from "../../../../test/helpers/createTestRun";
-import { ProjectService } from "../project";
 import createRunAnnotations from "../services/createRunAnnotations.server";
 
 describe("createRunAnnotations", () => {

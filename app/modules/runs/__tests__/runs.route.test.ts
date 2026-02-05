@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
+import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
@@ -7,10 +8,9 @@ import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
-import { action, loader } from "../containers/projectRuns.route";
-import { ProjectService } from "../project";
+import { action, loader } from "../containers/runs.route";
 
-describe("projectRuns.route loader", () => {
+describe("runs.route loader", () => {
   beforeEach(async () => {
     await clearDocumentDB();
   });
@@ -82,7 +82,7 @@ describe("projectRuns.route loader", () => {
   });
 });
 
-describe("projectRuns.route action - UPDATE_RUN", () => {
+describe("runs.route action - UPDATE_RUN", () => {
   beforeEach(async () => {
     await clearDocumentDB();
   });

@@ -4,7 +4,7 @@ import { DownloadIcon } from "lucide-react";
 import { Link } from "react-router";
 import type { Run } from "~/modules/runs/runs.types";
 
-export default function ProjectRunDownloads({ run }: { run: Run }) {
+export default function RunDownloads({ run }: { run: Run }) {
   if (run.hasExportedCSV || run.hasExportedJSONL) {
     return (
       <div className="mt-8">

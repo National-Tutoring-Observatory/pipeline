@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
 
-export default function ProjectDownloadDropdown({
+export default function DownloadDropdown({
   isExporting,
   hasExportedCSV,
   hasExportedJSONL,

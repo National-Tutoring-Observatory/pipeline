@@ -1,10 +1,10 @@
+import { ProjectService } from "~/modules/projects/project";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import type { AnnotationSchemaItem } from "~/modules/prompts/prompts.types";
 import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
 import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import { SessionService } from "~/modules/sessions/session";
-import { ProjectService } from "../project";
 
 export default async function createRunAnnotations(run: Run) {
   const project = await ProjectService.findById(run.project as string);

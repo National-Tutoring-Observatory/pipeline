@@ -2,9 +2,9 @@ import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
-import ProjectRunCreatorContainer from "../containers/projectRunCreator.container";
+import RunCreatorContainer from "../containers/runCreator.container";
 
-export default function ProjectCreateRun({
+export default function CreateRunComponent({
   breadcrumbs,
   onStartRunClicked,
   isSubmitting,
@@ -22,7 +22,7 @@ export default function ProjectCreateRun({
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
       </PageHeader>
-      <ProjectRunCreatorContainer
+      <RunCreatorContainer
         onStartRunClicked={onStartRunClicked}
         isSubmitting={isSubmitting}
         initialRun={initialRun}

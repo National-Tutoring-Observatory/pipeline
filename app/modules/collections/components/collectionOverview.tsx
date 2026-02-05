@@ -3,9 +3,9 @@ import { StatItem } from "@/components/ui/stat-item";
 import { Play, Trash2 } from "lucide-react";
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { Collection } from "~/modules/collections/collections.types";
-import getProjectRunsItemAttributes from "~/modules/projects/helpers/getProjectRunsItemAttributes";
-import getProjectSessionsItemAttributes from "~/modules/projects/helpers/getProjectSessionsItemAttributes";
+import getRunsItemAttributes from "~/modules/runs/helpers/getRunsItemAttributes";
 import type { Run } from "~/modules/runs/runs.types";
+import getSessionsItemAttributes from "~/modules/sessions/helpers/getSessionsItemAttributes";
 import type { Session } from "~/modules/sessions/sessions.types";
 import CollectionDownloads from "./collectionDownloads";
 
@@ -75,7 +75,7 @@ export default function CollectionOverview({
             <CollectionUI
               items={sessions}
               itemsLayout="list"
-              getItemAttributes={getProjectSessionsItemAttributes}
+              getItemAttributes={getSessionsItemAttributes}
               getItemActions={() => []}
               onActionClicked={() => {}}
               onItemClicked={onSessionItemClicked}
@@ -117,7 +117,7 @@ export default function CollectionOverview({
                 },
               ]}
               getItemAttributes={(item) =>
-                getProjectRunsItemAttributes(item, {
+                getRunsItemAttributes(item, {
                   collectionId: collection._id,
                 })
               }

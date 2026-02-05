@@ -5,7 +5,7 @@ import type { Run } from "~/modules/runs/runs.types";
 import SessionViewerContainer from "~/modules/sessions/containers/sessionViewerContainer";
 import type { Session, SessionFile } from "~/modules/sessions/sessions.types";
 
-export default function ProjectRunSessions({
+export default function RunSessions({
   run,
   sessionFile,
   session,
