@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import aiGatewayConfig from "~/config/ai_gateway.json";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
@@ -16,6 +17,8 @@ import loginUser from "../../../../test/helpers/loginUser";
 import { CollectionService } from "../collection";
 import type { Collection } from "../collections.types";
 import { action, loader } from "../containers/collectionCreateRuns.route";
+
+const testModel = aiGatewayConfig.providers[0].models[0].code;
 
 vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),
@@ -134,7 +137,7 @@ describe("collectionCreateRuns.route", () => {
             prompts: [
               { promptId: prompt._id, promptName: "Test Prompt", version: 1 },
             ],
-            models: ["openai.gpt-4.1"],
+            models: [testModel],
           },
         }),
       });
@@ -155,7 +158,7 @@ describe("collectionCreateRuns.route", () => {
           intent: "CREATE_RUNS",
           payload: {
             prompts: [],
-            models: ["openai.gpt-4.1"],
+            models: [testModel],
           },
         }),
       });
@@ -201,7 +204,7 @@ describe("collectionCreateRuns.route", () => {
             prompts: [
               { promptId: prompt._id, promptName: "Test Prompt", version: 1 },
             ],
-            models: ["openai.gpt-4.1"],
+            models: [testModel],
           },
         }),
       });
