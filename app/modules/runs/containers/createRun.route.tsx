@@ -6,6 +6,7 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import type { CreateRun as CreateRunPayload } from "~/modules/runs/runs.types";
+import { validateRunResources } from "~/modules/runs/services/validateRunResources.server";
 import CreateRunComponent from "../components/createRun";
 import type { Route } from "./+types/createRun.route";
 
@@ -24,11 +25,16 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const duplicateFrom = url.searchParams.get("duplicateFrom");
 
   let initialRun = null;
+  let duplicateWarnings: string[] = [];
+
   if (duplicateFrom) {
     initialRun = await RunService.findById(duplicateFrom);
+    if (initialRun) {
+      duplicateWarnings = await validateRunResources(initialRun);
+    }
   }
 
-  return { project, initialRun };
+  return { project, initialRun, duplicateWarnings };
 }
 
 export async function action({ request, params, context }: Route.ActionArgs) {
@@ -70,7 +76,7 @@ export async function action({ request, params, context }: Route.ActionArgs) {
 }
 
 export default function ProjectCreateRunRoute() {
-  const { project, initialRun } = useLoaderData();
+  const { project, initialRun, duplicateWarnings } = useLoaderData();
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const isSubmitting =
@@ -123,6 +129,7 @@ export default function ProjectCreateRunRoute() {
       onStartRunClicked={onStartRunClicked}
       isSubmitting={isSubmitting}
       initialRun={initialRun}
+      duplicateWarnings={duplicateWarnings}
     />
   );
 }

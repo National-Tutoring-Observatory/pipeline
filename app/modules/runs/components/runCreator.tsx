@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Info } from "lucide-react";
 import { useState } from "react";
 import AnnotationTypeSelectorContainer from "~/modules/prompts/containers/annoationTypeSelectorContainer";
 import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
@@ -16,6 +18,7 @@ import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelec
 import RunNameAlert from "./runNameAlert";
 
 export default function RunCreator({
+  duplicateWarnings = [],
   runName,
   selectedAnnotationType,
   selectedPrompt,
@@ -32,6 +35,7 @@ export default function RunCreator({
   onSelectedSessionsChanged,
   onStartRunButtonClicked,
 }: {
+  duplicateWarnings?: string[];
   runName: string;
   selectedAnnotationType: string;
   selectedPrompt: string | null;
@@ -63,6 +67,19 @@ export default function RunCreator({
 
   return (
     <div className="mx-0 w-full max-w-3xl pt-4 pb-8">
+      {duplicateWarnings.length > 0 && (
+        <Alert variant="destructive" className="mb-4">
+          <Info className="h-4 w-4" />
+          <AlertTitle>Some settings are no longer available</AlertTitle>
+          <AlertDescription>
+            <ul className="mt-2 list-inside list-disc">
+              {duplicateWarnings.map((warning, i) => (
+                <li key={i}>{warning}</li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
       <Card className="mb-4">
         <CardHeader>
           <CardTitle>Name your run</CardTitle>

@@ -9,11 +9,13 @@ export default function CreateRunComponent({
   onStartRunClicked,
   isSubmitting,
   initialRun,
+  duplicateWarnings = [],
 }: {
   breadcrumbs: Breadcrumb[];
   onStartRunClicked: (createRun: CreateRun) => void;
   isSubmitting: boolean;
   initialRun?: Run | null;
+  duplicateWarnings?: string[];
 }) {
   return (
     <div className="max-w-6xl p-8">
@@ -26,6 +28,7 @@ export default function CreateRunComponent({
         onStartRunClicked={onStartRunClicked}
         isSubmitting={isSubmitting}
         initialRun={initialRun}
+        duplicateWarnings={duplicateWarnings}
       />
     </div>
   );
