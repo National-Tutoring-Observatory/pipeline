@@ -20,7 +20,6 @@ jobs:
     uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_preflight.yml@main
     with:
       environment: staging
-      aws-region: us-east-1
     secrets:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   build-web-staging:
@@ -28,7 +27,6 @@ jobs:
     uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
     with:
       environment: staging
-      aws-region: us-east-1
       dockerfile: Dockerfile
       image-suffix: ""
       output-name: web_image
@@ -39,7 +37,6 @@ jobs:
     uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
     with:
       environment: staging
-      aws-region: us-east-1
       dockerfile: workers/Dockerfile
       image-suffix: "-worker"
       output-name: worker_image
@@ -69,7 +66,7 @@ jobs:
       - build-worker-staging
       - deploy-web-staging
       - deploy-worker-staging
-    uses: National-Tutoring-Observatory/workflows/.github/workflows/deployment_summary.yml@deploy_summary
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/deployment_summary.yml@main
     with:
       environment: staging
       web-image: ${{ needs.build-web-staging.outputs.image }}
