@@ -1,12 +1,6 @@
 import map from "lodash/map";
 import { useEffect } from "react";
-import {
-  redirect,
-  useActionData,
-  useLoaderData,
-  useNavigate,
-  useSubmit,
-} from "react-router";
+import { redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
 import { toast } from "sonner";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import { ProjectService } from "~/modules/projects/project";
@@ -77,9 +71,10 @@ export async function action({ request, params, context }: Route.ActionArgs) {
 
 export default function ProjectCreateRunRoute() {
   const { project, initialRun } = useLoaderData();
-  const actionData = useActionData();
-  const submit = useSubmit();
+  const fetcher = useFetcher();
   const navigate = useNavigate();
+  const isSubmitting =
+    fetcher.state !== "idle" || fetcher.data?.intent === "CREATE_AND_START_RUN";
 
   const onStartRunClicked = ({
     name,
@@ -89,7 +84,7 @@ export default function ProjectCreateRunRoute() {
     selectedModel,
     selectedSessions,
   }: CreateRun) => {
-    submit(
+    fetcher.submit(
       JSON.stringify({
         intent: "CREATE_AND_START_RUN",
         payload: {
@@ -106,13 +101,15 @@ export default function ProjectCreateRunRoute() {
   };
 
   useEffect(() => {
-    if (actionData?.intent === "CREATE_AND_START_RUN") {
+    if (fetcher.state !== "idle") return;
+    if (!fetcher.data || !("intent" in fetcher.data)) return;
+    if (fetcher.data.intent === "CREATE_AND_START_RUN") {
       toast.success("Run created and started");
       navigate(
-        `/projects/${actionData.data.project}/runs/${actionData.data._id}`,
+        `/projects/${fetcher.data.data.project}/runs/${fetcher.data.data._id}`,
       );
     }
-  }, [actionData]);
+  }, [fetcher.state, fetcher.data, navigate]);
 
   const breadcrumbs = [
     { text: "Projects", link: `/` },
@@ -124,6 +121,7 @@ export default function ProjectCreateRunRoute() {
     <ProjectCreateRun
       breadcrumbs={breadcrumbs}
       onStartRunClicked={onStartRunClicked}
+      isSubmitting={isSubmitting}
       initialRun={initialRun}
     />
   );
