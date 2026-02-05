@@ -7,6 +7,7 @@ import {
   ScrollRestoration,
 } from "react-router";
 
+import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "sonner";
 import type { Route } from "./+types/root";
@@ -29,6 +30,8 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export const meta: Route.MetaFunction = () => [{ title: "Sandpiper - NTO" }];
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -39,6 +42,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <NavigationProgress />
         <AuthenticationContainer>
           <SidebarProvider defaultOpen={true}>
             <AppSidebar />

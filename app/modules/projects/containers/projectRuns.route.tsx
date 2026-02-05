@@ -1,9 +1,7 @@
 import find from "lodash/find";
-import { useEffect } from "react";
 import {
   data,
   redirect,
-  useActionData,
   useLoaderData,
   useNavigate,
   useParams,
@@ -20,9 +18,9 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
+import { useCreateCollectionForRun } from "~/modules/runs/hooks/useCreateCollectionForRun";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
-import DuplicateRunDialog from "../components/duplicateRunDialog";
 import EditRunDialog from "../components/editRunDialog";
 import ProjectRuns from "../components/projectRuns";
 import type { Route } from "./+types/projectRuns.route";
@@ -91,49 +89,6 @@ export async function action({ request, params }: Route.ActionArgs) {
       await RunService.updateById(entityId, { name });
       return {};
     }
-    case "DUPLICATE_RUN": {
-      if (typeof name !== "string") {
-        throw new Error("Run name is required and must be a string.");
-      }
-
-      if (!ProjectAuthorization.Runs.canManage(user, project)) {
-        throw new Error(
-          "You do not have permission to duplicate runs in this project.",
-        );
-      }
-
-      const existingRun = await RunService.findById(entityId);
-      if (!existingRun) {
-        throw new Error("Run not found.");
-      }
-
-      const {
-        project: projectId,
-        annotationType,
-        prompt,
-        promptVersion,
-        model,
-        snapshot,
-        sessions,
-      } = existingRun;
-
-      const run = await RunService.create({
-        project: projectId,
-        name: name,
-        annotationType,
-        prompt,
-        promptVersion,
-        model,
-        sessions,
-        isRunning: false,
-        isComplete: false,
-        snapshot: snapshot,
-      });
-      return {
-        intent: "DUPLICATE_RUN",
-        data: run,
-      };
-    }
     default: {
       return {};
     }
@@ -144,9 +99,11 @@ export default function ProjectRunsRoute() {
   const { runs } = useLoaderData();
   const { id: projectId } = useParams();
   const submit = useSubmit();
-  const actionData = useActionData();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
+  const { openCreateCollectionDialog } = useCreateCollectionForRun({
+    projectId: projectId!,
+  });
 
   const {
     searchValue,
@@ -165,14 +122,6 @@ export default function ProjectRunsRoute() {
     filters: {},
   });
 
-  useEffect(() => {
-    if (actionData?.intent === "DUPLICATE_RUN") {
-      navigate(
-        `/projects/${actionData.data.project}/runs/${actionData.data._id}`,
-      );
-    }
-  }, [actionData]);
-
   const onEditRunClicked = (run: Run) => {
     submit(
       JSON.stringify({
@@ -186,25 +135,6 @@ export default function ProjectRunsRoute() {
     });
   };
 
-  const onDuplicateNewRunClicked = ({
-    name,
-    runId,
-  }: {
-    name: string;
-    runId: string;
-  }) => {
-    submit(
-      JSON.stringify({
-        intent: "DUPLICATE_RUN",
-        entityId: runId,
-        payload: { name: name },
-      }),
-      { method: "POST", encType: "application/json" },
-    ).then(() => {
-      toast.success("Duplicated run");
-    });
-  };
-
   const onEditRunButtonClicked = (run: Run) => {
     addDialog(<EditRunDialog run={run} onEditRunClicked={onEditRunClicked} />);
   };
@@ -214,12 +144,7 @@ export default function ProjectRunsRoute() {
   };
 
   const onDuplicateRunButtonClicked = (run: Run) => {
-    addDialog(
-      <DuplicateRunDialog
-        run={run}
-        onDuplicateNewRunClicked={onDuplicateNewRunClicked}
-      />,
-    );
+    navigate(`/projects/${projectId}/create-run?duplicateFrom=${run._id}`);
   };
 
   const onActionClicked = (action: string) => {
@@ -244,7 +169,13 @@ export default function ProjectRunsRoute() {
       case "DUPLICATE":
         onDuplicateRunButtonClicked(run);
         break;
-      case "CREATE_COLLECTION":
+      case "ADD_TO_EXISTING_COLLECTION":
+        navigate(`/projects/${projectId}/runs/${id}/add-to-collection`);
+        break;
+      case "ADD_TO_NEW_COLLECTION":
+        openCreateCollectionDialog(id);
+        break;
+      case "USE_AS_COLLECTION_TEMPLATE":
         navigate(`/projects/${projectId}/create-collection?fromRun=${id}`);
         break;
     }

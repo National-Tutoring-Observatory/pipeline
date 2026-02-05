@@ -5,6 +5,7 @@ import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
 import { PromptService } from "~/modules/prompts/prompt";
+import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import type { Prompt } from "~/modules/prompts/prompts.types";
 import { SessionService } from "~/modules/sessions/session";
 import type { Session } from "~/modules/sessions/sessions.types";
@@ -16,10 +17,8 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/collectionCreate.route";
 
-vi.mock("~/modules/projects/services/startRun.server", () => ({
-  default: vi.fn(async () => {
-    return { _id: "mock-run-id" };
-  }),
+vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
+  default: vi.fn(async () => {}),
 }));
 
 describe("collectionCreate.route", () => {
@@ -55,6 +54,12 @@ describe("collectionCreate.route", () => {
     prompt = await PromptService.create({
       name: "Test Prompt",
       annotationType: "PER_UTTERANCE",
+    });
+    await PromptVersionService.create({
+      prompt: prompt._id,
+      version: 1,
+      userPrompt: "Test prompt content",
+      annotationSchema: [],
     });
 
     cookieHeader = await loginUser(user._id);
@@ -135,7 +140,7 @@ describe("collectionCreate.route", () => {
           prompts: [
             { promptId: prompt._id, promptName: "Prompt 1", version: 1 },
           ],
-          models: ["gpt-4"],
+          models: ["openai.gpt-4.1"],
           sessions: [session._id],
         },
       });
@@ -173,7 +178,7 @@ describe("collectionCreate.route", () => {
           name: "Test Collection",
           annotationType: "PER_UTTERANCE",
           prompts: [{ promptId: prompt._id, version: 1 }],
-          models: ["gpt-4"],
+          models: ["openai.gpt-4.1"],
           sessions: [session._id],
         },
       });

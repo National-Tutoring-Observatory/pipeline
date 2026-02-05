@@ -11,7 +11,6 @@ export interface Run {
   annotationType: string;
   prompt: Prompt | string;
   promptVersion: number;
-  model: string;
   sessions: RunSession[];
   snapshot: RunSnapshot;
   isRunning: boolean;
@@ -35,6 +34,7 @@ export interface RunSession {
 }
 
 export interface CreateRun {
+  name: string;
   selectedAnnotationType: string;
   selectedPrompt: string | null;
   selectedPromptVersion: number | null;
@@ -42,9 +42,9 @@ export interface CreateRun {
   selectedSessions: string[];
 }
 
-export interface StartRunProps {
-  runId: string;
-  projectId: string;
+export interface CreateRunProps {
+  project: string;
+  name: string;
   sessions: string[];
   annotationType: RunAnnotationType;
   prompt: string;

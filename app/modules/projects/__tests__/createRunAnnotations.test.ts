@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
-import { RunService } from "~/modules/runs/run";
 import { TeamService } from "~/modules/teams/team";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 import { ProjectService } from "../project";
 import createRunAnnotations from "../services/createRunAnnotations.server";
 
@@ -22,13 +22,12 @@ describe("createRunAnnotations", () => {
 
     // Create a run with a non-existent project ID
     const invalidProjectId = "507f1f77bcf86cd799439011"; // Valid ObjectId format but doesn't exist
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: invalidProjectId as any,
       annotationType: "PER_UTTERANCE",
       prompt: prompt._id,
       promptVersion: 1,
-      model: "gpt-4",
       sessions: [],
       isRunning: false,
       isComplete: false,
@@ -56,13 +55,12 @@ describe("createRunAnnotations", () => {
       team: team._id,
     });
 
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
       prompt: prompt._id,
       promptVersion: 1,
-      model: "gpt-4",
       sessions: [],
       isRunning: false,
       isComplete: false,
@@ -90,13 +88,12 @@ describe("createRunAnnotations", () => {
       team: team._id,
     });
 
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
       prompt: prompt._id,
       promptVersion: 1,
-      model: "gpt-4",
       sessions: [],
       isRunning: true,
       isComplete: false,
@@ -138,13 +135,12 @@ describe("createRunAnnotations", () => {
       ],
     });
 
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
       prompt: prompt._id,
       promptVersion: 1,
-      model: "gpt-4",
       sessions: [],
       isRunning: false,
       isComplete: false,

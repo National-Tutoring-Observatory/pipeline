@@ -51,20 +51,43 @@ export default [
       "modules/projects/containers/projectRun.route.tsx",
     ),
     route(
+      ":projectId/runs/:runId/add-to-collection",
+      "modules/runs/containers/runAddToCollection.route.tsx",
+    ),
+    route(
       ":projectId/runs/:runId/sessions/:sessionId",
       "modules/projects/containers/projectRunSessions.route.tsx",
     ),
     route(
       ":projectId/collections/:collectionId",
       "modules/collections/containers/collectionDetail.route.tsx",
+      [
+        index("modules/collections/containers/collectionOverview.route.tsx"),
+        route(
+          "evaluations",
+          "modules/collections/containers/collectionEvaluations.route.tsx",
+        ),
+      ],
     ),
     route(
       ":projectId/collections/:collectionId/add-runs",
       "modules/collections/containers/collectionAddRuns.route.tsx",
     ),
     route(
+      ":projectId/collections/:collectionId/create-runs",
+      "modules/collections/containers/collectionCreateRuns.route.tsx",
+    ),
+    route(
       ":projectId/collections/:collectionId/merge",
       "modules/collections/containers/collectionMerge.route.tsx",
+    ),
+    route(
+      ":projectId/collections/:collectionId/create-evaluation",
+      "modules/evaluations/containers/evaluationCreate.route.tsx",
+    ),
+    route(
+      ":projectId/collections/:collectionId/evaluations/:evaluationId",
+      "modules/evaluations/containers/evaluation.route.tsx",
     ),
   ]),
   ...prefix("prompts", [

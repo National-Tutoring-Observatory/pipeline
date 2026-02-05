@@ -21,7 +21,22 @@ import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorCo
 import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 import { calculateEstimates } from "../helpers/calculateEstimates";
+import CollectionValidationAlert from "./collectionValidationAlert";
 import EstimateSummary from "./estimateSummary";
+
+function generateRunName(
+  collectionName: string,
+  prompt: PromptReference,
+  model: string,
+): string {
+  const promptLabel = prompt.promptName
+    ? `${prompt.promptName} v${prompt.version}`
+    : prompt.promptId;
+
+  const finalCollectionName = collectionName.trim() || "Untitled Collection";
+
+  return `${finalCollectionName} - ${promptLabel} - ${model}`;
+}
 
 export default function CollectionCreatorForm({
   name,
@@ -178,6 +193,7 @@ export default function CollectionCreatorForm({
               placeholder="e.g., Question Asking Experiment"
               value={name}
               onChange={(e) => onNameChanged(e.target.value)}
+              autoFocus
             />
           </div>
 
@@ -212,6 +228,7 @@ export default function CollectionCreatorForm({
                   annotationType={annotationType}
                   selectedPrompt={tempPromptId}
                   selectedPromptVersion={tempPromptVersion}
+                  selectedPrompts={selectedPrompts}
                   onSelectedPromptChanged={(id, name) => {
                     setTempPromptId(id);
                     setTempPromptName(name || null);
@@ -272,6 +289,7 @@ export default function CollectionCreatorForm({
               <div className="space-y-2">
                 <ModelSelectorContainer
                   selectedModel={tempModel}
+                  excludeModels={selectedModels}
                   onSelectedModelChanged={setTempModel}
                 />
                 <Button
@@ -347,16 +365,10 @@ export default function CollectionCreatorForm({
                       </p>
                       <div className="space-y-1">
                         <div>
-                          <p className="text-muted-foreground text-xs">
-                            Prompt
-                          </p>
+                          <p className="text-muted-foreground text-xs">Name</p>
                           <p className="truncate font-mono text-xs">
-                            {prompt.promptName} (v{prompt.version})
+                            {generateRunName(name, prompt, model)}
                           </p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground text-xs">Model</p>
-                          <p className="truncate font-mono text-xs">{model}</p>
                         </div>
                       </div>
                     </div>
@@ -381,20 +393,29 @@ export default function CollectionCreatorForm({
       {/* Bottom Section - Summary and Button */}
       <div className="sticky bottom-0 flex items-center gap-8 rounded-b-4xl border-t bg-white px-8 py-4">
         <div className="flex-1">
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-sm text-blue-900">
-                This will create{" "}
-                <strong>
-                  {selectedPrompts.length * selectedModels.length}
-                </strong>{" "}
-                run(s) with {selectedPrompts.length} prompt(s) ×{" "}
-                {selectedModels.length} model(s) across{" "}
-                {selectedSessions.length} session(s)
-              </p>
-              <EstimateSummary estimation={estimation} />
+          {isSubmitDisabled ? (
+            <CollectionValidationAlert
+              name={name}
+              selectedPrompts={selectedPrompts}
+              selectedModels={selectedModels}
+              selectedSessions={selectedSessions}
+            />
+          ) : (
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-sm text-blue-900">
+                  This will create{" "}
+                  <strong>
+                    {selectedPrompts.length * selectedModels.length}
+                  </strong>{" "}
+                  run(s) with {selectedPrompts.length} prompt(s) ×{" "}
+                  {selectedModels.length} model(s) across{" "}
+                  {selectedSessions.length} session(s)
+                </p>
+                <EstimateSummary estimation={estimation} />
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <Button size="lg" onClick={onCreateClicked} disabled={isSubmitDisabled}>
           Create Collection & Launch Runs

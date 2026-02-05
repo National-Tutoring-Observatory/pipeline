@@ -286,6 +286,96 @@ export default function ProjectRoute() {
 }
 ```
 
+### Container/Component Pattern
+
+Route files (`containers/*.route.tsx`) are **containers** — they handle all wiring. Components (`components/*.tsx`) are **dumb** — they receive data and callbacks as props.
+
+**Route file (container) responsibilities:**
+
+- `loader` and `action` functions
+- `useFetcher` / `useSubmit` / `useNavigate` / `useLoaderData`
+- `useSearchQueryParams` hook
+- `useEffect` for side effects (toasts, navigation after action)
+- Callback functions that submit data or open dialogs
+- Passes everything to the component as props
+
+**Component responsibilities:**
+
+- Receives all data and callbacks as props
+- Manages only local UI state (e.g., selected checkboxes, form inputs)
+- No router hooks (`useFetcher`, `useNavigate`, `useLoaderData`, etc.)
+- No `useSearchQueryParams` — receives values as props from the route
+
+```typescript
+// ✅ Route file handles wiring
+export default function MyRoute() {
+  const { items } = useLoaderData<typeof loader>();
+  const fetcher = useFetcher();
+  const navigate = useNavigate();
+  const { searchValue, setSearchValue, currentPage, setCurrentPage, isSyncing } =
+    useSearchQueryParams({ searchValue: "", currentPage: 1 });
+
+  useEffect(() => { /* toast + navigate on fetcher.data */ }, [fetcher.state, fetcher.data]);
+
+  const submitAction = (id: string) => {
+    fetcher.submit(JSON.stringify({ intent: "DO_THING", payload: { id } }),
+      { method: "POST", encType: "application/json" });
+  };
+
+  return (
+    <MyComponent
+      items={items}
+      searchValue={searchValue}
+      currentPage={currentPage}
+      isSyncing={isSyncing}
+      onActionClicked={submitAction}
+      onSearchValueChanged={setSearchValue}
+      onPaginationChanged={setCurrentPage}
+    />
+  );
+}
+
+// ✅ Component is dumb — props only
+export default function MyComponent({ items, searchValue, onActionClicked, ... }: Props) {
+  const [selected, setSelected] = useState<string[]>([]); // Local UI state is fine
+  return <Collection items={items} ... />;
+}
+```
+
+### `useFetcher` vs `useSubmit` for Actions
+
+When an action needs **client-side feedback** (toasts, loading states) before navigating, use `useFetcher` — not `useSubmit`.
+
+- `useSubmit` triggers full page navigation, making it difficult to show toasts before redirect
+- `useFetcher` submits without navigation, so you can show a toast in a `useEffect` then call `navigate()` yourself
+- The action should return `data({ success: true, intent: "...", data: { redirectTo: "..." } })` instead of `redirect()`
+
+```typescript
+// ✅ useFetcher — clean feedback pattern
+const fetcher = useFetcher();
+const navigate = useNavigate();
+const isSubmitting = fetcher.state !== "idle";
+
+useEffect(() => {
+  if (fetcher.state !== "idle") return;
+  if (!fetcher.data || !("success" in fetcher.data)) return;
+  toast.success("Done!");
+  navigate(fetcher.data.data.redirectTo);
+}, [fetcher.state, fetcher.data, navigate]);
+
+const submitAction = () => {
+  fetcher.submit(JSON.stringify({ intent: "DO_THING", payload: {} }), {
+    method: "POST",
+    encType: "application/json",
+  });
+};
+
+// ❌ useSubmit — causes navigation, toast gets lost
+const submit = useSubmit();
+const navigation = useNavigation();
+// Hard to show toast before redirect happens
+```
+
 ### Search, Pagination, and Querying Pattern
 
 **CRITICAL**: For ANY list with search or pagination, you MUST use these files:
@@ -304,9 +394,11 @@ import { Collection } from "@/components/ui/collection";
 - [ ] Loader calls `getQueryParamsFromRequest()` to extract URL params
 - [ ] Loader calls `buildQueryFromParams()` to build the database query
 - [ ] Loader calls `Service.paginate()` with the query
-- [ ] Component uses `useSearchQueryParams()` hook for state
+- [ ] **Route file** calls `useSearchQueryParams()` hook and passes values as props to the component
 - [ ] Component uses `<Collection>` with `hasSearch` and `hasPagination` props
 - [ ] For multiple lists on same page: use `{ paramPrefix: "name" }` option
+
+**IMPORTANT**: `useSearchQueryParams()` always lives in the **route file** (container), never in the component. The route passes `searchValue`, `currentPage`, `isSyncing`, and the setter functions as props.
 
 **DO NOT**:
 
@@ -715,6 +807,22 @@ getDateString(item.processedOn, "Not processed yet");
 getDateString(item.finishedAt, "In progress");
 ```
 
+### TypeScript Props
+
+- Don't mark props as optional (`?`) when they are always passed — it adds unnecessary `undefined` checks and obscures the contract
+- Don't use non-null assertions (`!`) to work around optional types — fix the type instead
+- If a prop is always provided by the parent, make it required
+
+```typescript
+// ✅ Required props when always passed
+onEditClicked: (item: Item) => void;
+onDeleteClicked: (item: Item) => void;
+
+// ❌ Don't make them optional then assert
+onEditClicked?: (item: Item) => void;
+// ...later: onEditClicked!(item)  // Non-null assertion
+```
+
 ### Comments
 
 Only comment complex logic or non-obvious behavior:
@@ -840,6 +948,29 @@ className="bg-background text-foreground border-border"
 // Import icons
 import { ChevronDown } from 'lucide-react'
 <ChevronDown className="h-4 w-4" />
+```
+
+### Feature Flag Component
+
+The `<Flag>` component gates UI behind feature flags. It requires **exactly one child element** — wrap multiple children in a fragment:
+
+```typescript
+import Flag from "~/modules/featureFlags/components/flag";
+
+// ✅ Single child or fragment for multiple children
+<Flag flag="HAS_PROJECT_COLLECTIONS">
+  <>
+    <DropdownMenuItem>Action 1</DropdownMenuItem>
+    <DropdownMenuItem>Action 2</DropdownMenuItem>
+    <DropdownMenuSeparator />
+  </>
+</Flag>
+
+// ❌ Multiple direct children — will error
+<Flag flag="HAS_PROJECT_COLLECTIONS">
+  <DropdownMenuItem>Action 1</DropdownMenuItem>
+  <DropdownMenuItem>Action 2</DropdownMenuItem>
+</Flag>
 ```
 
 ## Environment Configuration

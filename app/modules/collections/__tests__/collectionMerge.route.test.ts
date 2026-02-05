@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { CollectionService } from "~/modules/collections/collection";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { ProjectService } from "~/modules/projects/project";
-import { RunService } from "~/modules/runs/run";
 import { SessionService } from "~/modules/sessions/session";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/collectionMerge.route";
 
@@ -222,7 +222,7 @@ describe("collectionMerge.route action", () => {
       runs: [],
       annotationType: "PER_UTTERANCE",
     });
-    const sourceRun = await RunService.create({
+    const sourceRun = await createTestRun({
       name: "Source Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -297,7 +297,7 @@ describe("collectionMerge.route action", () => {
       runs: [],
       annotationType: "PER_UTTERANCE",
     });
-    const run1 = await RunService.create({
+    const run1 = await createTestRun({
       name: "Run 1",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -312,7 +312,7 @@ describe("collectionMerge.route action", () => {
         },
       ],
     });
-    const run2 = await RunService.create({
+    const run2 = await createTestRun({
       name: "Run 2",
       project: project._id,
       annotationType: "PER_UTTERANCE",

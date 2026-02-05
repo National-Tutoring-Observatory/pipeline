@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ProjectService } from "~/modules/projects/project";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
@@ -7,6 +7,10 @@ import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createCollectionWithRuns from "../services/createCollectionWithRuns.server";
+
+vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
+  default: vi.fn(async () => {}),
+}));
 
 describe("createCollectionWithRuns", () => {
   let projectId: string;
@@ -56,7 +60,7 @@ describe("createCollectionWithRuns", () => {
       name: "Test Collection",
       sessions,
       prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: ["gpt-4"],
+      models: ["openai.gpt-4.1"],
       annotationType: "PER_UTTERANCE",
     });
 

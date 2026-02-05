@@ -5,6 +5,7 @@ import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/projectRuns.route";
 import { ProjectService } from "../project";
@@ -55,7 +56,7 @@ describe("projectRuns.route loader", () => {
       team: team._id,
     });
 
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       isRunning: false,
@@ -123,7 +124,7 @@ describe("projectRuns.route action - UPDATE_RUN", () => {
       team: team._id,
     });
 
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Old Name",
       project: project._id,
       isRunning: false,
@@ -150,59 +151,5 @@ describe("projectRuns.route action - UPDATE_RUN", () => {
     expect(resp).not.toBeInstanceOf(Response);
     const updatedRun = await RunService.findById(run._id);
     expect(updatedRun?.name).toBe("New Name");
-  });
-});
-
-describe("projectRuns.route action - DUPLICATE_RUN", () => {
-  beforeEach(async () => {
-    await clearDocumentDB();
-  });
-
-  it("duplicates run successfully", async () => {
-    const user = await UserService.create({ username: "test_user", teams: [] });
-    const team = await TeamService.create({ name: "Test Team" });
-    await UserService.updateById(user._id, {
-      teams: [{ team: team._id, role: "ADMIN" }],
-    });
-
-    const project = await ProjectService.create({
-      name: "Test Project",
-      createdBy: user._id,
-      team: team._id,
-    });
-
-    const run = await RunService.create({
-      name: "Original Run",
-      project: project._id,
-      isRunning: false,
-      isComplete: false,
-      annotationType: "PER_UTTERANCE",
-      prompt: new Types.ObjectId().toString(),
-      promptVersion: 1,
-      model: "gpt-4",
-    });
-
-    const cookieHeader = await loginUser(user._id);
-
-    const req = new Request("http://localhost/projects/" + project._id, {
-      method: "POST",
-      headers: { cookie: cookieHeader, "content-type": "application/json" },
-      body: JSON.stringify({
-        intent: "DUPLICATE_RUN",
-        entityId: run._id,
-        payload: { name: "Duplicated Run" },
-      }),
-    });
-
-    const resp = (await action({
-      request: req,
-      params: { id: project._id },
-    } as any)) as any;
-
-    expect(resp).not.toBeInstanceOf(Response);
-    expect(resp.intent).toBe("DUPLICATE_RUN");
-    expect(resp.data.name).toBe("Duplicated Run");
-    expect(resp.data.project).toBe(project._id);
-    expect(resp.data.annotationType).toBe("PER_UTTERANCE");
   });
 });

@@ -5,7 +5,6 @@ import type { Collection } from "~/modules/collections/collections.types";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
-import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import { SessionService } from "~/modules/sessions/session";
 import type { Session } from "~/modules/sessions/sessions.types";
@@ -14,14 +13,13 @@ import type { Team } from "~/modules/teams/teams.types";
 import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/collectionDetail.route";
 
 type LoaderResult = {
   collection: Collection;
   project: Project;
-  runs: { data: Run[]; count: number; totalPages: number };
-  sessions: { data: Session[]; count: number; totalPages: number };
 };
 
 describe("collectionDetail.route loader", () => {
@@ -55,7 +53,7 @@ describe("collectionDetail.route loader", () => {
       name: "Test Session",
       project: project._id,
     });
-    run = await RunService.create({
+    run = await createTestRun({
       name: "Test Run",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -137,37 +135,7 @@ describe("collectionDetail.route loader", () => {
     );
   });
 
-  it("returns collection with empty runs and sessions arrays", async () => {
-    const emptyCollection = await CollectionService.create({
-      name: "Empty Collection",
-      project: project._id,
-      sessions: [],
-      runs: [],
-      annotationType: "PER_UTTERANCE",
-    });
-
-    const res = await loader({
-      request: new Request("http://localhost/", {
-        headers: { cookie: cookieHeader },
-      }),
-      params: { projectId: project._id, collectionId: emptyCollection._id },
-      unstable_pattern: "",
-      context: {},
-    } as any);
-
-    expect(res).not.toBeInstanceOf(Response);
-    const data = res as LoaderResult;
-    expect(data.collection._id).toBe(emptyCollection._id);
-    expect(data.collection.name).toBe("Empty Collection");
-    expect(data.runs.data).toEqual([]);
-    expect(data.runs.count).toBe(0);
-    expect(data.runs.totalPages).toBe(0);
-    expect(data.sessions.data).toEqual([]);
-    expect(data.sessions.count).toBe(0);
-    expect(data.sessions.totalPages).toBe(0);
-  });
-
-  it("returns collection with runs and sessions", async () => {
+  it("returns collection and project", async () => {
     const res = await loader({
       request: new Request("http://localhost/", {
         headers: { cookie: cookieHeader },
@@ -181,14 +149,6 @@ describe("collectionDetail.route loader", () => {
     const data = res as LoaderResult;
     expect(data.collection._id).toBe(collection._id);
     expect(data.collection.name).toBe("Test Collection");
-    expect(data.runs.data).toHaveLength(1);
-    expect(data.runs.data[0]._id).toBe(run._id);
-    expect(data.runs.count).toBe(1);
-    expect(data.runs.totalPages).toBe(1);
-    expect(data.sessions.data).toHaveLength(1);
-    expect(data.sessions.data[0]._id).toBe(session._id);
-    expect(data.sessions.count).toBe(1);
-    expect(data.sessions.totalPages).toBe(1);
     expect(data.project._id).toBe(project._id);
   });
 
@@ -197,7 +157,7 @@ describe("collectionDetail.route loader", () => {
       name: "Test Session 2",
       project: project._id,
     });
-    const run2 = await RunService.create({
+    const run2 = await createTestRun({
       name: "Test Run 2",
       project: project._id,
       annotationType: "PER_UTTERANCE",
@@ -225,10 +185,8 @@ describe("collectionDetail.route loader", () => {
     expect(res).not.toBeInstanceOf(Response);
     const data = res as LoaderResult;
     expect(data.collection._id).toBe(multiCollection._id);
-    expect(data.runs.data).toHaveLength(2);
-    expect(data.runs.count).toBe(2);
-    expect(data.sessions.data).toHaveLength(2);
-    expect(data.sessions.count).toBe(2);
+    expect(data.collection.runs).toHaveLength(2);
+    expect(data.collection.sessions).toHaveLength(2);
   });
 
   it("returns collection data in correct format", async () => {
@@ -246,40 +204,11 @@ describe("collectionDetail.route loader", () => {
 
     expect(data).toHaveProperty("collection");
     expect(data).toHaveProperty("project");
-    expect(data).toHaveProperty("runs");
-    expect(data).toHaveProperty("sessions");
 
     expect(data.collection).toHaveProperty("_id");
     expect(data.collection).toHaveProperty("name");
     expect(data.collection).toHaveProperty("project");
     expect(data.collection).toHaveProperty("sessions");
     expect(data.collection).toHaveProperty("runs");
-
-    expect(data.runs).toHaveProperty("data");
-    expect(data.runs).toHaveProperty("count");
-    expect(data.runs).toHaveProperty("totalPages");
-
-    expect(data.sessions).toHaveProperty("data");
-    expect(data.sessions).toHaveProperty("count");
-    expect(data.sessions).toHaveProperty("totalPages");
-  });
-
-  it("paginates sessions correctly", async () => {
-    const res = await loader({
-      request: new Request(
-        "http://localhost/?sessionsCurrentPage=1&sessionsSort=-createdAt",
-        {
-          headers: { cookie: cookieHeader },
-        },
-      ),
-      params: { projectId: project._id, collectionId: collection._id },
-      unstable_pattern: "",
-      context: {},
-    } as any);
-
-    expect(res).not.toBeInstanceOf(Response);
-    const data = res as LoaderResult;
-    expect(data.sessions.data).toHaveLength(1);
-    expect(data.sessions.totalPages).toBe(1);
   });
 });

@@ -1,5 +1,5 @@
 import map from "lodash/map";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   redirect,
   useActionData,
@@ -13,7 +13,6 @@ import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import type { CreateRun } from "~/modules/runs/runs.types";
 import ProjectCreateRun from "../components/projectCreateRun";
-import startRun from "../services/startRun.server";
 import type { Route } from "./+types/projectCreateRun.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -26,7 +25,16 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!project) {
     return redirect("/");
   }
-  return { project };
+
+  const url = new URL(request.url);
+  const duplicateFrom = url.searchParams.get("duplicateFrom");
+
+  let initialRun = null;
+  if (duplicateFrom) {
+    initialRun = await RunService.findById(duplicateFrom);
+  }
+
+  return { project, initialRun };
 }
 
 export async function action({ request, params, context }: Route.ActionArgs) {
@@ -44,33 +52,21 @@ export async function action({ request, params, context }: Route.ActionArgs) {
         throw new Error("Invalid annotation type.");
       }
 
-      const newRun = await RunService.create({
+      const run = await RunService.create({
         project: params.projectId,
         name,
-        annotationType,
-        isRunning: false,
-        isComplete: false,
-      });
-
-      const startedRun = await startRun({
-        runId: newRun._id,
-        projectId: params.projectId,
         sessions,
-        annotationType: annotationType,
+        annotationType,
         prompt,
         promptVersion: Number(promptVersion),
         modelCode: model,
       });
 
-      if (!startedRun) {
-        throw new Error("Failed to start run");
-      }
-
-      await RunService.createAnnotations(startedRun);
+      await RunService.start(run);
 
       return {
         intent: "CREATE_AND_START_RUN",
-        data: startedRun,
+        data: run,
       };
     }
     default: {
@@ -80,17 +76,13 @@ export async function action({ request, params, context }: Route.ActionArgs) {
 }
 
 export default function ProjectCreateRunRoute() {
-  const { project } = useLoaderData();
+  const { project, initialRun } = useLoaderData();
   const actionData = useActionData();
   const submit = useSubmit();
   const navigate = useNavigate();
-  const [runName, setRunName] = useState("");
-
-  const onRunNameChanged = (name: string) => {
-    setRunName(name);
-  };
 
   const onStartRunClicked = ({
+    name,
     selectedAnnotationType,
     selectedPrompt,
     selectedPromptVersion,
@@ -101,7 +93,7 @@ export default function ProjectCreateRunRoute() {
       JSON.stringify({
         intent: "CREATE_AND_START_RUN",
         payload: {
-          name: runName,
+          name,
           annotationType: selectedAnnotationType,
           prompt: selectedPrompt,
           promptVersion: Number(selectedPromptVersion),
@@ -131,9 +123,8 @@ export default function ProjectCreateRunRoute() {
   return (
     <ProjectCreateRun
       breadcrumbs={breadcrumbs}
-      runName={runName}
-      onRunNameChanged={onRunNameChanged}
       onStartRunClicked={onStartRunClicked}
+      initialRun={initialRun}
     />
   );
 }

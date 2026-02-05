@@ -5,6 +5,7 @@ import type { Job } from "bullmq";
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import clearDocumentDB from "../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../test/helpers/createTestRun";
 import startAnnotateRun from "../startAnnotateRun";
 
 vi.mock("../../helpers/emitFromJob");
@@ -45,7 +46,7 @@ describe("startAnnotateRun worker", () => {
       team: team._id,
       createdBy: new Types.ObjectId().toString(),
     });
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       isRunning: false,
@@ -75,7 +76,7 @@ describe("startAnnotateRun worker", () => {
       team: team._id,
       createdBy: new Types.ObjectId().toString(),
     });
-    const run = await RunService.create({
+    const run = await createTestRun({
       name: "Test Run",
       project: project._id,
       isRunning: false,
