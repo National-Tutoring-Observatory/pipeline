@@ -10,12 +10,14 @@ interface RunCreatorContainerProps {
   onStartRunClicked: (createRun: CreateRun) => void;
   isSubmitting: boolean;
   initialRun?: Run | null;
+  duplicateWarnings?: string[];
 }
 
 export default function ProjectRunCreatorContainer({
   onStartRunClicked,
   isSubmitting,
   initialRun,
+  duplicateWarnings = [],
 }: RunCreatorContainerProps) {
   const [runName, setRunName] = useState(
     initialRun ? `${initialRun.name} (copy)` : "",
@@ -107,6 +109,7 @@ export default function ProjectRunCreatorContainer({
 
   return (
     <RunCreator
+      duplicateWarnings={duplicateWarnings}
       runName={runName}
       selectedAnnotationType={selectedAnnotationType}
       selectedPrompt={selectedPrompt}
