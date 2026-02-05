@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import aiGatewayConfig from "~/config/ai_gateway.json";
 import { CollectionService } from "~/modules/collections/collection";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { ProjectService } from "~/modules/projects/project";
@@ -16,6 +17,8 @@ import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/collectionCreate.route";
+
+const testModel = aiGatewayConfig.providers[0].models[0].code;
 
 vi.mock("~/modules/projects/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),
@@ -140,7 +143,7 @@ describe("collectionCreate.route", () => {
           prompts: [
             { promptId: prompt._id, promptName: "Prompt 1", version: 1 },
           ],
-          models: ["openai.gpt-4.1"],
+          models: [testModel],
           sessions: [session._id],
         },
       });
@@ -178,7 +181,7 @@ describe("collectionCreate.route", () => {
           name: "Test Collection",
           annotationType: "PER_UTTERANCE",
           prompts: [{ promptId: prompt._id, version: 1 }],
-          models: ["openai.gpt-4.1"],
+          models: [testModel],
           sessions: [session._id],
         },
       });
