@@ -47,9 +47,8 @@ export default function SessionSelector({
           onRandomizeClicked={onRandomizeClicked}
         />
       </div>
-      <div className="h-80 overflow-y-auto rounded-md border">
-        <Table>
-          <TableHeader>
+      <Table containerClassName="h-80 overflow-auto rounded-md border">
+        <TableHeader className="sticky top-0 z-10 bg-background">
             <TableRow>
               <TableHead className="w-8">
                 <Checkbox
@@ -86,8 +85,7 @@ export default function SessionSelector({
               );
             })}
           </TableBody>
-        </Table>
-      </div>
+      </Table>
     </div>
   );
 }
