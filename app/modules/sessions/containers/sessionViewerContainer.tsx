@@ -56,7 +56,7 @@ export default function SessionViewerContainer({
   };
 
   const navigateToUtterance = (utteranceId: string) => {
-    navigate(`#session-viewer-utterance-${utteranceId}`);
+    navigate(`#session-viewer-utterance-${utteranceId}`, { replace: true });
   };
 
   const onUtteranceClicked = (utteranceId: string) => {
