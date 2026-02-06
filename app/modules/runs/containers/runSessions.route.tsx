@@ -3,6 +3,7 @@ import find from "lodash/find";
 import map from "lodash/map";
 import { redirect, useLoaderData } from "react-router";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import { CollectionService } from "~/modules/collections/collection";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
@@ -38,11 +39,39 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const downloadedPath = await storage.download({ sourcePath: sessionPath });
   const sessionFile = await fse.readJSON(downloadedPath);
-  return { project, run, session, sessionFile };
+
+  const collectionId = params.collectionId;
+  const collection = collectionId
+    ? await CollectionService.findById(collectionId)
+    : null;
+
+  return { project, run, session, sessionFile, collection };
 }
 
 export default function ProjectRunSessionsRoute() {
-  const { project, run, sessionFile, session } = useLoaderData();
+  const { project, run, sessionFile, session, collection } = useLoaderData();
+
+  const parentBreadcrumbs = collection
+    ? [
+        {
+          text: "Collections",
+          link: `/projects/${project._id}/collections`,
+        },
+        {
+          text: collection.name,
+          link: `/projects/${project._id}/collections/${collection._id}`,
+        },
+      ]
+    : [
+        {
+          text: "Runs",
+          link: `/projects/${project._id}`,
+        },
+      ];
+
+  const runLink = collection
+    ? `/projects/${project._id}/collections/${collection._id}/runs/${run._id}`
+    : `/projects/${project._id}/runs/${run._id}`;
 
   const breadcrumbs = [
     {
@@ -53,13 +82,10 @@ export default function ProjectRunSessionsRoute() {
       text: project.name,
       link: `/projects/${project._id}`,
     },
-    {
-      text: "Runs",
-      link: `/projects/${project._id}`,
-    },
+    ...parentBreadcrumbs,
     {
       text: run.name,
-      link: `/projects/${project._id}/runs/${run._id}`,
+      link: runLink,
     },
     {
       text: session.name,

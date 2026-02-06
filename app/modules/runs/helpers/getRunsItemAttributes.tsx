@@ -34,10 +34,9 @@ export default (item: Run, options?: Options) => {
     text: `Created at - ${getDateString(item.createdAt)}`,
   });
 
-  let to = `/projects/${item.project}/runs/${item._id}`;
-  if (options?.collectionId) {
-    to += `?collectionId=${options.collectionId}`;
-  }
+  const to = options?.collectionId
+    ? `/projects/${item.project}/collections/${options.collectionId}/runs/${item._id}`
+    : `/projects/${item.project}/runs/${item._id}`;
 
   return {
     id: item._id,

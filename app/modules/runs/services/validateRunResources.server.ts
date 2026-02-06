@@ -11,8 +11,7 @@ export async function validateRunResources(run: Run): Promise<string[]> {
     warnings.push(`Model "${run.snapshot.model.name}" is no longer available`);
   }
 
-  const promptId =
-    typeof run.prompt === "string" ? run.prompt : run.prompt._id;
+  const promptId = typeof run.prompt === "string" ? run.prompt : run.prompt._id;
   const prompt = await PromptService.findById(promptId);
   if (!prompt) {
     warnings.push(
