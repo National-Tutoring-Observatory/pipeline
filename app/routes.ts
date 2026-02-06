@@ -52,6 +52,16 @@ export default [
       "modules/runs/containers/runSessions.route.tsx",
     ),
     route(
+      ":projectId/collections/:collectionId/runs/:runId",
+      "modules/runs/containers/run.route.tsx",
+      { id: "collectionRun" },
+    ),
+    route(
+      ":projectId/collections/:collectionId/runs/:runId/sessions/:sessionId",
+      "modules/runs/containers/runSessions.route.tsx",
+      { id: "collectionRunSession" },
+    ),
+    route(
       ":projectId/collections/:collectionId",
       "modules/collections/containers/collectionDetail.route.tsx",
       [

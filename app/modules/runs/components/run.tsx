@@ -58,6 +58,7 @@ export default function RunDetail({
   onAddToExistingCollectionClicked,
   onAddToNewCollectionClicked,
   onUseAsTemplateClicked,
+  collectionId,
 }: {
   run: Run;
   promptInfo: { name: string; version: number };
@@ -72,6 +73,7 @@ export default function RunDetail({
   onAddToExistingCollectionClicked: (run: Run) => void;
   onAddToNewCollectionClicked: (run: Run) => void;
   onUseAsTemplateClicked: (run: Run) => void;
+  collectionId?: string;
 }) {
   const projectId =
     typeof run.project === "string" ? run.project : run.project._id;
@@ -193,7 +195,11 @@ export default function RunDetail({
                         <TableCell className="font-medium">
                           {(session.status === "DONE" && (
                             <Link
-                              to={`/projects/${projectId}/runs/${run._id}/sessions/${session.sessionId}`}
+                              to={
+                                collectionId
+                                  ? `/projects/${projectId}/collections/${collectionId}/runs/${run._id}/sessions/${session.sessionId}`
+                                  : `/projects/${projectId}/runs/${run._id}/sessions/${session.sessionId}`
+                              }
                             >
                               {session.name}
                             </Link>

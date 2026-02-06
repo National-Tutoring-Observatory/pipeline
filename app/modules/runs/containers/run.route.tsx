@@ -52,12 +52,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     version: run.snapshot.prompt.version,
   };
 
-  const url = new URL(request.url);
-  const collectionId = url.searchParams.get("collectionId");
+  const collectionId = params.collectionId;
   const collection = collectionId
     ? await CollectionService.findById(collectionId)
     : null;
 
+  const url = new URL(request.url);
   const intent = url.searchParams.get("intent");
   if (intent === "GET_ALL_COLLECTIONS") {
     const runCollections = await CollectionService.paginate({
@@ -293,6 +293,7 @@ export default function ProjectRunRoute() {
       onAddToExistingCollectionClicked={onAddToExistingCollectionClicked}
       onAddToNewCollectionClicked={() => openCreateCollectionDialog(run._id)}
       onUseAsTemplateClicked={onUseAsTemplateClicked}
+      collectionId={collection?._id}
     />
   );
 }
