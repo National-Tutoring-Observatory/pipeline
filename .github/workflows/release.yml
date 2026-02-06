@@ -1,4 +1,4 @@
-name: Release (Staging → Production) (ECR + ECS)
+name: Production Release
 
 # Developer workflow
 #   1. Merge PR
@@ -18,233 +18,90 @@ name: Release (Staging → Production) (ECR + ECS)
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v*.*.*"
 
 permissions:
   id-token: write
   contents: read
-  packages: read
+  actions: read
 
-env:
-  AWS_REGION: us-east-1
-  ECR_REPOSITORY: nto-pipeline
+concurrency:
+  group: production-release
+  cancel-in-progress: false
 
 jobs:
-  # ──────────────────────────────────────────────────────────────
-  # Build once
-  # ──────────────────────────────────────────────────────────────
-  build:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.ver.outputs.version }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Resolve version from tag
-        id: ver
-        run: |
-          tag="${GITHUB_REF_NAME}"
-          [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
-          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
-
-      - name: Ensure tag points to main
-        run: |
-          commit="$(git rev-list -n 1 "$GITHUB_REF_NAME")"
-          git fetch origin main --depth=1
-          git branch --remotes --contains "$commit" | grep -q origin/main
-
-      - name: Debug OIDC claims
-        run: |
-          set -euo pipefail
-          resp="$(curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com")"
-          token="$(echo "$resp" | jq -r .value)"
-          python - <<'PY' "$token"
-          import sys, json, base64
-          t=sys.argv[1]
-          p=t.split('.')[1] + "==="
-          print(json.dumps(json.loads(base64.urlsafe_b64decode(p[:len(p)-len(p)%4]).decode()), indent=2))
-          PY
-
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-
-      - name: Login to ECR
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build & push web image
-        env:
-          VERSION: ${{ steps.ver.outputs.version }}
-        run: |
-          docker build -t $ECR_REPOSITORY:$VERSION .
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
-          docker tag $ECR_REPOSITORY:$VERSION $ECR_URI:$VERSION
-          docker push $ECR_URI:$VERSION
-          echo "ECR_URI=$ECR_URI" >> "$GITHUB_ENV"
-
-      - name: Build & push worker image
-        env:
-          VERSION: ${{ steps.ver.outputs.version }}
-        run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
-          docker build -t $ECR_REPOSITORY:$VERSION-worker -f workers/Dockerfile .
-          docker tag $ECR_REPOSITORY:$VERSION-worker $ECR_URI:$VERSION-worker
-          docker push $ECR_URI:$VERSION-worker
-
-  # ──────────────────────────────────────────────────────────────
-  # Production deploy
-  # ──────────────────────────────────────────────────────────────
-  deploy-production:
-    needs: build
-    runs-on: ubuntu-latest
-    environment: production
-    concurrency:
-      group: production-${{ github.ref_name }}
-      cancel-in-progress: false
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Debug OIDC claims
-        run: |
-          set -euo pipefail
-          resp="$(curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com")"
-          token="$(echo "$resp" | jq -r .value)"
-          python - <<'PY' "$token"
-          import sys, json, base64
-          t=sys.argv[1]
-          p=t.split('.')[1] + "==="
-          print(json.dumps(json.loads(base64.urlsafe_b64decode(p[:len(p)-len(p)%4]).decode()), indent=2))
-          PY
-
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-
-      - name: Deploy web + worker to production
-        run: |
-          echo "🚀 Deploying ${{ needs.build.outputs.version }} to PRODUCTION"
-          set -Eeuo pipefail
-          cluster="${{ vars.ECS_CLUSTER }}"
-          service="${{ vars.ECS_SERVICE }}"
-          container="${{ vars.ECS_CONTAINER_NAME }}"
-          repo="${{ env.ECR_REPOSITORY }}"
-          region="${{ env.AWS_REGION }}"
-
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_URI="$ACCOUNT_ID.dkr.ecr.$region.amazonaws.com/$repo"
-          VERSION="${{ needs.build.outputs.version }}"
-          NEW_IMAGE="$ECR_URI:$VERSION"
-
-          aws ecr describe-images \
-            --repository-name "$repo" \
-            --image-ids imageTag="$VERSION" >/dev/null
-
-          OLD_TD_ARN=$(aws ecs describe-services \
-            --cluster "$cluster" \
-            --services "$service" \
-            --query "services[0].taskDefinition" \
-            --output text)
-
-          aws ecs describe-task-definition \
-            --task-definition "$OLD_TD_ARN" \
-            --query taskDefinition > td.json
-
-          jq --arg img "$NEW_IMAGE" '
-            .containerDefinitions |= map(
-              .image = $img
-            )
-            | del(
-                .revision,
-                .status,
-                .taskDefinitionArn,
-                .requiresAttributes,
-                .compatibilities,
-                .registeredAt,
-                .registeredBy
-              )
-          ' td.json > td-register.json
-
-          NEW_TD_ARN=$(aws ecs register-task-definition \
-            --cli-input-json file://td-register.json \
-            --query taskDefinition.taskDefinitionArn \
-            --output text)
-
-          aws ecs update-service \
-            --cluster "$cluster" \
-            --service "$service" \
-            --task-definition "$NEW_TD_ARN"
-
-          aws ecs wait services-stable \
-            --cluster "$cluster" \
-            --services "$service"
-
-          echo "🎉 Deployed $NEW_IMAGE"
-
-      - name: Deploy worker tag by updating ECS task definition
-        run: |
-          set -Eeuo pipefail
-          cluster="${{ vars.ECS_WORKER_CLUSTER }}"
-          service="${{ vars.ECS_WORKER_SERVICE }}"
-          container="${{ vars.ECS_WORKER_CONTAINER_NAME }}"
-          repo="${{ env.ECR_REPOSITORY }}"
-          region="${{ env.AWS_REGION }}"
-
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_URI="$ACCOUNT_ID.dkr.ecr.$region.amazonaws.com/$repo"
-          VERSION="${{ needs.build.outputs.version }}"
-          NEW_IMAGE="$ECR_URI:${VERSION}-worker"
-
-          aws ecr describe-images \
-            --repository-name "$repo" \
-            --image-ids imageTag="${VERSION}-worker" >/dev/null
-
-          OLD_TD_ARN=$(aws ecs describe-services \
-            --cluster "$cluster" \
-            --services "$service" \
-            --query "services[0].taskDefinition" \
-            --output text)
-
-          aws ecs describe-task-definition \
-            --task-definition "$OLD_TD_ARN" \
-            --query taskDefinition > td-worker.json
-
-          jq --arg img "$NEW_IMAGE" '
-            .containerDefinitions |= map(
-              .image = $img
-            )
-            | del(
-                .revision,
-                .status,
-                .taskDefinitionArn,
-                .requiresAttributes,
-                .compatibilities,
-                .registeredAt,
-                .registeredBy
-              )
-          ' td-worker.json > td-worker-register.json
-
-          NEW_TD_ARN=$(aws ecs register-task-definition \
-            --cli-input-json file://td-worker-register.json \
-            --query taskDefinition.taskDefinitionArn \
-            --output text)
-
-          aws ecs update-service \
-            --cluster "$cluster" \
-            --service "$service" \
-            --task-definition "$NEW_TD_ARN"
-
-          aws ecs wait services-stable \
-            --cluster "$cluster" \
-            --services "$service"
-
-          echo "🎉 Deployed worker $NEW_IMAGE"
+  resolve:
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/resolve_release.yml@main
+    with:
+      base-branch: main
+  preflight-production:
+    name: Production Preflight
+    needs: resolve
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_preflight.yml@main
+    with:
+      environment: production
+      aws-region: us-east-1
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+  build-web:
+    name: Build Web Image
+    needs: preflight-production
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
+    with:
+      environment: production
+      aws-region: us-east-1
+      dockerfile: Dockerfile
+      image-suffix: ""
+      output-name: web_image
+      tag: ${{ needs.resolve.outputs.version }}
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+  build-worker:
+    name: Build Worker Image
+    needs: preflight-production
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
+    with:
+      environment: production
+      aws-region: us-east-1
+      dockerfile: workers/Dockerfile
+      image-suffix: "-worker"
+      output-name: worker_image
+      tag: ${{ needs.resolve.outputs.version }}
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+  deploy-web:
+    name: Deploy Web Service
+    needs: build-web
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_deploy_service.yml@main
+    with:
+      environment: production
+      aws-region: us-east-1
+      image: ${{ needs.build-web.outputs.image }}
+      service: web
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+  deploy-worker:
+    name: Deploy Worker Service
+    needs: build-worker
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_deploy_service.yml@main
+    with:
+      environment: production
+      aws-region: us-east-1
+      image: ${{ needs.build-worker.outputs.image }}
+      service: worker
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+  production-summary:
+    name: Production Deployment Summary
+    needs:
+      - build-web
+      - build-worker
+      - deploy-web
+      - deploy-worker
+    if: success() || failure()
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/deployment_summary.yml@main
+    with:
+      environment: production
+      web-image: ${{ needs.build-web.outputs.image }}
+      worker-image: ${{ needs.build-worker.outputs.image }}
+      app-url: https://app.nationaltutoringobservatory.org/
