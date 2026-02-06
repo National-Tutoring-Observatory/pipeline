@@ -255,6 +255,170 @@ describe("projects.route action", () => {
     expect(res.data?.intent).toBe("DELETE_PROJECT");
   });
 
+  it("rejects project creation with duplicate name in same team", async () => {
+    const team = await TeamService.create({ name: "Test Team" });
+    const user = await UserService.create({
+      username: "test_user",
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    await ProjectService.create({
+      name: "My Project",
+      team: team._id,
+      createdBy: user._id,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = (await action({
+      request: new Request("http://localhost/projects", {
+        method: "POST",
+        headers: { cookie: cookieHeader },
+        body: JSON.stringify({
+          intent: "CREATE_PROJECT",
+          payload: { name: "My Project", team: team._id },
+        }),
+      }),
+    } as any)) as any;
+
+    expect(res.init?.status).toBe(409);
+    expect(res.data?.errors?.general).toBe(
+      "A project with this name already exists",
+    );
+  });
+
+  it("rejects project creation with duplicate name case-insensitively", async () => {
+    const team = await TeamService.create({ name: "Test Team" });
+    const user = await UserService.create({
+      username: "test_user",
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    await ProjectService.create({
+      name: "My Project",
+      team: team._id,
+      createdBy: user._id,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = (await action({
+      request: new Request("http://localhost/projects", {
+        method: "POST",
+        headers: { cookie: cookieHeader },
+        body: JSON.stringify({
+          intent: "CREATE_PROJECT",
+          payload: { name: "my project", team: team._id },
+        }),
+      }),
+    } as any)) as any;
+
+    expect(res.init?.status).toBe(409);
+  });
+
+  it("allows duplicate project name in different team", async () => {
+    const team1 = await TeamService.create({ name: "Team 1" });
+    const team2 = await TeamService.create({ name: "Team 2" });
+    const user = await UserService.create({
+      username: "test_user",
+      teams: [
+        { team: team1._id, role: "ADMIN" },
+        { team: team2._id, role: "ADMIN" },
+      ],
+    });
+
+    await ProjectService.create({
+      name: "My Project",
+      team: team1._id,
+      createdBy: user._id,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = (await action({
+      request: new Request("http://localhost/projects", {
+        method: "POST",
+        headers: { cookie: cookieHeader },
+        body: JSON.stringify({
+          intent: "CREATE_PROJECT",
+          payload: { name: "My Project", team: team2._id },
+        }),
+      }),
+    } as any)) as any;
+
+    expect(res.data?.success).toBe(true);
+  });
+
+  it("rejects update with duplicate name in same team", async () => {
+    const team = await TeamService.create({ name: "Test Team" });
+    const user = await UserService.create({
+      username: "test_user",
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    await ProjectService.create({
+      name: "Existing Project",
+      team: team._id,
+      createdBy: user._id,
+    });
+
+    const project2 = await ProjectService.create({
+      name: "Another Project",
+      team: team._id,
+      createdBy: user._id,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = (await action({
+      request: new Request("http://localhost/projects", {
+        method: "PUT",
+        headers: { cookie: cookieHeader },
+        body: JSON.stringify({
+          intent: "UPDATE_PROJECT",
+          entityId: project2._id,
+          payload: { name: "Existing Project" },
+        }),
+      }),
+    } as any)) as any;
+
+    expect(res.init?.status).toBe(409);
+    expect(res.data?.errors?.general).toBe(
+      "A project with this name already exists",
+    );
+  });
+
+  it("allows updating a project to its own name", async () => {
+    const team = await TeamService.create({ name: "Test Team" });
+    const user = await UserService.create({
+      username: "test_user",
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "My Project",
+      team: team._id,
+      createdBy: user._id,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = (await action({
+      request: new Request("http://localhost/projects", {
+        method: "PUT",
+        headers: { cookie: cookieHeader },
+        body: JSON.stringify({
+          intent: "UPDATE_PROJECT",
+          entityId: project._id,
+          payload: { name: "My Project" },
+        }),
+      }),
+    } as any)) as any;
+
+    expect(res.data?.success).toBe(true);
+    expect(res.data?.data?.name).toBe("My Project");
+  });
+
   it("rejects update without permission", async () => {
     const owner = await UserService.create({ username: "owner", teams: [] });
     const other = await UserService.create({ username: "other", teams: [] });

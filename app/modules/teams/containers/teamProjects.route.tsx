@@ -1,13 +1,10 @@
 import find from "lodash/find";
-import { useEffect } from "react";
 import {
   redirect,
-  useActionData,
   useLoaderData,
   useNavigate,
   useOutletContext,
   useParams,
-  useSubmit,
 } from "react-router";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
@@ -99,8 +96,6 @@ export default function TeamProjectsRoute() {
   const data = useLoaderData<typeof loader>();
   const params = useParams();
   const ctx = useOutletContext<any>();
-  const actionData = useActionData();
-  const submit = useSubmit();
   const navigate = useNavigate();
   const teamId = params.id;
 
@@ -121,26 +116,16 @@ export default function TeamProjectsRoute() {
     filters: {},
   });
 
-  useEffect(() => {
-    if (actionData?.intent === "CREATE_PROJECT") {
-      navigate(`/projects/${actionData.data._id}`);
-    }
-  }, [actionData]);
-
   const onCreateProjectButtonClicked = () => {
     addDialog(
       <CreateProjectDialog
         hasTeamSelection={false}
-        onCreateNewProjectClicked={onCreateNewProjectClicked}
+        teamId={teamId}
+        onProjectCreated={(project) => {
+          navigate(`/projects/${project._id}`);
+        }}
       />,
     );
-  };
-
-  const onCreateNewProjectClicked = ({ name }: { name: string }) => {
-    submit(JSON.stringify({ intent: "CREATE_PROJECT", payload: { name } }), {
-      method: "POST",
-      encType: "application/json",
-    });
   };
 
   const onActionClicked = (action: string) => {

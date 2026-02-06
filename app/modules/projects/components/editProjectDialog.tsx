@@ -1,3 +1,4 @@
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   DialogClose,
@@ -9,23 +10,50 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { AlertCircleIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useFetcher } from "react-router";
+import addDialog from "~/modules/dialogs/addDialog";
 import type { Project } from "../projects.types";
 import ProjectNameAlert from "./projectNameAlert";
 
 const EditProjectDialog = ({
   project,
-  onEditProjectClicked,
-  isSubmitting = false,
+  onProjectUpdated,
 }: {
   project: Project;
-  onEditProjectClicked: (project: Project) => void;
-  isSubmitting?: boolean;
+  onProjectUpdated: () => void;
 }) => {
   const [updatedProject, setUpdatedProject] = useState(project);
+  const fetcher = useFetcher();
+
+  const isSubmitting = fetcher.state !== "idle";
+  const error = fetcher.data?.errors?.general;
+
+  useEffect(() => {
+    if (fetcher.state !== "idle") return;
+    if (!fetcher.data?.success) return;
+    addDialog(null);
+    onProjectUpdated();
+  }, [fetcher.state, fetcher.data]);
 
   const onProjectNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUpdatedProject({ ...updatedProject, name: event.target.value });
+  };
+
+  const onSubmit = () => {
+    fetcher.submit(
+      JSON.stringify({
+        intent: "UPDATE_PROJECT",
+        entityId: project._id,
+        payload: { name: updatedProject.name },
+      }),
+      {
+        method: "PUT",
+        encType: "application/json",
+        action: "/api/projects",
+      },
+    );
   };
 
   let isSubmitButtonDisabled =
@@ -47,7 +75,14 @@ const EditProjectDialog = ({
           onChange={onProjectNameChanged}
           disabled={isSubmitting}
         />
-        <ProjectNameAlert name={updatedProject?.name} />
+        {error ? (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : (
+          <ProjectNameAlert name={updatedProject?.name} />
+        )}
       </div>
       <DialogFooter className="justify-end">
         <DialogClose asChild>
@@ -55,17 +90,13 @@ const EditProjectDialog = ({
             Cancel
           </Button>
         </DialogClose>
-        <DialogClose asChild>
-          <Button
-            type="button"
-            disabled={isSubmitButtonDisabled}
-            onClick={() => {
-              onEditProjectClicked(updatedProject);
-            }}
-          >
-            {isSubmitting ? "Saving..." : "Save project"}
-          </Button>
-        </DialogClose>
+        <Button
+          type="button"
+          disabled={isSubmitButtonDisabled}
+          onClick={onSubmit}
+        >
+          {isSubmitting ? "Saving..." : "Save project"}
+        </Button>
       </DialogFooter>
     </DialogContent>
   );
