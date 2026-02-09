@@ -1,12 +1,15 @@
+import throttle from "lodash/throttle";
 import {
   data,
   redirect,
   useLoaderData,
   useLocation,
   useNavigate,
+  useRevalidator,
   useSubmit,
 } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
+import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
 import CollectionDetail from "~/modules/collections/components/collectionDetail";
@@ -15,6 +18,7 @@ import requireCollectionsFeature from "~/modules/collections/helpers/requireColl
 import { useCollectionActions } from "~/modules/collections/hooks/useCollectionActions";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
+import { RunService } from "~/modules/runs/run";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/collectionDetail.route";
 
@@ -40,9 +44,22 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect(`/projects/${params.projectId}/collections`);
   }
 
+  const runIds = collection.runs ?? [];
+  const totalRuns = runIds.length;
+  let runsProgress = { total: totalRuns, completed: 0, running: 0 };
+
+  if (totalRuns > 0) {
+    const [completed, running] = await Promise.all([
+      RunService.count({ _id: { $in: runIds }, isComplete: true }),
+      RunService.count({ _id: { $in: runIds }, isRunning: true }),
+    ]);
+    runsProgress = { total: totalRuns, completed, running };
+  }
+
   return {
     collection,
     project,
+    runsProgress,
   };
 }
 
@@ -75,11 +92,17 @@ export async function action({ request, params }: Route.ActionArgs) {
   }
 }
 
+const debounceRevalidate = throttle((revalidate) => {
+  revalidate();
+}, 500);
+
 export default function CollectionDetailRoute() {
-  const { collection, project } = useLoaderData<typeof loader>();
+  const { collection, project, runsProgress } = useLoaderData<typeof loader>();
+  const runIds = collection.runs ?? [];
   const submit = useSubmit();
   const navigate = useNavigate();
   const location = useLocation();
+  const { revalidate } = useRevalidator();
 
   const parts = location.pathname.split("/").filter(Boolean);
   const last = parts[parts.length - 1];
@@ -121,6 +144,18 @@ export default function CollectionDetailRoute() {
     );
   };
 
+  useHandleSockets({
+    event: "ANNOTATE_RUN",
+    matches: runIds.map((runId) => ({
+      runId,
+      task: "ANNOTATE_RUN:FINISH",
+      status: "FINISHED",
+    })),
+    callback: () => {
+      debounceRevalidate(revalidate);
+    },
+  });
+
   const breadcrumbs = [
     { text: "Projects", link: "/" },
     { text: project.name, link: `/projects/${project._id}` },
@@ -146,6 +181,7 @@ export default function CollectionDetailRoute() {
       collection={collection}
       project={project}
       breadcrumbs={breadcrumbs}
+      runsProgress={runsProgress}
       onExportCollectionButtonClicked={onExportCollectionButtonClicked}
       onAddRunsClicked={() =>
         navigate(
