@@ -1,4 +1,5 @@
 import get from "lodash/get";
+import { CircleAlert, CircleCheck, Clock, LoaderPinwheel } from "lucide-react";
 import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
 import getDateString from "~/modules/app/helpers/getDateString";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
@@ -8,15 +9,38 @@ interface Options {
   collectionId?: string;
 }
 
+function getStatusMeta(item: Run) {
+  if (item.isRunning) {
+    return {
+      icon: <LoaderPinwheel className="animate-spin" />,
+      text: "Running",
+    };
+  }
+  if (item.hasErrored) {
+    return {
+      icon: <CircleAlert className="text-destructive" />,
+      text: "Errored",
+    };
+  }
+  if (item.isComplete) {
+    return {
+      icon: <CircleCheck className="text-green-600 dark:text-green-400" />,
+      text: "Complete",
+    };
+  }
+  return {
+    icon: <Clock className="text-muted-foreground" />,
+    text: "Incomplete",
+  };
+}
+
 export default (item: Run, options?: Options) => {
   const promptName = get(item, "snapshot.prompt.name", "");
 
   const meta = [
+    getStatusMeta(item),
     {
       text: `Annotation type - ${getAnnotationLabel(item.annotationType)}`,
-    },
-    {
-      text: `Status - ${item.isComplete ? "Complete" : "Incomplete"}`,
     },
   ];
 
