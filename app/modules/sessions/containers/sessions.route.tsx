@@ -1,6 +1,5 @@
 import find from "lodash/find";
 import { redirect, useLoaderData, useSubmit } from "react-router";
-import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
@@ -46,14 +45,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: [],
   });
 
-  const sessionsList = await SessionService.find({ ...query });
-  const total = await SessionService.count(query.match);
-  const pagination = getPaginationParams(query.page);
-  const sessions = {
-    data: sessionsList,
-    totalPages: getTotalPages(total),
-    currentPage: query.page || 1,
-  };
+  const sessions = await SessionService.paginate(query);
+
   return { sessions, project };
 }
 
