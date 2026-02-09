@@ -1,0 +1,88 @@
+import { Button } from "@/components/ui/button";
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import type { RunSet } from "~/modules/runSets/runSets.types";
+import RunSetNameAlert from "./runSetNameAlert";
+
+const DuplicateRunSetDialog = ({
+  runSet,
+  onDuplicateNewRunSetClicked,
+}: {
+  runSet: RunSet;
+  onDuplicateNewRunSetClicked: ({
+    name,
+    runSetId,
+  }: {
+    name: string;
+    runSetId: string;
+  }) => void;
+}) => {
+  const [name, setName] = useState(`${runSet.name} (duplicate)`);
+
+  const onRunSetNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value);
+  };
+
+  let isSubmitButtonDisabled = true;
+
+  if (name.trim().length >= 3) {
+    isSubmitButtonDisabled = false;
+  }
+
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Duplicate run set</DialogTitle>
+        <DialogDescription>
+          Give your run set a name. This can be changed at a later date but
+          giving a description now will make it easier to find later. Then
+          select how you would like to collect the annotations over the session
+          data.
+        </DialogDescription>
+      </DialogHeader>
+      <div className="grid gap-3">
+        <Label htmlFor="name">Name</Label>
+        <Input
+          id="name"
+          name="name"
+          defaultValue={name}
+          autoComplete="off"
+          onChange={onRunSetNameChanged}
+        />
+        <RunSetNameAlert name={name} />
+      </div>
+      <DialogFooter className="justify-end">
+        <DialogClose asChild>
+          <Button type="button" variant="secondary">
+            Cancel
+          </Button>
+        </DialogClose>
+        <DialogClose asChild>
+          <Button
+            type="button"
+            disabled={isSubmitButtonDisabled}
+            onClick={() => {
+              onDuplicateNewRunSetClicked({
+                name,
+                runSetId: runSet._id,
+              });
+            }}
+          >
+            Duplicate
+          </Button>
+        </DialogClose>
+      </DialogFooter>
+    </DialogContent>
+  );
+};
+
+export default DuplicateRunSetDialog;

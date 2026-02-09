@@ -25,13 +25,9 @@ export default [
         route("sessions", "modules/sessions/containers/sessions.route.tsx", {
           id: "SESSIONS",
         }),
-        route(
-          "collections",
-          "modules/collections/containers/collectionsList.route.tsx",
-          {
-            id: "COLLECTIONS",
-          },
-        ),
+        route("run-sets", "modules/runSets/containers/runSetsList.route.tsx", {
+          id: "RUN_SETS",
+        }),
       ],
     ),
     route(
@@ -39,57 +35,57 @@ export default [
       "modules/runs/containers/createRun.route.tsx",
     ),
     route(
-      ":projectId/create-collection",
-      "modules/collections/containers/collectionCreate.route.tsx",
+      ":projectId/create-run-set",
+      "modules/runSets/containers/runSetCreate.route.tsx",
     ),
     route(":projectId/runs/:runId", "modules/runs/containers/run.route.tsx"),
     route(
-      ":projectId/runs/:runId/add-to-collection",
-      "modules/runs/containers/runAddToCollection.route.tsx",
+      ":projectId/runs/:runId/add-to-run-set",
+      "modules/runs/containers/runAddToRunSet.route.tsx",
     ),
     route(
       ":projectId/runs/:runId/sessions/:sessionId",
       "modules/runs/containers/runSessions.route.tsx",
     ),
     route(
-      ":projectId/collections/:collectionId/runs/:runId",
+      ":projectId/run-sets/:runSetId/runs/:runId",
       "modules/runs/containers/run.route.tsx",
-      { id: "collectionRun" },
+      { id: "runSetRun" },
     ),
     route(
-      ":projectId/collections/:collectionId/runs/:runId/sessions/:sessionId",
+      ":projectId/run-sets/:runSetId/runs/:runId/sessions/:sessionId",
       "modules/runs/containers/runSessions.route.tsx",
-      { id: "collectionRunSession" },
+      { id: "runSetRunSession" },
     ),
     route(
-      ":projectId/collections/:collectionId",
-      "modules/collections/containers/collectionDetail.route.tsx",
+      ":projectId/run-sets/:runSetId",
+      "modules/runSets/containers/runSetDetail.route.tsx",
       [
-        index("modules/collections/containers/collectionOverview.route.tsx"),
+        index("modules/runSets/containers/runSetOverview.route.tsx"),
         route(
           "evaluations",
-          "modules/collections/containers/collectionEvaluations.route.tsx",
+          "modules/runSets/containers/runSetEvaluations.route.tsx",
         ),
       ],
     ),
     route(
-      ":projectId/collections/:collectionId/add-runs",
-      "modules/collections/containers/collectionAddRuns.route.tsx",
+      ":projectId/run-sets/:runSetId/add-runs",
+      "modules/runSets/containers/runSetAddRuns.route.tsx",
     ),
     route(
-      ":projectId/collections/:collectionId/create-runs",
-      "modules/collections/containers/collectionCreateRuns.route.tsx",
+      ":projectId/run-sets/:runSetId/create-runs",
+      "modules/runSets/containers/runSetCreateRuns.route.tsx",
     ),
     route(
-      ":projectId/collections/:collectionId/merge",
-      "modules/collections/containers/collectionMerge.route.tsx",
+      ":projectId/run-sets/:runSetId/merge",
+      "modules/runSets/containers/runSetMerge.route.tsx",
     ),
     route(
-      ":projectId/collections/:collectionId/create-evaluation",
+      ":projectId/run-sets/:runSetId/create-evaluation",
       "modules/evaluations/containers/evaluationCreate.route.tsx",
     ),
     route(
-      ":projectId/collections/:collectionId/evaluations/:evaluationId",
+      ":projectId/run-sets/:runSetId/evaluations/:evaluationId",
       "modules/evaluations/containers/evaluation.route.tsx",
     ),
   ]),
@@ -151,8 +147,8 @@ export default [
     "modules/runs/containers/downloadRun.route.tsx",
   ),
   route(
-    "api/downloads/:projectId/collections/:collectionId",
-    "modules/collections/containers/downloadCollection.route.tsx",
+    "api/downloads/:projectId/run-sets/:runSetId",
+    "modules/runSets/containers/downloadRunSet.route.tsx",
   ),
   route("api/events", "modules/events/containers/events.route.tsx"),
   route("api/projects", "modules/projects/containers/projects.route.tsx", {

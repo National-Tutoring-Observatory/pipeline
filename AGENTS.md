@@ -55,7 +55,7 @@ yarn test
 yarn test:watch
 
 # Run specific test file
-yarn test app/modules/collections/__tests__/authorization.test.ts
+yarn test app/modules/runSets/__tests__/authorization.test.ts
 
 # Run tests with coverage
 yarn test:coverage
@@ -143,7 +143,6 @@ it("returns a valid transcript", async () => {
 **Documentation**:
 
 - [Transcript Format](documentation/schemas/transcript.md) - Input format specification
-- [Collection Export Format](documentation/schemas/collection-export.md) - CSV export structure
 - [Examples](documentation/schemas/examples/) - Sample transcript files
 
 ### Module Organization Pattern
@@ -164,7 +163,7 @@ module/
 
 **Core Modules**:
 
-- **Data Management**: `projects`, `runs`, `sessions`, `collections`
+- **Data Management**: `projects`, `runs`, `sessions`, `runSets`
 - **LLM/Annotations**: `prompts`, `annotations`
 - **Access Control**: `teams`, `users`, `authentication`, `authorization`
 - **Infrastructure**: `storage`, `queues`, `sockets`
@@ -203,14 +202,14 @@ The service class acts as a **facade** - a single entry point that routes use. I
 
 ```typescript
 // module.ts - The facade
-export class CollectionService {
+export class RunSetService {
   // Basic CRUD - implemented inline
-  static async find(options?: FindOptions): Promise<Collection[]> { ... }
-  static async findById(id: string): Promise<Collection | null> { ... }
+  static async find(options?: FindOptions): Promise<RunSet[]> { ... }
+  static async findById(id: string): Promise<RunSet | null> { ... }
 
   // Complex operations - delegate to service files
-  static async mergeCollections(targetId: string, sourceIds: string[]) {
-    return mergeCollectionsService(targetId, sourceIds);
+  static async mergeRunSets(targetId: string, sourceIds: string[]) {
+    return mergeRunSetsService(targetId, sourceIds);
   }
 }
 ```
@@ -737,7 +736,7 @@ const url = await adapter.request(path); // Presigned URL
 - `project.schema.ts` - Projects with metadata and status
 - `run.schema.ts` - Runs: annotation tasks with sessions and prompts
 - `session.schema.ts` - Individual sessions with utterances
-- `collection.schema.ts` - Collections grouping multiple runs
+- `runSet.schema.ts` - Run sets grouping multiple runs
 - `prompt.schema.ts` - Prompt templates
 - `user.schema.ts` - Users with roles and team assignments
 - `team.schema.ts` - Teams containing projects and users
@@ -1013,7 +1012,7 @@ REDIS_LOCAL='true'                  # Local Redis (development)
 yarn test
 
 # Specific module
-yarn test app/modules/collections
+yarn test app/modules/runSets
 
 # Watch mode
 yarn test:watch
@@ -1138,28 +1137,6 @@ yarn app:build
 **Cause**: Another process using the port
 **Fix**: `lsof -i :5173` to find process, then kill it
 **Alternative**: `PORT=3000 yarn app:dev`
-
-## Collections Feature
-
-**Status**: Phase 1 Complete (Foundation)
-
-See detailed documentation:
-
-- `COLLECTION_CREATE_PLAN.md` - Full feature implementation plan
-- Additional phase documentation may exist
-
-**Phase 1 Includes**:
-
-- CollectionService CRUD operations
-- CollectionAuthorization module (team-based access)
-- Updated projectCollections.route with proper error handling
-- Comprehensive test coverage
-
-**To Continue**:
-
-1. Check phase documentation for next steps
-2. Tests run via: `yarn test -- app/modules/collections/__tests__/`
-3. Build: `yarn app:build` - must pass before commit
 
 ## Additional Resources
 

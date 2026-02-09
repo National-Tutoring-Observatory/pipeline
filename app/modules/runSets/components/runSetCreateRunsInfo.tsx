@@ -1,0 +1,26 @@
+import { StatItem } from "@/components/ui/stat-item";
+import type { RunSet } from "../runSets.types";
+
+interface RunSetCreateRunsInfoProps {
+  runSet: RunSet;
+}
+
+export default function RunSetCreateRunsInfo({
+  runSet,
+}: RunSetCreateRunsInfoProps) {
+  return (
+    <div className="rounded-lg border bg-slate-50 p-4">
+      <h3 className="mb-4 text-sm font-semibold">RunSet Info</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <StatItem label="Name">{runSet.name}</StatItem>
+        <StatItem label="Annotation Type">
+          {runSet.annotationType === "PER_UTTERANCE"
+            ? "Per Utterance"
+            : "Per Session"}
+        </StatItem>
+        <StatItem label="Sessions">{runSet.sessions?.length || 0}</StatItem>
+        <StatItem label="Existing Runs">{runSet.runs?.length || 0}</StatItem>
+      </div>
+    </div>
+  );
+}

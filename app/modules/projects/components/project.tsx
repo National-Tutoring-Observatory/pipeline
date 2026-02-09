@@ -36,7 +36,7 @@ interface ProjectProps {
   sessionsCount: number;
   convertedSessionsCount: number;
   runsCount: number;
-  collectionsCount: number;
+  runSetsCount: number;
   tabValue: string;
   uploadFilesProgress: number;
   convertFilesProgress: number;
@@ -52,7 +52,7 @@ export default function Project({
   sessionsCount,
   convertedSessionsCount,
   runsCount,
-  collectionsCount,
+  runSetsCount,
   tabValue,
   uploadFilesProgress,
   convertFilesProgress,
@@ -193,24 +193,24 @@ export default function Project({
               </Card>
             </Link>
             <Link
-              to={`/projects/${project._id}/collections`}
+              to={`/projects/${project._id}/run-sets`}
               replace
               className="h-full"
             >
               <Card
                 className={clsx("h-full transition-all", {
-                  "border-accent-foreground": tabValue === "COLLECTIONS",
+                  "border-accent-foreground": tabValue === "RUN_SETS",
                 })}
               >
                 <CardHeader>
-                  <CardTitle>Collections</CardTitle>
+                  <CardTitle>Run Sets</CardTitle>
                   <CardDescription>
-                    Collections are a grouping of runs to help you compare
+                    Run sets are a grouping of runs to help you compare
                     different run settings across the same dataset
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="h-8">
-                  <p>{collectionsCount} collections</p>
+                  <p>{runSetsCount} run sets</p>
                 </CardContent>
               </Card>
             </Link>

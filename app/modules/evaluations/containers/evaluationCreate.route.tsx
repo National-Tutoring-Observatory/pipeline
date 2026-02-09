@@ -9,12 +9,12 @@ import {
 } from "react-router";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import { CollectionService } from "~/modules/collections/collection";
 import EvaluationCreate from "~/modules/evaluations/components/evaluationCreate";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
 import isAbleToCreateEvaluation from "~/modules/evaluations/helpers/isAbleToCreateEvaluation";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
+import { RunSetService } from "~/modules/runSets/runSet";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/evaluationCreate.route";
 
@@ -33,12 +33,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect("/");
   }
 
-  const collection = await CollectionService.findById(params.collectionId);
-  if (!collection) {
-    return redirect(`/projects/${params.projectId}/collections`);
+  const runSet = await RunSetService.findById(params.runSetId);
+  if (!runSet) {
+    return redirect(`/projects/${params.projectId}/run-sets`);
   }
 
-  return { project, collection };
+  return { project, runSet };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -56,19 +56,16 @@ export async function action({ request, params }: Route.ActionArgs) {
     return data({ errors: { project: "Access denied" } }, { status: 403 });
   }
 
-  const collection = await CollectionService.findById(params.collectionId);
-  if (!collection) {
-    return data(
-      { errors: { collection: "Collection not found" } },
-      { status: 404 },
-    );
+  const runSet = await RunSetService.findById(params.runSetId);
+  if (!runSet) {
+    return data({ errors: { runSet: "Run set not found" } }, { status: 404 });
   }
 
   const { intent, payload = {} } = await request.json();
 
   switch (intent) {
     case "CREATE_EVALUATION": {
-      if (!isAbleToCreateEvaluation(collection)) {
+      if (!isAbleToCreateEvaluation(runSet)) {
         return data(
           {
             errors: {
@@ -93,15 +90,15 @@ export async function action({ request, params }: Route.ActionArgs) {
       const evaluation = await EvaluationService.create({
         name: name.trim(),
         project: params.projectId,
-        collection: params.collectionId,
-        runs: collection.runs || [],
+        collection: params.runSetId,
+        runs: runSet.runs || [],
       });
 
       return {
         intent: "CREATE_EVALUATION",
         data: {
           evaluationId: evaluation._id,
-          collectionId: params.collectionId,
+          runSetId: params.runSetId,
           projectId: params.projectId,
         },
       };
@@ -114,7 +111,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function EvaluationCreateRoute() {
-  const { project, collection } = useLoaderData<typeof loader>();
+  const { project, runSet } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const submit = useSubmit();
   const [name, setName] = useState("");
@@ -123,10 +120,10 @@ export default function EvaluationCreateRoute() {
   const breadcrumbs = [
     { text: "Projects", link: "/" },
     { text: project.name, link: `/projects/${project._id}` },
-    { text: "Collections", link: `/projects/${project._id}/collections` },
+    { text: "Run Sets", link: `/projects/${project._id}/run-sets` },
     {
-      text: collection.name,
-      link: `/projects/${project._id}/collections/${collection._id}`,
+      text: runSet.name,
+      link: `/projects/${project._id}/run-sets/${runSet._id}`,
     },
     { text: "Create Evaluation" },
   ];
@@ -143,9 +140,7 @@ export default function EvaluationCreateRoute() {
   };
 
   const handleCancel = () => {
-    navigate(
-      `/projects/${project._id}/collections/${collection._id}/evaluations`,
-    );
+    navigate(`/projects/${project._id}/run-sets/${runSet._id}/evaluations`);
   };
 
   return (
@@ -157,17 +152,17 @@ export default function EvaluationCreateRoute() {
       </PageHeader>
       <div className="mb-8">
         <p className="text-muted-foreground">
-          Create a new evaluation for this collection
+          Create a new evaluation for this run set
         </p>
       </div>
 
       <EvaluationCreate
-        collectionName={collection.name}
+        runSetName={runSet.name}
         name={name}
         isSubmitting={isSubmitting}
-        isAbleToCreateEvaluation={isAbleToCreateEvaluation(collection)}
+        isAbleToCreateEvaluation={isAbleToCreateEvaluation(runSet)}
         projectId={project._id}
-        collectionId={collection._id}
+        runSetId={runSet._id}
         onNameChanged={setName}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
