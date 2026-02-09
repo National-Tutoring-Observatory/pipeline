@@ -1,7 +1,5 @@
-import type { Collection } from "~/modules/collections/collections.types";
+import type { RunSet } from "~/modules/runSets/runSets.types";
 
-export default function isAbleToCreateEvaluation(
-  collection: Collection,
-): boolean {
-  return (collection.runs?.length ?? 0) > 1;
+export default function isAbleToCreateEvaluation(runSet: RunSet): boolean {
+  return (runSet.runs?.length ?? 0) > 1;
 }

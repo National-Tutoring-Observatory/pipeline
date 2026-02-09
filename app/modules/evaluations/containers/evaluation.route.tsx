@@ -1,10 +1,10 @@
 import { redirect, useLoaderData } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import { CollectionService } from "~/modules/collections/collection";
 import Evaluation from "~/modules/evaluations/components/evaluation";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
+import { RunSetService } from "~/modules/runSets/runSet";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/evaluation.route";
 
@@ -23,35 +23,35 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect("/");
   }
 
-  const collection = await CollectionService.findById(params.collectionId);
-  if (!collection) {
-    return redirect(`/projects/${params.projectId}/collections`);
+  const runSet = await RunSetService.findById(params.runSetId);
+  if (!runSet) {
+    return redirect(`/projects/${params.projectId}/run-sets`);
   }
 
   const evaluation = await EvaluationService.findById(params.evaluationId);
   if (!evaluation) {
     return redirect(
-      `/projects/${params.projectId}/collections/${params.collectionId}/evaluations`,
+      `/projects/${params.projectId}/run-sets/${params.runSetId}/evaluations`,
     );
   }
 
-  return { project, collection, evaluation };
+  return { project, runSet, evaluation };
 }
 
 export default function EvaluationRoute() {
-  const { project, collection, evaluation } = useLoaderData<typeof loader>();
+  const { project, runSet, evaluation } = useLoaderData<typeof loader>();
 
   const breadcrumbs = [
     { text: "Projects", link: "/" },
     { text: project.name, link: `/projects/${project._id}` },
-    { text: "Collections", link: `/projects/${project._id}/collections` },
+    { text: "Run Sets", link: `/projects/${project._id}/run-sets` },
     {
-      text: collection.name,
-      link: `/projects/${project._id}/collections/${collection._id}`,
+      text: runSet.name,
+      link: `/projects/${project._id}/run-sets/${runSet._id}`,
     },
     {
       text: "Evaluations",
-      link: `/projects/${project._id}/collections/${collection._id}/evaluations`,
+      link: `/projects/${project._id}/run-sets/${runSet._id}/evaluations`,
     },
     { text: evaluation.name },
   ];

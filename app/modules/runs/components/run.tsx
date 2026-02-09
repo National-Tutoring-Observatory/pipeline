@@ -35,45 +35,45 @@ import { Link } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getDateString from "~/modules/app/helpers/getDateString";
-import type { Collection } from "~/modules/collections/collections.types";
 import Flag from "~/modules/featureFlags/components/flag";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
+import type { RunSet } from "~/modules/runSets/runSets.types";
 import DownloadDropdown from "./downloadDropdown";
-import RunCollections from "./runCollections";
 import RunDownloads from "./runDownloads";
+import RunRunSets from "./runRunSets";
 
 export default function RunDetail({
   run,
   promptInfo,
-  collections,
-  collectionsCount,
+  runSets,
+  runSetsCount,
   runSessionsProgress,
   runSessionsStep,
   breadcrumbs,
   onExportRunButtonClicked,
   onReRunClicked,
   onEditRunButtonClicked,
-  onAddToExistingCollectionClicked,
-  onAddToNewCollectionClicked,
+  onAddToExistingRunSetClicked,
+  onAddToNewRunSetClicked,
   onUseAsTemplateClicked,
-  collectionId,
+  runSetId,
 }: {
   run: Run;
   promptInfo: { name: string; version: number };
-  collections: Collection[];
-  collectionsCount: number;
+  runSets: RunSet[];
+  runSetsCount: number;
   runSessionsProgress: number;
   runSessionsStep: string;
   breadcrumbs: Breadcrumb[];
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void;
   onReRunClicked: () => void;
   onEditRunButtonClicked: (run: Run) => void;
-  onAddToExistingCollectionClicked: (run: Run) => void;
-  onAddToNewCollectionClicked: (run: Run) => void;
+  onAddToExistingRunSetClicked: (run: Run) => void;
+  onAddToNewRunSetClicked: (run: Run) => void;
   onUseAsTemplateClicked: (run: Run) => void;
-  collectionId?: string;
+  runSetId?: string;
 }) {
   const projectId =
     typeof run.project === "string" ? run.project : run.project._id;
@@ -102,20 +102,20 @@ export default function RunDetail({
               <Flag flag="HAS_PROJECT_COLLECTIONS">
                 <>
                   <DropdownMenuItem
-                    onClick={() => onAddToExistingCollectionClicked(run)}
+                    onClick={() => onAddToExistingRunSetClicked(run)}
                   >
                     <ListPlus className="mr-2 h-4 w-4" />
-                    Add to Existing Collection
+                    Add to Existing Run Set
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => onAddToNewCollectionClicked(run)}
+                    onClick={() => onAddToNewRunSetClicked(run)}
                   >
                     <FolderPlus className="mr-2 h-4 w-4" />
-                    Add to New Collection
+                    Add to New Run Set
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onUseAsTemplateClicked(run)}>
                     <Stamp className="mr-2 h-4 w-4" />
-                    Use as Collection Template
+                    Use as Run Set Template
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>
@@ -154,11 +154,11 @@ export default function RunDetail({
           </StatItem>
         </div>
         <div className="mt-6">
-          <RunCollections
+          <RunRunSets
             projectId={projectId}
             runId={run._id}
-            collections={collections}
-            collectionsCount={collectionsCount}
+            runSets={runSets}
+            runSetsCount={runSetsCount}
           />
         </div>
         <div className="mt-8">
@@ -196,8 +196,8 @@ export default function RunDetail({
                           {(session.status === "DONE" && (
                             <Link
                               to={
-                                collectionId
-                                  ? `/projects/${projectId}/collections/${collectionId}/runs/${run._id}/sessions/${session.sessionId}`
+                                runSetId
+                                  ? `/projects/${projectId}/run-sets/${runSetId}/runs/${run._id}/sessions/${session.sessionId}`
                                   : `/projects/${projectId}/runs/${run._id}/sessions/${session.sessionId}`
                               }
                             >

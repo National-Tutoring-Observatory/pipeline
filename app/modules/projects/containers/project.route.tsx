@@ -15,9 +15,9 @@ import {
 import { toast } from "sonner";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import { CollectionService } from "~/modules/collections/collection";
 import { FileService } from "~/modules/files/file";
 import { RunService } from "~/modules/runs/run";
+import { RunSetService } from "~/modules/runSets/runSet";
 import getAttributeMappingFromFile from "~/modules/sessions/helpers/getAttributeMappingFromFile";
 import createSessionsFromFiles from "~/modules/sessions/services/createSessionsFromFiles.server";
 import { SessionService } from "~/modules/sessions/session";
@@ -53,7 +53,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     hasConverted: true,
   }).length;
   const runsCount = await RunService.count({ project: params.id });
-  const collectionsCount = await CollectionService.count({
+  const runSetsCount = await RunSetService.count({
     project: params.id,
   });
   return {
@@ -62,7 +62,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     sessionsCount,
     convertedSessionsCount,
     runsCount,
-    collectionsCount,
+    runSetsCount,
   };
 }
 
@@ -168,7 +168,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     sessionsCount,
     convertedSessionsCount,
     runsCount,
-    collectionsCount,
+    runSetsCount,
   } = loaderData;
 
   const uploadFetcher = useFetcher();
@@ -269,7 +269,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       sessionsCount={sessionsCount}
       convertedSessionsCount={convertedSessionsCount}
       runsCount={runsCount}
-      collectionsCount={collectionsCount}
+      runSetsCount={runSetsCount}
       tabValue={matches[matches.length - 1].id}
       uploadFilesProgress={uploadFilesProgress}
       convertFilesProgress={convertFilesProgress}

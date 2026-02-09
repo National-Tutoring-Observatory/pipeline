@@ -13,13 +13,13 @@ import {
 import { toast } from "sonner";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import { CollectionService } from "~/modules/collections/collection";
 import addDialog from "~/modules/dialogs/addDialog";
 import { ProjectService } from "~/modules/projects/project";
 import exportRun from "~/modules/runs/helpers/exportRun";
-import { useCreateCollectionForRun } from "~/modules/runs/hooks/useCreateCollectionForRun";
+import { useCreateRunSetForRun } from "~/modules/runs/hooks/useCreateRunSetForRun";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
+import { RunSetService } from "~/modules/runSets/runSet";
 import EditRunDialog from "../components/editRunDialog";
 import RunDetail from "../components/run";
 import type { Route } from "./+types/run.route";
@@ -52,23 +52,21 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     version: run.snapshot.prompt.version,
   };
 
-  const collectionId = params.collectionId;
-  const collection = collectionId
-    ? await CollectionService.findById(collectionId)
-    : null;
+  const runSetId = params.runSetId;
+  const runSet = runSetId ? await RunSetService.findById(runSetId) : null;
 
   const url = new URL(request.url);
   const intent = url.searchParams.get("intent");
-  if (intent === "GET_ALL_COLLECTIONS") {
-    const runCollections = await CollectionService.paginate({
+  if (intent === "GET_ALL_RUN_SETS") {
+    const runRunSets = await RunSetService.paginate({
       match: { runs: params.runId },
       page: 1,
       pageSize: 100,
     });
-    return { collections: runCollections.data };
+    return { runSets: runRunSets.data };
   }
 
-  const runCollections = await CollectionService.paginate({
+  const runRunSets = await RunSetService.paginate({
     match: { runs: params.runId },
     page: 1,
     pageSize: 4,
@@ -78,9 +76,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     project,
     run,
     promptInfo,
-    collection,
-    runCollections: runCollections.data,
-    runCollectionsCount: runCollections.count,
+    runSet,
+    runRunSets: runRunSets.data,
+    runRunSetsCount: runRunSets.count,
   };
 }
 
@@ -111,14 +109,8 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRunRoute() {
-  const {
-    project,
-    run,
-    promptInfo,
-    collection,
-    runCollections,
-    runCollectionsCount,
-  } = useLoaderData();
+  const { project, run, promptInfo, runSet, runRunSets, runRunSetsCount } =
+    useLoaderData();
   const [runSessionsProgress, setRunSessionsProgress] = useState(0);
   const [runSessionsStep, setRunSessionsStep] = useState("");
   const submit = useSubmit();
@@ -176,16 +168,16 @@ export default function ProjectRunRoute() {
     );
   };
 
-  const { openCreateCollectionDialog } = useCreateCollectionForRun({
+  const { openCreateRunSetDialog } = useCreateRunSetForRun({
     projectId: project._id,
   });
 
-  const onAddToExistingCollectionClicked = (run: Run) => {
-    navigate(`/projects/${project._id}/runs/${run._id}/add-to-collection`);
+  const onAddToExistingRunSetClicked = (run: Run) => {
+    navigate(`/projects/${project._id}/runs/${run._id}/add-to-run-set`);
   };
 
   const onUseAsTemplateClicked = (run: Run) => {
-    navigate(`/projects/${project._id}/create-collection?fromRun=${run._id}`);
+    navigate(`/projects/${project._id}/create-run-set?fromRun=${run._id}`);
   };
 
   useHandleSockets({
@@ -261,12 +253,12 @@ export default function ProjectRunRoute() {
     };
   }, []);
 
-  const parentBreadcrumbs = collection
+  const parentBreadcrumbs = runSet
     ? [
-        { text: "Collections", link: `/projects/${project._id}/collections` },
+        { text: "Run Sets", link: `/projects/${project._id}/run-sets` },
         {
-          text: collection.name,
-          link: `/projects/${project._id}/collections/${collection._id}`,
+          text: runSet.name,
+          link: `/projects/${project._id}/run-sets/${runSet._id}`,
         },
       ]
     : [{ text: "Runs", link: `/projects/${project._id}` }];
@@ -282,18 +274,18 @@ export default function ProjectRunRoute() {
     <RunDetail
       run={run}
       promptInfo={promptInfo}
-      collections={runCollections || []}
-      collectionsCount={runCollectionsCount || 0}
+      runSets={runRunSets || []}
+      runSetsCount={runRunSetsCount || 0}
       runSessionsProgress={runSessionsProgress}
       runSessionsStep={runSessionsStep}
       breadcrumbs={breadcrumbs}
       onExportRunButtonClicked={onExportRunButtonClicked}
       onReRunClicked={onReRunClicked}
       onEditRunButtonClicked={onEditRunButtonClicked}
-      onAddToExistingCollectionClicked={onAddToExistingCollectionClicked}
-      onAddToNewCollectionClicked={() => openCreateCollectionDialog(run._id)}
+      onAddToExistingRunSetClicked={onAddToExistingRunSetClicked}
+      onAddToNewRunSetClicked={() => openCreateRunSetDialog(run._id)}
       onUseAsTemplateClicked={onUseAsTemplateClicked}
-      collectionId={collection?._id}
+      runSetId={runSet?._id}
     />
   );
 }

@@ -3,9 +3,9 @@ import find from "lodash/find";
 import map from "lodash/map";
 import { redirect, useLoaderData } from "react-router";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
-import { CollectionService } from "~/modules/collections/collection";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
+import { RunSetService } from "~/modules/runSets/runSet";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import RunSessions from "../components/runSessions";
 import type { Route } from "./+types/runSessions.route";
@@ -40,26 +40,24 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const downloadedPath = await storage.download({ sourcePath: sessionPath });
   const sessionFile = await fse.readJSON(downloadedPath);
 
-  const collectionId = params.collectionId;
-  const collection = collectionId
-    ? await CollectionService.findById(collectionId)
-    : null;
+  const runSetId = params.runSetId;
+  const runSet = runSetId ? await RunSetService.findById(runSetId) : null;
 
-  return { project, run, session, sessionFile, collection };
+  return { project, run, session, sessionFile, runSet };
 }
 
 export default function ProjectRunSessionsRoute() {
-  const { project, run, sessionFile, session, collection } = useLoaderData();
+  const { project, run, sessionFile, session, runSet } = useLoaderData();
 
-  const parentBreadcrumbs = collection
+  const parentBreadcrumbs = runSet
     ? [
         {
-          text: "Collections",
-          link: `/projects/${project._id}/collections`,
+          text: "Run Sets",
+          link: `/projects/${project._id}/run-sets`,
         },
         {
-          text: collection.name,
-          link: `/projects/${project._id}/collections/${collection._id}`,
+          text: runSet.name,
+          link: `/projects/${project._id}/run-sets/${runSet._id}`,
         },
       ]
     : [
@@ -69,8 +67,8 @@ export default function ProjectRunSessionsRoute() {
         },
       ];
 
-  const runLink = collection
-    ? `/projects/${project._id}/collections/${collection._id}/runs/${run._id}`
+  const runLink = runSet
+    ? `/projects/${project._id}/run-sets/${runSet._id}/runs/${run._id}`
     : `/projects/${project._id}/runs/${run._id}`;
 
   const breadcrumbs = [

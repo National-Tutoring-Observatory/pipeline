@@ -6,7 +6,7 @@ import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 
 interface Options {
-  collectionId?: string;
+  runSetId?: string;
 }
 
 function getStatusMeta(item: Run) {
@@ -58,8 +58,8 @@ export default (item: Run, options?: Options) => {
     text: `Created at - ${getDateString(item.createdAt)}`,
   });
 
-  const to = options?.collectionId
-    ? `/projects/${item.project}/collections/${options.collectionId}/runs/${item._id}`
+  const to = options?.runSetId
+    ? `/projects/${item.project}/run-sets/${options.runSetId}/runs/${item._id}`
     : `/projects/${item.project}/runs/${item._id}`;
 
   return {

@@ -36,9 +36,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
         );
       };
 
-      const handleExportCollection = (message: any) => {
+      const handleExportRunSet = (message: any) => {
         controller.enqueue(
-          `data: ${JSON.stringify({ ...message, event: "EXPORT_COLLECTION" })}\n\n`,
+          `data: ${JSON.stringify({ ...message, event: "EXPORT_RUN_SET" })}\n\n`,
         );
       };
 
@@ -50,7 +50,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
       emitter.on("EXPORT_RUN", handleExportRun);
 
-      emitter.on("EXPORT_COLLECTION", handleExportCollection);
+      emitter.on("EXPORT_RUN_SET", handleExportRunSet);
 
       request.signal.addEventListener("abort", () => {
         console.log("SSE: Client disconnected");
@@ -59,7 +59,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         emitter.off("CONVERT_FILES", handleConvertFiles);
         emitter.off("ANNOTATE_RUN_SESSION", handleAnnotateRunSession);
         emitter.off("EXPORT_RUN", handleExportRun);
-        emitter.off("EXPORT_COLLECTION", handleExportCollection);
+        emitter.off("EXPORT_RUN_SET", handleExportRunSet);
       });
     },
   });

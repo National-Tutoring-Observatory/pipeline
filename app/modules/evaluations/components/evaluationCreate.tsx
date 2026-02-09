@@ -6,22 +6,22 @@ import { AlertCircle } from "lucide-react";
 import { Link } from "react-router";
 
 export default function EvaluationCreate({
-  collectionName,
+  runSetName,
   name,
   isSubmitting,
   isAbleToCreateEvaluation,
   projectId,
-  collectionId,
+  runSetId,
   onNameChanged,
   onSubmit,
   onCancel,
 }: {
-  collectionName: string;
+  runSetName: string;
   name: string;
   isSubmitting: boolean;
   isAbleToCreateEvaluation: boolean;
   projectId: string;
-  collectionId: string;
+  runSetId: string;
   onNameChanged: (value: string) => void;
   onSubmit: () => void;
   onCancel: () => void;
@@ -35,10 +35,10 @@ export default function EvaluationCreate({
           <AlertDescription>
             At least 2 runs are required to create an evaluation.{" "}
             <Link
-              to={`/projects/${projectId}/collections/${collectionId}`}
+              to={`/projects/${projectId}/run-sets/${runSetId}`}
               className="underline"
             >
-              Back to collection
+              Back to run set
             </Link>
           </AlertDescription>
         </Alert>
@@ -49,8 +49,8 @@ export default function EvaluationCreate({
   return (
     <div className="max-w-2xl space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="collection">Collection</Label>
-        <Input id="collection" value={collectionName} disabled />
+        <Label htmlFor="runSet">Run Set</Label>
+        <Input id="runSet" value={runSetName} disabled />
       </div>
 
       <div className="space-y-2">

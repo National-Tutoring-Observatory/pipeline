@@ -18,7 +18,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
-import { useCreateCollectionForRun } from "~/modules/runs/hooks/useCreateCollectionForRun";
+import { useCreateRunSetForRun } from "~/modules/runs/hooks/useCreateRunSetForRun";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import EditRunDialog from "../components/editRunDialog";
@@ -101,7 +101,7 @@ export default function ProjectRunsRoute() {
   const submit = useSubmit();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
-  const { openCreateCollectionDialog } = useCreateCollectionForRun({
+  const { openCreateRunSetDialog } = useCreateRunSetForRun({
     projectId: projectId!,
   });
 
@@ -169,14 +169,14 @@ export default function ProjectRunsRoute() {
       case "DUPLICATE":
         onDuplicateRunButtonClicked(run);
         break;
-      case "ADD_TO_EXISTING_COLLECTION":
-        navigate(`/projects/${projectId}/runs/${id}/add-to-collection`);
+      case "ADD_TO_EXISTING_RUN_SET":
+        navigate(`/projects/${projectId}/runs/${id}/add-to-run-set`);
         break;
-      case "ADD_TO_NEW_COLLECTION":
-        openCreateCollectionDialog(id);
+      case "ADD_TO_NEW_RUN_SET":
+        openCreateRunSetDialog(id);
         break;
-      case "USE_AS_COLLECTION_TEMPLATE":
-        navigate(`/projects/${projectId}/create-collection?fromRun=${id}`);
+      case "USE_AS_RUN_SET_TEMPLATE":
+        navigate(`/projects/${projectId}/create-run-set?fromRun=${id}`);
         break;
     }
   };

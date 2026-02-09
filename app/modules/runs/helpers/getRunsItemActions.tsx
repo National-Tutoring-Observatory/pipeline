@@ -7,7 +7,7 @@ import type { User } from "~/modules/users/users.types";
 
 export default function useRunsItemActions(): () => CollectionItemAction[] {
   const authentication = useContext(AuthenticationContext) as User | null;
-  const hasCollections = includes(
+  const hasRunSets = includes(
     authentication?.featureFlags,
     "HAS_PROJECT_COLLECTIONS",
   );
@@ -26,22 +26,22 @@ export default function useRunsItemActions(): () => CollectionItemAction[] {
       },
     ];
 
-    if (hasCollections) {
+    if (hasRunSets) {
       actions.push(
         {
-          action: "ADD_TO_EXISTING_COLLECTION",
+          action: "ADD_TO_EXISTING_RUN_SET",
           icon: <ListPlus />,
-          text: "Add to Existing Collection",
+          text: "Add to Existing Run Set",
         },
         {
-          action: "ADD_TO_NEW_COLLECTION",
+          action: "ADD_TO_NEW_RUN_SET",
           icon: <FolderPlus />,
-          text: "Add to New Collection",
+          text: "Add to New Run Set",
         },
         {
-          action: "USE_AS_COLLECTION_TEMPLATE",
+          action: "USE_AS_RUN_SET_TEMPLATE",
           icon: <Stamp />,
-          text: "Use as Collection Template",
+          text: "Use as Run Set Template",
         },
       );
     }

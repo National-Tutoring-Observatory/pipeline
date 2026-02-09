@@ -2,7 +2,7 @@ import find from "lodash/find";
 import get from "lodash/get";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
-import type { PromptReference } from "~/modules/collections/collections.types";
+import type { PromptReference } from "~/modules/runSets/runSets.types";
 import PromptSelector from "../components/promptSelector";
 import type { PromptVersion } from "../prompts.types";
 

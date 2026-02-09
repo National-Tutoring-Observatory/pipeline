@@ -1,6 +1,6 @@
 ---
 title: "Transcripts"
-tags: ["transcripts", "run", "collection"]
+tags: ["transcripts", "run", "run-sets"]
 category: "Data Management"
 isPublished: false
 ---

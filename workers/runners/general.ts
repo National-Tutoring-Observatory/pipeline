@@ -1,9 +1,9 @@
 import { initializeDatabase } from "app/lib/database";
 import "app/modules/storage/storage";
 import type { Job } from "bullmq";
-import deleteCollectionData from "../general/deleteCollectionData";
 import deleteProject from "../general/deleteProject";
 import deleteProjectData from "../general/deleteProjectData";
+import deleteRunSetData from "../general/deleteRunSetData";
 import removeExpiredTeamAssignment from "../general/removeExpiredTeamAssignment";
 import removeFeatureFlagFromUsers from "../general/removeFeatureFlagFromUsers";
 import runMigration from "../general/runMigration";
@@ -13,8 +13,8 @@ await initializeDatabase();
 export default async (job: Job) => {
   try {
     switch (job.name) {
-      case "DELETE_COLLECTION:DATA": {
-        return deleteCollectionData(job);
+      case "DELETE_RUN_SET:DATA": {
+        return deleteRunSetData(job);
       }
       case "DELETE_PROJECT:DATA": {
         return deleteProjectData(job);
