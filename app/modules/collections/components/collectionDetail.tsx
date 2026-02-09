@@ -11,6 +11,7 @@ import {
   PageHeaderLeft,
   PageHeaderRight,
 } from "@/components/ui/pageHeader";
+import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Copy,
@@ -31,6 +32,7 @@ export default function CollectionDetail({
   collection,
   project,
   breadcrumbs,
+  runsProgress,
   onExportCollectionButtonClicked,
   onAddRunsClicked,
   onMergeClicked,
@@ -43,6 +45,7 @@ export default function CollectionDetail({
   collection: Collection;
   project: { _id: string; name: string };
   breadcrumbs: Breadcrumb[];
+  runsProgress: { total: number; completed: number; running: number };
   onExportCollectionButtonClicked: ({
     exportType,
   }: {
@@ -107,6 +110,16 @@ export default function CollectionDetail({
           </div>
         </PageHeaderRight>
       </PageHeader>
+      {runsProgress.running > 0 && (
+        <div className="relative mb-4">
+          <div className="absolute top-3 right-0 text-xs opacity-40">
+            Annotating runs {runsProgress.completed}/{runsProgress.total}
+          </div>
+          <Progress
+            value={(runsProgress.completed / runsProgress.total) * 100}
+          />
+        </div>
+      )}
       <Flag flag="HAS_EVALUATIONS">
         <Tabs
           value={activeView}
