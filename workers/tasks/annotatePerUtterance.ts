@@ -123,11 +123,12 @@ export default async function annotatePerUtterance(job: any) {
       "FINISHED",
     );
   } catch (error: any) {
+    console.log(error);
     await updateRunSession({
       runId,
       sessionId,
       update: {
-        error,
+        error: error.message || String(error),
         status: "ERRORED",
         finishedAt: new Date(),
       },
