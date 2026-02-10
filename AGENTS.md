@@ -38,6 +38,9 @@ yarn workers:dev
 # Type checking (required before commits)
 yarn typecheck
 
+# Lint (required before commits)
+yarn lint
+
 # Production build
 yarn app:build
 
@@ -79,8 +82,9 @@ yarn migration:generate <Name Of Migration>
 
 1. ✅ `yarn typecheck` - must pass with no errors
 2. ✅ `yarn format:check` - must pass with no errors
-3. ✅ `yarn test` - must pass with no errors
-4. ✅ `yarn app:build` - must complete successfully
+3. ✅ `yarn lint` - must pass with no errors
+4. ✅ `yarn test` - must pass with no errors
+5. ✅ `yarn app:build` - must complete successfully
 
 ## Architecture Overview
 
@@ -1152,6 +1156,7 @@ yarn app:build
 yarn install --frozen-lockfile
 yarn typecheck
 yarn format:check
+yarn lint
 yarn app:build
 ```
 
