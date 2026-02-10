@@ -11,6 +11,12 @@ export function setupSockets({ server, app }: { server: any; app: any }) {
   const pubClient = redis.duplicate();
   const subClient = redis.duplicate();
 
+  const onRedisError = (err: Error) =>
+    console.error("[sockets] Redis error:", err.message);
+  redis.on("error", onRedisError);
+  pubClient.on("error", onRedisError);
+  subClient.on("error", onRedisError);
+
   app.use((req: any, res: any, next: any) => {
     req.io = io; // Attach the main 'io' server instance to every HTTP request
     next();

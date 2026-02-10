@@ -1,11 +1,21 @@
 import { getRedisInstance } from "app/helpers/getRedisInstance";
-import type { Redis } from "ioredis";
 import { Job, MetricsTime, Worker } from "bullmq";
+import type { Redis } from "ioredis";
 
 export const WORKERS: Record<string, { worker: Worker; redis: Redis }> = {};
 
 export default async ({ name }: { name: string }, file: string) => {
   const redis = getRedisInstance({ maxRetriesPerRequest: null });
+
+  redis.on("connect", () => console.log(`[${name}] Redis connected`));
+  redis.on("ready", () => console.log(`[${name}] Redis ready`));
+  redis.on("close", () => console.log(`[${name}] Redis connection closed`));
+  redis.on("reconnecting", () =>
+    console.log(`[${name}] Redis reconnecting...`),
+  );
+  redis.on("error", (err) =>
+    console.error(`[${name}] Redis error:`, err.message),
+  );
 
   const worker = new Worker(name, file, {
     connection: redis,
