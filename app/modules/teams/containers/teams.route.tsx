@@ -17,18 +17,15 @@ import { TeamService } from "../team";
 import type { Team } from "../teams.types";
 import type { Route } from "./+types/teams.route";
 
-export async function loader({ request, params }: Route.LoaderArgs) {
-  let match = {};
-
+export async function loader({ request }: Route.LoaderArgs) {
   const userSession = (await getSessionUser({ request })) as User;
 
   if (!userSession) {
     return redirect("/");
   }
 
-  if (userSession.role === "SUPER_ADMIN") {
-    match = {};
-  } else {
+  let match = {};
+  if (userSession.role !== "SUPER_ADMIN") {
     const teamIds = map(userSession.teams, "team");
     match = { _id: { $in: teamIds } };
   }
@@ -69,7 +66,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   switch (intent) {
-    case "CREATE_TEAM":
+    case "CREATE_TEAM": {
       if (!TeamAuthorization.canCreate(user)) {
         return data(
           {
@@ -97,7 +94,8 @@ export async function action({ request }: Route.ActionArgs) {
         intent: "CREATE_TEAM",
         data: team,
       });
-    case "UPDATE_TEAM":
+    }
+    case "UPDATE_TEAM": {
       if (!TeamAuthorization.canUpdate(user, entityId)) {
         return data(
           {
@@ -115,6 +113,7 @@ export async function action({ request }: Route.ActionArgs) {
         intent: "UPDATE_TEAM",
         data: updated,
       });
+    }
     default:
       return data({ errors: { general: "Invalid intent" } }, { status: 400 });
   }

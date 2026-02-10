@@ -90,7 +90,7 @@ registerStorageAdapter({
 
     const s3Client = getS3Client();
 
-    const ACL: "private" = "private";
+    const ACL = "private" as const;
 
     try {
       const params = {

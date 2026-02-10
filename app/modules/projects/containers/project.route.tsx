@@ -103,7 +103,7 @@ export async function action({ request }: Route.ActionArgs) {
     );
   }
 
-  let splitFiles: File[] = [];
+  let splitFiles: File[];
 
   try {
     splitFiles = await splitMultipleSessionsIntoFiles({ files: uploadedFiles });
