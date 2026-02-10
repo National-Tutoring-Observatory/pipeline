@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { redis } from "~/modules/queues/helpers/createQueue";
 
 const checkParamsExist = (paramKeys: string[]) => {
-  let missingParams = [];
+  const missingParams = [];
   for (const paramKey of paramKeys) {
     if (!process.env[paramKey]) {
       missingParams.push(paramKey);
@@ -15,7 +15,7 @@ const checkParamsExist = (paramKeys: string[]) => {
 export async function loader({ request }: Route.LoaderArgs) {
   let missingParameters: any[] = [];
 
-  let { LLM_PROVIDER, STORAGE_ADAPTER, DOCUMENTS_ADAPTER } = process.env;
+  const { LLM_PROVIDER, STORAGE_ADAPTER, DOCUMENTS_ADAPTER } = process.env;
 
   if (LLM_PROVIDER === "AI_GATEWAY") {
     missingParameters = missingParameters.concat(

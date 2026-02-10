@@ -28,7 +28,7 @@ export default async function exportRun({
     await outputRunDataToJSON({ body: { run, inputFolder, outputFolder } });
   }
 
-  let update = {
+  const update = {
     isExporting: false,
     hasExportedCSV: run.hasExportedCSV,
     hasExportedJSONL: run.hasExportedJSONL,

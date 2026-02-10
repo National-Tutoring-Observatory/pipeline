@@ -7,7 +7,7 @@ import getSessionUser from "../helpers/getSessionUser";
 import type { Route } from "./+types/authentication.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  let user = await getSessionUser({ request });
+  const user = await getSessionUser({ request });
 
   if (!user) {
     return {
@@ -46,7 +46,7 @@ export async function action({ request }: Route.ActionArgs) {
   const data = await clonedRequest.json();
 
   if (clonedRequest.method === "DELETE") {
-    let session = await sessionStorage.getSession(
+    const session = await sessionStorage.getSession(
       clonedRequest.headers.get("cookie"),
     );
 
@@ -59,7 +59,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   const referrerSplit = clonedRequest.headers.get("Referer")?.split("/") || [];
-  let session = await sessionStorage.getSession(
+  const session = await sessionStorage.getSession(
     clonedRequest.headers.get("cookie"),
   );
 

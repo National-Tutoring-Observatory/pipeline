@@ -196,7 +196,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
     );
   };
 
-  const onActionClicked = (action: String) => {
+  const onActionClicked = (action: string) => {
     if (action === "CREATE") {
       openCreateTeamDialog();
     }

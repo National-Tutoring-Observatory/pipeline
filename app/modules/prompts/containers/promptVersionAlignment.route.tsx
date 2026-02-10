@@ -19,7 +19,7 @@ export async function action({ request }: Route.ActionArgs) {
     throw new Error("Access denied");
   }
 
-  let annotationFields: Record<string, any> = {};
+  const annotationFields: Record<string, any> = {};
 
   for (const annotationSchemaItem of annotationSchema as AnnotationSchemaItem[]) {
     if (!annotationSchemaItem.isSystem) {

@@ -323,7 +323,7 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
     );
   };
 
-  const onActionClicked = (action: String) => {
+  const onActionClicked = (action: string) => {
     if (action === "CREATE") {
       openCreatePromptDialog();
     }

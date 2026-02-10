@@ -23,7 +23,7 @@ const DeleteFeatureFlagDialog = ({
 }) => {
   const [flagName, setFlagName] = useState("");
 
-  let isDeleteButtonDisabled = isSubmitting || flagName !== featureFlag.name;
+  const isDeleteButtonDisabled = isSubmitting || flagName !== featureFlag.name;
 
   return (
     <DialogContent>

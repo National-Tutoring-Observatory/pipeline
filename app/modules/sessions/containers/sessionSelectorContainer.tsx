@@ -35,7 +35,7 @@ export default function SessionSelectorContainer({
     sessionId: string;
     isChecked: boolean;
   }) => {
-    let clonedSelectedSessions = cloneDeep(selectedSessions);
+    const clonedSelectedSessions = cloneDeep(selectedSessions);
     if (isChecked) {
       clonedSelectedSessions.push(sessionId);
       onSelectedSessionsChanged(clonedSelectedSessions);

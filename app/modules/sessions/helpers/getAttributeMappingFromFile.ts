@@ -32,7 +32,7 @@ export default async function getAttributeMappingFromFile({
 
   const firstUtterance = fileContentsAsJSON[0];
 
-  let attributeMapping: Record<string, string> = {};
+  const attributeMapping: Record<string, string> = {};
 
   if (firstUtterance) {
     each(REQUIRED_ATTRIBUTES, (requiredAttribute, requiredAttributeKey) => {

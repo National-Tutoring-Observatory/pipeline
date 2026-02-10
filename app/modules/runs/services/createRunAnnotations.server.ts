@@ -25,7 +25,7 @@ export default async function createRunAnnotations(run: Run) {
   if (!promptVersion) throw new Error("Prompt version not found");
   const userPrompt = promptVersion.userPrompt;
 
-  let annotationFields: Record<string, any> = {};
+  const annotationFields: Record<string, any> = {};
 
   for (const annotationSchemaItem of promptVersion.annotationSchema as AnnotationSchemaItem[]) {
     annotationFields[annotationSchemaItem.fieldKey] =

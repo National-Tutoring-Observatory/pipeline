@@ -46,7 +46,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   });
   const annotationType = runs[0]?.annotationType;
 
-  let filesToArchive = [];
+  const filesToArchive = [];
 
   if (exportType === "CSV") {
     // Add meta CSV (always included)
