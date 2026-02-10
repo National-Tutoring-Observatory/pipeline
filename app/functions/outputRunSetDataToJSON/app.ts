@@ -26,7 +26,6 @@ export const handler = async (event: {
 
   const sessionsArray: any[] = [];
   let isBaseRun = true;
-  let annotationIndex = 0;
 
   // First pass: Build base session array from first run
   for (const run of runs) {
@@ -60,7 +59,6 @@ export const handler = async (event: {
   }
 
   // Second pass: Merge annotations from all runs
-  annotationIndex = 0;
   for (const run of runs) {
     for (const session of run.sessions) {
       const sessionPath = `${inputFolder}/${run._id}/${session.sessionId}/${session.name}`;
@@ -134,7 +132,6 @@ export const handler = async (event: {
         }
       }
     }
-    annotationIndex++;
   }
 
   // Output sessions JSONL

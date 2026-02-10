@@ -53,8 +53,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     ]),
   );
 
-  let dbStatus = "DISCONNECTED";
-  let cacheStatus = "DISCONNECTED";
+  let dbStatus;
 
   const isDocumentDB = process.env.DOCUMENTS_ADAPTER === "DOCUMENT_DB";
 
@@ -64,7 +63,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     dbStatus = "CONNECTED";
   }
 
-  cacheStatus = "DISCONNECTED";
+  let cacheStatus = "DISCONNECTED";
+
   if (redis.status === "ready") {
     cacheStatus = "CONNECTED";
   }

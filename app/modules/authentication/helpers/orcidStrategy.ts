@@ -32,6 +32,7 @@ export interface OrcidExtraParams extends Record<string, unknown> {
   orcid: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace OrcidStrategy {
   /**
    * Options for configuring the ORCID authentication strategy.

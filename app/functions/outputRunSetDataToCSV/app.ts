@@ -69,7 +69,6 @@ export const handler = async (event: {
   }
 
   // Second pass: Merge annotations from all runs
-  annotationIndex = 0;
   for (const run of runs) {
     for (const session of run.sessions) {
       const sessionPath = `${inputFolder}/${run._id}/${session.sessionId}/${session.name}`;

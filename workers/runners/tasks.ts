@@ -26,6 +26,10 @@ export default async (job: Job) => {
         } else if (job.data.annotationType === "ANNOTATE_PER_SESSION") {
           return annotatePerSession(job);
         }
+        return {
+          status: "ERRORED",
+          message: `Unknown annotation type: ${job.data.annotationType}`,
+        };
       }
       case "ANNOTATE_RUN:FINISH": {
         return finishAnnotateRun(job);

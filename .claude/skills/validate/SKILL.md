@@ -9,6 +9,7 @@ Run the validation checks in this order:
 
 1. `yarn typecheck`
 2. `yarn format`
-3. `yarn test`
+3. `yarn lint`
+4. `yarn test`
 
 Run each command sequentially. If a check fails, stop and report the failure clearly so it can be addressed before continuing.
