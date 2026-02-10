@@ -190,7 +190,9 @@ export default function RunDetail({
                     fileType: string;
                     status: string;
                   }) => {
-                    console.log(session);
+                    if (session.status === "ERRORED") {
+                      console.log(session);
+                    }
                     return (
                       <TableRow key={session.sessionId}>
                         <TableCell className="font-medium">
