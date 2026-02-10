@@ -20,5 +20,10 @@ export const getRedisInstance = (options?: RedisOptions): Redis => {
     );
   }
 
-  return new IORedis(redisUrl, options || {});
+  const defaultOptions: RedisOptions = {
+    keepAlive: 10000,
+    enableReadyCheck: false,
+  };
+
+  return new IORedis(redisUrl, { ...defaultOptions, ...options });
 };

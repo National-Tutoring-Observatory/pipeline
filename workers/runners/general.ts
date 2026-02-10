@@ -8,7 +8,10 @@ import removeExpiredTeamAssignment from "../general/removeExpiredTeamAssignment"
 import removeFeatureFlagFromUsers from "../general/removeFeatureFlagFromUsers";
 import runMigration from "../general/runMigration";
 
+console.log("[general] Initializing database connection...");
+const _dbStart = Date.now();
 await initializeDatabase();
+console.log(`[general] Database ready (${Date.now() - _dbStart}ms)`);
 
 export default async (job: Job) => {
   try {

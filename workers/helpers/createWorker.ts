@@ -1,14 +1,23 @@
 import { getRedisInstance } from "app/helpers/getRedisInstance";
 import { Job, MetricsTime, Worker } from "bullmq";
+import type { Redis } from "ioredis";
 
-export const redis = getRedisInstance({ maxRetriesPerRequest: null });
-
-export const WORKERS: any = {};
+export const WORKERS: Record<string, { worker: Worker; redis: Redis }> = {};
 
 export default async ({ name }: { name: string }, file: string) => {
-  let worker;
+  const redis = getRedisInstance({ maxRetriesPerRequest: null });
 
-  worker = new Worker(name, file, {
+  redis.on("connect", () => console.log(`[${name}] Redis connected`));
+  redis.on("ready", () => console.log(`[${name}] Redis ready`));
+  redis.on("close", () => console.log(`[${name}] Redis connection closed`));
+  redis.on("reconnecting", () =>
+    console.log(`[${name}] Redis reconnecting...`),
+  );
+  redis.on("error", (err) =>
+    console.error(`[${name}] Redis error:`, err.message),
+  );
+
+  const worker = new Worker(name, file, {
     connection: redis,
     concurrency: 5,
     metrics: {
@@ -19,39 +28,45 @@ export default async ({ name }: { name: string }, file: string) => {
     lockDuration: 300000,
   });
 
-  if (worker) {
-    worker.on("active", (job: Job) => {
-      console.log("Job started", job.name);
-    });
+  worker.on("active", (job: Job) => {
+    console.log("Job started", job.name);
+  });
 
-    worker.on("completed", (job: Job) => {
-      console.log("Job completed", job.name);
-    });
-    // @ts-ignore
-    worker.on("failed", (job: Job, error: Error) => {
-      console.log("Job failed", job.name, error);
-    });
+  worker.on("completed", (job: Job) => {
+    console.log("Job completed", job.name);
+  });
+  // @ts-ignore
+  worker.on("failed", (job: Job, error: Error) => {
+    console.log("Job failed", job.name, error);
+  });
 
-    // @ts-ignore
-    worker.on("error", (err: Error) => {
-      console.error(err);
-    });
+  // @ts-ignore
+  worker.on("error", (err: Error) => {
+    console.error(err);
+  });
 
-    WORKERS[name] = worker;
-  }
+  WORKERS[name] = { worker, redis };
 
   async function shutdown() {
-    const workers = [];
+    const closing = [];
 
     for (const name in WORKERS) {
       if (WORKERS[name]) {
-        workers.push(WORKERS[name].close());
+        closing.push(WORKERS[name].worker.close());
       }
     }
 
-    await Promise.all(workers);
+    await Promise.all(closing);
 
-    await redis.disconnect();
+    const disconnecting = [];
+
+    for (const name in WORKERS) {
+      if (WORKERS[name]) {
+        disconnecting.push(WORKERS[name].redis.disconnect());
+      }
+    }
+
+    await Promise.all(disconnecting);
 
     process.exit(0);
   }

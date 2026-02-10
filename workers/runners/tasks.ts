@@ -9,7 +9,10 @@ import finishConvertedFilesToSessions from "../tasks/finishConvertedFilesToSessi
 import startAnnotateRun from "../tasks/startAnnotateRun";
 import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
 
+console.log("[tasks] Initializing database connection...");
+const dbStartDate = Date.now();
 await initializeDatabase();
+console.log(`[tasks] Database ready (${Date.now() - dbStartDate}ms)`);
 
 export default async (job: Job) => {
   try {
