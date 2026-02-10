@@ -18,6 +18,7 @@ export default new mongoose.Schema({
         required: true,
       },
       status: { type: String, required: true },
+      error: { type: mongoose.Schema.Types.Mixed },
       name: { type: String, required: true },
       fileType: { type: String },
       startedAt: { type: Date, default: Date.now },

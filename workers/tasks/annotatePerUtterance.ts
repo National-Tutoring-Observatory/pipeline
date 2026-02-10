@@ -127,6 +127,7 @@ export default async function annotatePerUtterance(job: any) {
       runId,
       sessionId,
       update: {
+        error,
         status: "ERRORED",
         finishedAt: new Date(),
       },
