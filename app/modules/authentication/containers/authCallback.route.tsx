@@ -5,9 +5,11 @@ import { authenticator } from "../authentication.server";
 import type { Route } from "./+types/authCallback.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  let user = await authenticator.authenticate(params.provider, request);
+  const user = await authenticator.authenticate(params.provider, request);
 
-  let session = await sessionStorage.getSession(request.headers.get("cookie"));
+  const session = await sessionStorage.getSession(
+    request.headers.get("cookie"),
+  );
 
   session.set("user", user);
 

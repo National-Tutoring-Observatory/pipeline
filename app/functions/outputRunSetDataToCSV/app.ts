@@ -26,7 +26,7 @@ export const handler = async (event: {
 
   const { annotationType } = runSet;
 
-  let utteranceKeys = [
+  const utteranceKeys = [
     "_id",
     "sessionId",
     "role",
@@ -34,10 +34,10 @@ export const handler = async (event: {
     "end_time",
     "content",
   ];
-  let utteranceAnnotationKeysAsObject: { [key: string]: boolean } = {};
-  let sessionAnnotationKeysAsObject: { [key: string]: boolean } = {};
+  const utteranceAnnotationKeysAsObject: { [key: string]: boolean } = {};
+  const sessionAnnotationKeysAsObject: { [key: string]: boolean } = {};
   let utterancesArray: any[] = [];
-  let sessionsArray: any[] = [];
+  const sessionsArray: any[] = [];
   let isBaseRun = true;
   let annotationIndex = 0;
 
@@ -93,7 +93,7 @@ export const handler = async (event: {
                 each(annotation, (annotationValue, annotationKey) => {
                   if (annotationKey === "_id") return;
 
-                  let annotationItemKey = `${annotationKey}-${annotationIndex}`;
+                  const annotationItemKey = `${annotationKey}-${annotationIndex}`;
                   baseUtterance[annotationItemKey] = annotationValue;
 
                   if (!utteranceAnnotationKeysAsObject[annotationItemKey]) {
@@ -128,7 +128,7 @@ export const handler = async (event: {
               each(annotation, (annotationValue, annotationKey) => {
                 if (annotationKey === "_id") return;
 
-                let annotationItemKey = `${annotationKey}-${annotationIndex}`;
+                const annotationItemKey = `${annotationKey}-${annotationIndex}`;
                 baseSession[annotationItemKey] = annotationValue;
 
                 if (!sessionAnnotationKeysAsObject[annotationItemKey]) {

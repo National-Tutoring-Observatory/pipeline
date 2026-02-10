@@ -225,7 +225,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     );
   };
 
-  const onActionClicked = (action: String) => {
+  const onActionClicked = (action: string) => {
     if (action === "CREATE") {
       openCreateProjectDialog();
     }

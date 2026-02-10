@@ -54,7 +54,7 @@ export default async function exportRunSet({
     });
   }
 
-  let update = {
+  const update = {
     isExporting: false,
     hasExportedCSV: runSet.hasExportedCSV,
     hasExportedJSONL: runSet.hasExportedJSONL,

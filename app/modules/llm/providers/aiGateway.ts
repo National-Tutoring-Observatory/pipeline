@@ -25,7 +25,7 @@ registerLLM("AI_GATEWAY", {
   }) => {
     const { model, user } = options;
 
-    let metadata: any = {};
+    const metadata: any = {};
 
     if (user) {
       metadata.tags = [user];

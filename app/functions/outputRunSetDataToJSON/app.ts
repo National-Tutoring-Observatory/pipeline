@@ -24,7 +24,7 @@ export const handler = async (event: {
 
   const { annotationType } = runSet;
 
-  let sessionsArray: any[] = [];
+  const sessionsArray: any[] = [];
   let isBaseRun = true;
   let annotationIndex = 0;
 

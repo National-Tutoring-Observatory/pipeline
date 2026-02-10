@@ -93,7 +93,7 @@ registerStorageAdapter({
     const ACL: "private" = "private";
 
     try {
-      let params = {
+      const params = {
         Bucket: getAwsBucket(),
         Key: uploadPath,
         Body: buffer,

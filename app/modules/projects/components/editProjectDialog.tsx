@@ -56,7 +56,7 @@ const EditProjectDialog = ({
     );
   };
 
-  let isSubmitButtonDisabled =
+  const isSubmitButtonDisabled =
     isSubmitting || updatedProject?.name.trim().length < 3;
 
   return (

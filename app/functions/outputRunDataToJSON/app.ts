@@ -14,8 +14,8 @@ export const handler = async (event: {
     const sessionsOutputFile = `${outputFolder}/${run.project}-${run._id}-sessions.jsonl`;
     const metaOutputFile = `${outputFolder}/${run.project}-${run._id}-meta.jsonl`;
 
-    let sessionsArray = [];
-    let metaArray = [];
+    const sessionsArray = [];
+    const metaArray = [];
 
     const storage = getStorageAdapter();
 
@@ -48,7 +48,7 @@ export const handler = async (event: {
     });
 
     // OUTPUT META
-    let runObject: any = {
+    const runObject: any = {
       project: run.project,
       _id: run._id,
       name: run.name,
