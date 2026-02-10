@@ -30,7 +30,9 @@ const FiltersItem = ({
 }: {
   filter: Filter;
   value: string | undefined;
-  onFiltersValueChanged?: (filterKeyAndValue: {}) => any;
+  onFiltersValueChanged?: (
+    filterKeyAndValue: Record<string, string | null>,
+  ) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 

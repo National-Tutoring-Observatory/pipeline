@@ -16,7 +16,7 @@ interface TeamsProps {
   searchValue: string;
   currentPage: number;
   totalPages: number;
-  filtersValues: {};
+  filtersValues: Record<string, string | null>;
   sortValue: string;
   isSyncing: boolean;
   onActionClicked: (action: string) => void;

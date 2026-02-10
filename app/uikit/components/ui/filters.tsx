@@ -21,7 +21,7 @@ export type FilterOption = {
 export type FiltersProps = {
   filters: Filter[];
   filtersValues: any;
-  onFiltersValueChanged?: (filtersValue: {}) => any;
+  onFiltersValueChanged?: (filtersValue: Record<string, string | null>) => void;
 };
 
 const Filters = ({
