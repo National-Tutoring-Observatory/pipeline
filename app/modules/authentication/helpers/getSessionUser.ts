@@ -1,6 +1,5 @@
 import { UserService } from "~/modules/users/user";
-// @ts-ignore
-import sessionStorage from "../../../../sessionStorage.js";
+import sessionStorage from "../../../../sessionStorage";
 
 export default async ({ request }: { request: Request }) => {
   const session = await sessionStorage.getSession(
