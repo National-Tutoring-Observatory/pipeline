@@ -1,6 +1,5 @@
 import { redirect } from "react-router";
-// @ts-ignore
-import sessionStorage from "../../../../sessionStorage.js";
+import sessionStorage from "../../../../sessionStorage";
 import { authenticator } from "../authentication.server";
 import type { Route } from "./+types/authCallback.route";
 

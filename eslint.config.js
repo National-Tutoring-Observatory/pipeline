@@ -18,7 +18,6 @@ export default defineConfig([
       // TODO: enable these incrementally as violations are fixed
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/ban-ts-comment": "off",
     },
   },
   {

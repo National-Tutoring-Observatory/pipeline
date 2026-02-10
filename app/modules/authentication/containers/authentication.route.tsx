@@ -1,7 +1,6 @@
-import { UserService } from "~/modules/users/user";
-// @ts-ignore
 import dayjs from "dayjs";
-import sessionStorage from "../../../../sessionStorage.js";
+import { UserService } from "~/modules/users/user";
+import sessionStorage from "../../../../sessionStorage";
 import { authenticator } from "../authentication.server";
 import getSessionUser from "../helpers/getSessionUser";
 import type { Route } from "./+types/authentication.route";
