@@ -3,14 +3,11 @@ import { getRedisInstance } from "~/helpers/getRedisInstance";
 
 export const QUEUES: Record<string, Queue | any> = {};
 
-export let redis: any;
-export let flowProducer: FlowProducer;
-
-redis = getRedisInstance({ maxRetriesPerRequest: null });
+export const redis = getRedisInstance({ maxRetriesPerRequest: null });
 redis.on("error", (err: Error) =>
   console.error("[queues] Redis error:", err.message),
 );
-flowProducer = new FlowProducer({ connection: redis });
+export const flowProducer = new FlowProducer({ connection: redis });
 flowProducer.on("error", (err: Error) =>
   console.error("[queues] FlowProducer error:", err.message),
 );

@@ -25,7 +25,6 @@ export default defineConfig([
       "@typescript-eslint/no-empty-object-type": "warn",
       "@typescript-eslint/prefer-as-const": "warn",
       "@typescript-eslint/no-wrapper-object-types": "warn",
-      "prefer-const": "warn",
       "no-useless-escape": "warn",
       "no-useless-assignment": "warn",
       "no-case-declarations": "warn",
