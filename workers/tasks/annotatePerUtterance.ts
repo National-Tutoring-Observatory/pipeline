@@ -3,6 +3,7 @@ import filter from "lodash/filter";
 import find from "lodash/find.js";
 import getConversationFromJSON from "workers/helpers/getConversationFromJSON";
 import buildAnnotationSchema from "../../app/modules/llm/helpers/buildAnnotationSchema";
+import classifyLLMError from "../../app/modules/llm/helpers/classifyLLMError";
 import LLM from "../../app/modules/llm/llm";
 import { RunService } from "../../app/modules/runs/run";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
@@ -123,12 +124,13 @@ export default async function annotatePerUtterance(job: any) {
       "FINISHED",
     );
   } catch (error: any) {
-    console.log(error);
+    const errorMessage = classifyLLMError(error);
+
     await updateRunSession({
       runId,
       sessionId,
       update: {
-        error: error.message || String(error),
+        error: errorMessage,
         status: "ERRORED",
         finishedAt: new Date(),
       },
@@ -145,7 +147,7 @@ export default async function annotatePerUtterance(job: any) {
 
     return {
       status: "ERRORED",
-      error: error.message,
+      error: errorMessage,
     };
   }
 }

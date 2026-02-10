@@ -8,6 +8,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import {
   PageHeader,
   PageHeaderLeft,
   PageHeaderRight,
@@ -189,10 +194,8 @@ export default function RunDetail({
                     finishedAt: string;
                     fileType: string;
                     status: string;
+                    error?: string;
                   }) => {
-                    if (session.status === "ERRORED") {
-                      console.log(session);
-                    }
                     return (
                       <TableRow key={session.sessionId}>
                         <TableCell className="font-medium">
@@ -218,7 +221,22 @@ export default function RunDetail({
                           {getDateString(session.finishedAt)}
                         </TableCell>
                         <TableCell>{session.fileType}</TableCell>
-                        <TableCell>{session.status}</TableCell>
+                        <TableCell>
+                          {session.status === "ERRORED" && session.error ? (
+                            <HoverCard>
+                              <HoverCardTrigger asChild>
+                                <span className="cursor-default underline decoration-dotted">
+                                  {session.status}
+                                </span>
+                              </HoverCardTrigger>
+                              <HoverCardContent>
+                                <p className="text-sm">{session.error}</p>
+                              </HoverCardContent>
+                            </HoverCard>
+                          ) : (
+                            session.status
+                          )}
+                        </TableCell>
                       </TableRow>
                     );
                   },

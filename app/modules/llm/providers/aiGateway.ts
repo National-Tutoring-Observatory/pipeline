@@ -7,6 +7,8 @@ registerLLM("AI_GATEWAY", {
     const openai = new OpenAI({
       apiKey: process.env.AI_GATEWAY_KEY,
       baseURL: process.env.AI_GATEWAY_BASE_URL,
+      maxRetries: 0,
+      timeout: 180_000,
     });
     return openai;
   },
