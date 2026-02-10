@@ -12,7 +12,7 @@ import { connectSockets } from "~/modules/sockets/sockets";
 import type { User } from "~/modules/users/users.types";
 import LoginContainer from "./login.container";
 
-export const AuthenticationContext = createContext<{} | null>(null);
+export const AuthenticationContext = createContext<User | null>(null);
 
 export default function AuthenticationContainer({
   children,
