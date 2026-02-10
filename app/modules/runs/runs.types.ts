@@ -27,7 +27,7 @@ export interface Run {
 export interface RunSession {
   sessionId: string;
   status: "DONE" | "RUNNING" | "ERRORED";
-  error: Record<string, unknown> | string;
+  error?: Record<string, unknown> | string;
   name: string;
   fileType: string;
   startedAt: Date;
