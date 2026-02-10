@@ -1,6 +1,6 @@
 import find from "lodash/find";
 import get from "lodash/get";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import type { PromptReference } from "~/modules/runSets/runSets.types";
 import PromptSelector from "../components/promptSelector";
@@ -26,7 +26,9 @@ export default function PromptSelectorContainer({
 }) {
   const [isPromptsOpen, setIsPromptsOpen] = useState(false);
   const [isPromptVersionsOpen, setIsPromptVersionsOpen] = useState(false);
-  const fetchedVersionsByPrompt = useRef<Record<string, PromptVersion[]>>({});
+  const [fetchedVersionsByPrompt, setFetchedVersionsByPrompt] = useState<
+    Record<string, PromptVersion[]>
+  >({});
 
   const promptsFetcher = useFetcher();
   const promptVersionsFetcher = useFetcher();
@@ -83,12 +85,17 @@ export default function PromptSelectorContainer({
     [],
   );
 
-  if (selectedPrompt && promptVersions.length > 0) {
-    fetchedVersionsByPrompt.current[selectedPrompt] = promptVersions;
-  }
+  useEffect(() => {
+    if (selectedPrompt && promptVersions.length > 0) {
+      setFetchedVersionsByPrompt((prev) => ({
+        ...prev,
+        [selectedPrompt]: promptVersions,
+      }));
+    }
+  }, [selectedPrompt, promptVersions]);
 
   const filteredPrompts = prompts.filter((prompt: { _id: string }) => {
-    const fetchedVersions = fetchedVersionsByPrompt.current[prompt._id];
+    const fetchedVersions = fetchedVersionsByPrompt[prompt._id];
     if (!fetchedVersions) return true;
 
     const selectedForThisPrompt =

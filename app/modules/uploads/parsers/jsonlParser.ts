@@ -18,9 +18,7 @@ export default function parseJSONL(fileContents: string): SessionDataMap {
     try {
       data = JSON.parse(line);
     } catch (error) {
-      throw new Error(
-        `Failed to parse JSONL line: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      throw new Error("Failed to parse JSONL line", { cause: error });
     }
 
     const sessionId = data.session_id;

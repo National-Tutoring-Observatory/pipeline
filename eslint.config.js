@@ -19,9 +19,7 @@ export default defineConfig([
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/ban-ts-comment": "off",
-      "@typescript-eslint/no-unused-expressions": "off",
       "@typescript-eslint/no-empty-object-type": "off",
-      "preserve-caught-error": "off",
     },
   },
   {
@@ -33,9 +31,7 @@ export default defineConfig([
         { allowExportNames: ["meta", "links", "headers", "loader", "action"] },
       ],
       "react-hooks/exhaustive-deps": "off",
-      "react-hooks/refs": "off",
       "react-hooks/set-state-in-effect": "off",
-      "react-hooks/purity": "off",
     },
   },
 ]);

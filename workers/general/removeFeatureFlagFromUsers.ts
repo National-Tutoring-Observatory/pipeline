@@ -20,7 +20,6 @@ export default async function removeFeatureFlagFromUsers(job: Job) {
     return { status: "DELETED", featureFlagId };
   } catch (error) {
     console.error("[removeFeatureFlagFromUsers] error", error);
-    // @ts-ignore
-    throw new Error(error);
+    throw new Error("removeFeatureFlagFromUsers failed", { cause: error });
   }
 }
