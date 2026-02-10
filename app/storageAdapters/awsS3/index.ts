@@ -80,9 +80,9 @@ registerStorageAdapter({
       }
       throw new Error(`AWS_S3: No file body returned for ${sourcePath}`);
     } catch (error) {
-      throw new Error(
-        `AWS_S3 download error for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw new Error(`AWS_S3 download error for ${sourcePath}`, {
+        cause: error,
+      });
     }
   },
   upload: async ({ file, uploadPath }: UploadParams): Promise<void> => {

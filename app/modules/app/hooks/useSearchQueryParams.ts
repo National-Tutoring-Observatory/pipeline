@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigation, useSearchParams } from "react-router";
 
 const DEBOUNCE_TIME = 600;
@@ -59,7 +59,7 @@ export function useSearchQueryParams(
   >(parseFiltersFromUrl(searchParams, defaultQueryParams.filters, prefix));
 
   const [isPending, setIsPending] = useState<boolean>(false);
-  const hasInitiatedNavigation = useRef(false);
+  const [hasInitiatedNavigation, setHasInitiatedNavigation] = useState(false);
 
   useEffect(() => {
     if (
@@ -72,7 +72,7 @@ export function useSearchQueryParams(
     setIsPending(true);
 
     const handler = setTimeout(() => {
-      hasInitiatedNavigation.current = true;
+      setHasInitiatedNavigation(true);
       setSearchParams(
         (prevSearchParams: URLSearchParams) => {
           const newSearchParams = new URLSearchParams(
@@ -109,13 +109,12 @@ export function useSearchQueryParams(
   useEffect(() => {
     if (navigation.state === "idle") {
       setIsPending(false);
-      hasInitiatedNavigation.current = false;
+      setHasInitiatedNavigation(false);
     }
   }, [navigation.state]);
 
   const isSyncing =
-    isPending ||
-    (hasInitiatedNavigation.current && navigation.state === "loading");
+    isPending || (hasInitiatedNavigation && navigation.state === "loading");
 
   const updateUrlParam = <T extends string | number>(
     key: string,
@@ -123,7 +122,7 @@ export function useSearchQueryParams(
     setStateFunction: React.Dispatch<React.SetStateAction<T>>,
   ) => {
     setStateFunction(value);
-    hasInitiatedNavigation.current = true;
+    setHasInitiatedNavigation(true);
     setSearchParams(
       (prevSearchParams: URLSearchParams) => {
         const newSearchParams = new URLSearchParams(
@@ -155,7 +154,7 @@ export function useSearchQueryParams(
     >,
   ) => {
     setStateFunction(value);
-    hasInitiatedNavigation.current = true;
+    setHasInitiatedNavigation(true);
     setSearchParams(
       (prevSearchParams: URLSearchParams) => {
         const newSearchParams = new URLSearchParams(

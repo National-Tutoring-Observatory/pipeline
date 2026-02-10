@@ -49,7 +49,6 @@ export default async (job: Job) => {
     }
   } catch (error) {
     console.log(error);
-    // @ts-ignore
-    throw new Error(error);
+    throw new Error("Task worker failed", { cause: error });
   }
 };

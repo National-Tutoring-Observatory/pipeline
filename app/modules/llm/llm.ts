@@ -35,7 +35,6 @@ class LLM {
   constructor(options: Record<string, any> = {}) {
     this.options = { ...DEFAULTS, ...options };
     this.messages = [];
-    this.orchestratorMessage;
     this.schema = options.schema;
     const llm = getLLM(process.env.LLM_PROVIDER || "");
     this.retries = 0;
