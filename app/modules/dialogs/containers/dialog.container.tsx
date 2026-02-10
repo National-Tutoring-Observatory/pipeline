@@ -5,7 +5,7 @@ import type { Modal as ModalType } from "../dialogs.types";
 
 function modalReducer(
   modal: ModalType,
-  action: { type: string; modal?: ModalType },
+  action: { type: string; modal?: Partial<ModalType> },
 ): ModalType {
   switch (action.type) {
     case "ADD": {

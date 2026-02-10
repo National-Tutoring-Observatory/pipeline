@@ -35,12 +35,10 @@ export default async ({ name }: { name: string }, file: string) => {
   worker.on("completed", (job: Job) => {
     console.log("Job completed", job.name);
   });
-  // @ts-ignore
-  worker.on("failed", (job: Job, error: Error) => {
-    console.log("Job failed", job.name, error);
+  worker.on("failed", (job: Job | undefined, error: Error) => {
+    console.log("Job failed", job?.name, error);
   });
 
-  // @ts-ignore
   worker.on("error", (err: Error) => {
     console.error(err);
   });

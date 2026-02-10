@@ -5,15 +5,12 @@ import { GitHubStrategy } from "remix-auth-github";
 import INVITE_LINK_TTL_DAYS from "~/modules/teams/helpers/inviteLink";
 import { UserService } from "~/modules/users/user";
 import type { UserTeam } from "~/modules/users/users.types";
-import sessionStorage from "../../../../sessionStorage.js";
+import sessionStorage from "../../../../sessionStorage";
 
 const githubStrategy = new GitHubStrategy<any>(
   {
-    //@ts-ignore
-    clientId: process.env.GITHUB_CLIENT_ID,
-    //@ts-ignore
-    clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    //@ts-ignore
+    clientId: process.env.GITHUB_CLIENT_ID!,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     redirectURI: `${process.env.AUTH_CALLBACK_URL}/github`,
     scopes: ["user:email"],
   },
