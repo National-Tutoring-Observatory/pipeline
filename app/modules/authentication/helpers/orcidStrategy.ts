@@ -203,10 +203,9 @@ export class OrcidStrategy<User> extends Strategy<
         },
       };
     } catch (error) {
-      if (error instanceof Error) throw error;
-      throw new Error(
-        `Network error while exchanging code for token: ${(error as Error).message}`,
-      );
+      throw new Error("Network error while exchanging code for token", {
+        cause: error,
+      });
     }
   }
 
@@ -239,10 +238,9 @@ export class OrcidStrategy<User> extends Strategy<
         emails: data.emails,
       };
     } catch (error) {
-      if (error instanceof Error) throw error;
-      throw new Error(
-        `Network error while fetching user profile: ${(error as Error).message}`,
-      );
+      throw new Error("Network error while fetching user profile", {
+        cause: error,
+      });
     }
   }
 }
