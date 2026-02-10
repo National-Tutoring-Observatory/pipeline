@@ -7,15 +7,15 @@ type DefaultQueryParams = {
   searchValue?: string;
   currentPage?: number;
   sortValue?: string;
-  filters?: Record<string, unknown> | null;
+  filters?: Record<string, string | null> | null;
 };
 
 function parseFiltersFromUrl(
   searchParams: URLSearchParams,
-  defaultFilters?: Record<string, unknown> | null,
+  defaultFilters?: Record<string, string | null> | null,
   prefix: string = "",
-): Record<string, unknown> {
-  const filters: Record<string, unknown> = {};
+): Record<string, string | null> {
+  const filters: Record<string, string | null> = {};
   const filterPrefix = prefix ? `${prefix}Filter_` : "filter_";
 
   searchParams.forEach((value, key) => {
@@ -55,7 +55,7 @@ export function useSearchQueryParams(
   );
 
   const [filtersValues, setFiltersValuesState] = useState<
-    Record<string, unknown>
+    Record<string, string | null>
   >(parseFiltersFromUrl(searchParams, defaultQueryParams.filters, prefix));
 
   const [isPending, setIsPending] = useState<boolean>(false);
@@ -148,9 +148,9 @@ export function useSearchQueryParams(
 
   const updateUrlParamObject = (
     key: string,
-    value: Record<string, unknown>,
+    value: Record<string, string | null>,
     setStateFunction: React.Dispatch<
-      React.SetStateAction<Record<string, unknown>>
+      React.SetStateAction<Record<string, string | null>>
     >,
   ) => {
     setStateFunction(value);
@@ -209,7 +209,7 @@ export function useSearchQueryParams(
     setSortValue: (value: string) =>
       updateUrlParam<string>(sortKey, value, setSortValueState),
     filtersValues,
-    setFiltersValues: (value: Record<string, unknown>) =>
+    setFiltersValues: (value: Record<string, string | null>) =>
       updateUrlParamObject("filters", value, setFiltersValuesState),
     isSyncing,
   };

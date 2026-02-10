@@ -15,7 +15,7 @@ interface ProjectsProps {
   searchValue: string;
   currentPage: number;
   totalPages: number;
-  filtersValues: {};
+  filtersValues: Record<string, string | null>;
   sortValue: string;
   breadcrumbs: Breadcrumb[];
   isSyncing: boolean;
