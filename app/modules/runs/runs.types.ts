@@ -13,6 +13,7 @@ export interface Run {
   promptVersion: number;
   sessions: RunSession[];
   snapshot: RunSnapshot;
+  stoppedAt?: Date | string | null;
   isRunning: boolean;
   isComplete: boolean;
   hasErrored: boolean;
@@ -26,7 +27,7 @@ export interface Run {
 
 export interface RunSession {
   sessionId: string;
-  status: "DONE" | "RUNNING" | "ERRORED" | "NOT_STARTED";
+  status: "DONE" | "RUNNING" | "ERRORED" | "STOPPED" | "NOT_STARTED";
   error?: string;
   name: string;
   fileType: string;

@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collection as CollectionUI } from "@/components/ui/collection";
@@ -20,6 +21,7 @@ import {
   FolderPlus,
   ListPlus,
   MoreHorizontal,
+  OctagonX,
   Pencil,
   Stamp,
 } from "lucide-react";
@@ -44,6 +46,7 @@ export default function RunDetail({
   runSessionsStep,
   breadcrumbs,
   onExportRunButtonClicked,
+  onStopRunClicked,
   onReRunClicked,
   onEditRunButtonClicked,
   onAddToExistingRunSetClicked,
@@ -70,6 +73,7 @@ export default function RunDetail({
   runSessionsStep: string;
   breadcrumbs: Breadcrumb[];
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void;
+  onStopRunClicked: () => void;
   onReRunClicked: () => void;
   onEditRunButtonClicked: (run: Run) => void;
   onAddToExistingRunSetClicked: (run: Run) => void;
@@ -143,12 +147,31 @@ export default function RunDetail({
       </PageHeader>
       <div className="relative mb-8">
         {run.isRunning && (
-          <div className="relative">
-            <div className="absolute top-3 right-0 text-xs opacity-40">
-              Annotating {runSessionsStep}
+          <div>
+            <div className="mb-1 flex justify-end">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={onStopRunClicked}
+              >
+                <OctagonX className="mr-1 h-4 w-4" />
+                Stop
+              </Button>
             </div>
             <Progress value={runSessionsProgress} />
+            <div className="mt-1 text-right text-xs opacity-40">
+              Annotating {runSessionsStep}
+            </div>
           </div>
+        )}
+        {!run.isRunning && run.stoppedAt && (
+          <Alert>
+            <OctagonX className="h-4 w-4" />
+            <AlertTitle>Run stopped</AlertTitle>
+            <AlertDescription>
+              This run was stopped before all sessions were annotated.
+            </AlertDescription>
+          </Alert>
         )}
       </div>
       <div>
@@ -177,8 +200,8 @@ export default function RunDetail({
         <div className="mt-8">
           <div className="flex items-end justify-between">
             <div className="text-muted-foreground text-xs">Sessions</div>
-            {run.hasErrored && (
-              <Button onClick={onReRunClicked}>Re-run errored</Button>
+            {(run.hasErrored || run.stoppedAt) && !run.isRunning && (
+              <Button onClick={onReRunClicked}>Re-run</Button>
             )}
           </div>
           <div className="mt-2">
@@ -220,6 +243,7 @@ export default function RunDetail({
                     { value: "DONE", text: "Complete" },
                     { value: "RUNNING", text: "Running" },
                     { value: "ERRORED", text: "Failed" },
+                    { value: "STOPPED", text: "Stopped" },
                     { value: "NOT_STARTED", text: "Queued" },
                   ],
                 },

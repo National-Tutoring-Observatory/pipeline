@@ -39,6 +39,7 @@ export default new mongoose.Schema({
       provider: { type: String, required: true },
     },
   },
+  stoppedAt: { type: Date },
   isRunning: { type: Boolean, default: false },
   isComplete: { type: Boolean, default: false },
   hasErrored: { type: Boolean, default: false },

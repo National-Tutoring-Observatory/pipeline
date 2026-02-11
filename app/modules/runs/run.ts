@@ -94,6 +94,27 @@ export class RunService {
     await createRunAnnotations(run);
   }
 
+  static async stop(runId: string): Promise<Run | null> {
+    const doc = await RunModel.findByIdAndUpdate(
+      runId,
+      {
+        $set: {
+          stoppedAt: new Date(),
+          isRunning: false,
+          finishedAt: new Date(),
+          "sessions.$[pending].status": "STOPPED",
+        },
+      },
+      {
+        arrayFilters: [
+          { "pending.status": { $in: ["RUNNING", "NOT_STARTED"] } },
+        ],
+        new: true,
+      },
+    );
+    return doc ? this.toRun(doc) : null;
+  }
+
   static async updateById(
     id: string,
     updates: Partial<Run>,

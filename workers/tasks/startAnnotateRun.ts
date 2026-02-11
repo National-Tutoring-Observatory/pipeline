@@ -13,6 +13,7 @@ export default async function startAnnotateRun(job: Job) {
     isRunning: true,
     isComplete: false,
     hasErrored: false,
+    stoppedAt: null,
     startedAt: new Date(),
   });
 
