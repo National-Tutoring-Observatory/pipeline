@@ -19,7 +19,7 @@ import type { FetcherWithComponents } from "react-router";
 import { Link, Outlet } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
-import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import UploadFilesContainer from "~/modules/files/containers/uploadFiles.container";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import type { User } from "~/modules/users/users.types";

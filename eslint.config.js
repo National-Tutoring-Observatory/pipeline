@@ -33,7 +33,16 @@ export default defineConfig([
     rules: {
       "react-refresh/only-export-components": [
         "warn",
-        { allowExportNames: ["meta", "links", "headers", "loader", "action"] },
+        {
+          allowExportNames: [
+            "meta",
+            "links",
+            "headers",
+            "loader",
+            "action",
+            "shouldRevalidate",
+          ],
+        },
       ],
       "react-hooks/exhaustive-deps": "off",
     },

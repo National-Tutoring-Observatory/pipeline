@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import getDateString from "~/modules/app/helpers/getDateString";
-import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import type { Project } from "~/modules/projects/projects.types";
 import type { User } from "~/modules/users/users.types";

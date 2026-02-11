@@ -1,12 +1,11 @@
 import get from "lodash/get";
 import { LoaderPinwheel } from "lucide-react";
-import { createContext, useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Outlet, useFetcher, useLocation, useMatch } from "react-router";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import { connectSockets } from "~/modules/sockets/sockets";
 import type { User } from "~/modules/users/users.types";
 import LoginContainer from "./login.container";
-
-export const AuthenticationContext = createContext<User | null>(null);
 
 export default function AuthenticationContainer({
   children,
