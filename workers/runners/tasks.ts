@@ -6,8 +6,11 @@ import annotatePerUtterance from "../tasks/annotatePerUtterance";
 import convertFileToSession from "../tasks/convertFileToSession";
 import finishAnnotateRun from "../tasks/finishAnnotateRun";
 import finishConvertedFilesToSessions from "../tasks/finishConvertedFilesToSessions";
+import finishExportRunSet from "../tasks/finishExportRunSet";
+import processExportRunSet from "../tasks/processExportRunSet";
 import startAnnotateRun from "../tasks/startAnnotateRun";
 import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
+import startExportRunSet from "../tasks/startExportRunSet";
 
 console.log("[tasks] Initializing database connection...");
 const dbStartDate = Date.now();
@@ -42,6 +45,15 @@ export default async (job: Job) => {
       }
       case "CONVERT_FILES_TO_SESSIONS:FINISH": {
         return finishConvertedFilesToSessions(job);
+      }
+      case "EXPORT_RUN_SET:START": {
+        return startExportRunSet(job);
+      }
+      case "EXPORT_RUN_SET:PROCESS": {
+        return processExportRunSet(job);
+      }
+      case "EXPORT_RUN_SET:FINISH": {
+        return finishExportRunSet(job);
       }
       default: {
         return { status: "ERRORED", message: `Missing task for ${job.name}` };

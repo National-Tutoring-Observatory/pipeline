@@ -156,6 +156,25 @@ export default function RunSetDetailRoute() {
     },
   });
 
+  useHandleSockets({
+    event: "EXPORT_RUN_SET",
+    matches: [
+      {
+        runSetId: runSet._id,
+        task: "EXPORT_RUN_SET:START",
+        status: "FINISHED",
+      },
+      {
+        runSetId: runSet._id,
+        task: "EXPORT_RUN_SET:FINISH",
+        status: "FINISHED",
+      },
+    ],
+    callback: () => {
+      debounceRevalidate(revalidate);
+    },
+  });
+
   const breadcrumbs = [
     { text: "Projects", link: "/" },
     { text: project.name, link: `/projects/${project._id}` },

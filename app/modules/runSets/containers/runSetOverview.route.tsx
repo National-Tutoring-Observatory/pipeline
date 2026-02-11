@@ -1,6 +1,5 @@
 import find from "lodash/find";
 import throttle from "lodash/throttle";
-import { useEffect } from "react";
 import {
   redirect,
   useLoaderData,
@@ -10,6 +9,7 @@ import {
   useSubmit,
 } from "react-router";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+import triggerDownload from "~/modules/app/helpers/triggerDownload";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
@@ -227,33 +227,25 @@ export default function RunSetOverviewRoute() {
     },
   });
 
-  useEffect(() => {
-    const eventSource = new EventSource("/api/events");
-
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.runSetId === runSet._id) {
-        switch (data.event) {
-          case "EXPORT_RUN_SET":
-            debounceRevalidate();
-            if (data.status === "DONE" && data.url) {
-              const a = document.createElement("a");
-              a.href = data.url;
-              a.target = "_blank";
-              a.rel = "noopener";
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-            }
-            break;
-        }
+  useHandleSockets({
+    event: "EXPORT_RUN_SET",
+    matches: [
+      {
+        runSetId: runSet._id,
+        task: "EXPORT_RUN_SET:FINISH",
+        status: "FINISHED",
+      },
+    ],
+    callback: (payload: {
+      downloadUrl?: string;
+      hasErrored?: boolean;
+    }) => {
+      debounceRevalidate();
+      if (payload.downloadUrl && !payload.hasErrored) {
+        triggerDownload(payload.downloadUrl);
       }
-    };
-
-    return () => {
-      eventSource.close();
-    };
-  }, [runSet._id]);
+    },
+  });
 
   return (
     <RunSetOverview
