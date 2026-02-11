@@ -42,8 +42,6 @@ export default function RunCreator({
   selectedPromptVersion: number | null;
   selectedModel: string;
   selectedSessions: string[];
-  randomSampleSize: number;
-  sessionsCount: number;
   isSubmitting: boolean;
   isRunButtonDisabled: boolean;
   onRunNameChanged: (name: string) => void;
@@ -53,8 +51,6 @@ export default function RunCreator({
   onSelectedModelChanged: (selectedModel: string) => void;
   onSelectedSessionsChanged: (selectedSessions: string[]) => void;
   onStartRunButtonClicked: () => void;
-  onRandomSampleSizeChanged: (randomSampleSize: number) => void;
-  onSelectRandomSampleSizeButtonClicked: () => void;
 }) {
   const [runNameTouched, setRunNameTouched] = useState(false);
 

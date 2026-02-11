@@ -36,7 +36,6 @@ export default defineConfig([
         { allowExportNames: ["meta", "links", "headers", "loader", "action"] },
       ],
       "react-hooks/exhaustive-deps": "off",
-      "react-hooks/set-state-in-effect": "off",
     },
   },
 ]);

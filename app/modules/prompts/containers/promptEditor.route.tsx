@@ -152,6 +152,7 @@ export default function PromptEditorRoute() {
 
   return (
     <PromptEditor
+      key={promptVersion.data._id}
       promptVersion={promptVersion.data}
       isLoading={navigation.state === "loading"}
       onSavePromptVersion={onSavePromptVersion}

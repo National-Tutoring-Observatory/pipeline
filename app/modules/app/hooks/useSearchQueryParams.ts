@@ -58,6 +58,12 @@ export function useSearchQueryParams(
     Record<string, string | null>
   >(parseFiltersFromUrl(searchParams, defaultQueryParams.filters, prefix));
 
+  // isSyncing tracks two async phases to show the Collection "Syncing" indicator:
+  // 1. isPending: user is typing but debounce hasn't fired yet (no navigation started)
+  // 2. hasInitiatedNavigation: debounce fired (or pagination/sort/filter changed),
+  //    React Router navigation is in progress, waiting for loader to return new data.
+  // We need hasInitiatedNavigation so that unrelated navigations (e.g. clicking a
+  // link to leave the page) don't briefly flash "Syncing" on the collection.
   const [isPending, setIsPending] = useState<boolean>(false);
   const [hasInitiatedNavigation, setHasInitiatedNavigation] = useState(false);
 
@@ -69,7 +75,7 @@ export function useSearchQueryParams(
       return;
     }
 
-    setIsPending(true);
+    setIsPending(true); // eslint-disable-line react-hooks/set-state-in-effect
 
     const handler = setTimeout(() => {
       setHasInitiatedNavigation(true);
@@ -108,7 +114,7 @@ export function useSearchQueryParams(
 
   useEffect(() => {
     if (navigation.state === "idle") {
-      setIsPending(false);
+      setIsPending(false); // eslint-disable-line react-hooks/set-state-in-effect
       setHasInitiatedNavigation(false);
     }
   }, [navigation.state]);

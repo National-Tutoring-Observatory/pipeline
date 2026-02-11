@@ -14,7 +14,12 @@ export default function SessionSelectorContainer({
   onSelectedSessionsChanged: (selectedSessions: string[]) => void;
 }) {
   const sessionsFetcher = useFetcher({ key: "sessionsList" });
-  const [randomSampleSize, setRandomSampleSize] = useState(0);
+  const [userSampleSize, setUserSampleSize] = useState<number | null>(null);
+
+  const defaultSampleSize = sessionsFetcher.data?.sessions?.count
+    ? Math.floor(sessionsFetcher.data.sessions.count / 3) || 1
+    : 0;
+  const randomSampleSize = userSampleSize ?? defaultSampleSize;
 
   const params = useParams();
 
@@ -46,7 +51,7 @@ export default function SessionSelectorContainer({
   };
 
   const onSampleSizeChanged = (size: number) => {
-    setRandomSampleSize(size);
+    setUserSampleSize(size);
   };
 
   const onRandomizeClicked = () => {
@@ -61,14 +66,6 @@ export default function SessionSelectorContainer({
     queryParams.set("project", params.projectId || "");
     sessionsFetcher.load(`/api/sessionsList?${queryParams.toString()}`);
   }, []);
-
-  useEffect(() => {
-    if (sessionsFetcher.data?.sessions?.count) {
-      setRandomSampleSize(
-        Math.floor(sessionsFetcher.data.sessions.count / 3) || 1,
-      );
-    }
-  }, [sessionsFetcher.data]);
 
   return (
     <SessionSelector

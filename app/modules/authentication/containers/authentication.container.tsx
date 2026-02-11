@@ -1,12 +1,6 @@
 import get from "lodash/get";
 import { LoaderPinwheel } from "lucide-react";
-import {
-  createContext,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useEffect, useRef, type ReactNode } from "react";
 import { Outlet, useFetcher, useLocation, useMatch } from "react-router";
 import { connectSockets } from "~/modules/sockets/sockets";
 import type { User } from "~/modules/users/users.types";
@@ -19,10 +13,6 @@ export default function AuthenticationContainer({
 }: {
   children: ReactNode;
 }) {
-  const [authentication, setAuthentication] = useState<User | null>(null);
-  const [isFetching, setIsFetching] = useState(true);
-  const [hasLoaded, setHasLoaded] = useState(false);
-
   const authenticationFetcher = useFetcher();
   const isInviteRoute = useMatch("/invite/:id");
   const lastFetchRef = useRef<number>(0);
@@ -30,33 +20,26 @@ export default function AuthenticationContainer({
   const prevAuthRef = useRef<User | null>(null);
   const location = useLocation();
 
+  const isFetching = !authenticationFetcher.data;
+  const authentication: User | null = get(
+    authenticationFetcher,
+    "data.authentication.data",
+    null,
+  );
+
   useEffect(() => {
-    setHasLoaded(true);
     authenticationFetcher.load(`/api/authentication`);
   }, []);
 
   useEffect(() => {
-    if (hasLoaded && authenticationFetcher.state === "idle") {
-      setIsFetching(false);
-      const authentication = get(
-        authenticationFetcher,
-        "data.authentication.data",
-      );
+    if (!authenticationFetcher.data || authenticationFetcher.state !== "idle")
+      return;
 
-      if (authentication) {
-        setAuthentication(authentication);
-        prevAuthRef.current = authentication;
-        connectSockets();
-      } else {
-        // if we previously had an authenticated user and now it's gone,
-        // force a reload so the app shows the login flow and server-side
-        // session destruction can take effect.
-        if (prevAuthRef.current) {
-          window.location.reload();
-          return;
-        }
-        setAuthentication(null);
-      }
+    if (authentication) {
+      prevAuthRef.current = authentication;
+      connectSockets();
+    } else if (prevAuthRef.current) {
+      window.location.reload();
     }
   }, [authenticationFetcher.state]);
 
@@ -64,7 +47,7 @@ export default function AuthenticationContainer({
   // updates `lastActivity` and keeps the session alive while browsing.
   // Rate-limit requests to avoid excessive backend calls
   useEffect(() => {
-    if (!hasLoaded) return;
+    if (!authenticationFetcher.data) return;
     const now = Date.now();
     if (now - (lastFetchRef.current || 0) > MIN_FETCH_INTERVAL) {
       lastFetchRef.current = now;
