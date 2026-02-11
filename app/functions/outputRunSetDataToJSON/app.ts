@@ -27,17 +27,15 @@ export const handler = async (event: {
   const sessionsArray: any[] = [];
   let isBaseRun = true;
 
-  // First pass: Build base session array from first run
   for (const run of runs) {
-    if (isBaseRun) {
-      for (const session of run.sessions) {
-        const sessionPath = `${inputFolder}/${run._id}/${session.sessionId}/${session.name}`;
-        const downloadedPath = await storage.download({
-          sourcePath: sessionPath,
-        });
-        const json = await fse.readJSON(downloadedPath);
+    for (const session of run.sessions) {
+      const sessionPath = `${inputFolder}/${run._id}/${session.sessionId}/${session.name}`;
+      const downloadedPath = await storage.download({
+        sourcePath: sessionPath,
+      });
+      const json = await fse.readJSON(downloadedPath);
 
-        // Start with session ID and transcript (without annotations)
+      if (isBaseRun) {
         const sessionObject: any = {
           _id: session.sessionId,
           transcript: map(json.transcript, (utterance) => {
@@ -47,39 +45,23 @@ export const handler = async (event: {
           }),
         };
 
-        // Include any top-level session metadata
         if (json.metadata) {
           sessionObject.metadata = json.metadata;
         }
 
         sessionsArray.push(sessionObject);
       }
-      isBaseRun = false;
-    }
-  }
 
-  // Second pass: Merge annotations from all runs
-  for (const run of runs) {
-    for (const session of run.sessions) {
-      const sessionPath = `${inputFolder}/${run._id}/${session.sessionId}/${session.name}`;
-      const downloadedPath = await storage.download({
-        sourcePath: sessionPath,
-      });
-      const json = await fse.readJSON(downloadedPath);
-
-      // Find matching session in base array
       const baseSession = sessionsArray.find(
         (s) => s._id === session.sessionId,
       );
 
       if (!baseSession) continue;
 
-      // Initialize annotations array if not present
       if (!baseSession.annotations) {
         baseSession.annotations = [];
       }
 
-      // Merge utterance-level annotations
       if (annotationType === "PER_UTTERANCE") {
         for (let i = 0; i < json.transcript.length; i++) {
           const utterance = json.transcript[i];
@@ -95,7 +77,6 @@ export const handler = async (event: {
             }
 
             each(utterance.annotations, (annotation) => {
-              // Add annotation with metadata
               baseUtterance.annotations.push({
                 ...annotation,
                 _metadata: {
@@ -112,11 +93,9 @@ export const handler = async (event: {
         }
       }
 
-      // Merge session-level annotations
       if (annotationType === "PER_SESSION") {
         if (json.annotations && json.annotations.length > 0) {
           each(json.annotations, (annotation) => {
-            // Add annotation with metadata
             baseSession.annotations.push({
               ...annotation,
               _metadata: {
@@ -132,6 +111,8 @@ export const handler = async (event: {
         }
       }
     }
+
+    if (isBaseRun) isBaseRun = false;
   }
 
   // Output sessions JSONL

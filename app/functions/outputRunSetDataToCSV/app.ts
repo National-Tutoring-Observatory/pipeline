@@ -41,34 +41,6 @@ export const handler = async (event: {
   let isBaseRun = true;
   let annotationIndex = 0;
 
-  // First pass: Build base arrays from first run
-  for (const run of runs) {
-    if (isBaseRun) {
-      for (const session of run.sessions) {
-        const sessionPath = `${inputFolder}/${run._id}/${session.sessionId}/${session.name}`;
-        const downloadedPath = await storage.download({
-          sourcePath: sessionPath,
-        });
-        const json = await fse.readJSON(downloadedPath);
-
-        // Build utterances array
-        const transcript = map(json.transcript, (utterance) => {
-          utterance.sessionId = session.sessionId;
-          delete utterance.annotations;
-          return utterance;
-        });
-        utterancesArray = utterancesArray.concat(transcript);
-
-        // Build sessions array
-        sessionsArray.push({
-          _id: session.sessionId,
-        });
-      }
-      isBaseRun = false;
-    }
-  }
-
-  // Second pass: Merge annotations from all runs
   for (const run of runs) {
     for (const session of run.sessions) {
       const sessionPath = `${inputFolder}/${run._id}/${session.sessionId}/${session.name}`;
@@ -77,11 +49,22 @@ export const handler = async (event: {
       });
       const json = await fse.readJSON(downloadedPath);
 
-      // Merge utterance-level annotations
+      if (isBaseRun) {
+        const transcript = map(json.transcript, (utterance) => {
+          utterance.sessionId = session.sessionId;
+          delete utterance.annotations;
+          return utterance;
+        });
+        utterancesArray = utterancesArray.concat(transcript);
+
+        sessionsArray.push({
+          _id: session.sessionId,
+        });
+      }
+
       if (annotationType === "PER_UTTERANCE") {
         for (const utterance of json.transcript) {
           if (utterance.annotations && utterance.annotations.length > 0) {
-            // Find matching utterance in base array by _id and sessionId
             const baseUtterance = utterancesArray.find(
               (u) =>
                 u._id === utterance._id && u.sessionId === session.sessionId,
@@ -100,7 +83,6 @@ export const handler = async (event: {
                   }
                 });
 
-                // Add metadata for this annotation
                 baseUtterance[`model-${annotationIndex}`] =
                   getRunModelCode(run);
                 baseUtterance[`annotationType-${annotationIndex}`] =
@@ -114,10 +96,8 @@ export const handler = async (event: {
         }
       }
 
-      // Merge session-level annotations
       if (annotationType === "PER_SESSION") {
         if (json.annotations && json.annotations.length > 0) {
-          // Find matching session in base array
           const baseSession = sessionsArray.find(
             (s) => s._id === session.sessionId,
           );
@@ -135,7 +115,6 @@ export const handler = async (event: {
                 }
               });
 
-              // Add metadata for this annotation
               baseSession[`model-${annotationIndex}`] = getRunModelCode(run);
               baseSession[`annotationType-${annotationIndex}`] =
                 run.annotationType;
@@ -147,6 +126,8 @@ export const handler = async (event: {
         }
       }
     }
+
+    if (isBaseRun) isBaseRun = false;
     annotationIndex++;
   }
 
