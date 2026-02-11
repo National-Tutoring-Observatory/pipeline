@@ -101,7 +101,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       if (!run) throw new Error("Run not found");
       if (run.hasErrored)
         throw new Error("Cannot export a run that has errors");
-      exportRun({ runId: params.runId, exportType });
+      await exportRun({ runId: params.runId, exportType });
       return {};
     }
     default:
@@ -220,6 +220,28 @@ export default function ProjectRunRoute() {
     },
   });
 
+  useHandleSockets({
+    event: "EXPORT_RUN",
+    matches: [
+      {
+        runId: run._id,
+        task: "EXPORT_RUN:START",
+        status: "FINISHED",
+      },
+      {
+        runId: run._id,
+        task: "EXPORT_RUN:FINISH",
+        status: "FINISHED",
+      },
+    ],
+    callback: (payload) => {
+      debounceRevalidate(revalidate);
+      if (payload.downloadUrl && !payload.hasErrored) {
+        triggerDownload(payload.downloadUrl);
+      }
+    },
+  });
+
   useEffect(() => {
     const eventSource = new EventSource("/api/events");
 
@@ -233,13 +255,6 @@ export default function ProjectRunRoute() {
               setRunSessionsStep(data.step);
             }
             debounceRevalidate(revalidate);
-            break;
-          case "EXPORT_RUN":
-            debounceRevalidate(revalidate);
-            // If the export finished, trigger download automatically.
-            if (data.status === "DONE") {
-              triggerDownload(data.url);
-            }
             break;
         }
       }
