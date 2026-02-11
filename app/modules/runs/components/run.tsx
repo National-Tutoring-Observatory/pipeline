@@ -89,7 +89,7 @@ export default function RunDetail({
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
         <PageHeaderRight>
-          {run.isComplete && (
+          {run.isComplete && !run.hasErrored && (
             <DownloadDropdown
               isExporting={run.isExporting || false}
               hasExportedCSV={run.hasExportedCSV}
