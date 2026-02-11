@@ -1,6 +1,6 @@
 import { ClipboardList } from "lucide-react";
 
-export default () => {
+export default function getPromptsEmptyAttributes() {
   return {
     icon: <ClipboardList />,
     title: "No Prompts yet",
@@ -13,4 +13,4 @@ export default () => {
       },
     ],
   };
-};
+}

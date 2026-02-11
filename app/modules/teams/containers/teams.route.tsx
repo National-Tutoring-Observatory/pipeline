@@ -1,11 +1,12 @@
 import find from "lodash/find";
 import map from "lodash/map";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { data, redirect, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
@@ -125,6 +126,7 @@ export function HydrateFallback() {
 
 export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   const { teams } = loaderData;
+  const user = useContext(AuthenticationContext) as User;
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
@@ -236,6 +238,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   return (
     <Teams
       teams={teams?.data}
+      user={user}
       breadcrumbs={breadcrumbs}
       searchValue={searchValue}
       currentPage={currentPage}

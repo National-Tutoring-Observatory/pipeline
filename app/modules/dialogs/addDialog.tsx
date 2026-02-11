@@ -9,6 +9,6 @@ export const setDispatch = (dispatch: Dispatch<ModalAction>) => {
   addModalDispatch = dispatch;
 };
 
-export default (component: ReactNode) => {
+export default function addDialog(component: ReactNode) {
   addModalDispatch?.({ type: "ADD", modal: { component } });
-};
+}

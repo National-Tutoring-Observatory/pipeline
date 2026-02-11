@@ -4,7 +4,11 @@ import PromptAuthorization from "~/modules/prompts/authorization";
 import type { Prompt } from "~/modules/prompts/prompts.types";
 import type { User } from "~/modules/users/users.types";
 
-export default (item: Prompt, teamId: string, user: User | null) => {
+export default function getTeamPromptsItemAttributes(
+  item: Prompt,
+  teamId: string,
+  user: User | null,
+) {
   const canCreate = PromptAuthorization.canCreate(user, teamId);
 
   return {
@@ -22,4 +26,4 @@ export default (item: Prompt, teamId: string, user: User | null) => {
       },
     ],
   };
-};
+}

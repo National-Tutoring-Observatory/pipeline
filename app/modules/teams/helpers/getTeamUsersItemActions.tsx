@@ -1,14 +1,16 @@
 import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
 import { Trash2 } from "lucide-react";
 import type { User } from "~/modules/users/users.types";
-import useTeamAuthorization from "../hooks/useTeamAuthorization";
+import TeamAuthorization from "../authorization";
 
-export default (item: User, teamId: string): CollectionItemAction[] => {
-  const { users: usersAuthorization } = useTeamAuthorization(teamId);
-
+export default function getTeamUsersItemActions(
+  item: User,
+  user: User,
+  teamId: string,
+): CollectionItemAction[] {
   const actions: CollectionItemAction[] = [];
 
-  if (usersAuthorization.canUpdate) {
+  if (TeamAuthorization.Users.canUpdate(user, teamId)) {
     actions.push({
       action: "REMOVE",
       icon: <Trash2 />,
@@ -18,4 +20,4 @@ export default (item: User, teamId: string): CollectionItemAction[] => {
   }
 
   return actions;
-};
+}

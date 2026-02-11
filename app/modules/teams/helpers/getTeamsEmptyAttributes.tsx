@@ -1,6 +1,6 @@
 import { Users } from "lucide-react";
 
-export default () => {
+export default function getTeamsEmptyAttributes() {
   return {
     icon: <Users />,
     title: "No Teams yet",
@@ -13,4 +13,4 @@ export default () => {
       },
     ],
   };
-};
+}

@@ -2,7 +2,9 @@ import type { CollectionItemAction } from "@/components/ui/collectionContentItem
 import { Copy, Edit, FileInput, Trash2 } from "lucide-react";
 import type { RunSet } from "../runSets.types";
 
-export default (_item: RunSet): CollectionItemAction[] => {
+export default function getRunSetsItemActions(
+  _item: RunSet,
+): CollectionItemAction[] {
   return [
     {
       action: "EDIT",
@@ -25,4 +27,4 @@ export default (_item: RunSet): CollectionItemAction[] => {
       text: "Delete",
     },
   ];
-};
+}

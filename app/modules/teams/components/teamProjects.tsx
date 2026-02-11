@@ -1,5 +1,6 @@
 import { Collection } from "@/components/ui/collection";
 import type { Project } from "~/modules/projects/projects.types";
+import type { User } from "~/modules/users/users.types";
 import getTeamProjectsActions from "../helpers/getTeamProjectsActions";
 import getTeamProjectsEmptyAttributes from "../helpers/getTeamProjectsEmptyAttributes";
 import getTeamProjectsItemActions from "../helpers/getTeamProjectsItemActions";
@@ -11,6 +12,7 @@ import type { Team } from "../teams.types";
 interface TeamProjectsProps {
   projects: Project[];
   team: Team;
+  user: User;
   searchValue: string;
   currentPage: number;
   totalPages: number;
@@ -28,6 +30,7 @@ interface TeamProjectsProps {
 export default function TeamProjects({
   projects,
   team,
+  user,
   filtersValues,
   sortValue,
   searchValue,
@@ -46,7 +49,7 @@ export default function TeamProjects({
       <Collection
         items={projects}
         itemsLayout="list"
-        actions={getTeamProjectsActions(team._id)}
+        actions={getTeamProjectsActions(user, team._id)}
         filters={teamProjectsFilters}
         sortOptions={teamProjectsSortOptions}
         hasSearch
@@ -59,7 +62,7 @@ export default function TeamProjects({
         isSyncing={isSyncing}
         emptyAttributes={getTeamProjectsEmptyAttributes()}
         getItemAttributes={(item) =>
-          getTeamProjectsItemAttributes(item, team._id)
+          getTeamProjectsItemAttributes(item, team._id, user)
         }
         getItemActions={getTeamProjectsItemActions}
         onActionClicked={onActionClicked}

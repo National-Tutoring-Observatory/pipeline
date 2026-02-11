@@ -1,7 +1,7 @@
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { Session } from "~/modules/sessions/sessions.types";
 
-export default (item: Session) => {
+export default function getSessionsItemAttributes(item: Session) {
   const status =
     item.hasConverted === true
       ? "Converted"
@@ -26,4 +26,4 @@ export default (item: Session) => {
       },
     ],
   };
-};
+}

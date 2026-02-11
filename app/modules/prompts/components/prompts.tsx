@@ -2,6 +2,7 @@ import { Collection } from "@/components/ui/collection";
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import type { User } from "~/modules/users/users.types";
 import getPromptsEmptyAttributes from "../helpers/getPromptsEmptyAttributes";
 import getPromptsItemActions from "../helpers/getPromptsItemActions";
 import getPromptsItemAttributes from "../helpers/getPromptsItemAttributes";
@@ -12,6 +13,7 @@ import type { Prompt } from "../prompts.types";
 
 interface PromptsProps {
   prompts: Prompt[];
+  user: User;
   breadcrumbs: Breadcrumb[];
   searchValue: string;
   currentPage: number;
@@ -29,6 +31,7 @@ interface PromptsProps {
 
 export default function Prompts({
   prompts,
+  user,
   breadcrumbs,
   filtersValues,
   sortValue,
@@ -66,7 +69,7 @@ export default function Prompts({
         isSyncing={isSyncing}
         emptyAttributes={getPromptsEmptyAttributes()}
         getItemAttributes={getPromptsItemAttributes}
-        getItemActions={getPromptsItemActions}
+        getItemActions={(item) => getPromptsItemActions(item, user)}
         onActionClicked={onActionClicked}
         onItemActionClicked={onItemActionClicked}
         onSearchValueChanged={onSearchValueChanged}

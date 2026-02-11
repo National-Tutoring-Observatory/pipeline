@@ -3,7 +3,7 @@ import type { User } from "~/modules/users/users.types";
 import type { Team } from "../teams.types";
 import getUserRoleInTeam from "./getUserRoleInTeam";
 
-export default (item: User, team: Team) => {
+export default function getTeamUsersItemAttributes(item: User, team: Team) {
   const { name: roleName } = getUserRoleInTeam({ user: item, team });
 
   let username = item.username;
@@ -31,4 +31,4 @@ export default (item: User, team: Team) => {
       },
     ],
   };
-};
+}

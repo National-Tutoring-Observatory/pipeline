@@ -1,6 +1,6 @@
 import { FolderOpen } from "lucide-react";
 
-export default () => {
+export default function getRunSetsEmptyAttributes() {
   return {
     icon: <FolderOpen />,
     title: "No run sets yet",
@@ -13,4 +13,4 @@ export default () => {
       },
     ],
   };
-};
+}

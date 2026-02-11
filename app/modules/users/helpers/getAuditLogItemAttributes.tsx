@@ -11,7 +11,9 @@ const getActionLabel = (action: string): string => {
   return labels[action] || "Role updated";
 };
 
-export default (audit: AuditRecord): CollectionItemAttributes => {
+export default function getAuditLogItemAttributes(
+  audit: AuditRecord,
+): CollectionItemAttributes {
   const icon =
     audit.action === "ADD_SUPERADMIN" ? (
       <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
@@ -38,4 +40,4 @@ export default (audit: AuditRecord): CollectionItemAttributes => {
       },
     ],
   };
-};
+}

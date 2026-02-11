@@ -4,7 +4,7 @@ import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationType
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { Prompt } from "../prompts.types";
 
-export default (item: Prompt) => {
+export default function getPromptsItemAttributes(item: Prompt) {
   const teamName = get(item, "team.name", "");
 
   return {
@@ -24,4 +24,4 @@ export default (item: Prompt) => {
       },
     ],
   };
-};
+}
