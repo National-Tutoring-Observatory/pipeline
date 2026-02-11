@@ -15,6 +15,11 @@ export default async function annotatePerSession(job: any) {
   const { runId, sessionId, inputFile, outputFolder, prompt, model, team } =
     job.data;
 
+  const run = await RunService.findById(runId);
+  if (run?.stoppedAt) {
+    return { status: "STOPPED" };
+  }
+
   try {
     await updateRunSession({
       runId,

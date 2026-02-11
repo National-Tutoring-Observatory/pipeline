@@ -25,6 +25,7 @@ import type { Run } from "~/modules/runs/runs.types";
 import { RunSetService } from "~/modules/runSets/runSet";
 import EditRunDialog from "../components/editRunDialog";
 import RunDetail from "../components/run";
+import StopRunDialog from "../components/stopRunDialog";
 import type { Route } from "./+types/run.route";
 
 interface PromptInfo {
@@ -99,6 +100,13 @@ export async function action({ request, params }: Route.ActionArgs) {
   const { exportType } = payload;
 
   switch (intent) {
+    case "STOP_RUN": {
+      const run = await RunService.findById(params.runId);
+      if (!run) throw new Error("Run not found");
+      if (!run.isRunning) throw new Error("Run is not running");
+      await RunService.stop(run._id);
+      return {};
+    }
     case "RE_RUN": {
       const run = await RunService.findById(params.runId);
       if (!run) throw new Error("Run not found");
@@ -183,6 +191,19 @@ export default function ProjectRunRoute() {
         },
       }),
       { method: "POST", encType: "application/json" },
+    );
+  };
+
+  const openStopRunDialog = () => {
+    addDialog(
+      <StopRunDialog
+        onStopRunClicked={() => {
+          submit(JSON.stringify({ intent: "STOP_RUN", payload: {} }), {
+            method: "POST",
+            encType: "application/json",
+          });
+        }}
+      />,
     );
   };
 
@@ -336,6 +357,7 @@ export default function ProjectRunRoute() {
       runSessionsStep={runSessionsStep}
       breadcrumbs={breadcrumbs}
       onExportRunButtonClicked={onExportRunButtonClicked}
+      onStopRunClicked={openStopRunDialog}
       onReRunClicked={onReRunClicked}
       onEditRunButtonClicked={onEditRunButtonClicked}
       onAddToExistingRunSetClicked={onAddToExistingRunSetClicked}
