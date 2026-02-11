@@ -2,7 +2,7 @@ import type { CollectionItemAction } from "@/components/ui/collectionContentItem
 import includes from "lodash/includes";
 import { Copy, Edit, FolderPlus, ListPlus, Stamp } from "lucide-react";
 import { useContext } from "react";
-import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import type { User } from "~/modules/users/users.types";
 
 export default function useRunsItemActions(): () => CollectionItemAction[] {

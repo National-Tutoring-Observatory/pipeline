@@ -1,6 +1,6 @@
 import { Collection } from "@/components/ui/collection";
 import { useContext } from "react";
-import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import type { Prompt } from "~/modules/prompts/prompts.types";
 import type { User } from "~/modules/users/users.types";
 import getTeamPromptsActions from "../helpers/getTeamPromptsActions";
