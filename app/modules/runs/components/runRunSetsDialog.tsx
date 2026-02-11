@@ -51,9 +51,7 @@ export default function RunRunSetsDialog({
               return (
                 <div key={runSet._id}>
                   <Item asChild>
-                    <Link
-                      to={`/projects/${projectId}/run-sets/${runSet._id}`}
-                    >
+                    <Link to={`/projects/${projectId}/run-sets/${runSet._id}`}>
                       <div className="flex flex-1 flex-col gap-1 py-2">
                         <div className="font-medium">{runSet.name}</div>
                         <div className="text-muted-foreground flex items-center gap-4 text-xs">
@@ -61,9 +59,7 @@ export default function RunRunSetsDialog({
                             <Zap className="h-3 w-3" />
                             {runCount} run{runCount !== 1 ? "s" : ""}
                           </span>
-                          <span>
-                            Created {getDateString(runSet.createdAt)}
-                          </span>
+                          <span>Created {getDateString(runSet.createdAt)}</span>
                         </div>
                       </div>
                     </Link>
