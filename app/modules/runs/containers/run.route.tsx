@@ -11,6 +11,7 @@ import {
   useSubmit,
 } from "react-router";
 import { toast } from "sonner";
+import triggerDownload from "~/modules/app/helpers/triggerDownload";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -237,16 +238,7 @@ export default function ProjectRunRoute() {
             debounceRevalidate(revalidate);
             // If the export finished, trigger download automatically.
             if (data.status === "DONE") {
-              const url = data.url;
-              const a = document.createElement("a");
-              a.href = url;
-              a.target = "_blank";
-              a.rel = "noopener";
-              // Append to body before clicking to ensure Safari compatibility
-              document.body.appendChild(a);
-              a.click();
-              // Remove after click
-              document.body.removeChild(a);
+              triggerDownload(data.url);
             }
             break;
         }
