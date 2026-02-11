@@ -155,6 +155,7 @@ export default function UploadFiles({
                         <Button
                           variant="ghost"
                           size="sm"
+                          disabled={isUploading}
                           onClick={() =>
                             onDeleteAcceptedFileClicked(acceptedFile._id)
                           }
