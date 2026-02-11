@@ -1,6 +1,6 @@
 import { ClipboardList } from "lucide-react";
 
-export default () => {
+export default function getEvaluationsEmptyAttributes() {
   return {
     icon: <ClipboardList />,
     title: "No evaluations found",
@@ -12,4 +12,4 @@ export default () => {
       },
     ],
   };
-};
+}

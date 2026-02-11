@@ -1,6 +1,6 @@
 import { Folder } from "lucide-react";
 
-export default () => {
+export default function getProjectsEmptyAttributes() {
   return {
     icon: <Folder />,
     title: "No Projects yet",
@@ -13,4 +13,4 @@ export default () => {
       },
     ],
   };
-};
+}

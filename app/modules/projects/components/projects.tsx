@@ -2,6 +2,7 @@ import { Collection } from "@/components/ui/collection";
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import type { User } from "~/modules/users/users.types";
 import getProjectsEmptyAttributes from "../helpers/getProjectsEmptyAttributes";
 import getProjectsItemActions from "../helpers/getProjectsItemActions";
 import getProjectsItemAttributes from "../helpers/getProjectsItemAttributes";
@@ -12,6 +13,7 @@ import type { Project } from "../projects.types";
 
 interface ProjectsProps {
   projects: Project[];
+  user: User;
   searchValue: string;
   currentPage: number;
   totalPages: number;
@@ -29,6 +31,7 @@ interface ProjectsProps {
 
 export default function Projects({
   projects,
+  user,
   searchValue,
   currentPage,
   totalPages,
@@ -66,7 +69,7 @@ export default function Projects({
         isSyncing={isSyncing}
         emptyAttributes={getProjectsEmptyAttributes()}
         getItemAttributes={getProjectsItemAttributes}
-        getItemActions={getProjectsItemActions}
+        getItemActions={(item) => getProjectsItemActions(item, user)}
         onActionClicked={onActionClicked}
         onItemActionClicked={onItemActionClicked}
         onSearchValueChanged={onSearchValueChanged}

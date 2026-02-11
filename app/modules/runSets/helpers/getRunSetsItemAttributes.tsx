@@ -2,7 +2,7 @@ import { Zap } from "lucide-react";
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { RunSet } from "../runSets.types";
 
-export default (item: RunSet) => {
+export default function getRunSetsItemAttributes(item: RunSet) {
   const runCount = item.runs?.length || 0;
 
   return {
@@ -19,4 +19,4 @@ export default (item: RunSet) => {
       },
     ],
   };
-};
+}

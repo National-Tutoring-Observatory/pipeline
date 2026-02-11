@@ -1,12 +1,14 @@
 import escapeRegExp from "lodash/escapeRegExp";
 import find from "lodash/find";
 import map from "lodash/map";
+import { useContext } from "react";
 import { data, redirect, useNavigate, useRevalidator } from "react-router";
 import { toast } from "sonner";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -177,6 +179,7 @@ export function HydrateFallback() {
 
 export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const { projects } = loaderData;
+  const user = useContext(AuthenticationContext) as User;
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
 
@@ -266,6 +269,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   return (
     <Projects
       projects={projects?.data}
+      user={user}
       searchValue={searchValue}
       currentPage={currentPage}
       totalPages={projects.totalPages}

@@ -2,7 +2,10 @@ import type { CollectionItemAction } from "@/components/ui/collectionContentItem
 import UserManagementAuthorization from "../authorization";
 import type { User } from "../users.types";
 
-export default (item: User, currentUser: User): CollectionItemAction[] => {
+export default function getUserManagementItemActions(
+  item: User,
+  currentUser: User,
+): CollectionItemAction[] {
   const actions: CollectionItemAction[] = [];
 
   if (
@@ -30,4 +33,4 @@ export default (item: User, currentUser: User): CollectionItemAction[] => {
   }
 
   return actions;
-};
+}

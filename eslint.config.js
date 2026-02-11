@@ -32,7 +32,7 @@ export default defineConfig([
     extends: [reactHooks.configs.flat.recommended, reactRefresh.configs.vite],
     rules: {
       "react-refresh/only-export-components": [
-        "warn",
+        "error",
         {
           allowExportNames: [
             "meta",
@@ -42,9 +42,16 @@ export default defineConfig([
             "action",
             "shouldRevalidate",
           ],
+          allowConstantExport: true,
         },
       ],
       "react-hooks/exhaustive-deps": "off",
+    },
+  },
+  {
+    files: ["app/uikit/**/*.{ts,tsx}"],
+    rules: {
+      "react-refresh/only-export-components": "off",
     },
   },
 ]);

@@ -1,12 +1,13 @@
-import { useContext } from "react";
 import getDateString from "~/modules/app/helpers/getDateString";
-import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import type { Project } from "~/modules/projects/projects.types";
 import type { User } from "~/modules/users/users.types";
 
-export default (item: Project, teamId: string) => {
-  const user = useContext(AuthenticationContext) as User;
+export default function getTeamProjectsItemAttributes(
+  item: Project,
+  teamId: string,
+  user: User,
+) {
   const canCreate = ProjectAuthorization.canCreate(user, teamId);
 
   return {
@@ -19,4 +20,4 @@ export default (item: Project, teamId: string) => {
       },
     ],
   };
-};
+}

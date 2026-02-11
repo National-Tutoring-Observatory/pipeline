@@ -34,7 +34,7 @@ function getStatusMeta(item: Run) {
   };
 }
 
-export default (item: Run, options?: Options) => {
+export default function getRunsItemAttributes(item: Run, options?: Options) {
   const promptName = get(item, "snapshot.prompt.name", "");
 
   const meta = [
@@ -68,4 +68,4 @@ export default (item: Run, options?: Options) => {
     to,
     meta: meta,
   };
-};
+}

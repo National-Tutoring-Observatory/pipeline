@@ -1,7 +1,10 @@
 import PromptAuthorization from "~/modules/prompts/authorization";
 import type { User } from "~/modules/users/users.types";
 
-export default (teamId: string, user: User | null) => {
+export default function getTeamPromptsActions(
+  teamId: string,
+  user: User | null,
+) {
   if (PromptAuthorization.canCreate(user, teamId)) {
     return [
       {
@@ -12,4 +15,4 @@ export default (teamId: string, user: User | null) => {
   } else {
     return [];
   }
-};
+}

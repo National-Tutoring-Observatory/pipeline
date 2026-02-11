@@ -2,7 +2,7 @@ import { Play } from "lucide-react";
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { Evaluation } from "~/modules/evaluations/evaluations.types";
 
-export default (item: Evaluation) => {
+export default function getEvaluationsItemAttributes(item: Evaluation) {
   const runCount = item.runs?.length || 0;
 
   return {
@@ -19,4 +19,4 @@ export default (item: Evaluation) => {
       },
     ],
   };
-};
+}

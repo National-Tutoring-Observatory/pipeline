@@ -1,25 +1,24 @@
-import useTeamAuthorization from "../hooks/useTeamAuthorization";
+import type { User } from "~/modules/users/users.types";
+import TeamAuthorization from "../authorization";
 
-export default (teamId: string) => {
-  const { users: usersAuthorization } = useTeamAuthorization(teamId);
-
+export default function getTeamUsersActions(user: User, teamId: string) {
   const actions = [];
 
-  if (usersAuthorization.canRequestAccess) {
+  if (TeamAuthorization.Users.canRequestAccess(user, teamId)) {
     actions.push({
       action: "REQUEST_ACCESS",
       text: "Request Access to Team",
     });
   }
 
-  if (usersAuthorization.canUpdate) {
+  if (TeamAuthorization.Users.canUpdate(user, teamId)) {
     actions.push({
       action: "ADD_USER",
       text: "Add existing user",
     });
   }
 
-  if (usersAuthorization.canInvite) {
+  if (TeamAuthorization.Users.canInvite(user, teamId)) {
     actions.push({
       action: "INVITE_USER",
       text: "Invite new user",
@@ -27,4 +26,4 @@ export default (teamId: string) => {
   }
 
   return actions;
-};
+}

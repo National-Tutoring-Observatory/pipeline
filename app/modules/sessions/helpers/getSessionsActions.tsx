@@ -1,6 +1,6 @@
 import type { Project } from "~/modules/projects/projects.types";
 
-export default (project: Project) => {
+export default function getSessionsActions(project: Project) {
   const actions = [];
 
   if (project.hasErrored && !project.isConvertingFiles) {
@@ -11,4 +11,4 @@ export default (project: Project) => {
   }
 
   return actions;
-};
+}

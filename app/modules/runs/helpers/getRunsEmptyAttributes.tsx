@@ -1,6 +1,6 @@
 import { Play } from "lucide-react";
 
-export default () => {
+export default function getRunsEmptyAttributes() {
   return {
     icon: <Play />,
     title: "No Runs yet",
@@ -13,4 +13,4 @@ export default () => {
       },
     ],
   };
-};
+}
