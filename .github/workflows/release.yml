@@ -45,7 +45,9 @@ jobs:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   build-web:
     name: Build Web Image
-    needs: preflight-production
+    needs:
+      - resolve
+      - preflight-production
     uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
     with:
       environment: production
@@ -58,7 +60,9 @@ jobs:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   build-worker:
     name: Build Worker Image
-    needs: preflight-production
+    needs:
+      - resolve
+      - preflight-production
     uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
     with:
       environment: production
