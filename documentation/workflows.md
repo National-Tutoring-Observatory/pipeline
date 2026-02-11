@@ -50,15 +50,14 @@
 </code></pre>
 <h3>Jobs</h3>
 
-Job | Reusable Workflow | Purpose
--- | -- | --
-preflight | ecs_preflight.yml | Confirms ECS services are stable before starting the deployment. Prevents deploying on top of a failed or in-progress rollout.
-build-web-staging | ecs_build_image.yml | Builds the web application container from Dockerfile and pushes it to ECR.
-build-worker-staging | ecs_build_image.yml | Builds the background worker container from workers/Dockerfile and pushes it to ECR with a -worker suffix.
-deploy-web-staging | ecs_deploy_service.yml | Deploys the newly built web image to the ECS web service.
-deploy-worker-staging | ecs_deploy_service.yml | Deploys the newly built worker image to the ECS worker service.
-staging-summary | deployment_summary.yml | Outputs a formatted summary of the deployment including both image tags and the application URL.
-
+| Job                   | Reusable Workflow      | Purpose                                                                                                                        |
+| --------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| preflight             | ecs_preflight.yml      | Confirms ECS services are stable before starting the deployment. Prevents deploying on top of a failed or in-progress rollout. |
+| build-web-staging     | ecs_build_image.yml    | Builds the web application container from Dockerfile and pushes it to ECR.                                                     |
+| build-worker-staging  | ecs_build_image.yml    | Builds the background worker container from workers/Dockerfile and pushes it to ECR with a -worker suffix.                     |
+| deploy-web-staging    | ecs_deploy_service.yml | Deploys the newly built web image to the ECS web service.                                                                      |
+| deploy-worker-staging | ecs_deploy_service.yml | Deploys the newly built worker image to the ECS worker service.                                                                |
+| staging-summary       | deployment_summary.yml | Outputs a formatted summary of the deployment including both image tags and the application URL.                               |
 
 <p>Both services are built and deployed in parallel after the preflight check passes.</p>
 <hr>
@@ -152,6 +151,7 @@ Caller (pipeline)                     Reusable (workflows)
 **File:** `pipeline/.github/workflows/staging.yml`
 
 **Triggers:**
+
 - Push to `main` branch (automatic)
 - Manual dispatch via `workflow_dispatch`
 
@@ -168,14 +168,14 @@ preflight
 
 ### Jobs
 
-| Job | Reusable Workflow | Purpose |
-|-----|-------------------|---------|
-| `preflight` | `ecs_preflight.yml` | Confirms ECS services are stable before starting the deployment. Prevents deploying on top of a failed or in-progress rollout. |
-| `build-web-staging` | `ecs_build_image.yml` | Builds the web application container from `Dockerfile` and pushes it to ECR. |
-| `build-worker-staging` | `ecs_build_image.yml` | Builds the background worker container from `workers/Dockerfile` and pushes it to ECR with a `-worker` suffix. |
-| `deploy-web-staging` | `ecs_deploy_service.yml` | Deploys the newly built web image to the ECS `web` service. |
-| `deploy-worker-staging` | `ecs_deploy_service.yml` | Deploys the newly built worker image to the ECS `worker` service. |
-| `staging-summary` | `deployment_summary.yml` | Outputs a formatted summary of the deployment including both image tags and the application URL. |
+| Job                     | Reusable Workflow        | Purpose                                                                                                                        |
+| ----------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `preflight`             | `ecs_preflight.yml`      | Confirms ECS services are stable before starting the deployment. Prevents deploying on top of a failed or in-progress rollout. |
+| `build-web-staging`     | `ecs_build_image.yml`    | Builds the web application container from `Dockerfile` and pushes it to ECR.                                                   |
+| `build-worker-staging`  | `ecs_build_image.yml`    | Builds the background worker container from `workers/Dockerfile` and pushes it to ECR with a `-worker` suffix.                 |
+| `deploy-web-staging`    | `ecs_deploy_service.yml` | Deploys the newly built web image to the ECS `web` service.                                                                    |
+| `deploy-worker-staging` | `ecs_deploy_service.yml` | Deploys the newly built worker image to the ECS `worker` service.                                                              |
+| `staging-summary`       | `deployment_summary.yml` | Outputs a formatted summary of the deployment including both image tags and the application URL.                               |
 
 ### Key Configuration
 
@@ -309,9 +309,9 @@ All workflows use **OIDC (OpenID Connect)** to authenticate with AWS. This avoid
 
 The application consists of two ECS services:
 
-| Service | Dockerfile | Description |
-|---------|-----------|-------------|
-| `web` | `Dockerfile` | The main web application |
+| Service  | Dockerfile           | Description               |
+| -------- | -------------------- | ------------------------- |
+| `web`    | `Dockerfile`         | The main web application  |
 | `worker` | `workers/Dockerfile` | Background job processing |
 
 Both services are built and deployed in parallel after the preflight check passes.
