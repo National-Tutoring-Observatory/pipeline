@@ -23,7 +23,6 @@ interface TeamProjectsProps {
   onPaginationChanged: (currentPage: number) => void;
   onFiltersValueChanged: (filterValue: any) => void;
   onSortValueChanged: (sortValue: any) => void;
-  onCreateProjectButtonClicked: () => void;
 }
 
 export default function TeamProjects({
@@ -35,7 +34,6 @@ export default function TeamProjects({
   currentPage,
   totalPages,
   isSyncing,
-  onCreateProjectButtonClicked,
   onActionClicked,
   onItemActionClicked,
   onSearchValueChanged,
@@ -58,6 +56,7 @@ export default function TeamProjects({
         searchValue={searchValue}
         currentPage={currentPage}
         totalPages={totalPages}
+        isSyncing={isSyncing}
         emptyAttributes={getTeamProjectsEmptyAttributes()}
         getItemAttributes={(item) =>
           getTeamProjectsItemAttributes(item, team._id)

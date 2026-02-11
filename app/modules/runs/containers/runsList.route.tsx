@@ -5,7 +5,7 @@ import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "../run";
 import type { Route } from "./+types/runsList.route";
 
-export async function loader({ request, params }: Route.LoaderArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const projectId = url.searchParams.get("project");
 

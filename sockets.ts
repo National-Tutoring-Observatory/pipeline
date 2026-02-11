@@ -44,7 +44,7 @@ export function setupSockets({ server, app }: { server: any; app: any }) {
       }
       (socket as AuthenticatedSocket).user = user;
       next();
-    } catch (error) {
+    } catch {
       return next(
         new Error("Authentication error: Session could not be parsed"),
       );

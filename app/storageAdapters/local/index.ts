@@ -45,7 +45,7 @@ registerStorageAdapter({
     const absolutePath = path.resolve(PROJECT_ROOT, sourcePath);
     await fse.remove(absolutePath);
   },
-  request: ({ url, options }: RequestParams): Promise<unknown> => {
+  request: ({ url }: RequestParams): Promise<unknown> => {
     return new Promise((resolve) => {
       resolve(`/${url}`);
     });

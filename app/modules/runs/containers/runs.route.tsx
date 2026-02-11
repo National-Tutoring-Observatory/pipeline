@@ -209,7 +209,7 @@ export default function ProjectRunsRoute() {
         status: "FINISHED",
       },
     ],
-    callback: (payload) => {
+    callback: () => {
       revalidate();
     },
   });

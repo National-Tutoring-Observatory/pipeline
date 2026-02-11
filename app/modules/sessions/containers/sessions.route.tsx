@@ -50,7 +50,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return { sessions, project };
 }
 
-export async function action({ request, params, context }: Route.ActionArgs) {
+export async function action({ request, params }: Route.ActionArgs) {
   const { intent } = await request.json();
 
   switch (intent) {

@@ -98,7 +98,6 @@ export default function QueueRoute() {
           <QueueStateTabs queueType={queueType} states={states} />
 
           <QueueControls
-            queueType={queueType}
             onPauseResume={handlePauseResume}
             isPaused={data.isPaused}
           />

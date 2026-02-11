@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
@@ -7,8 +6,6 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/projects.route";
 import { ProjectService } from "../project";
-
-const createValidId = () => new Types.ObjectId().toString();
 
 describe("projects.route loader", () => {
   beforeEach(async () => {
@@ -58,7 +55,7 @@ describe("projects.route loader", () => {
       createdBy: user._id,
     });
 
-    const project2 = await ProjectService.create({
+    await ProjectService.create({
       name: "Project in Team 2",
       team: team2._id,
       createdBy: user._id,

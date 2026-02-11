@@ -120,7 +120,7 @@ describe("createRunAnnotations", () => {
       team: team._id,
     });
 
-    const promptVersion = await PromptVersionService.create({
+    await PromptVersionService.create({
       name: "Version 1",
       prompt: prompt._id,
       version: 1,

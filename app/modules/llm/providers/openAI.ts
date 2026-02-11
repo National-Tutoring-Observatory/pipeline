@@ -13,7 +13,6 @@ registerLLM("OPEN_AI", {
   },
   createChat: async ({
     llm,
-    options,
     messages,
     schema,
   }: {

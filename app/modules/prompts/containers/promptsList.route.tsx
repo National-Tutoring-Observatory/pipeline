@@ -7,7 +7,7 @@ import annotationTypes from "../annotationTypes";
 import { PromptService } from "../prompt";
 import type { Route } from "./+types/promptsList.route";
 
-export async function loader({ request, params }: Route.LoaderArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const user = (await getSessionUser({ request })) as User;
   if (!user) {
     return redirect("/");

@@ -37,7 +37,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return { project, initialRun, duplicateWarnings };
 }
 
-export async function action({ request, params, context }: Route.ActionArgs) {
+export async function action({ request, params }: Route.ActionArgs) {
   const { intent, payload = {} } = await request.json();
 
   const { name, annotationType, prompt, promptVersion, model, sessions } =

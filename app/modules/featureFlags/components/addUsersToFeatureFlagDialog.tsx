@@ -73,12 +73,12 @@ export default function AddUsersToFeatureFlagDialog({
         <DialogClose asChild>
           <Button
             type="button"
-            disabled={isSubmitButtonDisabled}
+            disabled={isSubmitButtonDisabled || isSubmitting}
             onClick={() => {
               onAddUsersClicked();
             }}
           >
-            Add users
+            {isSubmitting ? "Adding..." : "Add users"}
           </Button>
         </DialogClose>
       </DialogFooter>

@@ -136,7 +136,7 @@ export default function TeamProjectsRoute() {
 
   const onItemActionClicked = ({
     id,
-    action,
+    action: _action,
   }: {
     id: string;
     action: string;
@@ -179,7 +179,6 @@ export default function TeamProjectsRoute() {
       onPaginationChanged={onPaginationChanged}
       onFiltersValueChanged={onFiltersValueChanged}
       onSortValueChanged={onSortValueChanged}
-      onCreateProjectButtonClicked={onCreateProjectButtonClicked}
     />
   );
 }

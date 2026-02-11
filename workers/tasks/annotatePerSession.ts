@@ -12,16 +12,8 @@ import updateRunSession from "../helpers/updateRunSession";
 import annotationPerSessionPrompts from "../prompts/annotatePerSession.prompts.json";
 
 export default async function annotatePerSession(job: any) {
-  const {
-    projectId,
-    runId,
-    sessionId,
-    inputFile,
-    outputFolder,
-    prompt,
-    model,
-    team,
-  } = job.data;
+  const { runId, sessionId, inputFile, outputFolder, prompt, model, team } =
+    job.data;
 
   try {
     await updateRunSession({
