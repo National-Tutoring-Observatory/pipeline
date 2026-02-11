@@ -105,7 +105,7 @@ export default function RunSetCreatorContainer({
           name={name}
           selectedPrompts={selectedPrompts}
           selectedModels={selectedModels}
-          selectedSessions={selectedSessions}
+          sessionsCount={selectedSessions.length}
         />
       </div>
 

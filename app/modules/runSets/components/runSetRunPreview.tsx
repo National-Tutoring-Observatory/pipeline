@@ -1,32 +1,33 @@
 import { Empty, EmptyContent, EmptyTitle } from "@/components/ui/empty";
+import { AlertTriangle } from "lucide-react";
+import { generateRunName } from "~/modules/runSets/helpers/generateRunName";
 import type { PromptReference } from "~/modules/runSets/runSets.types";
 
-function generateRunName(
-  runSetName: string,
-  prompt: PromptReference,
-  model: string,
-): string {
-  const promptLabel = prompt.promptName
-    ? `${prompt.promptName} v${prompt.version}`
-    : prompt.promptId;
-
-  const finalRunSetName = runSetName.trim() || "Untitled Run Set";
-
-  return `${finalRunSetName} - ${promptLabel} - ${model}`;
+interface RunSetRunPreviewProps {
+  name: string;
+  selectedPrompts: PromptReference[];
+  selectedModels: string[];
+  sessionsCount: number;
+  duplicateCount?: number;
+  newRunsCount?: number;
+  isPromptModelUsed?: (
+    promptId: string,
+    promptVersion: number,
+    modelCode: string,
+  ) => boolean;
 }
 
 export default function RunSetRunPreview({
   name,
   selectedPrompts,
   selectedModels,
-  selectedSessions,
-}: {
-  name: string;
-  selectedPrompts: PromptReference[];
-  selectedModels: string[];
-  selectedSessions: string[];
-}) {
+  sessionsCount,
+  duplicateCount = 0,
+  newRunsCount,
+  isPromptModelUsed,
+}: RunSetRunPreviewProps) {
   const hasContent = selectedPrompts.length > 0 && selectedModels.length > 0;
+  const totalRuns = selectedPrompts.length * selectedModels.length;
 
   return (
     <div
@@ -36,32 +37,65 @@ export default function RunSetRunPreview({
       {hasContent ? (
         <div className="space-y-4">
           <div className="sticky top-0 rounded-t-lg border-b bg-white px-4 py-4">
-            <h3 className="mb-2 text-sm font-semibold">Generated Runs</h3>
+            <h3 className="mb-2 text-sm font-semibold">Run Preview</h3>
             <p className="text-muted-foreground text-xs">
-              {selectedPrompts.length * selectedModels.length} run(s) •{" "}
-              {selectedSessions.length} session(s)
+              {newRunsCount ?? totalRuns} run(s) • {sessionsCount} session(s)
+              {duplicateCount > 0 && (
+                <span className="text-amber-600">
+                  {" "}
+                  • {duplicateCount} duplicate(s) will be skipped
+                </span>
+              )}
             </p>
           </div>
           <div className="grid grid-cols-2 gap-2 px-4 pb-4 2xl:grid-cols-3">
             {selectedPrompts.map((prompt) =>
-              selectedModels.map((model) => (
-                <div
-                  key={`${prompt.promptId}-${model}`}
-                  className="rounded-lg border bg-white p-3 text-sm"
-                >
-                  <p className="text-muted-foreground mb-2 text-xs font-medium">
-                    Run
-                  </p>
-                  <div className="space-y-1">
-                    <div>
-                      <p className="text-muted-foreground text-xs">Name</p>
-                      <p className="truncate font-mono text-xs">
-                        {generateRunName(name, prompt, model)}
-                      </p>
+              selectedModels.map((model) => {
+                const isDuplicate = isPromptModelUsed?.(
+                  prompt.promptId,
+                  prompt.version,
+                  model,
+                );
+                return (
+                  <div
+                    key={`${prompt.promptId}-${prompt.version}-${model}`}
+                    className={`rounded-lg border p-3 text-sm ${
+                      isDuplicate
+                        ? "border-amber-200 bg-amber-50 opacity-60"
+                        : "bg-white"
+                    }`}
+                  >
+                    {isDuplicate && (
+                      <div className="mb-2 flex items-center gap-1 text-xs text-amber-600">
+                        <AlertTriangle className="h-3 w-3" />
+                        Already exists
+                      </div>
+                    )}
+                    <p className="text-muted-foreground mb-2 text-xs font-medium">
+                      {isDuplicate ? "Skipped" : "New Run"}
+                    </p>
+                    <div className="space-y-1">
+                      <div>
+                        <p className="text-muted-foreground text-xs">Name</p>
+                        <p className="truncate font-mono text-xs">
+                          {generateRunName(name, prompt, model)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Prompt</p>
+                        <p className="truncate font-mono text-xs">
+                          {prompt.promptName || prompt.promptId} (v
+                          {prompt.version})
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Model</p>
+                        <p className="truncate font-mono text-xs">{model}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )),
+                );
+              }),
             )}
           </div>
         </div>

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import RunSetCreateRunsFooter from "../components/runSetCreateRunsFooter";
 import RunSetCreateRunsInfo from "../components/runSetCreateRunsInfo";
-import RunSetCreateRunsPreview from "../components/runSetCreateRunsPreview";
 import RunSetCreatorFormAlerts from "../components/runSetCreatorFormAlerts";
 import RunSetCreatorModels from "../components/runSetCreatorModels";
 import RunSetCreatorPrompts from "../components/runSetCreatorPrompts";
+import RunSetRunPreview from "../components/runSetRunPreview";
 import { calculateEstimates } from "../helpers/calculateEstimates";
 import {
   buildUsedPromptModelKey,
@@ -114,9 +114,11 @@ export default function RunSetCreateRunsContainer({
           />
         </div>
 
-        <RunSetCreateRunsPreview
+        <RunSetRunPreview
+          name={runSet.name}
           selectedPrompts={selectedPrompts}
           selectedModels={selectedModels}
+          sessionsCount={runSet.sessions?.length || 0}
           newRunsCount={newRunsCount}
           duplicateCount={duplicateCount}
           isPromptModelUsed={isPromptModelUsed}
