@@ -199,10 +199,12 @@ The resolve, preflight, and build stages are active. The deploy stages are disab
 
 ```
 resolve ──▶ preflight
-            ├──▶ build-web ──┐
-            └──▶ build-worker ──┤
-                                └──▶ production-summary
+│           ├──▶ build-web ──┐
+└───────────┤                └──▶ production-summary
+            └──▶ build-worker ──┘
 ```
+
+Both build jobs depend on `resolve` (for the version tag) and `preflight` (for the stability gate).
 
 ### Target Job Graph
 
@@ -210,9 +212,9 @@ Once the deploy jobs are re-enabled, the full pipeline will mirror staging with 
 
 ```
 resolve ──▶ preflight
-            ├──▶ build-web ──▶ deploy-web ──┐
-            └──▶ build-worker ──▶ deploy-worker ──┤
-                                                   └──▶ production-summary
+│           ├──▶ build-web ──▶ deploy-web ──┐
+└───────────┤                               └──▶ production-summary
+            └──▶ build-worker ──▶ deploy-worker ──┘
 ```
 
 The `resolve_release.yml` reusable workflow validates that the semantic version tag is well-formed and that the tagged commit originates from the `main` branch. This acts as a policy enforcement point to prevent deploying unreviewed code.
