@@ -7,7 +7,6 @@ import type { SupportArticle } from "../support.types";
 import SearchSupportArticlesDialogContainer from "./searchSupportArticlesDialog.container";
 
 export default function SupportArticlesContianer() {
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
     null,
   );
@@ -25,13 +24,7 @@ export default function SupportArticlesContianer() {
     fetcher.load(`/api/supportArticles`);
   }, []);
 
-  useEffect(() => {
-    if (fetcher.state === "idle") {
-      setIsLoading(false);
-    } else {
-      setIsLoading(true);
-    }
-  }, [fetcher.state]);
+  const isLoading = !fetcher.data;
 
   const supportArticles: SupportArticle[] = get(fetcher, "data.data", []);
 

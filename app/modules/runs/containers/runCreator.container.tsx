@@ -1,7 +1,4 @@
-import map from "lodash/map";
-import sampleSize from "lodash/sampleSize";
-import { useEffect, useState } from "react";
-import { useFetcher } from "react-router";
+import { useState } from "react";
 import aiGatewayConfig from "~/config/ai_gateway.json";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
 import RunCreator from "../components/runCreator";
@@ -37,11 +34,6 @@ export default function ProjectRunCreatorContainer({
   const [selectedSessions, setSelectedSessions] = useState<string[]>(
     initialRun?.sessions?.map((s) => s.sessionId) || [],
   );
-  const [randomSampleSize, setRandomSampleSize] = useState(0);
-  const [isRunButtonDisabled, setIsRunButtonDisabled] = useState(true);
-
-  const sessionsFetcher = useFetcher({ key: "sessionsList" });
-
   const onSelectedAnnotationTypeChanged = (selectedAnnotationType: string) => {
     setSelectedPrompt(null);
     setSelectedPromptVersion(null);
@@ -64,18 +56,6 @@ export default function ProjectRunCreatorContainer({
     setSelectedSessions(selectedSessions);
   };
 
-  const onRandomSampleSizeChanged = (randomSampleSize: number) => {
-    setRandomSampleSize(randomSampleSize);
-  };
-
-  const onSelectRandomSampleSizeButtonClicked = () => {
-    const randomSessions = sampleSize(
-      map(sessionsFetcher.data.sessions.data, "_id"),
-      randomSampleSize,
-    );
-    setSelectedSessions(randomSessions);
-  };
-
   const onRunNameChangedHandler = (name: string) => {
     setRunName(name);
   };
@@ -91,21 +71,11 @@ export default function ProjectRunCreatorContainer({
     });
   };
 
-  useEffect(() => {
-    if (
-      selectedPrompt &&
-      selectedPromptVersion &&
-      selectedSessions.length > 0
-    ) {
-      setIsRunButtonDisabled(false);
-    }
-  }, [selectedPrompt, selectedPromptVersion, selectedModel, selectedSessions]);
-
-  useEffect(() => {
-    if (sessionsFetcher.data && sessionsFetcher.data.sessions) {
-      setRandomSampleSize(Math.floor(sessionsFetcher.data.sessions.count / 3));
-    }
-  }, [sessionsFetcher.data]);
+  const isRunButtonDisabled = !(
+    selectedPrompt &&
+    selectedPromptVersion &&
+    selectedSessions.length > 0
+  );
 
   return (
     <RunCreator
@@ -116,8 +86,6 @@ export default function ProjectRunCreatorContainer({
       selectedPromptVersion={selectedPromptVersion}
       selectedModel={selectedModel}
       selectedSessions={selectedSessions}
-      randomSampleSize={randomSampleSize}
-      sessionsCount={sessionsFetcher?.data?.sessions?.count || 0}
       isSubmitting={isSubmitting}
       isRunButtonDisabled={isRunButtonDisabled || isSubmitting}
       onRunNameChanged={onRunNameChangedHandler}
@@ -127,10 +95,6 @@ export default function ProjectRunCreatorContainer({
       onSelectedModelChanged={onSelectedModelChanged}
       onSelectedSessionsChanged={onSelectedSessionsChanged}
       onStartRunButtonClicked={onStartRunButtonClicked}
-      onRandomSampleSizeChanged={onRandomSampleSizeChanged}
-      onSelectRandomSampleSizeButtonClicked={
-        onSelectRandomSampleSizeButtonClicked
-      }
     />
   );
 }

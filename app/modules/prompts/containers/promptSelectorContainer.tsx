@@ -87,6 +87,7 @@ export default function PromptSelectorContainer({
 
   useEffect(() => {
     if (selectedPrompt && promptVersions.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- accumulating cache across fetcher responses
       setFetchedVersionsByPrompt((prev) => ({
         ...prev,
         [selectedPrompt]: promptVersions,

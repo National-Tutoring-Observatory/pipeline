@@ -1,6 +1,6 @@
 import find from "lodash/find";
 import findIndex from "lodash/findIndex";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useFetcher, useLocation, useNavigate } from "react-router";
 import type { Run } from "~/modules/runs/runs.types";
 import SessionViewer from "../components/sessionViewer";
@@ -16,13 +16,6 @@ export default function SessionViewerContainer({
   sessionFile: SessionFile;
 }) {
   const { hash } = useLocation();
-  const [selectedUtteranceId, setSelectedUtteranceId] = useState<string | null>(
-    null,
-  );
-  const [selectedUtteranceIndex, setSelectedUtteranceIndex] = useState<
-    number | null
-  >(null);
-  const [isVoting, setIsVoting] = useState(false);
   const navigate = useNavigate();
 
   const fetcher = useFetcher();
@@ -35,37 +28,31 @@ export default function SessionViewerContainer({
     (u) => u.annotations && u.annotations.length > 0,
   );
 
-  const updateSelectedUtterance = (utteranceId: string) => {
-    const newIndex = findIndex(annotatedUtterances, { _id: utteranceId });
-    if (newIndex === -1) {
-      return;
-    }
-    setSelectedUtteranceIndex(newIndex);
-    setSelectedUtteranceId(utteranceId);
-    navigateToUtterance(utteranceId);
-  };
-
-  const updateSelectedUtteranceIndex = (index: number) => {
-    const utteranceId = annotatedUtterances[index]._id;
-    if (!utteranceId) {
-      return;
-    }
-    setSelectedUtteranceIndex(index);
-    setSelectedUtteranceId(utteranceId);
-    navigateToUtterance(utteranceId);
-  };
+  const hashUtteranceId = hash
+    ? hash.replace("#session-viewer-utterance-", "")
+    : null;
+  const hashUtteranceIndex = hashUtteranceId
+    ? findIndex(annotatedUtterances, { _id: hashUtteranceId })
+    : -1;
+  const selectedUtteranceId =
+    hashUtteranceIndex !== -1 ? hashUtteranceId : null;
+  const selectedUtteranceIndex =
+    hashUtteranceIndex !== -1 ? hashUtteranceIndex : null;
 
   const navigateToUtterance = (utteranceId: string) => {
     navigate(`#session-viewer-utterance-${utteranceId}`, { replace: true });
   };
 
   const onUtteranceClicked = (utteranceId: string) => {
-    updateSelectedUtterance(utteranceId);
+    const newIndex = findIndex(annotatedUtterances, { _id: utteranceId });
+    if (newIndex !== -1) {
+      navigateToUtterance(utteranceId);
+    }
   };
 
   const onPreviousAnnotationClicked = () => {
     if (selectedUtteranceIndex !== null && selectedUtteranceIndex > 0) {
-      updateSelectedUtteranceIndex(selectedUtteranceIndex - 1);
+      navigateToUtterance(annotatedUtterances[selectedUtteranceIndex - 1]._id);
     }
   };
 
@@ -74,7 +61,7 @@ export default function SessionViewerContainer({
       selectedUtteranceIndex !== null &&
       selectedUtteranceIndex < annotatedUtterances.length - 1
     ) {
-      updateSelectedUtteranceIndex(selectedUtteranceIndex + 1);
+      navigateToUtterance(annotatedUtterances[selectedUtteranceIndex + 1]._id);
     }
   };
 
@@ -100,32 +87,7 @@ export default function SessionViewerContainer({
     );
   };
 
-  useEffect(() => {
-    if (!hash) {
-      setSelectedUtteranceIndex(null);
-      setSelectedUtteranceId(null);
-      return;
-    }
-
-    const utteranceId = hash.replace("#session-viewer-utterance-", "");
-    const utteranceIndex = findIndex(annotatedUtterances, { _id: utteranceId });
-
-    if (utteranceIndex === -1) {
-      setSelectedUtteranceIndex(null);
-      setSelectedUtteranceId(null);
-    } else {
-      setSelectedUtteranceIndex(utteranceIndex);
-      setSelectedUtteranceId(utteranceId);
-    }
-  }, [hash]);
-
-  useEffect(() => {
-    if (fetcher.state === "submitting") {
-      setIsVoting(true);
-    } else if (fetcher.state === "idle") {
-      setIsVoting(false);
-    }
-  }, [fetcher]);
+  const isVoting = fetcher.state !== "idle";
 
   useEffect(() => {
     if (selectedUtteranceId) {
@@ -154,10 +116,9 @@ export default function SessionViewerContainer({
     }
   }
 
-  // Handler to jump to first annotation
   const onJumpToFirstAnnotation = () => {
     if (annotatedUtterances.length > 0) {
-      updateSelectedUtteranceIndex(0);
+      navigateToUtterance(annotatedUtterances[0]._id);
     }
   };
 
