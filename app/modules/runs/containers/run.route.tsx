@@ -96,6 +96,10 @@ export async function action({ request, params }: Route.ActionArgs) {
       return {};
     }
     case "EXPORT_RUN": {
+      const run = await RunService.findById(params.runId);
+      if (!run) throw new Error("Run not found");
+      if (run.hasErrored)
+        throw new Error("Cannot export a run that has errors");
       exportRun({ runId: params.runId, exportType });
       return {};
     }
