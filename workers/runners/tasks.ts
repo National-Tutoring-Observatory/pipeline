@@ -6,10 +6,13 @@ import annotatePerUtterance from "../tasks/annotatePerUtterance";
 import convertFileToSession from "../tasks/convertFileToSession";
 import finishAnnotateRun from "../tasks/finishAnnotateRun";
 import finishConvertedFilesToSessions from "../tasks/finishConvertedFilesToSessions";
+import finishExportRun from "../tasks/finishExportRun";
 import finishExportRunSet from "../tasks/finishExportRunSet";
+import processExportRun from "../tasks/processExportRun";
 import processExportRunSet from "../tasks/processExportRunSet";
 import startAnnotateRun from "../tasks/startAnnotateRun";
 import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
+import startExportRun from "../tasks/startExportRun";
 import startExportRunSet from "../tasks/startExportRunSet";
 
 console.log("[tasks] Initializing database connection...");
@@ -45,6 +48,15 @@ export default async (job: Job) => {
       }
       case "CONVERT_FILES_TO_SESSIONS:FINISH": {
         return finishConvertedFilesToSessions(job);
+      }
+      case "EXPORT_RUN:START": {
+        return startExportRun(job);
+      }
+      case "EXPORT_RUN:PROCESS": {
+        return processExportRun(job);
+      }
+      case "EXPORT_RUN:FINISH": {
+        return finishExportRun(job);
       }
       case "EXPORT_RUN_SET:START": {
         return startExportRunSet(job);
