@@ -68,7 +68,7 @@ describe("availableTeamUsers.route loader", () => {
     });
 
     // Create users: some in team, some not
-    const userInTeam = await UserService.create({
+    await UserService.create({
       username: "in_team",
       role: "USER",
       githubId: 100001,
@@ -120,7 +120,7 @@ describe("availableTeamUsers.route loader", () => {
     });
 
     // Create an unregistered user
-    const unregisteredUser = await UserService.create({
+    await UserService.create({
       username: "unregistered",
       role: "USER",
       githubId: 100002,

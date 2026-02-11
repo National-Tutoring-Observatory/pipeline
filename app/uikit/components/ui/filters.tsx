@@ -51,7 +51,7 @@ const Filters = ({
             </p>
           </div>
           <div className="grid gap-8">
-            {map(filters, (filter, index) => {
+            {map(filters, (filter) => {
               return (
                 <FiltersItem
                   key={filter.category}

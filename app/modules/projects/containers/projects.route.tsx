@@ -19,11 +19,7 @@ import { ProjectService } from "../project";
 import deleteProject from "../services/deleteProject.server";
 import type { Route } from "./+types/projects.route";
 
-export async function loader({
-  request,
-  params,
-  context,
-}: Route.LoaderArgs & { context: any }) {
+export async function loader({ request }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, "team");
 

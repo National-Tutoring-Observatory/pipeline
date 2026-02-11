@@ -23,7 +23,7 @@ vi.mock("~/modules/runs/helpers/buildRunSessions.server", () => ({
 }));
 
 vi.mock("~/modules/runs/services/buildRunSnapshot.server", () => ({
-  default: vi.fn(async ({ promptId, promptVersionNumber, modelCode }: any) => ({
+  default: vi.fn(async ({ promptVersionNumber, modelCode }: any) => ({
     prompt: {
       name: "Mock Prompt",
       userPrompt: "Mock",

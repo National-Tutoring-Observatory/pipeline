@@ -47,8 +47,6 @@ describe("runMigration worker", () => {
   });
 
   it("creates and updates migration run records", async () => {
-    const { default: emitFromJob } = await import("../../helpers/emitFromJob");
-
     const user = await UserService.create({
       username: "test_user",
       role: "SUPER_ADMIN",

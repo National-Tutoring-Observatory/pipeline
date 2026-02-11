@@ -6,7 +6,7 @@ import type { User } from "~/modules/users/users.types";
 import PromptAuthorization from "../authorization";
 import type { Route } from "./+types/promptVersionsList.route";
 
-export async function loader({ request, params }: Route.LoaderArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const user = (await getSessionUser({ request })) as User;
   if (!user) {
     return redirect("/");

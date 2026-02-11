@@ -8,6 +8,7 @@ interface AuditLogProps {
   sortValue: string;
   currentPage: number;
   totalPages: number;
+  isSyncing?: boolean;
   onSearchValueChanged: (searchValue: string) => void;
   onPaginationChanged: (page: number) => void;
   onSortValueChanged: (sortValue: string) => void;
@@ -19,6 +20,7 @@ export default function AuditLog({
   sortValue,
   currentPage,
   totalPages,
+  isSyncing,
   onSearchValueChanged,
   onPaginationChanged,
   onSortValueChanged,
@@ -37,6 +39,7 @@ export default function AuditLog({
       hasPagination
       currentPage={currentPage}
       totalPages={totalPages}
+      isSyncing={isSyncing}
       emptyAttributes={{
         title: "No audit records",
         description: searchValue

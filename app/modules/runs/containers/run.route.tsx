@@ -120,7 +120,7 @@ export default function ProjectRunRoute() {
   const submit = useSubmit();
   const fetcher = useFetcher();
   const navigate = useNavigate();
-  const { revalidate, state } = useRevalidator();
+  const { revalidate } = useRevalidator();
 
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data) {

@@ -2,13 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Pause, Play } from "lucide-react";
 
 interface QueueControlsProps {
-  queueType?: string;
   onPauseResume?: () => void;
   isPaused?: boolean;
 }
 
 export default function QueueControls({
-  queueType,
   onPauseResume,
   isPaused = false,
 }: QueueControlsProps) {

@@ -12,7 +12,7 @@ import { FeatureFlagService } from "../featureFlag";
 import type { FeatureFlag } from "../featureFlags.types";
 import type { Route } from "./+types/featureFlags.route";
 
-export async function loader({ request, params }: Route.LoaderArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const user = (await getSessionUser({ request })) as User;
   if (!SystemAdminAuthorization.FeatureFlags.canManage(user)) {
     return redirect("/");

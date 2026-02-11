@@ -5,11 +5,9 @@ import type { SupportArticle } from "../support.types";
 export default function SupportArticleList({
   supportArticles,
   onSupportArticleClicked,
-  onSearchClicked,
 }: {
   supportArticles: SupportArticle[];
   onSupportArticleClicked: (selectedDocumentId: string) => void;
-  onSearchClicked: () => void;
 }) {
   return (
     <div className="px-4">

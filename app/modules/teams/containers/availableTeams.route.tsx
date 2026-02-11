@@ -4,7 +4,7 @@ import type { User } from "~/modules/users/users.types";
 import { TeamService } from "../team";
 import type { Route } from "./+types/availableTeams.route";
 
-export async function loader({ request, params }: Route.LoaderArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const userSession = (await getSessionUser({ request })) as User;
 
   if (!userSession) {

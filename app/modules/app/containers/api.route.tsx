@@ -1,4 +1,3 @@
-import type { Route } from ".react-router/types/app/+types/root";
 import mongoose from "mongoose";
 import { redis } from "~/modules/queues/helpers/createQueue";
 
@@ -12,7 +11,7 @@ const checkParamsExist = (paramKeys: string[]) => {
   return missingParams;
 };
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
   let missingParameters: any[] = [];
 
   const { LLM_PROVIDER, STORAGE_ADAPTER, DOCUMENTS_ADAPTER } = process.env;

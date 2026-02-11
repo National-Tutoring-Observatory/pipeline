@@ -3,7 +3,6 @@ import {
   redirect,
   useLoaderData,
   useOutletContext,
-  useParams,
   useSubmit,
 } from "react-router";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
@@ -104,7 +103,6 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function TeamUsersRoute() {
   const data = useLoaderData<typeof loader>();
-  const params = useParams();
   const ctx = useOutletContext<any>();
   const submit = useSubmit();
 

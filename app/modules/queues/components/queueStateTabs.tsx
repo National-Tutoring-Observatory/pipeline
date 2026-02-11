@@ -40,7 +40,7 @@ export default function QueueStateTabs({
         onValueChange={handleValueChange}
         aria-label="Queue state filter"
       >
-        {states.map((state, idx) => (
+        {states.map((state) => (
           <QueueTab
             key={state.key}
             value={state.key}

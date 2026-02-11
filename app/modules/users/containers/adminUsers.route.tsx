@@ -326,6 +326,7 @@ export default function UserManagementRoute({
       sortValue={sortValue}
       filtersValues={filtersValues}
       isSyncing={isSyncing}
+      isAuditSyncing={isAuditSyncing}
       onItemActionClicked={onItemActionClicked}
       onSearchValueChanged={setSearchValue}
       onPaginationChanged={setCurrentPage}

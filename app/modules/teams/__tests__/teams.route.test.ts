@@ -46,8 +46,8 @@ describe("teams.route", () => {
 
     it("returns only user's teams for regular user", async () => {
       const team1 = await TeamService.create({ name: "team 1" });
-      const team2 = await TeamService.create({ name: "team 2" });
-      const team3 = await TeamService.create({ name: "team 3" });
+      await TeamService.create({ name: "team 2" });
+      await TeamService.create({ name: "team 3" });
 
       const user = await UserService.create({
         username: "user1",

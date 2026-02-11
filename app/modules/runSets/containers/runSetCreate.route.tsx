@@ -184,7 +184,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return { project, prefillData };
 }
 
-export async function action({ request, params, context }: Route.ActionArgs) {
+export async function action({ request, params }: Route.ActionArgs) {
   const user = (await getSessionUser({ request })) as User;
   if (!user) {
     return redirect("/");

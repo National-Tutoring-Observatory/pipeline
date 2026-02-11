@@ -6,7 +6,6 @@ import {
   useLoaderData,
   useNavigate,
   useOutletContext,
-  useParams,
   useSubmit,
 } from "react-router";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
@@ -121,7 +120,6 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function TeamPromptsRoute() {
   const data = useLoaderData<typeof loader>();
-  const params = useParams();
   const ctx = useOutletContext<any>();
   const actionData = useActionData();
   const submit = useSubmit();
@@ -185,7 +183,7 @@ export default function TeamPromptsRoute() {
 
   const onItemActionClicked = ({
     id,
-    action,
+    action: _action,
   }: {
     id: string;
     action: string;
