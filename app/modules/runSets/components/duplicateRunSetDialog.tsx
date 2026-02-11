@@ -44,9 +44,7 @@ const DuplicateRunSetDialog = ({
         <DialogTitle>Duplicate run set</DialogTitle>
         <DialogDescription>
           Give your run set a name. This can be changed at a later date but
-          giving a description now will make it easier to find later. Then
-          select how you would like to collect the annotations over the session
-          data.
+          giving a good description now will make it easier to find later.
         </DialogDescription>
       </DialogHeader>
       <div className="grid gap-3">
