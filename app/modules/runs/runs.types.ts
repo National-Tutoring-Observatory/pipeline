@@ -26,7 +26,7 @@ export interface Run {
 
 export interface RunSession {
   sessionId: string;
-  status: "DONE" | "RUNNING" | "ERRORED";
+  status: "DONE" | "RUNNING" | "ERRORED" | "NOT_STARTED";
   error?: string;
   name: string;
   fileType: string;
