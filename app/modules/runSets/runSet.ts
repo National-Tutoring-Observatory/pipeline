@@ -14,7 +14,8 @@ import findEligibleRunsService from "./services/findEligibleRuns.server";
 import findMergeableRunSetsService from "./services/findMergeableRunSets.server";
 import mergeRunSetsService from "./services/mergeRunSets.server";
 
-const RunSetModel = mongoose.model("Collection", runSetSchema);
+const RunSetModel =
+  mongoose.models.Collection || mongoose.model("Collection", runSetSchema);
 
 export class RunSetService {
   private static toRunSet(doc: any): RunSet {

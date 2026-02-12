@@ -4,7 +4,8 @@ import projectSchema from "~/lib/schemas/project.schema";
 import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Project } from "./projects.types";
 
-const ProjectModel = mongoose.model("Project", projectSchema);
+const ProjectModel =
+  mongoose.models.Project || mongoose.model("Project", projectSchema);
 
 export class ProjectService {
   private static toProject(doc: any): Project {
