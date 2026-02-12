@@ -11,8 +11,10 @@ import {
   useSubmit,
 } from "react-router";
 import { toast } from "sonner";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import triggerDownload from "~/modules/app/helpers/triggerDownload";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
 import { ProjectService } from "~/modules/projects/project";
@@ -73,6 +75,24 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     pageSize: 4,
   });
 
+  const sessionsQueryParams = getQueryParamsFromRequest(
+    request,
+    {
+      searchValue: "",
+      currentPage: 1,
+      sort: "name",
+      filters: {},
+    },
+    { paramPrefix: "sessions" },
+  );
+
+  const paginatedSessions = RunService.paginateSessions(run.sessions, {
+    searchValue: sessionsQueryParams.searchValue,
+    sort: sessionsQueryParams.sort,
+    page: sessionsQueryParams.currentPage,
+    filters: sessionsQueryParams.filters,
+  });
+
   return {
     project,
     run,
@@ -80,6 +100,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     runSet,
     runRunSets: runRunSets.data,
     runRunSetsCount: runRunSets.count,
+    paginatedSessions,
   };
 }
 
@@ -114,10 +135,37 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function ProjectRunRoute() {
-  const { project, run, promptInfo, runSet, runRunSets, runRunSetsCount } =
-    useLoaderData();
+  const {
+    project,
+    run,
+    promptInfo,
+    runSet,
+    runRunSets,
+    runRunSetsCount,
+    paginatedSessions,
+  } = useLoaderData();
   const [runSessionsProgress, setRunSessionsProgress] = useState(0);
   const [runSessionsStep, setRunSessionsStep] = useState("");
+
+  const {
+    searchValue: sessionsSearchValue,
+    setSearchValue: setSessionsSearchValue,
+    currentPage: sessionsCurrentPage,
+    setCurrentPage: setSessionsCurrentPage,
+    sortValue: sessionsSortValue,
+    setSortValue: setSessionsSortValue,
+    filtersValues: sessionsFiltersValues,
+    setFiltersValues: setSessionsFiltersValues,
+    isSyncing: isSessionsSyncing,
+  } = useSearchQueryParams(
+    {
+      searchValue: "",
+      currentPage: 1,
+      sortValue: "name",
+      filters: {},
+    },
+    { paramPrefix: "sessions" },
+  );
   const submit = useSubmit();
   const fetcher = useFetcher();
   const navigate = useNavigate();
@@ -297,6 +345,17 @@ export default function ProjectRunRoute() {
       onAddToNewRunSetClicked={() => openCreateRunSetDialog(run._id)}
       onUseAsTemplateClicked={onUseAsTemplateClicked}
       runSetId={runSet?._id}
+      sessions={paginatedSessions?.data || []}
+      sessionsTotalPages={paginatedSessions?.totalPages || 1}
+      sessionsSearchValue={sessionsSearchValue}
+      sessionsCurrentPage={sessionsCurrentPage}
+      sessionsSortValue={sessionsSortValue}
+      sessionsFiltersValues={sessionsFiltersValues}
+      isSessionsSyncing={isSessionsSyncing}
+      onSessionsSearchValueChanged={setSessionsSearchValue}
+      onSessionsCurrentPageChanged={setSessionsCurrentPage}
+      onSessionsSortValueChanged={setSessionsSortValue}
+      onSessionsFiltersValueChanged={setSessionsFiltersValues}
     />
   );
 }

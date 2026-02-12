@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Collection as CollectionUI } from "@/components/ui/collection";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,27 +9,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import {
   PageHeader,
   PageHeaderLeft,
   PageHeaderRight,
 } from "@/components/ui/pageHeader";
 import { Progress } from "@/components/ui/progress";
 import { StatItem } from "@/components/ui/stat-item";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import find from "lodash/find";
-import map from "lodash/map";
 import {
   FolderPlus,
   ListPlus,
@@ -36,14 +23,13 @@ import {
   Pencil,
   Stamp,
 } from "lucide-react";
-import { Link } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
-import getDateString from "~/modules/app/helpers/getDateString";
 import Flag from "~/modules/featureFlags/components/flag";
 import annotationTypes from "~/modules/prompts/annotationTypes";
+import getRunSessionsItemAttributes from "~/modules/runs/helpers/getRunSessionsItemAttributes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
-import type { Run } from "~/modules/runs/runs.types";
+import type { Run, RunSession } from "~/modules/runs/runs.types";
 import type { RunSet } from "~/modules/runSets/runSets.types";
 import DownloadDropdown from "./downloadDropdown";
 import RunDownloads from "./runDownloads";
@@ -64,6 +50,17 @@ export default function RunDetail({
   onAddToNewRunSetClicked,
   onUseAsTemplateClicked,
   runSetId,
+  sessions,
+  sessionsTotalPages,
+  sessionsSearchValue,
+  sessionsCurrentPage,
+  sessionsSortValue,
+  sessionsFiltersValues,
+  isSessionsSyncing,
+  onSessionsSearchValueChanged,
+  onSessionsCurrentPageChanged,
+  onSessionsSortValueChanged,
+  onSessionsFiltersValueChanged,
 }: {
   run: Run;
   promptInfo: { name: string; version: number };
@@ -79,6 +76,17 @@ export default function RunDetail({
   onAddToNewRunSetClicked: (run: Run) => void;
   onUseAsTemplateClicked: (run: Run) => void;
   runSetId?: string;
+  sessions: RunSession[];
+  sessionsTotalPages: number;
+  sessionsSearchValue: string;
+  sessionsCurrentPage: number;
+  sessionsSortValue: string;
+  sessionsFiltersValues: Record<string, string | null>;
+  isSessionsSyncing: boolean;
+  onSessionsSearchValueChanged: (value: string) => void;
+  onSessionsCurrentPageChanged: (page: number) => void;
+  onSessionsSortValueChanged: (sort: string) => void;
+  onSessionsFiltersValueChanged: (value: Record<string, string | null>) => void;
 }) {
   const projectId =
     typeof run.project === "string" ? run.project : run.project._id;
@@ -173,76 +181,52 @@ export default function RunDetail({
               <Button onClick={onReRunClicked}>Re-run errored</Button>
             )}
           </div>
-          <div className="mt-2 h-80 overflow-y-auto rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[300px]">Name</TableHead>
-                  <TableHead>Started</TableHead>
-                  <TableHead>Finished</TableHead>
-                  <TableHead>File type</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {map(
-                  run.sessions,
-                  (session: {
-                    sessionId: number;
-                    name: string;
-                    startedAt: string;
-                    finishedAt: string;
-                    fileType: string;
-                    status: string;
-                    error?: string;
-                  }) => {
-                    return (
-                      <TableRow key={session.sessionId}>
-                        <TableCell className="font-medium">
-                          {(session.status === "DONE" && (
-                            <Link
-                              to={
-                                runSetId
-                                  ? `/projects/${projectId}/run-sets/${runSetId}/runs/${run._id}/sessions/${session.sessionId}`
-                                  : `/projects/${projectId}/runs/${run._id}/sessions/${session.sessionId}`
-                              }
-                            >
-                              {session.name}
-                            </Link>
-                          )) ||
-                            session.name}
-                        </TableCell>
-                        <TableCell>
-                          {session.status !== "NOT_STARTED"
-                            ? getDateString(session.startedAt)
-                            : "--"}
-                        </TableCell>
-                        <TableCell>
-                          {getDateString(session.finishedAt)}
-                        </TableCell>
-                        <TableCell>{session.fileType}</TableCell>
-                        <TableCell>
-                          {session.status === "ERRORED" && session.error ? (
-                            <HoverCard>
-                              <HoverCardTrigger asChild>
-                                <span className="cursor-default underline decoration-dotted">
-                                  {session.status}
-                                </span>
-                              </HoverCardTrigger>
-                              <HoverCardContent>
-                                <p className="text-sm">{session.error}</p>
-                              </HoverCardContent>
-                            </HoverCard>
-                          ) : (
-                            session.status
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  },
-                )}
-              </TableBody>
-            </Table>
+          <div className="mt-2">
+            <CollectionUI
+              items={sessions}
+              itemsLayout="list"
+              getItemAttributes={(item) =>
+                getRunSessionsItemAttributes(item, {
+                  projectId,
+                  runId: run._id,
+                  runSetId,
+                })
+              }
+              getItemActions={() => []}
+              onActionClicked={() => {}}
+              emptyAttributes={{
+                title: "No sessions found",
+                description: "",
+              }}
+              hasSearch
+              searchValue={sessionsSearchValue}
+              onSearchValueChanged={onSessionsSearchValueChanged}
+              hasPagination
+              currentPage={sessionsCurrentPage}
+              totalPages={sessionsTotalPages}
+              onPaginationChanged={onSessionsCurrentPageChanged}
+              sortValue={sessionsSortValue}
+              sortOptions={[
+                { text: "Name", value: "name" },
+                { text: "Status", value: "status" },
+              ]}
+              onSortValueChanged={onSessionsSortValueChanged}
+              isSyncing={isSessionsSyncing}
+              filters={[
+                {
+                  category: "status",
+                  text: "Status",
+                  options: [
+                    { value: "DONE", text: "Complete" },
+                    { value: "RUNNING", text: "Running" },
+                    { value: "ERRORED", text: "Failed" },
+                    { value: "NOT_STARTED", text: "Queued" },
+                  ],
+                },
+              ]}
+              filtersValues={sessionsFiltersValues}
+              onFiltersValueChanged={onSessionsFiltersValueChanged}
+            />
           </div>
         </div>
         <RunDownloads run={run} />
