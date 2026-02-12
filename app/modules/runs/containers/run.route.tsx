@@ -58,17 +58,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const runSetId = params.runSetId;
   const runSet = runSetId ? await RunSetService.findById(runSetId) : null;
 
-  const url = new URL(request.url);
-  const intent = url.searchParams.get("intent");
-  if (intent === "GET_ALL_RUN_SETS") {
-    const runRunSets = await RunSetService.paginate({
-      match: { runs: params.runId },
-      page: 1,
-      pageSize: 100,
-    });
-    return { runSets: runRunSets.data };
-  }
-
   const runRunSets = await RunSetService.paginate({
     match: { runs: params.runId },
     page: 1,
@@ -124,6 +113,14 @@ export async function action({ request, params }: Route.ActionArgs) {
         throw new Error("Cannot export a run that has errors");
       await exportRun({ runId: params.runId, exportType });
       return {};
+    }
+    case "GET_ALL_RUN_SETS": {
+      const allRunSets = await RunSetService.paginate({
+        match: { runs: params.runId },
+        page: 1,
+        pageSize: 100,
+      });
+      return { runSets: allRunSets.data };
     }
     default:
       return {};

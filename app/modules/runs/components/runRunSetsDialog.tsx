@@ -24,9 +24,11 @@ export default function RunRunSetsDialog({
   const fetcher = useFetcher<{ runSets: RunSet[] }>();
 
   useEffect(() => {
-    fetcher.load(
-      `/projects/${projectId}/runs/${runId}?intent=GET_ALL_RUN_SETS`,
-    );
+    fetcher.submit(JSON.stringify({ intent: "GET_ALL_RUN_SETS" }), {
+      method: "POST",
+      encType: "application/json",
+      action: `/projects/${projectId}/runs/${runId}`,
+    });
   }, []);
 
   const allRunSets = fetcher.data?.runSets || runSets;

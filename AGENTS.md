@@ -289,6 +289,8 @@ export default function ProjectRoute() {
 }
 ```
 
+**IMPORTANT**: Never put intent-based routing in loaders. Loaders are for data fetching only — they should return a single, consistent data shape. All intent-based logic (including read-only data fetches triggered by user interaction) belongs in the action via `fetcher.submit`, not in the loader via query params.
+
 ### Container/Component Pattern
 
 Route files (`containers/*.route.tsx`) are **containers** — they handle all wiring. Components (`components/*.tsx`) are **dumb** — they receive data and callbacks as props.
