@@ -35,6 +35,14 @@ export interface RunSession {
   finishedAt: Date;
 }
 
+export interface SessionNavigation {
+  currentIndex: number;
+  totalDone: number;
+  prevSessionUrl: string | null;
+  nextSessionUrl: string | null;
+}
+
+
 export interface CreateRun {
   name: string;
   selectedAnnotationType: string;

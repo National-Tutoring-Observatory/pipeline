@@ -8,6 +8,7 @@ import { RunService } from "~/modules/runs/run";
 import { RunSetService } from "~/modules/runSets/runSet";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import RunSessions from "../components/runSessions";
+import buildSessionNavigation from "../helpers/buildSessionNavigation";
 import type { Route } from "./+types/runSessions.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -43,11 +44,29 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const runSetId = params.runSetId;
   const runSet = runSetId ? await RunSetService.findById(runSetId) : null;
 
-  return { project, run, session, sessionFile, runSet };
+  const { currentIndex, totalDone, prevSessionId, nextSessionId } =
+    buildSessionNavigation(run.sessions, params.sessionId);
+
+  const buildSessionUrl = (sessionId: string) => {
+    const base = runSetId
+      ? `/projects/${params.projectId}/run-sets/${runSetId}/runs/${params.runId}`
+      : `/projects/${params.projectId}/runs/${params.runId}`;
+    return `${base}/sessions/${sessionId}`;
+  };
+
+  const sessionNavigation = {
+    currentIndex,
+    totalDone,
+    prevSessionUrl: prevSessionId ? buildSessionUrl(prevSessionId) : null,
+    nextSessionUrl: nextSessionId ? buildSessionUrl(nextSessionId) : null,
+  };
+
+  return { project, run, session, sessionFile, runSet, sessionNavigation };
 }
 
 export default function ProjectRunSessionsRoute() {
-  const { project, run, sessionFile, session, runSet } = useLoaderData();
+  const { project, run, sessionFile, session, runSet, sessionNavigation } =
+    useLoaderData();
 
   const parentBreadcrumbs = runSet
     ? [
@@ -96,6 +115,7 @@ export default function ProjectRunSessionsRoute() {
       session={session}
       sessionFile={sessionFile}
       breadcrumbs={breadcrumbs}
+      sessionNavigation={sessionNavigation}
     />
   );
 }
