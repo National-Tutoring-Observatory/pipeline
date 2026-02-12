@@ -3,7 +3,7 @@ import fileSchema from "~/lib/schemas/file.schema";
 import type { FindOptions } from "~/modules/common/types";
 import type { File } from "./files.types";
 
-const FileModel = mongoose.model("File", fileSchema);
+const FileModel = mongoose.models.File || mongoose.model("File", fileSchema);
 
 export class FileService {
   private static toFile(doc: any): File {

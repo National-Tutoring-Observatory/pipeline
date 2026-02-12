@@ -3,7 +3,9 @@ import featureFlagSchema from "~/lib/schemas/featureFlag.schema";
 import type { FindOptions } from "~/modules/common/types";
 import type { FeatureFlag } from "./featureFlags.types";
 
-const FeatureFlagModel = mongoose.model("FeatureFlag", featureFlagSchema);
+const FeatureFlagModel =
+  mongoose.models.FeatureFlag ||
+  mongoose.model("FeatureFlag", featureFlagSchema);
 
 export class FeatureFlagService {
   private static toFeatureFlag(doc: any): FeatureFlag {

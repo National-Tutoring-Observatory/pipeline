@@ -8,7 +8,7 @@ import buildRunSnapshot from "./services/buildRunSnapshot.server";
 import createRunAnnotations from "./services/createRunAnnotations.server";
 import paginateSessionsService from "./services/paginateSessions.server";
 
-const RunModel = mongoose.model("Run", runSchema);
+const RunModel = mongoose.models.Run || mongoose.model("Run", runSchema);
 
 export class RunService {
   private static toRun(doc: any): Run {

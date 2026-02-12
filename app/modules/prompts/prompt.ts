@@ -3,7 +3,8 @@ import promptSchema from "~/lib/schemas/prompt.schema";
 import type { FindOptions } from "~/modules/common/types";
 import type { Prompt } from "./prompts.types";
 
-const PromptModel = mongoose.model("Prompt", promptSchema);
+const PromptModel =
+  mongoose.models.Prompt || mongoose.model("Prompt", promptSchema);
 
 export class PromptService {
   private static toPrompt(doc: any): Prompt {
