@@ -113,6 +113,50 @@ describe("run.route loader", () => {
     expect(loaderData.promptInfo.version).toBe(1);
   });
 
+  it("returns paginated sessions", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+    });
+
+    const sessionIds = Array.from({ length: 25 }, () =>
+      new Types.ObjectId().toString(),
+    );
+
+    const run = await RunService.create({
+      project: project._id,
+      name: "Test Run",
+      sessions: sessionIds,
+      annotationType: "PER_UTTERANCE",
+      prompt: new Types.ObjectId().toString(),
+      promptVersion: 1,
+      modelCode: "gpt-4",
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = await loader({
+      request: new Request(
+        "http://localhost/projects/" + project._id + "/runs/" + run._id,
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: { projectId: project._id, runId: run._id },
+    } as any);
+
+    const loaderData = res as any;
+    expect(loaderData.paginatedSessions).toBeDefined();
+    expect(loaderData.paginatedSessions.data).toHaveLength(20);
+    expect(loaderData.paginatedSessions.count).toBe(25);
+    expect(loaderData.paginatedSessions.totalPages).toBe(2);
+  });
+
   it("redirects to / when user is not in project team", async () => {
     const owner = await UserService.create({ username: "owner", teams: [] });
     const otherUser = await UserService.create({
