@@ -15,6 +15,7 @@ import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
+import buildRunStatusMatch from "~/modules/runs/helpers/buildRunStatusMatch";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import RemoveRunFromRunSetDialog from "~/modules/runSets/components/removeRunFromRunSetDialog";
@@ -53,6 +54,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     queryParams: runsQueryParams,
     searchableFields: ["name"],
     sortableFields: ["name", "createdAt"],
+    filterableFields: [{ status: buildRunStatusMatch }],
   });
 
   const runs = await RunService.paginate({
@@ -123,6 +125,8 @@ export default function RunSetOverviewRoute() {
     setCurrentPage: setRunsCurrentPage,
     sortValue: runsSortValue,
     setSortValue: setRunsSortValue,
+    filtersValues: runsFiltersValues,
+    setFiltersValues: setRunsFiltersValues,
     isSyncing: isRunsSyncing,
   } = useSearchQueryParams(
     {
@@ -263,6 +267,10 @@ export default function RunSetOverviewRoute() {
       onSessionItemClicked={onSessionItemClicked}
       onRunsSearchValueChanged={setRunsSearchValue}
       onRunsCurrentPageChanged={setRunsCurrentPage}
+      runsFiltersValues={runsFiltersValues}
+      onRunsFiltersValueChanged={(filterValue: Record<string, string | null>) =>
+        setRunsFiltersValues({ ...runsFiltersValues, ...filterValue })
+      }
       onRunsSortValueChanged={setRunsSortValue}
       onSessionsSearchValueChanged={setSessionsSearchValue}
       onSessionsCurrentPageChanged={setSessionsCurrentPage}

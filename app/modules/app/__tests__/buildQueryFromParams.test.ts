@@ -96,6 +96,81 @@ describe("buildQueryFromParams", () => {
     expect(query.match).toEqual({});
   });
 
+  it("applies a filter function to produce custom match conditions", () => {
+    const query = buildQueryFromParams({
+      match: {},
+      queryParams: { filters: { status: "COMPLETE" } },
+      searchableFields: [],
+      sortableFields: ["name"],
+      filterableFields: [{ status: () => ({ isComplete: true }) }],
+    });
+
+    expect(query.match).toEqual({ isComplete: true });
+  });
+
+  it("passes the filter value to the filter function", () => {
+    const query = buildQueryFromParams({
+      match: {},
+      queryParams: { filters: { status: "QUEUED" } },
+      searchableFields: [],
+      sortableFields: ["name"],
+      filterableFields: [
+        {
+          status: (value: string) => {
+            if (value === "QUEUED")
+              return { isRunning: { $ne: true }, isComplete: { $ne: true } };
+            return { isComplete: true };
+          },
+        },
+      ],
+    });
+
+    expect(query.match).toEqual({
+      isRunning: { $ne: true },
+      isComplete: { $ne: true },
+    });
+  });
+
+  it("skips filter function when it returns null", () => {
+    const query = buildQueryFromParams({
+      match: {},
+      queryParams: { filters: { status: "INVALID" } },
+      searchableFields: [],
+      sortableFields: ["name"],
+      filterableFields: [{ status: () => null }],
+    });
+
+    expect(query.match).toEqual({});
+  });
+
+  it("mixes string and function filterableFields", () => {
+    const query = buildQueryFromParams({
+      match: {},
+      queryParams: { filters: { team: "team1", status: "COMPLETE" } },
+      searchableFields: [],
+      sortableFields: ["name"],
+      filterableFields: ["team", { status: () => ({ isComplete: true }) }],
+    });
+
+    expect(query.match).toEqual({
+      $and: [{ isComplete: true }, { team: "team1" }],
+    });
+  });
+
+  it("combines filter function with existing match using $and", () => {
+    const query = buildQueryFromParams({
+      match: { _id: { $in: ["a", "b"] } },
+      queryParams: { filters: { status: "COMPLETE" } },
+      searchableFields: [],
+      sortableFields: ["name"],
+      filterableFields: [{ status: () => ({ isComplete: true }) }],
+    });
+
+    expect(query.match).toEqual({
+      $and: [{ _id: { $in: ["a", "b"] } }, { isComplete: true }],
+    });
+  });
+
   it("throws when filters provided but no filterableFields configured", () => {
     expect(() =>
       buildQueryFromParams({
