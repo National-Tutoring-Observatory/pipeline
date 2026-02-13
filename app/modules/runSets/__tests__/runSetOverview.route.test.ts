@@ -195,6 +195,95 @@ describe("runSetOverview.route loader", () => {
     expect(data.sessions).toHaveProperty("totalPages");
   });
 
+  it("filters runs by COMPLETE status", async () => {
+    const completeRun = await createTestRun({
+      name: "Complete Run",
+      project: project._id,
+      annotationType: "PER_UTTERANCE",
+      isRunning: false,
+      isComplete: true,
+    });
+    const multiRunSet = await RunSetService.create({
+      name: "Multi RunSet",
+      project: project._id,
+      sessions: [],
+      runs: [run._id, completeRun._id],
+      annotationType: "PER_UTTERANCE",
+    });
+
+    const res = await loader({
+      request: new Request("http://localhost/?runsFilter_status=COMPLETE", {
+        headers: { cookie: cookieHeader },
+      }),
+      params: { projectId: project._id, runSetId: multiRunSet._id },
+      unstable_pattern: "",
+      context: {},
+    } as any);
+
+    const data = res as LoaderResult;
+    expect(data.runs.data).toHaveLength(1);
+    expect(data.runs.data[0].name).toBe("Complete Run");
+  });
+
+  it("filters runs by QUEUED status", async () => {
+    const completeRun = await createTestRun({
+      name: "Complete Run",
+      project: project._id,
+      annotationType: "PER_UTTERANCE",
+      isRunning: false,
+      isComplete: true,
+    });
+    const multiRunSet = await RunSetService.create({
+      name: "Multi RunSet",
+      project: project._id,
+      sessions: [],
+      runs: [run._id, completeRun._id],
+      annotationType: "PER_UTTERANCE",
+    });
+
+    const res = await loader({
+      request: new Request("http://localhost/?runsFilter_status=QUEUED", {
+        headers: { cookie: cookieHeader },
+      }),
+      params: { projectId: project._id, runSetId: multiRunSet._id },
+      unstable_pattern: "",
+      context: {},
+    } as any);
+
+    const data = res as LoaderResult;
+    expect(data.runs.data).toHaveLength(1);
+    expect(data.runs.data[0].name).toBe("Test Run");
+  });
+
+  it("returns all runs when no status filter is applied", async () => {
+    const completeRun = await createTestRun({
+      name: "Complete Run",
+      project: project._id,
+      annotationType: "PER_UTTERANCE",
+      isRunning: false,
+      isComplete: true,
+    });
+    const multiRunSet = await RunSetService.create({
+      name: "Multi RunSet",
+      project: project._id,
+      sessions: [],
+      runs: [run._id, completeRun._id],
+      annotationType: "PER_UTTERANCE",
+    });
+
+    const res = await loader({
+      request: new Request("http://localhost/", {
+        headers: { cookie: cookieHeader },
+      }),
+      params: { projectId: project._id, runSetId: multiRunSet._id },
+      unstable_pattern: "",
+      context: {},
+    } as any);
+
+    const data = res as LoaderResult;
+    expect(data.runs.data).toHaveLength(2);
+  });
+
   it("paginates sessions correctly", async () => {
     const res = await loader({
       request: new Request(

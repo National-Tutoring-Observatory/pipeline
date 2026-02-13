@@ -4,6 +4,7 @@ import { Play, Trash2 } from "lucide-react";
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { RunSet } from "~/modules/runSets/runSets.types";
 import getRunsItemAttributes from "~/modules/runs/helpers/getRunsItemAttributes";
+import runStatusFilters from "~/modules/runs/helpers/runStatusFilters";
 import type { Run } from "~/modules/runs/runs.types";
 import getSessionsItemAttributes from "~/modules/sessions/helpers/getSessionsItemAttributes";
 import type { Session } from "~/modules/sessions/sessions.types";
@@ -27,6 +28,8 @@ export default function RunSetOverview({
   onSessionItemClicked,
   onRunsSearchValueChanged,
   onRunsCurrentPageChanged,
+  runsFiltersValues,
+  onRunsFiltersValueChanged,
   onRunsSortValueChanged,
   onSessionsSearchValueChanged,
   onSessionsCurrentPageChanged,
@@ -51,6 +54,10 @@ export default function RunSetOverview({
   onSessionItemClicked: (id: string) => void;
   onRunsSearchValueChanged: (value: string) => void;
   onRunsCurrentPageChanged: (page: number) => void;
+  runsFiltersValues: Record<string, string | null>;
+  onRunsFiltersValueChanged: (
+    filterValue: Record<string, string | null>,
+  ) => void;
   onRunsSortValueChanged: (sort: string) => void;
   onSessionsSearchValueChanged: (value: string) => void;
   onSessionsCurrentPageChanged: (page: number) => void;
@@ -151,8 +158,9 @@ export default function RunSetOverview({
               ]}
               onSortValueChanged={onRunsSortValueChanged}
               isSyncing={isRunsSyncing}
-              filters={[]}
-              filtersValues={{}}
+              filters={runStatusFilters}
+              filtersValues={runsFiltersValues}
+              onFiltersValueChanged={onRunsFiltersValueChanged}
             />
           </div>
         </div>

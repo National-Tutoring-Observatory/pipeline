@@ -7,12 +7,14 @@ export type QueryParams = {
   filters?: Record<string, string>;
   sort?: string;
 };
+type FilterMatchBuilder = (value: string) => Record<string, any> | null;
+type FilterableField = string | Record<string, FilterMatchBuilder>;
 type BuildQueryProps = {
   match: any;
   queryParams: QueryParams;
   searchableFields: string[];
   sortableFields: string[];
-  filterableFields?: string[];
+  filterableFields?: FilterableField[];
 };
 export type Query = { match: any; sort?: any; page?: number };
 
@@ -65,9 +67,19 @@ export function buildQueryFromParams({
     }
 
     const filterConditions: any = {};
-    for (const field of filterableFields) {
-      if (has(filters, field)) {
-        filterConditions[field] = filters[field];
+    for (const entry of filterableFields) {
+      if (typeof entry === "string") {
+        if (has(filters, entry)) {
+          filterConditions[entry] = filters[entry];
+        }
+      } else {
+        const [field, buildMatch] = Object.entries(entry)[0];
+        if (has(filters, field)) {
+          const customMatch = buildMatch(filters[field]);
+          if (customMatch) {
+            query.match = addConditionToMatch(query.match, customMatch);
+          }
+        }
       }
     }
 
