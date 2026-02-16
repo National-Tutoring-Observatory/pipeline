@@ -73,36 +73,35 @@ jobs:
       tag: ${{ needs.resolve.outputs.version }}
     secrets:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
-  # TODO: Uncomment deploy jobs during the next production release to complete
-  # validation of the refactored workflow. Only resolve, preflight, and build
-  # jobs are being tested in this initial run.
-  # deploy-web:
-  #   name: Deploy Web Service
-  #   needs: build-web
-  #   uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_deploy_service.yml@main
-  #   with:
-  #     environment: production
-  #     aws-region: us-east-1
-  #     image: ${{ needs.build-web.outputs.image }}
-  #     service: web
-  #   secrets:
-  #     AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
-  # deploy-worker:
-  #   name: Deploy Worker Service
-  #   needs: build-worker
-  #   uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_deploy_service.yml@main
-  #   with:
-  #     environment: production
-  #     aws-region: us-east-1
-  #     image: ${{ needs.build-worker.outputs.image }}
-  #     service: worker
-  #   secrets:
-  #     AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+  deploy-web:
+    name: Deploy Web Service
+    needs: build-web
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_deploy_service.yml@main
+    with:
+      environment: production
+      aws-region: us-east-1
+      image: ${{ needs.build-web.outputs.image }}
+      service: web
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+  deploy-worker:
+    name: Deploy Worker Service
+    needs: build-worker
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_deploy_service.yml@main
+    with:
+      environment: production
+      aws-region: us-east-1
+      image: ${{ needs.build-worker.outputs.image }}
+      service: worker
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   production-summary:
     name: Production Deployment Summary
     needs:
       - build-web
       - build-worker
+      - deploy-web
+      - deploy-worker
     if: success() || failure()
     uses: National-Tutoring-Observatory/workflows/.github/workflows/deployment_summary.yml@main
     with:
