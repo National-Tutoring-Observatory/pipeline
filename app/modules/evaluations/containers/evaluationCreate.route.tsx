@@ -1,5 +1,5 @@
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   data,
   redirect,
@@ -10,6 +10,7 @@ import {
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
+import { sessionsMatch } from "~/modules/collections/helpers/sessionsMatch";
 import EvaluationCreate from "~/modules/evaluations/components/evaluationCreate";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
 import isAbleToCreateEvaluation from "~/modules/evaluations/helpers/isAbleToCreateEvaluation";
@@ -133,6 +134,18 @@ export default function EvaluationCreateRoute() {
     runs.map((run) => run._id),
   );
 
+  const compatibleRuns = useMemo(() => {
+    if (!baseRun) return [];
+    const baseRunObj = runs.find((run) => run._id === baseRun);
+    if (!baseRunObj) return [];
+    const baseSessionIds = baseRunObj.sessions.map((s) => s.sessionId);
+    return runs.filter((run) => {
+      if (run._id === baseRun) return false;
+      const runSessionIds = run.sessions.map((s) => s.sessionId);
+      return sessionsMatch(baseSessionIds, runSessionIds);
+    });
+  }, [baseRun, runs]);
+
   const breadcrumbs = [
     { text: "Projects", link: "/" },
     { text: project.name, link: `/projects/${project._id}` },
@@ -182,6 +195,7 @@ export default function EvaluationCreateRoute() {
         collectionId={collection._id}
         runs={runs}
         baseRun={baseRun}
+        compatibleRuns={compatibleRuns}
         selectedRuns={selectedRuns}
         onNameChanged={setName}
         onBaseRunChanged={setBaseRun}
