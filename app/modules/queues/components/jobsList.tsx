@@ -54,7 +54,7 @@ export default function JobsList({
     };
   };
 
-  const getItemActions = (job: Job) => {
+  const getItemActions = () => {
     const actions = [
       { action: "VIEW", text: "View Details" },
       ...(state === "failed" ? [{ action: "RETRY", text: "Retry Job" }] : []),

@@ -55,7 +55,7 @@ export default async function convertFilesToSessions({
       });
       hasErrored = false;
       hasConverted = true;
-    } catch (error) {
+    } catch {
       hasErrored = true;
       hasConverted = false;
     }

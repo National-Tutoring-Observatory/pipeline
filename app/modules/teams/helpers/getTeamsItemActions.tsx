@@ -1,14 +1,16 @@
 import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
 import { Edit } from "lucide-react";
-import useTeamAuthorization from "../hooks/useTeamAuthorization";
+import type { User } from "~/modules/users/users.types";
+import TeamAuthorization from "../authorization";
 import type { Team } from "../teams.types";
 
-export default (item: Team): CollectionItemAction[] => {
-  const { canUpdate } = useTeamAuthorization(item._id);
-
+export default function getTeamsItemActions(
+  item: Team,
+  user: User,
+): CollectionItemAction[] {
   const actions: CollectionItemAction[] = [];
 
-  if (canUpdate) {
+  if (TeamAuthorization.canUpdate(user, item._id)) {
     actions.push({
       action: "EDIT",
       icon: <Edit />,
@@ -17,4 +19,4 @@ export default (item: Team): CollectionItemAction[] => {
   }
 
   return actions;
-};
+}

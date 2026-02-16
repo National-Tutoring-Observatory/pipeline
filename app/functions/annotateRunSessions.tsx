@@ -8,10 +8,11 @@ import { SessionService } from "~/modules/sessions/session";
 import { handler as annotatePerSession } from "./annotatePerSession/app";
 import { handler as annotatePerUtterance } from "./annotatePerUtterance/app";
 
-export default async function annotateRunSessions(
-  { runId }: { runId: string },
-  context: { request: Request },
-) {
+export default async function annotateRunSessions({
+  runId,
+}: {
+  runId: string;
+}) {
   const run = await RunService.findById(runId);
   if (!run) throw new Error(`Run not found: ${runId}`);
   const project = await ProjectService.findById(run.project as string);
@@ -46,7 +47,7 @@ export default async function annotateRunSessions(
     step: `0/${run.sessions.length}`,
   });
 
-  let annotationFields: Record<string, any> = {};
+  const annotationFields: Record<string, any> = {};
 
   for (const annotationSchemaItem of promptVersion.annotationSchema as AnnotationSchemaItem[]) {
     annotationFields[annotationSchemaItem.fieldKey] =

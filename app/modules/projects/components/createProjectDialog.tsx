@@ -1,3 +1,4 @@
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   DialogClose,
@@ -9,27 +10,36 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { AlertCircleIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useFetcher } from "react-router";
+import addDialog from "~/modules/dialogs/addDialog";
 import TeamsSelectorContainer from "~/modules/teams/containers/teamsSelector.container";
+import type { Project } from "../projects.types";
 import ProjectNameAlert from "./projectNameAlert";
 
 const CreateProjectDialog = ({
   hasTeamSelection,
-  onCreateNewProjectClicked,
-  isSubmitting = false,
+  teamId,
+  onProjectCreated,
 }: {
   hasTeamSelection: boolean;
-  onCreateNewProjectClicked: ({
-    name,
-    team,
-  }: {
-    name: string;
-    team: string | null;
-  }) => void;
-  isSubmitting?: boolean;
+  teamId?: string;
+  onProjectCreated: (project: Project) => void;
 }) => {
   const [name, setName] = useState("");
-  const [team, setTeam] = useState<string | null>(null);
+  const [team, setTeam] = useState<string | null>(teamId ?? null);
+  const fetcher = useFetcher();
+
+  const isSubmitting = fetcher.state !== "idle";
+  const error = fetcher.data?.errors?.general;
+
+  useEffect(() => {
+    if (fetcher.state !== "idle") return;
+    if (!fetcher.data?.success) return;
+    addDialog(null);
+    onProjectCreated(fetcher.data.data);
+  }, [fetcher.state, fetcher.data]);
 
   const onProjectNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
@@ -37,6 +47,13 @@ const CreateProjectDialog = ({
 
   const onTeamSelected = (selectedTeam: string) => {
     setTeam(selectedTeam);
+  };
+
+  const onSubmit = () => {
+    fetcher.submit(
+      JSON.stringify({ intent: "CREATE_PROJECT", payload: { name, team } }),
+      { method: "POST", encType: "application/json", action: "/api/projects" },
+    );
   };
 
   let isSubmitButtonDisabled = true;
@@ -70,7 +87,14 @@ const CreateProjectDialog = ({
           onChange={onProjectNameChanged}
           disabled={isSubmitting}
         />
-        <ProjectNameAlert name={name} />
+        {error ? (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : (
+          <ProjectNameAlert name={name} />
+        )}
       </div>
       {hasTeamSelection && (
         <div className="grid gap-3">
@@ -84,17 +108,13 @@ const CreateProjectDialog = ({
             Cancel
           </Button>
         </DialogClose>
-        <DialogClose asChild>
-          <Button
-            type="button"
-            disabled={isSubmitButtonDisabled || isSubmitting}
-            onClick={() => {
-              onCreateNewProjectClicked({ name, team });
-            }}
-          >
-            Create project
-          </Button>
-        </DialogClose>
+        <Button
+          type="button"
+          disabled={isSubmitButtonDisabled || isSubmitting}
+          onClick={onSubmit}
+        >
+          {isSubmitting ? "Creating..." : "Create project"}
+        </Button>
       </DialogFooter>
     </DialogContent>
   );

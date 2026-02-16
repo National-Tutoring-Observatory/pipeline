@@ -3,6 +3,7 @@ import filter from "lodash/filter";
 import find from "lodash/find.js";
 import getConversationFromJSON from "workers/helpers/getConversationFromJSON";
 import buildAnnotationSchema from "../../app/modules/llm/helpers/buildAnnotationSchema";
+import classifyLLMError from "../../app/modules/llm/helpers/classifyLLMError";
 import LLM from "../../app/modules/llm/llm";
 import { RunService } from "../../app/modules/runs/run";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
@@ -13,6 +14,11 @@ import annotationPerUtterancePrompts from "../prompts/annotatePerUtterance.promp
 export default async function annotatePerUtterance(job: any) {
   const { runId, sessionId, inputFile, outputFolder, prompt, model, team } =
     job.data;
+
+  const run = await RunService.findById(runId);
+  if (run?.stoppedAt) {
+    return { status: "STOPPED" };
+  }
 
   try {
     await updateRunSession({
@@ -123,10 +129,13 @@ export default async function annotatePerUtterance(job: any) {
       "FINISHED",
     );
   } catch (error: any) {
+    const errorMessage = classifyLLMError(error);
+
     await updateRunSession({
       runId,
       sessionId,
       update: {
+        error: errorMessage,
         status: "ERRORED",
         finishedAt: new Date(),
       },
@@ -143,7 +152,7 @@ export default async function annotatePerUtterance(job: any) {
 
     return {
       status: "ERRORED",
-      error: error.message,
+      error: errorMessage,
     };
   }
 }

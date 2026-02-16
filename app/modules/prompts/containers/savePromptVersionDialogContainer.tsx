@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useFetcher } from "react-router";
 import SavePromptVersionDialog from "../components/savePromptVersionDialog";
 
@@ -13,10 +13,6 @@ export default function SavePromptVersionDialogContainer({
   team: string;
   onSaveClicked: () => void;
 }) {
-  const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true);
-  const [isFetching, setIsFetching] = useState(true);
-  const [isMatching, setIsMatching] = useState(false);
-  const [reasoning, setReasoning] = useState("");
   const hasInitialized = useRef(false);
 
   const fetcher = useFetcher();
@@ -35,17 +31,10 @@ export default function SavePromptVersionDialogContainer({
     }
   }, []);
 
-  useEffect(() => {
-    if (fetcher.data) {
-      setIsMatching(fetcher.data.isMatching);
-      setIsFetching(false);
-      if (fetcher.data.isMatching) {
-        setIsSubmitButtonDisabled(false);
-      } else {
-        setReasoning(fetcher.data.reasoning);
-      }
-    }
-  }, [fetcher.data]);
+  const isFetching = !fetcher.data;
+  const isMatching = fetcher.data?.isMatching ?? false;
+  const isSubmitButtonDisabled = !fetcher.data?.isMatching;
+  const reasoning = fetcher.data?.reasoning ?? "";
 
   return (
     <SavePromptVersionDialog

@@ -1,7 +1,10 @@
 import { createAdapter } from "@socket.io/redis-adapter";
+import type { Socket } from "socket.io";
 import { Server } from "socket.io";
-import { getRedisInstance } from "./app/helpers/getRedisInstance.js";
-import sessionStorage from "./sessionStorage.js";
+import { getRedisInstance } from "./app/helpers/getRedisInstance";
+import sessionStorage from "./sessionStorage";
+
+type AuthenticatedSocket = Socket & { user: { username: string } };
 
 export function setupSockets({ server, app }: { server: any; app: any }) {
   const redis = getRedisInstance();
@@ -10,6 +13,12 @@ export function setupSockets({ server, app }: { server: any; app: any }) {
 
   const pubClient = redis.duplicate();
   const subClient = redis.duplicate();
+
+  const onRedisError = (err: Error) =>
+    console.error("[sockets] Redis error:", err.message);
+  redis.on("error", onRedisError);
+  pubClient.on("error", onRedisError);
+  subClient.on("error", onRedisError);
 
   app.use((req: any, res: any, next: any) => {
     req.io = io; // Attach the main 'io' server instance to every HTTP request
@@ -33,10 +42,9 @@ export function setupSockets({ server, app }: { server: any; app: any }) {
       if (!user) {
         return next(new Error("Authentication error: Invalid session"));
       }
-      // @ts-ignore
-      socket.user = user;
+      (socket as AuthenticatedSocket).user = user;
       next();
-    } catch (error) {
+    } catch {
       return next(
         new Error("Authentication error: Session could not be parsed"),
       );
@@ -45,8 +53,7 @@ export function setupSockets({ server, app }: { server: any; app: any }) {
 
   io.on("connection", (socket) => {
     console.log(
-      // @ts-expect-error user is attached by auth middleware
-      `Client connected: ${socket.id}, User: ${socket.user.username}`,
+      `Client connected: ${socket.id}, User: ${(socket as AuthenticatedSocket).user.username}`,
     );
 
     socket.on("disconnect", () => {

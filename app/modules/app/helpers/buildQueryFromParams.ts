@@ -36,7 +36,7 @@ export function buildQueryFromParams({
   sortableFields,
   filterableFields,
 }: BuildQueryProps): Query {
-  let query = { match } as Query;
+  const query = { match } as Query;
 
   const searchValue = queryParams.searchValue;
   if (searchValue) {
@@ -45,7 +45,7 @@ export function buildQueryFromParams({
         "Search value provided but no searchable fields are configured.",
       );
     }
-    let conditions: any[] = [];
+    const conditions: any[] = [];
     for (const field of searchableFields) {
       conditions.push(regexMatch(field, searchValue));
     }

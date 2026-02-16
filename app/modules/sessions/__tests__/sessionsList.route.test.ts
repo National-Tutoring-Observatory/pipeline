@@ -140,7 +140,7 @@ describe("sessionsList.route loader", () => {
 
   it("redirects when not project owner", async () => {
     const team = await TeamService.create({ name: "team 1" });
-    const project = await ProjectService.create({
+    await ProjectService.create({
       name: "project 1",
       team: team._id,
     });

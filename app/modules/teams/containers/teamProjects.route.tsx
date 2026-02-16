@@ -1,23 +1,23 @@
 import find from "lodash/find";
-import { useEffect } from "react";
+import { useContext } from "react";
 import {
   redirect,
-  useActionData,
   useLoaderData,
   useNavigate,
   useOutletContext,
   useParams,
-  useSubmit,
 } from "react-router";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
 import { ProjectService } from "~/modules/projects/project";
+import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
 import TeamProjects from "../components/teamProjects";
 import type { Route } from "./+types/teamProjects.route";
@@ -99,9 +99,8 @@ export default function TeamProjectsRoute() {
   const data = useLoaderData<typeof loader>();
   const params = useParams();
   const ctx = useOutletContext<any>();
-  const actionData = useActionData();
-  const submit = useSubmit();
   const navigate = useNavigate();
+  const user = useContext(AuthenticationContext) as User;
   const teamId = params.id;
 
   const {
@@ -121,26 +120,16 @@ export default function TeamProjectsRoute() {
     filters: {},
   });
 
-  useEffect(() => {
-    if (actionData?.intent === "CREATE_PROJECT") {
-      navigate(`/projects/${actionData.data._id}`);
-    }
-  }, [actionData]);
-
   const onCreateProjectButtonClicked = () => {
     addDialog(
       <CreateProjectDialog
         hasTeamSelection={false}
-        onCreateNewProjectClicked={onCreateNewProjectClicked}
+        teamId={teamId}
+        onProjectCreated={(project) => {
+          navigate(`/projects/${project._id}`);
+        }}
       />,
     );
-  };
-
-  const onCreateNewProjectClicked = ({ name }: { name: string }) => {
-    submit(JSON.stringify({ intent: "CREATE_PROJECT", payload: { name } }), {
-      method: "POST",
-      encType: "application/json",
-    });
   };
 
   const onActionClicked = (action: string) => {
@@ -151,7 +140,7 @@ export default function TeamProjectsRoute() {
 
   const onItemActionClicked = ({
     id,
-    action,
+    action: _action,
   }: {
     id: string;
     action: string;
@@ -182,6 +171,7 @@ export default function TeamProjectsRoute() {
     <TeamProjects
       projects={projects}
       team={ctx.team}
+      user={user}
       searchValue={searchValue}
       currentPage={currentPage}
       totalPages={data.projects.totalPages}
@@ -194,7 +184,6 @@ export default function TeamProjectsRoute() {
       onPaginationChanged={onPaginationChanged}
       onFiltersValueChanged={onFiltersValueChanged}
       onSortValueChanged={onSortValueChanged}
-      onCreateProjectButtonClicked={onCreateProjectButtonClicked}
     />
   );
 }

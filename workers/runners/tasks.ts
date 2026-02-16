@@ -6,10 +6,19 @@ import annotatePerUtterance from "../tasks/annotatePerUtterance";
 import convertFileToSession from "../tasks/convertFileToSession";
 import finishAnnotateRun from "../tasks/finishAnnotateRun";
 import finishConvertedFilesToSessions from "../tasks/finishConvertedFilesToSessions";
+import finishExportRun from "../tasks/finishExportRun";
+import finishExportRunSet from "../tasks/finishExportRunSet";
+import processExportRun from "../tasks/processExportRun";
+import processExportRunSet from "../tasks/processExportRunSet";
 import startAnnotateRun from "../tasks/startAnnotateRun";
 import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
+import startExportRun from "../tasks/startExportRun";
+import startExportRunSet from "../tasks/startExportRunSet";
 
+console.log("[tasks] Initializing database connection...");
+const dbStartDate = Date.now();
 await initializeDatabase();
+console.log(`[tasks] Database ready (${Date.now() - dbStartDate}ms)`);
 
 export default async (job: Job) => {
   try {
@@ -23,6 +32,10 @@ export default async (job: Job) => {
         } else if (job.data.annotationType === "ANNOTATE_PER_SESSION") {
           return annotatePerSession(job);
         }
+        return {
+          status: "ERRORED",
+          message: `Unknown annotation type: ${job.data.annotationType}`,
+        };
       }
       case "ANNOTATE_RUN:FINISH": {
         return finishAnnotateRun(job);
@@ -36,13 +49,30 @@ export default async (job: Job) => {
       case "CONVERT_FILES_TO_SESSIONS:FINISH": {
         return finishConvertedFilesToSessions(job);
       }
+      case "EXPORT_RUN:START": {
+        return startExportRun(job);
+      }
+      case "EXPORT_RUN:PROCESS": {
+        return processExportRun(job);
+      }
+      case "EXPORT_RUN:FINISH": {
+        return finishExportRun(job);
+      }
+      case "EXPORT_RUN_SET:START": {
+        return startExportRunSet(job);
+      }
+      case "EXPORT_RUN_SET:PROCESS": {
+        return processExportRunSet(job);
+      }
+      case "EXPORT_RUN_SET:FINISH": {
+        return finishExportRunSet(job);
+      }
       default: {
         return { status: "ERRORED", message: `Missing task for ${job.name}` };
       }
     }
   } catch (error) {
     console.log(error);
-    // @ts-ignore
-    throw new Error(error);
+    throw new Error("Task worker failed", { cause: error });
   }
 };

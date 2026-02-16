@@ -100,7 +100,7 @@ describe("availableFeatureFlagUsers.route loader", () => {
     });
 
     // Create a user with the feature flag
-    const userWithFlag = await UserService.create({
+    await UserService.create({
       username: "with_flag",
       isRegistered: true,
       featureFlags: ["beta_feature"],

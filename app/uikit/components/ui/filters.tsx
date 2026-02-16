@@ -21,7 +21,7 @@ export type FilterOption = {
 export type FiltersProps = {
   filters: Filter[];
   filtersValues: any;
-  onFiltersValueChanged?: (filtersValue: {}) => any;
+  onFiltersValueChanged?: (filtersValue: Record<string, string | null>) => void;
 };
 
 const Filters = ({
@@ -51,7 +51,7 @@ const Filters = ({
             </p>
           </div>
           <div className="grid gap-8">
-            {map(filters, (filter, index) => {
+            {map(filters, (filter) => {
               return (
                 <FiltersItem
                   key={filter.category}

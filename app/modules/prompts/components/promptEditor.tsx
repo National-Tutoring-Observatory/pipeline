@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BookCheck, Save } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { PromptVersion } from "../prompts.types";
 import AnnotationSchemaBuilder from "./annotationSchemaBuilder";
 
@@ -29,10 +29,11 @@ export default function PromptEditor({
   onMakePromptVersionProduction: () => void;
 }) {
   const [hasChanges, setHasChanges] = useState(false);
-  const [name, setName] = useState("");
-  const [userPrompt, setUserPrompt] = useState("");
-  const [annotationSchema, setAnnotationSchema] = useState<any[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
+  const [name, setName] = useState(promptVersion.name);
+  const [userPrompt, setUserPrompt] = useState(promptVersion.userPrompt || "");
+  const [annotationSchema, setAnnotationSchema] = useState<any[]>(
+    promptVersion.annotationSchema,
+  );
 
   const onNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setHasChanges(true);
@@ -52,22 +53,12 @@ export default function PromptEditor({
   };
 
   const onSavePromptVersionClicked = () => {
-    setIsSaving(true);
     onSavePromptVersion({ name, userPrompt, annotationSchema });
   };
 
   const onMakePromptVersionProductionClicked = () => {
     onMakePromptVersionProduction();
   };
-
-  useEffect(() => {
-    if (promptVersion) {
-      setHasChanges(false);
-      setName(promptVersion.name);
-      setUserPrompt(promptVersion.userPrompt || "");
-      setAnnotationSchema(promptVersion.annotationSchema);
-    }
-  }, [promptVersion]);
 
   return (
     <div className="border-l">

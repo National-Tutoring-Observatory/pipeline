@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
@@ -27,7 +28,7 @@ describe("prompt.route action", () => {
         createdBy: user._id,
       });
 
-      const promptVersion = await PromptVersionService.create({
+      await PromptVersionService.create({
         name: "Version 1",
         prompt: prompt._id,
         version: 1,
@@ -101,7 +102,7 @@ describe("prompt.route action", () => {
       });
 
       const cookieHeader = await loginUser(user._id);
-      const fakeId = new (require("mongodb").ObjectId)().toString();
+      const fakeId = new Types.ObjectId().toString();
 
       await expect(
         action({

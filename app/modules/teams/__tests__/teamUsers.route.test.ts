@@ -57,13 +57,13 @@ describe("teamUsers.route", () => {
         githubId: 1,
       });
 
-      const user1 = await UserService.create({
+      await UserService.create({
         username: "user1",
         githubId: 2,
         teams: [{ team: team._id, role: "ADMIN" }],
       });
 
-      const user2 = await UserService.create({
+      await UserService.create({
         username: "user2",
         githubId: 3,
         teams: [{ team: team._id, role: "ADMIN" }],

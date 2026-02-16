@@ -102,7 +102,7 @@ export default function PromptSelector({
                   <CommandItem
                     key={prompt._id}
                     value={prompt._id}
-                    onSelect={(currentValue) => {
+                    onSelect={() => {
                       onSelectedPromptChange(prompt._id);
                       onTogglePromptPopover(false);
                     }}
@@ -174,7 +174,7 @@ export default function PromptSelector({
                       <CommandItem
                         key={promptVersion._id}
                         value={`${promptVersion.version}`}
-                        onSelect={(currentValue) => {
+                        onSelect={() => {
                           onSelectedPromptVersionChange(promptVersion.version);
                           onTogglePromptVersionsPopover(false);
                         }}

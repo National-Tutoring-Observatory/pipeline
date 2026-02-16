@@ -1,14 +1,15 @@
 import find from "lodash/find";
+import { useContext } from "react";
 import {
   redirect,
   useLoaderData,
   useOutletContext,
-  useParams,
   useSubmit,
 } from "react-router";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import { UserService } from "~/modules/users/user";
@@ -104,9 +105,9 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function TeamUsersRoute() {
   const data = useLoaderData<typeof loader>();
-  const params = useParams();
   const ctx = useOutletContext<any>();
   const submit = useSubmit();
+  const user = useContext(AuthenticationContext) as User;
 
   const {
     searchValue,
@@ -234,6 +235,7 @@ export default function TeamUsersRoute() {
     <TeamUsers
       users={users}
       team={ctx.team}
+      user={user}
       searchValue={searchValue}
       currentPage={currentPage}
       totalPages={data.users.totalPages}

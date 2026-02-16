@@ -38,6 +38,9 @@ yarn workers:dev
 # Type checking (required before commits)
 yarn typecheck
 
+# Lint (required before commits)
+yarn lint
+
 # Production build
 yarn app:build
 
@@ -55,7 +58,7 @@ yarn test
 yarn test:watch
 
 # Run specific test file
-yarn test app/modules/collections/__tests__/authorization.test.ts
+yarn test app/modules/runSets/__tests__/authorization.test.ts
 
 # Run tests with coverage
 yarn test:coverage
@@ -79,8 +82,9 @@ yarn migration:generate <Name Of Migration>
 
 1. ✅ `yarn typecheck` - must pass with no errors
 2. ✅ `yarn format:check` - must pass with no errors
-3. ✅ `yarn test` - must pass with no errors
-4. ✅ `yarn app:build` - must complete successfully
+3. ✅ `yarn lint` - must pass with no errors
+4. ✅ `yarn test` - must pass with no errors
+5. ✅ `yarn app:build` - must complete successfully
 
 ## Architecture Overview
 
@@ -143,7 +147,6 @@ it("returns a valid transcript", async () => {
 **Documentation**:
 
 - [Transcript Format](documentation/schemas/transcript.md) - Input format specification
-- [Collection Export Format](documentation/schemas/collection-export.md) - CSV export structure
 - [Examples](documentation/schemas/examples/) - Sample transcript files
 
 ### Module Organization Pattern
@@ -164,7 +167,7 @@ module/
 
 **Core Modules**:
 
-- **Data Management**: `projects`, `runs`, `sessions`, `collections`
+- **Data Management**: `projects`, `runs`, `sessions`, `runSets`
 - **LLM/Annotations**: `prompts`, `annotations`
 - **Access Control**: `teams`, `users`, `authentication`, `authorization`
 - **Infrastructure**: `storage`, `queues`, `sockets`
@@ -203,14 +206,14 @@ The service class acts as a **facade** - a single entry point that routes use. I
 
 ```typescript
 // module.ts - The facade
-export class CollectionService {
+export class RunSetService {
   // Basic CRUD - implemented inline
-  static async find(options?: FindOptions): Promise<Collection[]> { ... }
-  static async findById(id: string): Promise<Collection | null> { ... }
+  static async find(options?: FindOptions): Promise<RunSet[]> { ... }
+  static async findById(id: string): Promise<RunSet | null> { ... }
 
   // Complex operations - delegate to service files
-  static async mergeCollections(targetId: string, sourceIds: string[]) {
-    return mergeCollectionsService(targetId, sourceIds);
+  static async mergeRunSets(targetId: string, sourceIds: string[]) {
+    return mergeRunSetsService(targetId, sourceIds);
   }
 }
 ```
@@ -286,6 +289,98 @@ export default function ProjectRoute() {
 }
 ```
 
+**IMPORTANT**: Never put intent-based routing in loaders. Loaders are for data fetching only — they should return a single, consistent data shape. All intent-based logic (including read-only data fetches triggered by user interaction) belongs in the action via `fetcher.submit`, not in the loader via query params.
+
+### Container/Component Pattern
+
+Route files (`containers/*.route.tsx`) are **containers** — they handle all wiring. Components (`components/*.tsx`) are **dumb** — they receive data and callbacks as props.
+
+**Route file (container) responsibilities:**
+
+- `loader` and `action` functions
+- `useFetcher` / `useSubmit` / `useNavigate` / `useLoaderData`
+- `useSearchQueryParams` hook
+- `useEffect` for side effects (toasts, navigation after action)
+- Callback functions that submit data or open dialogs
+- Passes everything to the component as props
+
+**Component responsibilities:**
+
+- Receives all data and callbacks as props
+- Manages only local UI state (e.g., selected checkboxes, form inputs)
+- No router hooks (`useFetcher`, `useNavigate`, `useLoaderData`, etc.)
+- No `useSearchQueryParams` — receives values as props from the route
+
+```typescript
+// ✅ Route file handles wiring
+export default function MyRoute() {
+  const { items } = useLoaderData<typeof loader>();
+  const fetcher = useFetcher();
+  const navigate = useNavigate();
+  const { searchValue, setSearchValue, currentPage, setCurrentPage, isSyncing } =
+    useSearchQueryParams({ searchValue: "", currentPage: 1 });
+
+  useEffect(() => { /* toast + navigate on fetcher.data */ }, [fetcher.state, fetcher.data]);
+
+  const submitAction = (id: string) => {
+    fetcher.submit(JSON.stringify({ intent: "DO_THING", payload: { id } }),
+      { method: "POST", encType: "application/json" });
+  };
+
+  return (
+    <MyComponent
+      items={items}
+      searchValue={searchValue}
+      currentPage={currentPage}
+      isSyncing={isSyncing}
+      onActionClicked={submitAction}
+      onSearchValueChanged={setSearchValue}
+      onPaginationChanged={setCurrentPage}
+    />
+  );
+}
+
+// ✅ Component is dumb — props only
+export default function MyComponent({ items, searchValue, onActionClicked, ... }: Props) {
+  const [selected, setSelected] = useState<string[]>([]); // Local UI state is fine
+  return <Collection items={items} ... />;
+}
+```
+
+### `useFetcher` vs `useSubmit` for Actions
+
+When an action needs **client-side feedback** (toasts, loading states) before navigating, use `useFetcher` — not `useSubmit`.
+
+- `useSubmit` triggers full page navigation, making it difficult to show toasts before redirect
+- `useFetcher` submits without navigation, so you can show a toast in a `useEffect` then call `navigate()` yourself
+- The action should return `data({ success: true, intent: "...", data: { redirectTo: "..." } })` instead of `redirect()`
+
+```typescript
+// ✅ useFetcher — clean feedback pattern
+const fetcher = useFetcher();
+const navigate = useNavigate();
+const isSubmitting = fetcher.state !== "idle";
+
+useEffect(() => {
+  if (fetcher.state !== "idle") return;
+  if (!fetcher.data || !("success" in fetcher.data)) return;
+  toast.success("Done!");
+  navigate(fetcher.data.data.redirectTo);
+}, [fetcher.state, fetcher.data, navigate]);
+
+const submitAction = () => {
+  fetcher.submit(JSON.stringify({ intent: "DO_THING", payload: {} }), {
+    method: "POST",
+    encType: "application/json",
+  });
+};
+
+// ❌ useSubmit — causes navigation, toast gets lost
+const submit = useSubmit();
+const navigation = useNavigation();
+// Hard to show toast before redirect happens
+```
+
 ### Search, Pagination, and Querying Pattern
 
 **CRITICAL**: For ANY list with search or pagination, you MUST use these files:
@@ -304,9 +399,11 @@ import { Collection } from "@/components/ui/collection";
 - [ ] Loader calls `getQueryParamsFromRequest()` to extract URL params
 - [ ] Loader calls `buildQueryFromParams()` to build the database query
 - [ ] Loader calls `Service.paginate()` with the query
-- [ ] Component uses `useSearchQueryParams()` hook for state
+- [ ] **Route file** calls `useSearchQueryParams()` hook and passes values as props to the component
 - [ ] Component uses `<Collection>` with `hasSearch` and `hasPagination` props
 - [ ] For multiple lists on same page: use `{ paramPrefix: "name" }` option
+
+**IMPORTANT**: `useSearchQueryParams()` always lives in the **route file** (container), never in the component. The route passes `searchValue`, `currentPage`, `isSyncing`, and the setter functions as props.
 
 **DO NOT**:
 
@@ -645,7 +742,7 @@ const url = await adapter.request(path); // Presigned URL
 - `project.schema.ts` - Projects with metadata and status
 - `run.schema.ts` - Runs: annotation tasks with sessions and prompts
 - `session.schema.ts` - Individual sessions with utterances
-- `collection.schema.ts` - Collections grouping multiple runs
+- `runSet.schema.ts` - Run sets grouping multiple runs
 - `prompt.schema.ts` - Prompt templates
 - `user.schema.ts` - Users with roles and team assignments
 - `team.schema.ts` - Teams containing projects and users
@@ -713,6 +810,22 @@ getDateString(item.createdAt);
 // Custom fallback
 getDateString(item.processedOn, "Not processed yet");
 getDateString(item.finishedAt, "In progress");
+```
+
+### TypeScript Props
+
+- Don't mark props as optional (`?`) when they are always passed — it adds unnecessary `undefined` checks and obscures the contract
+- Don't use non-null assertions (`!`) to work around optional types — fix the type instead
+- If a prop is always provided by the parent, make it required
+
+```typescript
+// ✅ Required props when always passed
+onEditClicked: (item: Item) => void;
+onDeleteClicked: (item: Item) => void;
+
+// ❌ Don't make them optional then assert
+onEditClicked?: (item: Item) => void;
+// ...later: onEditClicked!(item)  // Non-null assertion
 ```
 
 ### Comments
@@ -842,6 +955,29 @@ import { ChevronDown } from 'lucide-react'
 <ChevronDown className="h-4 w-4" />
 ```
 
+### Feature Flag Component
+
+The `<Flag>` component gates UI behind feature flags. It requires **exactly one child element** — wrap multiple children in a fragment:
+
+```typescript
+import Flag from "~/modules/featureFlags/components/flag";
+
+// ✅ Single child or fragment for multiple children
+<Flag flag="HAS_PROJECT_COLLECTIONS">
+  <>
+    <DropdownMenuItem>Action 1</DropdownMenuItem>
+    <DropdownMenuItem>Action 2</DropdownMenuItem>
+    <DropdownMenuSeparator />
+  </>
+</Flag>
+
+// ❌ Multiple direct children — will error
+<Flag flag="HAS_PROJECT_COLLECTIONS">
+  <DropdownMenuItem>Action 1</DropdownMenuItem>
+  <DropdownMenuItem>Action 2</DropdownMenuItem>
+</Flag>
+```
+
 ## Environment Configuration
 
 ### Required Variables
@@ -882,7 +1018,7 @@ REDIS_LOCAL='true'                  # Local Redis (development)
 yarn test
 
 # Specific module
-yarn test app/modules/collections
+yarn test app/modules/runSets
 
 # Watch mode
 yarn test:watch
@@ -1008,28 +1144,6 @@ yarn app:build
 **Fix**: `lsof -i :5173` to find process, then kill it
 **Alternative**: `PORT=3000 yarn app:dev`
 
-## Collections Feature
-
-**Status**: Phase 1 Complete (Foundation)
-
-See detailed documentation:
-
-- `COLLECTION_CREATE_PLAN.md` - Full feature implementation plan
-- Additional phase documentation may exist
-
-**Phase 1 Includes**:
-
-- CollectionService CRUD operations
-- CollectionAuthorization module (team-based access)
-- Updated projectCollections.route with proper error handling
-- Comprehensive test coverage
-
-**To Continue**:
-
-1. Check phase documentation for next steps
-2. Tests run via: `yarn test -- app/modules/collections/__tests__/`
-3. Build: `yarn app:build` - must pass before commit
-
 ## Additional Resources
 
 - **Contributing Guide**: See `CONTRIBUTING.md` for Docker Compose setup
@@ -1044,6 +1158,7 @@ See detailed documentation:
 yarn install --frozen-lockfile
 yarn typecheck
 yarn format:check
+yarn lint
 yarn app:build
 ```
 

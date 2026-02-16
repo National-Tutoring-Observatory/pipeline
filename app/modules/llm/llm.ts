@@ -35,7 +35,6 @@ class LLM {
   constructor(options: Record<string, any> = {}) {
     this.options = { ...DEFAULTS, ...options };
     this.messages = [];
-    this.orchestratorMessage;
     this.schema = options.schema;
     const llm = getLLM(process.env.LLM_PROVIDER || "");
     this.retries = 0;
@@ -62,7 +61,7 @@ class LLM {
           # Where score is 0 when the output is not acceptable
           # Where score is 1 when the output is acceptable and conforms.
           # Where reasoning is your reasoning as to why you scored it the way you did and a potential fix if we were to run it again.
-          # You must return the following JSON: {\"score\": 0, \"reasoning\": \"\"}
+          # You must return the following JSON: {"score": 0, "reasoning": ""}
           Output: ${JSON.stringify(response)}
           `,
           },

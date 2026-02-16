@@ -24,6 +24,7 @@ interface AdminUsersProps {
   sortValue: string;
   filtersValues: Record<string, any>;
   isSyncing?: boolean;
+  isAuditSyncing?: boolean;
   onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
   onSearchValueChanged: (searchValue: string) => void;
   onPaginationChanged: (currentPage: number) => void;
@@ -49,6 +50,7 @@ export default function AdminUsers({
   sortValue,
   filtersValues,
   isSyncing,
+  isAuditSyncing,
   onItemActionClicked,
   onSearchValueChanged,
   onPaginationChanged,
@@ -58,10 +60,6 @@ export default function AdminUsers({
   onAuditPageChanged,
   onAuditSortChanged,
 }: AdminUsersProps) {
-  const onActionClicked = (action: string) => {
-    // No collection-level actions
-  };
-
   return (
     <div className="max-w-6xl p-8">
       <PageHeader>
@@ -93,7 +91,7 @@ export default function AdminUsers({
             getItemActions={(item) =>
               getUserManagementItemActions(item, currentUser)
             }
-            onActionClicked={onActionClicked}
+            onActionClicked={() => {}}
             onItemActionClicked={onItemActionClicked}
             onSearchValueChanged={onSearchValueChanged}
             onPaginationChanged={onPaginationChanged}
@@ -112,6 +110,7 @@ export default function AdminUsers({
             sortValue={auditSortValue}
             currentPage={auditCurrentPage}
             totalPages={auditTotalPages}
+            isSyncing={isAuditSyncing}
             onSearchValueChanged={onAuditSearchChanged}
             onPaginationChanged={onAuditPageChanged}
             onSortValueChanged={onAuditSortChanged}

@@ -1,12 +1,14 @@
-import type { ReactNode } from "react";
-// @ts-ignore
-let addModalDispatch;
-// @ts-ignore
-export const setDispatch = (dispatch) => {
+import type { Dispatch, ReactNode } from "react";
+import type { Modal } from "./dialogs.types";
+
+type ModalAction = { type: string; modal?: Partial<Modal> };
+
+let addModalDispatch: Dispatch<ModalAction> | null = null;
+
+export const setDispatch = (dispatch: Dispatch<ModalAction>) => {
   addModalDispatch = dispatch;
 };
 
-export default (component: ReactNode) => {
-  // @ts-ignore
-  addModalDispatch({ type: "ADD", modal: { component } });
-};
+export default function addDialog(component: ReactNode) {
+  addModalDispatch?.({ type: "ADD", modal: { component } });
+}

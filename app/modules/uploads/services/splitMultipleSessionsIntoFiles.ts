@@ -36,9 +36,9 @@ export default async function splitMultipleSessionsIntoFiles({
         throw new Error(`Unsupported file type: ${detectedType}`);
       }
     } catch (error) {
-      throw new Error(
-        `Error parsing ${detectedType} file "${file.name}": ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      throw new Error(`Error parsing ${detectedType} file "${file.name}"`, {
+        cause: error,
+      });
     }
 
     // Check for session_id collisions

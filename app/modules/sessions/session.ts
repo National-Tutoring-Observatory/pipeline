@@ -4,7 +4,8 @@ import sessionSchema from "~/lib/schemas/session.schema";
 import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Session } from "./sessions.types";
 
-const SessionModel = mongoose.model("Session", sessionSchema);
+const SessionModel =
+  mongoose.models.Session || mongoose.model("Session", sessionSchema);
 
 export class SessionService {
   private static toSession(doc: any): Session {

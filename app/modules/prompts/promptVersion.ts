@@ -4,7 +4,9 @@ import promptVersionSchema from "~/lib/schemas/promptVersion.schema";
 import type { FindOptions } from "~/modules/common/types";
 import type { PromptVersion } from "./prompts.types";
 
-const PromptVersionModel = mongoose.model("PromptVersion", promptVersionSchema);
+const PromptVersionModel =
+  mongoose.models.PromptVersion ||
+  mongoose.model("PromptVersion", promptVersionSchema);
 
 export class PromptVersionService {
   private static toPromptVersion(doc: any): PromptVersion {

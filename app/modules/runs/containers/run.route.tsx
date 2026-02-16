@@ -1,0 +1,380 @@
+import has from "lodash/has";
+import map from "lodash/map";
+import throttle from "lodash/throttle";
+import { useEffect, useState } from "react";
+import {
+  redirect,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+  useRevalidator,
+  useSubmit,
+} from "react-router";
+import { toast } from "sonner";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
+import triggerDownload from "~/modules/app/helpers/triggerDownload";
+import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import addDialog from "~/modules/dialogs/addDialog";
+import { ProjectService } from "~/modules/projects/project";
+import exportRun from "~/modules/runs/helpers/exportRun";
+import { useCreateRunSetForRun } from "~/modules/runs/hooks/useCreateRunSetForRun";
+import { RunService } from "~/modules/runs/run";
+import type { Run } from "~/modules/runs/runs.types";
+import { RunSetService } from "~/modules/runSets/runSet";
+import EditRunDialog from "../components/editRunDialog";
+import RunDetail from "../components/run";
+import StopRunDialog from "../components/stopRunDialog";
+import type { Route } from "./+types/run.route";
+
+interface PromptInfo {
+  name: string;
+  version: number;
+}
+
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const authenticationTeams = await getSessionUserTeams({ request });
+  const teamIds = map(authenticationTeams, "team");
+  const project = await ProjectService.findOne({
+    _id: params.projectId,
+    team: { $in: teamIds },
+  });
+  if (!project) {
+    return redirect("/");
+  }
+  const run = await RunService.findOne({
+    _id: params.runId,
+    project: params.projectId,
+  });
+  if (!run) {
+    return redirect("/");
+  }
+
+  const promptInfo: PromptInfo = {
+    name: run.snapshot.prompt.name,
+    version: run.snapshot.prompt.version,
+  };
+
+  const runSetId = params.runSetId;
+  const runSet = runSetId ? await RunSetService.findById(runSetId) : null;
+
+  const runRunSets = await RunSetService.paginate({
+    match: { runs: params.runId },
+    page: 1,
+    pageSize: 4,
+  });
+
+  const sessionsQueryParams = getQueryParamsFromRequest(
+    request,
+    {
+      searchValue: "",
+      currentPage: 1,
+      sort: "name",
+      filters: {},
+    },
+    { paramPrefix: "sessions" },
+  );
+
+  const paginatedSessions = RunService.paginateSessions(run.sessions, {
+    searchValue: sessionsQueryParams.searchValue,
+    sort: sessionsQueryParams.sort,
+    page: sessionsQueryParams.currentPage,
+    filters: sessionsQueryParams.filters,
+  });
+
+  return {
+    project,
+    run,
+    promptInfo,
+    runSet,
+    runRunSets: runRunSets.data,
+    runRunSetsCount: runRunSets.count,
+    paginatedSessions,
+  };
+}
+
+export async function action({ request, params }: Route.ActionArgs) {
+  const { intent, payload = {} } = await request.json();
+
+  const { exportType } = payload;
+
+  switch (intent) {
+    case "STOP_RUN": {
+      const run = await RunService.findById(params.runId);
+      if (!run) throw new Error("Run not found");
+      if (!run.isRunning) throw new Error("Run is not running");
+      await RunService.stop(run._id);
+      return {};
+    }
+    case "RE_RUN": {
+      const run = await RunService.findById(params.runId);
+      if (!run) throw new Error("Run not found");
+      await RunService.start(run);
+
+      return {};
+    }
+    case "EXPORT_RUN": {
+      const run = await RunService.findById(params.runId);
+      if (!run) throw new Error("Run not found");
+      if (run.hasErrored)
+        throw new Error("Cannot export a run that has errors");
+      await exportRun({ runId: params.runId, exportType });
+      return {};
+    }
+    case "GET_ALL_RUN_SETS": {
+      const allRunSets = await RunSetService.paginate({
+        match: { runs: params.runId },
+        page: 1,
+        pageSize: 100,
+      });
+      return { runSets: allRunSets.data };
+    }
+    default:
+      return {};
+  }
+}
+
+const debounceRevalidate = throttle((revalidate) => {
+  revalidate();
+}, 2000);
+
+export default function ProjectRunRoute() {
+  const {
+    project,
+    run,
+    promptInfo,
+    runSet,
+    runRunSets,
+    runRunSetsCount,
+    paginatedSessions,
+  } = useLoaderData();
+  const [runSessionsProgress, setRunSessionsProgress] = useState(0);
+  const [runSessionsStep, setRunSessionsStep] = useState("");
+
+  const {
+    searchValue: sessionsSearchValue,
+    setSearchValue: setSessionsSearchValue,
+    currentPage: sessionsCurrentPage,
+    setCurrentPage: setSessionsCurrentPage,
+    sortValue: sessionsSortValue,
+    setSortValue: setSessionsSortValue,
+    filtersValues: sessionsFiltersValues,
+    setFiltersValues: setSessionsFiltersValues,
+    isSyncing: isSessionsSyncing,
+  } = useSearchQueryParams(
+    {
+      searchValue: "",
+      currentPage: 1,
+      sortValue: "name",
+      filters: {},
+    },
+    { paramPrefix: "sessions" },
+  );
+  const submit = useSubmit();
+  const fetcher = useFetcher();
+  const navigate = useNavigate();
+  const { revalidate } = useRevalidator();
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      toast.success("Updated run");
+    }
+  }, [fetcher.state, fetcher.data]);
+
+  const onExportRunButtonClicked = ({ exportType }: { exportType: string }) => {
+    submit(
+      JSON.stringify({
+        intent: "EXPORT_RUN",
+        payload: {
+          exportType,
+        },
+      }),
+      { method: "POST", encType: "application/json" },
+    );
+  };
+
+  const openStopRunDialog = () => {
+    addDialog(
+      <StopRunDialog
+        onStopRunClicked={() => {
+          submit(JSON.stringify({ intent: "STOP_RUN", payload: {} }), {
+            method: "POST",
+            encType: "application/json",
+          });
+        }}
+      />,
+    );
+  };
+
+  const onReRunClicked = () => {
+    submit(
+      JSON.stringify({
+        intent: "RE_RUN",
+        payload: {},
+      }),
+      { method: "POST", encType: "application/json" },
+    );
+  };
+
+  const onEditRunButtonClicked = (run: Run) => {
+    addDialog(
+      <EditRunDialog
+        run={run}
+        onEditRunClicked={(r: Run) => {
+          fetcher.submit(
+            JSON.stringify({
+              intent: "UPDATE_RUN",
+              entityId: r._id,
+              payload: { name: r.name },
+            }),
+            {
+              method: "PUT",
+              encType: "application/json",
+              action: `/projects/${project._id}?index`,
+            },
+          );
+        }}
+      />,
+    );
+  };
+
+  const { openCreateRunSetDialog } = useCreateRunSetForRun({
+    projectId: project._id,
+  });
+
+  const onAddToExistingRunSetClicked = (run: Run) => {
+    navigate(`/projects/${project._id}/runs/${run._id}/add-to-run-set`);
+  };
+
+  const onUseAsTemplateClicked = (run: Run) => {
+    navigate(`/projects/${project._id}/create-run-set?fromRun=${run._id}`);
+  };
+
+  useHandleSockets({
+    event: "ANNOTATE_RUN",
+    matches: [
+      {
+        runId: run._id,
+        task: "ANNOTATE_RUN:START",
+        status: "FINISHED",
+      },
+      {
+        runId: run._id,
+        task: "ANNOTATE_RUN:PROCESS",
+        status: "STARTED",
+      },
+      {
+        runId: run._id,
+        task: "ANNOTATE_RUN:PROCESS",
+        status: "FINISHED",
+      },
+      {
+        runId: run._id,
+        task: "ANNOTATE_RUN:FINISH",
+        status: "FINISHED",
+      },
+    ],
+    callback: (payload) => {
+      if (has(payload, "progress")) {
+        setRunSessionsProgress(payload.progress);
+      }
+      if (has(payload, "step")) {
+        setRunSessionsStep(payload.step);
+      }
+      debounceRevalidate(revalidate);
+    },
+  });
+
+  useHandleSockets({
+    event: "EXPORT_RUN",
+    matches: [
+      {
+        runId: run._id,
+        task: "EXPORT_RUN:START",
+        status: "FINISHED",
+      },
+      {
+        runId: run._id,
+        task: "EXPORT_RUN:FINISH",
+        status: "FINISHED",
+      },
+    ],
+    callback: (payload) => {
+      debounceRevalidate(revalidate);
+      if (payload.downloadUrl && !payload.hasErrored) {
+        triggerDownload(payload.downloadUrl);
+      }
+    },
+  });
+
+  useEffect(() => {
+    const eventSource = new EventSource("/api/events");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.runId === run._id) {
+        switch (data.event) {
+          case "ANNOTATE_RUN_SESSION":
+            setRunSessionsProgress(data.progress);
+            if (data.step) {
+              setRunSessionsStep(data.step);
+            }
+            debounceRevalidate(revalidate);
+            break;
+        }
+      }
+    };
+    return () => {
+      eventSource.close();
+    };
+  }, []);
+
+  const parentBreadcrumbs = runSet
+    ? [
+        { text: "Run Sets", link: `/projects/${project._id}/run-sets` },
+        {
+          text: runSet.name,
+          link: `/projects/${project._id}/run-sets/${runSet._id}`,
+        },
+      ]
+    : [{ text: "Runs", link: `/projects/${project._id}` }];
+
+  const breadcrumbs = [
+    { text: "Projects", link: `/` },
+    { text: project.name, link: `/projects/${project._id}` },
+    ...parentBreadcrumbs,
+    { text: run.name },
+  ];
+
+  return (
+    <RunDetail
+      run={run}
+      promptInfo={promptInfo}
+      runSets={runRunSets || []}
+      runSetsCount={runRunSetsCount || 0}
+      runSessionsProgress={runSessionsProgress}
+      runSessionsStep={runSessionsStep}
+      breadcrumbs={breadcrumbs}
+      onExportRunButtonClicked={onExportRunButtonClicked}
+      onStopRunClicked={openStopRunDialog}
+      onReRunClicked={onReRunClicked}
+      onEditRunButtonClicked={onEditRunButtonClicked}
+      onAddToExistingRunSetClicked={onAddToExistingRunSetClicked}
+      onAddToNewRunSetClicked={() => openCreateRunSetDialog(run._id)}
+      onUseAsTemplateClicked={onUseAsTemplateClicked}
+      runSetId={runSet?._id}
+      sessions={paginatedSessions?.data || []}
+      sessionsTotalPages={paginatedSessions?.totalPages || 1}
+      sessionsSearchValue={sessionsSearchValue}
+      sessionsCurrentPage={sessionsCurrentPage}
+      sessionsSortValue={sessionsSortValue}
+      sessionsFiltersValues={sessionsFiltersValues}
+      isSessionsSyncing={isSessionsSyncing}
+      onSessionsSearchValueChanged={setSessionsSearchValue}
+      onSessionsCurrentPageChanged={setSessionsCurrentPage}
+      onSessionsSortValueChanged={setSessionsSortValue}
+      onSessionsFiltersValueChanged={setSessionsFiltersValues}
+    />
+  );
+}

@@ -92,7 +92,7 @@ const CollectionItemContent = ({
                 <span className="sr-only">Open menu</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuContent align="end" className="w-fit">
               {map(actions, (action, index) => {
                 return (
                   <React.Fragment key={action.action}>

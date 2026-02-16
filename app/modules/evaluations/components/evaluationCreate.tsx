@@ -11,7 +11,7 @@ export default function EvaluationCreate({
   isSubmitting,
   isAbleToCreateEvaluation,
   projectId,
-  collectionId,
+  runSetId,
   runs,
   baseRun,
   compatibleRuns,
@@ -26,7 +26,7 @@ export default function EvaluationCreate({
   isSubmitting: boolean;
   isAbleToCreateEvaluation: boolean;
   projectId: string;
-  collectionId: string;
+  runSetId: string;
   runs: Array<{ _id: string; name: string }>;
   baseRun: string | null;
   compatibleRuns: Array<{ _id: string; name: string }>;
@@ -46,10 +46,10 @@ export default function EvaluationCreate({
           <AlertDescription>
             At least 2 runs are required to create an evaluation.{" "}
             <Link
-              to={`/projects/${projectId}/collections/${collectionId}`}
+              to={`/projects/${projectId}/run-sets/${runSetId}`}
               className="underline"
             >
-              Back to collection
+              Back to run set
             </Link>
           </AlertDescription>
         </Alert>

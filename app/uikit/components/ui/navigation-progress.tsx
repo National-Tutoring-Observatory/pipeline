@@ -1,22 +1,9 @@
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
 import { useNavigation } from "react-router";
 
 function NavigationProgress() {
   const navigation = useNavigation();
   const isNavigating = navigation.state !== "idle";
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (isNavigating) {
-      setIsVisible(true);
-    } else if (isVisible) {
-      const timer = setTimeout(() => setIsVisible(false), 200);
-      return () => clearTimeout(timer);
-    }
-  }, [isNavigating, isVisible]);
-
-  if (!isVisible) return null;
 
   return (
     <>
@@ -24,15 +11,13 @@ function NavigationProgress() {
         {isNavigating ? "Loading page..." : "Page loaded"}
       </div>
       <div
-        className="bg-primary/20 fixed top-0 right-0 left-0 z-50 h-1 overflow-hidden"
+        className={cn(
+          "bg-primary/20 fixed top-0 right-0 left-0 z-50 h-1 overflow-hidden transition-opacity duration-200",
+          isNavigating ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
         aria-hidden="true"
       >
-        <div
-          className={cn(
-            "h-full w-1/3 bg-orange-400",
-            isNavigating ? "animate-shimmer" : "w-full",
-          )}
-        />
+        <div className="animate-shimmer h-full w-1/3 bg-orange-400" />
       </div>
     </>
   );

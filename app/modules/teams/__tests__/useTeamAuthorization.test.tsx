@@ -7,14 +7,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { User } from "../../users/users.types";
 
 // Mock only the context to control the user in tests
-vi.mock("../../authentication/containers/authentication.container", () => {
+vi.mock("../../authentication/authentication.context", () => {
   const mockAuthContext = React.createContext<User | null>(null);
   return {
     AuthenticationContext: mockAuthContext,
   };
 });
 
-import { AuthenticationContext } from "../../authentication/containers/authentication.container";
+import { AuthenticationContext } from "../../authentication/authentication.context";
 import useTeamAuthorization from "../hooks/useTeamAuthorization";
 
 const createWrapper = (user: User | null) => {

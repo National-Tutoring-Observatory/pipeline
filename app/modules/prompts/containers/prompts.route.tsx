@@ -1,12 +1,13 @@
 import find from "lodash/find";
 import map from "lodash/map";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { data, redirect, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -209,6 +210,7 @@ export function HydrateFallback() {
 
 export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
   const { prompts } = loaderData;
+  const user = useContext(AuthenticationContext) as User;
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
@@ -323,7 +325,7 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
     );
   };
 
-  const onActionClicked = (action: String) => {
+  const onActionClicked = (action: string) => {
     if (action === "CREATE") {
       openCreatePromptDialog();
     }
@@ -368,6 +370,7 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
   return (
     <Prompts
       prompts={prompts?.data}
+      user={user}
       breadcrumbs={breadcrumbs}
       searchValue={searchValue}
       currentPage={currentPage}

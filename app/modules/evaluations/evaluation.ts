@@ -4,7 +4,8 @@ import evaluationSchema from "~/lib/schemas/evaluation.schema";
 import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Evaluation } from "./evaluations.types";
 
-const EvaluationModel = mongoose.model("Evaluation", evaluationSchema);
+const EvaluationModel =
+  mongoose.models.Evaluation || mongoose.model("Evaluation", evaluationSchema);
 
 export class EvaluationService {
   private static toEvaluation(doc: any): Evaluation {

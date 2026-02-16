@@ -11,10 +11,11 @@ import type { Team } from "../teams.types";
 interface TeamUsersProps {
   users: User[];
   team: Team;
+  user: User;
   searchValue: string;
   currentPage: number;
   totalPages: number;
-  filtersValues: {};
+  filtersValues: Record<string, string | null>;
   sortValue: string;
   isSyncing: boolean;
   onActionClicked: (action: string) => void;
@@ -28,6 +29,7 @@ interface TeamUsersProps {
 export default function TeamUsers({
   users,
   team,
+  user,
   filtersValues,
   sortValue,
   searchValue,
@@ -46,7 +48,7 @@ export default function TeamUsers({
       <Collection
         items={users}
         itemsLayout="list"
-        actions={getTeamUsersActions(team._id)}
+        actions={getTeamUsersActions(user, team._id)}
         filters={teamUsersFilters}
         sortOptions={teamUsersSortOptions}
         hasSearch
@@ -59,7 +61,7 @@ export default function TeamUsers({
         emptyAttributes={getTeamUsersEmptyAttributes()}
         isSyncing={isSyncing}
         getItemAttributes={(item) => getTeamUsersItemAttributes(item, team)}
-        getItemActions={(item) => getTeamUsersItemActions(item, team._id)}
+        getItemActions={(item) => getTeamUsersItemActions(item, user, team._id)}
         onActionClicked={onActionClicked}
         onItemActionClicked={onItemActionClicked}
         onSearchValueChanged={onSearchValueChanged}

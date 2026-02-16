@@ -14,7 +14,6 @@ export default function AddUsersToFeatureFlagDialogContainer({
   onAddUsersClicked: (userIds: string[]) => void;
   isSubmitting?: boolean;
 }) {
-  const [isFetching, setIsFetching] = useState(true);
   const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
@@ -26,11 +25,7 @@ export default function AddUsersToFeatureFlagDialogContainer({
     );
   }, []);
 
-  useEffect(() => {
-    if (fetcher.data) {
-      setIsFetching(false);
-    }
-  }, [fetcher.data]);
+  const isFetching = !fetcher.data;
 
   const onSelectUserToggled = (userId: string) => {
     let clonedSelectedUsers = cloneDeep(selectedUsers);

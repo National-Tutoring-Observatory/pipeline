@@ -3,7 +3,10 @@ import { Label } from "@/components/ui/label";
 import includes from "lodash/includes";
 import type { User } from "~/modules/users/users.types";
 
-export default (user: User, selectedUsers: string[]) => {
+export default function renderAddUserToTeamDialogItem(
+  user: User,
+  selectedUsers: string[],
+) {
   const isChecked = !!includes(selectedUsers, user._id);
   return (
     <div className="flex items-center gap-3 p-3">
@@ -13,4 +16,4 @@ export default (user: User, selectedUsers: string[]) => {
       </Label>
     </div>
   );
-};
+}

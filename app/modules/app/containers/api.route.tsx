@@ -1,9 +1,8 @@
-import type { Route } from ".react-router/types/app/+types/root";
 import mongoose from "mongoose";
 import { redis } from "~/modules/queues/helpers/createQueue";
 
 const checkParamsExist = (paramKeys: string[]) => {
-  let missingParams = [];
+  const missingParams = [];
   for (const paramKey of paramKeys) {
     if (!process.env[paramKey]) {
       missingParams.push(paramKey);
@@ -12,10 +11,10 @@ const checkParamsExist = (paramKeys: string[]) => {
   return missingParams;
 };
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
   let missingParameters: any[] = [];
 
-  let { LLM_PROVIDER, STORAGE_ADAPTER, DOCUMENTS_ADAPTER } = process.env;
+  const { LLM_PROVIDER, STORAGE_ADAPTER, DOCUMENTS_ADAPTER } = process.env;
 
   if (LLM_PROVIDER === "AI_GATEWAY") {
     missingParameters = missingParameters.concat(
@@ -53,8 +52,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     ]),
   );
 
-  let dbStatus = "DISCONNECTED";
-  let cacheStatus = "DISCONNECTED";
+  let dbStatus;
 
   const isDocumentDB = process.env.DOCUMENTS_ADAPTER === "DOCUMENT_DB";
 
@@ -64,7 +62,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     dbStatus = "CONNECTED";
   }
 
-  cacheStatus = "DISCONNECTED";
+  let cacheStatus = "DISCONNECTED";
+
   if (redis.status === "ready") {
     cacheStatus = "CONNECTED";
   }

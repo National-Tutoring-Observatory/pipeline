@@ -4,12 +4,15 @@ import registerLLM from "../helpers/registerLLM.js";
 
 registerLLM("OPEN_AI", {
   init: () => {
-    const openai = new OpenAI({ apiKey: process.env.OPEN_AI_KEY });
+    const openai = new OpenAI({
+      apiKey: process.env.OPEN_AI_KEY,
+      maxRetries: 0,
+      timeout: 180_000,
+    });
     return openai;
   },
   createChat: async ({
     llm,
-    options,
     messages,
     schema,
   }: {

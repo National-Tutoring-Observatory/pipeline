@@ -24,7 +24,7 @@ const CreateFeatureFlagDialog = ({
     setName(event.target.value);
   };
 
-  let isSubmitButtonDisabled = isSubmitting || name.trim().length < 3;
+  const isSubmitButtonDisabled = isSubmitting || name.trim().length < 3;
 
   return (
     <DialogContent>

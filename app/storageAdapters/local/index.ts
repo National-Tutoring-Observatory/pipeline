@@ -23,9 +23,9 @@ registerStorageAdapter({
       await fse.copy(absolutePath, destinationPath);
       return destinationPath;
     } catch (error) {
-      throw new Error(
-        `LOCAL: Error copying file to tmp for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw new Error(`LOCAL: Error copying file to tmp for ${sourcePath}`, {
+        cause: error,
+      });
     }
   },
   upload: async ({ file, uploadPath }: UploadParams): Promise<void> => {
@@ -45,7 +45,7 @@ registerStorageAdapter({
     const absolutePath = path.resolve(PROJECT_ROOT, sourcePath);
     await fse.remove(absolutePath);
   },
-  request: ({ url, options }: RequestParams): Promise<unknown> => {
+  request: ({ url }: RequestParams): Promise<unknown> => {
     return new Promise((resolve) => {
       resolve(`/${url}`);
     });

@@ -17,7 +17,7 @@ export const handler = async (event: {
     const sessionsOutputFile = `${outputFolder}/${run.project}-${run._id}-sessions.csv`;
     const metaOutputFile = `${outputFolder}/${run.project}-${run._id}-meta.csv`;
 
-    let utteranceKeys = [
+    const utteranceKeys = [
       "_id",
       "session_id",
       "sequence_id",
@@ -26,11 +26,11 @@ export const handler = async (event: {
       "start_time",
       "end_time",
     ];
-    let utteranceAnnotationKeysAsObject: { [key: string]: boolean } = {};
-    let sessionAnnotationKeysAsObject: { [key: string]: boolean } = {};
+    const utteranceAnnotationKeysAsObject: { [key: string]: boolean } = {};
+    const sessionAnnotationKeysAsObject: { [key: string]: boolean } = {};
     let utterancesArray: any[] = [];
-    let sessionsArray = [];
-    let metaArray = [];
+    const sessionsArray = [];
+    const metaArray = [];
 
     const storage = getStorageAdapter();
 
@@ -48,7 +48,7 @@ export const handler = async (event: {
           each(utterance.annotations, (annotation, index) => {
             each(annotation, (annotationValue, annotationKey) => {
               if (annotationKey === "_id") return;
-              let annotationItemKey = `${annotationKey}-${index}`;
+              const annotationItemKey = `${annotationKey}-${index}`;
               utterance[annotationItemKey] = annotationValue;
               if (!utteranceAnnotationKeysAsObject[annotationItemKey]) {
                 utteranceAnnotationKeysAsObject[annotationItemKey] = true;
@@ -62,7 +62,7 @@ export const handler = async (event: {
 
       utterancesArray = utterancesArray.concat(transcript);
 
-      let sessionObject: { _id: any; [key: string]: any } = {
+      const sessionObject: { _id: any; [key: string]: any } = {
         _id: session.sessionId,
       };
 
@@ -70,7 +70,7 @@ export const handler = async (event: {
         each(json.annotations, (annotation, index) => {
           each(annotation, (annotationValue, annotationKey) => {
             if (annotationKey === "_id") return;
-            let annotationItemKey = `${annotationKey}-${index}`;
+            const annotationItemKey = `${annotationKey}-${index}`;
             sessionObject[annotationItemKey] = annotationValue;
             if (!sessionAnnotationKeysAsObject[annotationItemKey]) {
               sessionAnnotationKeysAsObject[annotationItemKey] = true;
@@ -127,7 +127,7 @@ export const handler = async (event: {
       });
     }
 
-    let runObject: any = {
+    const runObject: any = {
       project: run.project,
       _id: run._id,
       name: run.name,

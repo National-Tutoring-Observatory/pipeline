@@ -1,18 +1,14 @@
+import escapeRegExp from "lodash/escapeRegExp";
 import find from "lodash/find";
 import map from "lodash/map";
-import { useEffect } from "react";
-import {
-  data,
-  redirect,
-  useFetcher,
-  useNavigate,
-  useRevalidator,
-} from "react-router";
+import { useContext } from "react";
+import { data, redirect, useNavigate, useRevalidator } from "react-router";
 import { toast } from "sonner";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -25,11 +21,7 @@ import { ProjectService } from "../project";
 import deleteProject from "../services/deleteProject.server";
 import type { Route } from "./+types/projects.route";
 
-export async function loader({
-  request,
-  params,
-  context,
-}: Route.LoaderArgs & { context: any }) {
+export async function loader({ request }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, "team");
 
@@ -85,6 +77,18 @@ export async function action({ request }: Route.ActionArgs) {
         );
       }
 
+      const existingProject = await ProjectService.findOne({
+        name: { $regex: new RegExp(`^${escapeRegExp(name.trim())}$`, "i") },
+        team,
+      });
+
+      if (existingProject) {
+        return data(
+          { errors: { general: "A project with this name already exists" } },
+          { status: 409 },
+        );
+      }
+
       const project = await ProjectService.create({
         name: name.trim(),
         team,
@@ -118,6 +122,19 @@ export async function action({ request }: Route.ActionArgs) {
             },
           },
           { status: 403 },
+        );
+      }
+
+      const existingProject = await ProjectService.findOne({
+        name: { $regex: new RegExp(`^${escapeRegExp(name.trim())}$`, "i") },
+        team: project.team,
+        _id: { $ne: entityId },
+      });
+
+      if (existingProject) {
+        return data(
+          { errors: { general: "A project with this name already exists" } },
+          { status: 409 },
         );
       }
 
@@ -162,7 +179,7 @@ export function HydrateFallback() {
 
 export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   const { projects } = loaderData;
-  const createFetcher = useFetcher();
+  const user = useContext(AuthenticationContext) as User;
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
 
@@ -187,21 +204,6 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     filters: {},
   });
 
-  useEffect(() => {
-    if (createFetcher.state === "idle" && createFetcher.data) {
-      if (
-        createFetcher.data.success &&
-        createFetcher.data.intent === "CREATE_PROJECT"
-      ) {
-        toast.success("Project created");
-        addDialog(null);
-        navigate(`/projects/${createFetcher.data.data._id}`);
-      } else if (createFetcher.data.errors) {
-        toast.error(createFetcher.data.errors.general || "An error occurred");
-      }
-    }
-  }, [createFetcher.state, createFetcher.data, navigate]);
-
   useHandleSockets({
     event: "DELETE_PROJECT",
     matches: [{ status: "FINISHED" }],
@@ -214,26 +216,15 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     addDialog(
       <CreateProjectDialog
         hasTeamSelection={true}
-        onCreateNewProjectClicked={submitCreateProject}
-        isSubmitting={createFetcher.state === "submitting"}
+        onProjectCreated={(project) => {
+          toast.success("Project created");
+          navigate(`/projects/${project._id}`);
+        }}
       />,
     );
   };
 
-  const submitCreateProject = ({
-    name,
-    team,
-  }: {
-    name: string;
-    team: string | null;
-  }) => {
-    createFetcher.submit(
-      JSON.stringify({ intent: "CREATE_PROJECT", payload: { name, team } }),
-      { method: "POST", encType: "application/json" },
-    );
-  };
-
-  const onActionClicked = (action: String) => {
+  const onActionClicked = (action: string) => {
     if (action === "CREATE") {
       openCreateProjectDialog();
     }
@@ -278,6 +269,7 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
   return (
     <Projects
       projects={projects?.data}
+      user={user}
       searchValue={searchValue}
       currentPage={currentPage}
       totalPages={projects.totalPages}

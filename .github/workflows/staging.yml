@@ -6,455 +6,69 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+  actions: read
+
 concurrency:
   group: staging-deployment
   cancel-in-progress: true
 
 jobs:
-  # ------------------------------------------------------------
-  # PRE-FLIGHT
-  # ------------------------------------------------------------
-  staging-preflight:
-    name: Staging Preflight – ECS Stability Check
-    runs-on: ubuntu-latest
-    environment: staging
-
-    permissions:
-      id-token: write
-      contents: read
-
-    env:
-      ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
-      ECS_SERVICE: ${{ vars.ECS_SERVICE }}
-      AWS_REGION: us-east-1
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Check ECS service stability
-        shell: bash
-        run: |
-          MAX_WAIT_SECONDS=600
-          SLEEP_SECONDS=30
-          ELAPSED=0
-
-          while true; do
-            STATUS=$(aws ecs describe-services \
-              --cluster "$ECS_CLUSTER" \
-              --services "$ECS_SERVICE" \
-              --query 'services[0].deployments' \
-              --output json)
-
-            DEPLOYMENT_COUNT=$(echo "$STATUS" | jq length)
-
-            if [ "$DEPLOYMENT_COUNT" -eq 1 ]; then
-              ROLLOUT_STATE=$(aws ecs describe-services \
-                --cluster "$ECS_CLUSTER" \
-                --services "$ECS_SERVICE" \
-                --query 'services[0].deployments[0].rolloutState' \
-                --output text)
-
-              if [ "$ROLLOUT_STATE" = "COMPLETED" ]; then
-                exit 0
-              fi
-            fi
-
-            if [ "$ELAPSED" -ge "$MAX_WAIT_SECONDS" ]; then
-              exit 1
-            fi
-
-            sleep "$SLEEP_SECONDS"
-            ELAPSED=$((ELAPSED + SLEEP_SECONDS))
-          done
-
-  # ------------------------------------------------------------
-  # BUILD WEB (PARALLEL)
-  # ------------------------------------------------------------
+  preflight:
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_preflight.yml@main
+    with:
+      environment: staging
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   build-web-staging:
-    name: Build & Push Web Container
-    runs-on: ubuntu-latest
-    environment: staging
-    needs: staging-preflight
-
-    permissions:
-      id-token: write
-      contents: read
-
-    outputs:
-      web_image: ${{ steps.image.outputs.web_image }}
-
-    env:
-      AWS_REGION: us-east-1
-      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - uses: aws-actions/amazon-ecr-login@v2
-
-      - id: tag
-        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
-
-      - id: image
-        env:
-          TAG: ${{ steps.tag.outputs.tag }}
-        run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
-
-          docker build -t "$ECR_REPOSITORY:$TAG" .
-          docker tag "$ECR_REPOSITORY:$TAG" "$ECR_URI:$TAG"
-          docker push "$ECR_URI:$TAG"
-
-          echo "web_image=$ECR_URI:$TAG" >> "$GITHUB_OUTPUT"
-
-  # ------------------------------------------------------------
-  # BUILD WORKER (PARALLEL)
-  # ------------------------------------------------------------
+    needs: preflight
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
+    with:
+      environment: staging
+      dockerfile: Dockerfile
+      image-suffix: ""
+      output-name: web_image
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   build-worker-staging:
-    name: Build & Push Worker Container
-    runs-on: ubuntu-latest
-    environment: staging
-    needs: staging-preflight
-
-    permissions:
-      id-token: write
-      contents: read
-
-    outputs:
-      worker_image: ${{ steps.image.outputs.worker_image }}
-
-    env:
-      AWS_REGION: us-east-1
-      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - uses: aws-actions/amazon-ecr-login@v2
-
-      - id: tag
-        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
-
-      - id: image
-        env:
-          TAG: ${{ steps.tag.outputs.tag }}
-        run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY"
-
-          docker build -f workers/Dockerfile -t "$ECR_REPOSITORY:$TAG-worker" .
-          docker tag "$ECR_REPOSITORY:$TAG-worker" "$ECR_URI:$TAG-worker"
-          docker push "$ECR_URI:$TAG-worker"
-
-          echo "worker_image=$ECR_URI:$TAG-worker" >> "$GITHUB_OUTPUT"
-
-  # ------------------------------------------------------------
-  # DEPLOY
-  # ------------------------------------------------------------
-  # ------------------------------------------------------------
-  # WEB (PARALLEL)
-  # ------------------------------------------------------------
+    needs: preflight
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
+    with:
+      environment: staging
+      dockerfile: workers/Dockerfile
+      image-suffix: "-worker"
+      output-name: worker_image
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   deploy-web-staging:
-    name: Deploy Web Service
-    runs-on: ubuntu-latest
-    environment: staging
     needs: build-web-staging
-
-    permissions:
-      id-token: write
-      contents: read
-
-    env:
-      AWS_REGION: us-east-1
-      WEB_IMAGE: ${{ needs.build-web-staging.outputs.web_image }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Deploy web service
-        run: |
-          set -Eeuo pipefail
-
-          cluster="${{ vars.ECS_CLUSTER }}"
-          service="${{ vars.ECS_SERVICE }}"
-          container="${{ vars.ECS_CONTAINER_NAME }}"
-          image="$WEB_IMAGE"
-
-          rollback() {
-            echo "⚠️ Rolling back web service"
-            aws ecs update-service \
-              --cluster "$cluster" \
-              --service "$service" \
-              --task-definition "$OLD_TD_ARN"
-
-            aws ecs wait services-stable \
-              --cluster "$cluster" \
-              --services "$service"
-          }
-
-          trap rollback ERR
-
-          OLD_TD_ARN=$(aws ecs describe-services \
-            --cluster "$cluster" \
-            --services "$service" \
-            --query "services[0].taskDefinition" \
-            --output text)
-
-          aws ecs describe-task-definition \
-            --task-definition "$OLD_TD_ARN" \
-            --query taskDefinition > td-web.json
-
-          jq --arg img "$image" --arg name "$container" '
-            .containerDefinitions |= map(
-              if .name == $name then .image = $img else . end
-            )
-            | del(
-                .revision,
-                .status,
-                .taskDefinitionArn,
-                .requiresAttributes,
-                .compatibilities,
-                .registeredAt,
-                .registeredBy
-              )
-          ' td-web.json > td-web-register.json
-
-          NEW_TD_ARN=$(aws ecs register-task-definition \
-            --cli-input-json file://td-web-register.json \
-            --query taskDefinition.taskDefinitionArn \
-            --output text)
-
-          aws ecs update-service \
-            --cluster "$cluster" \
-            --service "$service" \
-            --task-definition "$NEW_TD_ARN"
-
-          aws ecs wait services-stable \
-            --cluster "$cluster" \
-            --services "$service"
-
-          trap - ERR
-          echo "✅ Web service deployed"
-
-  # ------------------------------------------------------------
-  # Worker (PARALLEL)
-  # ------------------------------------------------------------
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_deploy_service.yml@main
+    with:
+      environment: staging
+      image: ${{ needs.build-web-staging.outputs.image }}
+      service: web
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   deploy-worker-staging:
-    name: Deploy Worker Service
-    runs-on: ubuntu-latest
-    environment: staging
     needs: build-worker-staging
-
-    permissions:
-      id-token: write
-      contents: read
-
-    env:
-      AWS_REGION: us-east-1
-      WORKER_IMAGE: ${{ needs.build-worker-staging.outputs.worker_image }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Deploy worker service
-        run: |
-          set -Eeuo pipefail
-
-          cluster="${{ vars.ECS_WORKER_CLUSTER }}"
-          service="${{ vars.ECS_WORKER_SERVICE }}"
-          container="${{ vars.ECS_WORKER_CONTAINER_NAME }}"
-          image="$WORKER_IMAGE"
-
-          rollback() {
-            echo "⚠️ Rolling back worker service"
-            aws ecs update-service \
-              --cluster "$cluster" \
-              --service "$service" \
-              --task-definition "$OLD_TD_ARN"
-
-            aws ecs wait services-stable \
-              --cluster "$cluster" \
-              --services "$service"
-          }
-
-          trap rollback ERR
-
-          OLD_TD_ARN=$(aws ecs describe-services \
-            --cluster "$cluster" \
-            --services "$service" \
-            --query "services[0].taskDefinition" \
-            --output text)
-
-          aws ecs describe-task-definition \
-            --task-definition "$OLD_TD_ARN" \
-            --query taskDefinition > td-worker.json
-
-          jq --arg img "$image" --arg name "$container" '
-            .containerDefinitions |= map(
-              if .name == $name then .image = $img else . end
-            )
-            | del(
-                .revision,
-                .status,
-                .taskDefinitionArn,
-                .requiresAttributes,
-                .compatibilities,
-                .registeredAt,
-                .registeredBy
-              )
-          ' td-worker.json > td-worker-register.json
-
-          NEW_TD_ARN=$(aws ecs register-task-definition \
-            --cli-input-json file://td-worker-register.json \
-            --query taskDefinition.taskDefinitionArn \
-            --output text)
-
-          aws ecs update-service \
-            --cluster "$cluster" \
-            --service "$service" \
-            --task-definition "$NEW_TD_ARN"
-
-          aws ecs wait services-stable \
-            --cluster "$cluster" \
-            --services "$service"
-
-          trap - ERR
-          echo "✅ Worker service deployed"
-
-  # ------------------------------------------------------------
-  # FINAL SUMMARY (FIXED)
-  # ------------------------------------------------------------
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_deploy_service.yml@main
+    with:
+      environment: staging
+      image: ${{ needs.build-worker-staging.outputs.image }}
+      service: worker
+    secrets:
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   staging-summary:
-    name: Staging Deployment Summary
-    runs-on: ubuntu-latest
     needs:
       - build-web-staging
       - build-worker-staging
       - deploy-web-staging
       - deploy-worker-staging
-    if: success() || failure()
-
-    permissions:
-      actions: read
-
-    steps:
-      - name: Generate deployment summary
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RUN_ID: ${{ github.run_id }}
-          REPO: ${{ github.repository }}
-          WEB_IMAGE: ${{ needs.build-web-staging.outputs.web_image }}
-          WORKER_IMAGE: ${{ needs.build-worker-staging.outputs.worker_image }}
-        run: |
-          set -euo pipefail
-
-          RUN_JSON=$(gh api "repos/$REPO/actions/runs/$RUN_ID")
-          JOBS_JSON=$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs")
-
-          # --- Total duration (matches GitHub UI closely) ---
-          RUN_STARTED=$(echo "$RUN_JSON" | jq -r '.run_started_at // .created_at')
-          RUN_ENDED=$(echo "$RUN_JSON" | jq -r '.updated_at // .run_completed_at // .completed_at')
-
-          START_EPOCH=$(date -d "$RUN_STARTED" +%s)
-          END_EPOCH=$(date -d "$RUN_ENDED" +%s)
-
-          TOTAL_SECONDS=$((END_EPOCH - START_EPOCH))
-          TOTAL_MIN=$((TOTAL_SECONDS / 60))
-          TOTAL_SEC=$((TOTAL_SECONDS % 60))
-
-          {
-            echo "## 🚀 Staging Deployment Complete"
-            echo
-            echo "**Environment:** Staging  "
-            echo "**Status:** ✅ Healthy  "
-            echo "**Total Duration:** ⏱️ **${TOTAL_MIN}m ${TOTAL_SEC}s**"
-            echo
-            echo "### 📦 Deployed Containers"
-            echo "- **Web:** \`${WEB_IMAGE}\`"
-            echo "- **Worker:** \`${WORKER_IMAGE}\`"
-            echo
-            echo "### 🔗 Application"
-            echo "- 🌐 **Web App:** https://staging.app.nationaltutoringobservatory.org/"
-            echo
-            echo "### 🧾 Source"
-            echo "- **Branch:** \`${{ github.ref_name }}\`"
-            echo "- **Commit:** \`${{ github.sha }}\`"
-            echo
-            echo "### ⏱️ Job Timings"
-            echo
-            echo "| Job | Duration |"
-            echo "|-----|----------|"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-          # Only completed jobs
-          mapfile -t JOB_ROWS < <(
-            echo "$JOBS_JSON" | jq -r '
-              .jobs[]
-              | select(.started_at != null and .completed_at != null)
-              | [.name, .started_at, .completed_at]
-              | @tsv
-            '
-          )
-
-          # Find slowest job
-          SLOWEST_SECONDS=0
-          SLOWEST_NAME=""
-
-          for ROW in "${JOB_ROWS[@]}"; do
-            IFS=$'\t' read -r NAME START END <<< "$ROW"
-            START_EPOCH=$(date -d "$START" +%s)
-            END_EPOCH=$(date -d "$END" +%s)
-            DURATION=$((END_EPOCH - START_EPOCH))
-
-            if [ "$DURATION" -gt "$SLOWEST_SECONDS" ]; then
-              SLOWEST_SECONDS="$DURATION"
-              SLOWEST_NAME="$NAME"
-            fi
-          done
-
-          # Render timing table
-          for ROW in "${JOB_ROWS[@]}"; do
-            IFS=$'\t' read -r NAME START END <<< "$ROW"
-            START_EPOCH=$(date -d "$START" +%s)
-            END_EPOCH=$(date -d "$END" +%s)
-            DURATION=$((END_EPOCH - START_EPOCH))
-            MIN=$((DURATION / 60))
-            SEC=$((DURATION % 60))
-
-            if [ "$NAME" = "$SLOWEST_NAME" ]; then
-              echo "| **$NAME** | **${MIN}m ${SEC}s** |" >> "$GITHUB_STEP_SUMMARY"
-            else
-              echo "| $NAME | ${MIN}m ${SEC}s |" >> "$GITHUB_STEP_SUMMARY"
-            fi
-          done
-
-          {
-            echo
-            echo "_**Bolded row indicates the slowest completed job (critical path).**_"
-          } >> "$GITHUB_STEP_SUMMARY"
+    uses: National-Tutoring-Observatory/workflows/.github/workflows/deployment_summary.yml@main
+    with:
+      environment: staging
+      web-image: ${{ needs.build-web-staging.outputs.image }}
+      worker-image: ${{ needs.build-worker-staging.outputs.image }}
+      app-url: https://staging.app.nationaltutoringobservatory.org/

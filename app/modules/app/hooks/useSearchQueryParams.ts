@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigation, useSearchParams } from "react-router";
 
 const DEBOUNCE_TIME = 600;
@@ -7,15 +7,15 @@ type DefaultQueryParams = {
   searchValue?: string;
   currentPage?: number;
   sortValue?: string;
-  filters?: Record<string, unknown> | null;
+  filters?: Record<string, string | null> | null;
 };
 
 function parseFiltersFromUrl(
   searchParams: URLSearchParams,
-  defaultFilters?: Record<string, unknown> | null,
+  defaultFilters?: Record<string, string | null> | null,
   prefix: string = "",
-): Record<string, unknown> {
-  const filters: Record<string, unknown> = {};
+): Record<string, string | null> {
+  const filters: Record<string, string | null> = {};
   const filterPrefix = prefix ? `${prefix}Filter_` : "filter_";
 
   searchParams.forEach((value, key) => {
@@ -55,11 +55,17 @@ export function useSearchQueryParams(
   );
 
   const [filtersValues, setFiltersValuesState] = useState<
-    Record<string, unknown>
+    Record<string, string | null>
   >(parseFiltersFromUrl(searchParams, defaultQueryParams.filters, prefix));
 
+  // isSyncing tracks two async phases to show the Collection "Syncing" indicator:
+  // 1. isPending: user is typing but debounce hasn't fired yet (no navigation started)
+  // 2. hasInitiatedNavigation: debounce fired (or pagination/sort/filter changed),
+  //    React Router navigation is in progress, waiting for loader to return new data.
+  // We need hasInitiatedNavigation so that unrelated navigations (e.g. clicking a
+  // link to leave the page) don't briefly flash "Syncing" on the collection.
   const [isPending, setIsPending] = useState<boolean>(false);
-  const hasInitiatedNavigation = useRef(false);
+  const [hasInitiatedNavigation, setHasInitiatedNavigation] = useState(false);
 
   useEffect(() => {
     if (
@@ -69,10 +75,10 @@ export function useSearchQueryParams(
       return;
     }
 
-    setIsPending(true);
+    setIsPending(true); // eslint-disable-line react-hooks/set-state-in-effect
 
     const handler = setTimeout(() => {
-      hasInitiatedNavigation.current = true;
+      setHasInitiatedNavigation(true);
       setSearchParams(
         (prevSearchParams: URLSearchParams) => {
           const newSearchParams = new URLSearchParams(
@@ -108,14 +114,13 @@ export function useSearchQueryParams(
 
   useEffect(() => {
     if (navigation.state === "idle") {
-      setIsPending(false);
-      hasInitiatedNavigation.current = false;
+      setIsPending(false); // eslint-disable-line react-hooks/set-state-in-effect
+      setHasInitiatedNavigation(false);
     }
   }, [navigation.state]);
 
   const isSyncing =
-    isPending ||
-    (hasInitiatedNavigation.current && navigation.state === "loading");
+    isPending || (hasInitiatedNavigation && navigation.state === "loading");
 
   const updateUrlParam = <T extends string | number>(
     key: string,
@@ -123,7 +128,7 @@ export function useSearchQueryParams(
     setStateFunction: React.Dispatch<React.SetStateAction<T>>,
   ) => {
     setStateFunction(value);
-    hasInitiatedNavigation.current = true;
+    setHasInitiatedNavigation(true);
     setSearchParams(
       (prevSearchParams: URLSearchParams) => {
         const newSearchParams = new URLSearchParams(
@@ -149,13 +154,13 @@ export function useSearchQueryParams(
 
   const updateUrlParamObject = (
     key: string,
-    value: Record<string, unknown>,
+    value: Record<string, string | null>,
     setStateFunction: React.Dispatch<
-      React.SetStateAction<Record<string, unknown>>
+      React.SetStateAction<Record<string, string | null>>
     >,
   ) => {
     setStateFunction(value);
-    hasInitiatedNavigation.current = true;
+    setHasInitiatedNavigation(true);
     setSearchParams(
       (prevSearchParams: URLSearchParams) => {
         const newSearchParams = new URLSearchParams(
@@ -210,7 +215,7 @@ export function useSearchQueryParams(
     setSortValue: (value: string) =>
       updateUrlParam<string>(sortKey, value, setSortValueState),
     filtersValues,
-    setFiltersValues: (value: Record<string, unknown>) =>
+    setFiltersValues: (value: Record<string, string | null>) =>
       updateUrlParamObject("filters", value, setFiltersValuesState),
     isSyncing,
   };

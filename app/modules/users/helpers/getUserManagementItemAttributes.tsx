@@ -1,7 +1,7 @@
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { User } from "../users.types";
 
-export default (item: User) => {
+export default function getUserManagementItemAttributes(item: User) {
   return {
     id: item._id,
     title: item.username || "Unknown User",
@@ -15,4 +15,4 @@ export default (item: User) => {
       },
     ],
   };
-};
+}

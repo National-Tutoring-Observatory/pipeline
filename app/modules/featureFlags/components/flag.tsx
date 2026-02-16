@@ -1,6 +1,6 @@
 import includes from "lodash/includes";
 import { useContext } from "react";
-import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import type { User } from "~/modules/users/users.types";
 
 export default function Flag({

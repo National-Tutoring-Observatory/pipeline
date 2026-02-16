@@ -38,7 +38,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const outputDirectory = `storage/${run.project}/runs/${run._id}/exports`;
 
-  let filesToArchive = [];
+  const filesToArchive = [];
 
   if (exportType === "CSV") {
     filesToArchive.push({

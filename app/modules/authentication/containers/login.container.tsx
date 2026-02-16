@@ -23,17 +23,6 @@ export default function LoginContainer() {
   const hasError = searchParams.has("error");
   const errorType = searchParams.get("error");
 
-  const onLoginWithOrcidClicked = () => {
-    fetcher.submit(
-      { provider: "orcid" },
-      {
-        action: `/api/authentication`,
-        method: "post",
-        encType: "application/json",
-      },
-    );
-  };
-
   const onLoginWithGithubClicked = () => {
     fetcher.submit(
       { provider: "github" },
@@ -62,7 +51,6 @@ export default function LoginContainer() {
       errorTitle={errorTitle}
       errorDescription={errorDescription}
       hasError={hasError}
-      onLoginWithOrcidClicked={onLoginWithOrcidClicked}
       onLoginWithGithubClicked={onLoginWithGithubClicked}
     />
   );

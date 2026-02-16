@@ -1,11 +1,12 @@
 import find from "lodash/find";
 import map from "lodash/map";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { data, redirect, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
@@ -17,18 +18,15 @@ import { TeamService } from "../team";
 import type { Team } from "../teams.types";
 import type { Route } from "./+types/teams.route";
 
-export async function loader({ request, params }: Route.LoaderArgs) {
-  let match = {};
-
+export async function loader({ request }: Route.LoaderArgs) {
   const userSession = (await getSessionUser({ request })) as User;
 
   if (!userSession) {
     return redirect("/");
   }
 
-  if (userSession.role === "SUPER_ADMIN") {
-    match = {};
-  } else {
+  let match = {};
+  if (userSession.role !== "SUPER_ADMIN") {
     const teamIds = map(userSession.teams, "team");
     match = { _id: { $in: teamIds } };
   }
@@ -69,7 +67,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   switch (intent) {
-    case "CREATE_TEAM":
+    case "CREATE_TEAM": {
       if (!TeamAuthorization.canCreate(user)) {
         return data(
           {
@@ -97,7 +95,8 @@ export async function action({ request }: Route.ActionArgs) {
         intent: "CREATE_TEAM",
         data: team,
       });
-    case "UPDATE_TEAM":
+    }
+    case "UPDATE_TEAM": {
       if (!TeamAuthorization.canUpdate(user, entityId)) {
         return data(
           {
@@ -115,6 +114,7 @@ export async function action({ request }: Route.ActionArgs) {
         intent: "UPDATE_TEAM",
         data: updated,
       });
+    }
     default:
       return data({ errors: { general: "Invalid intent" } }, { status: 400 });
   }
@@ -126,6 +126,7 @@ export function HydrateFallback() {
 
 export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   const { teams } = loaderData;
+  const user = useContext(AuthenticationContext) as User;
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
@@ -196,7 +197,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
     );
   };
 
-  const onActionClicked = (action: String) => {
+  const onActionClicked = (action: string) => {
     if (action === "CREATE") {
       openCreateTeamDialog();
     }
@@ -237,6 +238,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
   return (
     <Teams
       teams={teams?.data}
+      user={user}
       breadcrumbs={breadcrumbs}
       searchValue={searchValue}
       currentPage={currentPage}

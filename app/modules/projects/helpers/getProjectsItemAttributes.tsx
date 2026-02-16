@@ -3,7 +3,7 @@ import { Users } from "lucide-react";
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { Project } from "../projects.types";
 
-export default (item: Project) => {
+export default function getProjectsItemAttributes(item: Project) {
   const teamName = get(item, "team.name", "");
 
   return {
@@ -20,4 +20,4 @@ export default (item: Project) => {
       },
     ],
   };
-};
+}

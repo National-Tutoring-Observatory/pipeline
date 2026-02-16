@@ -2,6 +2,7 @@ import { Collection } from "@/components/ui/collection";
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import type { User } from "~/modules/users/users.types";
 import getTeamsActions from "../helpers/getTeamsActions";
 import getTeamsEmptyAttributes from "../helpers/getTeamsEmptyAttributes";
 import getTeamsItemActions from "../helpers/getTeamsItemActions";
@@ -12,11 +13,12 @@ import type { Team } from "../teams.types";
 
 interface TeamsProps {
   teams: Team[];
+  user: User;
   breadcrumbs: Breadcrumb[];
   searchValue: string;
   currentPage: number;
   totalPages: number;
-  filtersValues: {};
+  filtersValues: Record<string, string | null>;
   sortValue: string;
   isSyncing: boolean;
   onActionClicked: (action: string) => void;
@@ -29,6 +31,7 @@ interface TeamsProps {
 
 export default function Teams({
   teams,
+  user,
   breadcrumbs,
   filtersValues,
   sortValue,
@@ -66,7 +69,7 @@ export default function Teams({
         emptyAttributes={getTeamsEmptyAttributes()}
         isSyncing={isSyncing}
         getItemAttributes={getTeamsItemAttributes}
-        getItemActions={getTeamsItemActions}
+        getItemActions={(item) => getTeamsItemActions(item, user)}
         onActionClicked={onActionClicked}
         onItemActionClicked={onItemActionClicked}
         onSearchValueChanged={onSearchValueChanged}

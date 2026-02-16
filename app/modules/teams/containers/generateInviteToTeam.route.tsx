@@ -5,8 +5,8 @@ import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
 import type { Route } from "./+types/generateInviteToTeam.route";
 
-export async function action({ request, params }: Route.ActionArgs) {
-  const { intent, entityId, payload = {} } = await request.json();
+export async function action({ request }: Route.ActionArgs) {
+  const { intent, payload = {} } = await request.json();
 
   const { teamId, role, username } = payload;
 

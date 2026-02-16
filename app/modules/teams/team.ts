@@ -4,7 +4,7 @@ import teamSchema from "~/lib/schemas/team.schema";
 import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Team } from "./teams.types";
 
-const TeamModel = mongoose.model("Team", teamSchema);
+const TeamModel = mongoose.models.Team || mongoose.model("Team", teamSchema);
 
 export class TeamService {
   private static toTeam(doc: any): Team {

@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-export interface PreProps extends React.HTMLAttributes<HTMLPreElement> {}
+export type PreProps = React.HTMLAttributes<HTMLPreElement>;
 
 function Pre({ className, children, ...props }: PreProps) {
   return (

@@ -5,20 +5,17 @@ import { GitHubStrategy } from "remix-auth-github";
 import INVITE_LINK_TTL_DAYS from "~/modules/teams/helpers/inviteLink";
 import { UserService } from "~/modules/users/user";
 import type { UserTeam } from "~/modules/users/users.types";
-import sessionStorage from "../../../../sessionStorage.js";
+import sessionStorage from "../../../../sessionStorage";
 
 const githubStrategy = new GitHubStrategy<any>(
   {
-    //@ts-ignore
-    clientId: process.env.GITHUB_CLIENT_ID,
-    //@ts-ignore
-    clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    //@ts-ignore
+    clientId: process.env.GITHUB_CLIENT_ID!,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     redirectURI: `${process.env.AUTH_CALLBACK_URL}/github`,
     scopes: ["user:email"],
   },
   async ({ tokens, request }) => {
-    let userResponse = await fetch("https://api.github.com/user", {
+    const userResponse = await fetch("https://api.github.com/user", {
       headers: {
         Accept: "application/vnd.github+json",
         Authorization: `Bearer ${tokens.accessToken()}`,
@@ -26,7 +23,7 @@ const githubStrategy = new GitHubStrategy<any>(
       },
     });
 
-    let emailsResponse = await fetch("https://api.github.com/user/emails", {
+    const emailsResponse = await fetch("https://api.github.com/user/emails", {
       headers: {
         Accept: "application/vnd.github+json",
         Authorization: `Bearer ${tokens.accessToken()}`,
@@ -34,11 +31,11 @@ const githubStrategy = new GitHubStrategy<any>(
       },
     });
 
-    let githubUser = await userResponse.json();
+    const githubUser = await userResponse.json();
 
-    let emails = await emailsResponse.json();
+    const emails = await emailsResponse.json();
 
-    let session = await sessionStorage.getSession(
+    const session = await sessionStorage.getSession(
       request.headers.get("cookie"),
     );
 
@@ -51,7 +48,7 @@ const githubStrategy = new GitHubStrategy<any>(
     });
     let user = users.length > 0 ? users[0] : null;
 
-    let update: any = {};
+    const update: any = {};
 
     if (!user) {
       // if no user but is invite, update the invitedUser

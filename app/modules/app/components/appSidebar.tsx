@@ -30,8 +30,8 @@ import {
 import { useContext, useEffect } from "react";
 import { NavLink, useFetcher } from "react-router";
 import SideBarHelpDropdown from "~/modules/app/components/sidebarHelpDropdown";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import Role from "~/modules/authentication/components/role";
-import { AuthenticationContext } from "~/modules/authentication/containers/authentication.container";
 import type { User } from "~/modules/users/users.types";
 
 export default function AppSidebar() {

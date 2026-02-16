@@ -37,7 +37,7 @@ export default function QueueTypeTabs({ queues }: QueueTypeTabsProps) {
         onValueChange={handleValueChange}
         aria-label="Queue type selection"
       >
-        {queues.map((queue, idx) => (
+        {queues.map((queue) => (
           <QueueTab
             key={queue.key}
             value={queue.key}

@@ -15,25 +15,9 @@ export function useProjectActions({
   onEditSuccess,
   onDeleteSuccess,
 }: UseProjectActionsOptions = {}) {
-  const editFetcher = useFetcher();
   const deleteFetcher = useFetcher();
 
   const actionUrl = "/api/projects";
-
-  useEffect(() => {
-    if (editFetcher.state === "idle" && editFetcher.data) {
-      if (
-        editFetcher.data.success &&
-        editFetcher.data.intent === "UPDATE_PROJECT"
-      ) {
-        toast.success("Project updated");
-        addDialog(null);
-        onEditSuccess?.();
-      } else if (editFetcher.data.errors) {
-        toast.error(editFetcher.data.errors.general || "An error occurred");
-      }
-    }
-  }, [editFetcher.state, editFetcher.data]);
 
   useEffect(() => {
     if (deleteFetcher.state === "idle" && deleteFetcher.data) {
@@ -50,17 +34,6 @@ export function useProjectActions({
     }
   }, [deleteFetcher.state, deleteFetcher.data]);
 
-  const submitEditProject = (project: Project) => {
-    editFetcher.submit(
-      JSON.stringify({
-        intent: "UPDATE_PROJECT",
-        entityId: project._id,
-        payload: { name: project.name },
-      }),
-      { method: "PUT", encType: "application/json", action: actionUrl },
-    );
-  };
-
   const submitDeleteProject = (projectId: string) => {
     deleteFetcher.submit(
       JSON.stringify({ intent: "DELETE_PROJECT", entityId: projectId }),
@@ -72,8 +45,10 @@ export function useProjectActions({
     addDialog(
       <EditProjectDialog
         project={project}
-        onEditProjectClicked={submitEditProject}
-        isSubmitting={editFetcher.state === "submitting"}
+        onProjectUpdated={() => {
+          toast.success("Project updated");
+          onEditSuccess?.();
+        }}
       />,
     );
   };
@@ -90,7 +65,6 @@ export function useProjectActions({
   return {
     openEditProjectDialog,
     openDeleteProjectDialog,
-    isEditing: editFetcher.state !== "idle",
     isDeleting: deleteFetcher.state !== "idle",
   };
 }

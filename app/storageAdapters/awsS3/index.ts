@@ -80,20 +80,20 @@ registerStorageAdapter({
       }
       throw new Error(`AWS_S3: No file body returned for ${sourcePath}`);
     } catch (error) {
-      throw new Error(
-        `AWS_S3 download error for ${sourcePath}: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw new Error(`AWS_S3 download error for ${sourcePath}`, {
+        cause: error,
+      });
     }
   },
   upload: async ({ file, uploadPath }: UploadParams): Promise<void> => {
-    const { buffer, contentType, size } = file;
+    const { buffer, contentType } = file;
 
     const s3Client = getS3Client();
 
-    const ACL: "private" = "private";
+    const ACL = "private" as const;
 
     try {
-      let params = {
+      const params = {
         Bucket: getAwsBucket(),
         Key: uploadPath,
         Body: buffer,

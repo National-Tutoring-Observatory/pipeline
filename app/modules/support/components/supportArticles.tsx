@@ -36,15 +36,11 @@ export default function SupportArticles({
           </div>
         )}
         {selectedDocumentId ? (
-          <SupportArticleDetail
-            article={selectedSupportArticle!}
-            onBackToSupportArticlesClicked={onBackToSupportArticlesClicked}
-          />
+          <SupportArticleDetail article={selectedSupportArticle!} />
         ) : (
           <SupportArticleList
             supportArticles={supportArticles}
             onSupportArticleClicked={onSupportArticleClicked}
-            onSearchClicked={onSearchClicked}
           />
         )}
       </div>

@@ -8,14 +8,8 @@ import emitFromJob from "../helpers/emitFromJob";
 dotenv.config({ path: ".env" });
 
 export default async function convertFileToSession(job: any) {
-  const {
-    projectId,
-    sessionId,
-    inputFile,
-    outputFolder,
-    team,
-    attributesMapping,
-  } = job.data;
+  const { projectId, sessionId, inputFile, outputFolder, attributesMapping } =
+    job.data;
 
   try {
     await emitFromJob(
