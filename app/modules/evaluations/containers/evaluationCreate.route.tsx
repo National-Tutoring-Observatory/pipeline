@@ -83,38 +83,40 @@ export async function action({ request, params }: Route.ActionArgs) {
         );
       }
 
-      const { name, runs: selectedRuns } = payload;
+      const { name, baseRun, selectedRuns } = payload;
       const errors: Record<string, string> = {};
 
       if (typeof name !== "string" || name.trim().length < 1) {
         errors.name = "Evaluation name is required";
       }
 
-      if (!Array.isArray(selectedRuns) || selectedRuns.length < 2) {
-        errors.runs = "At least 2 runs must be selected";
+      if (!baseRun) {
+        errors.baseRun = "A base run must be selected";
+      }
+
+      if (!Array.isArray(selectedRuns) || selectedRuns.length < 1) {
+        errors.runs = "At least 1 comparison run must be selected";
       }
 
       if (Object.keys(errors).length > 0) {
         return data({ errors }, { status: 400 });
       }
 
+      const allRunIds = [baseRun, ...selectedRuns];
       const fetchedRuns = await RunService.find({
-        match: { _id: { $in: selectedRuns } },
+        match: { _id: { $in: allRunIds } },
       });
 
-      if (fetchedRuns.length !== selectedRuns.length) {
+      if (fetchedRuns.length !== allRunIds.length) {
         return data(
           { errors: { runs: "One or more runs could not be found" } },
           { status: 400 },
         );
       }
 
-      const compatible = getEvaluationCompatibleRuns(
-        fetchedRuns,
-        fetchedRuns[0]._id,
-      );
+      const compatible = getEvaluationCompatibleRuns(fetchedRuns, baseRun);
 
-      if (compatible.length !== fetchedRuns.length - 1) {
+      if (compatible.length !== selectedRuns.length) {
         return data(
           {
             errors: {
@@ -129,7 +131,8 @@ export async function action({ request, params }: Route.ActionArgs) {
         name: name.trim(),
         project: params.projectId,
         runSet: params.runSetId,
-        runs: selectedRuns,
+        baseRun,
+        runs: allRunIds,
       });
 
       return {
@@ -193,7 +196,7 @@ export default function EvaluationCreateRoute() {
     submit(
       JSON.stringify({
         intent: "CREATE_EVALUATION",
-        payload: { name, runs: [baseRun, ...selectedRuns] },
+        payload: { name, baseRun, selectedRuns },
       }),
       { method: "POST", encType: "application/json" },
     );

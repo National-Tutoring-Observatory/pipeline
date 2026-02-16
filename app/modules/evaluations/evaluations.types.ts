@@ -3,6 +3,7 @@ export interface Evaluation {
   name: string;
   project: string;
   runSet: string;
+  baseRun: string;
   runs: string[];
   isExporting?: boolean;
   hasExportedCSV?: boolean;

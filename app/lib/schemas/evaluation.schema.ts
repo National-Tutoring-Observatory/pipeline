@@ -4,6 +4,7 @@ export default new mongoose.Schema({
   name: { type: String },
   project: { type: mongoose.Types.ObjectId, ref: "Project" },
   runSet: { type: mongoose.Types.ObjectId, ref: "Collection" },
+  baseRun: { type: mongoose.Types.ObjectId, ref: "Run" },
   runs: [{ type: mongoose.Types.ObjectId, ref: "Run" }],
   isExporting: { type: Boolean, default: false },
   hasExportedCSV: { type: Boolean, default: false },
