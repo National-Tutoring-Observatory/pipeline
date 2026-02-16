@@ -1,4 +1,4 @@
-import { sessionsMatch } from "~/modules/collections/helpers/sessionsMatch";
+import { sessionsMatch } from "~/modules/runSets/helpers/sessionsMatch";
 import type { Run } from "~/modules/runs/runs.types";
 
 export default function getEvaluationCompatibleRuns(

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export default new mongoose.Schema({
   name: { type: String },
   project: { type: mongoose.Types.ObjectId, ref: "Project" },
-  collection: { type: mongoose.Types.ObjectId, ref: "Collection" },
+  runSet: { type: mongoose.Types.ObjectId, ref: "Collection" },
   runs: [{ type: mongoose.Types.ObjectId, ref: "Run" }],
   isExporting: { type: Boolean, default: false },
   hasExportedCSV: { type: Boolean, default: false },
