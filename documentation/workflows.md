@@ -189,26 +189,9 @@ preflight
 
 **File:** `pipeline/.github/workflows/release.yml`
 
-**Status:** The production pipeline has been refactored to use the same reusable workflows as staging — see [PR #1407](https://github.com/National-Tutoring-Observatory/pipeline/pull/1407). The deploy jobs (`deploy-web` and `deploy-worker`) are currently commented out to avoid updating production during initial validation. Only the resolve, preflight, and build stages are active. The deploy jobs will be re-enabled and tested during the next production release cycle.
-
 **Trigger:** Semantic version tag push (e.g., `v1.2.3`)
 
-### Current Job Graph
-
-The resolve, preflight, and build stages are active. The deploy stages are disabled until the next release cycle.
-
-```
-resolve ──▶ preflight
-│           ├──▶ build-web ──┐
-└───────────┤                └──▶ production-summary
-            └──▶ build-worker ──┘
-```
-
-Both build jobs depend on `resolve` (for the version tag) and `preflight` (for the stability gate).
-
-### Target Job Graph
-
-Once the deploy jobs are re-enabled, the full pipeline will mirror staging with the addition of a release validation step:
+### Job Graph
 
 ```
 resolve ──▶ preflight
@@ -217,7 +200,26 @@ resolve ──▶ preflight
             └──▶ build-worker ──▶ deploy-worker ──┘
 ```
 
-The `resolve_release.yml` reusable workflow validates that the semantic version tag is well-formed and that the tagged commit originates from the `main` branch. This acts as a policy enforcement point to prevent deploying unreviewed code.
+Both build jobs depend on `resolve` (for the version tag) and `preflight` (for the stability gate). The `resolve_release.yml` reusable workflow validates that the semantic version tag is well-formed and that the tagged commit originates from the `main` branch. This acts as a policy enforcement point to prevent deploying unreviewed code.
+
+### Jobs
+
+| Job                    | Reusable Workflow        | Purpose                                                                                                        |
+| ---------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `resolve`              | `resolve_release.yml`    | Validates the semantic version tag format and confirms the tagged commit originates from the `main` branch.    |
+| `preflight-production` | `ecs_preflight.yml`      | Confirms ECS services are stable before starting the deployment.                                               |
+| `build-web`            | `ecs_build_image.yml`    | Builds the web application container from `Dockerfile` and pushes it to ECR.                                   |
+| `build-worker`         | `ecs_build_image.yml`    | Builds the background worker container from `workers/Dockerfile` and pushes it to ECR with a `-worker` suffix. |
+| `deploy-web`           | `ecs_deploy_service.yml` | Deploys the newly built web image to the ECS `web` service.                                                    |
+| `deploy-worker`        | `ecs_deploy_service.yml` | Deploys the newly built worker image to the ECS `worker` service.                                              |
+| `production-summary`   | `deployment_summary.yml` | Outputs a formatted summary of the deployment including both image tags and the application URL.               |
+
+### Key Configuration
+
+- **Permissions:** `id-token: write` (for OIDC authentication with AWS), `contents: read`, `actions: read`
+- **Authentication:** AWS role ARN is passed from GitHub repository variables (`vars.AWS_ROLE_ARN`)
+- **Application URL:** https://app.nationaltutoringobservatory.org/
+- **Concurrency:** Only one production release runs at a time; in-progress runs are **not** cancelled (`cancel-in-progress: false`)
 
 ---
 
@@ -338,7 +340,7 @@ Both services are built and deployed in parallel after the preflight check passe
 3. Release validation confirms the tag format and branch origin
 4. Preflight confirms ECS services are stable
 5. Web and worker images are built in parallel
-6. **Deploy jobs are currently disabled** — they will be re-enabled and tested during the next release cycle to avoid updating production during initial workflow validation
+6. Each image is deployed to its respective ECS service
 7. Summary is posted to the GitHub Actions run
 
 ---
