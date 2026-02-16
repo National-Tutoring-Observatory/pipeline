@@ -8,7 +8,7 @@ export default function getEvaluationsItemAttributes(item: Evaluation) {
   return {
     id: item._id,
     title: item.name,
-    to: `/projects/${item.project}/run-sets/${item.collection}/evaluations/${item._id}`,
+    to: `/projects/${item.project}/run-sets/${item.runSet}/evaluations/${item._id}`,
     meta: [
       {
         icon: <Play />,

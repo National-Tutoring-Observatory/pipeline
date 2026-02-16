@@ -4,25 +4,36 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle } from "lucide-react";
 import { Link } from "react-router";
+import EvaluationCreateRunsSelector from "./evaluationCreateRunsSelector";
 
 export default function EvaluationCreate({
-  runSetName,
   name,
   isSubmitting,
   isAbleToCreateEvaluation,
   projectId,
   runSetId,
+  runs,
+  baseRun,
+  compatibleRuns,
+  selectedRuns,
   onNameChanged,
+  onBaseRunChanged,
+  onSelectedRunsChanged,
   onSubmit,
   onCancel,
 }: {
-  runSetName: string;
   name: string;
   isSubmitting: boolean;
   isAbleToCreateEvaluation: boolean;
   projectId: string;
   runSetId: string;
+  runs: Array<{ _id: string; name: string }>;
+  baseRun: string | null;
+  compatibleRuns: Array<{ _id: string; name: string }>;
+  selectedRuns: string[];
   onNameChanged: (value: string) => void;
+  onBaseRunChanged: (id: string | null) => void;
+  onSelectedRunsChanged: (ids: string[]) => void;
   onSubmit: () => void;
   onCancel: () => void;
 }) {
@@ -47,29 +58,63 @@ export default function EvaluationCreate({
   }
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="runSet">Run Set</Label>
-        <Input id="runSet" value={runSetName} disabled />
-      </div>
+    <div className="flex min-h-[calc(100vh-160px)] flex-col">
+      <div className="flex-1 space-y-6">
+        <div className="max-w-2xl">
+          <div className="space-y-2">
+            <Label htmlFor="name">Evaluation Name</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => onNameChanged(e.target.value)}
+              placeholder="Enter evaluation name"
+            />
+          </div>
+        </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="name">Evaluation Name</Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => onNameChanged(e.target.value)}
-          placeholder="Enter evaluation name"
+        <EvaluationCreateRunsSelector
+          runs={runs}
+          baseRun={baseRun}
+          compatibleRuns={compatibleRuns}
+          selectedRuns={selectedRuns}
+          onBaseRunChanged={onBaseRunChanged}
+          onSelectedRunsChanged={onSelectedRunsChanged}
         />
       </div>
 
-      <div className="flex gap-4">
-        <Button onClick={onSubmit} disabled={isSubmitting || !name.trim()}>
-          {isSubmitting ? "Creating..." : "Create Evaluation"}
-        </Button>
-        <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
-          Cancel
-        </Button>
+      <div className="sticky bottom-0 -mx-8 flex items-center gap-8 rounded-b-lg border-t bg-white px-8 py-4">
+        <div className="flex-1">
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+            <p className="text-sm text-blue-900">
+              {baseRun && selectedRuns.length > 0 ? (
+                <>
+                  This evaluation will compare{" "}
+                  <strong>{selectedRuns.length + 1}</strong> run(s) — 1 base run
+                  + {selectedRuns.length} comparison run(s)
+                </>
+              ) : (
+                "Select a base run and comparison runs to create an evaluation"
+              )}
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-4">
+          <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button
+            size="lg"
+            onClick={onSubmit}
+            disabled={
+              isSubmitting ||
+              !name.trim() ||
+              !baseRun ||
+              selectedRuns.length === 0
+            }
+          >
+            {isSubmitting ? "Creating..." : "Create Evaluation"}
+          </Button>
+        </div>
       </div>
     </div>
   );

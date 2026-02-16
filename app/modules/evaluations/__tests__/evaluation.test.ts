@@ -15,7 +15,7 @@ describe("EvaluationService", () => {
       const evaluation = await EvaluationService.create({
         name: "Test Evaluation",
         project: generateObjectId(),
-        collection: generateObjectId(),
+        runSet: generateObjectId(),
         runs: [],
       });
 
@@ -42,26 +42,26 @@ describe("EvaluationService", () => {
   describe("create", () => {
     it("creates a new evaluation", async () => {
       const projectId = generateObjectId();
-      const collectionId = generateObjectId();
+      const runSetId = generateObjectId();
 
       const result = await EvaluationService.create({
         name: "New Evaluation",
         project: projectId,
-        collection: collectionId,
+        runSet: runSetId,
         runs: [],
       });
 
       expect(result._id).toBeDefined();
       expect(result.name).toBe("New Evaluation");
       expect(result.project).toBe(projectId);
-      expect(result.collection).toBe(collectionId);
+      expect(result.runSet).toBe(runSetId);
     });
 
     it("creates evaluation with default export flags", async () => {
       const result = await EvaluationService.create({
         name: "Test Evaluation",
         project: generateObjectId(),
-        collection: generateObjectId(),
+        runSet: generateObjectId(),
         runs: [],
       });
 
@@ -76,7 +76,7 @@ describe("EvaluationService", () => {
       const evaluation = await EvaluationService.create({
         name: "Old Name",
         project: generateObjectId(),
-        collection: generateObjectId(),
+        runSet: generateObjectId(),
         runs: [],
       });
 
@@ -95,7 +95,7 @@ describe("EvaluationService", () => {
       const evaluation = await EvaluationService.create({
         name: "Test Evaluation",
         project: generateObjectId(),
-        collection: generateObjectId(),
+        runSet: generateObjectId(),
         runs: [],
       });
 
@@ -122,7 +122,7 @@ describe("EvaluationService", () => {
       const evaluation = await EvaluationService.create({
         name: "To Delete",
         project: generateObjectId(),
-        collection: generateObjectId(),
+        runSet: generateObjectId(),
         runs: [],
       });
 

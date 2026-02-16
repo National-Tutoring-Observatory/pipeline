@@ -29,7 +29,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   });
 
   const query = buildQueryFromParams({
-    match: { collection: params.runSetId },
+    match: { runSet: params.runSetId },
     queryParams,
     searchableFields: ["name"],
     sortableFields: ["name", "createdAt"],
