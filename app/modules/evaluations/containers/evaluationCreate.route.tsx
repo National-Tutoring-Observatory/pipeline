@@ -1,8 +1,9 @@
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   data,
   redirect,
+  useActionData,
   useLoaderData,
   useNavigate,
   useSubmit,
@@ -10,9 +11,9 @@ import {
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { CollectionService } from "~/modules/collections/collection";
-import { sessionsMatch } from "~/modules/collections/helpers/sessionsMatch";
 import EvaluationCreate from "~/modules/evaluations/components/evaluationCreate";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
+import getEvaluationCompatibleRuns from "~/modules/evaluations/helpers/getEvaluationCompatibleRuns";
 import isAbleToCreateEvaluation from "~/modules/evaluations/helpers/isAbleToCreateEvaluation";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
@@ -100,6 +101,33 @@ export async function action({ request, params }: Route.ActionArgs) {
         return data({ errors }, { status: 400 });
       }
 
+      const fetchedRuns = await RunService.find({
+        match: { _id: { $in: selectedRuns } },
+      });
+
+      if (fetchedRuns.length !== selectedRuns.length) {
+        return data(
+          { errors: { runs: "One or more runs could not be found" } },
+          { status: 400 },
+        );
+      }
+
+      const compatible = getEvaluationCompatibleRuns(
+        fetchedRuns,
+        fetchedRuns[0]._id,
+      );
+
+      if (compatible.length !== fetchedRuns.length - 1) {
+        return data(
+          {
+            errors: {
+              runs: "All runs must share the same sessions and annotation schema",
+            },
+          },
+          { status: 400 },
+        );
+      }
+
       const evaluation = await EvaluationService.create({
         name: name.trim(),
         project: params.projectId,
@@ -125,26 +153,32 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function EvaluationCreateRoute() {
   const { project, collection, runs } = useLoaderData<typeof loader>();
+  const actionData = useActionData();
   const navigate = useNavigate();
   const submit = useSubmit();
   const [name, setName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [baseRun, setBaseRun] = useState<string | null>(null);
-  const [selectedRuns, setSelectedRuns] = useState<string[]>(
-    runs.map((run) => run._id),
+  const [selectedRuns, setSelectedRuns] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (actionData?.intent === "CREATE_EVALUATION") {
+      navigate(
+        `/projects/${actionData.data.projectId}/collections/${actionData.data.collectionId}/evaluations/${actionData.data.evaluationId}`,
+      );
+    }
+  }, [actionData]);
+
+  const compatibleRuns = useMemo(
+    () => getEvaluationCompatibleRuns(runs, baseRun),
+    [baseRun, runs],
   );
 
-  const compatibleRuns = useMemo(() => {
-    if (!baseRun) return [];
-    const baseRunObj = runs.find((run) => run._id === baseRun);
-    if (!baseRunObj) return [];
-    const baseSessionIds = baseRunObj.sessions.map((s) => s.sessionId);
-    return runs.filter((run) => {
-      if (run._id === baseRun) return false;
-      const runSessionIds = run.sessions.map((s) => s.sessionId);
-      return sessionsMatch(baseSessionIds, runSessionIds);
-    });
-  }, [baseRun, runs]);
+  const handleBaseRunChanged = (id: string | null) => {
+    setBaseRun(id);
+    const compatible = getEvaluationCompatibleRuns(runs, id);
+    setSelectedRuns(compatible.map((run) => run._id));
+  };
 
   const breadcrumbs = [
     { text: "Projects", link: "/" },
@@ -162,7 +196,7 @@ export default function EvaluationCreateRoute() {
     submit(
       JSON.stringify({
         intent: "CREATE_EVALUATION",
-        payload: { name, runs: selectedRuns },
+        payload: { name, runs: [baseRun, ...selectedRuns] },
       }),
       { method: "POST", encType: "application/json" },
     );
@@ -198,7 +232,7 @@ export default function EvaluationCreateRoute() {
         compatibleRuns={compatibleRuns}
         selectedRuns={selectedRuns}
         onNameChanged={setName}
-        onBaseRunChanged={setBaseRun}
+        onBaseRunChanged={handleBaseRunChanged}
         onSelectedRunsChanged={setSelectedRuns}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
