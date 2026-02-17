@@ -12,6 +12,7 @@ export default new mongoose.Schema({
   hasErrored: { type: Boolean, default: false },
   startedAt: { type: Date },
   finishedAt: { type: Date },
+  report: [{ type: mongoose.Schema.Types.Mixed }],
   isExporting: { type: Boolean, default: false },
   hasExportedCSV: { type: Boolean, default: false },
   hasExportedJSONL: { type: Boolean, default: false },
