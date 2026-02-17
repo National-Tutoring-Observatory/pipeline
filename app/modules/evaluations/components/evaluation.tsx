@@ -1,4 +1,5 @@
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
+import { Progress } from "@/components/ui/progress";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Evaluation as EvaluationType } from "~/modules/evaluations/evaluations.types";
@@ -6,9 +7,13 @@ import type { Evaluation as EvaluationType } from "~/modules/evaluations/evaluat
 export default function Evaluation({
   evaluation,
   breadcrumbs,
+  progress,
+  step,
 }: {
   evaluation: EvaluationType;
   breadcrumbs: Breadcrumb[];
+  progress: number;
+  step: string;
 }) {
   const runCount = evaluation.runs?.length || 0;
 
@@ -19,6 +24,17 @@ export default function Evaluation({
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
       </PageHeader>
+
+      <div className="relative mb-8">
+        {evaluation.isRunning && (
+          <div>
+            <Progress value={progress} />
+            <div className="mt-1 text-right text-xs opacity-40">
+              Processing {step}
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className="space-y-6">
         <div>

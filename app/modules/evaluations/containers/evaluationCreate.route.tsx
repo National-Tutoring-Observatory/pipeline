@@ -143,7 +143,10 @@ export async function action({ request, params }: Route.ActionArgs) {
         baseRun,
         runs: allRunIds,
         annotationFields: selectedAnnotationFields,
+        isRunning: true,
       });
+
+      EvaluationService.start(evaluation);
 
       return {
         intent: "CREATE_EVALUATION",

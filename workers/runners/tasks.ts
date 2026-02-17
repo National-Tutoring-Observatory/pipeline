@@ -6,12 +6,15 @@ import annotatePerUtterance from "../tasks/annotatePerUtterance";
 import convertFileToSession from "../tasks/convertFileToSession";
 import finishAnnotateRun from "../tasks/finishAnnotateRun";
 import finishConvertedFilesToSessions from "../tasks/finishConvertedFilesToSessions";
+import finishCreateEvaluation from "../tasks/finishCreateEvaluation";
 import finishExportRun from "../tasks/finishExportRun";
 import finishExportRunSet from "../tasks/finishExportRunSet";
+import processCreateEvaluation from "../tasks/processCreateEvaluation";
 import processExportRun from "../tasks/processExportRun";
 import processExportRunSet from "../tasks/processExportRunSet";
 import startAnnotateRun from "../tasks/startAnnotateRun";
 import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
+import startCreateEvaluation from "../tasks/startCreateEvaluation";
 import startExportRun from "../tasks/startExportRun";
 import startExportRunSet from "../tasks/startExportRunSet";
 
@@ -66,6 +69,15 @@ export default async (job: Job) => {
       }
       case "EXPORT_RUN_SET:FINISH": {
         return finishExportRunSet(job);
+      }
+      case "CREATE_EVALUATION:START": {
+        return startCreateEvaluation(job);
+      }
+      case "CREATE_EVALUATION:PROCESS": {
+        return processCreateEvaluation(job);
+      }
+      case "CREATE_EVALUATION:FINISH": {
+        return finishCreateEvaluation(job);
       }
       default: {
         return { status: "ERRORED", message: `Missing task for ${job.name}` };

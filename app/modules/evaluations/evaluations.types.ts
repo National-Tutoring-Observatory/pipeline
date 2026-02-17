@@ -6,6 +6,11 @@ export interface Evaluation {
   baseRun: string;
   runs: string[];
   annotationFields: string[];
+  isRunning?: boolean;
+  isComplete?: boolean;
+  hasErrored?: boolean;
+  startedAt?: string;
+  finishedAt?: string;
   isExporting?: boolean;
   hasExportedCSV?: boolean;
   hasExportedJSONL?: boolean;
