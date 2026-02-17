@@ -116,11 +116,7 @@ export default function EvaluationCreate({
           <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button
-            size="lg"
-            onClick={onSubmit}
-            disabled={isSubmitDisabled}
-          >
+          <Button size="lg" onClick={onSubmit} disabled={isSubmitDisabled}>
             {isSubmitting ? "Creating..." : "Create Evaluation"}
           </Button>
         </div>

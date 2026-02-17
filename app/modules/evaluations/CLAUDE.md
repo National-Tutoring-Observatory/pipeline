@@ -22,6 +22,7 @@ Types: `evaluations.types.ts`
 ## Compatibility Rules
 
 Two runs are "compatible" when:
+
 1. **Same sessions** — identical session ID lists (checked via `sessionsMatch()` from runSets module)
 2. **Shared annotation fields** — at least one non-system field key in common (compared from `run.snapshot.prompt.annotationSchema`)
 
@@ -29,11 +30,11 @@ Helper: `helpers/getEvaluationCompatibleRuns.ts` — filters runs compatible wit
 
 ## Routes
 
-| Path | File | Purpose |
-|------|------|---------|
-| `:projectId/run-sets/:runSetId/evaluations` | `runSets/containers/runSetEvaluations.route.tsx` | List (paginated, searchable) |
-| `:projectId/run-sets/:runSetId/create-evaluation` | `containers/evaluationCreate.route.tsx` | Creation form |
-| `:projectId/run-sets/:runSetId/evaluations/:evaluationId` | `containers/evaluation.route.tsx` | Detail view |
+| Path                                                      | File                                             | Purpose                      |
+| --------------------------------------------------------- | ------------------------------------------------ | ---------------------------- |
+| `:projectId/run-sets/:runSetId/evaluations`               | `runSets/containers/runSetEvaluations.route.tsx` | List (paginated, searchable) |
+| `:projectId/run-sets/:runSetId/create-evaluation`         | `containers/evaluationCreate.route.tsx`          | Creation form                |
+| `:projectId/run-sets/:runSetId/evaluations/:evaluationId` | `containers/evaluation.route.tsx`                | Detail view                  |
 
 ## Creation Flow
 
@@ -66,6 +67,7 @@ Helper: `helpers/getEvaluationCompatibleRuns.ts` — filters runs compatible wit
 ## Metrics Reference
 
 `documentation/evaluation-equations.md` contains TypeScript implementations for:
+
 - Cohen's Kappa (inter-rater agreement)
 - Precision / Recall / F1 (macro-averaged)
 - Mean Kappa (aggregate across run pairs)
