@@ -6,9 +6,7 @@ describe("extractAnnotationValues", () => {
     it("extracts values from session-level annotations", () => {
       const sessionJSON = {
         transcript: [],
-        annotations: [
-          { _id: "0", engagement_level: "HIGH", quality: "GOOD" },
-        ],
+        annotations: [{ _id: "0", engagement_level: "HIGH", quality: "GOOD" }],
       };
 
       const values = extractAnnotationValues(
@@ -41,10 +39,7 @@ describe("extractAnnotationValues", () => {
 
     it("preserves empty string for missing values", () => {
       const sessionJSON = {
-        annotations: [
-          { _id: "0", field_a: "X" },
-          { _id: "1" },
-        ],
+        annotations: [{ _id: "0", field_a: "X" }, { _id: "1" }],
       };
 
       const values = extractAnnotationValues(

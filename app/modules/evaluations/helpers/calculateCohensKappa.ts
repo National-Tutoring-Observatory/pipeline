@@ -31,8 +31,7 @@ export default function calculateCohensKappa(
   let expectedAgreement = 0;
   for (const category of categories) {
     expectedAgreement +=
-      (frequencyA[category] / totalItems) *
-      (frequencyB[category] / totalItems);
+      (frequencyA[category] / totalItems) * (frequencyB[category] / totalItems);
   }
 
   if (expectedAgreement === 1) return 1;
