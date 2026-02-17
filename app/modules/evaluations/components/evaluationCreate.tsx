@@ -10,6 +10,7 @@ import EvaluationCreateRunsSelector from "./evaluationCreateRunsSelector";
 export default function EvaluationCreate({
   name,
   isSubmitting,
+  isSubmitDisabled,
   isAbleToCreateEvaluation,
   projectId,
   runSetId,
@@ -18,14 +19,17 @@ export default function EvaluationCreate({
   compatibleRuns,
   selectedRuns,
   annotationSchemaFieldCounts,
+  selectedAnnotationFields,
   onNameChanged,
   onBaseRunChanged,
   onSelectedRunsChanged,
+  onAnnotationFieldToggled,
   onSubmit,
   onCancel,
 }: {
   name: string;
   isSubmitting: boolean;
+  isSubmitDisabled: boolean;
   isAbleToCreateEvaluation: boolean;
   projectId: string;
   runSetId: string;
@@ -34,9 +38,11 @@ export default function EvaluationCreate({
   compatibleRuns: Array<{ _id: string; name: string }>;
   selectedRuns: string[];
   annotationSchemaFieldCounts: AnnotationSchemaFieldCount[];
+  selectedAnnotationFields: string[];
   onNameChanged: (value: string) => void;
   onBaseRunChanged: (id: string | null) => void;
   onSelectedRunsChanged: (ids: string[]) => void;
+  onAnnotationFieldToggled: (fieldKey: string) => void;
   onSubmit: () => void;
   onCancel: () => void;
 }) {
@@ -81,8 +87,10 @@ export default function EvaluationCreate({
           compatibleRuns={compatibleRuns}
           selectedRuns={selectedRuns}
           annotationSchemaFieldCounts={annotationSchemaFieldCounts}
+          selectedAnnotationFields={selectedAnnotationFields}
           onBaseRunChanged={onBaseRunChanged}
           onSelectedRunsChanged={onSelectedRunsChanged}
+          onAnnotationFieldToggled={onAnnotationFieldToggled}
         />
       </div>
 
@@ -94,7 +102,9 @@ export default function EvaluationCreate({
                 <>
                   This evaluation will compare{" "}
                   <strong>{selectedRuns.length + 1}</strong> run(s) — 1 base run
-                  + {selectedRuns.length} comparison run(s)
+                  + {selectedRuns.length} comparison run(s) over{" "}
+                  <strong>{selectedAnnotationFields.length}</strong> annotation
+                  field(s).
                 </>
               ) : (
                 "Select a base run and comparison runs to create an evaluation"
@@ -106,16 +116,7 @@ export default function EvaluationCreate({
           <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button
-            size="lg"
-            onClick={onSubmit}
-            disabled={
-              isSubmitting ||
-              !name.trim() ||
-              !baseRun ||
-              selectedRuns.length === 0
-            }
-          >
+          <Button size="lg" onClick={onSubmit} disabled={isSubmitDisabled}>
             {isSubmitting ? "Creating..." : "Create Evaluation"}
           </Button>
         </div>

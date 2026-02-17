@@ -84,7 +84,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         );
       }
 
-      const { name, baseRun, selectedRuns } = payload;
+      const { name, baseRun, selectedRuns, selectedAnnotationFields } = payload;
       const errors: Record<string, string> = {};
 
       if (typeof name !== "string" || name.trim().length < 1) {
@@ -97,6 +97,14 @@ export async function action({ request, params }: Route.ActionArgs) {
 
       if (!Array.isArray(selectedRuns) || selectedRuns.length < 1) {
         errors.runs = "At least 1 comparison run must be selected";
+      }
+
+      if (
+        !Array.isArray(selectedAnnotationFields) ||
+        selectedAnnotationFields.length < 1
+      ) {
+        errors.annotationFields =
+          "At least 1 annotation field must be selected";
       }
 
       if (Object.keys(errors).length > 0) {
@@ -134,6 +142,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         runSet: params.runSetId,
         baseRun,
         runs: allRunIds,
+        annotationFields: selectedAnnotationFields,
       });
 
       return {
@@ -161,6 +170,9 @@ export default function EvaluationCreateRoute() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [baseRun, setBaseRun] = useState<string | null>(null);
   const [selectedRuns, setSelectedRuns] = useState<string[]>([]);
+  const [selectedAnnotationFields, setSelectedAnnotationFields] = useState<
+    string[]
+  >([]);
 
   useEffect(() => {
     if (actionData?.intent === "CREATE_EVALUATION") {
@@ -182,9 +194,32 @@ export default function EvaluationCreateRoute() {
 
   const handleBaseRunChanged = (id: string | null) => {
     setBaseRun(id);
+    if (!id) {
+      setSelectedRuns([]);
+      setSelectedAnnotationFields([]);
+      return;
+    }
     const compatible = getEvaluationCompatibleRuns(runs, id);
     setSelectedRuns(compatible.map((run) => run._id));
+    setSelectedAnnotationFields([]);
   };
+
+  const handleAnnotationFieldToggled = (fieldKey: string) => {
+    if (selectedAnnotationFields.includes(fieldKey)) {
+      setSelectedAnnotationFields(
+        selectedAnnotationFields.filter((key) => key !== fieldKey),
+      );
+    } else {
+      setSelectedAnnotationFields([...selectedAnnotationFields, fieldKey]);
+    }
+  };
+
+  const isSubmitDisabled =
+    isSubmitting ||
+    !name.trim() ||
+    !baseRun ||
+    selectedRuns.length === 0 ||
+    selectedAnnotationFields.length === 0;
 
   const breadcrumbs = [
     { text: "Projects", link: "/" },
@@ -202,7 +237,7 @@ export default function EvaluationCreateRoute() {
     submit(
       JSON.stringify({
         intent: "CREATE_EVALUATION",
-        payload: { name, baseRun, selectedRuns },
+        payload: { name, baseRun, selectedRuns, selectedAnnotationFields },
       }),
       { method: "POST", encType: "application/json" },
     );
@@ -228,6 +263,7 @@ export default function EvaluationCreateRoute() {
       <EvaluationCreate
         name={name}
         isSubmitting={isSubmitting}
+        isSubmitDisabled={isSubmitDisabled}
         isAbleToCreateEvaluation={isAbleToCreateEvaluation(runSet)}
         projectId={project._id}
         runSetId={runSet._id}
@@ -236,9 +272,11 @@ export default function EvaluationCreateRoute() {
         compatibleRuns={compatibleRuns}
         selectedRuns={selectedRuns}
         annotationSchemaFieldCounts={annotationSchemaFieldCounts}
+        selectedAnnotationFields={selectedAnnotationFields}
         onNameChanged={setName}
         onBaseRunChanged={handleBaseRunChanged}
         onSelectedRunsChanged={setSelectedRuns}
+        onAnnotationFieldToggled={handleAnnotationFieldToggled}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
       />
