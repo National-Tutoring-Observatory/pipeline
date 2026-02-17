@@ -3,6 +3,7 @@ import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import evaluationSchema from "~/lib/schemas/evaluation.schema";
 import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Evaluation } from "./evaluations.types";
+import createEvaluationReport from "./services/createEvaluationReport.server";
 
 const EvaluationModel =
   mongoose.models.Evaluation || mongoose.model("Evaluation", evaluationSchema);
@@ -74,6 +75,10 @@ export class EvaluationService {
   static async create(data: Partial<Evaluation>): Promise<Evaluation> {
     const doc = await EvaluationModel.create(data);
     return this.toEvaluation(doc);
+  }
+
+  static async start(evaluation: Evaluation): Promise<void> {
+    createEvaluationReport(evaluation);
   }
 
   static async updateById(

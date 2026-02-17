@@ -1,4 +1,8 @@
-import { redirect, useLoaderData } from "react-router";
+import has from "lodash/has";
+import throttle from "lodash/throttle";
+import { useState } from "react";
+import { redirect, useLoaderData, useRevalidator } from "react-router";
+import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import Evaluation from "~/modules/evaluations/components/evaluation";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
@@ -38,8 +42,50 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return { project, runSet, evaluation };
 }
 
+const debounceRevalidate = throttle((revalidate) => {
+  revalidate();
+}, 2000);
+
 export default function EvaluationRoute() {
   const { project, runSet, evaluation } = useLoaderData<typeof loader>();
+  const [progress, setProgress] = useState(0);
+  const [step, setStep] = useState("");
+  const { revalidate } = useRevalidator();
+
+  useHandleSockets({
+    event: "CREATE_EVALUATION",
+    matches: [
+      {
+        evaluationId: evaluation._id,
+        task: "CREATE_EVALUATION:START",
+        status: "FINISHED",
+      },
+      {
+        evaluationId: evaluation._id,
+        task: "CREATE_EVALUATION:PROCESS",
+        status: "STARTED",
+      },
+      {
+        evaluationId: evaluation._id,
+        task: "CREATE_EVALUATION:PROCESS",
+        status: "FINISHED",
+      },
+      {
+        evaluationId: evaluation._id,
+        task: "CREATE_EVALUATION:FINISH",
+        status: "FINISHED",
+      },
+    ],
+    callback: (payload) => {
+      if (has(payload, "progress")) {
+        setProgress(payload.progress);
+      }
+      if (has(payload, "step")) {
+        setStep(payload.step);
+      }
+      debounceRevalidate(revalidate);
+    },
+  });
 
   const breadcrumbs = [
     { text: "Projects", link: "/" },
@@ -56,5 +102,12 @@ export default function EvaluationRoute() {
     { text: evaluation.name },
   ];
 
-  return <Evaluation evaluation={evaluation} breadcrumbs={breadcrumbs} />;
+  return (
+    <Evaluation
+      evaluation={evaluation}
+      breadcrumbs={breadcrumbs}
+      progress={progress}
+      step={step}
+    />
+  );
 }
