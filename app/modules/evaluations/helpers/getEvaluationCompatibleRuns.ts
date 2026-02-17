@@ -2,13 +2,12 @@ import { sessionsMatch } from "~/modules/runSets/helpers/sessionsMatch";
 import type { Run } from "~/modules/runs/runs.types";
 
 function getNonSystemFieldKeys(schema: any[]): string[] {
-  return schema.filter((field) => !field.isSystem).map((field) => field.fieldKey);
+  return schema
+    .filter((field) => !field.isSystem)
+    .map((field) => field.fieldKey);
 }
 
-function hasSharedFields(
-  keysA: string[],
-  keysB: string[],
-): boolean {
+function hasSharedFields(keysA: string[], keysB: string[]): boolean {
   const lookupSet = new Set(keysB);
   return keysA.some((key) => lookupSet.has(key));
 }

@@ -23,7 +23,8 @@ export default function getAnnotationSchemaFieldCounts(
   return nonSystemFields.map((field) => {
     const matchCount = compatibleRuns.filter((run) =>
       run.snapshot.prompt.annotationSchema.some(
-        (runField) => !runField.isSystem && runField.fieldKey === field.fieldKey,
+        (runField) =>
+          !runField.isSystem && runField.fieldKey === field.fieldKey,
       ),
     ).length;
 

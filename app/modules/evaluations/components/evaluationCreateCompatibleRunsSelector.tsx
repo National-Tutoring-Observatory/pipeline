@@ -5,12 +5,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
-import {
-  Item,
-  ItemContent,
-  ItemGroup,
-  ItemTitle,
-} from "@/components/ui/item";
+import { Item, ItemContent, ItemGroup, ItemTitle } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 
 export default function EvaluationCreateCompatibleRunsSelector({
@@ -73,8 +68,7 @@ export default function EvaluationCreateCompatibleRunsSelector({
           <EmptyHeader>
             <EmptyTitle>No compatible runs</EmptyTitle>
             <EmptyDescription>
-              No other runs share the same sessions as the selected base
-              run.
+              No other runs share the same sessions as the selected base run.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -84,8 +78,8 @@ export default function EvaluationCreateCompatibleRunsSelector({
           <EmptyHeader>
             <EmptyTitle>No base run selected</EmptyTitle>
             <EmptyDescription>
-              Select a base run to see other compatible runs to base
-              your evaluations on.
+              Select a base run to see other compatible runs to base your
+              evaluations on.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
