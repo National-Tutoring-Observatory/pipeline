@@ -12,6 +12,7 @@ import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import EvaluationCreate from "~/modules/evaluations/components/evaluationCreate";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
+import getAnnotationSchemaFieldCounts from "~/modules/evaluations/helpers/getAnnotationSchemaFieldCounts";
 import getEvaluationCompatibleRuns from "~/modules/evaluations/helpers/getEvaluationCompatibleRuns";
 import isAbleToCreateEvaluation from "~/modules/evaluations/helpers/isAbleToCreateEvaluation";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -120,7 +121,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         return data(
           {
             errors: {
-              runs: "All runs must share the same sessions and annotation schema",
+              runs: "All runs must share the same sessions and at least one annotation field",
             },
           },
           { status: 400 },
@@ -172,6 +173,11 @@ export default function EvaluationCreateRoute() {
   const compatibleRuns = useMemo(
     () => getEvaluationCompatibleRuns(runs, baseRun),
     [baseRun, runs],
+  );
+
+  const annotationSchemaFieldCounts = useMemo(
+    () => getAnnotationSchemaFieldCounts(runs, baseRun, compatibleRuns),
+    [runs, baseRun, compatibleRuns],
   );
 
   const handleBaseRunChanged = (id: string | null) => {
@@ -229,6 +235,7 @@ export default function EvaluationCreateRoute() {
         baseRun={baseRun}
         compatibleRuns={compatibleRuns}
         selectedRuns={selectedRuns}
+        annotationSchemaFieldCounts={annotationSchemaFieldCounts}
         onNameChanged={setName}
         onBaseRunChanged={handleBaseRunChanged}
         onSelectedRunsChanged={setSelectedRuns}

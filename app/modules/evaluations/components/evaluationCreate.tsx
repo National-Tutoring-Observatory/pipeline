@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle } from "lucide-react";
 import { Link } from "react-router";
+import type { AnnotationSchemaFieldCount } from "../helpers/getAnnotationSchemaFieldCounts";
 import EvaluationCreateRunsSelector from "./evaluationCreateRunsSelector";
 
 export default function EvaluationCreate({
@@ -16,6 +17,7 @@ export default function EvaluationCreate({
   baseRun,
   compatibleRuns,
   selectedRuns,
+  annotationSchemaFieldCounts,
   onNameChanged,
   onBaseRunChanged,
   onSelectedRunsChanged,
@@ -31,6 +33,7 @@ export default function EvaluationCreate({
   baseRun: string | null;
   compatibleRuns: Array<{ _id: string; name: string }>;
   selectedRuns: string[];
+  annotationSchemaFieldCounts: AnnotationSchemaFieldCount[];
   onNameChanged: (value: string) => void;
   onBaseRunChanged: (id: string | null) => void;
   onSelectedRunsChanged: (ids: string[]) => void;
@@ -77,6 +80,7 @@ export default function EvaluationCreate({
           baseRun={baseRun}
           compatibleRuns={compatibleRuns}
           selectedRuns={selectedRuns}
+          annotationSchemaFieldCounts={annotationSchemaFieldCounts}
           onBaseRunChanged={onBaseRunChanged}
           onSelectedRunsChanged={onSelectedRunsChanged}
         />
