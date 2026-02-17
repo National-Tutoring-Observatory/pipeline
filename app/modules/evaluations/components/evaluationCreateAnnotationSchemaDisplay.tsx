@@ -1,11 +1,16 @@
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import type { AnnotationSchemaFieldCount } from "../helpers/getAnnotationSchemaFieldCounts";
 
 export default function EvaluationCreateAnnotationSchemaDisplay({
   fieldCounts,
+  selectedAnnotationFields,
+  onAnnotationFieldToggled,
 }: {
   fieldCounts: AnnotationSchemaFieldCount[];
+  selectedAnnotationFields: string[];
+  onAnnotationFieldToggled: (fieldKey: string) => void;
 }) {
   if (fieldCounts.length === 0) return null;
 
@@ -13,16 +18,22 @@ export default function EvaluationCreateAnnotationSchemaDisplay({
     <div className="mt-4 max-w-lg space-y-2">
       <Label>Annotation schema fields</Label>
       <p className="text-muted-foreground text-sm">
-        In your evaluation you will be able to toggle between these fields. The
-        count here is how many runs you will be able to compare when evaluating
-        each schema field.
+        Select the annotation fields to include in this evaluation. At least one
+        field must be selected.
       </p>
       <div className="flex flex-wrap gap-2">
         {fieldCounts.map((field) => (
           <div
             key={field.fieldKey}
-            className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm"
+            className="hover:bg-accent flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm"
+            onClick={() => onAnnotationFieldToggled(field.fieldKey)}
           >
+            <Checkbox
+              id={`field-${field.fieldKey}`}
+              checked={selectedAnnotationFields.includes(field.fieldKey)}
+              onCheckedChange={() => onAnnotationFieldToggled(field.fieldKey)}
+              onClick={(e) => e.stopPropagation()}
+            />
             <span className="font-medium">{field.fieldKey}</span>
             <Badge variant="secondary">{field.fieldType}</Badge>
             <span className="text-muted-foreground">

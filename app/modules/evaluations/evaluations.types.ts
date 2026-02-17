@@ -5,6 +5,7 @@ export interface Evaluation {
   runSet: string;
   baseRun: string;
   runs: string[];
+  annotationFields: string[];
   isExporting?: boolean;
   hasExportedCSV?: boolean;
   hasExportedJSONL?: boolean;

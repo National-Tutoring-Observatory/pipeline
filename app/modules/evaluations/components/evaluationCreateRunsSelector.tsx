@@ -10,16 +10,20 @@ export default function EvaluationCreateRunsSelector({
   compatibleRuns,
   selectedRuns,
   annotationSchemaFieldCounts,
+  selectedAnnotationFields,
   onBaseRunChanged,
   onSelectedRunsChanged,
+  onAnnotationFieldToggled,
 }: {
   runs: Array<{ _id: string; name: string }>;
   baseRun: string | null;
   compatibleRuns: Array<{ _id: string; name: string }>;
   selectedRuns: string[];
   annotationSchemaFieldCounts: AnnotationSchemaFieldCount[];
+  selectedAnnotationFields: string[];
   onBaseRunChanged: (id: string | null) => void;
   onSelectedRunsChanged: (ids: string[]) => void;
+  onAnnotationFieldToggled: (fieldKey: string) => void;
 }) {
   return (
     <div className="max-w-6xl">
@@ -44,6 +48,8 @@ export default function EvaluationCreateRunsSelector({
 
         <EvaluationCreateAnnotationSchemaDisplay
           fieldCounts={annotationSchemaFieldCounts}
+          selectedAnnotationFields={selectedAnnotationFields}
+          onAnnotationFieldToggled={onAnnotationFieldToggled}
         />
       </div>
     </div>
