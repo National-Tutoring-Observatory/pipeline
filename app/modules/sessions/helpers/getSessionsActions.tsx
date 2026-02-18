@@ -6,7 +6,7 @@ export default function getSessionsActions(project: Project) {
   if (project.hasErrored && !project.isConvertingFiles) {
     actions.push({
       action: "RE_RUN",
-      text: "Re-run errored",
+      text: "Re-run failed",
     });
   }
 
