@@ -26,7 +26,7 @@ export default async function processExportRunSet(job: Job) {
   });
 
   const inputDirectory = `storage/${runSet.project}/runs`;
-  const outputDirectory = `storage/${runSet.project}/collections/${runSet._id}/exports`;
+  const outputDirectory = `storage/${runSet.project}/run-sets/${runSet._id}/exports`;
 
   if (exportType === "CSV") {
     await outputRunSetDataToCSV({
