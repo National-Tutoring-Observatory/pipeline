@@ -1,6 +1,6 @@
 import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
 import includes from "lodash/includes";
-import { Copy, Edit, FolderPlus, ListPlus, Stamp } from "lucide-react";
+import { Copy, Edit, FolderPlus, ListPlus, Stamp, Trash2 } from "lucide-react";
 import { useContext } from "react";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import type { User } from "~/modules/users/users.types";
@@ -23,6 +23,12 @@ export default function useRunsItemActions(): () => CollectionItemAction[] {
         action: "DUPLICATE",
         icon: <Copy />,
         text: "Duplicate",
+      },
+      {
+        action: "DELETE",
+        icon: <Trash2 />,
+        text: "Delete",
+        variant: "destructive",
       },
     ];
 

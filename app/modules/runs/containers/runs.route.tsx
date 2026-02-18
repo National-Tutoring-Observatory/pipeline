@@ -1,27 +1,19 @@
 import find from "lodash/find";
 import {
-  data,
-  redirect,
   useLoaderData,
   useNavigate,
   useParams,
   useRevalidator,
-  useSubmit,
 } from "react-router";
-import { toast } from "sonner";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import addDialog from "~/modules/dialogs/addDialog";
-import ProjectAuthorization from "~/modules/projects/authorization";
-import { ProjectService } from "~/modules/projects/project";
 import { useCreateRunSetForRun } from "~/modules/runs/hooks/useCreateRunSetForRun";
+import { useRunActions } from "~/modules/runs/hooks/useRunActions";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
-import EditRunDialog from "../components/editRunDialog";
 import Runs from "../components/runs";
 import type { Route } from "./+types/runs.route";
 
@@ -55,53 +47,15 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return { runs: { data: runs, totalPages: getTotalPages(total) } };
 }
 
-export async function action({ request, params }: Route.ActionArgs) {
-  const { intent, entityId, payload = {} } = await request.json();
-
-  const user = await getSessionUser({ request });
-  if (!user) {
-    return redirect("/");
-  }
-
-  const { name } = payload;
-
-  const project = await ProjectService.findById(params.id);
-  if (!project) {
-    return data({ errors: { project: "Project not found" } }, { status: 400 });
-  }
-  switch (intent) {
-    case "UPDATE_RUN": {
-      if (typeof name !== "string") {
-        throw new Error("Run name is required and must be a string.");
-      }
-
-      if (!ProjectAuthorization.Runs.canManage(user, project)) {
-        throw new Error(
-          "You do not have permission to update runs in this project.",
-        );
-      }
-
-      const existingRun = await RunService.findById(entityId);
-      if (!existingRun) {
-        throw new Error("Run not found.");
-      }
-
-      await RunService.updateById(entityId, { name });
-      return {};
-    }
-    default: {
-      return {};
-    }
-  }
-}
-
 export default function ProjectRunsRoute() {
   const { runs } = useLoaderData();
   const { id: projectId } = useParams();
-  const submit = useSubmit();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
   const { openCreateRunSetDialog } = useCreateRunSetForRun({
+    projectId: projectId!,
+  });
+  const { openEditRunDialog, openDeleteRunDialog } = useRunActions({
     projectId: projectId!,
   });
 
@@ -121,23 +75,6 @@ export default function ProjectRunsRoute() {
     sortValue: "name",
     filters: {},
   });
-
-  const onEditRunClicked = (run: Run) => {
-    submit(
-      JSON.stringify({
-        intent: "UPDATE_RUN",
-        entityId: run._id,
-        payload: { name: run.name },
-      }),
-      { method: "PUT", encType: "application/json" },
-    ).then(() => {
-      toast.success("Updated run");
-    });
-  };
-
-  const onEditRunButtonClicked = (run: Run) => {
-    addDialog(<EditRunDialog run={run} onEditRunClicked={onEditRunClicked} />);
-  };
 
   const onCreateRunButtonClicked = () => {
     navigate(`/projects/${projectId}/create-run`);
@@ -164,10 +101,13 @@ export default function ProjectRunsRoute() {
     if (!run) return null;
     switch (action) {
       case "EDIT":
-        onEditRunButtonClicked(run);
+        openEditRunDialog(run);
         break;
       case "DUPLICATE":
         onDuplicateRunButtonClicked(run);
+        break;
+      case "DELETE":
+        openDeleteRunDialog(run);
         break;
       case "ADD_TO_EXISTING_RUN_SET":
         navigate(`/projects/${projectId}/runs/${id}/add-to-run-set`);

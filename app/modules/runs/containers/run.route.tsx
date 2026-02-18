@@ -4,13 +4,11 @@ import throttle from "lodash/throttle";
 import { useEffect, useState } from "react";
 import {
   redirect,
-  useFetcher,
   useLoaderData,
   useNavigate,
   useRevalidator,
   useSubmit,
 } from "react-router";
-import { toast } from "sonner";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import triggerDownload from "~/modules/app/helpers/triggerDownload";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
@@ -20,10 +18,10 @@ import addDialog from "~/modules/dialogs/addDialog";
 import { ProjectService } from "~/modules/projects/project";
 import exportRun from "~/modules/runs/helpers/exportRun";
 import { useCreateRunSetForRun } from "~/modules/runs/hooks/useCreateRunSetForRun";
+import { useRunActions } from "~/modules/runs/hooks/useRunActions";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import { RunSetService } from "~/modules/runSets/runSet";
-import EditRunDialog from "../components/editRunDialog";
 import RunDetail from "../components/run";
 import StopRunDialog from "../components/stopRunDialog";
 import type { Route } from "./+types/run.route";
@@ -130,6 +128,21 @@ export async function action({ request, params }: Route.ActionArgs) {
       });
       return { runSets: allRunSets.data };
     }
+    case "UPDATE_RUN": {
+      const run = await RunService.findById(params.runId);
+      if (!run) throw new Error("Run not found");
+      if (typeof payload.name !== "string") {
+        throw new Error("Run name is required and must be a string.");
+      }
+      await RunService.updateById(run._id, { name: payload.name });
+      return { success: true, intent: "UPDATE_RUN" };
+    }
+    case "DELETE_RUN": {
+      const run = await RunService.findById(params.runId);
+      if (!run) throw new Error("Run not found");
+      await RunService.deleteById(run._id);
+      return { success: true, intent: "DELETE_RUN" };
+    }
     default:
       return {};
   }
@@ -172,15 +185,18 @@ export default function ProjectRunRoute() {
     { paramPrefix: "sessions" },
   );
   const submit = useSubmit();
-  const fetcher = useFetcher();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
-
-  useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data) {
-      toast.success("Updated run");
-    }
-  }, [fetcher.state, fetcher.data]);
+  const { openEditRunDialog, openDeleteRunDialog } = useRunActions({
+    projectId: project._id,
+    onDeleteSuccess: () => {
+      if (runSet?._id) {
+        navigate(`/projects/${project._id}/run-sets/${runSet._id}`);
+      } else {
+        navigate(`/projects/${project._id}`);
+      }
+    },
+  });
 
   const onExportRunButtonClicked = ({ exportType }: { exportType: string }) => {
     submit(
@@ -214,28 +230,6 @@ export default function ProjectRunRoute() {
         payload: {},
       }),
       { method: "POST", encType: "application/json" },
-    );
-  };
-
-  const onEditRunButtonClicked = (run: Run) => {
-    addDialog(
-      <EditRunDialog
-        run={run}
-        onEditRunClicked={(r: Run) => {
-          fetcher.submit(
-            JSON.stringify({
-              intent: "UPDATE_RUN",
-              entityId: r._id,
-              payload: { name: r.name },
-            }),
-            {
-              method: "PUT",
-              encType: "application/json",
-              action: `/projects/${project._id}?index`,
-            },
-          );
-        }}
-      />,
     );
   };
 
@@ -359,7 +353,8 @@ export default function ProjectRunRoute() {
       onExportRunButtonClicked={onExportRunButtonClicked}
       onStopRunClicked={openStopRunDialog}
       onReRunClicked={onReRunClicked}
-      onEditRunButtonClicked={onEditRunButtonClicked}
+      onEditRunButtonClicked={openEditRunDialog}
+      onDeleteRunButtonClicked={openDeleteRunDialog}
       onAddToExistingRunSetClicked={onAddToExistingRunSetClicked}
       onAddToNewRunSetClicked={() => openCreateRunSetDialog(run._id)}
       onUseAsTemplateClicked={onUseAsTemplateClicked}

@@ -24,6 +24,7 @@ import {
   OctagonX,
   Pencil,
   Stamp,
+  Trash2,
 } from "lucide-react";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
@@ -50,6 +51,7 @@ export default function RunDetail({
   onStopRunClicked,
   onReRunClicked,
   onEditRunButtonClicked,
+  onDeleteRunButtonClicked,
   onAddToExistingRunSetClicked,
   onAddToNewRunSetClicked,
   onUseAsTemplateClicked,
@@ -77,6 +79,7 @@ export default function RunDetail({
   onStopRunClicked: () => void;
   onReRunClicked: () => void;
   onEditRunButtonClicked: (run: Run) => void;
+  onDeleteRunButtonClicked: (run: Run) => void;
   onAddToExistingRunSetClicked: (run: Run) => void;
   onAddToNewRunSetClicked: (run: Run) => void;
   onUseAsTemplateClicked: (run: Run) => void;
@@ -141,6 +144,13 @@ export default function RunDetail({
               <DropdownMenuItem onClick={() => onEditRunButtonClicked(run)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onDeleteRunButtonClicked(run)}
+                className="text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
