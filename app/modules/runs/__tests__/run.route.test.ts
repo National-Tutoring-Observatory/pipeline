@@ -252,4 +252,92 @@ describe("run.route action", () => {
     expect(data.runSets).toHaveLength(1);
     expect(data.runSets[0]._id).toBe(runSet._id);
   });
+
+  it("UPDATE_RUN updates run name", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+    });
+
+    const run = await RunService.create({
+      project: project._id,
+      name: "Old Name",
+      sessions: [],
+      annotationType: "PER_UTTERANCE",
+      prompt: new Types.ObjectId().toString(),
+      promptVersion: 1,
+      modelCode: "gpt-4",
+    });
+
+    const res = await action({
+      request: new Request(
+        "http://localhost/projects/" + project._id + "/runs/" + run._id,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            intent: "UPDATE_RUN",
+            payload: { name: "New Name" },
+          }),
+        },
+      ),
+      params: { projectId: project._id, runId: run._id },
+    } as any);
+
+    const data = res as any;
+    expect(data.success).toBe(true);
+    expect(data.intent).toBe("UPDATE_RUN");
+    const updatedRun = await RunService.findById(run._id);
+    expect(updatedRun?.name).toBe("New Name");
+  });
+
+  it("DELETE_RUN deletes the run", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+    });
+
+    const run = await RunService.create({
+      project: project._id,
+      name: "Delete Run",
+      sessions: [],
+      annotationType: "PER_UTTERANCE",
+      prompt: new Types.ObjectId().toString(),
+      promptVersion: 1,
+      modelCode: "gpt-4",
+    });
+
+    const res = await action({
+      request: new Request(
+        "http://localhost/projects/" + project._id + "/runs/" + run._id,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ intent: "DELETE_RUN", payload: {} }),
+        },
+      ),
+      params: { projectId: project._id, runId: run._id },
+    } as any);
+
+    const data = res as any;
+    expect(data.success).toBe(true);
+    expect(data.intent).toBe("DELETE_RUN");
+
+    const deletedRun = await RunService.findById(run._id);
+    expect(deletedRun).toBeNull();
+  });
 });
