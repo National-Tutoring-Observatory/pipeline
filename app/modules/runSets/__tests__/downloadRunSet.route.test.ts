@@ -72,7 +72,7 @@ describe("downloadRunSet.route loader", () => {
     col: RunSet,
     exportType: "CSV" | "JSONL",
   ) {
-    const outputDirectory = `storage/${col.project}/collections/${col._id}/exports`;
+    const outputDirectory = `storage/${col.project}/run-sets/${col._id}/exports`;
 
     if (exportType === "CSV") {
       const metaCsv = Buffer.from("runId,runName\n123,Test Run");
@@ -225,6 +225,39 @@ describe("downloadRunSet.route loader", () => {
     );
     expect((res as Response).headers.get("Content-Disposition")).toContain(
       runSet._id,
+    );
+  });
+
+  it("falls back to legacy collections/ path for pre-migration exports", async () => {
+    const legacyDirectory = `storage/${runSet.project}/collections/${runSet._id}/exports`;
+    const metaCsv = Buffer.from("runId,runName\n123,Test Run");
+    const utterancesCsv = Buffer.from("sessionId,utteranceId,text\n1,1,Hello");
+
+    await storage.upload({
+      file: { buffer: metaCsv, size: metaCsv.length, type: "text/csv" },
+      uploadPath: `${legacyDirectory}/${runSet.project}-${runSet._id}-meta.csv`,
+    });
+    await storage.upload({
+      file: {
+        buffer: utterancesCsv,
+        size: utterancesCsv.length,
+        type: "text/csv",
+      },
+      uploadPath: `${legacyDirectory}/${runSet.project}-${runSet._id}-utterances.csv`,
+    });
+
+    const res = await loader({
+      request: new Request(
+        `http://localhost/api/downloads/${project._id}/run-sets/${runSet._id}?exportType=CSV`,
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: { projectId: project._id, runSetId: runSet._id },
+      context: {},
+    } as any);
+
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).headers.get("Content-Type")).toBe(
+      "application/zip",
     );
   });
 });
