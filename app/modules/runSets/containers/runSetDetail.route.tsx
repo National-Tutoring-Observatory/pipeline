@@ -46,14 +46,32 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const runIds = runSet.runs ?? [];
   const totalRuns = runIds.length;
-  let runsProgress = { total: totalRuns, completed: 0, running: 0 };
+  let runsProgress = {
+    total: totalRuns,
+    completed: 0,
+    running: 0,
+    startedAt: null as string | null,
+  };
 
   if (totalRuns > 0) {
-    const [completed, running] = await Promise.all([
+    const [completed, running, [earliestRun]] = await Promise.all([
       RunService.count({ _id: { $in: runIds }, isComplete: true }),
       RunService.count({ _id: { $in: runIds }, isRunning: true }),
+      RunService.find({
+        match: {
+          _id: { $in: runIds },
+          startedAt: { $exists: true, $ne: null },
+        },
+        sort: { startedAt: 1 },
+        pagination: { skip: 0, limit: 1 },
+      }),
     ]);
-    runsProgress = { total: totalRuns, completed, running };
+    runsProgress = {
+      total: totalRuns,
+      completed,
+      running,
+      startedAt: earliestRun ? String(earliestRun.startedAt) : null,
+    };
   }
 
   return {

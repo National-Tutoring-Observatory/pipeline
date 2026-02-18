@@ -26,6 +26,7 @@ import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import Flag from "~/modules/featureFlags/components/flag";
 import DownloadDropdown from "~/modules/runs/components/downloadDropdown";
+import formatTimeRemaining from "~/modules/runs/helpers/formatTimeRemaining";
 import type { RunSet } from "~/modules/runSets/runSets.types";
 
 export default function RunSetDetail({
@@ -45,7 +46,12 @@ export default function RunSetDetail({
   runSet: RunSet;
   project: { _id: string; name: string };
   breadcrumbs: Breadcrumb[];
-  runsProgress: { total: number; completed: number; running: number };
+  runsProgress: {
+    total: number;
+    completed: number;
+    running: number;
+    startedAt: string | null;
+  };
   onExportRunSetButtonClicked: ({ exportType }: { exportType: string }) => void;
   onAddRunsClicked: () => void;
   onMergeClicked: () => void;
@@ -110,6 +116,14 @@ export default function RunSetDetail({
         <div className="relative mb-4">
           <div className="absolute top-3 right-0 text-xs opacity-40">
             Annotating runs {runsProgress.completed}/{runsProgress.total}
+            {(() => {
+              const estimate = formatTimeRemaining(
+                runsProgress.startedAt,
+                runsProgress.completed,
+                runsProgress.total,
+              );
+              return estimate ? ` · ${estimate}` : null;
+            })()}
           </div>
           <Progress
             value={(runsProgress.completed / runsProgress.total) * 100}

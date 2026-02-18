@@ -29,6 +29,7 @@ import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import Flag from "~/modules/featureFlags/components/flag";
 import annotationTypes from "~/modules/prompts/annotationTypes";
+import formatTimeRemaining from "~/modules/runs/helpers/formatTimeRemaining";
 import getRunSessionsItemAttributes from "~/modules/runs/helpers/getRunSessionsItemAttributes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
@@ -161,6 +162,17 @@ export default function RunDetail({
             <Progress value={runSessionsProgress} />
             <div className="mt-1 text-right text-xs opacity-40">
               Annotating {runSessionsStep}
+              {(() => {
+                const [completed, total] = runSessionsStep
+                  .split("/")
+                  .map(Number);
+                const estimate = formatTimeRemaining(
+                  run.startedAt,
+                  completed,
+                  total,
+                );
+                return estimate ? ` · ${estimate}` : null;
+              })()}
             </div>
           </div>
         )}
