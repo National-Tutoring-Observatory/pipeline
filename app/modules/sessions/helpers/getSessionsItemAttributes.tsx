@@ -6,7 +6,7 @@ export default function getSessionsItemAttributes(item: Session) {
     item.hasConverted === true
       ? "Converted"
       : item.hasErrored
-        ? "Errored"
+        ? "Failed"
         : "Not converted";
 
   return {
