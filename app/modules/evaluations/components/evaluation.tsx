@@ -1,8 +1,13 @@
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Evaluation as EvaluationType } from "~/modules/evaluations/evaluations.types";
+import buildPairwiseMatrix from "../helpers/buildPairwiseMatrix";
+import getTopPerformersVsGoldLabel from "../helpers/getTopPerformersVsGoldLabel";
+import EvaluationPairwiseMatrix from "./evaluationPairwiseMatrix";
+import EvaluationTopPerformers from "./evaluationTopPerformers";
 
 export default function Evaluation({
   evaluation,
@@ -16,6 +21,12 @@ export default function Evaluation({
   step: string;
 }) {
   const runCount = evaluation.runs?.length || 0;
+  const report = evaluation.report || [];
+
+  const goldLabelRunName =
+    report[0]?.runSummaries.find(
+      (summary) => summary.runId === evaluation.baseRun,
+    )?.runName || "Gold Label";
 
   return (
     <div className="px-8 pt-8">
@@ -43,6 +54,44 @@ export default function Evaluation({
             {runCount} run{runCount !== 1 ? "s" : ""}
           </p>
         </div>
+
+        {evaluation.isComplete && report.length > 0 && (
+          <Tabs defaultValue={report[0].fieldKey}>
+            <p className="text-muted-foreground mb-2 text-sm">
+              This shows an evaluation based upon the following annotation
+              schema field:
+            </p>
+            <TabsList>
+              {report.map((fieldReport) => (
+                <TabsTrigger
+                  key={fieldReport.fieldKey}
+                  value={fieldReport.fieldKey}
+                >
+                  {fieldReport.fieldKey}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {report.map((fieldReport) => (
+              <TabsContent
+                key={fieldReport.fieldKey}
+                value={fieldReport.fieldKey}
+              >
+                <div className="space-y-6">
+                  <EvaluationTopPerformers
+                    performers={getTopPerformersVsGoldLabel(
+                      fieldReport,
+                      evaluation.baseRun,
+                    )}
+                    goldLabelRunName={goldLabelRunName}
+                  />
+                  <EvaluationPairwiseMatrix
+                    matrix={buildPairwiseMatrix(fieldReport)}
+                  />
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        )}
       </div>
     </div>
   );
