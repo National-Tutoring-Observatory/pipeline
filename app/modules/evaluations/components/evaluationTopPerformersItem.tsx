@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import getKappaCellClass from "../helpers/getKappaCellClass";
 import getKappaInterpretation from "../helpers/getKappaInterpretation";
 import type { TopPerformer } from "../helpers/getTopPerformersVsGoldLabel";
 
@@ -35,7 +36,10 @@ export default function EvaluationTopPerformersItem({
               {performer.kappa.toFixed(2)}
             </div>
           </div>
-          <Badge variant="outline">
+          <Badge
+            variant="outline"
+            className={getKappaCellClass(performer.kappa)}
+          >
             {getKappaInterpretation(performer.kappa)}
           </Badge>
         </div>

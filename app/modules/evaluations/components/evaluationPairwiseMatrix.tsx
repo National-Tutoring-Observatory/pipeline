@@ -8,18 +8,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import type { PairwiseMatrix } from "../helpers/buildPairwiseMatrix";
-import getKappaInterpretation from "../helpers/getKappaInterpretation";
-
-function getKappaCellClass(kappa: number): string {
-  const interpretation = getKappaInterpretation(kappa);
-  if (interpretation === "Almost Perfect" || interpretation === "Substantial") {
-    return "bg-green-50 dark:bg-green-950/30";
-  }
-  if (interpretation === "Moderate") {
-    return "bg-amber-50 dark:bg-amber-950/30";
-  }
-  return "bg-red-50 dark:bg-red-950/30";
-}
+import getKappaCellClass from "../helpers/getKappaCellClass";
 
 export default function EvaluationPairwiseMatrix({
   matrix,
@@ -43,10 +32,11 @@ export default function EvaluationPairwiseMatrix({
           <TableRow>
             <TableHead />
             {matrix.runs.map((run) => (
-              <TableHead key={run.runId} className="text-center">
-                <div className="max-w-24 truncate" title={run.runName}>
-                  {run.runName}
-                </div>
+              <TableHead
+                key={run.runId}
+                className="max-w-24 text-center whitespace-normal"
+              >
+                <div>{run.runName}</div>
               </TableHead>
             ))}
           </TableRow>
@@ -54,10 +44,8 @@ export default function EvaluationPairwiseMatrix({
         <TableBody>
           {matrix.runs.map((rowRun, rowIndex) => (
             <TableRow key={rowRun.runId}>
-              <TableCell className="font-medium">
-                <div className="max-w-32 truncate" title={rowRun.runName}>
-                  {rowRun.runName}
-                </div>
+              <TableCell className="max-w-48 font-medium whitespace-normal">
+                {rowRun.runName}
               </TableCell>
               {matrix.cells[rowIndex].map((cell, colIndex) => (
                 <TableCell

@@ -5,7 +5,9 @@ import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Evaluation as EvaluationType } from "~/modules/evaluations/evaluations.types";
 import buildPairwiseMatrix from "../helpers/buildPairwiseMatrix";
+import getPairDetails from "../helpers/getPairDetails";
 import getTopPerformersVsGoldLabel from "../helpers/getTopPerformersVsGoldLabel";
+import EvaluationPairDetails from "./evaluationPairDetails";
 import EvaluationPairwiseMatrix from "./evaluationPairwiseMatrix";
 import EvaluationTopPerformers from "./evaluationTopPerformers";
 
@@ -87,6 +89,7 @@ export default function Evaluation({
                   <EvaluationPairwiseMatrix
                     matrix={buildPairwiseMatrix(fieldReport)}
                   />
+                  <EvaluationPairDetails pairs={getPairDetails(fieldReport)} />
                 </div>
               </TabsContent>
             ))}
