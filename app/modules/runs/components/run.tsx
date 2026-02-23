@@ -21,6 +21,7 @@ import find from "lodash/find";
 import {
   BadgeCheck,
   BadgeX,
+  Copy,
   FolderPlus,
   ListPlus,
   MoreHorizontal,
@@ -55,6 +56,7 @@ export default function RunDetail({
   onExportRunButtonClicked,
   onStopRunClicked,
   onReRunClicked,
+  onDuplicateRunButtonClicked,
   onEditRunButtonClicked,
   onDeleteRunButtonClicked,
   onAddToExistingRunSetClicked,
@@ -84,6 +86,7 @@ export default function RunDetail({
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void;
   onStopRunClicked: () => void;
   onReRunClicked: () => void;
+  onDuplicateRunButtonClicked: (run: Run) => void;
   onEditRunButtonClicked: (run: Run) => void;
   onDeleteRunButtonClicked: (run: Run) => void;
   onAddToExistingRunSetClicked: (run: Run) => void;
@@ -140,6 +143,13 @@ export default function RunDetail({
               <DropdownMenuItem onClick={() => onUseAsTemplateClicked(run)}>
                 <Stamp className="mr-2 h-4 w-4" />
                 Use as Run Set Template
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => onDuplicateRunButtonClicked(run)}
+              >
+                <Copy className="mr-2 h-4 w-4" />
+                Duplicate
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onEditRunButtonClicked(run)}>

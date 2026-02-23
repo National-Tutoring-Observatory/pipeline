@@ -5,7 +5,7 @@ import {
   PageHeaderRight,
 } from "@/components/ui/pageHeader";
 import map from "lodash/map";
-import { CirclePlus, Pencil } from "lucide-react";
+import { CirclePlus, Pencil, Trash2 } from "lucide-react";
 import { Outlet } from "react-router";
 import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
 import type { Breadcrumb } from "~/modules/app/app.types";
@@ -18,8 +18,10 @@ type PromptProps = {
   promptVersions: PromptVersion[];
   version: number;
   breadcrumbs: Breadcrumb[];
+  canDelete: boolean;
   onCreatePromptVersionClicked: () => void;
   onEditPromptButtonClicked: (prompt: Prompt) => void;
+  onDeletePromptButtonClicked: (prompt: Prompt) => void;
 };
 
 export default function Prompt({
@@ -27,8 +29,10 @@ export default function Prompt({
   promptVersions,
   version,
   breadcrumbs,
+  canDelete,
   onCreatePromptVersionClicked,
   onEditPromptButtonClicked,
+  onDeletePromptButtonClicked,
 }: PromptProps) {
   return (
     <div className="max-w-6xl p-8">
@@ -37,15 +41,24 @@ export default function Prompt({
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
         <PageHeaderRight>
-          {onEditPromptButtonClicked && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={() => onEditPromptButtonClicked(prompt)}
+          >
+            <Pencil />
+            Edit
+          </Button>
+          {canDelete && (
             <Button
               size="sm"
               variant="ghost"
-              className="text-muted-foreground"
-              onClick={() => onEditPromptButtonClicked(prompt)}
+              className="text-destructive"
+              onClick={() => onDeletePromptButtonClicked(prompt)}
             >
-              <Pencil />
-              Edit
+              <Trash2 />
+              Delete
             </Button>
           )}
         </PageHeaderRight>

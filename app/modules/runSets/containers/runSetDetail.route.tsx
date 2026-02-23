@@ -222,6 +222,11 @@ export default function RunSetDetailRoute() {
         navigate(`/projects/${project._id}/run-sets/${runSet._id}/merge`)
       }
       onDuplicateClicked={() => openDuplicateRunSetDialog(runSet)}
+      onUseAsTemplateClicked={() =>
+        navigate(
+          `/projects/${project._id}/create-run-set?fromRunSet=${runSet._id}`,
+        )
+      }
       onEditClicked={() => openEditRunSetDialog(runSet)}
       onDeleteClicked={() => openDeleteRunSetDialog(runSet)}
       activeView={activeView}
