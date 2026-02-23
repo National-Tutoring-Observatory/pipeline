@@ -1,5 +1,5 @@
 import map from "lodash/map";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
 import { toast } from "sonner";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
@@ -79,6 +79,7 @@ export default function ProjectCreateRunRoute() {
   const { project, initialRun, duplicateWarnings } = useLoaderData();
   const fetcher = useFetcher();
   const navigate = useNavigate();
+  const submittedRef = useRef(false);
   const isSubmitting =
     fetcher.state !== "idle" || fetcher.data?.intent === "CREATE_AND_START_RUN";
 
@@ -90,6 +91,8 @@ export default function ProjectCreateRunRoute() {
     selectedModel,
     selectedSessions,
   }: CreateRunPayload) => {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
     fetcher.submit(
       JSON.stringify({
         intent: "CREATE_AND_START_RUN",
