@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Copy,
+  FileInput,
   GitMerge,
   MoreHorizontal,
   Pencil,
@@ -38,6 +39,7 @@ export default function RunSetDetail({
   onAddRunsClicked,
   onMergeClicked,
   onDuplicateClicked,
+  onUseAsTemplateClicked,
   onEditClicked,
   onDeleteClicked,
   activeView,
@@ -58,6 +60,7 @@ export default function RunSetDetail({
   onAddRunsClicked: () => void;
   onMergeClicked: () => void;
   onDuplicateClicked: () => void;
+  onUseAsTemplateClicked: () => void;
   onEditClicked: () => void;
   onDeleteClicked: () => void;
   activeView: "overview" | "evaluations";
@@ -95,6 +98,10 @@ export default function RunSetDetail({
                 <DropdownMenuItem onClick={onDuplicateClicked}>
                   <Copy className="mr-2 h-4 w-4" />
                   Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onUseAsTemplateClicked}>
+                  <FileInput className="mr-2 h-4 w-4" />
+                  Use as Template
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onEditClicked}>

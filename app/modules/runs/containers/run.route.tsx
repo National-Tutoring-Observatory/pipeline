@@ -239,6 +239,10 @@ export default function ProjectRunRoute() {
     projectId: project._id,
   });
 
+  const onDuplicateRunButtonClicked = (run: Run) => {
+    navigate(`/projects/${project._id}/create-run?duplicateFrom=${run._id}`);
+  };
+
   const onAddToExistingRunSetClicked = (run: Run) => {
     navigate(`/projects/${project._id}/runs/${run._id}/add-to-run-set`);
   };
@@ -356,6 +360,7 @@ export default function ProjectRunRoute() {
       onExportRunButtonClicked={onExportRunButtonClicked}
       onStopRunClicked={openStopRunDialog}
       onReRunClicked={onReRunClicked}
+      onDuplicateRunButtonClicked={onDuplicateRunButtonClicked}
       onEditRunButtonClicked={openEditRunDialog}
       onDeleteRunButtonClicked={openDeleteRunDialog}
       onAddToExistingRunSetClicked={onAddToExistingRunSetClicked}

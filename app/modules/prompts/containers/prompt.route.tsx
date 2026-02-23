@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import {
   data,
   redirect,
@@ -8,9 +8,12 @@ import {
   useParams,
 } from "react-router";
 import { toast } from "sonner";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import PromptAuthorization from "~/modules/prompts/authorization";
+import { RunService } from "~/modules/runs/run";
+import DeletePromptDialog from "../components/deletePromptDialog";
 import EditPromptDialog from "../components/editPromptDialog";
 import Prompt from "../components/prompt";
 import { PromptService } from "../prompt";
@@ -96,6 +99,43 @@ export async function action({ request }: Route.ActionArgs) {
         data: updated,
       });
     }
+    case "DELETE_PROMPT": {
+      if (!PromptAuthorization.canDelete(user, prompt)) {
+        return data(
+          {
+            errors: {
+              general: "You do not have permission to delete this prompt.",
+            },
+          },
+          { status: 403 },
+        );
+      }
+
+      const runsUsingPromptCount = await RunService.count({
+        prompt: entityId,
+        isComplete: false,
+      });
+
+      if (runsUsingPromptCount > 0) {
+        return data(
+          {
+            errors: {
+              general: `Cannot delete prompt: ${runsUsingPromptCount} active run(s) reference it. Wait for runs to complete or create a new prompt for future runs.`,
+            },
+          },
+          { status: 400 },
+        );
+      }
+
+      await PromptService.updateById(entityId, {
+        deletedAt: new Date() as any,
+      });
+
+      return data({
+        success: true,
+        intent: "DELETE_PROMPT",
+      });
+    }
     default:
       return data({ errors: { general: "Invalid intent" } }, { status: 400 });
   }
@@ -110,6 +150,8 @@ export default function PromptRoute() {
   const fetcher = useFetcher();
 
   const { prompt, promptVersions } = loaderData;
+  const user = useContext(AuthenticationContext);
+  const canDelete = PromptAuthorization.canDelete(user, prompt);
 
   const submitCreatePromptVersion = () => {
     fetcher.submit(
@@ -137,6 +179,13 @@ export default function PromptRoute() {
       ) {
         toast.success("Prompt updated");
         addDialog(null);
+      } else if (
+        fetcher.data.success &&
+        fetcher.data.intent === "DELETE_PROMPT"
+      ) {
+        toast.success("Prompt deleted");
+        addDialog(null);
+        navigate("/prompts");
       } else if (fetcher.data.errors) {
         toast.error(fetcher.data.errors.general || "An error occurred");
       }
@@ -174,14 +223,36 @@ export default function PromptRoute() {
     );
   };
 
+  const openDeletePromptDialog = (p: PromptType) => {
+    addDialog(
+      <DeletePromptDialog
+        prompt={p}
+        onDeletePromptClicked={submitDeletePrompt}
+        isSubmitting={fetcher.state === "submitting"}
+      />,
+    );
+  };
+
+  const submitDeletePrompt = (promptId: string) => {
+    fetcher.submit(
+      JSON.stringify({
+        intent: "DELETE_PROMPT",
+        entityId: promptId,
+      }),
+      { method: "POST", encType: "application/json" },
+    );
+  };
+
   return (
     <Prompt
       prompt={prompt}
       promptVersions={promptVersions}
       version={Number(version)}
       breadcrumbs={breadcrumbs}
+      canDelete={canDelete}
       onCreatePromptVersionClicked={submitCreatePromptVersion}
       onEditPromptButtonClicked={openEditPromptDialog}
+      onDeletePromptButtonClicked={openDeletePromptDialog}
     />
   );
 }

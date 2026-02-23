@@ -7,11 +7,6 @@ export default function getRunSetsItemActions(
 ): CollectionItemAction[] {
   return [
     {
-      action: "EDIT",
-      icon: <Edit />,
-      text: "Edit",
-    },
-    {
       action: "DUPLICATE",
       icon: <Copy />,
       text: "Duplicate",
@@ -22,9 +17,15 @@ export default function getRunSetsItemActions(
       text: "Use as template",
     },
     {
+      action: "EDIT",
+      icon: <Edit />,
+      text: "Edit",
+    },
+    {
       action: "DELETE",
       icon: <Trash2 />,
       text: "Delete",
+      variant: "destructive",
     },
   ];
 }
