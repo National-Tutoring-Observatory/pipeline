@@ -2,6 +2,7 @@ import map from "lodash/map";
 import { useEffect } from "react";
 import { redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
 import { toast } from "sonner";
+import useSubmitGuard from "~/modules/app/hooks/useSubmitGuard";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
@@ -80,8 +81,10 @@ export default function ProjectCreateRunRoute() {
   const { project, initialRun, duplicateWarnings } = useLoaderData();
   const fetcher = useFetcher();
   const navigate = useNavigate();
-  const isSubmitting =
-    fetcher.state !== "idle" || fetcher.data?.intent === "CREATE_AND_START_RUN";
+  const { isSubmitting, guard } = useSubmitGuard(
+    fetcher,
+    fetcher.data?.intent === "CREATE_AND_START_RUN",
+  );
 
   const onStartRunClicked = ({
     name,
@@ -129,7 +132,7 @@ export default function ProjectCreateRunRoute() {
   return (
     <CreateRunComponent
       breadcrumbs={breadcrumbs}
-      onStartRunClicked={onStartRunClicked}
+      onStartRunClicked={guard(onStartRunClicked)}
       isSubmitting={isSubmitting}
       initialRun={initialRun}
       duplicateWarnings={duplicateWarnings}
