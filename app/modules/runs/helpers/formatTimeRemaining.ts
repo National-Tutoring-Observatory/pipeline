@@ -5,7 +5,11 @@ export default function formatTimeRemaining(
   completed: number,
   total: number,
 ): string | null {
-  if (!startedAt || completed < MIN_COMPLETED_FOR_ESTIMATE || completed >= total)
+  if (
+    !startedAt ||
+    completed < MIN_COMPLETED_FOR_ESTIMATE ||
+    completed >= total
+  )
     return null;
 
   const elapsedMs = Date.now() - new Date(startedAt).getTime();
