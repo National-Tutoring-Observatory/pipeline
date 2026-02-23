@@ -36,7 +36,10 @@ export default function EvaluationTopPerformersItem({
               {performer.kappa.toFixed(2)}
             </div>
           </div>
-          <Badge variant="outline" className={getKappaCellClass(performer.kappa)}>
+          <Badge
+            variant="outline"
+            className={getKappaCellClass(performer.kappa)}
+          >
             {getKappaInterpretation(performer.kappa)}
           </Badge>
         </div>
