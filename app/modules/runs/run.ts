@@ -90,7 +90,12 @@ export class RunService {
   }
 
   static async start(run: Run): Promise<void> {
-    await this.updateById(run._id, { isRunning: true });
+    await this.updateById(run._id, {
+      isRunning: false,
+      stoppedAt: null,
+      isComplete: false,
+      hasErrored: false,
+    });
     await createRunAnnotations(run);
   }
 
