@@ -10,14 +10,11 @@ import {
 import { toast } from "sonner";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import addDialog from "~/modules/dialogs/addDialog";
 import PromptAuthorization from "~/modules/prompts/authorization";
+import { usePromptActions } from "~/modules/prompts/hooks/usePromptActions";
 import { RunService } from "~/modules/runs/run";
-import DeletePromptDialog from "../components/deletePromptDialog";
-import EditPromptDialog from "../components/editPromptDialog";
 import Prompt from "../components/prompt";
 import { PromptService } from "../prompt";
-import type { Prompt as PromptType } from "../prompts.types";
 import { PromptVersionService } from "../promptVersion";
 import type { Route } from "./+types/prompt.route";
 
@@ -153,6 +150,10 @@ export default function PromptRoute() {
   const user = useContext(AuthenticationContext);
   const canDelete = PromptAuthorization.canDelete(user, prompt);
 
+  const { openEditPromptDialog, openDeletePromptDialog } = usePromptActions({
+    onDeleteSuccess: () => navigate("/prompts"),
+  });
+
   const submitCreatePromptVersion = () => {
     fetcher.submit(
       JSON.stringify({
@@ -173,19 +174,6 @@ export default function PromptRoute() {
         navigate(
           `/prompts/${fetcher.data.data.prompt}/${fetcher.data.data.version}`,
         );
-      } else if (
-        fetcher.data.success &&
-        fetcher.data.intent === "UPDATE_PROMPT"
-      ) {
-        toast.success("Prompt updated");
-        addDialog(null);
-      } else if (
-        fetcher.data.success &&
-        fetcher.data.intent === "DELETE_PROMPT"
-      ) {
-        toast.success("Prompt deleted");
-        addDialog(null);
-        navigate("/prompts");
       } else if (fetcher.data.errors) {
         toast.error(fetcher.data.errors.general || "An error occurred");
       }
@@ -201,47 +189,6 @@ export default function PromptRoute() {
       text: prompt.name,
     },
   ];
-
-  const openEditPromptDialog = (p: PromptType) => {
-    addDialog(
-      <EditPromptDialog
-        prompt={p}
-        onEditPromptClicked={submitEditPrompt}
-        isSubmitting={fetcher.state === "submitting"}
-      />,
-    );
-  };
-
-  const submitEditPrompt = (updatedPrompt: PromptType) => {
-    fetcher.submit(
-      JSON.stringify({
-        intent: "UPDATE_PROMPT",
-        entityId: updatedPrompt._id,
-        payload: { name: updatedPrompt.name },
-      }),
-      { method: "PUT", encType: "application/json" },
-    );
-  };
-
-  const openDeletePromptDialog = (p: PromptType) => {
-    addDialog(
-      <DeletePromptDialog
-        prompt={p}
-        onDeletePromptClicked={submitDeletePrompt}
-        isSubmitting={fetcher.state === "submitting"}
-      />,
-    );
-  };
-
-  const submitDeletePrompt = (promptId: string) => {
-    fetcher.submit(
-      JSON.stringify({
-        intent: "DELETE_PROMPT",
-        entityId: promptId,
-      }),
-      { method: "POST", encType: "application/json" },
-    );
-  };
 
   return (
     <Prompt
