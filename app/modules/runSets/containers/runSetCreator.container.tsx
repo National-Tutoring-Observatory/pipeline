@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import RunSetCreatorAnnotationType from "../components/runSetCreatorAnnotationType";
 import RunSetCreatorFooter from "../components/runSetCreatorFooter";
 import RunSetCreatorFormAlerts from "../components/runSetCreatorFormAlerts";
@@ -7,6 +7,7 @@ import RunSetCreatorName from "../components/runSetCreatorName";
 import RunSetCreatorPrompts from "../components/runSetCreatorPrompts";
 import RunSetCreatorSessions from "../components/runSetCreatorSessions";
 import RunSetRunPreview from "../components/runSetRunPreview";
+import buildDefinitionsFromSelection from "../helpers/buildDefinitionsFromSelection";
 import { calculateEstimates } from "../helpers/calculateEstimates";
 import type { PrefillData, PromptReference } from "../runSets.types";
 
@@ -45,16 +46,46 @@ export default function RunSetCreatorContainer({
   const [selectedSessions, setSelectedSessions] = useState<string[]>(
     prefillData?.selectedSessions || [],
   );
+  const [removedKeys, setRemovedKeys] = useState<Set<string>>(new Set());
 
-  const estimation = calculateEstimates(
-    selectedPrompts,
-    selectedModels,
-    selectedSessions,
+  const allDefinitions = useMemo(
+    () => buildDefinitionsFromSelection(selectedPrompts, selectedModels),
+    [selectedPrompts, selectedModels],
   );
+
+  const runDefinitions = allDefinitions.filter((d) => !removedKeys.has(d.key));
+  const excludedDefinitions = allDefinitions.filter((d) =>
+    removedKeys.has(d.key),
+  );
+
+  const estimation = calculateEstimates(runDefinitions, selectedSessions);
 
   const handleAnnotationTypeChange = (type: string) => {
     setAnnotationType(type);
     setSelectedPrompts([]);
+    setRemovedKeys(new Set());
+  };
+
+  const handlePromptsChanged = (prompts: PromptReference[]) => {
+    setSelectedPrompts(prompts);
+    setRemovedKeys(new Set());
+  };
+
+  const handleModelsChanged = (models: string[]) => {
+    setSelectedModels(models);
+    setRemovedKeys(new Set());
+  };
+
+  const handleRemoveCard = (key: string) => {
+    setRemovedKeys((prev) => new Set(prev).add(key));
+  };
+
+  const handleRestoreCard = (key: string) => {
+    setRemovedKeys((prev) => {
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
   };
 
   const handleSubmit = () => {
@@ -63,8 +94,7 @@ export default function RunSetCreatorContainer({
       payload: {
         name,
         annotationType,
-        prompts: selectedPrompts,
-        models: selectedModels,
+        definitions: runDefinitions,
         sessions: selectedSessions,
       },
     });
@@ -87,12 +117,12 @@ export default function RunSetCreatorContainer({
           <RunSetCreatorPrompts
             annotationType={annotationType}
             selectedPrompts={selectedPrompts}
-            onPromptsChanged={setSelectedPrompts}
+            onPromptsChanged={handlePromptsChanged}
           />
 
           <RunSetCreatorModels
             selectedModels={selectedModels}
-            onModelsChanged={setSelectedModels}
+            onModelsChanged={handleModelsChanged}
           />
 
           <RunSetCreatorSessions
@@ -103,16 +133,17 @@ export default function RunSetCreatorContainer({
 
         <RunSetRunPreview
           name={name}
-          selectedPrompts={selectedPrompts}
-          selectedModels={selectedModels}
+          runDefinitions={runDefinitions}
+          excludedDefinitions={excludedDefinitions}
           sessionsCount={selectedSessions.length}
+          onRemoveCard={handleRemoveCard}
+          onRestoreCard={handleRestoreCard}
         />
       </div>
 
       <RunSetCreatorFooter
         name={name}
-        selectedPrompts={selectedPrompts}
-        selectedModels={selectedModels}
+        runsCount={runDefinitions.length}
         selectedSessions={selectedSessions}
         estimation={estimation}
         isLoading={isLoading}

@@ -76,16 +76,12 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   switch (intent) {
     case "CREATE_RUNS": {
-      const { prompts, models } = payload;
+      const { definitions } = payload;
 
       const errors: Record<string, string> = {};
 
-      if (!Array.isArray(prompts) || prompts.length === 0) {
-        errors.prompts = "At least one prompt is required";
-      }
-
-      if (!Array.isArray(models) || models.length === 0) {
-        errors.models = "At least one model is required";
+      if (!Array.isArray(definitions) || definitions.length === 0) {
+        errors.definitions = "At least one run is required";
       }
 
       if (Object.keys(errors).length > 0) {
@@ -94,8 +90,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
       const result = await RunSetService.createRunsForRunSet({
         runSetId: params.runSetId,
-        prompts,
-        models,
+        definitions,
       });
 
       if (!result.runSet) {
