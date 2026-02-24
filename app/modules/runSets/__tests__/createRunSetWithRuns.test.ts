@@ -7,7 +7,9 @@ import { SessionService } from "~/modules/sessions/session";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
-import createRunSetWithRuns from "../services/createRunSetWithRuns.server";
+import { buildUsedPromptModelKey } from "../helpers/getUsedPromptModels";
+import { RunSetService } from "../runSet";
+import type { RunDefinition } from "../runSets.types";
 
 const testModel = aiGatewayConfig.providers[0].models[0].code;
 
@@ -15,7 +17,20 @@ vi.mock("~/modules/runs/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),
 }));
 
-describe("createRunSetWithRuns", () => {
+function buildDefinition(
+  promptId: string,
+  promptName: string,
+  version: number,
+  modelCode: string,
+): RunDefinition {
+  return {
+    key: buildUsedPromptModelKey(promptId, version, modelCode),
+    prompt: { promptId, promptName, version },
+    modelCode,
+  };
+}
+
+describe("RunSetService.createWithRuns", () => {
   let projectId: string;
   let sessions: string[];
   let prompt1: any;
@@ -57,13 +72,12 @@ describe("createRunSetWithRuns", () => {
     });
   });
 
-  it("creates runSet with runs", async () => {
-    const result = await createRunSetWithRuns({
+  it("creates runSet with runs from explicit definitions", async () => {
+    const result = await RunSetService.createWithRuns({
       project: projectId,
       name: "Test Run Set",
       sessions,
-      prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: [testModel],
+      definitions: [buildDefinition(prompt1._id, "Prompt 1", 1, testModel)],
       annotationType: "PER_UTTERANCE",
     });
 
@@ -73,5 +87,19 @@ describe("createRunSetWithRuns", () => {
     expect(result.runSet.project).toBe(projectId);
     expect(result.runSet.annotationType).toBe("PER_UTTERANCE");
     expect(Array.isArray(result.runSet.runs)).toBe(true);
+    expect(result.runSet.runs).toHaveLength(1);
+  });
+
+  it("creates only runs for provided definitions", async () => {
+    const result = await RunSetService.createWithRuns({
+      project: projectId,
+      name: "Test Run Set",
+      sessions,
+      definitions: [buildDefinition(prompt1._id, "Prompt 1", 1, testModel)],
+      annotationType: "PER_UTTERANCE",
+    });
+
+    expect(result.runSet.runs).toHaveLength(1);
+    expect(result.errors).toEqual([]);
   });
 });

@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import RunSetCreateRunsFooter from "../components/runSetCreateRunsFooter";
 import RunSetCreateRunsInfo from "../components/runSetCreateRunsInfo";
 import RunSetCreatorFormAlerts from "../components/runSetCreatorFormAlerts";
 import RunSetCreatorModels from "../components/runSetCreatorModels";
 import RunSetCreatorPrompts from "../components/runSetCreatorPrompts";
 import RunSetRunPreview from "../components/runSetRunPreview";
+import buildDefinitionsFromSelection from "../helpers/buildDefinitionsFromSelection";
 import { calculateEstimates } from "../helpers/calculateEstimates";
 import {
-  buildUsedPromptModelKey,
   buildUsedPromptModelSet,
   type PromptModelPair,
 } from "../helpers/getUsedPromptModels";
@@ -32,63 +32,59 @@ export default function RunSetCreateRunsContainer({
 }: RunSetCreateRunsContainerProps) {
   const [selectedPrompts, setSelectedPrompts] = useState<PromptReference[]>([]);
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
+  const [removedKeys, setRemovedKeys] = useState<Set<string>>(new Set());
 
   const usedKeys = buildUsedPromptModelSet(usedPromptModels);
 
-  const estimation = calculateEstimates(
-    selectedPrompts,
-    selectedModels,
-    runSet.sessions || [],
+  const allDefinitions = useMemo(
+    () => buildDefinitionsFromSelection(selectedPrompts, selectedModels),
+    [selectedPrompts, selectedModels],
   );
 
-  const isPromptModelUsed = (
-    promptId: string,
-    promptVersion: number,
-    modelCode: string,
-  ): boolean => {
-    const key = buildUsedPromptModelKey(promptId, promptVersion, modelCode);
-    return usedKeys.has(key);
+  const newDefinitions = allDefinitions.filter((d) => !usedKeys.has(d.key));
+  const runDefinitions = newDefinitions.filter((d) => !removedKeys.has(d.key));
+  const excludedDefinitions = newDefinitions.filter((d) =>
+    removedKeys.has(d.key),
+  );
+  const duplicateDefinitions = allDefinitions.filter((d) =>
+    usedKeys.has(d.key),
+  );
+
+  const estimation = calculateEstimates(runDefinitions, runSet.sessions || []);
+
+  const handleRemoveCard = (key: string) => {
+    setRemovedKeys((prev) => new Set(prev).add(key));
   };
 
-  const getNewRunsCount = (): number => {
-    let count = 0;
-    for (const prompt of selectedPrompts) {
-      for (const model of selectedModels) {
-        if (!isPromptModelUsed(prompt.promptId, prompt.version, model)) {
-          count++;
-        }
-      }
-    }
-    return count;
+  const handleRestoreCard = (key: string) => {
+    setRemovedKeys((prev) => {
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
   };
 
-  const getDuplicateCount = (): number => {
-    let count = 0;
-    for (const prompt of selectedPrompts) {
-      for (const model of selectedModels) {
-        if (isPromptModelUsed(prompt.promptId, prompt.version, model)) {
-          count++;
-        }
-      }
-    }
-    return count;
+  const handlePromptsChanged = (prompts: PromptReference[]) => {
+    setSelectedPrompts(prompts);
+    setRemovedKeys(new Set());
   };
 
-  const newRunsCount = getNewRunsCount();
-  const duplicateCount = getDuplicateCount();
+  const handleModelsChanged = (models: string[]) => {
+    setSelectedModels(models);
+    setRemovedKeys(new Set());
+  };
 
   const isSubmitDisabled =
     isLoading ||
     selectedPrompts.length === 0 ||
     selectedModels.length === 0 ||
-    newRunsCount === 0;
+    runDefinitions.length === 0;
 
   const handleCreateRuns = () => {
     const requestBody = JSON.stringify({
       intent: "CREATE_RUNS",
       payload: {
-        prompts: selectedPrompts,
-        models: selectedModels,
+        definitions: runDefinitions,
       },
     });
     onSubmit(requestBody);
@@ -105,23 +101,23 @@ export default function RunSetCreateRunsContainer({
           <RunSetCreatorPrompts
             annotationType={runSet.annotationType}
             selectedPrompts={selectedPrompts}
-            onPromptsChanged={setSelectedPrompts}
+            onPromptsChanged={handlePromptsChanged}
           />
 
           <RunSetCreatorModels
             selectedModels={selectedModels}
-            onModelsChanged={setSelectedModels}
+            onModelsChanged={handleModelsChanged}
           />
         </div>
 
         <RunSetRunPreview
           name={runSet.name}
-          selectedPrompts={selectedPrompts}
-          selectedModels={selectedModels}
+          runDefinitions={runDefinitions}
+          excludedDefinitions={excludedDefinitions}
+          duplicateDefinitions={duplicateDefinitions}
           sessionsCount={runSet.sessions?.length || 0}
-          newRunsCount={newRunsCount}
-          duplicateCount={duplicateCount}
-          isPromptModelUsed={isPromptModelUsed}
+          onRemoveCard={handleRemoveCard}
+          onRestoreCard={handleRestoreCard}
         />
       </div>
 
@@ -129,8 +125,8 @@ export default function RunSetCreateRunsContainer({
         runSet={runSet}
         selectedPromptsCount={selectedPrompts.length}
         selectedModelsCount={selectedModels.length}
-        newRunsCount={newRunsCount}
-        duplicateCount={duplicateCount}
+        newRunsCount={runDefinitions.length}
+        duplicateCount={duplicateDefinitions.length}
         estimation={estimation}
         isLoading={isLoading}
         isSubmitDisabled={isSubmitDisabled}

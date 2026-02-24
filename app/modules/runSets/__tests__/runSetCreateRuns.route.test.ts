@@ -15,6 +15,7 @@ import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/runSetCreateRuns.route";
+import { buildUsedPromptModelKey } from "../helpers/getUsedPromptModels";
 import { RunSetService } from "../runSet";
 import type { RunSet } from "../runSets.types";
 
@@ -134,10 +135,17 @@ describe("runSetCreateRuns.route", () => {
         body: JSON.stringify({
           intent: "CREATE_RUNS",
           payload: {
-            prompts: [
-              { promptId: prompt._id, promptName: "Test Prompt", version: 1 },
+            definitions: [
+              {
+                key: buildUsedPromptModelKey(prompt._id, 1, testModel),
+                prompt: {
+                  promptId: prompt._id,
+                  promptName: "Test Prompt",
+                  version: 1,
+                },
+                modelCode: testModel,
+              },
             ],
-            models: [testModel],
           },
         }),
       });
@@ -150,38 +158,14 @@ describe("runSetCreateRuns.route", () => {
       expect(resp.init?.status).toBe(403);
     });
 
-    it("returns 400 when prompts array is empty", async () => {
+    it("returns 400 when definitions array is empty", async () => {
       const req = new Request("http://localhost/", {
         method: "POST",
         headers: { cookie: cookieHeader, "content-type": "application/json" },
         body: JSON.stringify({
           intent: "CREATE_RUNS",
           payload: {
-            prompts: [],
-            models: [testModel],
-          },
-        }),
-      });
-
-      const resp = (await action({
-        request: req,
-        params: { projectId: project._id, runSetId: runSet._id },
-      } as any)) as any;
-
-      expect(resp.init?.status).toBe(400);
-    });
-
-    it("returns 400 when models array is empty", async () => {
-      const req = new Request("http://localhost/", {
-        method: "POST",
-        headers: { cookie: cookieHeader, "content-type": "application/json" },
-        body: JSON.stringify({
-          intent: "CREATE_RUNS",
-          payload: {
-            prompts: [
-              { promptId: prompt._id, promptName: "Test Prompt", version: 1 },
-            ],
-            models: [],
+            definitions: [],
           },
         }),
       });
@@ -201,10 +185,17 @@ describe("runSetCreateRuns.route", () => {
         body: JSON.stringify({
           intent: "CREATE_RUNS",
           payload: {
-            prompts: [
-              { promptId: prompt._id, promptName: "Test Prompt", version: 1 },
+            definitions: [
+              {
+                key: buildUsedPromptModelKey(prompt._id, 1, testModel),
+                prompt: {
+                  promptId: prompt._id,
+                  promptName: "Test Prompt",
+                  version: 1,
+                },
+                modelCode: testModel,
+              },
             ],
-            models: [testModel],
           },
         }),
       });

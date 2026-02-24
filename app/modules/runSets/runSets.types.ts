@@ -35,6 +35,12 @@ export interface PrefillData {
   validationErrors?: string[];
 }
 
+export interface RunDefinition {
+  key: string;
+  prompt: PromptReference;
+  modelCode: string;
+}
+
 export interface EstimationResult {
   estimatedCost: number;
   estimatedTimeSeconds: number;

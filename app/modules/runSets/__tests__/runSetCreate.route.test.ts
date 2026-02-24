@@ -7,6 +7,7 @@ import type { Project } from "~/modules/projects/projects.types";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import type { Prompt } from "~/modules/prompts/prompts.types";
+import { buildUsedPromptModelKey } from "~/modules/runSets/helpers/getUsedPromptModels";
 import { RunSetService } from "~/modules/runSets/runSet";
 import { SessionService } from "~/modules/sessions/session";
 import type { Session } from "~/modules/sessions/sessions.types";
@@ -140,10 +141,17 @@ describe("runSetCreate.route", () => {
         payload: {
           name: "Test Run Set",
           annotationType: "PER_UTTERANCE",
-          prompts: [
-            { promptId: prompt._id, promptName: "Prompt 1", version: 1 },
+          definitions: [
+            {
+              key: buildUsedPromptModelKey(prompt._id, 1, testModel),
+              prompt: {
+                promptId: prompt._id,
+                promptName: "Prompt 1",
+                version: 1,
+              },
+              modelCode: testModel,
+            },
           ],
-          models: [testModel],
           sessions: [session._id],
         },
       });
@@ -178,8 +186,13 @@ describe("runSetCreate.route", () => {
         payload: {
           name: "Test Run Set",
           annotationType: "PER_UTTERANCE",
-          prompts: [{ promptId: prompt._id, version: 1 }],
-          models: [testModel],
+          definitions: [
+            {
+              key: buildUsedPromptModelKey(prompt._id, 1, testModel),
+              prompt: { promptId: prompt._id, promptName: "", version: 1 },
+              modelCode: testModel,
+            },
+          ],
           sessions: [session._id],
         },
       });

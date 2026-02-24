@@ -1,23 +1,18 @@
 import { Button } from "@/components/ui/button";
-import type {
-  EstimationResult,
-  PromptReference,
-} from "~/modules/runSets/runSets.types";
+import type { EstimationResult } from "~/modules/runSets/runSets.types";
 import EstimateSummary from "./estimateSummary";
 import RunSetValidationAlert from "./runSetValidationAlert";
 
 export default function RunSetCreatorFooter({
   name,
-  selectedPrompts,
-  selectedModels,
+  runsCount,
   selectedSessions,
   estimation,
   isLoading,
   onCreateClicked,
 }: {
   name: string;
-  selectedPrompts: PromptReference[];
-  selectedModels: string[];
+  runsCount: number;
   selectedSessions: string[];
   estimation: EstimationResult;
   isLoading: boolean;
@@ -26,8 +21,7 @@ export default function RunSetCreatorFooter({
   const isSubmitDisabled =
     isLoading ||
     !name.trim() ||
-    selectedPrompts.length === 0 ||
-    selectedModels.length === 0 ||
+    runsCount === 0 ||
     selectedSessions.length === 0;
 
   return (
@@ -36,20 +30,14 @@ export default function RunSetCreatorFooter({
         {isSubmitDisabled ? (
           <RunSetValidationAlert
             name={name}
-            selectedPrompts={selectedPrompts}
-            selectedModels={selectedModels}
+            runsCount={runsCount}
             selectedSessions={selectedSessions}
           />
         ) : (
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
             <div className="flex items-center justify-between gap-4">
               <p className="text-sm text-blue-900">
-                This will create{" "}
-                <strong>
-                  {selectedPrompts.length * selectedModels.length}
-                </strong>{" "}
-                run(s) with {selectedPrompts.length} prompt(s) ×{" "}
-                {selectedModels.length} model(s) across{" "}
+                This will create <strong>{runsCount}</strong> run(s) across{" "}
                 {selectedSessions.length} session(s)
               </p>
               <EstimateSummary estimation={estimation} />

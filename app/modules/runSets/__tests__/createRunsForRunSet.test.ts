@@ -8,8 +8,9 @@ import { SessionService } from "~/modules/sessions/session";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import { buildUsedPromptModelKey } from "../helpers/getUsedPromptModels";
 import { RunSetService } from "../runSet";
-import createRunsForRunSet from "../services/createRunsForRunSet.server";
+import type { RunDefinition } from "../runSets.types";
 
 const testModel1 = aiGatewayConfig.providers[0].models[0].code;
 const testModel2 = aiGatewayConfig.providers[0].models[1].code;
@@ -18,7 +19,20 @@ vi.mock("~/modules/runs/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),
 }));
 
-describe("createRunsForRunSet", () => {
+function buildDefinition(
+  promptId: string,
+  promptName: string,
+  version: number,
+  modelCode: string,
+): RunDefinition {
+  return {
+    key: buildUsedPromptModelKey(promptId, version, modelCode),
+    prompt: { promptId, promptName, version },
+    modelCode,
+  };
+}
+
+describe("RunSetService.createRunsForRunSet", () => {
   let projectId: string;
   let sessions: string[];
   let prompt1: any;
@@ -71,10 +85,9 @@ describe("createRunsForRunSet", () => {
   });
 
   it("returns null runSet when runSet not found", async () => {
-    const result = await createRunsForRunSet({
+    const result = await RunSetService.createRunsForRunSet({
       runSetId: "000000000000000000000000",
-      prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: [testModel1],
+      definitions: [buildDefinition(prompt1._id, "Prompt 1", 1, testModel1)],
     });
 
     expect(result.runSet).toBeNull();
@@ -82,11 +95,10 @@ describe("createRunsForRunSet", () => {
     expect(result.createdRunIds).toEqual([]);
   });
 
-  it("creates runs for new prompt/model combinations", async () => {
-    const result = await createRunsForRunSet({
+  it("creates runs from explicit definitions", async () => {
+    const result = await RunSetService.createRunsForRunSet({
       runSetId,
-      prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: [testModel1],
+      definitions: [buildDefinition(prompt1._id, "Prompt 1", 1, testModel1)],
     });
 
     expect(result.runSet).not.toBeNull();
@@ -95,6 +107,15 @@ describe("createRunsForRunSet", () => {
 
     const updatedRunSet = await RunSetService.findById(runSetId);
     expect(updatedRunSet!.runs).toContain(result.createdRunIds[0]);
+  });
+
+  it("only creates runs for provided definitions, not full Cartesian product", async () => {
+    const result = await RunSetService.createRunsForRunSet({
+      runSetId,
+      definitions: [buildDefinition(prompt1._id, "Prompt 1", 1, testModel1)],
+    });
+
+    expect(result.createdRunIds).toHaveLength(1);
   });
 
   it("skips duplicate prompt/model combinations", async () => {
@@ -112,10 +133,9 @@ describe("createRunsForRunSet", () => {
       runs: [existingRun._id],
     });
 
-    const result = await createRunsForRunSet({
+    const result = await RunSetService.createRunsForRunSet({
       runSetId,
-      prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: [testModel1],
+      definitions: [buildDefinition(prompt1._id, "Prompt 1", 1, testModel1)],
     });
 
     expect(result.runSet).not.toBeNull();
@@ -137,10 +157,12 @@ describe("createRunsForRunSet", () => {
       runs: [existingRun._id],
     });
 
-    const result = await createRunsForRunSet({
+    const result = await RunSetService.createRunsForRunSet({
       runSetId,
-      prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: [testModel1, testModel2],
+      definitions: [
+        buildDefinition(prompt1._id, "Prompt 1", 1, testModel1),
+        buildDefinition(prompt1._id, "Prompt 1", 1, testModel2),
+      ],
     });
 
     expect(result.runSet).not.toBeNull();
@@ -152,10 +174,12 @@ describe("createRunsForRunSet", () => {
   });
 
   it("adds created run IDs to runSet", async () => {
-    const result = await createRunsForRunSet({
+    const result = await RunSetService.createRunsForRunSet({
       runSetId,
-      prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: [testModel1, testModel2],
+      definitions: [
+        buildDefinition(prompt1._id, "Prompt 1", 1, testModel1),
+        buildDefinition(prompt1._id, "Prompt 1", 1, testModel2),
+      ],
     });
 
     expect(result.createdRunIds).toHaveLength(2);
@@ -172,10 +196,9 @@ describe("createRunsForRunSet", () => {
       hasExportedJSONL: true,
     });
 
-    await createRunsForRunSet({
+    await RunSetService.createRunsForRunSet({
       runSetId,
-      prompts: [{ promptId: prompt1._id, promptName: "Prompt 1", version: 1 }],
-      models: [testModel1],
+      definitions: [buildDefinition(prompt1._id, "Prompt 1", 1, testModel1)],
     });
 
     const updatedRunSet = await RunSetService.findById(runSetId);
