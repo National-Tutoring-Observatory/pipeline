@@ -31,13 +31,15 @@ export default function SavePromptVersionDialogContainer({
     }
   }, []);
 
+  const error = fetcher.data?.errors?.general ?? "";
   const isFetching = !fetcher.data;
   const isMatching = fetcher.data?.isMatching ?? false;
-  const isSubmitButtonDisabled = !fetcher.data?.isMatching;
+  const isSubmitButtonDisabled = !fetcher.data?.isMatching || !!error;
   const reasoning = fetcher.data?.reasoning ?? "";
 
   return (
     <SavePromptVersionDialog
+      error={error}
       reasoning={reasoning}
       isSubmitButtonDisabled={isSubmitButtonDisabled}
       isFetching={isFetching}

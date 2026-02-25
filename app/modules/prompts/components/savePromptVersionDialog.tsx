@@ -11,12 +11,14 @@ import {
 import { CircleAlert, CircleCheck, LoaderPinwheel } from "lucide-react";
 
 const SavePromptVersionDialog = ({
+  error,
   reasoning,
   isSubmitButtonDisabled,
   isFetching,
   isMatching,
   onSaveClicked,
 }: {
+  error: string;
   reasoning: string;
   isSubmitButtonDisabled: boolean;
   isFetching: boolean;
@@ -34,7 +36,14 @@ const SavePromptVersionDialog = ({
         </DialogDescription>
       </DialogHeader>
       <div>
-        {isFetching && (
+        {error && (
+          <Alert>
+            <CircleAlert className="stroke-red-500" />
+            <AlertTitle>Alignment check failed</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        {!error && isFetching && (
           <Alert className="flex">
             <LoaderPinwheel className="animate-spin" />
             <AlertDescription>
@@ -42,13 +51,13 @@ const SavePromptVersionDialog = ({
             </AlertDescription>
           </Alert>
         )}
-        {!isFetching && isMatching && (
+        {!error && !isFetching && isMatching && (
           <Alert>
             <CircleCheck className="stroke-green-500" />
             <AlertTitle>Prompt and schema are aligned!</AlertTitle>
           </Alert>
         )}
-        {!isFetching && !isMatching && (
+        {!error && !isFetching && !isMatching && (
           <Alert>
             <CircleAlert className="stroke-red-500" />
             <AlertTitle>Prompt and schema are not aligned!</AlertTitle>

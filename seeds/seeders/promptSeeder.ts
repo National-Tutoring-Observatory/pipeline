@@ -23,6 +23,12 @@ const SEED_PROMPTS = [
         value: "AI",
       },
       {
+        isSystem: true,
+        fieldKey: "reasoning",
+        fieldType: "string",
+        value: "",
+      },
+      {
         isSystem: false,
         fieldType: "string",
         fieldKey: "engagement_level",
@@ -50,6 +56,12 @@ const SEED_PROMPTS = [
         value: "AI",
       },
       {
+        isSystem: true,
+        fieldKey: "reasoning",
+        fieldType: "string",
+        value: "",
+      },
+      {
         isSystem: false,
         fieldType: "string",
         fieldKey: "feedback_type",
@@ -75,6 +87,12 @@ const SEED_PROMPTS = [
         fieldKey: "identifiedBy",
         fieldType: "string",
         value: "AI",
+      },
+      {
+        isSystem: true,
+        fieldKey: "reasoning",
+        fieldType: "string",
+        value: "",
       },
       {
         isSystem: false,
