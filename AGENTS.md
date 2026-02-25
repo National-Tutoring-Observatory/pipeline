@@ -78,13 +78,20 @@ yarn migration:generate <Name Of Migration>
 # - Return { success: failed === 0, message: string, stats: { migrated, failed } }
 ```
 
+### Pre-commit Hooks (Automatic)
+
+Formatting and linting run automatically on staged files via **husky + lint-staged**:
+
+- `prettier --write` on `*.{ts,tsx,js,jsx,json,css,md}`
+- `eslint --fix` on `*.{ts,tsx}`
+
+To skip hooks (e.g., WIP commits): `HUSKY=0 git commit -m "wip"`
+
 ### Pre-commit Checklist
 
 1. ✅ `yarn typecheck` - must pass with no errors
-2. ✅ `yarn format:check` - must pass with no errors
-3. ✅ `yarn lint` - must pass with no errors
-4. ✅ `yarn test` - must pass with no errors
-5. ✅ `yarn app:build` - must complete successfully
+2. ✅ `yarn test` - must pass with no errors
+3. ✅ `yarn app:build` - must complete successfully
 
 ## Architecture Overview
 
@@ -1157,8 +1164,6 @@ yarn app:build
 ```bash
 yarn install --frozen-lockfile
 yarn typecheck
-yarn format:check
-yarn lint
 yarn app:build
 ```
 
