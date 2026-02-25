@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,8 @@ import { Progress } from "@/components/ui/progress";
 import { StatItem } from "@/components/ui/stat-item";
 import find from "lodash/find";
 import {
+  BadgeCheck,
+  BadgeX,
   FolderPlus,
   ListPlus,
   MoreHorizontal,
@@ -42,6 +45,7 @@ import RunRunSets from "./runRunSets";
 export default function RunDetail({
   run,
   promptInfo,
+  hasRunVerification,
   runSets,
   runSetsCount,
   runSessionsProgress,
@@ -70,6 +74,7 @@ export default function RunDetail({
 }: {
   run: Run;
   promptInfo: { name: string; version: number };
+  hasRunVerification: boolean;
   runSets: RunSet[];
   runSetsCount: number;
   runSessionsProgress: number;
@@ -197,7 +202,12 @@ export default function RunDetail({
         )}
       </div>
       <div>
-        <div className="grid grid-cols-3 gap-6">
+        <div
+          className={cn(
+            "grid gap-6",
+            hasRunVerification ? "grid-cols-4" : "grid-cols-3",
+          )}
+        >
           <StatItem label="Annotation type">
             {find(annotationTypes, { value: run.annotationType })?.name}
           </StatItem>
@@ -210,6 +220,21 @@ export default function RunDetail({
           <StatItem label="Selected model">
             {getRunModelDisplayName(run)}
           </StatItem>
+          <Flag flag="HAS_RUN_VERIFICATION">
+            <StatItem label="Verification">
+              {run.shouldRunVerification ? (
+                <Badge variant="outline" className="mt-1 gap-1.5">
+                  <BadgeCheck className="h-4 w-4 text-green-600" />
+                  Enabled
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="mt-1 gap-1.5">
+                  <BadgeX className="h-4 w-4 text-muted-foreground" />
+                  Disabled
+                </Badge>
+              )}
+            </StatItem>
+          </Flag>
         </div>
         <div className="mt-6">
           <RunRunSets

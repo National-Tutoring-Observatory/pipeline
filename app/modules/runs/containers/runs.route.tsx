@@ -5,6 +5,7 @@ import {
   useParams,
   useRevalidator,
 } from "react-router";
+import useHasFeatureFlag from "~/modules/featureFlags/hooks/useHasFeatureFlag";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
@@ -50,6 +51,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export default function ProjectRunsRoute() {
   const { runs } = useLoaderData();
   const { id: projectId } = useParams();
+  const hasRunVerification = useHasFeatureFlag("HAS_RUN_VERIFICATION");
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
   const { openCreateRunSetDialog } = useCreateRunSetForRun({
@@ -157,6 +159,7 @@ export default function ProjectRunsRoute() {
   return (
     <Runs
       runs={runs.data}
+      hasRunVerification={hasRunVerification}
       searchValue={searchValue}
       currentPage={currentPage}
       totalPages={runs.totalPages}

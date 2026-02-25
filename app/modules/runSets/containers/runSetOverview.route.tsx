@@ -25,6 +25,7 @@ import type { RunSet } from "~/modules/runSets/runSets.types";
 import ViewSessionContainer from "~/modules/sessions/containers/viewSessionContainer";
 import { SessionService } from "~/modules/sessions/session";
 import type { User } from "~/modules/users/users.types";
+import useHasFeatureFlag from "~/modules/featureFlags/hooks/useHasFeatureFlag";
 import type { Route } from "./+types/runSetOverview.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -117,6 +118,7 @@ export default function RunSetOverviewRoute() {
   const revalidator = useRevalidator();
   const navigate = useNavigate();
   const submit = useSubmit();
+  const hasRunVerification = useHasFeatureFlag("HAS_RUN_VERIFICATION");
 
   const {
     searchValue: runsSearchValue,
@@ -253,6 +255,7 @@ export default function RunSetOverviewRoute() {
       runSet={runSet}
       project={project}
       runs={runs.data}
+      hasRunVerification={hasRunVerification}
       runsTotalPages={runs.totalPages}
       runsCurrentPage={runsCurrentPage}
       runsSearchValue={runsSearchValue}

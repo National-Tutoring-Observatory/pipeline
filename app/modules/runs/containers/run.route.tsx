@@ -22,6 +22,7 @@ import { useRunActions } from "~/modules/runs/hooks/useRunActions";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import { RunSetService } from "~/modules/runSets/runSet";
+import useHasFeatureFlag from "~/modules/featureFlags/hooks/useHasFeatureFlag";
 import RunDetail from "../components/run";
 import StopRunDialog from "../components/stopRunDialog";
 import type { Route } from "./+types/run.route";
@@ -187,6 +188,7 @@ export default function ProjectRunRoute() {
   const submit = useSubmit();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
+  const hasRunVerification = useHasFeatureFlag("HAS_RUN_VERIFICATION");
   const { openEditRunDialog, openDeleteRunDialog } = useRunActions({
     projectId: project._id,
     onDeleteSuccess: () => {
@@ -345,6 +347,7 @@ export default function ProjectRunRoute() {
     <RunDetail
       run={run}
       promptInfo={promptInfo}
+      hasRunVerification={hasRunVerification}
       runSets={runRunSets || []}
       runSetsCount={runRunSetsCount || 0}
       runSessionsProgress={runSessionsProgress}
