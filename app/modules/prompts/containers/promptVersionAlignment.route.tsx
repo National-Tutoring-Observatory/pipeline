@@ -1,4 +1,4 @@
-import { redirect } from "react-router";
+import { data, redirect } from "react-router";
 import aiGatewayConfig from "~/config/ai_gateway.json";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import LLM from "~/modules/llm/llm";
@@ -39,7 +39,7 @@ export async function action({ request }: Route.ActionArgs) {
     - Give your reasoning in the reasoning value.
     - Your reasoning should be one sentence maximum.
     - Only rewrite the prompt if isMatching is equal to false.
-    - Do not return the prompt if isMatching is equal to false.
+    - Do not return the prompt if isMatching is equal to true.
     - Always return you result as the following JSON: {{output}}.
     `,
     {
@@ -59,7 +59,12 @@ export async function action({ request }: Route.ActionArgs) {
     },
   );
 
-  const response = await llm.createChat();
-
-  return response;
+  try {
+    const response = await llm.createChat();
+    return response;
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to check alignment";
+    return data({ errors: { general: message } }, { status: 500 });
+  }
 }
