@@ -24,7 +24,8 @@
     "test:watch": "vitest watch",
     "test:typecheck": "tsc -p tsconfig.test.json",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",
@@ -89,6 +90,10 @@
     "tsx": "^4.20.6",
     "uuid": "^11.1.0"
   },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,css,md}": "prettier --write",
+    "*.{ts,tsx}": "eslint --fix"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@react-router/dev": "^7.5.3",
@@ -110,7 +115,9 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.0",
     "globals": "^17.3.0",
+    "husky": "^9.1.7",
     "jsdom": "^27.3.0",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.8.0",
     "prettier-plugin-organize-imports": "^4.3.0",
     "prettier-plugin-tailwindcss": "^0.7.2",
