@@ -7,10 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Info } from "lucide-react";
 import { useState } from "react";
+import Flag from "~/modules/featureFlags/components/flag";
 import AnnotationTypeSelectorContainer from "~/modules/prompts/containers/annoationTypeSelectorContainer";
 import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
 import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
@@ -33,6 +35,8 @@ export default function RunCreator({
   onSelectedPromptVersionChanged,
   onSelectedModelChanged,
   onSelectedSessionsChanged,
+  shouldRunVerification,
+  onShouldRunVerificationChanged,
   onStartRunButtonClicked,
 }: {
   duplicateWarnings?: string[];
@@ -50,6 +54,8 @@ export default function RunCreator({
   onSelectedPromptVersionChanged: (selectedPromptVersion: number) => void;
   onSelectedModelChanged: (selectedModel: string) => void;
   onSelectedSessionsChanged: (selectedSessions: string[]) => void;
+  shouldRunVerification: boolean;
+  onShouldRunVerificationChanged: (value: boolean) => void;
   onStartRunButtonClicked: () => void;
 }) {
   const [runNameTouched, setRunNameTouched] = useState(false);
@@ -146,6 +152,31 @@ export default function RunCreator({
           />
         </CardContent>
       </Card>
+      <Flag flag="HAS_RUN_VERIFICATION">
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle>Verification</CardTitle>
+            <CardDescription>
+              When enabled, annotations will be verified by a second LLM pass to
+              check for accuracy.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="shouldRunVerification"
+                checked={shouldRunVerification}
+                onCheckedChange={(checked) =>
+                  onShouldRunVerificationChanged(Boolean(checked))
+                }
+              />
+              <Label htmlFor="shouldRunVerification">
+                Enable verification step
+              </Label>
+            </div>
+          </CardContent>
+        </Card>
+      </Flag>
       <Card>
         <CardHeader>
           <CardTitle>Select sessions</CardTitle>

@@ -11,6 +11,7 @@ import type { RunDefinition, RunSet } from "../runSets.types";
 export interface CreateRunsForRunSetPayload {
   runSetId: string;
   definitions: RunDefinition[];
+  shouldRunVerification?: boolean;
 }
 
 export interface CreateRunsForRunSetResult {
@@ -66,6 +67,7 @@ export default async function createRunsForRunSet(
         prompt: definition.prompt.promptId,
         promptVersion: definition.prompt.version,
         modelCode: definition.modelCode,
+        shouldRunVerification: !!payload.shouldRunVerification,
       });
 
       generatedRunIds.push(newRun._id);

@@ -60,6 +60,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         prompt,
         promptVersion: Number(promptVersion),
         modelCode: model,
+        shouldRunVerification: !!payload.shouldRunVerification,
       });
 
       await RunService.start(run);
@@ -89,6 +90,7 @@ export default function ProjectCreateRunRoute() {
     selectedPromptVersion,
     selectedModel,
     selectedSessions,
+    shouldRunVerification,
   }: CreateRunPayload) => {
     fetcher.submit(
       JSON.stringify({
@@ -100,6 +102,7 @@ export default function ProjectCreateRunRoute() {
           promptVersion: Number(selectedPromptVersion),
           model: selectedModel,
           sessions: selectedSessions,
+          shouldRunVerification,
         },
       }),
       { method: "POST", encType: "application/json" },

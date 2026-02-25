@@ -10,6 +10,7 @@ import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import useHasFeatureFlag from "~/modules/featureFlags/hooks/useHasFeatureFlag";
 import { useCreateRunSetForRun } from "~/modules/runs/hooks/useCreateRunSetForRun";
 import { useRunActions } from "~/modules/runs/hooks/useRunActions";
 import { RunService } from "~/modules/runs/run";
@@ -50,6 +51,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export default function ProjectRunsRoute() {
   const { runs } = useLoaderData();
   const { id: projectId } = useParams();
+  const hasRunVerification = useHasFeatureFlag("HAS_RUN_VERIFICATION");
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
   const { openCreateRunSetDialog } = useCreateRunSetForRun({
@@ -157,6 +159,7 @@ export default function ProjectRunsRoute() {
   return (
     <Runs
       runs={runs.data}
+      hasRunVerification={hasRunVerification}
       searchValue={searchValue}
       currentPage={currentPage}
       totalPages={runs.totalPages}

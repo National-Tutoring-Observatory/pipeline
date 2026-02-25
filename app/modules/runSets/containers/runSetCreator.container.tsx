@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import Flag from "~/modules/featureFlags/components/flag";
 import RunSetCreatorAnnotationType from "../components/runSetCreatorAnnotationType";
 import RunSetCreatorFooter from "../components/runSetCreatorFooter";
 import RunSetCreatorFormAlerts from "../components/runSetCreatorFormAlerts";
@@ -6,6 +7,7 @@ import RunSetCreatorModels from "../components/runSetCreatorModels";
 import RunSetCreatorName from "../components/runSetCreatorName";
 import RunSetCreatorPrompts from "../components/runSetCreatorPrompts";
 import RunSetCreatorSessions from "../components/runSetCreatorSessions";
+import RunSetCreatorVerificationToggle from "../components/runSetCreatorVerificationToggle";
 import RunSetRunPreview from "../components/runSetRunPreview";
 import buildDefinitionsFromSelection from "../helpers/buildDefinitionsFromSelection";
 import { calculateEstimates } from "../helpers/calculateEstimates";
@@ -46,6 +48,7 @@ export default function RunSetCreatorContainer({
   const [selectedSessions, setSelectedSessions] = useState<string[]>(
     prefillData?.selectedSessions || [],
   );
+  const [shouldRunVerification, setShouldRunVerification] = useState(false);
   const [removedKeys, setRemovedKeys] = useState<Set<string>>(new Set());
 
   const allDefinitions = useMemo(
@@ -96,6 +99,7 @@ export default function RunSetCreatorContainer({
         annotationType,
         definitions: runDefinitions,
         sessions: selectedSessions,
+        shouldRunVerification,
       },
     });
     onSubmit(requestBody);
@@ -124,6 +128,13 @@ export default function RunSetCreatorContainer({
             selectedModels={selectedModels}
             onModelsChanged={handleModelsChanged}
           />
+
+          <Flag flag="HAS_RUN_VERIFICATION">
+            <RunSetCreatorVerificationToggle
+              shouldRunVerification={shouldRunVerification}
+              onShouldRunVerificationChanged={setShouldRunVerification}
+            />
+          </Flag>
 
           <RunSetCreatorSessions
             selectedSessions={selectedSessions}

@@ -1,4 +1,5 @@
 import get from "lodash/get";
+import { BadgeCheck } from "lucide-react";
 import { getAnnotationLabel } from "~/modules/annotations/helpers/annotationTypes";
 import getDateString from "~/modules/app/helpers/getDateString";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
@@ -10,6 +11,7 @@ import type { Run } from "~/modules/runs/runs.types";
 
 interface Options {
   runSetId?: string;
+  hasRunVerification?: boolean;
 }
 
 export default function getRunsItemAttributes(item: Run, options?: Options) {
@@ -29,6 +31,13 @@ export default function getRunsItemAttributes(item: Run, options?: Options) {
     });
     meta.push({
       text: `Model - ${modelName}`,
+    });
+  }
+
+  if (options?.hasRunVerification && item.shouldRunVerification) {
+    meta.push({
+      icon: <BadgeCheck className="text-green-600 dark:text-green-400" />,
+      text: "Verified",
     });
   }
 

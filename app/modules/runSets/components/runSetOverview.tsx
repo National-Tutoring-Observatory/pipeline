@@ -14,6 +14,7 @@ export default function RunSetOverview({
   runSet,
   project,
   runs,
+  hasRunVerification,
   runsTotalPages,
   runsCurrentPage,
   runsSearchValue,
@@ -40,6 +41,7 @@ export default function RunSetOverview({
   runSet: RunSet;
   project: { _id: string; name: string };
   runs: Run[];
+  hasRunVerification: boolean;
   runsTotalPages: number;
   runsCurrentPage: number;
   runsSearchValue: string;
@@ -124,6 +126,7 @@ export default function RunSetOverview({
               getItemAttributes={(item) =>
                 getRunsItemAttributes(item, {
                   runSetId: runSet._id,
+                  hasRunVerification,
                 })
               }
               getItemActions={() => [

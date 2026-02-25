@@ -121,6 +121,7 @@ export class RunSetService {
     sessions: string[];
     definitions: RunDefinition[];
     annotationType: RunAnnotationType;
+    shouldRunVerification?: boolean;
   }): Promise<{ runSet: RunSet; errors: string[] }> {
     return createRunSetWithRuns(payload);
   }
@@ -193,6 +194,7 @@ export class RunSetService {
   static async createRunsForRunSet(payload: {
     runSetId: string;
     definitions: RunDefinition[];
+    shouldRunVerification?: boolean;
   }) {
     return createRunsForRunSetService(payload);
   }

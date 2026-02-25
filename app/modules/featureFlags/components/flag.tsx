@@ -1,7 +1,4 @@
-import includes from "lodash/includes";
-import { useContext } from "react";
-import { AuthenticationContext } from "~/modules/authentication/authentication.context";
-import type { User } from "~/modules/users/users.types";
+import useHasFeatureFlag from "../hooks/useHasFeatureFlag";
 
 export default function Flag({
   flag,
@@ -10,12 +7,10 @@ export default function Flag({
   flag: string;
   children: React.ReactElement;
 }) {
-  const authentication = useContext(AuthenticationContext) as User | null;
+  const hasFlag = useHasFeatureFlag(flag);
 
-  if (authentication && authentication.featureFlags) {
-    if (includes(authentication.featureFlags, flag)) {
-      return children;
-    }
+  if (hasFlag) {
+    return children;
   }
 
   return null;

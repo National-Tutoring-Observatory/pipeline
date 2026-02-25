@@ -34,6 +34,9 @@ export default function ProjectRunCreatorContainer({
   const [selectedSessions, setSelectedSessions] = useState<string[]>(
     initialRun?.sessions?.map((s) => s.sessionId) || [],
   );
+  const [shouldRunVerification, setShouldRunVerification] = useState(
+    initialRun?.shouldRunVerification ?? false,
+  );
   const onSelectedAnnotationTypeChanged = (selectedAnnotationType: string) => {
     setSelectedPrompt(null);
     setSelectedPromptVersion(null);
@@ -68,6 +71,7 @@ export default function ProjectRunCreatorContainer({
       selectedPromptVersion,
       selectedModel,
       selectedSessions,
+      shouldRunVerification,
     });
   };
 
@@ -94,6 +98,8 @@ export default function ProjectRunCreatorContainer({
       onSelectedPromptVersionChanged={onSelectedPromptVersionChanged}
       onSelectedModelChanged={onSelectedModelChanged}
       onSelectedSessionsChanged={onSelectedSessionsChanged}
+      shouldRunVerification={shouldRunVerification}
+      onShouldRunVerificationChanged={setShouldRunVerification}
       onStartRunButtonClicked={onStartRunButtonClicked}
     />
   );

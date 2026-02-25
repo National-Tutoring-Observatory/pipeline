@@ -233,6 +233,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         sessions,
         definitions,
         annotationType: annotationType as RunAnnotationType,
+        shouldRunVerification: !!payload.shouldRunVerification,
       });
 
       return {

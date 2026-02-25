@@ -91,6 +91,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       const result = await RunSetService.createRunsForRunSet({
         runSetId: params.runSetId,
         definitions,
+        shouldRunVerification: !!payload.shouldRunVerification,
       });
 
       if (!result.runSet) {
