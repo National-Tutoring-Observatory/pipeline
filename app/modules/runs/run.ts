@@ -85,6 +85,7 @@ export class RunService {
       snapshot,
       isRunning: false,
       isComplete: false,
+      shouldRunVerification: !!props.shouldRunVerification,
     });
     return this.toRun(doc);
   }

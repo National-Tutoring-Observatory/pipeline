@@ -1,9 +1,11 @@
 import { useState } from "react";
+import Flag from "~/modules/featureFlags/components/flag";
 import RunSetCreateRunsFooter from "../components/runSetCreateRunsFooter";
 import RunSetCreateRunsInfo from "../components/runSetCreateRunsInfo";
 import RunSetCreatorFormAlerts from "../components/runSetCreatorFormAlerts";
 import RunSetCreatorModels from "../components/runSetCreatorModels";
 import RunSetCreatorPrompts from "../components/runSetCreatorPrompts";
+import RunSetCreatorVerificationToggle from "../components/runSetCreatorVerificationToggle";
 import RunSetRunPreview from "../components/runSetRunPreview";
 import { calculateEstimates } from "../helpers/calculateEstimates";
 import {
@@ -32,6 +34,7 @@ export default function RunSetCreateRunsContainer({
 }: RunSetCreateRunsContainerProps) {
   const [selectedPrompts, setSelectedPrompts] = useState<PromptReference[]>([]);
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
+  const [shouldRunVerification, setShouldRunVerification] = useState(false);
 
   const usedKeys = buildUsedPromptModelSet(usedPromptModels);
 
@@ -89,6 +92,7 @@ export default function RunSetCreateRunsContainer({
       payload: {
         prompts: selectedPrompts,
         models: selectedModels,
+        shouldRunVerification,
       },
     });
     onSubmit(requestBody);
@@ -112,6 +116,13 @@ export default function RunSetCreateRunsContainer({
             selectedModels={selectedModels}
             onModelsChanged={setSelectedModels}
           />
+
+          <Flag flag="HAS_RUN_VERIFICATION">
+            <RunSetCreatorVerificationToggle
+              shouldRunVerification={shouldRunVerification}
+              onShouldRunVerificationChanged={setShouldRunVerification}
+            />
+          </Flag>
         </div>
 
         <RunSetRunPreview

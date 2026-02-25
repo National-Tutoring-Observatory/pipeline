@@ -23,6 +23,7 @@ export interface Run {
   isExporting: boolean;
   hasExportedCSV: boolean;
   hasExportedJSONL: boolean;
+  shouldRunVerification: boolean;
 }
 
 export interface RunSession {
@@ -42,6 +43,7 @@ export interface CreateRun {
   selectedPromptVersion: number | null;
   selectedModel: string;
   selectedSessions: string[];
+  shouldRunVerification: boolean;
 }
 
 export interface CreateRunProps {
@@ -52,4 +54,5 @@ export interface CreateRunProps {
   prompt: string;
   promptVersion: number;
   modelCode: string;
+  shouldRunVerification: boolean;
 }

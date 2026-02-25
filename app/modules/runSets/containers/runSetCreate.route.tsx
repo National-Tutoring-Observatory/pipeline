@@ -238,6 +238,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         prompts,
         models,
         annotationType: annotationType as RunAnnotationType,
+        shouldRunVerification: !!payload.shouldRunVerification,
       });
 
       return {

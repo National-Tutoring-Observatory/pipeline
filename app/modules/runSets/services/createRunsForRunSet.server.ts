@@ -11,6 +11,7 @@ export interface CreateRunsForRunSetPayload {
   runSetId: string;
   prompts: PromptReference[];
   models: string[];
+  shouldRunVerification?: boolean;
 }
 
 export interface CreateRunsForRunSetResult {
@@ -66,6 +67,7 @@ export default async function createRunsForRunSet(
           prompt: prompt.promptId,
           promptVersion: prompt.version,
           modelCode: model,
+          shouldRunVerification: !!payload.shouldRunVerification,
         });
 
         generatedRunIds.push(newRun._id);

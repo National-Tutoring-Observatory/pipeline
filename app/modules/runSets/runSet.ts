@@ -122,6 +122,7 @@ export class RunSetService {
     prompts: PromptReference[];
     models: string[];
     annotationType: RunAnnotationType;
+    shouldRunVerification?: boolean;
   }): Promise<{ runSet: RunSet; errors: string[] }> {
     return createRunSetWithRuns(payload);
   }
@@ -195,6 +196,7 @@ export class RunSetService {
     runSetId: string;
     prompts: PromptReference[];
     models: string[];
+    shouldRunVerification?: boolean;
   }) {
     return createRunsForRunSetService(payload);
   }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Flag from "~/modules/featureFlags/components/flag";
 import RunSetCreatorAnnotationType from "../components/runSetCreatorAnnotationType";
 import RunSetCreatorFooter from "../components/runSetCreatorFooter";
 import RunSetCreatorFormAlerts from "../components/runSetCreatorFormAlerts";
@@ -6,6 +7,7 @@ import RunSetCreatorModels from "../components/runSetCreatorModels";
 import RunSetCreatorName from "../components/runSetCreatorName";
 import RunSetCreatorPrompts from "../components/runSetCreatorPrompts";
 import RunSetCreatorSessions from "../components/runSetCreatorSessions";
+import RunSetCreatorVerificationToggle from "../components/runSetCreatorVerificationToggle";
 import RunSetRunPreview from "../components/runSetRunPreview";
 import { calculateEstimates } from "../helpers/calculateEstimates";
 import type { PrefillData, PromptReference } from "../runSets.types";
@@ -45,6 +47,7 @@ export default function RunSetCreatorContainer({
   const [selectedSessions, setSelectedSessions] = useState<string[]>(
     prefillData?.selectedSessions || [],
   );
+  const [shouldRunVerification, setShouldRunVerification] = useState(false);
 
   const estimation = calculateEstimates(
     selectedPrompts,
@@ -66,6 +69,7 @@ export default function RunSetCreatorContainer({
         prompts: selectedPrompts,
         models: selectedModels,
         sessions: selectedSessions,
+        shouldRunVerification,
       },
     });
     onSubmit(requestBody);
@@ -94,6 +98,13 @@ export default function RunSetCreatorContainer({
             selectedModels={selectedModels}
             onModelsChanged={setSelectedModels}
           />
+
+          <Flag flag="HAS_RUN_VERIFICATION">
+            <RunSetCreatorVerificationToggle
+              shouldRunVerification={shouldRunVerification}
+              onShouldRunVerificationChanged={setShouldRunVerification}
+            />
+          </Flag>
 
           <RunSetCreatorSessions
             selectedSessions={selectedSessions}

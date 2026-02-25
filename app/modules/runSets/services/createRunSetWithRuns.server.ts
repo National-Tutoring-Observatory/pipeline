@@ -10,6 +10,7 @@ export interface CreateRunSetWithRunsPayload {
   prompts: PromptReference[];
   models: string[];
   annotationType: RunAnnotationType;
+  shouldRunVerification?: boolean;
 }
 
 export default async function createRunSetWithRuns(
@@ -42,6 +43,7 @@ export default async function createRunSetWithRuns(
           prompt: prompt.promptId,
           promptVersion: prompt.version,
           modelCode: model,
+          shouldRunVerification: !!payload.shouldRunVerification,
         });
 
         generatedRunIds.push(newRun._id);

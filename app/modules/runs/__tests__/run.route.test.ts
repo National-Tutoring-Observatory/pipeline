@@ -95,6 +95,7 @@ describe("run.route loader", () => {
       prompt: new Types.ObjectId().toString(),
       promptVersion: 1,
       modelCode: "gpt-4",
+      shouldRunVerification: false,
     });
 
     const cookieHeader = await loginUser(user._id);
@@ -139,6 +140,7 @@ describe("run.route loader", () => {
       prompt: new Types.ObjectId().toString(),
       promptVersion: 1,
       modelCode: "gpt-4",
+      shouldRunVerification: false,
     });
 
     const cookieHeader = await loginUser(user._id);
@@ -184,6 +186,7 @@ describe("run.route loader", () => {
       prompt: new Types.ObjectId().toString(),
       promptVersion: 1,
       modelCode: "gpt-4",
+      shouldRunVerification: false,
     });
 
     const cookieHeader = await loginUser(otherUser._id);
@@ -227,6 +230,7 @@ describe("run.route action", () => {
       prompt: new Types.ObjectId().toString(),
       promptVersion: 1,
       modelCode: "gpt-4",
+      shouldRunVerification: false,
     });
 
     const runSet = await RunSetService.create({
@@ -274,6 +278,7 @@ describe("run.route action", () => {
       prompt: new Types.ObjectId().toString(),
       promptVersion: 1,
       modelCode: "gpt-4",
+      shouldRunVerification: false,
     });
 
     const res = await action({
@@ -319,6 +324,7 @@ describe("run.route action", () => {
       prompt: new Types.ObjectId().toString(),
       promptVersion: 1,
       modelCode: "gpt-4",
+      shouldRunVerification: false,
     });
 
     const res = await action({

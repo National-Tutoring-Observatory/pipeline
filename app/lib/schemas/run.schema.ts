@@ -46,6 +46,7 @@ export default new mongoose.Schema({
   isExporting: { type: Boolean, default: false },
   hasExportedCSV: { type: Boolean, default: false },
   hasExportedJSONL: { type: Boolean, default: false },
+  shouldRunVerification: { type: Boolean, default: false },
   startedAt: { type: Date },
   finishedAt: { type: Date },
   createdAt: { type: Date, default: Date.now },
