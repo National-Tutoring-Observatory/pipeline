@@ -182,6 +182,7 @@ describe("RunSetService", () => {
         prompt: prompt1._id,
         promptVersion: 1,
         modelCode: testModel1,
+        shouldRunVerification: false,
       });
 
       await RunSetService.updateById(runSetId, {
@@ -206,6 +207,7 @@ describe("RunSetService", () => {
         prompt: prompt1._id,
         promptVersion: 1,
         modelCode: testModel1,
+        shouldRunVerification: false,
       });
 
       await RunSetService.updateById(runSetId, {

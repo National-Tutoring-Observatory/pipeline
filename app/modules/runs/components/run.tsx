@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/pageHeader";
 import { Progress } from "@/components/ui/progress";
 import { StatItem } from "@/components/ui/stat-item";
+import { cn } from "@/lib/utils";
 import find from "lodash/find";
 import {
   BadgeCheck,
@@ -237,7 +237,7 @@ export default function RunDetail({
                 </Badge>
               ) : (
                 <Badge variant="outline" className="mt-1 gap-1.5">
-                  <BadgeX className="h-4 w-4 text-muted-foreground" />
+                  <BadgeX className="text-muted-foreground h-4 w-4" />
                   Disabled
                 </Badge>
               )}

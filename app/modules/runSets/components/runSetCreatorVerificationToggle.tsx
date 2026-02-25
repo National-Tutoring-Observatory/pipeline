@@ -19,13 +19,11 @@ export default function RunSetCreatorVerification({
             onShouldRunVerificationChanged(Boolean(checked))
           }
         />
-        <Label htmlFor="shouldRunVerification">
-          Enable verification step
-        </Label>
+        <Label htmlFor="shouldRunVerification">Enable verification step</Label>
       </div>
       <p className="text-muted-foreground text-sm">
-        When enabled, annotations will be verified by a second LLM pass to
-        check for accuracy.
+        When enabled, annotations will be verified by a second LLM pass to check
+        for accuracy.
       </p>
     </div>
   );

@@ -15,6 +15,7 @@ import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
+import useHasFeatureFlag from "~/modules/featureFlags/hooks/useHasFeatureFlag";
 import buildRunStatusMatch from "~/modules/runs/helpers/buildRunStatusMatch";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
@@ -25,7 +26,6 @@ import type { RunSet } from "~/modules/runSets/runSets.types";
 import ViewSessionContainer from "~/modules/sessions/containers/viewSessionContainer";
 import { SessionService } from "~/modules/sessions/session";
 import type { User } from "~/modules/users/users.types";
-import useHasFeatureFlag from "~/modules/featureFlags/hooks/useHasFeatureFlag";
 import type { Route } from "./+types/runSetOverview.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
