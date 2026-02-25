@@ -106,6 +106,12 @@ export async function action({ request, params }: Route.ActionArgs) {
           fieldType: "string",
           value: "AI",
         },
+        {
+          isSystem: true,
+          fieldKey: "reasoning",
+          fieldType: "string",
+          value: "",
+        },
       ],
     });
 

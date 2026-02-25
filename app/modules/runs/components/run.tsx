@@ -36,6 +36,7 @@ import annotationTypes from "~/modules/prompts/annotationTypes";
 import formatTimeRemaining from "~/modules/runs/helpers/formatTimeRemaining";
 import getRunSessionsItemAttributes from "~/modules/runs/helpers/getRunSessionsItemAttributes";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
+import { getRunStatusKey } from "~/modules/runs/helpers/statusMeta";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
 import type { RunSet } from "~/modules/runSets/runSets.types";
 import DownloadDropdown from "./downloadDropdown";
@@ -101,6 +102,7 @@ export default function RunDetail({
   onSessionsSortValueChanged: (sort: string) => void;
   onSessionsFiltersValueChanged: (value: Record<string, string | null>) => void;
 }) {
+  const runStatus = getRunStatusKey(run);
   const projectId =
     typeof run.project === "string" ? run.project : run.project._id;
   return (
@@ -162,7 +164,7 @@ export default function RunDetail({
         </PageHeaderRight>
       </PageHeader>
       <div className="relative mb-8">
-        {run.isRunning && (
+        {(runStatus === "QUEUED" || runStatus === "RUNNING") && (
           <div>
             <div className="mb-1 flex justify-end">
               <Button
@@ -176,18 +178,24 @@ export default function RunDetail({
             </div>
             <Progress value={runSessionsProgress} />
             <div className="mt-1 text-right text-xs opacity-40">
-              Annotating {runSessionsStep}
-              {(() => {
-                const [completed, total] = runSessionsStep
-                  .split("/")
-                  .map(Number);
-                const estimate = formatTimeRemaining(
-                  run.startedAt,
-                  completed,
-                  total,
-                );
-                return estimate ? ` · ${estimate}` : null;
-              })()}
+              {runStatus === "RUNNING" ? (
+                <>
+                  Annotating {runSessionsStep}
+                  {(() => {
+                    const [completed, total] = runSessionsStep
+                      .split("/")
+                      .map(Number);
+                    const estimate = formatTimeRemaining(
+                      run.startedAt,
+                      completed,
+                      total,
+                    );
+                    return estimate ? ` · ${estimate}` : null;
+                  })()}
+                </>
+              ) : (
+                "Starting..."
+              )}
             </div>
           </div>
         )}

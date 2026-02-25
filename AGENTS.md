@@ -41,6 +41,9 @@ yarn typecheck
 # Lint (required before commits)
 yarn lint
 
+# Format (required before commits)
+yarn format
+
 # Production build
 yarn app:build
 

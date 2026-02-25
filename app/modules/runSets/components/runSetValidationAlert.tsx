@@ -1,16 +1,13 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
-import type { PromptReference } from "../runSets.types";
 
 export default function RunSetValidationAlert({
   name,
-  selectedPrompts,
-  selectedModels,
+  runsCount,
   selectedSessions,
 }: {
   name: string;
-  selectedPrompts: PromptReference[];
-  selectedModels: string[];
+  runsCount: number;
   selectedSessions: string[];
 }) {
   const missingFields: string[] = [];
@@ -18,11 +15,8 @@ export default function RunSetValidationAlert({
   if (!name.trim()) {
     missingFields.push("Run set name");
   }
-  if (selectedPrompts.length === 0) {
-    missingFields.push("At least one prompt");
-  }
-  if (selectedModels.length === 0) {
-    missingFields.push("At least one model");
+  if (runsCount === 0) {
+    missingFields.push("At least one prompt and model combination");
   }
   if (selectedSessions.length === 0) {
     missingFields.push("At least one session");

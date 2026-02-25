@@ -201,7 +201,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   const { intent, payload = {} } = await request.json();
 
-  const { name, annotationType, prompts, models, sessions } = payload;
+  const { name, annotationType, definitions, sessions } = payload;
 
   switch (intent) {
     case "CREATE_RUN_SET": {
@@ -215,12 +215,8 @@ export async function action({ request, params }: Route.ActionArgs) {
         errors.annotationType = "Invalid annotation type";
       }
 
-      if (!Array.isArray(prompts) || prompts.length === 0) {
-        errors.prompts = "At least one prompt is required";
-      }
-
-      if (!Array.isArray(models) || models.length === 0) {
-        errors.models = "At least one model is required";
+      if (!Array.isArray(definitions) || definitions.length === 0) {
+        errors.definitions = "At least one run is required";
       }
 
       if (!Array.isArray(sessions) || sessions.length === 0) {
@@ -235,8 +231,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         project: params.projectId,
         name,
         sessions,
-        prompts,
-        models,
+        definitions,
         annotationType: annotationType as RunAnnotationType,
         shouldRunVerification: !!payload.shouldRunVerification,
       });

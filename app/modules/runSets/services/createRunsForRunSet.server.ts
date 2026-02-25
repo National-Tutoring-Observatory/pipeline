@@ -1,16 +1,16 @@
 import { RunService } from "~/modules/runs/run";
 import type { RunAnnotationType } from "~/modules/runs/runs.types";
+import { generateRunName } from "../helpers/generateRunName";
 import getUsedPromptModels, {
   buildUsedPromptModelKey,
   buildUsedPromptModelSet,
 } from "../helpers/getUsedPromptModels";
 import { RunSetService } from "../runSet";
-import type { PromptReference, RunSet } from "../runSets.types";
+import type { RunDefinition, RunSet } from "../runSets.types";
 
 export interface CreateRunsForRunSetPayload {
   runSetId: string;
-  prompts: PromptReference[];
-  models: string[];
+  definitions: RunDefinition[];
   shouldRunVerification?: boolean;
 }
 
@@ -42,42 +42,41 @@ export default async function createRunsForRunSet(
   const generatedRunIds: string[] = [];
   const runErrors: string[] = [];
 
-  for (const prompt of payload.prompts) {
-    for (const model of payload.models) {
-      const key = buildUsedPromptModelKey(
-        prompt.promptId,
-        prompt.version,
-        model,
+  for (const definition of payload.definitions) {
+    const key = buildUsedPromptModelKey(
+      definition.prompt.promptId,
+      definition.prompt.version,
+      definition.modelCode,
+    );
+    if (usedKeys.has(key)) {
+      continue;
+    }
+
+    const runName = generateRunName(
+      runSet.name,
+      definition.prompt,
+      definition.modelCode,
+    );
+
+    try {
+      const newRun = await RunService.create({
+        project: runSet.project,
+        name: runName,
+        sessions: runSet.sessions || [],
+        annotationType: runSet.annotationType as RunAnnotationType,
+        prompt: definition.prompt.promptId,
+        promptVersion: definition.prompt.version,
+        modelCode: definition.modelCode,
+        shouldRunVerification: !!payload.shouldRunVerification,
+      });
+
+      generatedRunIds.push(newRun._id);
+
+      await RunService.start(newRun);
+    } catch (error) {
+      runErrors.push(
+        `Error creating run for prompt ${definition.prompt.promptId} and model ${definition.modelCode}: ${error}`,
       );
-      if (usedKeys.has(key)) {
-        continue;
-      }
-
-      const promptLabel = prompt.promptName
-        ? `${prompt.promptName} v${prompt.version}`
-        : prompt.promptId;
-      const runName = `${runSet.name} - ${promptLabel} - ${model}`;
-
-      try {
-        const newRun = await RunService.create({
-          project: runSet.project,
-          name: runName,
-          sessions: runSet.sessions || [],
-          annotationType: runSet.annotationType as RunAnnotationType,
-          prompt: prompt.promptId,
-          promptVersion: prompt.version,
-          modelCode: model,
-          shouldRunVerification: !!payload.shouldRunVerification,
-        });
-
-        generatedRunIds.push(newRun._id);
-
-        await RunService.start(newRun);
-      } catch (error) {
-        runErrors.push(
-          `Error creating run for prompt ${prompt.promptId} and model ${model}: ${error}`,
-        );
-      }
     }
   }
 

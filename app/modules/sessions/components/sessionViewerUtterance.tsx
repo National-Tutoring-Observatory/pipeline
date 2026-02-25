@@ -6,11 +6,13 @@ import type { Utterance } from "../sessions.types";
 
 export default function SessionViewerUtterance({
   utterance,
+  utteranceNumber,
   leadRole = "TEACHER",
   isSelected,
   onUtteranceClicked,
 }: {
   utterance: Utterance;
+  utteranceNumber: number;
   leadRole: string;
   isSelected: boolean;
   onUtteranceClicked: (utteranceId: string) => void;
@@ -37,7 +39,9 @@ export default function SessionViewerUtterance({
           {utterance.content}
         </div>
         <div className="text-muted-foreground mt-1 flex items-center text-xs">
-          <div>{getUtteranceDetails({ utterance })}</div>
+          <div>
+            #{utteranceNumber} · {getUtteranceDetails({ utterance })}
+          </div>
           {utterance.annotations.length > 0 && (
             <Button
               variant="link"

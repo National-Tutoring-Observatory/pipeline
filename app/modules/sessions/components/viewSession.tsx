@@ -34,10 +34,11 @@ export default function ViewSession({
           </div>
         )}
         <div className="flex h-full max-h-[calc(100vh-200px)] flex-col overflow-y-scroll scroll-smooth p-4">
-          {map(transcript, (utterance: Utterance) => {
+          {map(transcript, (utterance: Utterance, index: number) => {
             return (
               <SessionViewerUtterance
                 key={utterance._id}
+                utteranceNumber={index + 1}
                 utterance={utterance}
                 leadRole={leadRole}
                 isSelected={false}

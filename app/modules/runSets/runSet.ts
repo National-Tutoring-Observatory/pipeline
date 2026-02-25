@@ -3,7 +3,7 @@ import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import runSetSchema from "~/lib/schemas/runSet.schema";
 import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Run, RunAnnotationType } from "~/modules/runs/runs.types";
-import type { PromptReference, RunSet } from "./runSets.types";
+import type { RunDefinition, RunSet } from "./runSets.types";
 import addRunsToRunSetService from "./services/addRunsToRunSet.server";
 import createRunSetForRunService from "./services/createRunSetForRun.server";
 import createRunSetWithRuns from "./services/createRunSetWithRuns.server";
@@ -119,8 +119,7 @@ export class RunSetService {
     project: string;
     name: string;
     sessions: string[];
-    prompts: PromptReference[];
-    models: string[];
+    definitions: RunDefinition[];
     annotationType: RunAnnotationType;
     shouldRunVerification?: boolean;
   }): Promise<{ runSet: RunSet; errors: string[] }> {
@@ -194,8 +193,7 @@ export class RunSetService {
 
   static async createRunsForRunSet(payload: {
     runSetId: string;
-    prompts: PromptReference[];
-    models: string[];
+    definitions: RunDefinition[];
     shouldRunVerification?: boolean;
   }) {
     return createRunsForRunSetService(payload);

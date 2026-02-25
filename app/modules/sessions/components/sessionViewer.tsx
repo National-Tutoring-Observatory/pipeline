@@ -50,11 +50,12 @@ export default function SessionViewer({
         id="session-viewer-scroll-container"
         className="flex h-full w-3/5 flex-col overflow-y-scroll scroll-smooth border-r p-4"
       >
-        {map(sessionFile.transcript, (utterance: Utterance) => {
+        {map(sessionFile.transcript, (utterance: Utterance, index: number) => {
           const isSelected = selectedUtteranceId === utterance._id;
           return (
             <SessionViewerUtterance
               key={utterance._id}
+              utteranceNumber={index + 1}
               leadRole={sessionFile.leadRole}
               utterance={utterance}
               isSelected={isSelected}
