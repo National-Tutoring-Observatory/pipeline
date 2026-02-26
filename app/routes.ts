@@ -97,6 +97,18 @@ export default [
       }),
     ]),
   ]),
+  ...prefix("codebooks", [
+    index("modules/codebooks/containers/codebooks.route.tsx"),
+    route(":id", "modules/codebooks/containers/codebook.route.tsx", [
+      route(
+        ":version",
+        "modules/codebooks/containers/codebookEditor.route.tsx",
+        {
+          id: "CODEBOOK_VERSION",
+        },
+      ),
+    ]),
+  ]),
   ...prefix("teams", [
     index("modules/teams/containers/teams.route.tsx"),
     route(":id", "modules/teams/containers/team.route.tsx", { id: "team" }, [
