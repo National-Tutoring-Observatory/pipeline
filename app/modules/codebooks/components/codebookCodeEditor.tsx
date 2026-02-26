@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2 } from "lucide-react";
+import addDialog from "~/modules/dialogs/addDialog";
 import type { CodebookCode, CodebookExample } from "../codebooks.types";
+import DeleteExampleDialog from "./deleteExampleDialog";
 import {
   EXAMPLE_TYPES,
   createEmptyExample,
@@ -34,6 +36,12 @@ export default function CodebookCodeEditor({
       ...code,
       examples: code.examples.filter((ex) => ex._id !== exampleId),
     });
+  };
+
+  const openDeleteExampleDialog = (exampleId: string) => {
+    addDialog(
+      <DeleteExampleDialog onDeleteClicked={() => removeExample(exampleId)} />,
+    );
   };
 
   const updateExample = (
@@ -124,7 +132,7 @@ export default function CodebookCodeEditor({
                     size="icon"
                     variant="ghost"
                     className="text-destructive hover:text-destructive shrink-0"
-                    onClick={() => removeExample(example._id)}
+                    onClick={() => openDeleteExampleDialog(example._id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
