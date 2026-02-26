@@ -45,39 +45,27 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   const runIds = runSet.runs ?? [];
-  const totalRuns = runIds.length;
-  let runsProgress = {
-    total: totalRuns,
-    completed: 0,
+  let annotationProgress = {
+    totalRuns: runIds.length,
+    completedRuns: 0,
+    totalSessions: 0,
+    completedSessions: 0,
     running: 0,
     startedAt: null as string | null,
   };
 
-  if (totalRuns > 0) {
-    const [completed, running, [earliestRun]] = await Promise.all([
-      RunService.count({ _id: { $in: runIds }, isComplete: true }),
-      RunService.count({ _id: { $in: runIds }, isRunning: true }),
-      RunService.find({
-        match: {
-          _id: { $in: runIds },
-          startedAt: { $exists: true, $ne: null },
-        },
-        sort: { startedAt: 1 },
-        pagination: { skip: 0, limit: 1 },
-      }),
-    ]);
-    runsProgress = {
-      total: totalRuns,
-      completed,
-      running,
-      startedAt: earliestRun ? String(earliestRun.startedAt) : null,
+  if (runIds.length > 0) {
+    const progress = await RunService.aggregateProgress(runIds);
+    annotationProgress = {
+      totalRuns: runIds.length,
+      ...progress,
     };
   }
 
   return {
     runSet,
     project,
-    runsProgress,
+    annotationProgress,
   };
 }
 
@@ -115,7 +103,8 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 500);
 
 export default function RunSetDetailRoute() {
-  const { runSet, project, runsProgress } = useLoaderData<typeof loader>();
+  const { runSet, project, annotationProgress } =
+    useLoaderData<typeof loader>();
   const runIds = runSet.runs ?? [];
   const submit = useSubmit();
   const navigate = useNavigate();
@@ -164,11 +153,20 @@ export default function RunSetDetailRoute() {
 
   useHandleSockets({
     event: "ANNOTATE_RUN",
-    matches: runIds.map((runId) => ({
-      runId,
-      task: "ANNOTATE_RUN:FINISH",
-      status: "FINISHED",
-    })),
+    matches: runIds
+      .map((runId) => [
+        {
+          runId,
+          task: "ANNOTATE_RUN:PROCESS",
+          status: "FINISHED",
+        },
+        {
+          runId,
+          task: "ANNOTATE_RUN:FINISH",
+          status: "FINISHED",
+        },
+      ])
+      .flat(),
     callback: () => {
       debounceRevalidate(revalidate);
     },
@@ -218,7 +216,7 @@ export default function RunSetDetailRoute() {
       runSet={runSet}
       project={project}
       breadcrumbs={breadcrumbs}
-      runsProgress={runsProgress}
+      annotationProgress={annotationProgress}
       onExportRunSetButtonClicked={onExportRunSetButtonClicked}
       onAddRunsClicked={() =>
         navigate(`/projects/${project._id}/run-sets/${runSet._id}/add-runs`)

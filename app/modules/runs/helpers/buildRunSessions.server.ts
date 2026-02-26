@@ -12,7 +12,7 @@ export default async function buildRunSessions(
       name: session.name,
       fileType: session.fileType || "",
       sessionId,
-      status: "RUNNING",
+      status: "NOT_STARTED",
       startedAt: new Date(),
       finishedAt: new Date(),
     });
