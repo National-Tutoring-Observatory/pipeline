@@ -91,6 +91,7 @@ export default function CodebookCodeEditor({
               >
                 <div className="grid flex-1 gap-2">
                   <Input
+                    autoFocus
                     placeholder="Example text"
                     value={example.example}
                     disabled={disabled}

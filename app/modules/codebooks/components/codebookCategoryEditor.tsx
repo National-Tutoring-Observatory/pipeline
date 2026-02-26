@@ -29,6 +29,7 @@ import type { CodebookCategory, CodebookCode } from "../codebooks.types";
 import { createEmptyCode } from "../helpers/codebookEditorHelpers";
 import CodebookCodeEditor from "./codebookCodeEditor";
 import DeleteCategoryDialog from "./deleteCategoryDialog";
+import DeleteCodeDialog from "./deleteCodeDialog";
 
 export default function CodebookCategoryEditor({
   category,
@@ -66,6 +67,15 @@ export default function CodebookCategoryEditor({
       ...category,
       codes: category.codes.filter((c) => c._id !== codeId),
     });
+  };
+
+  const openDeleteCodeDialog = (code: CodebookCode) => {
+    addDialog(
+      <DeleteCodeDialog
+        codeName={code.code}
+        onDeleteClicked={() => removeCode(code._id)}
+      />,
+    );
   };
 
   const updateCode = (updated: CodebookCode) => {
@@ -168,7 +178,7 @@ export default function CodebookCategoryEditor({
                         className="text-destructive hover:text-destructive"
                         onClick={(e) => {
                           e.stopPropagation();
-                          removeCode(code._id);
+                          openDeleteCodeDialog(code);
                         }}
                       >
                         <Trash2 className="h-4 w-4" />
