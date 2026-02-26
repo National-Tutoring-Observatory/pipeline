@@ -51,9 +51,7 @@ export default function CodebookCategoryEditor({
           value={category.name}
           disabled={disabled}
           autoComplete="off"
-          onChange={(e) =>
-            onChange({ ...category, name: e.target.value })
-          }
+          onChange={(e) => onChange({ ...category, name: e.target.value })}
         />
       </div>
       <div className="grid gap-3">
