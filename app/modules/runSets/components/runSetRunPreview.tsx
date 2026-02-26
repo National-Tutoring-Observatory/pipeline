@@ -61,7 +61,7 @@ export default function RunSetRunPreview({
                 <button
                   type="button"
                   onClick={() => onRemoveCard(definition.key)}
-                  className="absolute top-2 right-2 rounded p-0.5 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100 hover:text-gray-600"
+                  className="absolute top-2 right-2 rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -79,7 +79,7 @@ export default function RunSetRunPreview({
                 <button
                   type="button"
                   onClick={() => onRestoreCard(definition.key)}
-                  className="absolute top-2 right-2 rounded p-0.5 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100 hover:text-gray-600"
+                  className="absolute top-2 right-2 rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
                 >
                   <Plus className="h-3.5 w-3.5" />
                 </button>
