@@ -4,6 +4,7 @@ import runSchema from "~/lib/schemas/run.schema";
 import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import buildRunSessions from "./helpers/buildRunSessions.server";
 import type { CreateRunProps, Run, RunSession } from "./runs.types";
+import aggregateProgressService from "./services/aggregateProgress.server";
 import buildRunSnapshot from "./services/buildRunSnapshot.server";
 import createRunAnnotations from "./services/createRunAnnotations.server";
 import paginateSessionsService from "./services/paginateSessions.server";
@@ -139,6 +140,10 @@ export class RunService {
   static async findOne(match: Record<string, any>): Promise<Run | null> {
     const docs = await this.find({ match });
     return docs[0] || null;
+  }
+
+  static aggregateProgress(runIds: string[]) {
+    return aggregateProgressService(runIds);
   }
 
   static paginateSessions(

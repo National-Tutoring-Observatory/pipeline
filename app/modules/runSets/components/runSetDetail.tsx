@@ -33,7 +33,7 @@ export default function RunSetDetail({
   runSet,
   project,
   breadcrumbs,
-  runsProgress,
+  annotationProgress,
   onExportRunSetButtonClicked,
   onAddRunsClicked,
   onMergeClicked,
@@ -46,9 +46,11 @@ export default function RunSetDetail({
   runSet: RunSet;
   project: { _id: string; name: string };
   breadcrumbs: Breadcrumb[];
-  runsProgress: {
-    total: number;
-    completed: number;
+  annotationProgress: {
+    totalRuns: number;
+    completedRuns: number;
+    totalSessions: number;
+    completedSessions: number;
     running: number;
     startedAt: string | null;
   };
@@ -112,24 +114,39 @@ export default function RunSetDetail({
           </div>
         </PageHeaderRight>
       </PageHeader>
-      {runsProgress.running > 0 && (
-        <div className="relative mb-4">
-          <div className="absolute top-3 right-0 text-xs opacity-40">
-            Annotating runs {runsProgress.completed}/{runsProgress.total}
-            {(() => {
-              const estimate = formatTimeRemaining(
-                runsProgress.startedAt,
-                runsProgress.completed,
-                runsProgress.total,
-              );
-              return estimate ? ` · ${estimate}` : null;
-            })()}
+      {annotationProgress.running > 0 &&
+        annotationProgress.completedSessions <
+          annotationProgress.totalSessions && (
+          <div className="relative mb-6">
+            <div className="absolute top-3 right-0 text-xs opacity-40">
+              {annotationProgress.completedSessions === 0 ? (
+                "Starting..."
+              ) : (
+                <>
+                  {annotationProgress.completedRuns}/
+                  {annotationProgress.totalRuns} runs ·{" "}
+                  {annotationProgress.completedSessions}/
+                  {annotationProgress.totalSessions} sessions completed
+                  {(() => {
+                    const estimate = formatTimeRemaining(
+                      annotationProgress.startedAt,
+                      annotationProgress.completedSessions,
+                      annotationProgress.totalSessions,
+                    );
+                    return estimate ? ` · ${estimate}` : null;
+                  })()}
+                </>
+              )}
+            </div>
+            <Progress
+              value={
+                (annotationProgress.completedSessions /
+                  annotationProgress.totalSessions) *
+                100
+              }
+            />
           </div>
-          <Progress
-            value={(runsProgress.completed / runsProgress.total) * 100}
-          />
-        </div>
-      )}
+        )}
       <Flag flag="HAS_EVALUATIONS">
         <Tabs
           value={activeView}
