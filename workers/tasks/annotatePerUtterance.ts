@@ -10,10 +10,19 @@ import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapt
 import emitFromJob from "../helpers/emitFromJob";
 import updateRunSession from "../helpers/updateRunSession";
 import annotationPerUtterancePrompts from "../prompts/annotatePerUtterance.prompts.json";
+import verifyPerUtterancePrompts from "../prompts/verifyPerUtterance.prompts.json";
 
 export default async function annotatePerUtterance(job: any) {
-  const { runId, sessionId, inputFile, outputFolder, prompt, model, team } =
-    job.data;
+  const {
+    runId,
+    sessionId,
+    inputFile,
+    outputFolder,
+    prompt,
+    model,
+    team,
+    shouldRunVerification,
+  } = job.data;
 
   const run = await RunService.findById(runId);
   if (run?.stoppedAt) {
@@ -69,7 +78,28 @@ export default async function annotatePerUtterance(job: any) {
 
     const response = await llm.createChat();
 
-    const annotations = response.annotations || [];
+    let annotations = response.annotations || [];
+
+    if (shouldRunVerification) {
+      const verifyLlm = new LLM({ model, user: team, schema: responseSchema });
+
+      verifyLlm.addSystemMessage(verifyPerUtterancePrompts.system, {
+        annotationSchema: JSON.stringify(prompt.annotationSchema),
+        leadRole: originalJSON.leadRole || "TEACHER",
+      });
+
+      verifyLlm.addUserMessage(
+        `Original prompt: {{originalPrompt}}\n\nConversation: {{conversation}}\n\nAnnotations to review: {{annotations}}`,
+        {
+          originalPrompt: prompt.prompt,
+          conversation,
+          annotations: JSON.stringify(annotations),
+        },
+      );
+
+      const verifyResponse = await verifyLlm.createChat();
+      annotations = verifyResponse.annotations || annotations;
+    }
 
     for (const annotation of annotations) {
       const currentUtterance = find(originalJSON.transcript, {

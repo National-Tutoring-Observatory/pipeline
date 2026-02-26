@@ -67,6 +67,7 @@ export default async function createRunAnnotations(run: Run) {
       model: getRunModelCode(run),
       team: project.team,
       currentSessionIndex,
+      shouldRunVerification: !!run.shouldRunVerification,
     });
   }
 
