@@ -8,6 +8,7 @@ import LLM from "../../app/modules/llm/llm";
 import { RunService } from "../../app/modules/runs/run";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
 import emitFromJob from "../helpers/emitFromJob";
+import saveRunSessionMetadata from "../helpers/saveRunSessionMetadata";
 import updateRunSession from "../helpers/updateRunSession";
 import annotationPerUtterancePrompts from "../prompts/annotatePerUtterance.prompts.json";
 import verifyPerUtterancePrompts from "../prompts/verifyPerUtterance.prompts.json";
@@ -81,6 +82,8 @@ export default async function annotatePerUtterance(job: any) {
     let annotations = response.annotations || [];
 
     if (shouldRunVerification) {
+      const preVerificationAnnotations = annotations;
+
       const verifyLlm = new LLM({ model, user: team, schema: responseSchema });
 
       verifyLlm.addSystemMessage(verifyPerUtterancePrompts.system, {
@@ -99,6 +102,12 @@ export default async function annotatePerUtterance(job: any) {
 
       const verifyResponse = await verifyLlm.createChat();
       annotations = verifyResponse.annotations || annotations;
+
+      await saveRunSessionMetadata({
+        outputFolder,
+        outputFileName,
+        preVerificationAnnotations,
+      });
     }
 
     for (const annotation of annotations) {
