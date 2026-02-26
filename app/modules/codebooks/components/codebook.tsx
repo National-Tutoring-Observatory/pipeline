@@ -54,6 +54,7 @@ export default function Codebook({
       </PageHeader>
       {codebook.description && (
         <div className="mb-2">
+          <p className="text-sm font-bold">Intention</p>
           <p className="text-muted-foreground text-sm">
             {codebook.description}
           </p>

@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookCheck, Plus, Save } from "lucide-react";
+import { BookCheck, CirclePlus, Save } from "lucide-react";
 import { useState } from "react";
 import type { CodebookCategory, CodebookVersion } from "../codebooks.types";
 import { createEmptyCategory } from "../helpers/codebookEditorHelpers";
 import CodebookCategoryEditor from "./codebookCategoryEditor";
+import CodebookCategoryItem from "./codebookCategoryItem";
 
 export default function CodebookEditor({
   codebookVersion,
@@ -32,11 +32,14 @@ export default function CodebookEditor({
   const [categories, setCategories] = useState<CodebookCategory[]>(
     codebookVersion.categories,
   );
-  const [activeTab, setActiveTab] = useState(
+  const [activeCategory, setActiveCategory] = useState(
     categories.length > 0 ? categories[0]._id : "",
   );
+  const [editingCode, setEditingCode] = useState<string | null>(null);
 
   const disabled = codebookVersion.hasBeenSaved;
+
+  const selectedCategory = categories.find((c) => c._id === activeCategory);
 
   const onNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setHasChanges(true);
@@ -52,14 +55,14 @@ export default function CodebookEditor({
     const newCategory = createEmptyCategory();
     const updated = [...categories, newCategory];
     updateCategories(updated);
-    setActiveTab(newCategory._id);
+    setActiveCategory(newCategory._id);
   };
 
   const removeCategory = (categoryId: string) => {
     const updated = categories.filter((c) => c._id !== categoryId);
     updateCategories(updated);
-    if (activeTab === categoryId && updated.length > 0) {
-      setActiveTab(updated[0]._id);
+    if (activeCategory === categoryId && updated.length > 0) {
+      setActiveCategory(updated[0]._id);
     }
   };
 
@@ -103,7 +106,8 @@ export default function CodebookEditor({
           )}
         </div>
       </div>
-      <div className="grid gap-8 p-8">
+
+      <div className="p-8 pb-0">
         <div className="grid gap-3">
           <Label htmlFor="name">Name</Label>
           <Input
@@ -115,40 +119,43 @@ export default function CodebookEditor({
             onChange={onNameChanged}
           />
         </div>
-        <div className="grid gap-3">
-          <div className="flex items-center justify-between">
-            <Label>Categories</Label>
+      </div>
+
+      <div className="flex p-8 pt-4">
+        <div className="w-1/4 rounded-l-md border">
+          <div className="flex items-center justify-between border-b p-2 text-sm">
+            <div>Categories</div>
             {!disabled && (
-              <Button size="sm" variant="outline" onClick={addCategory}>
-                <Plus className="mr-1 h-3 w-3" />
-                Add category
+              <Button size="icon" variant="ghost" onClick={addCategory}>
+                <CirclePlus className="h-4 w-4" />
               </Button>
             )}
           </div>
-          {categories.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
+          {categories.map((c) => (
+            <CodebookCategoryItem
+              key={c._id}
+              name={c.name}
+              isSelected={activeCategory === c._id}
+              onClick={() => setActiveCategory(c._id)}
+            />
+          ))}
+        </div>
+
+        <div className="w-3/4 rounded-r-md border-t border-r border-b">
+          {selectedCategory ? (
+            <CodebookCategoryEditor
+              category={selectedCategory}
+              disabled={disabled}
+              editingCode={editingCode}
+              onChange={updateCategory}
+              onRemove={() => removeCategory(selectedCategory._id)}
+              onEditCode={(codeId) => setEditingCode(codeId)}
+              onCloseCodeEditor={() => setEditingCode(null)}
+            />
+          ) : (
+            <p className="text-muted-foreground p-4 text-sm">
               No categories yet. Add a category to get started.
             </p>
-          ) : (
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList>
-                {categories.map((category) => (
-                  <TabsTrigger key={category._id} value={category._id}>
-                    {category.name || "Untitled"}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              {categories.map((category) => (
-                <TabsContent key={category._id} value={category._id}>
-                  <CodebookCategoryEditor
-                    category={category}
-                    disabled={disabled}
-                    onChange={updateCategory}
-                    onRemove={() => removeCategory(category._id)}
-                  />
-                </TabsContent>
-              ))}
-            </Tabs>
           )}
         </div>
       </div>

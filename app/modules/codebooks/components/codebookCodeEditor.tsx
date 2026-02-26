@@ -20,12 +20,10 @@ export default function CodebookCodeEditor({
   code,
   disabled,
   onChange,
-  onRemove,
 }: {
   code: CodebookCode;
   disabled: boolean;
   onChange: (code: CodebookCode) => void;
-  onRemove: () => void;
 }) {
   const addExample = () => {
     onChange({ ...code, examples: [...code.examples, createEmptyExample()] });
@@ -52,7 +50,7 @@ export default function CodebookCodeEditor({
   };
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 overflow-y-auto p-4">
       <div className="grid gap-3">
         <Label htmlFor={`code-${code._id}`}>Code</Label>
         <Input
@@ -72,17 +70,6 @@ export default function CodebookCodeEditor({
           onChange={(e) => onChange({ ...code, definition: e.target.value })}
         />
       </div>
-      {!disabled && (
-        <Button
-          size="sm"
-          variant="destructive"
-          className="w-fit"
-          onClick={onRemove}
-        >
-          <Trash2 className="mr-1 h-3 w-3" />
-          Remove code
-        </Button>
-      )}
       <div className="grid gap-3">
         <div className="flex items-center justify-between">
           <Label>Examples</Label>

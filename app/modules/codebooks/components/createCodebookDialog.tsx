@@ -69,11 +69,16 @@ const CreateCodebookDialog = ({
           onChange={onNameChanged}
         />
         <CodebookNameAlert name={name} />
-        <Label htmlFor="description-1">Description</Label>
+        <div>
+          <Label htmlFor="description-1">Intention</Label>
+          <p className="text-muted-foreground text-sm">
+            State what this codebook is trying to achieve.
+          </p>
+        </div>
         <Textarea
           id="description-1"
           name="description"
-          placeholder="Describe what this codebook is for..."
+          placeholder="State what this codebook is trying to achieve."
           defaultValue={description}
           onChange={onDescriptionChanged}
         />
