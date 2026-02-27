@@ -121,6 +121,9 @@ export default [
       route("users", "modules/teams/containers/teamUsers.route.tsx", {
         id: "teamUsers",
       }),
+      route("billing", "modules/teams/containers/teamBilling.route.tsx", {
+        id: "teamBilling",
+      }),
     ]),
   ]),
   ...prefix("invite", [

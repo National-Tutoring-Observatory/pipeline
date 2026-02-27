@@ -9,6 +9,7 @@ import { Pencil } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import Flag from "~/modules/featureFlags/components/flag";
 import useTeamAuthorization from "../hooks/useTeamAuthorization";
 import type { Team } from "../teams.types";
 
@@ -30,7 +31,7 @@ export default function Team({
   const parts = location.pathname.split("/").filter(Boolean);
   // Expect path like /teams/:id(/projects|prompts|users)
   const last = parts[parts.length - 1];
-  const active = ["projects", "prompts", "users"].includes(last)
+  const active = ["projects", "prompts", "users", "billing"].includes(last)
     ? last
     : "users";
 
@@ -63,6 +64,9 @@ export default function Team({
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="prompts">Prompts</TabsTrigger>
+          <Flag flag="HAS_BILLING">
+            <TabsTrigger value="billing">Billing</TabsTrigger>
+          </Flag>
         </TabsList>
       </Tabs>
 
