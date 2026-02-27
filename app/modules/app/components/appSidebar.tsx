@@ -21,10 +21,11 @@ import {
   ChevronsUpDown,
   ClipboardList,
   Database,
-  Flag,
+  Flag as FlagIcon,
   Folder,
   LogOut,
   Network,
+  Notebook,
   Users,
 } from "lucide-react";
 import { useContext, useEffect } from "react";
@@ -32,6 +33,7 @@ import { NavLink, useFetcher } from "react-router";
 import SideBarHelpDropdown from "~/modules/app/components/sidebarHelpDropdown";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import Role from "~/modules/authentication/components/role";
+import FeatureFlag from "~/modules/featureFlags/components/flag";
 import type { User } from "~/modules/users/users.types";
 
 export default function AppSidebar() {
@@ -92,6 +94,22 @@ export default function AppSidebar() {
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <FeatureFlag flag="HAS_CODEBOOKS">
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={"/codebooks"}>
+                      {({ isActive }) => (
+                        <>
+                          <Notebook />
+                          <span className={isActive ? "underline" : ""}>
+                            Codebooks
+                          </span>
+                        </>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </FeatureFlag>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -119,7 +137,7 @@ export default function AppSidebar() {
                     <NavLink to={"/featureFlags"}>
                       {({ isActive }) => (
                         <>
-                          <Flag />
+                          <FlagIcon />
                           <span className={isActive ? "underline" : ""}>
                             Feature flags
                           </span>
