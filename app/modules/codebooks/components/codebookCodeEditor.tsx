@@ -12,11 +12,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2 } from "lucide-react";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { CodebookCode, CodebookExample } from "../codebooks.types";
-import DeleteExampleDialog from "./deleteExampleDialog";
 import {
   EXAMPLE_TYPES,
   createEmptyExample,
 } from "../helpers/codebookEditorHelpers";
+import DeleteExampleDialog from "./deleteExampleDialog";
 
 export default function CodebookCodeEditor({
   code,

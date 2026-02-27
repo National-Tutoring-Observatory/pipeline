@@ -159,13 +159,16 @@ export default function CodebookCategoryEditor({
               {category.codes.map((code, index) => (
                 <Item
                   key={code._id}
-                  className={`hover:bg-accent/50 cursor-pointer${index < category.codes.length - 1 ? " border-b" : ""}`}
+                  className={`hover:bg-accent/50 cursor-pointer${index < category.codes.length - 1 ? "border-b" : ""}`}
                   onClick={() => onEditCode(code._id)}
                 >
                   <ItemContent className="gap-1">
                     <ItemTitle>{code.code || "Untitled code"}</ItemTitle>
                     <ItemDescription>{code.definition}</ItemDescription>
-                    <Badge variant="outline" className="text-muted-foreground w-fit">
+                    <Badge
+                      variant="outline"
+                      className="text-muted-foreground w-fit"
+                    >
                       {code.examples.length}{" "}
                       {code.examples.length === 1 ? "example" : "examples"}
                     </Badge>
