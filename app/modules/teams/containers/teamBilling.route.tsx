@@ -15,7 +15,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect("/");
   }
 
-  const hasBilling = await hasFeatureFlag("HAS_BILLING", { request }, { defaultValue: false });
+  const hasBilling = await hasFeatureFlag(
+    "HAS_BILLING",
+    { request },
+    { defaultValue: false },
+  );
   if (!hasBilling) {
     return redirect(`/teams/${params.id}/users`);
   }
