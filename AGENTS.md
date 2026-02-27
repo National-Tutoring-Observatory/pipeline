@@ -761,6 +761,33 @@ const url = await adapter.request(path); // Presigned URL
 
 **Service Layer**: Always use service classes (e.g., `ProjectService`) instead of direct model access.
 
+**DocumentDB Compatibility**: Production uses AWS DocumentDB, which does NOT support all MongoDB aggregation stages. When writing aggregation pipelines, **do not use** the following unsupported stages:
+
+- `$facet` - Split into separate `Promise.all()` queries instead
+- `$bucket` / `$bucketAuto`
+- `$sortByCount`
+- `$unionWith`
+- `$merge`
+- `$graphLookup`
+- `$setWindowFields`
+
+```typescript
+// ❌ WRONG - $facet is not supported in DocumentDB
+await Model.aggregate([
+  { $match: { ... } },
+  { $facet: {
+    result1: [{ $group: { ... } }],
+    result2: [{ $sort: { ... } }, { $limit: 1 }],
+  }},
+]);
+
+// ✅ CORRECT - Split into separate queries
+const [result1, result2] = await Promise.all([
+  Model.aggregate([{ $match: { ... } }, { $group: { ... } }]),
+  Model.aggregate([{ $match: { ... } }, { $sort: { ... } }, { $limit: 1 }]),
+]);
+```
+
 ## Path Aliases
 
 ```typescript
