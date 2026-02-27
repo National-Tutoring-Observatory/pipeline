@@ -7,7 +7,9 @@ import type {
 export const EXAMPLE_TYPES = ["NEAR_MISS", "NEAR_HIT", "HIT", "MISS"] as const;
 
 export function generateId() {
-  return Math.random().toString(36).substring(2, 15);
+  return Array.from({ length: 24 }, () =>
+    Math.floor(Math.random() * 16).toString(16),
+  ).join("");
 }
 
 export function createEmptyExample(): CodebookExample {
