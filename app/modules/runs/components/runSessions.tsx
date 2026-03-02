@@ -1,7 +1,13 @@
-import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
+import {
+  PageHeader,
+  PageHeaderLeft,
+  PageHeaderRight,
+} from "@/components/ui/pageHeader";
+import { Spinner } from "@/components/ui/spinner";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
-import type { Run } from "~/modules/runs/runs.types";
+import type { Run, RunSession } from "~/modules/runs/runs.types";
+import SessionListSidebar from "~/modules/sessions/components/sessionListSidebar";
 import SessionViewerContainer from "~/modules/sessions/containers/sessionViewerContainer";
 import type { Session, SessionFile } from "~/modules/sessions/sessions.types";
 
@@ -10,11 +16,31 @@ export default function RunSessions({
   sessionFile,
   session,
   breadcrumbs,
+  runLink,
+  currentSessionId,
+  doneSessionsCount,
+  paginatedSessions,
+  sidebarSearchValue,
+  sidebarCurrentPage,
+  sidebarIsSyncing,
+  isLoadingSession,
+  onSidebarSearchValueChanged,
+  onSidebarPaginationChanged,
 }: {
   run: Run;
   sessionFile: SessionFile;
   session: Session;
   breadcrumbs: Breadcrumb[];
+  runLink: string;
+  currentSessionId: string;
+  doneSessionsCount: number;
+  paginatedSessions: { data: RunSession[]; count: number; totalPages: number };
+  sidebarSearchValue: string;
+  sidebarCurrentPage: number;
+  sidebarIsSyncing: boolean;
+  isLoadingSession: boolean;
+  onSidebarSearchValueChanged: (value: string) => void;
+  onSidebarPaginationChanged: (value: number) => void;
 }) {
   return (
     <div className="max-w-6xl p-8">
@@ -22,12 +48,37 @@ export default function RunSessions({
         <PageHeaderLeft>
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
+        <PageHeaderRight>
+          <span className="text-sm">
+            {doneSessionsCount} of {run.sessions.length} done
+          </span>
+        </PageHeaderRight>
       </PageHeader>
-      <SessionViewerContainer
-        run={run}
-        session={session}
-        sessionFile={sessionFile}
-      />
+      <div className="flex h-[calc(100vh-140px)] rounded-md border">
+        <SessionListSidebar
+          sessions={paginatedSessions.data}
+          totalPages={paginatedSessions.totalPages}
+          count={paginatedSessions.count}
+          currentSessionId={currentSessionId}
+          runLink={runLink}
+          searchValue={sidebarSearchValue}
+          currentPage={sidebarCurrentPage}
+          isSyncing={sidebarIsSyncing}
+          onSearchValueChanged={onSidebarSearchValueChanged}
+          onPaginationChanged={onSidebarPaginationChanged}
+        />
+        {isLoadingSession ? (
+          <div className="flex flex-1 items-center justify-center">
+            <Spinner className="size-6" />
+          </div>
+        ) : (
+          <SessionViewerContainer
+            run={run}
+            session={session}
+            sessionFile={sessionFile}
+          />
+        )}
+      </div>
     </div>
   );
 }

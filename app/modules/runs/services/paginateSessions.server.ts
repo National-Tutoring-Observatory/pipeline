@@ -7,6 +7,7 @@ interface PaginateSessionsProps {
   searchValue?: string;
   sort?: string;
   page?: string | number;
+  pageSize?: number;
   filters?: Record<string, string>;
 }
 
@@ -30,12 +31,12 @@ export default function paginateSessions(
   const field = desc ? sortField.slice(1) : sortField;
   const sorted = orderBy(filtered, [field], [desc ? "desc" : "asc"]);
 
-  const { skip, limit } = getPaginationParams(props.page);
+  const { skip, limit } = getPaginationParams(props.page, props.pageSize);
   const data = sorted.slice(skip, skip + limit);
 
   return {
     data,
     count: filtered.length,
-    totalPages: getTotalPages(filtered.length),
+    totalPages: getTotalPages(filtered.length, props.pageSize),
   };
 }

@@ -197,4 +197,153 @@ describe("runSessions.route loader", () => {
     expect(loaderData.run.name).toBe("Test Run");
     expect(loaderData.run.data).toBeUndefined();
   });
+
+  it("returns paginatedSessions and doneSessionsCount", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+    });
+
+    const targetSessionId = new Types.ObjectId().toString();
+    const run = await createTestRun({
+      name: "Test Run",
+      project: project._id,
+      isRunning: false,
+      isComplete: false,
+      sessions: [
+        {
+          sessionId: targetSessionId,
+          name: "session_alpha.json",
+          fileType: "json",
+          status: "DONE",
+          startedAt: new Date(),
+          finishedAt: new Date(),
+        },
+        {
+          sessionId: new Types.ObjectId().toString(),
+          name: "session_beta.json",
+          fileType: "json",
+          status: "DONE",
+          startedAt: new Date(),
+          finishedAt: new Date(),
+        },
+        {
+          sessionId: new Types.ObjectId().toString(),
+          name: "session_gamma.json",
+          fileType: "json",
+          status: "RUNNING",
+          startedAt: new Date(),
+          finishedAt: new Date(),
+        },
+      ],
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = await loader({
+      request: new Request(
+        "http://localhost/projects/" +
+          project._id +
+          "/runs/" +
+          run._id +
+          "/sessions/" +
+          targetSessionId,
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: {
+        projectId: project._id,
+        runId: run._id,
+        sessionId: targetSessionId,
+      },
+    } as any);
+
+    expect(res).not.toBeInstanceOf(Response);
+    const loaderData = res as any;
+    expect(loaderData.doneSessionsCount).toBe(2);
+    expect(loaderData.paginatedSessions).toBeDefined();
+    expect(loaderData.paginatedSessions.data).toHaveLength(3);
+    expect(loaderData.paginatedSessions.totalPages).toBe(1);
+  });
+
+  it("filters paginatedSessions by sidebar search params", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+    });
+
+    const targetSessionId = new Types.ObjectId().toString();
+    const run = await createTestRun({
+      name: "Test Run",
+      project: project._id,
+      isRunning: false,
+      isComplete: false,
+      sessions: [
+        {
+          sessionId: targetSessionId,
+          name: "session_alpha.json",
+          fileType: "json",
+          status: "DONE",
+          startedAt: new Date(),
+          finishedAt: new Date(),
+        },
+        {
+          sessionId: new Types.ObjectId().toString(),
+          name: "session_beta.json",
+          fileType: "json",
+          status: "DONE",
+          startedAt: new Date(),
+          finishedAt: new Date(),
+        },
+        {
+          sessionId: new Types.ObjectId().toString(),
+          name: "session_gamma.json",
+          fileType: "json",
+          status: "DONE",
+          startedAt: new Date(),
+          finishedAt: new Date(),
+        },
+      ],
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = await loader({
+      request: new Request(
+        "http://localhost/projects/" +
+          project._id +
+          "/runs/" +
+          run._id +
+          "/sessions/" +
+          targetSessionId +
+          "?sidebarSearchValue=alpha",
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: {
+        projectId: project._id,
+        runId: run._id,
+        sessionId: targetSessionId,
+      },
+    } as any);
+
+    expect(res).not.toBeInstanceOf(Response);
+    const loaderData = res as any;
+    expect(loaderData.paginatedSessions.data).toHaveLength(1);
+    expect(loaderData.paginatedSessions.data[0].name).toBe(
+      "session_alpha.json",
+    );
+  });
 });
