@@ -1,6 +1,5 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
-import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { ProjectService } from "~/modules/projects/project";
 import { RunSetService } from "~/modules/runSets/runSet";
 import { SessionService } from "~/modules/sessions/session";
@@ -13,7 +12,6 @@ import { action, loader } from "../containers/runSetMerge.route";
 
 beforeEach(async () => {
   await clearDocumentDB();
-  await FeatureFlagService.create({ name: "HAS_PROJECT_COLLECTIONS" });
 });
 
 describe("runSetMerge.route loader", () => {
@@ -31,7 +29,6 @@ describe("runSetMerge.route loader", () => {
     const user = await UserService.create({
       username: "test_user",
       teams: [],
-      featureFlags: ["HAS_PROJECT_COLLECTIONS"],
     });
     const cookieHeader = await loginUser(user._id);
 
@@ -53,7 +50,6 @@ describe("runSetMerge.route loader", () => {
     const user = await UserService.create({
       username: "test_user",
       teams: [],
-      featureFlags: ["HAS_PROJECT_COLLECTIONS"],
     });
     const team = await TeamService.create({ name: "Test Team" });
     await UserService.updateById(user._id, {
@@ -101,7 +97,6 @@ describe("runSetMerge.route loader", () => {
     const user = await UserService.create({
       username: "test_user",
       teams: [],
-      featureFlags: ["HAS_PROJECT_COLLECTIONS"],
     });
     const team = await TeamService.create({ name: "Test Team" });
     await UserService.updateById(user._id, {
@@ -200,7 +195,6 @@ describe("runSetMerge.route action", () => {
     const user = await UserService.create({
       username: "test_user",
       teams: [],
-      featureFlags: ["HAS_PROJECT_COLLECTIONS"],
     });
     const team = await TeamService.create({ name: "Test Team" });
     await UserService.updateById(user._id, {
@@ -273,7 +267,6 @@ describe("runSetMerge.route action", () => {
     const user = await UserService.create({
       username: "test_user",
       teams: [],
-      featureFlags: ["HAS_PROJECT_COLLECTIONS"],
     });
     const team = await TeamService.create({ name: "Test Team" });
     await UserService.updateById(user._id, {
