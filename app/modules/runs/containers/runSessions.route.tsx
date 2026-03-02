@@ -1,7 +1,10 @@
 import fse from "fs-extra";
+import filter from "lodash/filter";
 import find from "lodash/find";
 import map from "lodash/map";
-import { redirect, useLoaderData } from "react-router";
+import { redirect, useLoaderData, useNavigation } from "react-router";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
+import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
@@ -43,11 +46,44 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const runSetId = params.runSetId;
   const runSet = runSetId ? await RunSetService.findById(runSetId) : null;
 
-  return { project, run, session, sessionFile, runSet };
+  const sidebarQueryParams = getQueryParamsFromRequest(
+    request,
+    { searchValue: "", currentPage: 1, sort: "name", filters: {} },
+    { paramPrefix: "sidebar" },
+  );
+
+  const paginatedSessions = RunService.paginateSessions(run.sessions, {
+    searchValue: sidebarQueryParams.searchValue,
+    sort: sidebarQueryParams.sort,
+    page: sidebarQueryParams.currentPage,
+    filters: sidebarQueryParams.filters,
+  });
+
+  const doneSessionsCount = filter(run.sessions, { status: "DONE" }).length;
+
+  return {
+    project,
+    run,
+    session,
+    sessionFile,
+    runSet,
+    paginatedSessions,
+    doneSessionsCount,
+  };
 }
 
-export default function ProjectRunSessionsRoute() {
-  const { project, run, sessionFile, session, runSet } = useLoaderData();
+export default function ProjectRunSessionsRoute({
+  params,
+}: Route.ComponentProps) {
+  const {
+    project,
+    run,
+    sessionFile,
+    session,
+    runSet,
+    paginatedSessions,
+    doneSessionsCount,
+  } = useLoaderData();
 
   const parentBreadcrumbs = runSet
     ? [
@@ -90,12 +126,39 @@ export default function ProjectRunSessionsRoute() {
     },
   ];
 
+  const {
+    searchValue: sidebarSearchValue,
+    setSearchValue: setSidebarSearchValue,
+    currentPage: sidebarCurrentPage,
+    setCurrentPage: setSidebarCurrentPage,
+    isSyncing: sidebarIsSyncing,
+  } = useSearchQueryParams(
+    { searchValue: "", currentPage: 1, sortValue: "name" },
+    { paramPrefix: "sidebar" },
+  );
+
+  const navigation = useNavigation();
+  const isLoadingSession =
+    navigation.state === "loading" &&
+    navigation.location?.pathname.endsWith(`/sessions/${params.sessionId}`) ===
+      false;
+
   return (
     <RunSessions
       run={run}
       session={session}
       sessionFile={sessionFile}
       breadcrumbs={breadcrumbs}
+      runLink={runLink}
+      currentSessionId={params.sessionId}
+      doneSessionsCount={doneSessionsCount}
+      paginatedSessions={paginatedSessions}
+      sidebarSearchValue={sidebarSearchValue}
+      sidebarCurrentPage={sidebarCurrentPage}
+      sidebarIsSyncing={sidebarIsSyncing}
+      isLoadingSession={isLoadingSession}
+      onSidebarSearchValueChanged={setSidebarSearchValue}
+      onSidebarPaginationChanged={setSidebarCurrentPage}
     />
   );
 }
