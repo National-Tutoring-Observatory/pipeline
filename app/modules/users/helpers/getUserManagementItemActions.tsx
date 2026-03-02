@@ -8,6 +8,13 @@ export default function getUserManagementItemActions(
 ): CollectionItemAction[] {
   const actions: CollectionItemAction[] = [];
 
+  if (UserManagementAuthorization.canUpdate(currentUser)) {
+    actions.push({
+      action: "EDIT",
+      text: "Edit",
+    });
+  }
+
   if (
     UserManagementAuthorization.canAssignSuperAdminToUser({
       target: item,

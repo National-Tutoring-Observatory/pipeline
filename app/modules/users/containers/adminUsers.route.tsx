@@ -10,6 +10,7 @@ import { userIsSuperAdmin } from "~/modules/authorization/helpers/superAdmin";
 import addDialog from "~/modules/dialogs/addDialog";
 import UserManagementAuthorization from "../authorization";
 import AdminUsers from "../components/adminUsers";
+import EditUserDialog from "../components/editUserDialog";
 import { UserService } from "../user";
 import type { User } from "../users.types";
 import AssignSuperAdminDialogContainer from "./assignSuperAdminDialogContainer";
@@ -191,6 +192,83 @@ export async function action({ request }: Route.ActionArgs) {
       return data({ success: true, intent: "REVOKE_SUPER_ADMIN" });
     }
 
+    case "UPDATE_USER": {
+      const { targetUserId, username, email } = payload;
+
+      if (!targetUserId || typeof targetUserId !== "string") {
+        return data(
+          { errors: { general: "Invalid request" } },
+          { status: 400 },
+        );
+      }
+
+      if (!UserManagementAuthorization.canUpdate(user)) {
+        return data(
+          { errors: { general: "Cannot perform this action" } },
+          { status: 403 },
+        );
+      }
+
+      const trimmedUsername =
+        typeof username === "string" ? username.trim() : "";
+      const trimmedEmail = typeof email === "string" ? email.trim() : "";
+
+      if (trimmedUsername.length < 3) {
+        return data(
+          { errors: { username: "Username must be at least 3 characters" } },
+          { status: 400 },
+        );
+      }
+
+      let targetUser;
+      try {
+        targetUser = await UserService.findById(targetUserId);
+      } catch {
+        return data({ errors: { general: "User not found" } }, { status: 400 });
+      }
+
+      if (!targetUser) {
+        return data({ errors: { general: "User not found" } }, { status: 400 });
+      }
+
+      const existingByUsername = await UserService.findOne({
+        username: trimmedUsername,
+        _id: { $ne: targetUserId },
+      });
+      if (existingByUsername) {
+        return data(
+          { errors: { username: "Username is already in use" } },
+          { status: 400 },
+        );
+      }
+
+      if (trimmedEmail) {
+        const existingByEmail = await UserService.findOne({
+          email: trimmedEmail,
+          _id: { $ne: targetUserId },
+        });
+        if (existingByEmail) {
+          return data(
+            { errors: { email: "Email is already in use" } },
+            { status: 400 },
+          );
+        }
+      }
+
+      try {
+        await UserService.updateById(targetUserId, {
+          username: trimmedUsername,
+          email: trimmedEmail,
+        } as Partial<User>);
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        return data({ errors: { general: errorMessage } }, { status: 500 });
+      }
+
+      return data({ success: true, intent: "UPDATE_USER" });
+    }
+
     default:
       return data({ errors: { general: "Invalid intent" } }, { status: 400 });
   }
@@ -281,6 +359,17 @@ export default function UserManagementRoute({
       );
     };
 
+  const openEditUserDialog = (targetUser: User) => {
+    addDialog(
+      <EditUserDialog
+        user={targetUser}
+        onUserUpdated={() => {
+          toast.success("User updated");
+        }}
+      />,
+    );
+  };
+
   const onItemActionClicked = ({
     id,
     action,
@@ -291,7 +380,9 @@ export default function UserManagementRoute({
     const targetUser = users.data.find((u: User) => u._id === id);
     if (!targetUser) return;
 
-    if (action === "ASSIGN_SUPER_ADMIN") {
+    if (action === "EDIT") {
+      openEditUserDialog(targetUser);
+    } else if (action === "ASSIGN_SUPER_ADMIN") {
       addDialog(
         <AssignSuperAdminDialogContainer
           targetUser={targetUser}

@@ -486,4 +486,319 @@ describe("adminUsers.route", () => {
       expect(audit.context?.reason).toBe("Unauthorized activity detected");
     });
   });
+
+  describe("action - UPDATE_USER", () => {
+    it("returns error when user is not a super admin", async () => {
+      const regularUser = await UserService.create({
+        username: "regular-user",
+        role: "USER",
+        githubId: 1,
+      });
+
+      const targetUser = await UserService.create({
+        username: "target-user",
+        role: "USER",
+        githubId: 2,
+      });
+
+      const cookieHeader = await loginUser(regularUser._id);
+
+      const body = JSON.stringify({
+        intent: "UPDATE_USER",
+        payload: {
+          targetUserId: targetUser._id,
+          username: "new-name",
+          email: "new@example.com",
+        },
+      });
+
+      const result = await action({
+        request: new Request("http://localhost/userManagement", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body,
+        }),
+        params: {},
+      } as any);
+
+      const response = (result as any).data;
+      expect(response.errors?.general).toBe("Access denied");
+    });
+
+    it("returns error when target user is not found", async () => {
+      const superAdmin = await UserService.create({
+        username: "super-admin",
+        role: "SUPER_ADMIN",
+        githubId: 1,
+      });
+
+      const cookieHeader = await loginUser(superAdmin._id);
+
+      const body = JSON.stringify({
+        intent: "UPDATE_USER",
+        payload: {
+          targetUserId: "nonexistent-id",
+          username: "new-name",
+          email: "",
+        },
+      });
+
+      const result = await action({
+        request: new Request("http://localhost/userManagement", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body,
+        }),
+        params: {},
+      } as any);
+
+      const response = (result as any).data;
+      expect(response?.errors?.general).toBe("User not found");
+    });
+
+    it("returns error when username is too short", async () => {
+      const superAdmin = await UserService.create({
+        username: "super-admin",
+        role: "SUPER_ADMIN",
+        githubId: 1,
+      });
+
+      const targetUser = await UserService.create({
+        username: "target-user",
+        role: "USER",
+        githubId: 2,
+      });
+
+      const cookieHeader = await loginUser(superAdmin._id);
+
+      const body = JSON.stringify({
+        intent: "UPDATE_USER",
+        payload: {
+          targetUserId: targetUser._id,
+          username: "ab",
+          email: "",
+        },
+      });
+
+      const result = await action({
+        request: new Request("http://localhost/userManagement", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body,
+        }),
+        params: {},
+      } as any);
+
+      const response = (result as any).data;
+      expect(response?.errors?.username).toBe(
+        "Username must be at least 3 characters",
+      );
+    });
+
+    it("returns error when username is already in use", async () => {
+      const superAdmin = await UserService.create({
+        username: "super-admin",
+        role: "SUPER_ADMIN",
+        githubId: 1,
+      });
+
+      await UserService.create({
+        username: "existing-user",
+        role: "USER",
+        githubId: 2,
+      });
+
+      const targetUser = await UserService.create({
+        username: "target-user",
+        role: "USER",
+        githubId: 3,
+      });
+
+      const cookieHeader = await loginUser(superAdmin._id);
+
+      const body = JSON.stringify({
+        intent: "UPDATE_USER",
+        payload: {
+          targetUserId: targetUser._id,
+          username: "existing-user",
+          email: "",
+        },
+      });
+
+      const result = await action({
+        request: new Request("http://localhost/userManagement", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body,
+        }),
+        params: {},
+      } as any);
+
+      const response = (result as any).data;
+      expect(response?.errors?.username).toBe("Username is already in use");
+    });
+
+    it("returns error when email is already in use", async () => {
+      const superAdmin = await UserService.create({
+        username: "super-admin",
+        role: "SUPER_ADMIN",
+        githubId: 1,
+        email: "admin@example.com",
+      });
+
+      await UserService.create({
+        username: "existing-user",
+        role: "USER",
+        githubId: 2,
+        email: "taken@example.com",
+      });
+
+      const targetUser = await UserService.create({
+        username: "target-user",
+        role: "USER",
+        githubId: 3,
+      });
+
+      const cookieHeader = await loginUser(superAdmin._id);
+
+      const body = JSON.stringify({
+        intent: "UPDATE_USER",
+        payload: {
+          targetUserId: targetUser._id,
+          username: "target-user",
+          email: "taken@example.com",
+        },
+      });
+
+      const result = await action({
+        request: new Request("http://localhost/userManagement", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body,
+        }),
+        params: {},
+      } as any);
+
+      const response = (result as any).data;
+      expect(response?.errors?.email).toBe("Email is already in use");
+    });
+
+    it("successfully updates user", async () => {
+      const superAdmin = await UserService.create({
+        username: "super-admin",
+        role: "SUPER_ADMIN",
+        githubId: 1,
+      });
+
+      const targetUser = await UserService.create({
+        username: "target-user",
+        role: "USER",
+        githubId: 2,
+      });
+
+      const cookieHeader = await loginUser(superAdmin._id);
+
+      const body = JSON.stringify({
+        intent: "UPDATE_USER",
+        payload: {
+          targetUserId: targetUser._id,
+          username: "updated-user",
+          email: "updated@example.com",
+        },
+      });
+
+      const result = await action({
+        request: new Request("http://localhost/userManagement", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body,
+        }),
+        params: {},
+      } as any);
+
+      const response = (result as any).data;
+      expect(response?.success).toBe(true);
+      expect(response?.intent).toBe("UPDATE_USER");
+
+      const updatedUser = await UserService.findById(targetUser._id);
+      expect(updatedUser?.username).toBe("updated-user");
+      expect(updatedUser?.email).toBe("updated@example.com");
+    });
+
+    it("trims whitespace from username and email", async () => {
+      const superAdmin = await UserService.create({
+        username: "super-admin",
+        role: "SUPER_ADMIN",
+        githubId: 1,
+      });
+
+      const targetUser = await UserService.create({
+        username: "target-user",
+        role: "USER",
+        githubId: 2,
+      });
+
+      const cookieHeader = await loginUser(superAdmin._id);
+
+      const body = JSON.stringify({
+        intent: "UPDATE_USER",
+        payload: {
+          targetUserId: targetUser._id,
+          username: "  trimmed-user  ",
+          email: "  trimmed@example.com  ",
+        },
+      });
+
+      await action({
+        request: new Request("http://localhost/userManagement", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body,
+        }),
+        params: {},
+      } as any);
+
+      const updatedUser = await UserService.findById(targetUser._id);
+      expect(updatedUser?.username).toBe("trimmed-user");
+      expect(updatedUser?.email).toBe("trimmed@example.com");
+    });
+
+    it("allows updating to the same username and email", async () => {
+      const superAdmin = await UserService.create({
+        username: "super-admin",
+        role: "SUPER_ADMIN",
+        githubId: 1,
+      });
+
+      const targetUser = await UserService.create({
+        username: "target-user",
+        role: "USER",
+        githubId: 2,
+        email: "target@example.com",
+      });
+
+      const cookieHeader = await loginUser(superAdmin._id);
+
+      const body = JSON.stringify({
+        intent: "UPDATE_USER",
+        payload: {
+          targetUserId: targetUser._id,
+          username: "target-user",
+          email: "target@example.com",
+        },
+      });
+
+      const result = await action({
+        request: new Request("http://localhost/userManagement", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body,
+        }),
+        params: {},
+      } as any);
+
+      const response = (result as any).data;
+      expect(response?.success).toBe(true);
+    });
+  });
 });

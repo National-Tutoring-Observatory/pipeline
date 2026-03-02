@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 export default new mongoose.Schema({
-  username: { type: String, default: "" },
+  username: { type: String, unique: true, sparse: true },
   role: { type: String, enum: ["SUPER_ADMIN", "USER"] },
-  email: { type: String },
+  email: { type: String, unique: true, sparse: true },
   teams: [
     {
       team: { type: mongoose.Types.ObjectId, ref: "Team" },
