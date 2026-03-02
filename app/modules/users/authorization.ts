@@ -6,6 +6,10 @@ const UserManagementAuthorization = {
     return userIsSuperAdmin(user);
   },
 
+  canUpdate: (user: User | null): boolean => {
+    return userIsSuperAdmin(user);
+  },
+
   canAssignSuperAdminToUser: ({
     target,
     performer,

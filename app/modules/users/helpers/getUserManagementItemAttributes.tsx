@@ -5,7 +5,7 @@ export default function getUserManagementItemAttributes(item: User) {
   return {
     id: item._id,
     title: item.username || "Unknown User",
-    description: "",
+    description: item.email || "",
     meta: [
       {
         text: item.role || "USER",
