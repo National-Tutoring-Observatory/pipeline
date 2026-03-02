@@ -24,7 +24,6 @@ import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { getRunModelDisplayName } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
-import requireRunSetsFeature from "~/modules/runSets/helpers/requireRunSetsFeature";
 import { RunSetService } from "~/modules/runSets/runSet";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/runSetAddRuns.route";
@@ -43,8 +42,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!ProjectAuthorization.canView(user, project)) {
     return redirect("/");
   }
-
-  await requireRunSetsFeature(request, params);
 
   const runSet = await RunSetService.findById(params.runSetId);
   if (!runSet) {

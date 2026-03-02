@@ -127,27 +127,21 @@ export default function RunDetail({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <Flag flag="HAS_PROJECT_COLLECTIONS">
-                <>
-                  <DropdownMenuItem
-                    onClick={() => onAddToExistingRunSetClicked(run)}
-                  >
-                    <ListPlus className="mr-2 h-4 w-4" />
-                    Add to Existing Run Set
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => onAddToNewRunSetClicked(run)}
-                  >
-                    <FolderPlus className="mr-2 h-4 w-4" />
-                    Add to New Run Set
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onUseAsTemplateClicked(run)}>
-                    <Stamp className="mr-2 h-4 w-4" />
-                    Use as Run Set Template
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
-              </Flag>
+              <DropdownMenuItem
+                onClick={() => onAddToExistingRunSetClicked(run)}
+              >
+                <ListPlus className="mr-2 h-4 w-4" />
+                Add to Existing Run Set
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onAddToNewRunSetClicked(run)}>
+                <FolderPlus className="mr-2 h-4 w-4" />
+                Add to New Run Set
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onUseAsTemplateClicked(run)}>
+                <Stamp className="mr-2 h-4 w-4" />
+                Use as Run Set Template
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onEditRunButtonClicked(run)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit

@@ -3,7 +3,6 @@ import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import hasFeatureFlag from "~/modules/featureFlags/helpers/hasFeatureFlag";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { useRunSetActions } from "~/modules/runSets/hooks/useRunSetActions";
@@ -44,13 +43,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const runSets = await RunSetService.paginate(query);
 
-  const hasRunSetsFeature = await hasFeatureFlag(
-    "HAS_PROJECT_COLLECTIONS",
-    { request },
-    { defaultValue: false },
-  );
-
-  return { runSets, project, hasRunSetsFeature };
+  return { runSets, project };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -141,7 +134,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function RunSetsListRoute({ loaderData }: Route.ComponentProps) {
-  const { runSets, project, hasRunSetsFeature } = loaderData;
+  const { runSets, project } = loaderData;
   const navigate = useNavigate();
 
   const {
@@ -196,7 +189,6 @@ export default function RunSetsListRoute({ loaderData }: Route.ComponentProps) {
       currentPage={currentPage}
       sortValue={sortValue}
       isSyncing={isSyncing}
-      hasRunSetsFeature={hasRunSetsFeature}
       onCreateRunSetButtonClicked={onCreateRunSetButtonClicked}
       onEditRunSetButtonClicked={openEditRunSetDialog}
       onDuplicateRunSetButtonClicked={openDuplicateRunSetDialog}

@@ -1000,7 +1000,7 @@ The `<Flag>` component gates UI behind feature flags. It requires **exactly one 
 import Flag from "~/modules/featureFlags/components/flag";
 
 // ✅ Single child or fragment for multiple children
-<Flag flag="HAS_PROJECT_COLLECTIONS">
+<Flag flag="FEATURE_NAME">
   <>
     <DropdownMenuItem>Action 1</DropdownMenuItem>
     <DropdownMenuItem>Action 2</DropdownMenuItem>
@@ -1009,7 +1009,7 @@ import Flag from "~/modules/featureFlags/components/flag";
 </Flag>
 
 // ❌ Multiple direct children — will error
-<Flag flag="HAS_PROJECT_COLLECTIONS">
+<Flag flag="FEATURE_NAME">
   <DropdownMenuItem>Action 1</DropdownMenuItem>
   <DropdownMenuItem>Action 2</DropdownMenuItem>
 </Flag>

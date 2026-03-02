@@ -21,7 +21,6 @@ import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
-import requireRunSetsFeature from "~/modules/runSets/helpers/requireRunSetsFeature";
 import { RunSetService } from "~/modules/runSets/runSet";
 import type { RunSet } from "~/modules/runSets/runSets.types";
 import type { User } from "~/modules/users/users.types";
@@ -41,8 +40,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!ProjectAuthorization.canView(user, project)) {
     return redirect("/");
   }
-
-  await requireRunSetsFeature(request, params);
 
   const runSet = await RunSetService.findById(params.runSetId);
   if (!runSet) {

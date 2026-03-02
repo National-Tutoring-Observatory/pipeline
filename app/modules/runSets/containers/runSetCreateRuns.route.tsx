@@ -16,7 +16,6 @@ import { RunService } from "~/modules/runs/run";
 import getUsedPromptModels, {
   type PromptModelPair,
 } from "~/modules/runSets/helpers/getUsedPromptModels";
-import requireRunSetsFeature from "~/modules/runSets/helpers/requireRunSetsFeature";
 import { RunSetService } from "~/modules/runSets/runSet";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/runSetCreateRuns.route";
@@ -36,8 +35,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!ProjectAuthorization.canView(user, project)) {
     return redirect("/");
   }
-
-  await requireRunSetsFeature(request, params);
 
   const runSet = await RunSetService.findById(params.runSetId);
   if (!runSet) {

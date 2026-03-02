@@ -5,7 +5,6 @@ import { redirect } from "react-router";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
-import requireRunSetsFeature from "~/modules/runSets/helpers/requireRunSetsFeature";
 import type { RunSet } from "~/modules/runSets/runSets.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import type { StorageAdapter } from "~/modules/storage/storage.types";
@@ -82,8 +81,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!project) {
     return redirect("/");
   }
-
-  await requireRunSetsFeature(request, params);
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;

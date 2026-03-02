@@ -1,6 +1,5 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
-import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
 import type { Run } from "~/modules/runs/runs.types";
@@ -34,11 +33,9 @@ describe("runSetDetail.route loader", () => {
   beforeEach(async () => {
     await clearDocumentDB();
 
-    await FeatureFlagService.create({ name: "HAS_PROJECT_COLLECTIONS" });
     user = await UserService.create({
       username: "test_user",
       teams: [],
-      featureFlags: ["HAS_PROJECT_COLLECTIONS"],
     });
     team = await TeamService.create({ name: "Test Team" });
     await UserService.updateById(user._id, {

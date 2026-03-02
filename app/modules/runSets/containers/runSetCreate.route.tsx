@@ -18,7 +18,6 @@ import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import { RunService } from "~/modules/runs/run";
 import type { RunAnnotationType } from "~/modules/runs/runs.types";
 import RunSetCreatorContainer from "~/modules/runSets/containers/runSetCreator.container";
-import requireRunSetsFeature from "~/modules/runSets/helpers/requireRunSetsFeature";
 import { RunSetService } from "~/modules/runSets/runSet";
 import type {
   PrefillData,
@@ -41,8 +40,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!ProjectAuthorization.canView(user, project)) {
     return redirect("/");
   }
-
-  await requireRunSetsFeature(request, params);
 
   // Check for fromRun or fromRunSet query parameter
   const url = new URL(request.url);

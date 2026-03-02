@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import aiGatewayConfig from "~/config/ai_gateway.json";
-import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
 import { PromptService } from "~/modules/prompts/prompt";
@@ -37,12 +36,10 @@ describe("runSetCreateRuns.route", () => {
   beforeEach(async () => {
     await clearDocumentDB();
 
-    await FeatureFlagService.create({ name: "HAS_PROJECT_COLLECTIONS" });
     team = await TeamService.create({ name: "Test Team" });
     user = await UserService.create({
       username: "test_user",
       teams: [{ team: team._id, role: "ADMIN" }],
-      featureFlags: ["HAS_PROJECT_COLLECTIONS"],
     });
     project = await ProjectService.create({
       name: "Test Project",
@@ -89,7 +86,6 @@ describe("runSetCreateRuns.route", () => {
       const otherUser = await UserService.create({
         username: "other_user",
         teams: [],
-        featureFlags: ["HAS_PROJECT_COLLECTIONS"],
       });
       const otherCookie = await loginUser(otherUser._id);
 

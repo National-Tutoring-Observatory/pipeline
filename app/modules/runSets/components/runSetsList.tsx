@@ -13,7 +13,6 @@ interface RunSetsListProps {
   currentPage: number;
   sortValue: string;
   isSyncing: boolean;
-  hasRunSetsFeature: boolean;
   onCreateRunSetButtonClicked: () => void;
   onEditRunSetButtonClicked: (runSet: RunSet) => void;
   onDuplicateRunSetButtonClicked: (runSet: RunSet) => void;
@@ -31,7 +30,6 @@ export default function RunSetsList({
   currentPage,
   sortValue,
   isSyncing,
-  hasRunSetsFeature,
   onCreateRunSetButtonClicked,
   onEditRunSetButtonClicked,
   onDuplicateRunSetButtonClicked,
@@ -72,35 +70,6 @@ export default function RunSetsList({
       onCreateRunSetButtonClicked();
     }
   };
-
-  if (!hasRunSetsFeature) {
-    return (
-      <div className="mt-8">
-        <CollectionComponent
-          items={[]}
-          itemsLayout="list"
-          actions={[]}
-          sortOptions={[]}
-          filters={[]}
-          filtersValues={{}}
-          emptyAttributes={{
-            title: "Coming soon",
-            description: "Run sets will be available in a future update.",
-          }}
-          getItemAttributes={getRunSetsItemAttributes}
-          getItemActions={() => []}
-          onActionClicked={() => {}}
-          onItemActionClicked={() => {}}
-          onSearchValueChanged={() => {}}
-          onPaginationChanged={() => {}}
-          onFiltersValueChanged={() => {}}
-          onSortValueChanged={() => {}}
-          currentPage={1}
-          totalPages={1}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="mt-8">
