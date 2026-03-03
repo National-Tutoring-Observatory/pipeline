@@ -135,7 +135,7 @@ export default function SessionViewer({
                     size="sm"
                     onClick={onNextAnnotationClicked}
                     disabled={
-                      !hasSelectedAnnotation ||
+                      hasSelectedAnnotation &&
                       selectedUtteranceIndex == annotatedUtteranceCount - 1
                     }
                   >
