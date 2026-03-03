@@ -111,12 +111,11 @@ export default function SessionViewer({
                   className="text-xs"
                   onClick={onJumpToFirstAnnotation}
                 >
-                  Jump to first annotation
+                  First annotation
                 </Button>
                 {hasSelectedAnnotation && (
                   <div className="text-muted-foreground text-sm">
-                    Annotation {selectedUtteranceIndex + 1} of{" "}
-                    {annotatedUtteranceCount}
+                    {selectedUtteranceIndex + 1}/{annotatedUtteranceCount}
                   </div>
                 )}
                 <div className="flex gap-1">
