@@ -9,7 +9,7 @@ export default function InviteUserToTeamDialogContainer({
   teamId: string;
 }) {
   const [role, setRole] = useState("ADMIN");
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [hasCopiedInviteLink, setHasCopiedInviteLink] = useState(false);
   const [isGeneratingInviteLink, setIsGeneratingInviteLink] = useState(false);
   const fetcher = useFetcher();
@@ -20,8 +20,8 @@ export default function InviteUserToTeamDialogContainer({
     setRole(role);
   };
 
-  const onUsernameChanged = (username: string) => {
-    setUsername(username);
+  const onNameChanged = (name: string) => {
+    setName(name);
   };
 
   const onGenerateInviteLinkClicked = () => {
@@ -32,7 +32,7 @@ export default function InviteUserToTeamDialogContainer({
         payload: {
           teamId,
           role,
-          username,
+          name,
         },
       }),
       {
@@ -55,14 +55,14 @@ export default function InviteUserToTeamDialogContainer({
   return (
     <InviteUserToTeamDialog
       role={role}
-      username={username}
+      name={name}
       inviteLink={inviteLink}
       hasCopiedInviteLink={hasCopiedInviteLink}
       isGeneratingInviteLink={isGeneratingInviteLink}
       onRoleChanged={onRoleChanged}
       onGenerateInviteLinkClicked={onGenerateInviteLinkClicked}
       onCopyInviteClicked={onCopyInviteClicked}
-      onUsernameChanged={onUsernameChanged}
+      onNameChanged={onNameChanged}
     />
   );
 }

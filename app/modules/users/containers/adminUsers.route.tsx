@@ -36,7 +36,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     match: {},
     queryParams,
     searchableFields: ["username", "email", "name"],
-    sortableFields: ["username", "createdAt"],
+    sortableFields: ["username", "name", "createdAt"],
   });
 
   const users = await UserService.paginate(query);
@@ -193,7 +193,7 @@ export async function action({ request }: Route.ActionArgs) {
     }
 
     case "UPDATE_USER": {
-      const { targetUserId, username, email } = payload;
+      const { targetUserId, name, email } = payload;
 
       if (!targetUserId || typeof targetUserId !== "string") {
         return data(
@@ -209,16 +209,8 @@ export async function action({ request }: Route.ActionArgs) {
         );
       }
 
-      const trimmedUsername =
-        typeof username === "string" ? username.trim() : "";
+      const trimmedName = typeof name === "string" ? name.trim() : "";
       const trimmedEmail = typeof email === "string" ? email.trim() : "";
-
-      if (trimmedUsername.length < 3) {
-        return data(
-          { errors: { username: "Username must be at least 3 characters" } },
-          { status: 400 },
-        );
-      }
 
       let targetUser;
       try {
@@ -229,17 +221,6 @@ export async function action({ request }: Route.ActionArgs) {
 
       if (!targetUser) {
         return data({ errors: { general: "User not found" } }, { status: 400 });
-      }
-
-      const existingByUsername = await UserService.findOne({
-        username: trimmedUsername,
-        _id: { $ne: targetUserId },
-      });
-      if (existingByUsername) {
-        return data(
-          { errors: { username: "Username is already in use" } },
-          { status: 400 },
-        );
       }
 
       if (trimmedEmail) {
@@ -257,7 +238,7 @@ export async function action({ request }: Route.ActionArgs) {
 
       try {
         await UserService.updateById(targetUserId, {
-          username: trimmedUsername,
+          name: trimmedName,
           email: trimmedEmail,
         } as Partial<User>);
       } catch (error) {
