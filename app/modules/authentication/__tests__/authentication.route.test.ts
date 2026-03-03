@@ -29,7 +29,7 @@ test("logs in authenticated users", async () => {
 });
 
 test("logs in before 72h", async () => {
-  const user = await UserService.create({ username: "test_user" });
+  const user = await UserService.create({ username: "test_user_72h" });
 
   const cookieHeader = await loginUser(user._id, {
     lastActivity: dayjs().subtract(71, "hour").valueOf(),
@@ -49,7 +49,7 @@ test("logs in before 72h", async () => {
 });
 
 test("logs out after 72h inactivity", async () => {
-  const user = await UserService.create({ username: "test_user" });
+  const user = await UserService.create({ username: "test_user_expired" });
 
   const cookieHeader = await loginUser(user._id, {
     lastActivity: dayjs().subtract(73, "hour").valueOf(),
