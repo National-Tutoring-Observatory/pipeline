@@ -154,6 +154,11 @@ export default function RunSetDetailRoute() {
       .map((runId) => [
         {
           runId,
+          task: "ANNOTATE_RUN:START",
+          status: "FINISHED",
+        },
+        {
+          runId,
           task: "ANNOTATE_RUN:PROCESS",
           status: "FINISHED",
         },

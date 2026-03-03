@@ -102,7 +102,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     case "STOP_RUN": {
       const run = await RunService.findById(params.runId);
       if (!run) throw new Error("Run not found");
-      if (!run.isRunning) throw new Error("Run is not running");
+      if (run.isComplete || run.stoppedAt) throw new Error("Run is not active");
       await RunService.stop(run._id);
       return {};
     }
