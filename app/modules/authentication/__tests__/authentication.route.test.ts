@@ -1,8 +1,13 @@
 import dayjs from "dayjs";
+import clearDocumentDB from "test/helpers/clearDocumentDB";
 import loginUser from "test/helpers/loginUser";
-import { expect, test } from "vitest";
+import { beforeEach, expect, test } from "vitest";
 import { UserService } from "~/modules/users/user";
 import { loader } from "../containers/authentication.route.js";
+
+beforeEach(async () => {
+  await clearDocumentDB();
+});
 
 async function readLoaderJson(resp: any) {
   if (!resp) return null;
