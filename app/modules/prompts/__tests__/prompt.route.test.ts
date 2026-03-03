@@ -348,6 +348,7 @@ describe("prompt.route action", () => {
         annotationType: "PER_UTTERANCE",
         modelCode: "openai.gpt-5-mini",
         sessions: [],
+        shouldRunVerification: false,
       });
 
       const cookieHeader = await loginUser(user._id);
