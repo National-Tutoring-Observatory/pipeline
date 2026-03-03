@@ -57,10 +57,13 @@ export default function SessionViewerContainer({
   };
 
   const onNextAnnotationClicked = () => {
-    if (
-      selectedUtteranceIndex !== null &&
-      selectedUtteranceIndex < annotatedUtterances.length - 1
-    ) {
+    if (selectedUtteranceIndex === null) {
+      if (annotatedUtterances.length > 0) {
+        navigateToUtterance(annotatedUtterances[0]._id);
+      }
+      return;
+    }
+    if (selectedUtteranceIndex < annotatedUtterances.length - 1) {
       navigateToUtterance(annotatedUtterances[selectedUtteranceIndex + 1]._id);
     }
   };
