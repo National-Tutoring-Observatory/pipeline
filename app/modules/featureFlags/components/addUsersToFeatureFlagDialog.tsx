@@ -57,7 +57,7 @@ export default function AddUsersToFeatureFlagDialog({
                     checked={isChecked}
                     onCheckedChange={() => onSelectUserToggled(user._id)}
                   />
-                  <Label htmlFor={user._id}>{user.username}</Label>
+                  <Label htmlFor={user._id}>{user.name || user.username}</Label>
                 </div>
               );
             })}

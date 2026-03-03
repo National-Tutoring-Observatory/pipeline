@@ -117,7 +117,8 @@ const githubStrategy = new GitHubStrategy<any>(
       }
     }
 
-    update.username = githubUser.name || githubUser.login;
+    update.username = githubUser.login;
+    update.name = githubUser.name || githubUser.login;
     update.email = email.email;
 
     user = await UserService.updateById(user._id, update);

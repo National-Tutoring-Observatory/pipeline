@@ -4,8 +4,8 @@ import type { User } from "../users.types";
 export default function getUserManagementItemAttributes(item: User) {
   return {
     id: item._id,
-    title: item.username || "Unknown User",
-    description: item.email || "",
+    title: item.name || item.username || "Unknown User",
+    description: [item.email, item.username].filter(Boolean).join(" - "),
     meta: [
       {
         text: item.role || "USER",

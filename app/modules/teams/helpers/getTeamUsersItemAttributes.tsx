@@ -6,21 +6,21 @@ import getUserRoleInTeam from "./getUserRoleInTeam";
 export default function getTeamUsersItemAttributes(item: User, team: Team) {
   const { name: roleName } = getUserRoleInTeam({ user: item, team });
 
-  let username = item.username;
-  let description = "";
+  let displayName = item.name || item.username;
+  let description = item.username || "";
 
   if (!item.isRegistered) {
-    if (item.username) {
-      username = `${item.username} - Invited user`;
+    if (item.name) {
+      displayName = `${item.name} - Invited user`;
     } else {
-      username = "Invited user";
+      displayName = "Invited user";
     }
     description = `${window.location.origin}/invite/${item.inviteId}`;
   }
 
   return {
     id: item._id,
-    title: username || "User",
+    title: displayName || "User",
     description,
     meta: [
       {

@@ -53,7 +53,7 @@ export default function FeatureFlag({
             <React.Fragment key={user._id}>
               <Item variant={"outline"}>
                 <ItemContent className="gap-1">
-                  <ItemTitle>{user.username}</ItemTitle>
+                  <ItemTitle>{user.name || user.username}</ItemTitle>
                 </ItemContent>
                 <ItemActions>
                   <Button

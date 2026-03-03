@@ -21,7 +21,7 @@ const EditUserDialog = ({
   user: User;
   onUserUpdated: () => void;
 }) => {
-  const [username, setUsername] = useState(user.username || "");
+  const [name, setName] = useState(user.name || "");
   const [email, setEmail] = useState(user.email || "");
   const fetcher = useFetcher();
 
@@ -39,13 +39,13 @@ const EditUserDialog = ({
     fetcher.submit(
       JSON.stringify({
         intent: "UPDATE_USER",
-        payload: { targetUserId: user._id, username, email },
+        payload: { targetUserId: user._id, name, email },
       }),
       { method: "POST", encType: "application/json", action: "/admin/users" },
     );
   };
 
-  const isSubmitButtonDisabled = isSubmitting || username.trim().length < 3;
+  const isSubmitButtonDisabled = isSubmitting;
 
   return (
     <DialogContent>
@@ -55,25 +55,19 @@ const EditUserDialog = ({
       </DialogHeader>
       <div className="grid gap-4">
         <div className="grid gap-2">
-          <Label htmlFor="username">Username</Label>
+          <Label>Username</Label>
+          <Input value={user.username || ""} disabled />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="name">Name</Label>
           <Input
-            id="username"
-            name="username"
-            defaultValue={username}
+            id="name"
+            name="name"
+            defaultValue={name}
             autoComplete="off"
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
             disabled={isSubmitting}
           />
-          {errors?.username && (
-            <p className="text-destructive text-sm">{errors.username}</p>
-          )}
-          {!errors?.username &&
-            username.trim().length > 0 &&
-            username.trim().length < 3 && (
-              <p className="text-destructive text-sm">
-                Username must be at least 3 characters
-              </p>
-            )}
         </div>
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>

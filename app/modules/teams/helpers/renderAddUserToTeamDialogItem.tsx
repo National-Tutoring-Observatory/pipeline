@@ -12,7 +12,7 @@ export default function renderAddUserToTeamDialogItem(
     <div className="flex items-center gap-3 p-3">
       <Checkbox id={`user-${user._id}`} checked={isChecked} />
       <Label htmlFor={`user-${user._id}`} className="flex-1 cursor-pointer">
-        {user.username}
+        {user.name || user.username}
       </Label>
     </div>
   );
