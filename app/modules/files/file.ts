@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import fileSchema from "~/lib/schemas/file.schema";
 import type { FindOptions } from "~/modules/common/types";
+import processUploadedFiles from "~/modules/uploads/services/processUploadedFiles.server";
 import type { File } from "./files.types";
 
 const FileModel = mongoose.models.File || mongoose.model("File", fileSchema);
@@ -69,5 +70,13 @@ export class FileService {
   static async deleteByProject(projectId: string): Promise<number> {
     const result = await FileModel.deleteMany({ project: projectId });
     return result.deletedCount || 0;
+  }
+
+  static async processUploadedFiles(params: {
+    projectId: string;
+    files: globalThis.File[];
+    team: string;
+  }) {
+    return processUploadedFiles(params);
   }
 }

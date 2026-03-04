@@ -1,0 +1,149 @@
+import { Button } from "@/components/ui/button";
+import {
+  PageHeader,
+  PageHeaderLeft,
+  PageHeaderRight,
+} from "@/components/ui/pageHeader";
+import { useEffect } from "react";
+import { data, Link, redirect, useFetcher, useNavigate } from "react-router";
+import { toast } from "sonner";
+import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { FileService } from "~/modules/files/file";
+import ProjectAuthorization from "~/modules/projects/authorization";
+import { ProjectService } from "~/modules/projects/project";
+import type { User } from "~/modules/users/users.types";
+import type { Route } from "./+types/uploadFiles.route";
+import UploadFilesContainer from "./uploadFiles.container";
+
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const user = (await getSessionUser({ request })) as User;
+  if (!user) return redirect("/");
+
+  const project = await ProjectService.findById(params.projectId);
+  if (!project) return redirect("/");
+
+  if (!ProjectAuthorization.canUpdate(user, project)) {
+    return redirect("/");
+  }
+
+  if (project.isUploadingFiles || project.isConvertingFiles) {
+    return redirect(
+      project.hasSetupProject ? `/projects/${params.projectId}/files` : "/",
+    );
+  }
+
+  return { project };
+}
+
+export async function action({ request, params }: Route.ActionArgs) {
+  const user = (await getSessionUser({ request })) as User;
+  if (!user) return redirect("/");
+
+  const project = await ProjectService.findById(params.projectId);
+  if (!project) {
+    return data({ errors: { general: "Project not found" } }, { status: 404 });
+  }
+
+  if (!ProjectAuthorization.canUpdate(user, project)) {
+    return data(
+      {
+        errors: {
+          general:
+            "You do not have permission to upload files to this project.",
+        },
+      },
+      { status: 403 },
+    );
+  }
+
+  if (project.isUploadingFiles || project.isConvertingFiles) {
+    return data(
+      { errors: { general: "An upload is already in progress." } },
+      { status: 409 },
+    );
+  }
+
+  const formData = await request.formData();
+  const uploadedFiles = formData.getAll("files") as File[];
+
+  if (uploadedFiles.length === 0) {
+    return data(
+      { errors: { files: "Please select at least one file." } },
+      { status: 400 },
+    );
+  }
+
+  try {
+    await FileService.processUploadedFiles({
+      projectId: params.projectId,
+      files: uploadedFiles,
+      team: project.team as string,
+    });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    return data(
+      { errors: { files: `File processing failed: ${errorMessage}` } },
+      { status: 400 },
+    );
+  }
+
+  if (!project.hasSetupProject) {
+    await ProjectService.updateById(params.projectId, {
+      hasSetupProject: true,
+    });
+  }
+
+  return data({ success: true });
+}
+
+export default function UploadFilesPageRoute({
+  loaderData,
+}: Route.ComponentProps) {
+  const { project } = loaderData;
+  const fetcher = useFetcher();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (fetcher.state !== "idle") return;
+    if (!fetcher.data) return;
+    if (fetcher.data.success) {
+      toast.success("Files uploaded successfully");
+      navigate(`/projects/${project._id}/files`);
+    } else if (fetcher.data.errors) {
+      toast.error(fetcher.data.errors.general || "Upload failed");
+    }
+  }, [fetcher.state, fetcher.data, navigate, project._id]);
+
+  const backLink = project.hasSetupProject
+    ? `/projects/${project._id}/files`
+    : "/";
+
+  const breadcrumbs = [
+    { text: "Projects", link: "/" },
+    { text: project.name, link: backLink },
+    { text: "Upload Files" },
+  ];
+
+  return (
+    <div className="max-w-6xl p-8">
+      <PageHeader>
+        <PageHeaderLeft>
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </PageHeaderLeft>
+        <PageHeaderRight>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-muted-foreground"
+            asChild
+          >
+            <Link to={backLink}>Cancel</Link>
+          </Button>
+        </PageHeaderRight>
+      </PageHeader>
+      <UploadFilesContainer projectId={project._id} uploadFetcher={fetcher} />
+    </div>
+  );
+}

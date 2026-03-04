@@ -1,0 +1,267 @@
+import { Types } from "mongoose";
+import { beforeEach, describe, expect, it } from "vitest";
+import { ProjectService } from "~/modules/projects/project";
+import "~/modules/teams/team";
+import { TeamService } from "~/modules/teams/team";
+import { UserService } from "~/modules/users/user";
+import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import loginUser from "../../../../test/helpers/loginUser";
+import { action, loader } from "../containers/uploadFiles.route";
+
+const createValidId = () => new Types.ObjectId().toString();
+
+describe("uploadFiles.route loader", () => {
+  beforeEach(async () => {
+    await clearDocumentDB();
+  });
+
+  it("redirects to / when there is no session cookie", async () => {
+    const res = await loader({
+      request: new Request("http://localhost/projects/123/upload-files"),
+      params: { projectId: "123" },
+    } as any);
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).headers.get("Location")).toBe("/");
+  });
+
+  it("redirects to / when project not found", async () => {
+    const user = await UserService.create({ username: "test_user" });
+    const fakeProjectId = createValidId();
+    const cookieHeader = await loginUser(user._id);
+
+    const res = await loader({
+      request: new Request(
+        `http://localhost/projects/${fakeProjectId}/upload-files`,
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: { projectId: fakeProjectId },
+    } as any);
+
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).headers.get("Location")).toBe("/");
+  });
+
+  it("redirects to files when project is uploading", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+      hasSetupProject: true,
+      isUploadingFiles: true,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = await loader({
+      request: new Request(
+        `http://localhost/projects/${project._id}/upload-files`,
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: { projectId: project._id },
+    } as any);
+
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).headers.get("Location")).toBe(
+      `/projects/${project._id}/files`,
+    );
+  });
+
+  it("redirects to / when project is uploading during initial setup", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+      hasSetupProject: false,
+      isUploadingFiles: true,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = await loader({
+      request: new Request(
+        `http://localhost/projects/${project._id}/upload-files`,
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: { projectId: project._id },
+    } as any);
+
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).headers.get("Location")).toBe("/");
+  });
+});
+
+describe("uploadFiles.route action", () => {
+  beforeEach(async () => {
+    await clearDocumentDB();
+  });
+
+  it("redirects to / when there is no session cookie", async () => {
+    const formData = new FormData();
+
+    const req = new Request("http://localhost/projects/123/upload-files", {
+      method: "POST",
+      body: formData,
+    });
+
+    const res = await action({
+      request: req,
+      params: { projectId: "123" },
+    } as any);
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).headers.get("Location")).toBe("/");
+  });
+
+  it("returns 404 when project not found", async () => {
+    const user = await UserService.create({ username: "test_user" });
+    const fakeProjectId = createValidId();
+    const cookieHeader = await loginUser(user._id);
+
+    const formData = new FormData();
+
+    const req = new Request(
+      `http://localhost/projects/${fakeProjectId}/upload-files`,
+      {
+        method: "POST",
+        headers: { cookie: cookieHeader },
+        body: formData,
+      },
+    );
+
+    const resp = (await action({
+      request: req,
+      params: { projectId: fakeProjectId },
+    } as any)) as any;
+
+    expect(resp.init?.status).toBe(404);
+    expect(resp.data?.errors?.general).toBe("Project not found");
+  });
+
+  it("returns 400 when no files provided", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const formData = new FormData();
+
+    const req = new Request(
+      `http://localhost/projects/${project._id}/upload-files`,
+      {
+        method: "POST",
+        headers: { cookie: cookieHeader },
+        body: formData,
+      },
+    );
+
+    const resp = (await action({
+      request: req,
+      params: { projectId: project._id },
+    } as any)) as any;
+
+    expect(resp.init?.status).toBe(400);
+    expect(resp.data?.errors?.files).toBe("Please select at least one file.");
+  });
+
+  it("returns error when file processing fails", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+      hasSetupProject: false,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const formData = new FormData();
+    const testFile = new File(["test content"], "test.txt", {
+      type: "text/plain",
+    });
+    formData.append("files", testFile);
+
+    const req = new Request(
+      `http://localhost/projects/${project._id}/upload-files`,
+      {
+        method: "POST",
+        headers: { cookie: cookieHeader },
+        body: formData,
+      },
+    );
+
+    const resp = (await action({
+      request: req,
+      params: { projectId: project._id },
+    } as any)) as any;
+
+    expect(resp.init?.status).toBe(400);
+    expect(resp.data?.errors?.files).toContain("File processing failed");
+  });
+
+  it("returns 409 when upload is already in progress", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+      isUploadingFiles: true,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const formData = new FormData();
+    const testFile = new File(["test content"], "test.txt", {
+      type: "text/plain",
+    });
+    formData.append("files", testFile);
+
+    const req = new Request(
+      `http://localhost/projects/${project._id}/upload-files`,
+      {
+        method: "POST",
+        headers: { cookie: cookieHeader },
+        body: formData,
+      },
+    );
+
+    const resp = (await action({
+      request: req,
+      params: { projectId: project._id },
+    } as any)) as any;
+
+    expect(resp.init?.status).toBe(409);
+    expect(resp.data?.errors?.general).toBe(
+      "An upload is already in progress.",
+    );
+  });
+});
