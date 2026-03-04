@@ -5,7 +5,7 @@ import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
-import { action, loader } from "../containers/project.route";
+import { loader } from "../containers/project.route";
 import { ProjectService } from "../project";
 
 const createValidId = () => new Types.ObjectId().toString();
@@ -78,6 +78,7 @@ describe("project.route loader", () => {
       name: "Test Project",
       createdBy: user._id,
       team: team._id,
+      hasSetupProject: true,
     });
 
     const cookieHeader = await loginUser(user._id);
@@ -95,87 +96,12 @@ describe("project.route loader", () => {
     expect((res as any).filesCount).toBe(0);
     expect((res as any).sessionsCount).toBe(0);
   });
-});
 
-describe("project.route action - FILE_UPLOAD", () => {
-  beforeEach(async () => {
-    await clearDocumentDB();
-  });
-
-  it("redirects to / when there is no session cookie", async () => {
-    const formData = new FormData();
-    formData.append("body", JSON.stringify({ entityId: "test-id" }));
-
-    const req = new Request("http://localhost/projects/123", {
-      method: "POST",
-      body: formData,
-    });
-
-    const res = await action({ request: req } as any);
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
-  });
-
-  it("returns 400 when project not found", async () => {
-    const user = await UserService.create({ username: "test_user" });
-
-    const fakeProjectId = createValidId();
-    const cookieHeader = await loginUser(user._id);
-
-    const formData = new FormData();
-    formData.append("body", JSON.stringify({ entityId: fakeProjectId }));
-
-    const req = new Request("http://localhost/projects", {
-      method: "POST",
-      headers: { cookie: cookieHeader },
-      body: formData,
-    });
-
-    const resp = (await action({ request: req } as any)) as any;
-
-    expect(resp.init?.status).toBe(404);
-    expect(resp.data?.errors?.general).toBe("Project not found");
-  });
-
-  it("returns 400 when no files provided", async () => {
+  it("redirects to upload-files when project has not been set up", async () => {
     const user = await UserService.create({ username: "test_user", teams: [] });
 
     const team = await TeamService.create({ name: "Test Team" });
 
-    await UserService.updateById(user._id, {
-      teams: [{ team: team._id, role: "ADMIN" }],
-    });
-
-    const project = await ProjectService.create({
-      name: "Test Project",
-      createdBy: user._id,
-      team: team._id,
-    });
-
-    const cookieHeader = await loginUser(user._id);
-
-    const formData = new FormData();
-    formData.append("body", JSON.stringify({ entityId: project._id }));
-    // No files added
-
-    const req = new Request("http://localhost/projects", {
-      method: "POST",
-      headers: { cookie: cookieHeader },
-      body: formData,
-    });
-
-    const resp = (await action({ request: req } as any)) as any;
-
-    expect(resp.init?.status).toBe(400);
-    expect(resp.data?.errors?.files).toBe("Please select at least one file.");
-  });
-
-  it("successfully uploads files and updates project state", async () => {
-    const user = await UserService.create({ username: "test_user", teams: [] });
-
-    const team = await TeamService.create({ name: "Test Team" });
-
-    // Add user to team
     await UserService.updateById(user._id, {
       teams: [{ team: team._id, role: "ADMIN" }],
     });
@@ -189,24 +115,16 @@ describe("project.route action - FILE_UPLOAD", () => {
 
     const cookieHeader = await loginUser(user._id);
 
-    const formData = new FormData();
-    formData.append("body", JSON.stringify({ entityId: project._id }));
-    // Add a test file (will fail during processing, but that's ok for this test)
-    const testFile = new File(["test content"], "test.txt", {
-      type: "text/plain",
-    });
-    formData.append("files", testFile);
+    const res = await loader({
+      request: new Request("http://localhost/projects/" + project._id, {
+        headers: { cookie: cookieHeader },
+      }),
+      params: { id: project._id },
+    } as any);
 
-    const req = new Request("http://localhost/projects", {
-      method: "POST",
-      headers: { cookie: cookieHeader },
-      body: formData,
-    });
-
-    const resp = (await action({ request: req } as any)) as any;
-
-    // File processing will fail, so expect 400 error
-    expect(resp.init?.status).toBe(400);
-    expect(resp.data?.errors?.files).toContain("File processing failed");
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).headers.get("Location")).toBe(
+      `/projects/${project._id}/upload-files`,
+    );
   });
 });

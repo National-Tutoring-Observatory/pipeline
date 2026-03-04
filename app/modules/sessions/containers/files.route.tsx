@@ -1,4 +1,4 @@
-import { redirect, useLoaderData } from "react-router";
+import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { FileService } from "~/modules/files/file";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -22,11 +22,22 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect("/");
   }
 
+  const canUpdate = ProjectAuthorization.canUpdate(user, project);
+  const isProcessing = project.isUploadingFiles || project.isConvertingFiles;
   const files = await FileService.findByProject(params.id);
-  return { files };
+  return { files, projectId: params.id, canUpdate, isProcessing };
 }
 
-export default function ProjectFilesRoute() {
-  const { files } = useLoaderData();
-  return <Files files={files} />;
+export default function ProjectFilesRoute({
+  loaderData,
+}: Route.ComponentProps) {
+  const { files, projectId, canUpdate, isProcessing } = loaderData;
+  return (
+    <Files
+      files={files}
+      projectId={projectId}
+      canUpdate={canUpdate}
+      isProcessing={isProcessing}
+    />
+  );
 }

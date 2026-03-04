@@ -20,7 +20,15 @@ export default async function createSessionsFromFiles({
   if (!project) throw new Error("Project not found");
 
   if (shouldCreateSessionModels) {
+    const existingSessions = await SessionService.find({
+      match: { project: projectId },
+    });
+    const filesWithSessions = new Set(
+      existingSessions.map((s) => String(s.file)),
+    );
+
     for (const projectFile of projectFiles) {
+      if (filesWithSessions.has(String(projectFile._id))) continue;
       await SessionService.create({
         project: projectFile.project,
         file: projectFile._id,
