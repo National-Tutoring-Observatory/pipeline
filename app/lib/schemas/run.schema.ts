@@ -39,6 +39,9 @@ export default new mongoose.Schema({
       name: { type: String },
       provider: { type: String },
     },
+    annotator: {
+      name: { type: String },
+    },
   },
   stoppedAt: { type: Date },
   isRunning: { type: Boolean, default: false },

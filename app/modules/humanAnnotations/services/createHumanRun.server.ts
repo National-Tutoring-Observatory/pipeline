@@ -49,10 +49,8 @@ export default async function createHumanRun({
         annotationType,
         version: 1,
       },
-      model: {
-        code: "Human",
+      annotator: {
         name,
-        provider: "HUMAN",
       },
     },
     isRunning: false,
