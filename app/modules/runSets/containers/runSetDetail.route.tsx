@@ -16,6 +16,7 @@ import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import RunSetDetail from "~/modules/runSets/components/runSetDetail";
 import exportRunSet from "~/modules/runSets/helpers/exportRunSet";
+import { useUploadHumanAnnotations } from "~/modules/humanAnnotations/hooks/useUploadHumanAnnotations";
 import { useRunSetActions } from "~/modules/runSets/hooks/useRunSetActions";
 import { RunSetService } from "~/modules/runSets/runSet";
 import type { User } from "~/modules/users/users.types";
@@ -132,6 +133,10 @@ export default function RunSetDetailRoute() {
     },
   });
 
+  const { openUploadHumanAnnotationsDialog } = useUploadHumanAnnotations({
+    runSetId: runSet._id,
+  });
+
   const onExportRunSetButtonClicked = ({
     exportType,
   }: {
@@ -218,6 +223,7 @@ export default function RunSetDetailRoute() {
       onAddRunsClicked={() =>
         navigate(`/projects/${project._id}/run-sets/${runSet._id}/add-runs`)
       }
+      onUploadHumanAnnotationsClicked={openUploadHumanAnnotationsDialog}
       onMergeClicked={() =>
         navigate(`/projects/${project._id}/run-sets/${runSet._id}/merge`)
       }
