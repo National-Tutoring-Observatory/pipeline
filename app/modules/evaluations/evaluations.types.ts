@@ -33,7 +33,5 @@ export interface Evaluation {
   finishedAt?: string;
   report?: EvaluationReport[];
   isExporting?: boolean;
-  hasExportedCSV?: boolean;
-  hasExportedJSONL?: boolean;
   createdAt?: string;
 }

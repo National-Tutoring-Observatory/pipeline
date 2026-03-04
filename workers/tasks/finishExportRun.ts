@@ -18,19 +18,7 @@ export default async function finishExportRun(job: Job) {
     throw new Error(`finishExportRun: Run not found: ${runId}`);
   }
 
-  const update: Record<string, boolean> = {
-    isExporting: false,
-  };
-
-  if (!hasFailedTasks) {
-    if (exportType === "CSV") {
-      update.hasExportedCSV = true;
-    } else {
-      update.hasExportedJSONL = true;
-    }
-  }
-
-  await RunService.updateById(runId, update);
+  await RunService.updateById(runId, { isExporting: false });
 
   const projectId = run.project as string;
   const downloadType = exportType === "CSV" ? "CSV" : "JSONL";

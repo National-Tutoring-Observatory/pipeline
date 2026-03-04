@@ -8,11 +8,9 @@ import runStatusFilters from "~/modules/runs/helpers/runStatusFilters";
 import type { Run } from "~/modules/runs/runs.types";
 import getSessionsItemAttributes from "~/modules/sessions/helpers/getSessionsItemAttributes";
 import type { Session } from "~/modules/sessions/sessions.types";
-import RunSetDownloads from "./runSetDownloads";
 
 export default function RunSetOverview({
   runSet,
-  project,
   runs,
   hasRunVerification,
   runsTotalPages,
@@ -39,7 +37,6 @@ export default function RunSetOverview({
   onRunActionClicked,
 }: {
   runSet: RunSet;
-  project: { _id: string; name: string };
   runs: Run[];
   hasRunVerification: boolean;
   runsTotalPages: number;
@@ -168,8 +165,6 @@ export default function RunSetOverview({
           </div>
         </div>
       </div>
-
-      <RunSetDownloads runSet={runSet} projectId={project._id} />
     </div>
   );
 }
