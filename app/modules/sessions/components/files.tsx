@@ -1,70 +1,64 @@
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import map from "lodash/map";
-import { Upload } from "lucide-react";
-import { Link } from "react-router";
-import getDateString from "~/modules/app/helpers/getDateString";
+import { Collection } from "@/components/ui/collection";
 import type { File } from "~/modules/files/files.types";
+import getFilesEmptyAttributes from "../helpers/getFilesEmptyAttributes";
+import getFilesItemAttributes from "../helpers/getFilesItemAttributes";
 
 interface FilesProps {
   files: File[];
-  projectId: string;
-  canUpdate: boolean;
-  isProcessing: boolean;
+  actions: { action: string; text: string }[];
+  searchValue: string;
+  currentPage: number;
+  totalPages: number;
+  sortValue: string;
+  isSyncing: boolean;
+  onActionClicked: (action: string) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (currentPage: number) => void;
+  onSortValueChanged: (sortValue: string) => void;
 }
+
+const sortOptions = [
+  { value: "name", text: "Name" },
+  { value: "createdAt", text: "Created at" },
+];
 
 export default function Files({
   files,
-  projectId,
-  canUpdate,
-  isProcessing,
+  actions,
+  searchValue,
+  currentPage,
+  totalPages,
+  sortValue,
+  isSyncing,
+  onActionClicked,
+  onSearchValueChanged,
+  onPaginationChanged,
+  onSortValueChanged,
 }: FilesProps) {
   return (
     <div className="mt-8">
-      {canUpdate && (
-        <div className="mb-4 flex justify-end">
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={isProcessing}
-            asChild={!isProcessing}
-          >
-            <Link to={`/projects/${projectId}/upload-files`}>
-              <Upload className="mr-1 h-4 w-4" />
-              Upload Files
-            </Link>
-          </Button>
-        </div>
-      )}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[300px]">Name</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>File type</TableHead>
-              <TableHead className="text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {map(files, (file) => (
-              <TableRow key={file._id}>
-                <TableCell className="font-medium">{file.name}</TableCell>
-                <TableCell>{getDateString(file.createdAt)}</TableCell>
-                <TableCell>{file.fileType}</TableCell>
-                <TableCell className="flex justify-end text-right"></TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <Collection
+        items={files}
+        itemsLayout="list"
+        actions={actions}
+        hasSearch
+        hasPagination
+        searchValue={searchValue}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        sortOptions={sortOptions}
+        sortValue={sortValue}
+        isSyncing={isSyncing}
+        filters={[]}
+        filtersValues={{}}
+        emptyAttributes={getFilesEmptyAttributes()}
+        getItemAttributes={getFilesItemAttributes}
+        getItemActions={() => []}
+        onActionClicked={onActionClicked}
+        onSearchValueChanged={onSearchValueChanged}
+        onPaginationChanged={onPaginationChanged}
+        onSortValueChanged={onSortValueChanged}
+      />
     </div>
   );
 }
