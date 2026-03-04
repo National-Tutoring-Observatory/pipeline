@@ -16,7 +16,10 @@ import startAnnotateRun from "../tasks/startAnnotateRun";
 import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
 import startCreateEvaluation from "../tasks/startCreateEvaluation";
 import startExportRun from "../tasks/startExportRun";
+import finishUploadHumanAnnotations from "../tasks/finishUploadHumanAnnotations";
+import processUploadHumanAnnotations from "../tasks/processUploadHumanAnnotations";
 import startExportRunSet from "../tasks/startExportRunSet";
+import startUploadHumanAnnotations from "../tasks/startUploadHumanAnnotations";
 
 console.log("[tasks] Initializing database connection...");
 const dbStartDate = Date.now();
@@ -78,6 +81,15 @@ export default async (job: Job) => {
       }
       case "CREATE_EVALUATION:FINISH": {
         return finishCreateEvaluation(job);
+      }
+      case "UPLOAD_HUMAN_ANNOTATIONS:START": {
+        return startUploadHumanAnnotations(job);
+      }
+      case "UPLOAD_HUMAN_ANNOTATIONS:PROCESS": {
+        return processUploadHumanAnnotations(job);
+      }
+      case "UPLOAD_HUMAN_ANNOTATIONS:FINISH": {
+        return finishUploadHumanAnnotations(job);
       }
       default: {
         return { status: "ERRORED", message: `Missing task for ${job.name}` };

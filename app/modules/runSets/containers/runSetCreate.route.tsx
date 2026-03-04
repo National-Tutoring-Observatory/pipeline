@@ -72,7 +72,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
             {
               promptId: run.prompt as string,
               promptName: prompt?.name || "",
-              version: run.promptVersion,
+              version: run.promptVersion ?? 0,
             },
           ],
           selectedModels: modelCode ? [modelCode] : [],
@@ -114,7 +114,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           if (!promptMap.has(key)) {
             promptMap.set(key, {
               promptId: run.prompt as string,
-              version: run.promptVersion,
+              version: run.promptVersion ?? 0,
             });
           }
           const modelCode = getRunModelCode(run);

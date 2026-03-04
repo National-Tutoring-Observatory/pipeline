@@ -8,8 +8,9 @@ export default new mongoose.Schema({
     enum: ["PER_UTTERANCE", "PER_SESSION"],
     required: true,
   },
-  prompt: { type: mongoose.Types.ObjectId, ref: "Prompt", required: true },
-  promptVersion: { type: Number, required: true },
+  prompt: { type: mongoose.Types.ObjectId, ref: "Prompt" },
+  promptVersion: { type: Number },
+  isHuman: { type: Boolean, default: false },
   sessions: [
     {
       sessionId: {
@@ -27,16 +28,16 @@ export default new mongoose.Schema({
   ],
   snapshot: {
     prompt: {
-      name: { type: String, required: true },
-      userPrompt: { type: String, required: true },
+      name: { type: String },
+      userPrompt: { type: String },
       annotationSchema: [mongoose.Schema.Types.Mixed],
-      annotationType: { type: String, required: true },
-      version: { type: Number, required: true },
+      annotationType: { type: String },
+      version: { type: Number },
     },
     model: {
-      code: { type: String, required: true },
-      name: { type: String, required: true },
-      provider: { type: String, required: true },
+      code: { type: String },
+      name: { type: String },
+      provider: { type: String },
     },
   },
   stoppedAt: { type: Date },

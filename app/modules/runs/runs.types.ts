@@ -9,8 +9,9 @@ export interface Run {
   name: string;
   project: Project | string;
   annotationType: string;
-  prompt: Prompt | string;
-  promptVersion: number;
+  prompt?: Prompt | string;
+  promptVersion?: number;
+  isHuman?: boolean;
   sessions: RunSession[];
   snapshot: RunSnapshot;
   stoppedAt?: Date | string | null;
