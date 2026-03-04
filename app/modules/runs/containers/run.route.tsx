@@ -185,6 +185,7 @@ export default function ProjectRunRoute() {
     },
     { paramPrefix: "sessions" },
   );
+  const [isSubmittingExport, setIsSubmittingExport] = useState(false);
   const submit = useSubmit();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
@@ -201,6 +202,7 @@ export default function ProjectRunRoute() {
   });
 
   const onExportRunButtonClicked = ({ exportType }: { exportType: string }) => {
+    setIsSubmittingExport(true);
     submit(
       JSON.stringify({
         intent: "EXPORT_RUN",
@@ -301,6 +303,7 @@ export default function ProjectRunRoute() {
       },
     ],
     callback: (payload) => {
+      setIsSubmittingExport(false);
       debounceRevalidate(revalidate);
       if (payload.downloadUrl && !payload.hasErrored) {
         triggerDownload(payload.downloadUrl);
@@ -350,6 +353,7 @@ export default function ProjectRunRoute() {
   return (
     <RunDetail
       run={run}
+      isExporting={isSubmittingExport || run.isExporting || false}
       promptInfo={promptInfo}
       hasRunVerification={hasRunVerification}
       runSets={runRunSets || []}

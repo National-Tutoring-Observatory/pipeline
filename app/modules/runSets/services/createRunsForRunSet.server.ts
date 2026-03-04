@@ -82,8 +82,6 @@ export default async function createRunsForRunSet(
 
   const updatedRunSet = await RunSetService.updateById(runSet._id, {
     runs: [...(runSet.runs || []), ...generatedRunIds],
-    hasExportedCSV: false,
-    hasExportedJSONL: false,
   });
 
   return {

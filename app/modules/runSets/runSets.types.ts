@@ -8,8 +8,6 @@ export interface RunSet {
   createdAt?: string;
   hasSetup?: boolean;
   isExporting?: boolean;
-  hasExportedCSV?: boolean;
-  hasExportedJSONL?: boolean;
 }
 
 export interface CreateRunSet {

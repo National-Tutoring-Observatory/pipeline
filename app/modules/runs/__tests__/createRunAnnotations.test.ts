@@ -33,8 +33,6 @@ describe("createRunAnnotations", () => {
       isComplete: false,
       hasErrored: false,
       isExporting: false,
-      hasExportedCSV: false,
-      hasExportedJSONL: false,
     });
 
     await expect(createRunAnnotations(run)).rejects.toThrow(
@@ -66,8 +64,6 @@ describe("createRunAnnotations", () => {
       isComplete: false,
       hasErrored: false,
       isExporting: false,
-      hasExportedCSV: false,
-      hasExportedJSONL: false,
     });
 
     await expect(createRunAnnotations(run)).rejects.toThrow(
@@ -99,8 +95,6 @@ describe("createRunAnnotations", () => {
       isComplete: false,
       hasErrored: false,
       isExporting: false,
-      hasExportedCSV: false,
-      hasExportedJSONL: false,
     });
 
     // Should not throw, should return early
@@ -146,8 +140,6 @@ describe("createRunAnnotations", () => {
       isComplete: false,
       hasErrored: false,
       isExporting: false,
-      hasExportedCSV: false,
-      hasExportedJSONL: false,
     });
 
     // Mock TaskSequencer to avoid actual task queueing

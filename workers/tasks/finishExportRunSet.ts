@@ -18,19 +18,7 @@ export default async function finishExportRunSet(job: Job) {
     throw new Error(`finishExportRunSet: Run set not found: ${runSetId}`);
   }
 
-  const update: Record<string, boolean> = {
-    isExporting: false,
-  };
-
-  if (!hasFailedTasks) {
-    if (exportType === "CSV") {
-      update.hasExportedCSV = true;
-    } else {
-      update.hasExportedJSONL = true;
-    }
-  }
-
-  await RunSetService.updateById(runSetId, update);
+  await RunSetService.updateById(runSetId, { isExporting: false });
 
   const downloadType = exportType === "CSV" ? "CSV" : "JSONL";
   const downloadUrl = `/api/downloads/${runSet.project}/run-sets/${runSet._id}?exportType=${downloadType}`;

@@ -246,22 +246,6 @@ describe("RunSetService", () => {
         expect(updatedRunSet!.runs).toContain(runId);
       }
     });
-
-    it("resets hasExportedCSV and hasExportedJSONL flags", async () => {
-      await RunSetService.updateById(runSetId, {
-        hasExportedCSV: true,
-        hasExportedJSONL: true,
-      });
-
-      await RunSetService.createRunsForRunSet({
-        runSetId,
-        definitions: [buildDefinition(prompt1._id, "Prompt 1", 1, testModel1)],
-      });
-
-      const updatedRunSet = await RunSetService.findById(runSetId);
-      expect(updatedRunSet!.hasExportedCSV).toBe(false);
-      expect(updatedRunSet!.hasExportedJSONL).toBe(false);
-    });
   });
 
   describe("findEligibleRunsForRunSet", () => {

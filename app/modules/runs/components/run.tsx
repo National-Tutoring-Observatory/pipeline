@@ -41,11 +41,11 @@ import { getRunStatusKey } from "~/modules/runs/helpers/statusMeta";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
 import type { RunSet } from "~/modules/runSets/runSets.types";
 import DownloadDropdown from "./downloadDropdown";
-import RunDownloads from "./runDownloads";
 import RunRunSets from "./runRunSets";
 
 export default function RunDetail({
   run,
+  isExporting,
   promptInfo,
   hasRunVerification,
   runSets,
@@ -76,6 +76,7 @@ export default function RunDetail({
   onSessionsFiltersValueChanged,
 }: {
   run: Run;
+  isExporting: boolean;
   promptInfo: { name: string; version: number };
   hasRunVerification: boolean;
   runSets: RunSet[];
@@ -117,9 +118,7 @@ export default function RunDetail({
         <PageHeaderRight>
           {run.isComplete && !run.hasErrored && (
             <DownloadDropdown
-              isExporting={run.isExporting || false}
-              hasExportedCSV={run.hasExportedCSV}
-              hasExportedJSONL={run.hasExportedJSONL}
+              isExporting={isExporting}
               onExportButtonClicked={onExportRunButtonClicked}
             />
           )}
@@ -312,7 +311,6 @@ export default function RunDetail({
             />
           </div>
         </div>
-        <RunDownloads run={run} />
       </div>
     </div>
   );

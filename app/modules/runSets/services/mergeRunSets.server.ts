@@ -63,8 +63,6 @@ export default async function mergeRunSets(
   const updatedRuns = [...(targetRunSet.runs || []), ...added];
   const updatedRunSet = await RunSetService.updateById(targetRunSetId, {
     runs: updatedRuns,
-    hasExportedCSV: false,
-    hasExportedJSONL: false,
   });
 
   return {
