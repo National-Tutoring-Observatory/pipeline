@@ -17,6 +17,10 @@ export class PromptVersionService {
     const match = options?.match || {};
     let query = PromptVersionModel.find(match);
 
+    if (options?.select) {
+      query = query.select(options.select);
+    }
+
     if (options?.populate?.length) {
       query = query.populate(options.populate);
     }

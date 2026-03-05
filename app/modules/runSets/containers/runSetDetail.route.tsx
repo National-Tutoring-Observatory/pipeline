@@ -66,7 +66,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   const runs = runIds.length
-    ? await RunService.find({ match: { _id: { $in: runIds } } })
+    ? await RunService.find({
+        match: { _id: { $in: runIds } },
+        select: "snapshot.prompt.annotationSchema",
+      })
     : [];
   const availableAnnotationFields = getAnnotationFieldsFromRuns(runs);
 

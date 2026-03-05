@@ -17,6 +17,10 @@ export class EvaluationService {
     const match = options?.match || {};
     let query = EvaluationModel.find(match);
 
+    if (options?.select) {
+      query = query.select(options.select);
+    }
+
     if (options?.populate?.length) {
       query = query.populate(options.populate);
     }
@@ -50,6 +54,7 @@ export class EvaluationService {
     sort,
     page,
     pageSize,
+    select,
   }: PaginateProps): Promise<{
     data: Evaluation[];
     count: number;
@@ -61,6 +66,7 @@ export class EvaluationService {
       match,
       sort,
       pagination,
+      select,
     });
 
     const count = await this.count(match);

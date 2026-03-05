@@ -15,6 +15,10 @@ export class CodebookService {
     const match = options?.match || {};
     let query = CodebookModel.find(match);
 
+    if (options?.select) {
+      query = query.select(options.select);
+    }
+
     if (options?.populate?.length) {
       query = query.populate(options.populate);
     }

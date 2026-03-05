@@ -15,6 +15,10 @@ export class MigrationRunService {
     const match = options?.match || {};
     let query = MigrationModel.find(match);
 
+    if (options?.select) {
+      query = query.select(options.select);
+    }
+
     if (options?.populate?.length) {
       query = query.populate(options.populate);
     }

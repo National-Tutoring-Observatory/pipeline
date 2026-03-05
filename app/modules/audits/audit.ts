@@ -56,6 +56,10 @@ export class AuditService {
     const match = options?.match || {};
     let query = AuditModel.find(match);
 
+    if (options?.select) {
+      query = query.select(options.select);
+    }
+
     if (options?.sort) {
       query = query.sort(options.sort);
     }
@@ -79,6 +83,7 @@ export class AuditService {
     sort,
     page,
     pageSize,
+    select,
   }: PaginateProps): Promise<{
     data: AuditRecord[];
     count: number;
@@ -90,6 +95,7 @@ export class AuditService {
       match,
       sort,
       pagination,
+      select,
     });
 
     const count = await this.count(match);

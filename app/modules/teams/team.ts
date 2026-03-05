@@ -15,6 +15,10 @@ export class TeamService {
     const match = options?.match || {};
     let query = TeamModel.find(match);
 
+    if (options?.select) {
+      query = query.select(options.select);
+    }
+
     if (options?.populate?.length) {
       query = query.populate(options.populate);
     }
@@ -42,6 +46,7 @@ export class TeamService {
     sort,
     page,
     pageSize,
+    select,
   }: PaginateProps): Promise<{
     data: Team[];
     count: number;
@@ -53,6 +58,7 @@ export class TeamService {
       match,
       sort,
       pagination,
+      select,
     });
 
     const count = await this.count(match);

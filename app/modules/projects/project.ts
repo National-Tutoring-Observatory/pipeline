@@ -16,6 +16,10 @@ export class ProjectService {
     const match = options?.match || {};
     let query = ProjectModel.find(match);
 
+    if (options?.select) {
+      query = query.select(options.select);
+    }
+
     if (options?.populate?.length) {
       query = query.populate(options.populate);
     }
@@ -74,6 +78,7 @@ export class ProjectService {
     sort,
     page,
     pageSize,
+    select,
   }: PaginateProps): Promise<{
     data: Project[];
     count: number;
@@ -86,6 +91,7 @@ export class ProjectService {
       sort,
       pagination,
       populate: ["team"],
+      select,
     });
 
     const count = await this.count(match);
