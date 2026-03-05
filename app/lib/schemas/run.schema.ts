@@ -11,6 +11,9 @@ export default new mongoose.Schema({
   prompt: { type: mongoose.Types.ObjectId, ref: "Prompt" },
   promptVersion: { type: Number },
   isHuman: { type: Boolean, default: false },
+  annotator: {
+    name: { type: String },
+  },
   sessions: [
     {
       sessionId: {
@@ -38,9 +41,6 @@ export default new mongoose.Schema({
       code: { type: String },
       name: { type: String },
       provider: { type: String },
-    },
-    annotator: {
-      name: { type: String },
     },
   },
   stoppedAt: { type: Date },

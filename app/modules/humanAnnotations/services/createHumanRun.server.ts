@@ -40,6 +40,7 @@ export default async function createHumanRun({
     name,
     annotationType,
     isHuman: true,
+    annotator: { name },
     sessions,
     snapshot: {
       prompt: {
@@ -48,9 +49,6 @@ export default async function createHumanRun({
         annotationSchema,
         annotationType,
         version: 1,
-      },
-      annotator: {
-        name,
       },
     },
     isRunning: false,

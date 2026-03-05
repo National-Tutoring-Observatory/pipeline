@@ -19,9 +19,6 @@ export interface RunSnapshot {
     provider: string;
     name: string;
   };
-  annotator?: {
-    name: string;
-  };
 }
 
 interface BuildPromptSnapshotProps {
