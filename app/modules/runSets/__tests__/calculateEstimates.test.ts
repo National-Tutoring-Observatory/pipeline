@@ -31,6 +31,7 @@ function expectedCost(
   numPrompts: number,
   modelIndices: number[],
   numSessions: number,
+  verificationMultiplier = 1,
 ) {
   const inputTokens = 250;
   const outputTokens = 250;
@@ -40,6 +41,7 @@ function expectedCost(
       sum +
       numPrompts *
         numSessions *
+        verificationMultiplier *
         ((inputTokens / 1_000_000) * pricing.inputCostPer1M +
           (outputTokens / 1_000_000) * pricing.outputCostPer1M)
     );
@@ -47,7 +49,7 @@ function expectedCost(
 }
 
 function expectedTime(numDefinitions: number, numSessions: number) {
-  return (numDefinitions * numSessions * 2) / 3;
+  return (numDefinitions * numSessions * 10) / 5;
 }
 
 describe("calculateEstimates", () => {
@@ -77,5 +79,52 @@ describe("calculateEstimates", () => {
 
     expect(result.estimatedCost).toBe(0);
     expect(result.estimatedTimeSeconds).toBe(0);
+  });
+
+  it("doubles time and cost when verification is enabled", () => {
+    const definitions = [makeDefinition("promptA", 1, allModels[0])];
+    const result = calculateEstimates(definitions, Array(10).fill({}), {
+      shouldRunVerification: true,
+    });
+
+    expect(result.estimatedCost).toBeCloseTo(expectedCost(1, [0], 10, 2), 5);
+    expect(result.estimatedTimeSeconds).toBeCloseTo(expectedTime(1, 10) * 2, 1);
+  });
+
+  it("uses historical avgSecondsPerSession when provided", () => {
+    const definitions = [makeDefinition("promptA", 1, allModels[0])];
+    const result = calculateEstimates(definitions, Array(10).fill({}), {
+      avgSecondsPerSession: 8,
+    });
+
+    expect(result.estimatedTimeSeconds).toBe(1 * 10 * 8);
+  });
+
+  it("uses historical avgSecondsPerSession with verification", () => {
+    const definitions = [makeDefinition("promptA", 1, allModels[0])];
+    const result = calculateEstimates(definitions, Array(10).fill({}), {
+      avgSecondsPerSession: 8,
+      shouldRunVerification: true,
+    });
+
+    expect(result.estimatedTimeSeconds).toBe(1 * 10 * 8 * 2);
+  });
+
+  it("falls back to default when avgSecondsPerSession is null", () => {
+    const definitions = [makeDefinition("promptA", 1, allModels[0])];
+    const result = calculateEstimates(definitions, Array(10).fill({}), {
+      avgSecondsPerSession: null,
+    });
+
+    expect(result.estimatedTimeSeconds).toBeCloseTo(expectedTime(1, 10), 1);
+  });
+
+  it("falls back to default when avgSecondsPerSession is 0", () => {
+    const definitions = [makeDefinition("promptA", 1, allModels[0])];
+    const result = calculateEstimates(definitions, Array(10).fill({}), {
+      avgSecondsPerSession: 0,
+    });
+
+    expect(result.estimatedTimeSeconds).toBeCloseTo(expectedTime(1, 10), 1);
   });
 });

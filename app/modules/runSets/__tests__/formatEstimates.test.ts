@@ -21,22 +21,30 @@ describe("formatCost", () => {
 });
 
 describe("formatTime", () => {
-  it("formats seconds", () => {
-    expect(formatTime(0)).toBe("0s");
-    expect(formatTime(30)).toBe("30s");
-    expect(formatTime(59)).toBe("59s");
+  it("shows < 30s for values under 30 seconds", () => {
+    expect(formatTime(0)).toBe("< 30s");
+    expect(formatTime(15)).toBe("< 30s");
+    expect(formatTime(29)).toBe("< 30s");
   });
 
-  it("formats minutes", () => {
-    expect(formatTime(60)).toBe("1m");
-    expect(formatTime(90)).toBe("1m 30s");
-    expect(formatTime(120)).toBe("2m");
+  it("shows ~ 1 min for values between 30 and 59 seconds", () => {
+    expect(formatTime(30)).toBe("~ 1 min");
+    expect(formatTime(45)).toBe("~ 1 min");
+    expect(formatTime(59)).toBe("~ 1 min");
+  });
+
+  it("rounds to nearest minute", () => {
+    expect(formatTime(60)).toBe("~ 1 min");
+    expect(formatTime(70)).toBe("~ 1 min");
+    expect(formatTime(90)).toBe("~ 2 min");
+    expect(formatTime(120)).toBe("~ 2 min");
+    expect(formatTime(150)).toBe("~ 3 min");
   });
 
   it("formats hours and minutes", () => {
-    expect(formatTime(3600)).toBe("1h");
-    expect(formatTime(3660)).toBe("1h 1m");
-    expect(formatTime(5400)).toBe("1h 30m");
-    expect(formatTime(7200)).toBe("2h");
+    expect(formatTime(3600)).toBe("~ 1h");
+    expect(formatTime(3660)).toBe("~ 1h 1 min");
+    expect(formatTime(5400)).toBe("~ 1h 30 min");
+    expect(formatTime(7200)).toBe("~ 2h");
   });
 });

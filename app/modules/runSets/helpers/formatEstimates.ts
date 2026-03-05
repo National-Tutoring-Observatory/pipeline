@@ -11,26 +11,26 @@ export function formatCost(cost: number): string {
 }
 
 export function formatTime(seconds: number): string {
+  if (seconds < 30) {
+    return "< 30s";
+  }
+
   if (seconds < 60) {
-    return `${Math.round(seconds)}s`;
+    return "~ 1 min";
   }
 
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = Math.round(seconds % 60);
+  const roundedMinutes = Math.round(seconds / 60);
 
-  if (minutes < 60) {
-    if (remainingSeconds === 0) {
-      return `${minutes}m`;
-    }
-    return `${minutes}m ${remainingSeconds}s`;
+  if (roundedMinutes < 60) {
+    return `~ ${roundedMinutes} min`;
   }
 
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
+  const hours = Math.floor(roundedMinutes / 60);
+  const remainingMinutes = roundedMinutes % 60;
 
   if (remainingMinutes === 0) {
-    return `${hours}h`;
+    return `~ ${hours}h`;
   }
 
-  return `${hours}h ${remainingMinutes}m`;
+  return `~ ${hours}h ${remainingMinutes} min`;
 }

@@ -28,7 +28,7 @@ export default function EstimateSummary({
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Estimate based on ~2s per API call with parallelism</p>
+          <p>Estimated processing time</p>
         </TooltipContent>
       </Tooltip>
 

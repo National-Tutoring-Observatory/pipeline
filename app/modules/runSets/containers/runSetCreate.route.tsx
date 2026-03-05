@@ -178,7 +178,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }
   }
 
-  return { project, prefillData };
+  const avgSecondsPerSession = await RunService.getAverageSecondsPerSession(
+    params.projectId,
+  );
+
+  return { project, prefillData, avgSecondsPerSession };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -250,7 +254,8 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function RunSetCreateRoute() {
-  const { project, prefillData } = useLoaderData<typeof loader>();
+  const { project, prefillData, avgSecondsPerSession } =
+    useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
 
@@ -303,6 +308,7 @@ export default function RunSetCreateRoute() {
 
       <RunSetCreatorContainer
         prefillData={prefillData}
+        avgSecondsPerSession={avgSecondsPerSession}
         onSubmit={handleSubmit}
         isLoading={fetcher.state !== "idle"}
         errors={(fetcher.data as any)?.errors || {}}
