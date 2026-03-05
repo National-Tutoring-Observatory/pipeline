@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { AvailableAnnotationField } from "../helpers/getAnnotationFieldsFromRuns";
 import type { AnnotationTemplateConfig } from "../humanAnnotations.types";
 
@@ -25,6 +25,7 @@ export default function DownloadAnnotationTemplateDialog({
   availableFields,
   onDownloadClicked,
 }: Props) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [annotators, setAnnotators] = useState<string[]>([]);
   const [newAnnotator, setNewAnnotator] = useState("");
   const [selectedFields, setSelectedFields] = useState<Map<string, number>>(
@@ -36,6 +37,7 @@ export default function DownloadAnnotationTemplateDialog({
     if (!name || annotators.includes(name)) return;
     setAnnotators([...annotators, name]);
     setNewAnnotator("");
+    inputRef.current?.focus();
   };
 
   const removeAnnotator = (name: string) => {
@@ -87,6 +89,7 @@ export default function DownloadAnnotationTemplateDialog({
           <Label>Annotators</Label>
           <div className="flex gap-2">
             <Input
+              ref={inputRef}
               placeholder="Annotator name"
               value={newAnnotator}
               onChange={(e) => setNewAnnotator(e.target.value)}
