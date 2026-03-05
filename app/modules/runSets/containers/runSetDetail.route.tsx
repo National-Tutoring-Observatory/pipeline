@@ -12,6 +12,7 @@ import {
 import type { Breadcrumb } from "~/modules/app/app.types";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { useUploadHumanAnnotations } from "~/modules/humanAnnotations/hooks/useUploadHumanAnnotations";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
@@ -153,6 +154,10 @@ export default function RunSetDetailRoute() {
     },
   });
 
+  const { openUploadHumanAnnotationsDialog } = useUploadHumanAnnotations({
+    runSetId: runSet._id,
+  });
+
   const onExportRunSetButtonClicked = ({
     exportType,
   }: {
@@ -187,6 +192,27 @@ export default function RunSetDetailRoute() {
         {
           runId,
           task: "ANNOTATE_RUN:FINISH",
+          status: "FINISHED",
+        },
+      ])
+      .flat(),
+    callback: () => {
+      debounceRevalidate(revalidate);
+    },
+  });
+
+  useHandleSockets({
+    event: "UPLOAD_HUMAN_ANNOTATIONS",
+    matches: runIds
+      .map((runId) => [
+        {
+          runId,
+          task: "UPLOAD_HUMAN_ANNOTATIONS:PROCESS",
+          status: "FINISHED",
+        },
+        {
+          runId,
+          task: "UPLOAD_HUMAN_ANNOTATIONS:FINISH",
           status: "FINISHED",
         },
       ])
@@ -247,6 +273,7 @@ export default function RunSetDetailRoute() {
       onAddRunsClicked={() =>
         navigate(`/projects/${project._id}/run-sets/${runSet._id}/add-runs`)
       }
+      onUploadHumanAnnotationsClicked={openUploadHumanAnnotationsDialog}
       onMergeClicked={() =>
         navigate(`/projects/${project._id}/run-sets/${runSet._id}/merge`)
       }

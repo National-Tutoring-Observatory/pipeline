@@ -9,14 +9,17 @@ import finishConvertedFilesToSessions from "../tasks/finishConvertedFilesToSessi
 import finishCreateEvaluation from "../tasks/finishCreateEvaluation";
 import finishExportRun from "../tasks/finishExportRun";
 import finishExportRunSet from "../tasks/finishExportRunSet";
+import finishUploadHumanAnnotations from "../tasks/finishUploadHumanAnnotations";
 import processCreateEvaluation from "../tasks/processCreateEvaluation";
 import processExportRun from "../tasks/processExportRun";
 import processExportRunSet from "../tasks/processExportRunSet";
+import processUploadHumanAnnotations from "../tasks/processUploadHumanAnnotations";
 import startAnnotateRun from "../tasks/startAnnotateRun";
 import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
 import startCreateEvaluation from "../tasks/startCreateEvaluation";
 import startExportRun from "../tasks/startExportRun";
 import startExportRunSet from "../tasks/startExportRunSet";
+import startUploadHumanAnnotations from "../tasks/startUploadHumanAnnotations";
 
 console.log("[tasks] Initializing database connection...");
 const dbStartDate = Date.now();
@@ -78,6 +81,15 @@ export default async (job: Job) => {
       }
       case "CREATE_EVALUATION:FINISH": {
         return finishCreateEvaluation(job);
+      }
+      case "UPLOAD_HUMAN_ANNOTATIONS:START": {
+        return startUploadHumanAnnotations(job);
+      }
+      case "UPLOAD_HUMAN_ANNOTATIONS:PROCESS": {
+        return processUploadHumanAnnotations(job);
+      }
+      case "UPLOAD_HUMAN_ANNOTATIONS:FINISH": {
+        return finishUploadHumanAnnotations(job);
       }
       default: {
         return { status: "ERRORED", message: `Missing task for ${job.name}` };

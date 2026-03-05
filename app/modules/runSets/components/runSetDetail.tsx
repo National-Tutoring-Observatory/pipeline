@@ -21,6 +21,7 @@ import {
   Pencil,
   Plus,
   Trash2,
+  Upload,
 } from "lucide-react";
 import { Outlet } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
@@ -38,6 +39,7 @@ export default function RunSetDetail({
   annotationProgress,
   onExportRunSetButtonClicked,
   onAddRunsClicked,
+  onUploadHumanAnnotationsClicked,
   onMergeClicked,
   onDuplicateClicked,
   onUseAsTemplateClicked,
@@ -60,6 +62,7 @@ export default function RunSetDetail({
   };
   onExportRunSetButtonClicked: ({ exportType }: { exportType: string }) => void;
   onAddRunsClicked: () => void;
+  onUploadHumanAnnotationsClicked: () => void;
   onMergeClicked: () => void;
   onDuplicateClicked: () => void;
   onUseAsTemplateClicked: () => void;
@@ -95,6 +98,12 @@ export default function RunSetDetail({
                   <Plus className="mr-2 h-4 w-4" />
                   Add Runs
                 </DropdownMenuItem>
+                <Flag flag="HAS_EVALUATIONS">
+                  <DropdownMenuItem onClick={onUploadHumanAnnotationsClicked}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Human Annotations
+                  </DropdownMenuItem>
+                </Flag>
                 <DropdownMenuItem onClick={onMergeClicked}>
                   <GitMerge className="mr-2 h-4 w-4" />
                   Merge

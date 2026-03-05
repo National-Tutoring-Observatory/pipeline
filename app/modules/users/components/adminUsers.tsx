@@ -102,9 +102,7 @@ export default function AdminUsers({
         </div>
 
         <div>
-          <h2 className="mb-4 text-2xl font-bold tracking-tight">
-            Role Change History
-          </h2>
+          <h2 className="mb-4 font-bold tracking-tight">Role Change History</h2>
           <AuditLog
             audits={audits}
             searchValue={auditSearchValue}

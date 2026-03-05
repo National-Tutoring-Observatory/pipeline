@@ -145,6 +145,10 @@ export default [
     "modules/annotations/containers/annotations.route.tsx",
   ),
   route(
+    "api/humanAnnotations/:runSetId",
+    "modules/humanAnnotations/containers/humanAnnotations.route.tsx",
+  ),
+  route(
     "api/authentication",
     "modules/authentication/containers/authentication.route.tsx",
   ),
