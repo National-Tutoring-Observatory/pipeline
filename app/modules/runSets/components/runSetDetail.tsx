@@ -20,6 +20,7 @@ import {
   Pencil,
   Plus,
   Trash2,
+  Download,
   Upload,
 } from "lucide-react";
 import { Outlet } from "react-router";
@@ -38,6 +39,7 @@ export default function RunSetDetail({
   onExportRunSetButtonClicked,
   onAddRunsClicked,
   onUploadHumanAnnotationsClicked,
+  onDownloadAnnotationTemplateClicked,
   onMergeClicked,
   onDuplicateClicked,
   onEditClicked,
@@ -59,6 +61,7 @@ export default function RunSetDetail({
   onExportRunSetButtonClicked: ({ exportType }: { exportType: string }) => void;
   onAddRunsClicked: () => void;
   onUploadHumanAnnotationsClicked: () => void;
+  onDownloadAnnotationTemplateClicked: () => void;
   onMergeClicked: () => void;
   onDuplicateClicked: () => void;
   onEditClicked: () => void;
@@ -92,10 +95,16 @@ export default function RunSetDetail({
                   Add Runs
                 </DropdownMenuItem>
                 <Flag flag="HAS_EVALUATIONS">
-                  <DropdownMenuItem onClick={onUploadHumanAnnotationsClicked}>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Human Annotations
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem onClick={onDownloadAnnotationTemplateClicked}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download Annotation Template
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={onUploadHumanAnnotationsClicked}>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload Human Annotations
+                    </DropdownMenuItem>
+                  </>
                 </Flag>
                 <DropdownMenuItem onClick={onMergeClicked}>
                   <GitMerge className="mr-2 h-4 w-4" />
