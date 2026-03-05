@@ -47,10 +47,15 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const usedPromptModels = getUsedPromptModels(existingRuns);
 
+  const avgSecondsPerSession = await RunService.getAverageSecondsPerSession(
+    params.projectId,
+  );
+
   return {
     runSet,
     project,
     usedPromptModels,
+    avgSecondsPerSession,
   };
 }
 
@@ -123,7 +128,8 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function RunSetCreateRunsRoute() {
-  const { runSet, project, usedPromptModels } = useLoaderData<typeof loader>();
+  const { runSet, project, usedPromptModels, avgSecondsPerSession } =
+    useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
 
@@ -185,6 +191,7 @@ export default function RunSetCreateRunsRoute() {
       <RunSetCreateRunsContainer
         runSet={runSet}
         usedPromptModels={usedPromptModels as PromptModelPair[]}
+        avgSecondsPerSession={avgSecondsPerSession}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isLoading={fetcher.state !== "idle"}

@@ -26,11 +26,13 @@ function getDefaultName(prefillData?: PrefillData | null): string {
 
 export default function RunSetCreatorContainer({
   prefillData,
+  avgSecondsPerSession,
   onSubmit,
   isLoading,
   errors,
 }: {
   prefillData?: PrefillData | null;
+  avgSecondsPerSession: number | null;
   onSubmit: (requestBody: string) => void;
   isLoading: boolean;
   errors: Record<string, string>;
@@ -61,7 +63,10 @@ export default function RunSetCreatorContainer({
     removedKeys.has(d.key),
   );
 
-  const estimation = calculateEstimates(runDefinitions, selectedSessions);
+  const estimation = calculateEstimates(runDefinitions, selectedSessions, {
+    shouldRunVerification,
+    avgSecondsPerSession,
+  });
 
   const handleAnnotationTypeChange = (type: string) => {
     setAnnotationType(type);

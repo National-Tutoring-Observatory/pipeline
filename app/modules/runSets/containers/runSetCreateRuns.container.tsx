@@ -18,6 +18,7 @@ import type { PromptReference, RunSet } from "../runSets.types";
 interface RunSetCreateRunsContainerProps {
   runSet: RunSet;
   usedPromptModels: PromptModelPair[];
+  avgSecondsPerSession: number | null;
   onSubmit: (requestBody: string) => void;
   onCancel: () => void;
   isLoading: boolean;
@@ -27,6 +28,7 @@ interface RunSetCreateRunsContainerProps {
 export default function RunSetCreateRunsContainer({
   runSet,
   usedPromptModels,
+  avgSecondsPerSession,
   onSubmit,
   onCancel,
   isLoading,
@@ -53,7 +55,10 @@ export default function RunSetCreateRunsContainer({
     usedKeys.has(d.key),
   );
 
-  const estimation = calculateEstimates(runDefinitions, runSet.sessions || []);
+  const estimation = calculateEstimates(runDefinitions, runSet.sessions || [], {
+    shouldRunVerification,
+    avgSecondsPerSession,
+  });
 
   const handleRemoveCard = (key: string) => {
     setRemovedKeys((prev) => new Set(prev).add(key));

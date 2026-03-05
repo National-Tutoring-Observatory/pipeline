@@ -7,6 +7,7 @@ import type { CreateRunProps, Run, RunSession } from "./runs.types";
 import aggregateProgressService from "./services/aggregateProgress.server";
 import buildRunSnapshot from "./services/buildRunSnapshot.server";
 import createRunAnnotations from "./services/createRunAnnotations.server";
+import getAverageSecondsPerSession from "./services/getAverageSecondsPerSession.server";
 import paginateSessionsService from "./services/paginateSessions.server";
 
 const RunModel = mongoose.models.Run || mongoose.model("Run", runSchema);
@@ -144,6 +145,10 @@ export class RunService {
 
   static aggregateProgress(runIds: string[]) {
     return aggregateProgressService(runIds);
+  }
+
+  static getAverageSecondsPerSession(projectId: string) {
+    return getAverageSecondsPerSession(projectId);
   }
 
   static paginateSessions(
