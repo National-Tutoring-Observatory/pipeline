@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import fileSchema from "~/lib/schemas/file.schema";
-import type { FindOptions } from "~/modules/common/types";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
+import processUploadedFiles from "~/modules/uploads/services/processUploadedFiles.server";
 import type { File } from "./files.types";
 
 const FileModel = mongoose.models.File || mongoose.model("File", fileSchema);
@@ -66,6 +68,26 @@ export class FileService {
     return doc ? this.toFile(doc) : null;
   }
 
+  static async paginate({
+    match,
+    sort,
+    page,
+    pageSize,
+  }: PaginateProps): Promise<{
+    data: File[];
+    count: number;
+    totalPages: number;
+  }> {
+    const pagination = getPaginationParams(page, pageSize);
+    const results = await this.find({ match, sort, pagination });
+    const count = await this.count(match);
+    return {
+      data: results,
+      count,
+      totalPages: getTotalPages(count, pageSize),
+    };
+  }
+
   static async findByProject(projectId: string): Promise<File[]> {
     return this.find({ match: { project: projectId } });
   }
@@ -73,5 +95,13 @@ export class FileService {
   static async deleteByProject(projectId: string): Promise<number> {
     const result = await FileModel.deleteMany({ project: projectId });
     return result.deletedCount || 0;
+  }
+
+  static async processUploadedFiles(params: {
+    projectId: string;
+    files: globalThis.File[];
+    team: string;
+  }) {
+    return processUploadedFiles(params);
   }
 }

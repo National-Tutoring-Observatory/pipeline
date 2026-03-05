@@ -31,6 +31,10 @@ export default [
       ],
     ),
     route(
+      ":projectId/upload-files",
+      "modules/files/containers/uploadFiles.route.tsx",
+    ),
+    route(
       ":projectId/create-run",
       "modules/runs/containers/createRun.route.tsx",
     ),

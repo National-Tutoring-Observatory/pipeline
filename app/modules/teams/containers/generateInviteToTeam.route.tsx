@@ -8,7 +8,7 @@ import type { Route } from "./+types/generateInviteToTeam.route";
 export async function action({ request }: Route.ActionArgs) {
   const { intent, payload = {} } = await request.json();
 
-  const { teamId, role, username } = payload;
+  const { teamId, role, name } = payload;
 
   if (intent === "GENERATE_INVITE_LINK") {
     const user = (await getSessionUser({ request })) as User;
@@ -27,7 +27,7 @@ export async function action({ request }: Route.ActionArgs) {
 
     const newUser = await UserService.create({
       role: "USER",
-      username,
+      name,
       isRegistered: false,
       inviteId,
       invitedAt: new Date(),

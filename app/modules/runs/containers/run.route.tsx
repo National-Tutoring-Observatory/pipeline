@@ -102,7 +102,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     case "STOP_RUN": {
       const run = await RunService.findById(params.runId);
       if (!run) throw new Error("Run not found");
-      if (!run.isRunning) throw new Error("Run is not running");
+      if (run.isComplete || run.stoppedAt) throw new Error("Run is not active");
       await RunService.stop(run._id);
       return {};
     }
@@ -185,6 +185,7 @@ export default function ProjectRunRoute() {
     },
     { paramPrefix: "sessions" },
   );
+  const [isSubmittingExport, setIsSubmittingExport] = useState(false);
   const submit = useSubmit();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
@@ -201,6 +202,7 @@ export default function ProjectRunRoute() {
   });
 
   const onExportRunButtonClicked = ({ exportType }: { exportType: string }) => {
+    setIsSubmittingExport(true);
     submit(
       JSON.stringify({
         intent: "EXPORT_RUN",
@@ -238,6 +240,10 @@ export default function ProjectRunRoute() {
   const { openCreateRunSetDialog } = useCreateRunSetForRun({
     projectId: project._id,
   });
+
+  const onDuplicateRunButtonClicked = (run: Run) => {
+    navigate(`/projects/${project._id}/create-run?duplicateFrom=${run._id}`);
+  };
 
   const onAddToExistingRunSetClicked = (run: Run) => {
     navigate(`/projects/${project._id}/runs/${run._id}/add-to-run-set`);
@@ -297,6 +303,7 @@ export default function ProjectRunRoute() {
       },
     ],
     callback: (payload) => {
+      setIsSubmittingExport(false);
       debounceRevalidate(revalidate);
       if (payload.downloadUrl && !payload.hasErrored) {
         triggerDownload(payload.downloadUrl);
@@ -346,6 +353,7 @@ export default function ProjectRunRoute() {
   return (
     <RunDetail
       run={run}
+      isExporting={isSubmittingExport || run.isExporting || false}
       promptInfo={promptInfo}
       hasRunVerification={hasRunVerification}
       runSets={runRunSets || []}
@@ -356,6 +364,7 @@ export default function ProjectRunRoute() {
       onExportRunButtonClicked={onExportRunButtonClicked}
       onStopRunClicked={openStopRunDialog}
       onReRunClicked={onReRunClicked}
+      onDuplicateRunButtonClicked={onDuplicateRunButtonClicked}
       onEditRunButtonClicked={openEditRunDialog}
       onDeleteRunButtonClicked={openDeleteRunDialog}
       onAddToExistingRunSetClicked={onAddToExistingRunSetClicked}

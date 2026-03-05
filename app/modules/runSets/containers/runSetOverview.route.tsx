@@ -253,7 +253,6 @@ export default function RunSetOverviewRoute() {
   return (
     <RunSetOverview
       runSet={runSet}
-      project={project}
       runs={runs.data}
       hasRunVerification={hasRunVerification}
       runsTotalPages={runs.totalPages}

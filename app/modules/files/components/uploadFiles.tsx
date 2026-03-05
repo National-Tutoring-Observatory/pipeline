@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -18,6 +17,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import clsx from "clsx";
 import map from "lodash/map";
+import { Upload } from "lucide-react";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import type { FetcherWithComponents } from "react-router";
@@ -63,9 +63,12 @@ export default function UploadFiles({
   }
 
   const uploadClassName = clsx(
-    "border border-dashed border-black/20 p-8 rounded-md hover:bg-gray-50 dark:hover:bg-gray-50 text-center",
+    "flex min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors",
     {
-      "opacity-40": isUploading,
+      "border-primary/50 bg-primary/5": isDragActive,
+      "border-muted-foreground/25 hover:border-muted-foreground/40 hover:bg-muted/50":
+        !isDragActive,
+      "opacity-40 cursor-not-allowed": isUploading,
     },
   );
 
@@ -74,13 +77,17 @@ export default function UploadFiles({
       <div className="grid grid-cols-2 gap-x-4">
         <div className="grid gap-y-2">
           <div className="grid gap-y-2">
-            <Label>Upload files</Label>
             <div className={uploadClassName} {...getRootProps()}>
               <input {...getInputProps()} disabled={isUploading} />
+              <Upload className="text-muted-foreground/60 mb-3 h-10 w-10" />
               {isDragActive ? (
-                <p>Drop the files here ...</p>
+                <p className="text-primary font-medium">
+                  Drop the files here ...
+                </p>
               ) : (
-                <p>Drag 'n' drop some files here, or click to select files</p>
+                <p className="font-medium">
+                  Drag & drop files here, or click to browse
+                </p>
               )}
             </div>
             {data?.errors?.files && (

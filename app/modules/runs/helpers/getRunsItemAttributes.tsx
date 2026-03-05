@@ -17,8 +17,22 @@ interface Options {
 export default function getRunsItemAttributes(item: Run, options?: Options) {
   const promptName = get(item, "snapshot.prompt.name", "");
 
+  let statusMeta = STATUS_META[getRunStatusKey(item)];
+
+  if (item.isComplete && item.hasErrored) {
+    const failedCount = item.sessions.filter(
+      (s) => s.status === "ERRORED",
+    ).length;
+    if (failedCount > 0) {
+      statusMeta = {
+        ...statusMeta,
+        text: `${statusMeta.text} - ${failedCount} session${failedCount === 1 ? "" : "s"} failed`,
+      };
+    }
+  }
+
   const meta = [
-    STATUS_META[getRunStatusKey(item)],
+    statusMeta,
     {
       text: `Annotation type - ${getAnnotationLabel(item.annotationType)}`,
     },

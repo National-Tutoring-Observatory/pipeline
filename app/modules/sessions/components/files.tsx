@@ -1,64 +1,64 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import map from "lodash/map";
-import getDateString from "~/modules/app/helpers/getDateString";
+import { Collection } from "@/components/ui/collection";
 import type { File } from "~/modules/files/files.types";
+import getFilesEmptyAttributes from "../helpers/getFilesEmptyAttributes";
+import getFilesItemAttributes from "../helpers/getFilesItemAttributes";
 
-export default function Files({ files }: { files: File[] }) {
+interface FilesProps {
+  files: File[];
+  actions: { action: string; text: string }[];
+  searchValue: string;
+  currentPage: number;
+  totalPages: number;
+  sortValue: string;
+  isSyncing: boolean;
+  onActionClicked: (action: string) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (currentPage: number) => void;
+  onSortValueChanged: (sortValue: string) => void;
+}
+
+const sortOptions = [
+  { value: "name", text: "Name" },
+  { value: "createdAt", text: "Created at" },
+];
+
+export default function Files({
+  files,
+  actions,
+  searchValue,
+  currentPage,
+  totalPages,
+  sortValue,
+  isSyncing,
+  onActionClicked,
+  onSearchValueChanged,
+  onPaginationChanged,
+  onSortValueChanged,
+}: FilesProps) {
   return (
     <div className="mt-8">
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[300px]">Name</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>File type</TableHead>
-              <TableHead className="text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {map(files, (file) => {
-              return (
-                <TableRow key={file._id}>
-                  <TableCell className="font-medium">{file.name}</TableCell>
-                  <TableCell>{getDateString(file.createdAt)}</TableCell>
-                  <TableCell>{file.fileType}</TableCell>
-                  <TableCell className="flex justify-end text-right">
-                    {/* <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                          size="icon"
-                        >
-                          <EllipsisVertical />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-32">
-                        <DropdownMenuItem onClick={() => onEditProjectButtonClicked(project)}>
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem variant="destructive" onClick={() => onDeleteProjectButtonClicked(project)}>
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu> */}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+      <Collection
+        items={files}
+        itemsLayout="list"
+        actions={actions}
+        hasSearch
+        hasPagination
+        searchValue={searchValue}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        sortOptions={sortOptions}
+        sortValue={sortValue}
+        isSyncing={isSyncing}
+        filters={[]}
+        filtersValues={{}}
+        emptyAttributes={getFilesEmptyAttributes()}
+        getItemAttributes={getFilesItemAttributes}
+        getItemActions={() => []}
+        onActionClicked={onActionClicked}
+        onSearchValueChanged={onSearchValueChanged}
+        onPaginationChanged={onPaginationChanged}
+        onSortValueChanged={onSortValueChanged}
+      />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import throttle from "lodash/throttle";
+import { useState } from "react";
 import {
   data,
   redirect,
@@ -100,6 +101,25 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   switch (intent) {
     case "EXPORT_RUN_SET": {
+      const runSet = await RunSetService.findById(params.runSetId);
+      if (!runSet) throw new Error("Run set not found");
+
+      const runIds = runSet.runs ?? [];
+      if (runIds.length > 0) {
+        const runs = await RunService.find({
+          match: { _id: { $in: runIds } },
+        });
+        const allComplete = runs.every((r) => r.isComplete && !r.hasErrored);
+        if (!allComplete) {
+          return data(
+            {
+              errors: { general: "All runs must be complete before exporting" },
+            },
+            { status: 400 },
+          );
+        }
+      }
+
       const { exportType } = payload;
       await exportRunSet({ runSetId: params.runSetId, exportType });
       return {};
@@ -118,6 +138,7 @@ export default function RunSetDetailRoute() {
   const { runSet, project, annotationProgress, availableAnnotationFields } =
     useLoaderData<typeof loader>();
   const runIds = runSet.runs ?? [];
+  const [isSubmittingExport, setIsSubmittingExport] = useState(false);
   const submit = useSubmit();
   const navigate = useNavigate();
   const location = useLocation();
@@ -172,6 +193,7 @@ export default function RunSetDetailRoute() {
   }: {
     exportType: string;
   }) => {
+    setIsSubmittingExport(true);
     submit(
       JSON.stringify({
         intent: "EXPORT_RUN_SET",
@@ -187,6 +209,11 @@ export default function RunSetDetailRoute() {
     event: "ANNOTATE_RUN",
     matches: runIds
       .map((runId) => [
+        {
+          runId,
+          task: "ANNOTATE_RUN:START",
+          status: "FINISHED",
+        },
         {
           runId,
           task: "ANNOTATE_RUN:PROCESS",
@@ -240,6 +267,7 @@ export default function RunSetDetailRoute() {
       },
     ],
     callback: () => {
+      setIsSubmittingExport(false);
       debounceRevalidate(revalidate);
     },
   });
@@ -267,6 +295,7 @@ export default function RunSetDetailRoute() {
   return (
     <RunSetDetail
       runSet={runSet}
+      isExporting={isSubmittingExport || runSet.isExporting || false}
       project={project}
       breadcrumbs={breadcrumbs}
       annotationProgress={annotationProgress}
@@ -280,6 +309,11 @@ export default function RunSetDetailRoute() {
         navigate(`/projects/${project._id}/run-sets/${runSet._id}/merge`)
       }
       onDuplicateClicked={() => openDuplicateRunSetDialog(runSet)}
+      onUseAsTemplateClicked={() =>
+        navigate(
+          `/projects/${project._id}/create-run-set?fromRunSet=${runSet._id}`,
+        )
+      }
       onEditClicked={() => openEditRunSetDialog(runSet)}
       onDeleteClicked={() => openDeleteRunSetDialog(runSet)}
       activeView={activeView}

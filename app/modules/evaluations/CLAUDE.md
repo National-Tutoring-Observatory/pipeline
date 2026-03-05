@@ -11,7 +11,7 @@ Evaluation
   ├── runSet: ObjectId (ref: RunSet)
   ├── baseRun: ObjectId (ref: Run)        — the reference run all others compare against
   ├── runs: [ObjectId] (ref: Run)          — ALL runs including baseRun
-  ├── isExporting / hasExportedCSV / hasExportedJSONL — export tracking
+  ├── isExporting — export tracking
   ├── createdAt / createdBy
   └── updatedAt / updatedBy
 ```

@@ -8,6 +8,7 @@ const superAdminGithubId = process.env.SUPER_ADMIN_GITHUB_ID
 const SEED_USERS = [
   {
     username: "testadmin",
+    name: "Test Admin",
     role: "SUPER_ADMIN",
     githubId: superAdminGithubId,
     hasGithubSSO: true,
@@ -18,6 +19,7 @@ const SEED_USERS = [
   },
   {
     username: "testuser1",
+    name: "Test User 1",
     role: "USER",
     githubId: 100002,
     hasGithubSSO: true,
@@ -28,6 +30,7 @@ const SEED_USERS = [
   },
   {
     username: "testuser2",
+    name: "Test User 2",
     role: "USER",
     githubId: 100003,
     hasGithubSSO: true,

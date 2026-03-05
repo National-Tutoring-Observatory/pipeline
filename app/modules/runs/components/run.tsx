@@ -21,6 +21,7 @@ import find from "lodash/find";
 import {
   BadgeCheck,
   BadgeX,
+  Copy,
   FolderPlus,
   ListPlus,
   MoreHorizontal,
@@ -28,6 +29,7 @@ import {
   Pencil,
   Stamp,
   Trash2,
+  TriangleAlert,
 } from "lucide-react";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
@@ -40,11 +42,11 @@ import { getRunStatusKey } from "~/modules/runs/helpers/statusMeta";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
 import type { RunSet } from "~/modules/runSets/runSets.types";
 import DownloadDropdown from "./downloadDropdown";
-import RunDownloads from "./runDownloads";
 import RunRunSets from "./runRunSets";
 
 export default function RunDetail({
   run,
+  isExporting,
   promptInfo,
   hasRunVerification,
   runSets,
@@ -55,6 +57,7 @@ export default function RunDetail({
   onExportRunButtonClicked,
   onStopRunClicked,
   onReRunClicked,
+  onDuplicateRunButtonClicked,
   onEditRunButtonClicked,
   onDeleteRunButtonClicked,
   onAddToExistingRunSetClicked,
@@ -74,6 +77,7 @@ export default function RunDetail({
   onSessionsFiltersValueChanged,
 }: {
   run: Run;
+  isExporting: boolean;
   promptInfo: { name: string; version: number };
   hasRunVerification: boolean;
   runSets: RunSet[];
@@ -84,6 +88,7 @@ export default function RunDetail({
   onExportRunButtonClicked: ({ exportType }: { exportType: string }) => void;
   onStopRunClicked: () => void;
   onReRunClicked: () => void;
+  onDuplicateRunButtonClicked: (run: Run) => void;
   onEditRunButtonClicked: (run: Run) => void;
   onDeleteRunButtonClicked: (run: Run) => void;
   onAddToExistingRunSetClicked: (run: Run) => void;
@@ -114,9 +119,7 @@ export default function RunDetail({
         <PageHeaderRight>
           {run.isComplete && !run.hasErrored && (
             <DownloadDropdown
-              isExporting={run.isExporting || false}
-              hasExportedCSV={run.hasExportedCSV}
-              hasExportedJSONL={run.hasExportedJSONL}
+              isExporting={isExporting}
               onExportButtonClicked={onExportRunButtonClicked}
             />
           )}
@@ -140,6 +143,13 @@ export default function RunDetail({
               <DropdownMenuItem onClick={() => onUseAsTemplateClicked(run)}>
                 <Stamp className="mr-2 h-4 w-4" />
                 Use as Run Set Template
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => onDuplicateRunButtonClicked(run)}
+              >
+                <Copy className="mr-2 h-4 w-4" />
+                Duplicate
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onEditRunButtonClicked(run)}>
@@ -199,6 +209,19 @@ export default function RunDetail({
             <AlertTitle>Run stopped</AlertTitle>
             <AlertDescription>
               This run was stopped before all sessions were annotated.
+            </AlertDescription>
+          </Alert>
+        )}
+        {run.isComplete && run.hasErrored && (
+          <Alert>
+            <TriangleAlert className="h-4 w-4" />
+            <AlertTitle>
+              {run.sessions.filter((s) => s.status === "ERRORED").length} of{" "}
+              {run.sessions.length} session
+              {run.sessions.length === 1 ? "" : "s"} failed
+            </AlertTitle>
+            <AlertDescription>
+              This run completed but some sessions failed during annotation.
             </AlertDescription>
           </Alert>
         )}
@@ -302,7 +325,6 @@ export default function RunDetail({
             />
           </div>
         </div>
-        <RunDownloads run={run} />
       </div>
     </div>
   );

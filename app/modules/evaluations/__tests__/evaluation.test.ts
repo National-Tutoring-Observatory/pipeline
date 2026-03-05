@@ -66,8 +66,6 @@ describe("EvaluationService", () => {
       });
 
       expect(result.isExporting).toBe(false);
-      expect(result.hasExportedCSV).toBe(false);
-      expect(result.hasExportedJSONL).toBe(false);
     });
   });
 
@@ -101,11 +99,9 @@ describe("EvaluationService", () => {
 
       const result = await EvaluationService.updateById(evaluation._id, {
         isExporting: true,
-        hasExportedCSV: true,
       });
 
       expect(result?.isExporting).toBe(true);
-      expect(result?.hasExportedCSV).toBe(true);
     });
 
     it("returns null when evaluation not found", async () => {

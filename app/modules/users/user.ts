@@ -92,6 +92,11 @@ export class UserService {
     return doc ? this.toUser(doc) : null;
   }
 
+  static async findOne(match: Record<string, any>): Promise<User | null> {
+    const docs = await this.find({ match });
+    return docs[0] || null;
+  }
+
   static async deleteById(id: string): Promise<User | null> {
     const doc = await UserModel.findByIdAndDelete(id).exec();
     return doc ? this.toUser(doc) : null;

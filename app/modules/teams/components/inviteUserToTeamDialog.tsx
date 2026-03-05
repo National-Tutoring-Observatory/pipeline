@@ -24,24 +24,24 @@ import INVITE_LINK_TTL_DAYS from "../helpers/inviteLink";
 
 export default function InviteUserToTeamDialog({
   role,
-  username,
+  name,
   inviteLink,
   hasCopiedInviteLink,
   isGeneratingInviteLink,
   onRoleChanged,
   onGenerateInviteLinkClicked,
   onCopyInviteClicked,
-  onUsernameChanged,
+  onNameChanged,
 }: {
   role: string;
-  username: string;
+  name: string;
   inviteLink: string;
   hasCopiedInviteLink: boolean;
   isGeneratingInviteLink: boolean;
   onRoleChanged: (role: string) => void;
   onGenerateInviteLinkClicked: () => void;
   onCopyInviteClicked: () => void;
-  onUsernameChanged: (username: string) => void;
+  onNameChanged: (name: string) => void;
 }) {
   const roles = getRoles();
   return (
@@ -55,8 +55,8 @@ export default function InviteUserToTeamDialog({
               send to a user you would like to become a team member.
               <br />
               <br />
-              Adding a username will help you identify who you have sent this
-              invite link to.
+              Adding a name will help you identify who you have sent this invite
+              link to.
               <br />
               <br />
               More roles will be added soon.
@@ -86,11 +86,11 @@ export default function InviteUserToTeamDialog({
             </Select>
             <Label className="mb-0.5 text-xs">Who is this for</Label>
             <Input
-              id="username"
-              name="username"
-              defaultValue={username}
+              id="name"
+              name="name"
+              defaultValue={name}
               autoComplete="off"
-              onChange={(event) => onUsernameChanged(event.target.value)}
+              onChange={(event) => onNameChanged(event.target.value)}
             />
           </div>
         )}

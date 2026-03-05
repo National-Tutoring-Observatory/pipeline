@@ -5,22 +5,6 @@ export default function useRunsItemActions(): () => CollectionItemAction[] {
   return (_item?: unknown): CollectionItemAction[] => {
     return [
       {
-        action: "EDIT",
-        icon: <Edit />,
-        text: "Edit",
-      },
-      {
-        action: "DUPLICATE",
-        icon: <Copy />,
-        text: "Duplicate",
-      },
-      {
-        action: "DELETE",
-        icon: <Trash2 />,
-        text: "Delete",
-        variant: "destructive",
-      },
-      {
         action: "ADD_TO_EXISTING_RUN_SET",
         icon: <ListPlus />,
         text: "Add to Existing Run Set",
@@ -34,6 +18,22 @@ export default function useRunsItemActions(): () => CollectionItemAction[] {
         action: "USE_AS_RUN_SET_TEMPLATE",
         icon: <Stamp />,
         text: "Use as Run Set Template",
+      },
+      {
+        action: "DUPLICATE",
+        icon: <Copy />,
+        text: "Duplicate",
+      },
+      {
+        action: "EDIT",
+        icon: <Edit />,
+        text: "Edit",
+      },
+      {
+        action: "DELETE",
+        icon: <Trash2 />,
+        text: "Delete",
+        variant: "destructive",
       },
     ];
   };

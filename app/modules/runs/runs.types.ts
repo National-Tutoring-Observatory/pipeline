@@ -25,8 +25,6 @@ export interface Run {
   startedAt: Date | string;
   finishedAt: Date | string;
   isExporting: boolean;
-  hasExportedCSV: boolean;
-  hasExportedJSONL: boolean;
   shouldRunVerification: boolean;
 }
 

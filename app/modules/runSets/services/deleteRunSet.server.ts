@@ -10,25 +10,22 @@ export default async function deleteRunSet({ runSetId }: { runSetId: string }) {
 
   await RunSetService.deleteById(runSetId);
 
-  // Queue cleanup of exported files if any exist
-  if (runSet.hasExportedCSV || runSet.hasExportedJSONL) {
-    try {
-      await flowProducer.add({
-        name: "DELETE_RUN_SET:DATA",
-        queueName: "general",
-        opts: { attempts: 3 },
-        data: {
-          runSetId,
-          projectId: runSet.project,
-          props: {
-            event: "DELETE_RUN_SET",
-            task: "DELETE_RUN_SET:DATA",
-          },
+  try {
+    await flowProducer.add({
+      name: "DELETE_RUN_SET:DATA",
+      queueName: "general",
+      opts: { attempts: 3 },
+      data: {
+        runSetId,
+        projectId: runSet.project,
+        props: {
+          event: "DELETE_RUN_SET",
+          task: "DELETE_RUN_SET:DATA",
         },
-      });
-    } catch (error) {
-      console.error("[deleteRunSet] failed to enqueue cleanup job", error);
-    }
+      },
+    });
+  } catch (error) {
+    console.error("[deleteRunSet] failed to enqueue cleanup job", error);
   }
 
   return { status: "DELETED" };

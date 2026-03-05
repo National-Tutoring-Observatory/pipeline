@@ -77,6 +77,7 @@ export default function AdminUsers({
             filtersValues={filtersValues}
             sortOptions={[
               { text: "Username", value: "username" },
+              { text: "Name", value: "name" },
               { text: "Created", value: "createdAt" },
             ]}
             sortValue={sortValue}

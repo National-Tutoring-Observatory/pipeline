@@ -1,8 +1,13 @@
 import dayjs from "dayjs";
+import clearDocumentDB from "test/helpers/clearDocumentDB";
 import loginUser from "test/helpers/loginUser";
-import { expect, test } from "vitest";
+import { beforeEach, expect, test } from "vitest";
 import { UserService } from "~/modules/users/user";
 import { loader } from "../containers/authentication.route.js";
+
+beforeEach(async () => {
+  await clearDocumentDB();
+});
 
 async function readLoaderJson(resp: any) {
   if (!resp) return null;
@@ -29,7 +34,7 @@ test("logs in authenticated users", async () => {
 });
 
 test("logs in before 72h", async () => {
-  const user = await UserService.create({ username: "test_user" });
+  const user = await UserService.create({ username: "test_user_72h" });
 
   const cookieHeader = await loginUser(user._id, {
     lastActivity: dayjs().subtract(71, "hour").valueOf(),
@@ -49,7 +54,7 @@ test("logs in before 72h", async () => {
 });
 
 test("logs out after 72h inactivity", async () => {
-  const user = await UserService.create({ username: "test_user" });
+  const user = await UserService.create({ username: "test_user_expired" });
 
   const cookieHeader = await loginUser(user._id, {
     lastActivity: dayjs().subtract(73, "hour").valueOf(),

@@ -157,6 +157,7 @@ export class RunService {
       searchValue?: string;
       sort?: string;
       page?: string | number;
+      pageSize?: number;
       filters?: Record<string, string>;
     },
   ) {

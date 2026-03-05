@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Copy,
   Download,
+  FileInput,
   GitMerge,
   MoreHorizontal,
   Pencil,
@@ -33,6 +34,7 @@ import type { RunSet } from "~/modules/runSets/runSets.types";
 
 export default function RunSetDetail({
   runSet,
+  isExporting,
   project,
   breadcrumbs,
   annotationProgress,
@@ -42,12 +44,14 @@ export default function RunSetDetail({
   onDownloadAnnotationTemplateClicked,
   onMergeClicked,
   onDuplicateClicked,
+  onUseAsTemplateClicked,
   onEditClicked,
   onDeleteClicked,
   activeView,
   onActiveViewChange,
 }: {
   runSet: RunSet;
+  isExporting: boolean;
   project: { _id: string; name: string };
   breadcrumbs: Breadcrumb[];
   annotationProgress: {
@@ -64,6 +68,7 @@ export default function RunSetDetail({
   onDownloadAnnotationTemplateClicked: () => void;
   onMergeClicked: () => void;
   onDuplicateClicked: () => void;
+  onUseAsTemplateClicked: () => void;
   onEditClicked: () => void;
   onDeleteClicked: () => void;
   activeView: "overview" | "evaluations";
@@ -77,12 +82,14 @@ export default function RunSetDetail({
         </PageHeaderLeft>
         <PageHeaderRight>
           <div className="text-muted-foreground flex gap-1">
-            <DownloadDropdown
-              isExporting={runSet.isExporting || false}
-              hasExportedCSV={runSet.hasExportedCSV || false}
-              hasExportedJSONL={runSet.hasExportedJSONL || false}
-              onExportButtonClicked={onExportRunSetButtonClicked}
-            />
+            {annotationProgress.totalRuns > 0 &&
+              annotationProgress.completedRuns ===
+                annotationProgress.totalRuns && (
+                <DownloadDropdown
+                  isExporting={isExporting}
+                  onExportButtonClicked={onExportRunSetButtonClicked}
+                />
+              )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="data-[state=open]:bg-muted">
@@ -115,6 +122,10 @@ export default function RunSetDetail({
                 <DropdownMenuItem onClick={onDuplicateClicked}>
                   <Copy className="mr-2 h-4 w-4" />
                   Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onUseAsTemplateClicked}>
+                  <FileInput className="mr-2 h-4 w-4" />
+                  Use as Template
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onEditClicked}>

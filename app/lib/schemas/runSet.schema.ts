@@ -8,8 +8,6 @@ export default new mongoose.Schema({
   annotationType: { type: String, required: true },
   hasSetup: { type: Boolean, default: false },
   isExporting: { type: Boolean, default: false },
-  hasExportedCSV: { type: Boolean, default: false },
-  hasExportedJSONL: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   createdBy: { type: mongoose.Types.ObjectId, ref: "User" },
   updatedAt: { type: Date },

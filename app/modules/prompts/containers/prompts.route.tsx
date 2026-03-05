@@ -12,14 +12,11 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
 import PromptAuthorization from "~/modules/prompts/authorization";
-import { RunService } from "~/modules/runs/run";
+import { usePromptActions } from "~/modules/prompts/hooks/usePromptActions";
 import type { User } from "~/modules/users/users.types";
 import CreatePromptDialog from "../components/createPromptDialog";
-import DeletePromptDialog from "../components/deletePromptDialog";
-import EditPromptDialog from "../components/editPromptDialog";
 import Prompts from "../components/prompts";
 import { PromptService } from "../prompt";
-import type { Prompt } from "../prompts.types";
 import { PromptVersionService } from "../promptVersion";
 import type { Route } from "./+types/prompts.route";
 
@@ -60,7 +57,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const { intent, entityId, payload = {} } = await request.json();
+  const { intent, payload = {} } = await request.json();
 
   const { name, annotationType, team } = payload;
 
@@ -135,76 +132,6 @@ export async function action({ request }: Route.ActionArgs) {
         data: prompt,
       });
     }
-    case "UPDATE_PROMPT": {
-      const prompt = await PromptService.findById(entityId);
-      if (!prompt) {
-        return data(
-          { errors: { general: "Prompt not found" } },
-          { status: 404 },
-        );
-      }
-      if (!PromptAuthorization.canUpdate(user, prompt)) {
-        return data(
-          {
-            errors: {
-              general: "You do not have permission to update this prompt.",
-            },
-          },
-          { status: 403 },
-        );
-      }
-      const updated = await PromptService.updateById(entityId, { name });
-      return data({
-        success: true,
-        intent: "UPDATE_PROMPT",
-        data: updated,
-      });
-    }
-    case "DELETE_PROMPT": {
-      const prompt = await PromptService.findById(entityId);
-      if (!prompt) {
-        return data(
-          { errors: { general: "Prompt not found" } },
-          { status: 404 },
-        );
-      }
-      if (!PromptAuthorization.canDelete(user, prompt)) {
-        return data(
-          {
-            errors: {
-              general: "You do not have permission to delete this prompt.",
-            },
-          },
-          { status: 403 },
-        );
-      }
-
-      const runsUsingPromptCount = await RunService.count({
-        prompt: entityId,
-        isComplete: false, // Exclude finished runs (data preserved in snapshot)
-      });
-
-      if (runsUsingPromptCount > 0) {
-        return data(
-          {
-            errors: {
-              general: `Cannot delete prompt: ${runsUsingPromptCount} active run(s) reference it. Wait for runs to complete or create a new prompt for future runs.`,
-            },
-          },
-          { status: 400 },
-        );
-      }
-
-      // Soft delete - hide the prompt
-      await PromptService.updateById(entityId, {
-        deletedAt: new Date() as any,
-      });
-
-      return data({
-        success: true,
-        intent: "DELETE_PROMPT",
-      });
-    }
     default:
       return data({ errors: { general: "Invalid intent" } }, { status: 400 });
   }
@@ -219,6 +146,8 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
   const user = useContext(AuthenticationContext) as User;
   const fetcher = useFetcher();
   const navigate = useNavigate();
+
+  const { openEditPromptDialog, openDeletePromptDialog } = usePromptActions();
 
   const {
     searchValue,
@@ -245,18 +174,6 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
         navigate(
           `/prompts/${fetcher.data.data._id}/${fetcher.data.data.productionVersion}`,
         );
-      } else if (
-        fetcher.data.success &&
-        fetcher.data.intent === "UPDATE_PROMPT"
-      ) {
-        toast.success("Prompt updated");
-        addDialog(null);
-      } else if (
-        fetcher.data.success &&
-        fetcher.data.intent === "DELETE_PROMPT"
-      ) {
-        toast.success("Prompt deleted");
-        addDialog(null);
       } else if (fetcher.data.errors) {
         toast.error(fetcher.data.errors.general || "An error occurred");
       }
@@ -270,26 +187,6 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
       <CreatePromptDialog
         hasTeamSelection={true}
         onCreateNewPromptClicked={submitCreatePrompt}
-        isSubmitting={fetcher.state === "submitting"}
-      />,
-    );
-  };
-
-  const openEditPromptDialog = (prompt: Prompt) => {
-    addDialog(
-      <EditPromptDialog
-        prompt={prompt}
-        onEditPromptClicked={submitEditPrompt}
-        isSubmitting={fetcher.state === "submitting"}
-      />,
-    );
-  };
-
-  const openDeletePromptDialog = (prompt: Prompt) => {
-    addDialog(
-      <DeletePromptDialog
-        prompt={prompt}
-        onDeletePromptClicked={submitDeletePrompt}
         isSubmitting={fetcher.state === "submitting"}
       />,
     );
@@ -310,24 +207,6 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
         payload: { name, annotationType, team },
       }),
       { method: "POST", encType: "application/json" },
-    );
-  };
-
-  const submitEditPrompt = (prompt: Prompt) => {
-    fetcher.submit(
-      JSON.stringify({
-        intent: "UPDATE_PROMPT",
-        entityId: prompt._id,
-        payload: { name: prompt.name },
-      }),
-      { method: "PUT", encType: "application/json" },
-    );
-  };
-
-  const submitDeletePrompt = (promptId: string) => {
-    fetcher.submit(
-      JSON.stringify({ intent: "DELETE_PROMPT", entityId: promptId }),
-      { method: "DELETE", encType: "application/json" },
     );
   };
 

@@ -13,9 +13,5 @@ export default async function deleteRunSetData(job: Job) {
   const exportsDir = `storage/${projectId}/run-sets/${runSetId}/exports`;
   await storage.removeDir({ sourcePath: exportsDir });
 
-  // TODO #1436 cleanup: remove legacy path deletion once migration has run
-  const legacyExportsDir = `storage/${projectId}/collections/${runSetId}/exports`;
-  await storage.removeDir({ sourcePath: legacyExportsDir });
-
   return { status: "OK", runSetId };
 }

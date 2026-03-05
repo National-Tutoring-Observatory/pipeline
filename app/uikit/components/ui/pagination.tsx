@@ -25,13 +25,13 @@ function Pagination({
         <ArrowLeft />
       </Button>
       <div className="flex h-9 min-w-20 items-center justify-center border-y border-r text-xs">
-        {`${currentPage} / ${totalPages}`}
+        {`${totalPages === 0 ? 0 : currentPage} / ${totalPages}`}
       </div>
       <Button
         variant="outline"
         aria-label="Next"
         className="shadow-none"
-        disabled={currentPage === totalPages}
+        disabled={currentPage >= totalPages}
         onClick={() => onPaginationChanged(currentPage + 1)}
       >
         <ArrowRight />
