@@ -55,7 +55,12 @@ export default function extractAnnotationCsvMeta(
 ): AnnotationCsvMeta {
   const rows = parseCsvRows(csvText);
   if (rows.length === 0) {
-    return { headers: [], annotators: [], annotationFields: [], sessionIds: [] };
+    return {
+      headers: [],
+      annotators: [],
+      annotationFields: [],
+      sessionIds: [],
+    };
   }
 
   const headers = rows[0];

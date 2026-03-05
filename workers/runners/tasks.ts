@@ -9,15 +9,15 @@ import finishConvertedFilesToSessions from "../tasks/finishConvertedFilesToSessi
 import finishCreateEvaluation from "../tasks/finishCreateEvaluation";
 import finishExportRun from "../tasks/finishExportRun";
 import finishExportRunSet from "../tasks/finishExportRunSet";
+import finishUploadHumanAnnotations from "../tasks/finishUploadHumanAnnotations";
 import processCreateEvaluation from "../tasks/processCreateEvaluation";
 import processExportRun from "../tasks/processExportRun";
 import processExportRunSet from "../tasks/processExportRunSet";
+import processUploadHumanAnnotations from "../tasks/processUploadHumanAnnotations";
 import startAnnotateRun from "../tasks/startAnnotateRun";
 import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
 import startCreateEvaluation from "../tasks/startCreateEvaluation";
 import startExportRun from "../tasks/startExportRun";
-import finishUploadHumanAnnotations from "../tasks/finishUploadHumanAnnotations";
-import processUploadHumanAnnotations from "../tasks/processUploadHumanAnnotations";
 import startExportRunSet from "../tasks/startExportRunSet";
 import startUploadHumanAnnotations from "../tasks/startUploadHumanAnnotations";
 

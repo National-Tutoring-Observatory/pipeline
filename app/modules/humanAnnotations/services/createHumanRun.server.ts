@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import runSchema from "~/lib/schemas/run.schema";
+import type { AnnotationSchemaItem } from "~/modules/prompts/prompts.types";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
 import { SessionService } from "~/modules/sessions/session";
-import type { AnnotationSchemaItem } from "~/modules/prompts/prompts.types";
 
 const RunModel = mongoose.models.Run || mongoose.model("Run", runSchema);
 
