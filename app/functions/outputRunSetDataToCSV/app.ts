@@ -28,11 +28,12 @@ export const handler = async (event: {
 
   const utteranceKeys = [
     "_id",
-    "sessionId",
+    "session_id",
+    "sequence_id",
     "role",
+    "content",
     "start_time",
     "end_time",
-    "content",
   ];
   const utteranceAnnotationKeysAsObject: { [key: string]: boolean } = {};
   const sessionAnnotationKeysAsObject: { [key: string]: boolean } = {};
@@ -51,7 +52,7 @@ export const handler = async (event: {
 
       if (isBaseRun) {
         const transcript = map(json.transcript, (utterance) => {
-          utterance.sessionId = session.sessionId;
+          utterance._sessionRef = session.sessionId;
           delete utterance.annotations;
           return utterance;
         });
@@ -59,6 +60,7 @@ export const handler = async (event: {
 
         sessionsArray.push({
           _id: session.sessionId,
+          session_id: json.transcript[0]?.session_id,
         });
       }
 
@@ -67,7 +69,7 @@ export const handler = async (event: {
           if (utterance.annotations && utterance.annotations.length > 0) {
             const baseUtterance = utterancesArray.find(
               (u) =>
-                u._id === utterance._id && u.sessionId === session.sessionId,
+                u._id === utterance._id && u._sessionRef === session.sessionId,
             );
 
             if (baseUtterance) {
@@ -170,6 +172,7 @@ export const handler = async (event: {
     const sessionsCsv = json2csv(sessionsArray, {
       keys: [
         "_id",
+        "session_id",
         ...Object.keys(sessionAnnotationKeysAsObject),
         ...metadataKeys,
       ],

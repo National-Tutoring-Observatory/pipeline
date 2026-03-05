@@ -43,7 +43,6 @@ export const handler = async (event: {
       const json = await fse.readJSON(downloadedPath);
 
       const transcript = map(json.transcript, (utterance) => {
-        utterance.sessionId = session.sessionId;
         if (utterance.annotations) {
           each(utterance.annotations, (annotation, index) => {
             each(annotation, (annotationValue, annotationKey) => {
@@ -64,6 +63,7 @@ export const handler = async (event: {
 
       const sessionObject: { _id: any; [key: string]: any } = {
         _id: session.sessionId,
+        session_id: json.transcript[0]?.session_id,
       };
 
       if (json.annotations) {
@@ -109,7 +109,11 @@ export const handler = async (event: {
     // OUTPUT SESSIONS
     if (run.annotationType === "PER_SESSION") {
       const sessionsCsv = json2csv(sessionsArray, {
-        keys: Object.keys(sessionAnnotationKeysAsObject),
+        keys: [
+          "_id",
+          "session_id",
+          ...Object.keys(sessionAnnotationKeysAsObject),
+        ],
         emptyFieldValue: "",
       });
 
