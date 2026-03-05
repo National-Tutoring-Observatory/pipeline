@@ -128,8 +128,9 @@ export default function DownloadAnnotationTemplateDialog({
         <div className="space-y-2">
           <Label>Annotation fields</Label>
           <p className="text-muted-foreground text-sm">
-            Select which fields to include in the template. Set the number of
-            slots per annotator for each field.
+            Select which fields to include. Each slot creates a separate column
+            for that field — use multiple slots when an utterance may have more
+            than one annotation (e.g. multiple tutor moves).
           </p>
           {availableFields.length === 0 ? (
             <p className="text-muted-foreground text-sm italic">
@@ -144,7 +145,7 @@ export default function DownloadAnnotationTemplateDialog({
                 return (
                   <div
                     key={field.fieldKey}
-                    className="hover:bg-accent flex items-center gap-3 rounded-md border px-3 py-2 text-sm"
+                    className="hover:bg-accent flex h-11 items-center gap-3 rounded-md border px-3 py-2 text-sm"
                   >
                     <Checkbox
                       checked={isSelected}
