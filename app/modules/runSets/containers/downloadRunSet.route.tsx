@@ -11,18 +11,12 @@ import type { StorageAdapter } from "~/modules/storage/storage.types";
 import { RunSetService } from "../runSet";
 import type { Route } from "./+types/downloadRunSet.route";
 
-// TODO #1436 cleanup: remove LEGACY_PATH, buildExportFilePaths, downloadFiles,
-// and the try/catch fallback in the loader once the migration has run in production.
-const CURRENT_PATH = "run-sets";
-const LEGACY_PATH = "collections";
-
 function buildExportFilePaths(
   runSet: RunSet,
-  pathSegment: string,
+  outputDirectory: string,
   exportType: string | null,
   annotationType: string | undefined,
 ) {
-  const outputDirectory = `storage/${runSet.project}/${pathSegment}/${runSet._id}/exports`;
   const files: { path: string; name: string }[] = [];
 
   if (exportType === "CSV") {
@@ -98,25 +92,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const storage = getStorageAdapter();
 
-  // Try current path first, fall back to legacy path for pre-migration exports
-  let localPaths;
-  try {
-    const files = buildExportFilePaths(
-      runSet,
-      CURRENT_PATH,
-      exportType,
-      annotationType,
-    );
-    localPaths = await downloadFiles(storage, files);
-  } catch {
-    const legacyFiles = buildExportFilePaths(
-      runSet,
-      LEGACY_PATH,
-      exportType,
-      annotationType,
-    );
-    localPaths = await downloadFiles(storage, legacyFiles);
-  }
+  const outputDirectory = `storage/${runSet.project}/run-sets/${runSet._id}/exports`;
+  const files = buildExportFilePaths(
+    runSet,
+    outputDirectory,
+    exportType,
+    annotationType,
+  );
+  const localPaths = await downloadFiles(storage, files);
 
   const archive = archiver("zip", {
     zlib: { level: 9 },
