@@ -29,6 +29,7 @@ import {
   Pencil,
   Stamp,
   Trash2,
+  TriangleAlert,
 } from "lucide-react";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
@@ -208,6 +209,19 @@ export default function RunDetail({
             <AlertTitle>Run stopped</AlertTitle>
             <AlertDescription>
               This run was stopped before all sessions were annotated.
+            </AlertDescription>
+          </Alert>
+        )}
+        {run.isComplete && run.hasErrored && (
+          <Alert>
+            <TriangleAlert className="h-4 w-4" />
+            <AlertTitle>
+              {run.sessions.filter((s) => s.status === "ERRORED").length} of{" "}
+              {run.sessions.length} session
+              {run.sessions.length === 1 ? "" : "s"} failed
+            </AlertTitle>
+            <AlertDescription>
+              This run completed but some sessions failed during annotation.
             </AlertDescription>
           </Alert>
         )}
