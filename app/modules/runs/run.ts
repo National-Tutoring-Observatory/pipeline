@@ -20,6 +20,10 @@ export class RunService {
     const match = options?.match || {};
     let query = RunModel.find(match);
 
+    if (options?.select) {
+      query = query.select(options.select);
+    }
+
     if (options?.populate?.length) {
       query = query.populate(options.populate);
     }
@@ -47,13 +51,14 @@ export class RunService {
     sort,
     page,
     pageSize,
+    select,
   }: PaginateProps): Promise<{
     data: Run[];
     count: number;
     totalPages: number;
   }> {
     const pagination = getPaginationParams(page, pageSize);
-    const data = await this.find({ match, sort, pagination });
+    const data = await this.find({ match, sort, pagination, select });
     const count = await this.count(match);
     return {
       data,

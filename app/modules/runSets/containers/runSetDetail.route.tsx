@@ -10,9 +10,14 @@ import {
   useSubmit,
 } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
+import triggerDownload from "~/modules/app/helpers/triggerDownload";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import addDialog from "~/modules/dialogs/addDialog";
+import DownloadAnnotationTemplateDialog from "~/modules/humanAnnotations/components/downloadAnnotationTemplateDialog";
+import getAnnotationFieldsFromRuns from "~/modules/humanAnnotations/helpers/getAnnotationFieldsFromRuns";
 import { useUploadHumanAnnotations } from "~/modules/humanAnnotations/hooks/useUploadHumanAnnotations";
+import type { AnnotationTemplateConfig } from "~/modules/humanAnnotations/humanAnnotations.types";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
@@ -61,10 +66,19 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     };
   }
 
+  const runs = runIds.length
+    ? await RunService.find({
+        match: { _id: { $in: runIds } },
+        select: "snapshot.prompt.annotationSchema",
+      })
+    : [];
+  const availableAnnotationFields = getAnnotationFieldsFromRuns(runs);
+
   return {
     runSet,
     project,
     annotationProgress,
+    availableAnnotationFields,
   };
 }
 
@@ -121,7 +135,7 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 500);
 
 export default function RunSetDetailRoute() {
-  const { runSet, project, annotationProgress } =
+  const { runSet, project, annotationProgress, availableAnnotationFields } =
     useLoaderData<typeof loader>();
   const runIds = runSet.runs ?? [];
   const [isSubmittingExport, setIsSubmittingExport] = useState(false);
@@ -157,6 +171,22 @@ export default function RunSetDetailRoute() {
   const { openUploadHumanAnnotationsDialog } = useUploadHumanAnnotations({
     runSetId: runSet._id,
   });
+
+  const openDownloadAnnotationTemplateDialog = () => {
+    const submitDownload = (config: AnnotationTemplateConfig) => {
+      const configBase64 = btoa(JSON.stringify(config));
+      const url = `/api/downloadAnnotationTemplate/${runSet._id}?config=${encodeURIComponent(configBase64)}`;
+      triggerDownload(url);
+      addDialog(null);
+    };
+
+    addDialog(
+      <DownloadAnnotationTemplateDialog
+        availableFields={availableAnnotationFields}
+        onDownloadClicked={submitDownload}
+      />,
+    );
+  };
 
   const onExportRunSetButtonClicked = ({
     exportType,
@@ -274,6 +304,7 @@ export default function RunSetDetailRoute() {
         navigate(`/projects/${project._id}/run-sets/${runSet._id}/add-runs`)
       }
       onUploadHumanAnnotationsClicked={openUploadHumanAnnotationsDialog}
+      onDownloadAnnotationTemplateClicked={openDownloadAnnotationTemplateDialog}
       onMergeClicked={() =>
         navigate(`/projects/${project._id}/run-sets/${runSet._id}/merge`)
       }

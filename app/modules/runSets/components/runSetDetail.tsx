@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Copy,
+  Download,
   FileInput,
   GitMerge,
   MoreHorizontal,
@@ -40,6 +41,7 @@ export default function RunSetDetail({
   onExportRunSetButtonClicked,
   onAddRunsClicked,
   onUploadHumanAnnotationsClicked,
+  onDownloadAnnotationTemplateClicked,
   onMergeClicked,
   onDuplicateClicked,
   onUseAsTemplateClicked,
@@ -63,6 +65,7 @@ export default function RunSetDetail({
   onExportRunSetButtonClicked: ({ exportType }: { exportType: string }) => void;
   onAddRunsClicked: () => void;
   onUploadHumanAnnotationsClicked: () => void;
+  onDownloadAnnotationTemplateClicked: () => void;
   onMergeClicked: () => void;
   onDuplicateClicked: () => void;
   onUseAsTemplateClicked: () => void;
@@ -99,10 +102,18 @@ export default function RunSetDetail({
                   Add Runs
                 </DropdownMenuItem>
                 <Flag flag="HAS_EVALUATIONS">
-                  <DropdownMenuItem onClick={onUploadHumanAnnotationsClicked}>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Human Annotations
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem
+                      onClick={onDownloadAnnotationTemplateClicked}
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Download Annotation Template
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={onUploadHumanAnnotationsClicked}>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload Human Annotations
+                    </DropdownMenuItem>
+                  </>
                 </Flag>
                 <DropdownMenuItem onClick={onMergeClicked}>
                   <GitMerge className="mr-2 h-4 w-4" />

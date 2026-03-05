@@ -10,6 +10,7 @@ export interface FindOptions {
   sort?: SortOption;
   pagination?: { skip: number; limit: number };
   populate?: string[];
+  select?: string | string[];
 }
 
 export interface PaginateProps {
@@ -17,4 +18,5 @@ export interface PaginateProps {
   sort?: SortOption;
   page?: string | number;
   pageSize?: number;
+  select?: string | string[];
 }
