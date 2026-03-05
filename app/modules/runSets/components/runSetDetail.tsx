@@ -15,12 +15,12 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Copy,
+  Download,
   GitMerge,
   MoreHorizontal,
   Pencil,
   Plus,
   Trash2,
-  Download,
   Upload,
 } from "lucide-react";
 import { Outlet } from "react-router";
@@ -96,7 +96,9 @@ export default function RunSetDetail({
                 </DropdownMenuItem>
                 <Flag flag="HAS_EVALUATIONS">
                   <>
-                    <DropdownMenuItem onClick={onDownloadAnnotationTemplateClicked}>
+                    <DropdownMenuItem
+                      onClick={onDownloadAnnotationTemplateClicked}
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       Download Annotation Template
                     </DropdownMenuItem>

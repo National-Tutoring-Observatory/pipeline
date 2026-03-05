@@ -27,9 +27,9 @@ export default function DownloadAnnotationTemplateDialog({
 }: Props) {
   const [annotators, setAnnotators] = useState<string[]>([]);
   const [newAnnotator, setNewAnnotator] = useState("");
-  const [selectedFields, setSelectedFields] = useState<
-    Map<string, number>
-  >(new Map());
+  const [selectedFields, setSelectedFields] = useState<Map<string, number>>(
+    new Map(),
+  );
 
   const addAnnotator = () => {
     const name = newAnnotator.trim();
@@ -63,9 +63,10 @@ export default function DownloadAnnotationTemplateDialog({
   const handleDownload = () => {
     const config: AnnotationTemplateConfig = {
       annotators,
-      fields: Array.from(selectedFields.entries()).map(
-        ([fieldKey, slots]) => ({ fieldKey, slots }),
-      ),
+      fields: Array.from(selectedFields.entries()).map(([fieldKey, slots]) => ({
+        fieldKey,
+        slots,
+      })),
     };
     onDownloadClicked(config);
   };

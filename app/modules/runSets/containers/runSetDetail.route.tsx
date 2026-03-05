@@ -9,14 +9,14 @@ import {
   useSubmit,
 } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
-import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import triggerDownload from "~/modules/app/helpers/triggerDownload";
+import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import addDialog from "~/modules/dialogs/addDialog";
 import DownloadAnnotationTemplateDialog from "~/modules/humanAnnotations/components/downloadAnnotationTemplateDialog";
 import getAnnotationFieldsFromRuns from "~/modules/humanAnnotations/helpers/getAnnotationFieldsFromRuns";
-import type { AnnotationTemplateConfig } from "~/modules/humanAnnotations/humanAnnotations.types";
 import { useUploadHumanAnnotations } from "~/modules/humanAnnotations/hooks/useUploadHumanAnnotations";
-import addDialog from "~/modules/dialogs/addDialog";
+import type { AnnotationTemplateConfig } from "~/modules/humanAnnotations/humanAnnotations.types";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";

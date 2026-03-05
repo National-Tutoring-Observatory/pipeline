@@ -42,15 +42,11 @@ describe("buildAnnotationTemplateRows", () => {
       [
         {
           sessionName: "session_001.json",
-          transcript: [
-            { sequence_id: "1", role: "Tutor", content: "Hello!" },
-          ],
+          transcript: [{ sequence_id: "1", role: "Tutor", content: "Hello!" }],
         },
         {
           sessionName: "session_002.json",
-          transcript: [
-            { sequence_id: "1", role: "Student", content: "Hey!" },
-          ],
+          transcript: [{ sequence_id: "1", role: "Student", content: "Hey!" }],
         },
       ],
       COLUMNS,
@@ -84,9 +80,7 @@ describe("buildAnnotationTemplateRows", () => {
       [
         {
           sessionName: "session_001.json",
-          transcript: [
-            { sequence_id: "1", role: "Tutor", content: "Hello!" },
-          ],
+          transcript: [{ sequence_id: "1", role: "Tutor", content: "Hello!" }],
         },
       ],
       COLUMNS,
