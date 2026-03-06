@@ -1,4 +1,6 @@
 import { redirect } from "react-router";
+import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
+import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
@@ -28,12 +30,25 @@ export async function loader({ request }: Route.LoaderArgs) {
     throw new Error("Feature flag not found");
   }
 
-  const users = await UserService.find({
+  const queryParams = getQueryParamsFromRequest(request, {
+    searchValue: "",
+    currentPage: 1,
+    sort: "username",
+    filters: {},
+  });
+
+  const query = buildQueryFromParams({
     match: {
       featureFlags: { $ne: featureFlag.name },
       isRegistered: true,
     },
+    queryParams,
+    searchableFields: ["name", "username", "email"],
+    sortableFields: ["username", "createdAt"],
+    filterableFields: [],
   });
 
-  return { data: users };
+  const result = await UserService.paginate(query);
+
+  return { data: result.data, totalPages: result.totalPages };
 }

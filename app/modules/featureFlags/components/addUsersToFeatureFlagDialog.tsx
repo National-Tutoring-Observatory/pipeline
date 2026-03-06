@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Collection } from "@/components/ui/collection";
 import {
   DialogClose,
   DialogContent,
@@ -8,31 +8,39 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import includes from "lodash/includes";
-import map from "lodash/map";
-import { LoaderPinwheel } from "lucide-react";
 import type { User } from "~/modules/users/users.types";
+import getAddUsersToFeatureFlagDialogEmptyAttributes from "../helpers/getAddUsersToFeatureFlagDialogEmptyAttributes";
+import getAddUsersToFeatureFlagDialogItemActions from "../helpers/getAddUsersToFeatureFlagDialogItemActions";
+import getAddUsersToFeatureFlagDialogItemAttributes from "../helpers/getAddUsersToFeatureFlagDialogItemAttributes";
+import renderAddUsersToFeatureFlagDialogItem from "../helpers/renderAddUsersToFeatureFlagDialogItem";
 
 export default function AddUsersToFeatureFlagDialog({
   users,
   selectedUsers,
-  isFetching,
+  searchValue,
+  currentPage,
+  totalPages,
   isSubmitButtonDisabled,
   onAddUsersClicked,
   onSelectUserToggled,
+  onSearchValueChanged,
+  onPaginationChanged,
   isSubmitting = false,
 }: {
   users: User[];
   selectedUsers: string[];
-  isFetching: boolean;
+  searchValue: string;
+  currentPage: number;
+  totalPages: number;
   isSubmitButtonDisabled: boolean;
   onAddUsersClicked: () => void;
   onSelectUserToggled: (userId: string) => void;
+  onSearchValueChanged: (searchValue: string) => void;
+  onPaginationChanged: (page: number) => void;
   isSubmitting?: boolean;
 }) {
   return (
-    <DialogContent>
+    <DialogContent className="min-w-2xl">
       <DialogHeader>
         <DialogTitle>Add a user to a feature flag</DialogTitle>
         <DialogDescription>
@@ -40,29 +48,30 @@ export default function AddUsersToFeatureFlagDialog({
           feature.
         </DialogDescription>
       </DialogHeader>
-      <div>
-        {isFetching && (
-          <div className="flex items-center justify-center">
-            <LoaderPinwheel className="animate-spin" />
-          </div>
-        )}
-        {!isFetching && (
-          <div>
-            {map(users, (user) => {
-              const isChecked = !!includes(selectedUsers, user._id);
-              return (
-                <div key={user._id} className="mb-2 flex items-center gap-3">
-                  <Checkbox
-                    id={user._id}
-                    checked={isChecked}
-                    onCheckedChange={() => onSelectUserToggled(user._id)}
-                  />
-                  <Label htmlFor={user._id}>{user.name || user.username}</Label>
-                </div>
-              );
-            })}
-          </div>
-        )}
+      <div style={{ height: "calc(100vh - 200px)" }}>
+        <Collection
+          items={users}
+          itemsLayout="list"
+          hasSearch={true}
+          hasPagination={true}
+          searchValue={searchValue}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          filters={[]}
+          filtersValues={{}}
+          emptyAttributes={getAddUsersToFeatureFlagDialogEmptyAttributes()}
+          renderItem={(user: User) =>
+            renderAddUsersToFeatureFlagDialogItem(user, selectedUsers)
+          }
+          getItemAttributes={getAddUsersToFeatureFlagDialogItemAttributes}
+          getItemActions={getAddUsersToFeatureFlagDialogItemActions}
+          onItemClicked={onSelectUserToggled}
+          onActionClicked={() => {}}
+          onSearchValueChanged={onSearchValueChanged}
+          onPaginationChanged={onPaginationChanged}
+          onFiltersValueChanged={() => {}}
+          onSortValueChanged={() => {}}
+        />
       </div>
       <DialogFooter className="justify-end">
         <DialogClose asChild>
