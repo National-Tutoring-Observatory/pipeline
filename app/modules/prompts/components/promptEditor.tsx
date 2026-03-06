@@ -70,7 +70,7 @@ export default function PromptEditor({
           {!isProduction && promptVersion.hasBeenSaved && (
             <Button
               variant="ghost"
-              className="cursor-pointer hover:text-indigo-600"
+              className="hover:text-sandpiper-accent cursor-pointer"
               onClick={onMakePromptVersionProductionClicked}
             >
               <BookCheck />
@@ -80,7 +80,7 @@ export default function PromptEditor({
           {!promptVersion.hasBeenSaved && (
             <Button
               variant="ghost"
-              className="cursor-pointer hover:text-indigo-600"
+              className="hover:text-sandpiper-accent cursor-pointer"
               disabled={!hasChanges || isLoading}
               onClick={onSavePromptVersionClicked}
             >

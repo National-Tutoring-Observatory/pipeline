@@ -94,10 +94,10 @@ export default function EvaluationCreate({
         />
       </div>
 
-      <div className="sticky bottom-0 -mx-8 flex items-center gap-8 rounded-b-lg border-t bg-white px-8 py-4">
+      <div className="bg-background sticky bottom-0 -mx-8 flex items-center gap-8 rounded-b-lg border-t px-8 py-4">
         <div className="flex-1">
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-            <p className="text-sm text-blue-900">
+          <div className="border-sandpiper-info/20 bg-sandpiper-info/5 rounded-lg border p-4">
+            <p className="text-foreground text-sm">
               {baseRun && selectedRuns.length > 0 ? (
                 <>
                   This evaluation will compare{" "}

@@ -249,7 +249,7 @@ export default function RunDetail({
             <StatItem label="Verification">
               {run.shouldRunVerification ? (
                 <Badge variant="outline" className="mt-1 gap-1.5">
-                  <BadgeCheck className="h-4 w-4 text-green-600" />
+                  <BadgeCheck className="text-sandpiper-success h-4 w-4" />
                   Enabled
                 </Badge>
               ) : (

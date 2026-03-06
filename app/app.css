@@ -7,13 +7,34 @@
   --font-sans:
     "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-sandpiper-canvas: var(--sp-canvas);
+  --color-sandpiper-surface: var(--sp-surface);
+  --color-sandpiper-border: var(--sp-border);
+
+  --color-sandpiper-text: var(--sp-text);
+  --color-sandpiper-muted: var(--sp-muted);
+
+  --color-sandpiper-primary: var(--sp-primary);
+  --color-sandpiper-primary-hover: var(--sp-primary-hover);
+  --color-sandpiper-accent: var(--sp-accent);
+  --color-sandpiper-destructive: var(--sp-destructive);
+
+  --color-sandpiper-success: var(--sp-success);
+  --color-sandpiper-warning: var(--sp-warning);
+
+  --color-sandpiper-gold: var(--sp-gold);
+  --color-sandpiper-silver: var(--sp-silver);
+  --color-sandpiper-bronze: var(--sp-bronze);
+  --color-sandpiper-elevated: var(--sp-elevated);
+
+  /* TODO: delete sandpiper-info and sandpiper-progress once sandpiper theme is fully rolled out */
+  --color-sandpiper-info: var(--sp-info);
+  --color-sandpiper-progress: var(--sp-progress);
 }
 
-html,
-body {
-  @apply bg-white dark:bg-gray-950;
-
-  @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
+  html {
     color-scheme: dark;
   }
 }
@@ -57,24 +78,43 @@ body {
 }
 
 :root {
+  --sp-canvas: oklch(1 0 0);
+  --sp-surface: oklch(0.97 0 0);
+  --sp-border: oklch(0.922 0 0);
+  --sp-text: oklch(0.145 0 0);
+  --sp-muted: oklch(0.556 0 0);
+  --sp-primary: oklch(0.205 0 0);
+  --sp-primary-hover: oklch(0.15 0 0);
+  --sp-accent: #7c3aed;
+  --sp-destructive: oklch(0.577 0.245 27.325);
+  --sp-success: #16a34a;
+  --sp-warning: #d97706;
+  --sp-gold: #c9a227;
+  --sp-silver: #8a9a9e;
+  --sp-bronze: #a67c52;
+  --sp-elevated: #f8f5fe;
+  /* TODO: delete --sp-info and --sp-progress once sandpiper theme is fully rolled out */
+  --sp-info: #3b82f6;
+  --sp-progress: #fb923c;
+
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --background: var(--sp-canvas);
+  --foreground: var(--sp-text);
+  --card: var(--sp-canvas);
+  --card-foreground: var(--sp-text);
+  --popover: var(--sp-canvas);
+  --popover-foreground: var(--sp-text);
+  --primary: var(--sp-primary);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --secondary: var(--sp-surface);
+  --secondary-foreground: var(--sp-text);
+  --muted: var(--sp-surface);
+  --muted-foreground: var(--sp-muted);
+  --accent: var(--sp-surface);
+  --accent-foreground: var(--sp-text);
+  --destructive: var(--sp-destructive);
+  --border: var(--sp-border);
+  --input: var(--sp-border);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -82,13 +122,50 @@ body {
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-foreground: var(--sp-text);
+  --sidebar-primary: var(--sp-primary);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-accent: var(--sp-surface);
+  --sidebar-accent-foreground: var(--sp-text);
+  --sidebar-border: var(--sp-border);
   --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* TODO: Once HAS_SANDPIPER_THEME is fully rolled out, move these values
+   into :root (replacing the defaults above) and delete this selector.
+   See also: app/modules/featureFlags/components/sandpiperTheme.tsx */
+.sandpiper-theme {
+  --sp-canvas: #f9f7f1;
+  --sp-surface: #e6e2d6;
+  --sp-border: #d1cec8;
+  --sp-text: #1e1a14;
+  --sp-muted: #524840;
+  --sp-primary: #3e2723;
+  --sp-primary-hover: #6b4f48;
+  --sp-accent: #367181;
+  --sp-destructive: #b8432a;
+  --sp-success: #3e6e42;
+  --sp-warning: #7a6118;
+  --sp-gold: #c9a227;
+  --sp-silver: #8a9a9e;
+  --sp-bronze: #a67c52;
+  --sp-elevated: #ffffff;
+  --sp-info: var(--sp-accent);
+  --sp-progress: var(--sp-primary);
+
+  --primary-foreground: #ffffff;
+  --destructive: var(--sp-destructive);
+  --ring: var(--sp-primary);
+  --chart-1: var(--sp-primary);
+  --chart-2: var(--sp-accent);
+  --chart-3: var(--sp-success);
+  --chart-4: var(--sp-warning);
+  --chart-5: var(--sp-gold);
+  --sidebar: var(--sp-surface);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--sp-canvas);
+  --sidebar-accent-foreground: var(--sp-primary);
+  --sidebar-ring: var(--sp-primary);
 }
 
 .dark {
