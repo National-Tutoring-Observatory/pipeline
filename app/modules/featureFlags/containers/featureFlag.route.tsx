@@ -7,6 +7,7 @@ import addDialog from "~/modules/dialogs/addDialog";
 import getQueue from "~/modules/queues/helpers/getQueue";
 import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
+import ConfirmRemoveUserFromFeatureFlagDialog from "../components/confirmRemoveUserFromFeatureFlagDialog";
 import DeleteFeatureFlagDialog from "../components/deleteFeatureFlagDialog";
 import FeatureFlag from "../components/featureFlag";
 import { FeatureFlagService } from "../featureFlag";
@@ -170,6 +171,14 @@ export default function FeatureFlagRoute({
     );
   };
 
+  const openConfirmRemoveUserDialog = (userId: string) => {
+    addDialog(
+      <ConfirmRemoveUserFromFeatureFlagDialog
+        onConfirm={() => submitRemoveUserFromFeatureFlag(userId)}
+      />,
+    );
+  };
+
   const submitRemoveUserFromFeatureFlag = (userId: string) => {
     fetcher.submit(
       JSON.stringify({
@@ -202,7 +211,7 @@ export default function FeatureFlagRoute({
       featureFlag={featureFlag}
       users={users}
       onAddUsersClicked={openAddUsersDialog}
-      onRemoveUserFromFeatureFlagClicked={submitRemoveUserFromFeatureFlag}
+      onRemoveUserFromFeatureFlagClicked={openConfirmRemoveUserDialog}
       onDeleteFeatureFlagClicked={openDeleteFeatureFlagDialog}
     />
   );
