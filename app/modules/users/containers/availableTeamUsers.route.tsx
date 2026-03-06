@@ -37,7 +37,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       isRegistered: true,
     },
     queryParams,
-    searchableFields: ["username", "email"],
+    searchableFields: ["name", "username", "email"],
     sortableFields: ["username", "createdAt"],
     filterableFields: [],
   });
