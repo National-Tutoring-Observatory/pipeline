@@ -1,6 +1,3 @@
-import cloneDeep from "lodash/cloneDeep";
-import includes from "lodash/includes";
-import remove from "lodash/remove";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import type { User } from "~/modules/users/users.types";
@@ -13,7 +10,6 @@ export default function AddUserToTeamDialogContainer({
   teamId: string;
   onAddUsersClicked: (userIds: string[]) => void;
 }) {
-  const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,15 +26,10 @@ export default function AddUserToTeamDialogContainer({
   }, [teamId, searchValue, currentPage]);
 
   const onSelectUserToggled = (userId: string) => {
-    let clonedSelectedUsers = cloneDeep(selectedUsers);
-    if (includes(clonedSelectedUsers, userId)) {
-      clonedSelectedUsers = remove(clonedSelectedUsers, userId);
-      setSelectedUsers(clonedSelectedUsers);
-    } else {
-      clonedSelectedUsers.push(userId);
-      setSelectedUsers(clonedSelectedUsers);
-    }
-    setIsSubmitButtonDisabled(clonedSelectedUsers.length === 0);
+    const updated = selectedUsers.includes(userId)
+      ? selectedUsers.filter((id) => id !== userId)
+      : [...selectedUsers, userId];
+    setSelectedUsers(updated);
   };
 
   const onSearchValueChanged = (value: string) => {
@@ -55,12 +46,12 @@ export default function AddUserToTeamDialogContainer({
 
   return (
     <AddUserToTeamDialog
-      isSubmitButtonDisabled={isSubmitButtonDisabled}
       users={users}
       selectedUsers={selectedUsers}
       searchValue={searchValue}
       currentPage={currentPage}
       totalPages={totalPages}
+      isSubmitButtonDisabled={selectedUsers.length === 0}
       onAddUsersClicked={() => onAddUsersClicked(selectedUsers)}
       onSelectUserToggled={onSelectUserToggled}
       onSearchValueChanged={onSearchValueChanged}
