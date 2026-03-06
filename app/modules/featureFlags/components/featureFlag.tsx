@@ -1,15 +1,7 @@
 import { Button } from "@/components/ui/button";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemGroup,
-  ItemSeparator,
-  ItemTitle,
-} from "@/components/ui/item";
-import map from "lodash/map";
-import { Trash } from "lucide-react";
-import React from "react";
+import { Collection } from "@/components/ui/collection";
+import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
+import { Trash, Users } from "lucide-react";
 import type { User } from "~/modules/users/users.types";
 import type { FeatureFlag } from "../featureFlags.types";
 
@@ -47,29 +39,45 @@ export default function FeatureFlag({
           </Button>
         </div>
       </div>
-      <div>
-        <ItemGroup className="p-4">
-          {map(users, (user, index) => (
-            <React.Fragment key={user._id}>
-              <Item variant={"outline"}>
-                <ItemContent className="gap-1">
-                  <ItemTitle>{user.name || user.username}</ItemTitle>
-                </ItemContent>
-                <ItemActions>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-full"
-                    onClick={() => onRemoveUserFromFeatureFlagClicked(user._id)}
-                  >
-                    <Trash className="size-4" />
-                  </Button>
-                </ItemActions>
-              </Item>
-              {index !== users.length - 1 && <ItemSeparator />}
-            </React.Fragment>
-          ))}
-        </ItemGroup>
+      <div className="p-4">
+        <Collection
+          items={users}
+          itemsLayout="list"
+          emptyAttributes={{
+            icon: <Users />,
+            title: "No users",
+            description: "No users have been added to this feature flag",
+            actions: [],
+          }}
+          getItemAttributes={(user: User) => ({
+            id: user._id,
+            title: user.name || user.username,
+            meta: [
+              { text: [user.email, user.username].filter(Boolean).join(" · ") },
+            ],
+          })}
+          getItemActions={(): CollectionItemAction[] => [
+            {
+              action: "REMOVE",
+              text: "Remove",
+              icon: <Trash className="size-4" />,
+              variant: "destructive",
+            },
+          ]}
+          currentPage={1}
+          totalPages={1}
+          filters={[]}
+          filtersValues={{}}
+          onPaginationChanged={() => {}}
+          onFiltersValueChanged={() => {}}
+          onSortValueChanged={() => {}}
+          onItemActionClicked={({ id, action }) => {
+            if (action === "REMOVE") {
+              onRemoveUserFromFeatureFlagClicked(id);
+            }
+          }}
+          onActionClicked={() => {}}
+        />
       </div>
     </div>
   );
