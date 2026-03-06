@@ -42,13 +42,13 @@ export default function SessionViewerAnnotation({
             disabled={isVoting}
             onClick={onDownVoteClicked}
             className={clsx({
-              "border-purple-700": annotation.markedAs === "DOWN_VOTED",
+              "border-sandpiper-accent": annotation.markedAs === "DOWN_VOTED",
             })}
           >
             <ThumbsDown
               size={10}
               className={clsx({
-                "stroke-purple-700": annotation.markedAs === "DOWN_VOTED",
+                "stroke-sandpiper-accent": annotation.markedAs === "DOWN_VOTED",
               })}
             />
           </Button>
@@ -58,13 +58,13 @@ export default function SessionViewerAnnotation({
             disabled={isVoting}
             onClick={onUpVoteClicked}
             className={clsx({
-              "border-purple-700": annotation.markedAs === "UP_VOTED",
+              "border-sandpiper-accent": annotation.markedAs === "UP_VOTED",
             })}
           >
             <ThumbsUp
               size={10}
               className={clsx({
-                "stroke-purple-700": annotation.markedAs === "UP_VOTED",
+                "stroke-sandpiper-accent": annotation.markedAs === "UP_VOTED",
               })}
             />
           </Button>

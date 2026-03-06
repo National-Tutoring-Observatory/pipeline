@@ -28,12 +28,12 @@ export default function SessionViewerUtterance({
       <div className="flex max-w-3/4 flex-col">
         <div
           id={`session-viewer-utterance-${utterance._id}`}
-          className={clsx("bg-muted scroll-mt-4 rounded-4xl border p-4", {
-            "border-purple-300 bg-purple-100": isSelected,
-            "bg-muted": !isSelected,
-            "rounded-bl-none border-purple-100 bg-purple-50":
-              utterance.role === leadRole,
-            "rounded-br-none border-gray-200": utterance.role !== leadRole,
+          className={clsx("scroll-mt-4 rounded-4xl border p-4", {
+            "border-sandpiper-accent/30 bg-sandpiper-accent/10": isSelected,
+            "bg-sandpiper-elevated rounded-bl-none":
+              !isSelected && utterance.role === leadRole,
+            "border-sandpiper-surface bg-sandpiper-surface rounded-br-none":
+              !isSelected && utterance.role !== leadRole,
           })}
         >
           {utterance.content}
@@ -46,10 +46,10 @@ export default function SessionViewerUtterance({
             <Button
               variant="link"
               size={"sm"}
-              className="decoration-purple-500"
+              className="decoration-sandpiper-accent"
               onClick={() => onUtteranceClicked(utterance._id)}
             >
-              <div className="ml-4 flex items-center text-xs text-purple-500 decoration-purple-500">
+              <div className="text-sandpiper-accent decoration-sandpiper-accent ml-4 flex items-center text-xs">
                 <NotebookPen className="mr-1 size-3" />
                 {utterance.annotations.length} annotation
                 {utterance.annotations.length > 1 ? "s" : ""}

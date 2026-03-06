@@ -38,9 +38,11 @@ export default function RunSetCreatorFormAlerts({
       )}
 
       {Object.keys(errors).length > 0 && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <h3 className="mb-2 text-sm font-semibold text-red-900">Errors</h3>
-          <ul className="space-y-1 text-sm text-red-700">
+        <div className="border-sandpiper-destructive/20 bg-sandpiper-destructive/5 rounded-lg border p-4">
+          <h3 className="text-sandpiper-destructive mb-2 text-sm font-semibold">
+            Errors
+          </h3>
+          <ul className="text-sandpiper-destructive/80 space-y-1 text-sm">
             {Object.entries(errors).map(([field, message]) => (
               <li key={field}>• {message}</li>
             ))}

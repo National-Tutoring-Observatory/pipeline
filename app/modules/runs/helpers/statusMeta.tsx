@@ -28,7 +28,7 @@ export const STATUS_META: Record<
     text: "Failed",
   },
   COMPLETE: {
-    icon: <CircleCheck className="text-green-600 dark:text-green-400" />,
+    icon: <CircleCheck className="text-sandpiper-success" />,
     text: "Complete",
   },
   QUEUED: {

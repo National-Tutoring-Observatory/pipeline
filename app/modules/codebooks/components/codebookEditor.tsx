@@ -86,7 +86,7 @@ export default function CodebookEditor({
           {!isProduction && codebookVersion.hasBeenSaved && (
             <Button
               variant="ghost"
-              className="cursor-pointer hover:text-indigo-600"
+              className="hover:text-sandpiper-accent cursor-pointer"
               onClick={onMakeCodebookVersionProduction}
             >
               <BookCheck />
@@ -96,7 +96,7 @@ export default function CodebookEditor({
           {!codebookVersion.hasBeenSaved && (
             <Button
               variant="ghost"
-              className="cursor-pointer hover:text-indigo-600"
+              className="hover:text-sandpiper-accent cursor-pointer"
               disabled={!hasChanges || isLoading}
               onClick={onSaveClicked}
             >

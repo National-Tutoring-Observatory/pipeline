@@ -76,7 +76,7 @@ export default function Prompt({
               <Button
                 size="icon"
                 variant="ghost"
-                className="size-4 cursor-pointer hover:text-indigo-600"
+                className="hover:text-sandpiper-accent size-4 cursor-pointer"
                 onClick={onCreatePromptVersionClicked}
                 asChild
               >

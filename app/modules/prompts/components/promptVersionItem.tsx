@@ -23,22 +23,27 @@ export default function PromptVersionItem({
   isProduction,
 }: PromptVersionItemProps) {
   const className = clsx("block border-b p-2", {
-    "bg-indigo-50": isSelected,
+    "bg-sandpiper-accent/10": isSelected,
   });
 
   return (
     <Link to={`/prompts/${prompt}/${version}`} replace className={className}>
       <div className="mb-2">
-        <Badge variant="outline" className="bg-white">{`# ${version}`}</Badge>
+        <Badge
+          variant="outline"
+          className="bg-background"
+        >{`# ${version}`}</Badge>
         {isProduction && (
-          <Badge variant="secondary" className="ml-2 bg-indigo-100">
+          <Badge variant="secondary" className="bg-sandpiper-accent/15 ml-2">
             <BookCheck />
             Production
           </Badge>
         )}
       </div>
-      <div className="text-sm text-black/40">{name}</div>
-      <div className="text-xs text-black/40">{getDateString(createdAt)}</div>
+      <div className="text-muted-foreground text-sm">{name}</div>
+      <div className="text-muted-foreground text-xs">
+        {getDateString(createdAt)}
+      </div>
     </Link>
   );
 }

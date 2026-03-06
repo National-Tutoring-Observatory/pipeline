@@ -82,7 +82,7 @@ function ActionBar({
 
       <div
         className={clsx(
-          `sticky top-4 mb-2 flex justify-between rounded-2xl border bg-white p-2 transition-all`,
+          `bg-background sticky top-4 mb-2 flex justify-between rounded-2xl border p-2 transition-all`,
           {
             "-mx-2 shadow": isStuck,
           },
@@ -135,7 +135,7 @@ function ActionBar({
         {isSyncing && (
           <div
             className={clsx(
-              "absolute top-full left-1/2 -translate-x-1/2 rounded-b-md border-x border-b bg-white px-6 pb-1",
+              "bg-background absolute top-full left-1/2 -translate-x-1/2 rounded-b-md border-x border-b px-6 pb-1",
               {
                 shadow: isStuck,
               },

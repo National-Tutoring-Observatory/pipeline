@@ -29,23 +29,23 @@ export default function RunSetRunPreview({
 
   return (
     <div
-      className="sticky top-4 min-w-0 flex-1 self-start overflow-y-auto rounded-lg border bg-slate-50"
+      className="bg-muted sticky top-4 min-w-0 flex-1 self-start overflow-y-auto rounded-lg border"
       style={{ height: "calc(100vh - 144px)" }}
     >
       {hasContent ? (
         <div className="space-y-4">
-          <div className="sticky top-0 rounded-t-lg border-b bg-white px-4 py-4">
+          <div className="bg-background sticky top-0 rounded-t-lg border-b px-4 py-4">
             <h3 className="mb-2 text-sm font-semibold">Run Preview</h3>
             <p className="text-muted-foreground text-xs">
               {runDefinitions.length} run(s) • {sessionsCount} session(s)
               {excludedDefinitions.length > 0 && (
-                <span className="text-gray-500">
+                <span className="text-muted-foreground">
                   {" "}
                   • {excludedDefinitions.length} excluded
                 </span>
               )}
               {duplicateDefinitions.length > 0 && (
-                <span className="text-amber-600">
+                <span className="text-sandpiper-warning">
                   {" "}
                   • {duplicateDefinitions.length} duplicate(s) will be skipped
                 </span>
@@ -56,12 +56,12 @@ export default function RunSetRunPreview({
             {runDefinitions.map((definition) => (
               <div
                 key={definition.key}
-                className="group relative rounded-lg border bg-white p-3 text-sm"
+                className="group bg-background relative rounded-lg border p-3 text-sm"
               >
                 <button
                   type="button"
                   onClick={() => onRemoveCard(definition.key)}
-                  className="absolute top-2 right-2 rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                  className="text-muted-foreground hover:bg-muted hover:text-foreground absolute top-2 right-2 rounded p-0.5"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -74,12 +74,12 @@ export default function RunSetRunPreview({
             {excludedDefinitions.map((definition) => (
               <div
                 key={definition.key}
-                className="group relative rounded-lg border border-dashed border-gray-300 bg-gray-50 p-3 text-sm opacity-50"
+                className="group bg-muted relative rounded-lg border border-dashed p-3 text-sm opacity-50"
               >
                 <button
                   type="button"
                   onClick={() => onRestoreCard(definition.key)}
-                  className="absolute top-2 right-2 rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                  className="text-muted-foreground hover:bg-muted hover:text-foreground absolute top-2 right-2 rounded p-0.5"
                 >
                   <Plus className="h-3.5 w-3.5" />
                 </button>
@@ -92,9 +92,9 @@ export default function RunSetRunPreview({
             {duplicateDefinitions.map((definition) => (
               <div
                 key={definition.key}
-                className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm opacity-60"
+                className="border-sandpiper-warning/20 bg-sandpiper-warning/5 rounded-lg border p-3 text-sm opacity-60"
               >
-                <div className="mb-2 flex items-center gap-1 text-xs text-amber-600">
+                <div className="text-sandpiper-warning mb-2 flex items-center gap-1 text-xs">
                   <AlertTriangle className="h-3 w-3" />
                   Already exists
                 </div>
@@ -108,7 +108,7 @@ export default function RunSetRunPreview({
         </div>
       ) : (
         <div className="sticky top-8 p-8">
-          <Empty className="border border-slate-300">
+          <Empty className="border">
             <EmptyContent>
               <EmptyTitle>Select prompts and models to preview runs</EmptyTitle>
             </EmptyContent>

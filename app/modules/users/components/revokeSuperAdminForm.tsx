@@ -39,22 +39,21 @@ export default function RevokeSuperAdminForm({
       </DialogHeader>
 
       <div className="space-y-4">
-        <div className="rounded bg-red-50 p-3 text-sm dark:bg-red-950">
+        <div className="bg-sandpiper-destructive/5 rounded p-3 text-sm">
           <div>
-            <p className="text-xs text-red-600 dark:text-red-400">User:</p>
+            <p className="text-sandpiper-destructive text-xs">User:</p>
             <p className="mb-2 font-medium">
               {targetUser.username || "Unknown User"}
             </p>
-            <p className="text-xs text-red-600 dark:text-red-400">
-              Current Role:
-            </p>
+            <p className="text-sandpiper-destructive text-xs">Current Role:</p>
             <p className="font-medium">{targetUser.role || "USER"}</p>
           </div>
         </div>
 
         <div>
           <Label htmlFor="reason" className="mb-2 block text-sm">
-            Reason for Revocation <span className="text-red-500">*</span>
+            Reason for Revocation{" "}
+            <span className="text-sandpiper-destructive">*</span>
           </Label>
           <Textarea
             id="reason"
@@ -63,7 +62,7 @@ export default function RevokeSuperAdminForm({
             onChange={onReasonChanged}
             className="min-h-24"
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-muted-foreground mt-1 text-xs">
             This will be recorded in the audit log for security purposes.
           </p>
         </div>

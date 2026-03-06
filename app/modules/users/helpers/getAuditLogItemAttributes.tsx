@@ -16,9 +16,9 @@ export default function getAuditLogItemAttributes(
 ): CollectionItemAttributes {
   const icon =
     audit.action === "ADD_SUPERADMIN" ? (
-      <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+      <CheckCircle2 className="text-sandpiper-success h-4 w-4" />
     ) : audit.action === "REMOVE_SUPERADMIN" ? (
-      <AlertCircle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+      <AlertCircle className="text-sandpiper-warning h-4 w-4" />
     ) : null;
 
   const details = [

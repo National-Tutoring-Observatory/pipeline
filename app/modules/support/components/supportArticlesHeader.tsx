@@ -21,7 +21,7 @@ export default function SupportArticlesHeader({
   onSearchClicked: () => void;
 }) {
   return (
-    <SheetHeader className="sticky top-0 bg-white">
+    <SheetHeader className="bg-background sticky top-0">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <SheetTitle className="flex items-center">
