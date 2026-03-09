@@ -55,7 +55,6 @@
     "@react-router/serve": "^7.5.3",
     "@sesamecare-oss/redlock": "^1.4.0",
     "@socket.io/redis-adapter": "^8.3.0",
-    "@taskforcesh/bullmq-pro": "^7.42.1",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "archiver": "^7.0.1",
@@ -131,5 +130,8 @@
     "vite": "^6.3.3",
     "vite-tsconfig-paths": "^6.0.1",
     "vitest": "^4.0.15"
+  },
+  "optionalDependencies": {
+    "@taskforcesh/bullmq-pro": "^7.42.1"
   }
 }
