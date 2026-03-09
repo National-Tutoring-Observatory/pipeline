@@ -35,7 +35,7 @@ export default function Prompt({
   onDeletePromptButtonClicked,
 }: PromptProps) {
   return (
-    <div className="max-w-6xl p-8">
+    <div className="max-w-7xl p-8">
       <PageHeader>
         <PageHeaderLeft>
           <Breadcrumbs breadcrumbs={breadcrumbs} />
