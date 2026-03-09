@@ -2,9 +2,9 @@ import find from "lodash/find";
 import findIndex from "lodash/findIndex";
 import { useEffect } from "react";
 import { useFetcher, useLocation, useNavigate } from "react-router";
-import type { Run } from "~/modules/runs/runs.types";
+import type { Run, RunSession } from "~/modules/runs/runs.types";
 import SessionViewer from "../components/sessionViewer";
-import type { Session, SessionFile } from "../sessions.types";
+import type { SessionFile } from "../sessions.types";
 
 export default function SessionViewerContainer({
   run,
@@ -12,7 +12,7 @@ export default function SessionViewerContainer({
   sessionFile,
 }: {
   run: Run;
-  session: Session;
+  session: RunSession;
   sessionFile: SessionFile;
 }) {
   const { hash } = useLocation();

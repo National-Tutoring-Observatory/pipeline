@@ -1,12 +1,8 @@
 import { Button } from "@/components/ui/button";
 import map from "lodash/map";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type {
-  Annotation,
-  Session,
-  SessionFile,
-  Utterance,
-} from "../sessions.types";
+import type { RunSession } from "~/modules/runs/runs.types";
+import type { Annotation, SessionFile, Utterance } from "../sessions.types";
 import SessionViewerAnnotation from "./sessionViewerAnnotation";
 import SessionViewerDetails from "./sessionViewerDetails";
 import SessionViewerUtterance from "./sessionViewerUtterance";
@@ -29,7 +25,7 @@ export default function SessionViewer({
   onSaveVotingReason,
   isSavingReason,
 }: {
-  session: Session;
+  session: RunSession;
   sessionFile: SessionFile;
   selectedUtteranceAnnotations: Annotation[];
   selectedUtteranceId: string | null;

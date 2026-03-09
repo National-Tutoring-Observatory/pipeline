@@ -1,5 +1,4 @@
 import fse from "fs-extra";
-import find from "lodash/find";
 import map from "lodash/map";
 import { redirect, useLoaderData, useNavigation } from "react-router";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
@@ -29,13 +28,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!run) {
     return redirect("/");
   }
-  const session = find(run.sessions, (session) => {
-    if (session.sessionId === params.sessionId) {
-      return session;
-    }
-  }) as { name: string };
+  const session = run.sessions.find((s) => s.sessionId === params.sessionId);
+  if (!session) {
+    return redirect("/");
+  }
 
-  const sessionPath = `storage/${params.projectId}/runs/${params.runId}/${params.sessionId}/${session?.name}`;
+  const sessionPath = `storage/${params.projectId}/runs/${params.runId}/${params.sessionId}/${session.name}`;
 
   const storage = getStorageAdapter();
 
