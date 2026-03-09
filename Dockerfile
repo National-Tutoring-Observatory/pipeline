@@ -3,14 +3,18 @@ RUN apk add --no-cache yarn
 COPY ./package.json yarn.lock /app/
 WORKDIR /app
 ENV REDISMS_DISABLE_POSTINSTALL=1
-RUN yarn install --frozen-lockfile
+RUN --mount=type=secret,id=BULLMQ_PRO_TOKEN \
+    BULLMQ_PRO_TOKEN="$(cat /run/secrets/BULLMQ_PRO_TOKEN 2>/dev/null || true)" \
+    yarn install --frozen-lockfile && rm -f .npmrc
 
 FROM node:25-alpine AS production-dependencies-env
 RUN apk add --no-cache yarn
 COPY ./package.json yarn.lock /app/
 WORKDIR /app
 ENV REDISMS_DISABLE_POSTINSTALL=1
-RUN yarn install --frozen-lockfile --production
+RUN --mount=type=secret,id=BULLMQ_PRO_TOKEN \
+    BULLMQ_PRO_TOKEN="$(cat /run/secrets/BULLMQ_PRO_TOKEN 2>/dev/null || true)" \
+    yarn install --frozen-lockfile --production && rm -f .npmrc
 
 FROM node:25-alpine AS build-env
 RUN apk add --no-cache yarn

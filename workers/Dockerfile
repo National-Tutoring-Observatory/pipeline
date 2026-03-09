@@ -4,7 +4,9 @@ COPY package.json yarn.lock global-bundle.pem tsconfig.json /app/
 COPY workers/package.json /app/workers/
 WORKDIR /app
 ENV REDISMS_DISABLE_POSTINSTALL=1
-RUN yarn install --frozen-lockfile --production
+RUN --mount=type=secret,id=BULLMQ_PRO_TOKEN \
+    BULLMQ_PRO_TOKEN="$(cat /run/secrets/BULLMQ_PRO_TOKEN 2>/dev/null || true)" \
+    yarn install --frozen-lockfile --production && rm -f .npmrc
 COPY ./workers ./workers
 COPY ./app ./app
 RUN node ./app/adapters.js
