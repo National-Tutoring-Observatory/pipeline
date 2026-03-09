@@ -1,8 +1,4 @@
-import {
-  PageHeader,
-  PageHeaderLeft,
-  PageHeaderRight,
-} from "@/components/ui/pageHeader";
+import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import { Spinner } from "@/components/ui/spinner";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
@@ -18,7 +14,6 @@ export default function RunSessions({
   breadcrumbs,
   runLink,
   currentSessionId,
-  doneSessionsCount,
   paginatedSessions,
   sidebarSearchValue,
   sidebarCurrentPage,
@@ -33,7 +28,6 @@ export default function RunSessions({
   breadcrumbs: Breadcrumb[];
   runLink: string;
   currentSessionId: string;
-  doneSessionsCount: number;
   paginatedSessions: { data: RunSession[]; count: number; totalPages: number };
   sidebarSearchValue: string;
   sidebarCurrentPage: number;
@@ -48,11 +42,6 @@ export default function RunSessions({
         <PageHeaderLeft>
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
-        <PageHeaderRight>
-          <span className="text-sm">
-            {doneSessionsCount} of {run.sessions.length} done
-          </span>
-        </PageHeaderRight>
       </PageHeader>
       <div className="flex h-[calc(100vh-140px)] rounded-md border">
         <SessionListSidebar
