@@ -30,7 +30,7 @@ console.log("[postinstall] Installing @taskforcesh/bullmq-pro...");
 
 try {
   execSync(
-    "npm install --no-save --legacy-peer-deps @taskforcesh/bullmq-pro@^7.42.1",
+    "npm install --no-save --no-package-lock --legacy-peer-deps @taskforcesh/bullmq-pro@^7.42.1",
     { stdio: "inherit" },
   );
 } catch {
