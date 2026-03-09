@@ -1,8 +1,8 @@
 import getDateString from "~/modules/app/helpers/getDateString";
-import type { Session } from "../sessions.types";
+import type { RunSession } from "~/modules/runs/runs.types";
 
 interface SessionViewerDetailsProps {
-  session: Session;
+  session: RunSession;
   utteranceCount: number;
   annotatedUtteranceCount: number;
 }

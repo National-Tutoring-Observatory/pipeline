@@ -5,7 +5,7 @@ import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
 import SessionListSidebar from "~/modules/sessions/components/sessionListSidebar";
 import SessionViewerContainer from "~/modules/sessions/containers/sessionViewerContainer";
-import type { Session, SessionFile } from "~/modules/sessions/sessions.types";
+import type { SessionFile } from "~/modules/sessions/sessions.types";
 
 export default function RunSessions({
   run,
@@ -24,7 +24,7 @@ export default function RunSessions({
 }: {
   run: Run;
   sessionFile: SessionFile;
-  session: Session;
+  session: RunSession;
   breadcrumbs: Breadcrumb[];
   runLink: string;
   currentSessionId: string;
