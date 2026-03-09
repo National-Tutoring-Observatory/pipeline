@@ -33,7 +33,7 @@ export default function RunSetEvaluations({
   onActionClicked: (action: string) => void;
 }) {
   return (
-    <div className="max-w-6xl">
+    <div className="max-w-7xl">
       <CollectionUI
         items={evaluations}
         itemsLayout="list"

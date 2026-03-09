@@ -26,7 +26,7 @@ export default function EvaluationCreateRunsSelector({
   onAnnotationFieldToggled: (fieldKey: string) => void;
 }) {
   return (
-    <div className="max-w-6xl">
+    <div className="max-w-7xl">
       <div className="space-y-2">
         <Label>Select your runs for evaluation</Label>
 
