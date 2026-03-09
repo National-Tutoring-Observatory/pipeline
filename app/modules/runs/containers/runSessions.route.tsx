@@ -1,5 +1,4 @@
 import fse from "fs-extra";
-import filter from "lodash/filter";
 import find from "lodash/find";
 import map from "lodash/map";
 import { redirect, useLoaderData, useNavigation } from "react-router";
@@ -59,8 +58,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filters: sidebarQueryParams.filters,
   });
 
-  const doneSessionsCount = filter(run.sessions, { status: "DONE" }).length;
-
   return {
     project,
     run,
@@ -68,22 +65,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     sessionFile,
     runSet,
     paginatedSessions,
-    doneSessionsCount,
   };
 }
 
 export default function ProjectRunSessionsRoute({
   params,
 }: Route.ComponentProps) {
-  const {
-    project,
-    run,
-    sessionFile,
-    session,
-    runSet,
-    paginatedSessions,
-    doneSessionsCount,
-  } = useLoaderData();
+  const { project, run, sessionFile, session, runSet, paginatedSessions } =
+    useLoaderData();
 
   const parentBreadcrumbs = runSet
     ? [
@@ -151,7 +140,6 @@ export default function ProjectRunSessionsRoute({
       breadcrumbs={breadcrumbs}
       runLink={runLink}
       currentSessionId={params.sessionId}
-      doneSessionsCount={doneSessionsCount}
       paginatedSessions={paginatedSessions}
       sidebarSearchValue={sidebarSearchValue}
       sidebarCurrentPage={sidebarCurrentPage}

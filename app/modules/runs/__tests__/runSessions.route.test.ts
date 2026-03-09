@@ -198,7 +198,7 @@ describe("runSessions.route loader", () => {
     expect(loaderData.run.data).toBeUndefined();
   });
 
-  it("returns paginatedSessions and doneSessionsCount", async () => {
+  it("returns paginatedSessions", async () => {
     const user = await UserService.create({ username: "test_user", teams: [] });
     const team = await TeamService.create({ name: "Test Team" });
     await UserService.updateById(user._id, {
@@ -266,7 +266,6 @@ describe("runSessions.route loader", () => {
 
     expect(res).not.toBeInstanceOf(Response);
     const loaderData = res as any;
-    expect(loaderData.doneSessionsCount).toBe(2);
     expect(loaderData.paginatedSessions).toBeDefined();
     expect(loaderData.paginatedSessions.data).toHaveLength(3);
     expect(loaderData.paginatedSessions.totalPages).toBe(1);
