@@ -8,8 +8,12 @@ export default defineConfig(({ isSsrBuild }) => ({
     rollupOptions: isSsrBuild
       ? {
           input: "./app/app.ts",
+          external: ["@taskforcesh/bullmq-pro"],
         }
       : undefined,
+  },
+  ssr: {
+    external: ["@taskforcesh/bullmq-pro"],
   },
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
 }));

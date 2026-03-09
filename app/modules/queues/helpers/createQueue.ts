@@ -10,9 +10,15 @@ let isProInitialized = false;
 async function initPro() {
   if (isProInitialized || !isProAvailable) return;
   isProInitialized = true;
-  const pro = await import("@taskforcesh/bullmq-pro");
-  FlowProducerClass = pro.FlowProducerPro as unknown as typeof FlowProducer;
-  QueueProClass = pro.QueuePro as unknown as typeof Queue;
+  try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - bullmq-pro is conditionally installed
+    const pro = await import("@taskforcesh/bullmq-pro");
+    FlowProducerClass = pro.FlowProducerPro as unknown as typeof FlowProducer;
+    QueueProClass = pro.QueuePro as unknown as typeof Queue;
+  } catch {
+    console.warn("[queues] BullMQ Pro not installed, falling back to BullMQ");
+  }
 }
 
 export const QUEUES: Record<string, Queue | any> = {};

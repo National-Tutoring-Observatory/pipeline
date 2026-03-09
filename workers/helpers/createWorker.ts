@@ -35,12 +35,21 @@ export default async (
 
   let worker: Worker;
   if (isProWorker) {
-    const { WorkerPro } = await import("@taskforcesh/bullmq-pro");
-    worker = new WorkerPro(name, file, {
-      ...baseOpts,
-      connection: redis as any,
-      group: { concurrency: 50 },
-    }) as unknown as Worker;
+    try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore - bullmq-pro is conditionally installed
+      const { WorkerPro } = await import("@taskforcesh/bullmq-pro");
+      worker = new WorkerPro(name, file, {
+        ...baseOpts,
+        connection: redis as any,
+        group: { concurrency: 50 },
+      }) as unknown as Worker;
+    } catch {
+      console.warn(
+        `[${name}] BullMQ Pro not installed, falling back to BullMQ`,
+      );
+      worker = new Worker(name, file, baseOpts);
+    }
   } else {
     worker = new Worker(name, file, baseOpts);
   }
