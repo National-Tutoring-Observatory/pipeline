@@ -4,7 +4,10 @@ import type { Redis } from "ioredis";
 
 export const WORKERS: Record<string, { worker: Worker; redis: Redis }> = {};
 
-export default async ({ name }: { name: string }, file: string) => {
+export default async (
+  { name, isGrouped }: { name: string; isGrouped?: boolean },
+  file: string,
+) => {
   const redis = getRedisInstance({ maxRetriesPerRequest: null });
 
   redis.on("connect", () => console.log(`[${name}] Redis connected`));
@@ -17,16 +20,30 @@ export default async ({ name }: { name: string }, file: string) => {
     console.error(`[${name}] Redis error:`, err.message),
   );
 
-  const worker = new Worker(name, file, {
+  const isProWorker = isGrouped && !!process.env.BULLMQ_PRO_TOKEN;
+
+  const baseOpts = {
     connection: redis,
-    concurrency: 5,
+    concurrency: isProWorker ? 50 : 5,
     metrics: {
       maxDataPoints: MetricsTime.ONE_WEEK * 2,
     },
     useWorkerThreads: false,
     // Increase lock duration given how long some scripts can take - set to 5 mins.
     lockDuration: 300000,
-  });
+  };
+
+  let worker: Worker;
+  if (isProWorker) {
+    const { WorkerPro } = await import("@taskforcesh/bullmq-pro");
+    worker = new WorkerPro(name, file, {
+      ...baseOpts,
+      connection: redis as any,
+      group: { concurrency: 50 },
+    }) as unknown as Worker;
+  } else {
+    worker = new Worker(name, file, baseOpts);
+  }
 
   worker.on("active", (job: Job) => {
     console.log("Job started", job.name);

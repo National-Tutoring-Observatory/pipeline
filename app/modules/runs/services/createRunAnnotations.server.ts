@@ -56,19 +56,23 @@ export default async function createRunAnnotations(run: Run) {
     if (!sessionModel) {
       throw new Error(`Session not found: ${session.sessionId}`);
     }
-    taskSequencer.addTask("PROCESS", {
-      annotationType,
-      projectId: run.project,
-      runId: run._id,
-      sessionId: session.sessionId,
-      inputFile: `${inputFolder}/${sessionModel._id}/${sessionModel.name}`,
-      outputFolder: `${outputFolder}/${sessionModel._id}`,
-      prompt: { prompt: userPrompt, annotationSchema },
-      model: getRunModelCode(run),
-      team: project.team,
-      currentSessionIndex,
-      shouldRunVerification: !!run.shouldRunVerification,
-    });
+    taskSequencer.addTask(
+      "PROCESS",
+      {
+        annotationType,
+        projectId: run.project,
+        runId: run._id,
+        sessionId: session.sessionId,
+        inputFile: `${inputFolder}/${sessionModel._id}/${sessionModel.name}`,
+        outputFolder: `${outputFolder}/${sessionModel._id}`,
+        prompt: { prompt: userPrompt, annotationSchema },
+        model: getRunModelCode(run),
+        team: project.team,
+        currentSessionIndex,
+        shouldRunVerification: !!run.shouldRunVerification,
+      },
+      { group: { id: String(project.team) } },
+    );
   }
 
   taskSequencer.addTask("FINISH", {

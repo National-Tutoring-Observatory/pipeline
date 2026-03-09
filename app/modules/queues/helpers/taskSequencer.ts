@@ -3,9 +3,14 @@ import find from "lodash/find.js";
 import createTaskJob from "./createTaskJob";
 
 type Action = "START" | "FINISH" | "PROCESS";
+type TaskOptions = {
+  group?: { id: string };
+};
+
 type Task = {
   action: Action;
   data: any;
+  group?: { id: string };
 };
 
 export default class TaskSequencer {
@@ -16,14 +21,14 @@ export default class TaskSequencer {
     this.name = name;
   }
 
-  addTask = (action: Action, data: any) => {
+  addTask = (action: Action, data: any, options?: TaskOptions) => {
     if (action === "START") {
       const hasStartJob = !!find(this.tasks, { action: "START" });
       if (hasStartJob) {
         console.warn("START job has already been added");
         return;
       }
-      this.tasks.push({ action, data });
+      this.tasks.push({ action, data, group: options?.group });
       return;
     }
 
@@ -33,7 +38,7 @@ export default class TaskSequencer {
         console.warn("FINISH job has already been added");
         return;
       }
-      this.tasks.push({ action, data });
+      this.tasks.push({ action, data, group: options?.group });
       return;
     }
 
@@ -42,7 +47,7 @@ export default class TaskSequencer {
       return;
     }
 
-    this.tasks.push({ action, data });
+    this.tasks.push({ action, data, group: options?.group });
   };
 
   run = async () => {
@@ -73,6 +78,7 @@ export default class TaskSequencer {
       childrenJobs.push({
         name: `${this.name}:PROCESS`,
         data: processTask.data,
+        group: processTask.group,
       });
     }
 

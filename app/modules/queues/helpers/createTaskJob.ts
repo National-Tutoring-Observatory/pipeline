@@ -1,10 +1,11 @@
 import map from "lodash/map.js";
-import { flowProducer } from "./createQueue";
+import { getFlowProducer } from "./createQueue";
 import getQueue from "./getQueue";
 
 interface ChildJob {
   name: string;
   data: any;
+  group?: { id: string };
 }
 
 export default async ({
@@ -46,6 +47,7 @@ export default async ({
               type: "exponential",
               delay: 1000,
             },
+            ...(child.group && { group: child.group }),
           },
           data: {
             ...child.data,
@@ -57,7 +59,7 @@ export default async ({
         };
       }),
     };
-    const flowTree = await flowProducer.add(flow);
+    const flowTree = await getFlowProducer().add(flow);
     return flowTree.job;
   }
 

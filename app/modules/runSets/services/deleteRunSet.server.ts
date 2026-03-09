@@ -1,4 +1,4 @@
-import { flowProducer } from "~/modules/queues/helpers/createQueue";
+import { getFlowProducer } from "~/modules/queues/helpers/createQueue";
 import { RunSetService } from "~/modules/runSets/runSet";
 
 export default async function deleteRunSet({ runSetId }: { runSetId: string }) {
@@ -11,7 +11,7 @@ export default async function deleteRunSet({ runSetId }: { runSetId: string }) {
   await RunSetService.deleteById(runSetId);
 
   try {
-    await flowProducer.add({
+    await getFlowProducer().add({
       name: "DELETE_RUN_SET:DATA",
       queueName: "general",
       opts: { attempts: 3 },
