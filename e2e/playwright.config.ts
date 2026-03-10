@@ -10,10 +10,12 @@ const browserConfig = browserExecutablePath
         executablePath: browserExecutablePath,
       },
     }
-  : {
-      ...devices["Desktop Chrome"],
-      channel: "chrome",
-    };
+  : process.env.CI
+    ? { ...devices["Desktop Chrome"] }
+    : {
+        ...devices["Desktop Chrome"],
+        channel: "chrome",
+      };
 
 export default defineConfig({
   testDir: "./",
