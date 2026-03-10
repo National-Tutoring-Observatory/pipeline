@@ -63,7 +63,7 @@ export const handler = async (event: {
 
       const sessionObject: { _id: any; [key: string]: any } = {
         _id: session.sessionId,
-        session_id: json.transcript[0]?.session_id,
+        session_id: json.session_id || json.transcript[0]?.session_id,
       };
 
       if (json.annotations) {

@@ -38,6 +38,7 @@ export const handler = async (event: {
       if (isBaseRun) {
         const sessionObject: any = {
           _id: session.sessionId,
+          session_id: json.session_id || json.transcript[0]?.session_id,
           transcript: map(json.transcript, (utterance) => {
             const cleanUtterance = { ...utterance };
             delete cleanUtterance.annotations;

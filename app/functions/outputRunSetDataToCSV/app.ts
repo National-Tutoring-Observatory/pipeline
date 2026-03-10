@@ -60,7 +60,7 @@ export const handler = async (event: {
 
         sessionsArray.push({
           _id: session.sessionId,
-          session_id: json.transcript[0]?.session_id,
+          session_id: json.session_id || json.transcript[0]?.session_id,
         });
       }
 
