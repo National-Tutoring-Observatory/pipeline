@@ -24,7 +24,7 @@ test.describe("Projects", () => {
     await expect(page.getByText("Files").first()).toBeVisible();
     await expect(page.getByText("Sessions").first()).toBeVisible();
     await expect(page.getByText("Runs").first()).toBeVisible();
-    await expect(page.getByText("Collections").first()).toBeVisible();
+    await expect(page.getByText("Run Sets").first()).toBeVisible();
   });
 
   test("should show project edit and delete buttons", async ({ page }) => {
