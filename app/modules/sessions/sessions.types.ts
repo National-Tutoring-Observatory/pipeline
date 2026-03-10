@@ -38,4 +38,6 @@ export interface Utterance {
 export interface Annotation {
   _id: string;
   identifiedBy: string;
+  markedAs?: "UP_VOTED" | "DOWN_VOTED";
+  votingReason?: string;
 }

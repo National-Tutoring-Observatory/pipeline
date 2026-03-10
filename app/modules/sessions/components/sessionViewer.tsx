@@ -26,12 +26,15 @@ export default function SessionViewer({
   onJumpToFirstAnnotation,
   onDownVoteClicked,
   onUpVoteClicked,
+  onSaveVotingReason,
+  isSavingReason,
 }: {
   session: Session;
   sessionFile: SessionFile;
   selectedUtteranceAnnotations: Annotation[];
   selectedUtteranceId: string | null;
   isVoting: boolean;
+  isSavingReason: boolean;
   utteranceCount: number;
   selectedUtteranceIndex: number | null;
   annotatedUtteranceCount: number;
@@ -41,6 +44,11 @@ export default function SessionViewer({
   onJumpToFirstAnnotation: () => void;
   onDownVoteClicked: (utteranceId: string, annotationIndex: number) => void;
   onUpVoteClicked: (utteranceId: string, annotationIndex: number) => void;
+  onSaveVotingReason: (
+    utteranceId: string,
+    annotationIndex: number,
+    reason: string,
+  ) => void;
 }) {
   const hasSelectedAnnotation = selectedUtteranceIndex !== null;
 
@@ -79,14 +87,18 @@ export default function SessionViewer({
               {map(sessionFile.annotations, (annotation, index) => {
                 return (
                   <SessionViewerAnnotation
-                    key={`${annotation._id}-${index}`}
+                    key={`${annotation._id}-${index}-${annotation.votingReason || ""}`}
                     annotation={annotation}
                     isVoting={isVoting}
+                    isSavingReason={isSavingReason}
                     onDownVoteClicked={() =>
                       onDownVoteClicked(annotation._id, index)
                     }
                     onUpVoteClicked={() =>
                       onUpVoteClicked(annotation._id, index)
+                    }
+                    onSaveVotingReason={(reason) =>
+                      onSaveVotingReason(annotation._id, index, reason)
                     }
                   />
                 );
@@ -147,14 +159,18 @@ export default function SessionViewer({
               {map(selectedUtteranceAnnotations, (annotation, index) => {
                 return (
                   <SessionViewerAnnotation
-                    key={`${annotation._id}-${index}`}
+                    key={`${annotation._id}-${index}-${annotation.votingReason || ""}`}
                     annotation={annotation}
                     isVoting={isVoting}
+                    isSavingReason={isSavingReason}
                     onDownVoteClicked={() =>
                       onDownVoteClicked(annotation._id, index)
                     }
                     onUpVoteClicked={() =>
                       onUpVoteClicked(annotation._id, index)
+                    }
+                    onSaveVotingReason={(reason) =>
+                      onSaveVotingReason(annotation._id, index, reason)
                     }
                   />
                 );

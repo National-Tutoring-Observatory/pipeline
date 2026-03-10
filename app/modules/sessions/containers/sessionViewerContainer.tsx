@@ -90,7 +90,25 @@ export default function SessionViewerContainer({
     );
   };
 
+  const reasonFetcher = useFetcher();
+
+  const onSaveVotingReason = (
+    utteranceId: string,
+    annotationIndex: number,
+    reason: string,
+  ) => {
+    reasonFetcher.submit(
+      { votingReason: reason },
+      {
+        action: `/api/annotations/${run._id}/${session.sessionId}/${utteranceId}/${annotationIndex}`,
+        method: "post",
+        encType: "application/json",
+      },
+    );
+  };
+
   const isVoting = fetcher.state !== "idle";
+  const isSavingReason = reasonFetcher.state !== "idle";
 
   useEffect(() => {
     if (selectedUtteranceId) {
@@ -141,6 +159,8 @@ export default function SessionViewerContainer({
       onJumpToFirstAnnotation={onJumpToFirstAnnotation}
       onDownVoteClicked={onDownVoteClicked}
       onUpVoteClicked={onUpVoteClicked}
+      onSaveVotingReason={onSaveVotingReason}
+      isSavingReason={isSavingReason}
     />
   );
 }
