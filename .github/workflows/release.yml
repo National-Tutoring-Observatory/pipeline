@@ -48,7 +48,7 @@ jobs:
     needs:
       - resolve
       - preflight-production
-    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
+    uses: ./.github/workflows/ecs_build_image.yml
     with:
       environment: production
       aws-region: us-east-1
@@ -58,12 +58,13 @@ jobs:
       tag: ${{ needs.resolve.outputs.version }}
     secrets:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      BULLMQ_PRO_TOKEN: ${{ secrets.BULLMQ_PRO_TOKEN }}
   build-worker:
     name: Build Worker Image
     needs:
       - resolve
       - preflight-production
-    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
+    uses: ./.github/workflows/ecs_build_image.yml
     with:
       environment: production
       aws-region: us-east-1
@@ -73,6 +74,7 @@ jobs:
       tag: ${{ needs.resolve.outputs.version }}
     secrets:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      BULLMQ_PRO_TOKEN: ${{ secrets.BULLMQ_PRO_TOKEN }}
   deploy-web:
     name: Deploy Web Service
     needs: build-web

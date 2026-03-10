@@ -1,5 +1,5 @@
 import { ProjectService } from "~/modules/projects/project";
-import { flowProducer } from "~/modules/queues/helpers/createQueue";
+import { getFlowProducer } from "~/modules/queues/helpers/createQueue";
 
 export default async function deleteProject({
   projectId,
@@ -40,7 +40,7 @@ export default async function deleteProject({
       ],
     } as any;
 
-    await flowProducer.add(flow);
+    await getFlowProducer().add(flow);
   } catch (error) {
     console.error("[deleteProject] failed to enqueue deletion flow", error);
   }

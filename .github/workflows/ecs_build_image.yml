@@ -1,0 +1,129 @@
+name: ECS Build Image
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "GitHub environment name (e.g. staging|production)"
+        required: true
+        type: string
+
+      aws-region:
+        description: "AWS region"
+        required: false
+        type: string
+        default: us-east-1
+
+      dockerfile:
+        description: "Path to Dockerfile"
+        required: false
+        type: string
+        default: Dockerfile
+
+      image-suffix:
+        description: "Optional suffix for image tag (e.g. -worker)"
+        required: false
+        type: string
+        default: ""
+
+      output-name:
+        description: "Name of the output image variable"
+        required: true
+        type: string
+
+      tag:
+        description: "Optional image tag (defaults to short commit SHA)"
+        required: false
+        type: string
+
+      build-args:
+        description: "Docker build arguments (newline-separated KEY=VALUE pairs)"
+        required: false
+        type: string
+        default: ""
+
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
+      BULLMQ_PRO_TOKEN:
+        required: false
+
+    outputs:
+      image:
+        description: "Fully qualified image URI"
+        value: ${{ jobs.build.outputs.image }}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    name: Build & Push Image (${{ inputs.output-name }})
+    runs-on: ubuntu-latest
+
+    environment: ${{ inputs.environment }}
+
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Derive image tag
+        id: tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -n "${{ inputs.tag }}" ]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push image
+        id: image
+        shell: bash
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+          BULLMQ_PRO_TOKEN: ${{ secrets.BULLMQ_PRO_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          test -n "${{ vars.ECR_REPOSITORY }}" || { echo "ECR_REPOSITORY is not set"; exit 1; }
+
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI="$ACCOUNT_ID.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}"
+
+          IMAGE_TAG="$TAG${{ inputs.image-suffix }}"
+
+          BUILD_ARGS=""
+          if [ -n "${{ inputs.build-args }}" ]; then
+            while IFS= read -r arg; do
+              [ -n "$arg" ] && BUILD_ARGS="$BUILD_ARGS --build-arg $arg"
+            done <<< "${{ inputs.build-args }}"
+          fi
+
+          DOCKER_BUILDKIT=1 docker build \
+            $BUILD_ARGS \
+            --secret id=BULLMQ_PRO_TOKEN,env=BULLMQ_PRO_TOKEN \
+            -f "${{ inputs.dockerfile }}" \
+            -t "${{ vars.ECR_REPOSITORY }}:$IMAGE_TAG" .
+
+          docker tag \
+            "${{ vars.ECR_REPOSITORY }}:$IMAGE_TAG" \
+            "$ECR_URI:$IMAGE_TAG"
+
+          docker push "$ECR_URI:$IMAGE_TAG"
+
+          echo "image=$ECR_URI:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
