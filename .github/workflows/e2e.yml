@@ -73,9 +73,6 @@ jobs:
           done
           echo "services failed to start" && exit 1
 
-      - name: Seed database
-        run: yarn seeds
-
       - name: Build app
         run: yarn app:build
         env:
@@ -97,6 +94,9 @@ jobs:
             sleep 2
           done
           echo "app failed to start" && exit 1
+
+      - name: Seed database
+        run: yarn seeds
 
       - name: Run e2e tests
         run: yarn test:e2e
