@@ -172,20 +172,13 @@ test.describe("Prompts", () => {
   });
 
   test("should edit prompt title from list page", async ({ page }) => {
-    const timestamp = Date.now();
-    const editedName = `E2E Edited Prompt ${timestamp}`;
-
     await page.goto("/prompts");
 
-    const promptLink = page
-      .getByRole("link")
+    const promptItem = page
+      .locator('[data-slot="item"]')
       .filter({ hasText: "E2E Test Prompt" })
-      .and(page.getByRole("link").filter({ hasText: "Open menu" }))
       .first();
-    const openMenuButton = promptLink.getByRole("button", {
-      name: "Open menu",
-    });
-    await openMenuButton.click();
+    await promptItem.getByRole("button", { name: "Open menu" }).click();
 
     await page.getByRole("menuitem", { name: "Edit" }).click();
 
@@ -193,30 +186,14 @@ test.describe("Prompts", () => {
       page.getByRole("dialog", { name: "Edit prompt" }),
     ).toBeVisible();
 
-    await page.getByRole("textbox", { name: "Name" }).fill(editedName);
+    const nameInput = page.getByRole("textbox", { name: "Name" });
+    const originalName = await nameInput.inputValue();
+    await nameInput.fill(`${originalName} (edited)`);
 
     await page.getByRole("button", { name: "Save prompt" }).click();
 
-    await expect(page.getByText(editedName)).toBeVisible();
     await expect(page.getByText("Prompt updated")).toBeVisible();
-
-    const editedPromptLink = page
-      .getByRole("link")
-      .filter({ hasText: editedName })
-      .and(page.getByRole("link").filter({ hasText: "Open menu" }))
-      .first();
-    const editedOpenMenuButton = editedPromptLink.getByRole("button", {
-      name: "Open menu",
-    });
-    await editedOpenMenuButton.click();
-    await page.getByRole("menuitem", { name: "Edit" }).click();
-    await page
-      .getByRole("textbox", { name: "Name" })
-      .fill(`E2E Test Prompt ${timestamp}`);
-    await page.getByRole("button", { name: "Save prompt" }).click();
-
-    await expect(page.getByText(`E2E Test Prompt ${timestamp}`)).toBeVisible();
-    await expect(page.getByText("Prompt updated").first()).toBeVisible();
+    await expect(page.getByText(`${originalName} (edited)`)).toBeVisible();
   });
 
   test("should edit prompt title from detail page", async ({ page }) => {

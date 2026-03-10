@@ -12,7 +12,7 @@ End-to-end tests for the NTO Pipeline application using Playwright.
 
 **Note:** The test suite includes tests that **create real data**:
 
-- **Collections test** creates "E2E Test Collection" with runs
+- **Run Sets test** creates "E2E Test Run Set" with runs
 - **Runs test** creates "E2E Test Run"
 
 These tests will create actual data in your database.
@@ -68,11 +68,11 @@ yarn test:headed
 - Create project dialog and validation
 - Breadcrumb navigation
 
-### Collections (`collections.spec.ts`)
+### Run Sets (`runSets.spec.ts`)
 
-- **Create a new collection** (creates real data)
-- Display collections list
-- Navigate to collection detail
+- **Create a new run set** (creates real data)
+- Display run sets list
+- Navigate to run set detail
 - CSV and JSONL download options
 - Display sessions and runs
 - Breadcrumb navigation

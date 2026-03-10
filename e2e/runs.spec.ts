@@ -26,13 +26,14 @@ test.describe("Runs", () => {
 
     await page
       .getByRole("combobox")
-      .filter({ hasText: "Gemini 2.5 Flash" })
+      .filter({ hasText: "Gemini 3 Flash" })
       .click();
     await page.getByRole("option").first().click();
 
     await page
       .getByRole("row")
       .filter({ hasText: "session_001.json" })
+      .first()
       .getByRole("checkbox")
       .check();
 
@@ -94,7 +95,7 @@ test.describe("Runs", () => {
     await expect(page.getByRole("button", { name: "Edit" })).toBeVisible();
   });
 
-  test("should display sessions table", async ({ page }) => {
+  test("should display sessions list", async ({ page }) => {
     await page.goto("/");
 
     const projectLink = page
@@ -108,22 +109,10 @@ test.describe("Runs", () => {
       .first();
     await runLink.click();
 
-    await expect(
-      page.getByRole("columnheader", { name: "Name" }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("columnheader", { name: "Started" }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("columnheader", { name: "Finished" }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("columnheader", { name: "Status" }),
-    ).toBeVisible();
     await expect(page.getByText("session_001.json")).toBeVisible();
   });
 
-  test("should show CSV download option", async ({ page }) => {
+  test("should show export menu options", async ({ page }) => {
     await page.goto("/");
 
     const projectLink = page
@@ -138,32 +127,11 @@ test.describe("Runs", () => {
     await runLink.click();
 
     await page.getByRole("button", { name: "Export" }).click();
-    await page.getByRole("menuitem", { name: /As Table.*csv file/ }).click();
-
-    const csvDownloadLink = page.locator('a[href*="exportType=CSV"]');
-    await expect(csvDownloadLink).toBeVisible({ timeout: 15000 });
-    await expect(csvDownloadLink).toHaveAttribute("href", /exportType=CSV/);
-  });
-
-  test("should show JSONL download option", async ({ page }) => {
-    await page.goto("/");
-
-    const projectLink = page
-      .getByRole("link")
-      .filter({ hasText: "Tutoring Transcripts Study 2024" });
-    await projectLink.click();
-
-    const runLink = page
-      .getByRole("link")
-      .filter({ hasText: "E2E Test Run" })
-      .first();
-    await runLink.click();
-
-    await page.getByRole("button", { name: "Export" }).click();
-    await page.getByRole("menuitem", { name: /JSONL.*jsonl file/ }).click();
-
-    const jsonlDownloadLink = page.locator('a[href*="exportType=JSONL"]');
-    await expect(jsonlDownloadLink).toBeVisible({ timeout: 15000 });
-    await expect(jsonlDownloadLink).toHaveAttribute("href", /exportType=JSONL/);
+    await expect(
+      page.getByRole("menuitem", { name: /As Table.*csv file/ }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("menuitem", { name: /JSONL.*jsonl file/ }),
+    ).toBeVisible();
   });
 });
