@@ -52,6 +52,7 @@ export default async function convertFileToSession(job: any) {
         };
       });
       const json = {
+        session_id: jsonFile[0]?.session_id,
         transcript,
         leadRole: attributesMapping.leadRole,
         annotations: [],
