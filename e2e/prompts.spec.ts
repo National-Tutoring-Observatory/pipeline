@@ -140,29 +140,22 @@ test.describe("Prompts", () => {
     await promptLink.click();
 
     await expect(page).toHaveURL(/\/prompts\/[a-f0-9]+\/\d+$/);
-    await page.waitForLoadState("networkidle");
+    await expect(page.getByText("Versions")).toBeVisible();
 
     const beforeUrl = page.url();
     const beforeVersion = parseInt(beforeUrl.split("/").pop() || "1");
 
     await expect(page.getByText(`# ${beforeVersion}`).first()).toBeVisible();
-    await expect(page.getByText("Versions")).toBeVisible();
 
-    // Find the Versions section and click the CirclePlus icon
-    const versionsSection = page
+    const versionsHeader = page
       .locator(".border-b")
       .filter({ hasText: "Versions" });
-    const createVersionIcon = versionsSection.locator("svg").last();
-    await createVersionIcon.click();
+    await versionsHeader.locator("svg").click();
 
-    // Wait for navigation to new version (may take time for backend to create)
-    await page.waitForURL(
-      (url) => {
-        const newVersion = parseInt(url.pathname.split("/").pop() || "0");
-        return newVersion > beforeVersion;
-      },
-      { timeout: 15000 },
-    );
+    await page.waitForURL((url) => {
+      const newVersion = parseInt(url.pathname.split("/").pop() || "0");
+      return newVersion > beforeVersion;
+    });
 
     const afterUrl = page.url();
     const afterVersion = parseInt(afterUrl.split("/").pop() || "1");
