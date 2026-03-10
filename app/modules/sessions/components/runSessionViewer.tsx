@@ -3,8 +3,8 @@ import map from "lodash/map";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { RunSession } from "~/modules/runs/runs.types";
 import type { Annotation, SessionFile, Utterance } from "../sessions.types";
-import SessionViewerAnnotation from "./sessionViewerAnnotation";
-import SessionViewerDetails from "./sessionViewerDetails";
+import SessionViewerAnnotation from "./runSessionViewerAnnotation";
+import SessionViewerDetails from "./runSessionViewerDetails";
 import SessionViewerUtterance from "./sessionViewerUtterance";
 
 export default function SessionViewer({

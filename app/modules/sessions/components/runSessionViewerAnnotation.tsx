@@ -6,7 +6,7 @@ import map from "lodash/map";
 import { Check, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useState } from "react";
 import type { Annotation } from "../sessions.types";
-import SessionViewerAnnotationValue from "./sessionViewerAnnotationValue";
+import SessionViewerAnnotationValue from "./runSessionViewerAnnotationValue";
 
 const HIDDEN_ANNOTATION_KEYS = new Set([
   "_id",

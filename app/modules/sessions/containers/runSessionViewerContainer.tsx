@@ -3,10 +3,10 @@ import findIndex from "lodash/findIndex";
 import { useEffect } from "react";
 import { useFetcher, useLocation, useNavigate } from "react-router";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
-import SessionViewer from "../components/sessionViewer";
+import RunSessionViewer from "../components/runSessionViewer";
 import type { SessionFile } from "../sessions.types";
 
-export default function SessionViewerContainer({
+export default function RunSessionViewerContainer({
   run,
   session,
   sessionFile,
@@ -144,7 +144,7 @@ export default function SessionViewerContainer({
   };
 
   return (
-    <SessionViewer
+    <RunSessionViewer
       session={session}
       sessionFile={sessionFile}
       selectedUtteranceId={selectedUtteranceId}
