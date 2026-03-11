@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BotIcon, UserIcon } from "lucide-react";
 import getKappaCellClass from "../helpers/getKappaCellClass";
 import getKappaInterpretation from "../helpers/getKappaInterpretation";
 import type { TopPerformer } from "../helpers/getTopPerformersVsGoldLabel";
@@ -18,7 +19,12 @@ export default function EvaluationTopPerformersItem({
           </div>
           <div className="min-w-0 flex-1">
             <CardHeader className="p-0">
-              <CardTitle className="truncate text-sm">
+              <CardTitle className="flex items-center gap-1.5 text-sm">
+                {performer.isHuman ? (
+                  <UserIcon className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
+                ) : (
+                  <BotIcon className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
+                )}
                 {performer.runName}
               </CardTitle>
             </CardHeader>

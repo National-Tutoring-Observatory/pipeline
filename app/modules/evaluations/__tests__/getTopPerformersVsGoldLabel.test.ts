@@ -20,11 +20,27 @@ function buildReport(
       {
         runId: BASE_RUN_ID,
         runName: "Gold Label Run",
+        isHuman: true,
         meanKappaWithOthers: 0.8,
       },
-      { runId: "run-2", runName: "GPT-4 Run", meanKappaWithOthers: 0.75 },
-      { runId: "run-3", runName: "Claude Run", meanKappaWithOthers: 0.68 },
-      { runId: "run-4", runName: "Gemini Run", meanKappaWithOthers: 0.82 },
+      {
+        runId: "run-2",
+        runName: "GPT-4 Run",
+        isHuman: false,
+        meanKappaWithOthers: 0.75,
+      },
+      {
+        runId: "run-3",
+        runName: "Claude Run",
+        isHuman: false,
+        meanKappaWithOthers: 0.68,
+      },
+      {
+        runId: "run-4",
+        runName: "Gemini Run",
+        isHuman: false,
+        meanKappaWithOthers: 0.82,
+      },
     ],
     ...overrides,
   };
@@ -110,6 +126,7 @@ describe("getTopPerformersVsGoldLabel", () => {
         {
           runId: BASE_RUN_ID,
           runName: "Gold Label Run",
+          isHuman: true,
           meanKappaWithOthers: 0.5,
         },
       ],

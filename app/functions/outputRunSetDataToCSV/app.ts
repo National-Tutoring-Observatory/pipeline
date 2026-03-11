@@ -41,7 +41,15 @@ export const handler = async (event: {
   let isBaseRun = true;
   let annotationIndex = 0;
 
+  const runSuffixes: string[] = [];
+
   for (const run of runs) {
+    const runSuffix =
+      run.isHuman && run.annotator?.name
+        ? run.annotator.name
+        : String(annotationIndex);
+    runSuffixes.push(runSuffix);
+
     for (const session of run.sessions) {
       const sessionPath = `${inputFolder}/${run._id}/${session.sessionId}/${session.name}`;
       const downloadedPath = await storage.download({
@@ -51,9 +59,8 @@ export const handler = async (event: {
 
       if (isBaseRun) {
         const transcript = map(json.transcript, (utterance) => {
-          utterance.sessionId = session.sessionId;
-          delete utterance.annotations;
-          return utterance;
+          const { annotations: _annotations, ...rest } = utterance;
+          return { ...rest, sessionId: session.sessionId };
         });
         utterancesArray = utterancesArray.concat(transcript);
 
@@ -75,7 +82,7 @@ export const handler = async (event: {
                 each(annotation, (annotationValue, annotationKey) => {
                   if (annotationKey === "_id") return;
 
-                  const annotationItemKey = `${annotationKey}-${annotationIndex}`;
+                  const annotationItemKey = `${annotationKey}-${runSuffix}`;
                   baseUtterance[annotationItemKey] = annotationValue;
 
                   if (!utteranceAnnotationKeysAsObject[annotationItemKey]) {
@@ -83,13 +90,11 @@ export const handler = async (event: {
                   }
                 });
 
-                baseUtterance[`model-${annotationIndex}`] =
-                  getRunModelCode(run);
-                baseUtterance[`annotationType-${annotationIndex}`] =
+                baseUtterance[`model-${runSuffix}`] = getRunModelCode(run);
+                baseUtterance[`annotationType-${runSuffix}`] =
                   run.annotationType;
-                baseUtterance[`prompt-${annotationIndex}`] = run.prompt;
-                baseUtterance[`promptVersion-${annotationIndex}`] =
-                  run.promptVersion;
+                baseUtterance[`prompt-${runSuffix}`] = run.prompt;
+                baseUtterance[`promptVersion-${runSuffix}`] = run.promptVersion;
               });
             }
           }
@@ -107,7 +112,7 @@ export const handler = async (event: {
               each(annotation, (annotationValue, annotationKey) => {
                 if (annotationKey === "_id") return;
 
-                const annotationItemKey = `${annotationKey}-${annotationIndex}`;
+                const annotationItemKey = `${annotationKey}-${runSuffix}`;
                 baseSession[annotationItemKey] = annotationValue;
 
                 if (!sessionAnnotationKeysAsObject[annotationItemKey]) {
@@ -115,12 +120,10 @@ export const handler = async (event: {
                 }
               });
 
-              baseSession[`model-${annotationIndex}`] = getRunModelCode(run);
-              baseSession[`annotationType-${annotationIndex}`] =
-                run.annotationType;
-              baseSession[`prompt-${annotationIndex}`] = run.prompt;
-              baseSession[`promptVersion-${annotationIndex}`] =
-                run.promptVersion;
+              baseSession[`model-${runSuffix}`] = getRunModelCode(run);
+              baseSession[`annotationType-${runSuffix}`] = run.annotationType;
+              baseSession[`prompt-${runSuffix}`] = run.prompt;
+              baseSession[`promptVersion-${runSuffix}`] = run.promptVersion;
             });
           }
         }
@@ -131,14 +134,14 @@ export const handler = async (event: {
     annotationIndex++;
   }
 
-  // Build metadata keys for all annotation indices
+  // Build metadata keys for all runs
   const metadataKeys: string[] = [];
-  for (let i = 0; i < runs.length; i++) {
+  for (const suffix of runSuffixes) {
     metadataKeys.push(
-      `model-${i}`,
-      `annotationType-${i}`,
-      `prompt-${i}`,
-      `promptVersion-${i}`,
+      `model-${suffix}`,
+      `annotationType-${suffix}`,
+      `prompt-${suffix}`,
+      `promptVersion-${suffix}`,
     );
   }
 

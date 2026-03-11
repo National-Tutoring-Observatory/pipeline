@@ -7,8 +7,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { BotIcon, UserIcon } from "lucide-react";
 import type { PairwiseMatrix } from "../helpers/buildPairwiseMatrix";
 import getKappaCellClass from "../helpers/getKappaCellClass";
+
+function RunTypeIcon({ isHuman }: { isHuman: boolean }) {
+  return isHuman ? (
+    <UserIcon className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
+  ) : (
+    <BotIcon className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
+  );
+}
 
 export default function EvaluationPairwiseMatrix({
   matrix,
@@ -36,7 +45,10 @@ export default function EvaluationPairwiseMatrix({
                 key={run.runId}
                 className="max-w-24 text-center whitespace-normal"
               >
-                <div>{run.runName}</div>
+                <div className="flex items-center justify-center gap-1.5">
+                  <RunTypeIcon isHuman={run.isHuman} />
+                  {run.runName}
+                </div>
               </TableHead>
             ))}
           </TableRow>
@@ -45,7 +57,10 @@ export default function EvaluationPairwiseMatrix({
           {matrix.runs.map((rowRun, rowIndex) => (
             <TableRow key={rowRun.runId}>
               <TableCell className="max-w-48 font-medium whitespace-normal">
-                {rowRun.runName}
+                <div className="flex items-center gap-1.5">
+                  <RunTypeIcon isHuman={rowRun.isHuman} />
+                  {rowRun.runName}
+                </div>
               </TableCell>
               {matrix.cells[rowIndex].map((cell, colIndex) => (
                 <TableCell

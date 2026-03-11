@@ -5,18 +5,18 @@ export default function extractAnnotationValues(
 ): string[] {
   if (annotationType === "PER_SESSION") {
     const annotations = sessionJSON.annotations || [];
-    return annotations.map((annotation: any) => {
-      const value = annotation[fieldKey];
-      return value !== undefined && value !== null ? String(value) : "";
-    });
+    const match = annotations.find(
+      (a: any) => a[fieldKey] !== undefined && a[fieldKey] !== null,
+    );
+    return match ? [String(match[fieldKey])] : [""];
   }
 
   const transcript = sessionJSON.transcript || [];
-  return transcript.flatMap((utterance: any) => {
+  return transcript.map((utterance: any) => {
     const annotations = utterance.annotations || [];
-    return annotations.map((annotation: any) => {
-      const value = annotation[fieldKey];
-      return value !== undefined && value !== null ? String(value) : "";
-    });
+    const match = annotations.find(
+      (a: any) => a[fieldKey] !== undefined && a[fieldKey] !== null,
+    );
+    return match ? String(match[fieldKey]) : "";
   });
 }

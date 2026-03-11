@@ -23,7 +23,7 @@ export default function buildAnnotationsForUtterance(
     if (!parsed || parsed.annotator !== annotator) continue;
 
     const value = row[header];
-    if (value === undefined || value === "" || value === "0") continue;
+    if (value === undefined || value === "") continue;
 
     const groupKey =
       parsed.index !== undefined

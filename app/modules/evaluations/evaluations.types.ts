@@ -8,6 +8,7 @@ export interface PairwiseResult {
 export interface RunSummary {
   runId: string;
   runName: string;
+  isHuman: boolean;
   meanKappaWithOthers: number;
 }
 

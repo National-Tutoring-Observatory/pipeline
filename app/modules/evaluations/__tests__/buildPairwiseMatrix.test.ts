@@ -14,9 +14,24 @@ function buildReport(
       { runA: "run-2", runB: "run-3", kappa: 0.65, sampleSize: 100 },
     ],
     runSummaries: [
-      { runId: "run-1", runName: "Run A", meanKappaWithOthers: 0.78 },
-      { runId: "run-2", runName: "Run B", meanKappaWithOthers: 0.75 },
-      { runId: "run-3", runName: "Run C", meanKappaWithOthers: 0.68 },
+      {
+        runId: "run-1",
+        runName: "Run A",
+        isHuman: false,
+        meanKappaWithOthers: 0.78,
+      },
+      {
+        runId: "run-2",
+        runName: "Run B",
+        isHuman: false,
+        meanKappaWithOthers: 0.75,
+      },
+      {
+        runId: "run-3",
+        runName: "Run C",
+        isHuman: false,
+        meanKappaWithOthers: 0.68,
+      },
     ],
     ...overrides,
   };
@@ -27,9 +42,21 @@ describe("buildPairwiseMatrix", () => {
     const matrix = buildPairwiseMatrix(buildReport());
 
     expect(matrix.runs).toHaveLength(3);
-    expect(matrix.runs[0]).toEqual({ runId: "run-1", runName: "Run A" });
-    expect(matrix.runs[1]).toEqual({ runId: "run-2", runName: "Run B" });
-    expect(matrix.runs[2]).toEqual({ runId: "run-3", runName: "Run C" });
+    expect(matrix.runs[0]).toEqual({
+      runId: "run-1",
+      runName: "Run A",
+      isHuman: false,
+    });
+    expect(matrix.runs[1]).toEqual({
+      runId: "run-2",
+      runName: "Run B",
+      isHuman: false,
+    });
+    expect(matrix.runs[2]).toEqual({
+      runId: "run-3",
+      runName: "Run C",
+      isHuman: false,
+    });
   });
 
   it("builds a square matrix matching run count", () => {

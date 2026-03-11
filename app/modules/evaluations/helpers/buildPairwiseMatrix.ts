@@ -3,6 +3,7 @@ import type { EvaluationReport } from "../evaluations.types";
 export interface PairwiseMatrixRun {
   runId: string;
   runName: string;
+  isHuman: boolean;
 }
 
 export interface PairwiseMatrixCell {
@@ -21,6 +22,7 @@ export default function buildPairwiseMatrix(
   const runs: PairwiseMatrixRun[] = report.runSummaries.map((summary) => ({
     runId: summary.runId,
     runName: summary.runName,
+    isHuman: summary.isHuman,
   }));
 
   const kappaLookup = new Map<string, PairwiseMatrixCell>();

@@ -39,8 +39,7 @@ export const handler = async (event: {
         const sessionObject: any = {
           _id: session.sessionId,
           transcript: map(json.transcript, (utterance) => {
-            const cleanUtterance = { ...utterance };
-            delete cleanUtterance.annotations;
+            const { annotations: _annotations, ...cleanUtterance } = utterance;
             return cleanUtterance;
           }),
         };
