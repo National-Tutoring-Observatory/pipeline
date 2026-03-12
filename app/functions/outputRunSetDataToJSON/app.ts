@@ -2,6 +2,7 @@ import fse from "fs-extra";
 import each from "lodash/each.js";
 import map from "lodash/map.js";
 import type { RunSet } from "~/modules/runSets/runSets.types";
+import getAnnotatorName from "~/modules/runs/helpers/getAnnotatorName";
 import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
@@ -134,15 +135,22 @@ export const handler = async (event: {
   });
 
   // Output meta JSONL
-  const metaArray = runs.map((run) => ({
+  const metaArray = runs.map((run, index) => ({
     project: run.project,
     runId: run._id,
     runName: run.name,
+    annotator: getAnnotatorName(run, index),
     annotationType: run.annotationType,
     model: getRunModelCode(run),
-    prompt: run.prompt,
-    promptVersion: run.promptVersion,
+    promptName: run.snapshot?.prompt?.name ?? "",
+    promptVersion: run.snapshot?.prompt?.version ?? run.promptVersion ?? "",
+    promptUserPrompt: run.snapshot?.prompt?.userPrompt ?? "",
+    promptAnnotationType: run.snapshot?.prompt?.annotationType ?? "",
+    isHuman: run.isHuman ?? false,
     sessionsCount: run.sessions.length,
+    createdAt: run.createdAt ?? "",
+    startedAt: run.startedAt ?? "",
+    finishedAt: run.finishedAt ?? "",
   }));
 
   const metaAsJSONL = map(metaArray, (meta) => {

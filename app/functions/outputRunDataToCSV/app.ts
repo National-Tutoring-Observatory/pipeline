@@ -1,21 +1,11 @@
 import fse from "fs-extra";
 import { json2csv } from "json-2-csv";
 import map from "lodash/map.js";
+import getAnnotatorName from "~/modules/runs/helpers/getAnnotatorName";
+import getExportFieldKeys from "~/modules/runs/helpers/getExportFieldKeys";
 import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
-
-function getAnnotatorName(run: Run): string {
-  return run.isHuman && run.annotator?.name ? run.annotator.name : "AI-0";
-}
-
-function getExportFieldKeys(run: Run): string[] {
-  const schema = run.snapshot?.prompt?.annotationSchema;
-  if (!schema) return [];
-  return schema
-    .filter((field: any) => !field.isSystem || field.fieldKey === "reasoning")
-    .map((field: any) => field.fieldKey);
-}
 
 export const handler = async (event: {
   body: { run: Run; inputFolder: string; outputFolder: string };
@@ -139,18 +129,16 @@ export const handler = async (event: {
       annotator: annotatorName,
       annotationType: run.annotationType,
       model: getRunModelCode(run),
+      promptName: run.snapshot?.prompt?.name ?? "",
+      promptVersion: run.snapshot?.prompt?.version ?? run.promptVersion ?? "",
+      promptUserPrompt: run.snapshot?.prompt?.userPrompt ?? "",
+      promptAnnotationType: run.snapshot?.prompt?.annotationType ?? "",
+      isHuman: run.isHuman ?? false,
       sessionsCount: run.sessions.length,
+      createdAt: run.createdAt ?? "",
+      startedAt: run.startedAt ?? "",
+      finishedAt: run.finishedAt ?? "",
     };
-
-    if (run.snapshot?.prompt) {
-      metaObject.promptName = run.snapshot.prompt.name;
-      metaObject.promptUserPrompt = run.snapshot.prompt.userPrompt;
-      metaObject.promptAnnotationType = run.snapshot.prompt.annotationType;
-      metaObject.promptVersion = run.snapshot.prompt.version;
-    } else {
-      metaObject.prompt = run.prompt;
-      metaObject.promptVersion = run.promptVersion;
-    }
 
     const metaCsv = json2csv([metaObject], {
       keys: Object.keys(metaObject),
