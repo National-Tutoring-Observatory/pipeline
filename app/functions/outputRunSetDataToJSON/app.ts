@@ -137,8 +137,8 @@ export const handler = async (event: {
 
   // Output meta JSONL
   const metaArray = runs.map((run, index) => ({
-    team: teamId,
-    project: run.project,
+    teamId,
+    projectId: run.project,
     runId: run._id,
     runName: run.name,
     annotator: getAnnotatorName(run, index),

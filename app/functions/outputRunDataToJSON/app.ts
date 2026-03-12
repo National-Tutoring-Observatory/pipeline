@@ -51,10 +51,10 @@ export const handler = async (event: {
 
     // OUTPUT META
     const runObject: any = {
-      team: teamId,
-      project: run.project,
-      _id: run._id,
-      name: run.name,
+      teamId,
+      projectId: run.project,
+      runId: run._id,
+      runName: run.name,
       annotator: getAnnotatorName(run),
       annotationType: run.annotationType,
       model: getRunModelInfo(run),
