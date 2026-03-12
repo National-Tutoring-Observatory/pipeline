@@ -160,6 +160,68 @@ describe("buildAnnotationSchema", () => {
     );
   });
 
+  it("should add enum constraint when schema items have codes", () => {
+    const input = {
+      annotations: [{ engagement: "", confidence: 0.5 }],
+    };
+
+    const result = buildAnnotationSchema(input, [
+      { fieldKey: "engagement", codes: ["high", "medium", "low"] },
+      { fieldKey: "confidence" },
+    ]);
+
+    expect(result).toMatchObject({
+      properties: {
+        annotations: {
+          items: {
+            properties: {
+              engagement: { type: "string", enum: ["high", "medium", "low"] },
+              confidence: { type: "number" },
+            },
+          },
+        },
+      },
+    });
+  });
+
+  it("should not include enum when schema items are undefined", () => {
+    const input = {
+      annotations: [{ engagement: "" }],
+    };
+
+    const result = buildAnnotationSchema(input);
+
+    expect(result).toMatchObject({
+      properties: {
+        annotations: {
+          items: {
+            properties: {
+              engagement: { type: "string" },
+            },
+          },
+        },
+      },
+    });
+
+    const props = (result as any).properties.annotations.items.properties;
+    expect(props.engagement).not.toHaveProperty("enum");
+  });
+
+  it("should handle multiple fields with codes", () => {
+    const input = {
+      annotations: [{ engagement: "", sentiment: "" }],
+    };
+
+    const result = buildAnnotationSchema(input, [
+      { fieldKey: "engagement", codes: ["high", "medium", "low"] },
+      { fieldKey: "sentiment", codes: ["positive", "negative", "neutral"] },
+    ]);
+
+    const props = (result as any).properties.annotations.items.properties;
+    expect(props.engagement.enum).toEqual(["high", "medium", "low"]);
+    expect(props.sentiment.enum).toEqual(["positive", "negative", "neutral"]);
+  });
+
   it("should treat null values as string type", () => {
     const input = {
       annotations: [{ nullField: null }],

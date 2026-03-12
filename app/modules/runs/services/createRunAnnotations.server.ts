@@ -63,7 +63,11 @@ export default async function createRunAnnotations(run: Run) {
       sessionId: session.sessionId,
       inputFile: `${inputFolder}/${sessionModel._id}/${sessionModel.name}`,
       outputFolder: `${outputFolder}/${sessionModel._id}`,
-      prompt: { prompt: userPrompt, annotationSchema },
+      prompt: {
+        prompt: userPrompt,
+        annotationSchema,
+        schemaItems: promptVersion.annotationSchema,
+      },
       model: getRunModelCode(run),
       team: project.team,
       currentSessionIndex,
