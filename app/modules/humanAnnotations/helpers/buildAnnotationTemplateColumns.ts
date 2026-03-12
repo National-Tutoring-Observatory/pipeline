@@ -10,8 +10,7 @@ export default function buildAnnotationTemplateColumns(
   for (const annotator of config.annotators) {
     for (const field of config.fields) {
       for (let i = 0; i < field.slots; i++) {
-        columns.push(`annotator[${annotator}]${field.fieldKey}[${i}]value`);
-        columns.push(`annotator[${annotator}]${field.fieldKey}[${i}]reasoning`);
+        columns.push(`annotator[${annotator}][${i}]${field.fieldKey}`);
       }
     }
   }

@@ -11,7 +11,7 @@ describe("buildAnnotationTemplateColumns", () => {
     expect(columns).toEqual(["session_id", "sequence_id", "role", "content"]);
   });
 
-  it("generates value and reasoning columns for a single annotator and field", () => {
+  it("generates columns for a single annotator and field", () => {
     const columns = buildAnnotationTemplateColumns({
       annotators: ["joe"],
       fields: [{ fieldKey: "TUTOR_MOVE", slots: 1 }],
@@ -21,8 +21,7 @@ describe("buildAnnotationTemplateColumns", () => {
       "sequence_id",
       "role",
       "content",
-      "annotator[joe]TUTOR_MOVE[0]value",
-      "annotator[joe]TUTOR_MOVE[0]reasoning",
+      "annotator[joe][0]TUTOR_MOVE",
     ]);
   });
 
@@ -36,10 +35,8 @@ describe("buildAnnotationTemplateColumns", () => {
       "sequence_id",
       "role",
       "content",
-      "annotator[joe]TUTOR_MOVE[0]value",
-      "annotator[joe]TUTOR_MOVE[0]reasoning",
-      "annotator[joe]TUTOR_MOVE[1]value",
-      "annotator[joe]TUTOR_MOVE[1]reasoning",
+      "annotator[joe][0]TUTOR_MOVE",
+      "annotator[joe][1]TUTOR_MOVE",
     ]);
   });
 
@@ -53,10 +50,8 @@ describe("buildAnnotationTemplateColumns", () => {
       "sequence_id",
       "role",
       "content",
-      "annotator[joe]ASKING_FEELING[0]value",
-      "annotator[joe]ASKING_FEELING[0]reasoning",
-      "annotator[josephine]ASKING_FEELING[0]value",
-      "annotator[josephine]ASKING_FEELING[0]reasoning",
+      "annotator[joe][0]ASKING_FEELING",
+      "annotator[josephine][0]ASKING_FEELING",
     ]);
   });
 
@@ -73,12 +68,9 @@ describe("buildAnnotationTemplateColumns", () => {
       "sequence_id",
       "role",
       "content",
-      "annotator[joe]TUTOR_MOVE[0]value",
-      "annotator[joe]TUTOR_MOVE[0]reasoning",
-      "annotator[joe]TUTOR_MOVE[1]value",
-      "annotator[joe]TUTOR_MOVE[1]reasoning",
-      "annotator[joe]ASKING_FEELING[0]value",
-      "annotator[joe]ASKING_FEELING[0]reasoning",
+      "annotator[joe][0]TUTOR_MOVE",
+      "annotator[joe][1]TUTOR_MOVE",
+      "annotator[joe][0]ASKING_FEELING",
     ]);
   });
 
@@ -98,7 +90,6 @@ describe("buildAnnotationTemplateColumns", () => {
       expect(["joe", "josephine"]).toContain(parsed!.annotator);
       expect(["TUTOR_MOVE", "ASKING_FEELING"]).toContain(parsed!.field);
       expect(parsed!.index).toBeTypeOf("number");
-      expect(["value", "reasoning"]).toContain(parsed!.subField);
     }
   });
 });

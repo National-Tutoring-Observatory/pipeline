@@ -12,49 +12,36 @@ export default function buildAnnotationsForUtterance(
   annotator: string,
   headers: string[],
 ): AnnotationObject[] {
-  // Group columns by field + index
-  const groups = new Map<
-    string,
-    { field: string; values: Map<string, string> }
-  >();
+  // Group columns by index — each index produces one annotation object
+  const groups = new Map<number, Record<string, string>>();
 
   for (const header of headers) {
     const parsed = parseAnnotationColumn(header);
     if (!parsed || parsed.annotator !== annotator) continue;
 
     const value = row[header];
-    if (value === undefined || value === "" || value === "0") continue;
+    if (value === undefined || value === "") continue;
 
-    const groupKey =
-      parsed.index !== undefined
-        ? `${parsed.field}[${parsed.index}]`
-        : parsed.field;
-
-    if (!groups.has(groupKey)) {
-      groups.set(groupKey, { field: parsed.field, values: new Map() });
+    if (!groups.has(parsed.index)) {
+      groups.set(parsed.index, {});
     }
 
-    const subKey = parsed.subField || "value";
-    groups.get(groupKey)!.values.set(subKey, value);
+    groups.get(parsed.index)![parsed.field] = value;
   }
 
   const annotations: AnnotationObject[] = [];
 
-  for (const { field, values } of groups.values()) {
-    const annotation: AnnotationObject = {
+  const sortedIndices = [...groups.keys()].sort((a, b) => a - b);
+
+  for (const index of sortedIndices) {
+    const fields = groups.get(index)!;
+    if (Object.keys(fields).length === 0) continue;
+
+    annotations.push({
       _id: utteranceId,
       identifiedBy: "HUMAN",
-    };
-
-    const mainValue = values.get("value") || values.values().next().value;
-    annotation[field] = mainValue;
-
-    const reasoning = values.get("reasoning");
-    if (reasoning) {
-      annotation.reasoning = reasoning;
-    }
-
-    annotations.push(annotation);
+      ...fields,
+    });
   }
 
   return annotations;

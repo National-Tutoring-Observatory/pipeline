@@ -115,6 +115,7 @@ describe("outputRunSetDataToJSON", () => {
       body: {
         runSet: runSet as any,
         runs: runs as any,
+        teamId: "team1",
         inputFolder: "storage/proj1/runs",
         outputFolder: "storage/proj1/run-sets/runset1/exports",
       },
@@ -151,6 +152,7 @@ describe("outputRunSetDataToJSON", () => {
       body: {
         runSet: runSet as any,
         runs: runs as any,
+        teamId: "team1",
         inputFolder: "storage/proj1/runs",
         outputFolder: "storage/proj1/run-sets/runset1/exports",
       },
@@ -186,6 +188,7 @@ describe("outputRunSetDataToJSON", () => {
       body: {
         runSet: runSet as any,
         runs: runs as any,
+        teamId: "team1",
         inputFolder: "storage/proj1/runs",
         outputFolder: "storage/proj1/run-sets/runset1/exports",
       },
@@ -218,6 +221,7 @@ describe("outputRunSetDataToJSON", () => {
       body: {
         runSet: runSet as any,
         runs: runs as any,
+        teamId: "team1",
         inputFolder: "storage/proj1/runs",
         outputFolder: "storage/proj1/run-sets/runset1/exports",
       },

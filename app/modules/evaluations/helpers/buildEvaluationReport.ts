@@ -130,6 +130,7 @@ export default async function buildEvaluationReport(
   const runIds = runs.map((run) => run._id);
   const runPairs = generateRunPairs(runIds);
   const runNameMap = new Map(runs.map((run) => [run._id, run.name]));
+  const runIsHumanMap = new Map(runs.map((run) => [run._id, !!run.isHuman]));
 
   const reports: EvaluationReport[] = [];
 
@@ -157,6 +158,15 @@ export default async function buildEvaluationReport(
       const alignedA = labelsA.slice(0, minLength);
       const alignedB = labelsB.slice(0, minLength);
 
+      const runNameA = runNameMap.get(runIdA) || runIdA;
+      const runNameB = runNameMap.get(runIdB) || runIdB;
+      for (let i = 0; i < minLength; i++) {
+        if (alignedA[i] !== alignedB[i]) {
+          console.log(
+            `[${runNameA} vs ${runNameB}] Mismatch at ${i}: "${alignedA[i]}" vs "${alignedB[i]}"`,
+          );
+        }
+      }
       const kappa = calculateCohensKappa(alignedA, alignedB);
 
       console.log(kappa);
@@ -180,6 +190,7 @@ export default async function buildEvaluationReport(
       return {
         runId,
         runName: runNameMap.get(runId) || runId,
+        isHuman: runIsHumanMap.get(runId) || false,
         meanKappaWithOthers: runMeanKappa,
       };
     });

@@ -86,6 +86,7 @@ describe("outputRunDataToJSON", () => {
     await handler({
       body: {
         run: run as any,
+        teamId: "team1",
         inputFolder: "storage/proj1/runs/run1",
         outputFolder: "storage/proj1/runs/run1/exports",
       },
@@ -118,6 +119,7 @@ describe("outputRunDataToJSON", () => {
     await handler({
       body: {
         run: run as any,
+        teamId: "team1",
         inputFolder: "storage/proj1/runs/run1",
         outputFolder: "storage/proj1/runs/run1/exports",
       },
@@ -129,8 +131,8 @@ describe("outputRunDataToJSON", () => {
     expect(metaPath).toBeDefined();
 
     const meta = JSON.parse(capturedFiles[metaPath!]);
-    expect(meta._id).toBe("run1");
-    expect(meta.name).toBe("Test Run");
-    expect(meta.prompt.name).toBe("Test Prompt");
+    expect(meta.runId).toBe("run1");
+    expect(meta.runName).toBe("Test Run");
+    expect(meta.promptName).toBe("Test Prompt");
   });
 });

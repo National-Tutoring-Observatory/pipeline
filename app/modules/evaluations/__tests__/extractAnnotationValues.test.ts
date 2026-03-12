@@ -3,7 +3,7 @@ import extractAnnotationValues from "../helpers/extractAnnotationValues";
 
 describe("extractAnnotationValues", () => {
   describe("PER_SESSION", () => {
-    it("extracts values from session-level annotations", () => {
+    it("extracts value from session-level annotations", () => {
       const sessionJSON = {
         transcript: [],
         annotations: [{ _id: "0", engagement_level: "HIGH", quality: "GOOD" }],
@@ -18,13 +18,12 @@ describe("extractAnnotationValues", () => {
       expect(values).toEqual(["HIGH"]);
     });
 
-    it("extracts multiple annotation values", () => {
+    it("finds first annotation with the field when multiple exist", () => {
       const sessionJSON = {
         transcript: [],
         annotations: [
           { _id: "0", category: "A" },
           { _id: "1", category: "B" },
-          { _id: "2", category: "A" },
         ],
       };
 
@@ -34,12 +33,15 @@ describe("extractAnnotationValues", () => {
         "category",
       );
 
-      expect(values).toEqual(["A", "B", "A"]);
+      expect(values).toEqual(["A"]);
     });
 
-    it("preserves empty string for missing values", () => {
+    it("skips annotations without the field", () => {
       const sessionJSON = {
-        annotations: [{ _id: "0", field_a: "X" }, { _id: "1" }],
+        annotations: [
+          { _id: "0", other: "X" },
+          { _id: "1", field_a: "Y" },
+        ],
       };
 
       const values = extractAnnotationValues(
@@ -48,10 +50,24 @@ describe("extractAnnotationValues", () => {
         "field_a",
       );
 
-      expect(values).toEqual(["X", ""]);
+      expect(values).toEqual(["Y"]);
     });
 
-    it("returns empty array when no annotations", () => {
+    it("returns empty string when no annotations have the field", () => {
+      const sessionJSON = {
+        annotations: [{ _id: "0", other: "X" }],
+      };
+
+      const values = extractAnnotationValues(
+        sessionJSON,
+        "PER_SESSION",
+        "field_a",
+      );
+
+      expect(values).toEqual([""]);
+    });
+
+    it("returns empty string when no annotations exist", () => {
       const sessionJSON = { transcript: [] };
 
       const values = extractAnnotationValues(
@@ -60,7 +76,7 @@ describe("extractAnnotationValues", () => {
         "field",
       );
 
-      expect(values).toEqual([]);
+      expect(values).toEqual([""]);
     });
 
     it("coerces numeric values to strings", () => {
@@ -106,7 +122,7 @@ describe("extractAnnotationValues", () => {
       expect(values).toEqual(["HIGH", "MEDIUM"]);
     });
 
-    it("handles utterances with no annotations", () => {
+    it("returns empty string for utterances with no annotations", () => {
       const sessionJSON = {
         transcript: [
           {
@@ -129,7 +145,28 @@ describe("extractAnnotationValues", () => {
         "field",
       );
 
-      expect(values).toEqual(["A", "B"]);
+      expect(values).toEqual(["A", "", "B"]);
+    });
+
+    it("finds first annotation with the field from multiple annotation objects", () => {
+      const sessionJSON = {
+        transcript: [
+          {
+            _id: "utt-1",
+            annotations: [
+              { _id: "utt-1", identifiedBy: "HUMAN", field_a: "X" },
+              { _id: "utt-1", identifiedBy: "HUMAN", field_b: "Y" },
+            ],
+          },
+        ],
+      };
+
+      expect(
+        extractAnnotationValues(sessionJSON, "PER_UTTERANCE", "field_a"),
+      ).toEqual(["X"]);
+      expect(
+        extractAnnotationValues(sessionJSON, "PER_UTTERANCE", "field_b"),
+      ).toEqual(["Y"]);
     });
 
     it("returns empty array for empty transcript", () => {
@@ -144,7 +181,7 @@ describe("extractAnnotationValues", () => {
       expect(values).toEqual([]);
     });
 
-    it("preserves empty string for null values", () => {
+    it("returns empty string for null values in annotations", () => {
       const sessionJSON = {
         transcript: [
           {

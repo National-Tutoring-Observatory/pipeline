@@ -1,8 +1,9 @@
 import fse from "fs-extra";
 import { json2csv } from "json-2-csv";
-import each from "lodash/each.js";
 import map from "lodash/map.js";
 import type { RunSet } from "~/modules/runSets/runSets.types";
+import getAnnotatorName from "~/modules/runs/helpers/getAnnotatorName";
+import getExportFieldKeys from "~/modules/runs/helpers/getExportFieldKeys";
 import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
@@ -11,12 +12,13 @@ export const handler = async (event: {
   body: {
     runSet: RunSet;
     runs: Run[];
+    teamId: string;
     inputFolder: string;
     outputFolder: string;
   };
 }) => {
   const { body } = event;
-  const { runSet, runs, inputFolder, outputFolder } = body;
+  const { runSet, runs, teamId, inputFolder, outputFolder } = body;
 
   const utterancesOutputFile = `${outputFolder}/${runSet.project}-${runSet._id}-utterances.csv`;
   const sessionsOutputFile = `${outputFolder}/${runSet.project}-${runSet._id}-sessions.csv`;
@@ -35,14 +37,20 @@ export const handler = async (event: {
     "start_time",
     "end_time",
   ];
-  const utteranceAnnotationKeysAsObject: { [key: string]: boolean } = {};
-  const sessionAnnotationKeysAsObject: { [key: string]: boolean } = {};
+  const annotationColumnKeys = new Set<string>();
   let utterancesArray: any[] = [];
   const sessionsArray: any[] = [];
   let isBaseRun = true;
-  let annotationIndex = 0;
+  let aiIndex = 0;
+
+  const annotatorNames: string[] = [];
 
   for (const run of runs) {
+    const annotatorName = getAnnotatorName(run, aiIndex);
+    if (!run.isHuman) aiIndex++;
+    annotatorNames.push(annotatorName);
+    const fieldKeys = getExportFieldKeys(run);
+
     for (const session of run.sessions) {
       const sessionPath = `${inputFolder}/${run._id}/${session.sessionId}/${session.name}`;
       const downloadedPath = await storage.download({
@@ -52,9 +60,8 @@ export const handler = async (event: {
 
       if (isBaseRun) {
         const transcript = map(json.transcript, (utterance) => {
-          utterance._sessionRef = session.sessionId;
-          delete utterance.annotations;
-          return utterance;
+          const { annotations: _annotations, ...rest } = utterance;
+          return { ...rest, _sessionRef: session.sessionId };
         });
         utterancesArray = utterancesArray.concat(transcript);
 
@@ -66,63 +73,40 @@ export const handler = async (event: {
 
       if (annotationType === "PER_UTTERANCE") {
         for (const utterance of json.transcript) {
-          if (utterance.annotations && utterance.annotations.length > 0) {
-            const baseUtterance = utterancesArray.find(
-              (u) =>
-                u._id === utterance._id && u._sessionRef === session.sessionId,
-            );
+          const annotations = utterance.annotations || [];
+          if (annotations.length === 0) continue;
 
-            if (baseUtterance) {
-              each(utterance.annotations, (annotation) => {
-                each(annotation, (annotationValue, annotationKey) => {
-                  if (annotationKey === "_id") return;
+          const baseUtterance = utterancesArray.find(
+            (u) =>
+              u._id === utterance._id && u._sessionRef === session.sessionId,
+          );
 
-                  const annotationItemKey = `${annotationKey}-${annotationIndex}`;
-                  baseUtterance[annotationItemKey] = annotationValue;
-
-                  if (!utteranceAnnotationKeysAsObject[annotationItemKey]) {
-                    utteranceAnnotationKeysAsObject[annotationItemKey] = true;
-                  }
-                });
-
-                baseUtterance[`model-${annotationIndex}`] =
-                  getRunModelCode(run);
-                baseUtterance[`annotationType-${annotationIndex}`] =
-                  run.annotationType;
-                baseUtterance[`prompt-${annotationIndex}`] = run.prompt;
-                baseUtterance[`promptVersion-${annotationIndex}`] =
-                  run.promptVersion;
-              });
-            }
+          if (baseUtterance) {
+            annotations.forEach((annotation: any, index: number) => {
+              for (const fieldKey of fieldKeys) {
+                const columnKey = `annotator[${annotatorName}][${index}]${fieldKey}`;
+                baseUtterance[columnKey] = annotation[fieldKey] ?? "";
+                annotationColumnKeys.add(columnKey);
+              }
+            });
           }
         }
       }
 
       if (annotationType === "PER_SESSION") {
-        if (json.annotations && json.annotations.length > 0) {
+        const annotations = json.annotations || [];
+        if (annotations.length > 0) {
           const baseSession = sessionsArray.find(
             (s) => s._id === session.sessionId,
           );
 
           if (baseSession) {
-            each(json.annotations, (annotation) => {
-              each(annotation, (annotationValue, annotationKey) => {
-                if (annotationKey === "_id") return;
-
-                const annotationItemKey = `${annotationKey}-${annotationIndex}`;
-                baseSession[annotationItemKey] = annotationValue;
-
-                if (!sessionAnnotationKeysAsObject[annotationItemKey]) {
-                  sessionAnnotationKeysAsObject[annotationItemKey] = true;
-                }
-              });
-
-              baseSession[`model-${annotationIndex}`] = getRunModelCode(run);
-              baseSession[`annotationType-${annotationIndex}`] =
-                run.annotationType;
-              baseSession[`prompt-${annotationIndex}`] = run.prompt;
-              baseSession[`promptVersion-${annotationIndex}`] =
-                run.promptVersion;
+            annotations.forEach((annotation: any, index: number) => {
+              for (const fieldKey of fieldKeys) {
+                const columnKey = `annotator[${annotatorName}][${index}]${fieldKey}`;
+                baseSession[columnKey] = annotation[fieldKey] ?? "";
+                annotationColumnKeys.add(columnKey);
+              }
             });
           }
         }
@@ -130,28 +114,12 @@ export const handler = async (event: {
     }
 
     if (isBaseRun) isBaseRun = false;
-    annotationIndex++;
-  }
-
-  // Build metadata keys for all annotation indices
-  const metadataKeys: string[] = [];
-  for (let i = 0; i < runs.length; i++) {
-    metadataKeys.push(
-      `model-${i}`,
-      `annotationType-${i}`,
-      `prompt-${i}`,
-      `promptVersion-${i}`,
-    );
   }
 
   // Export utterances CSV for PER_UTTERANCE
   if (annotationType === "PER_UTTERANCE") {
     const utterancesCsv = json2csv(utterancesArray, {
-      keys: [
-        ...utteranceKeys,
-        ...Object.keys(utteranceAnnotationKeysAsObject),
-        ...metadataKeys,
-      ],
+      keys: [...utteranceKeys, ...annotationColumnKeys],
       emptyFieldValue: "",
     });
 
@@ -170,12 +138,7 @@ export const handler = async (event: {
   // Export sessions CSV for PER_SESSION
   if (annotationType === "PER_SESSION") {
     const sessionsCsv = json2csv(sessionsArray, {
-      keys: [
-        "_id",
-        "session_id",
-        ...Object.keys(sessionAnnotationKeysAsObject),
-        ...metadataKeys,
-      ],
+      keys: ["_id", "session_id", ...annotationColumnKeys],
       emptyFieldValue: "",
     });
 
@@ -192,27 +155,43 @@ export const handler = async (event: {
   }
 
   // Export meta CSV
-  const metaArray = runs.map((run) => ({
-    project: run.project,
+  const metaArray = runs.map((run, index) => ({
+    teamId,
+    projectId: run.project,
     runId: run._id,
     runName: run.name,
+    annotator: annotatorNames[index],
     annotationType: run.annotationType,
     model: getRunModelCode(run),
-    prompt: run.prompt,
-    promptVersion: run.promptVersion,
+    promptName: run.snapshot?.prompt?.name ?? "",
+    promptVersion: run.snapshot?.prompt?.version ?? run.promptVersion ?? "",
+    promptUserPrompt: run.snapshot?.prompt?.userPrompt ?? "",
+    promptAnnotationType: run.snapshot?.prompt?.annotationType ?? "",
+    isHuman: run.isHuman ?? false,
     sessionsCount: run.sessions.length,
+    createdAt: run.createdAt ?? "",
+    startedAt: run.startedAt ?? "",
+    finishedAt: run.finishedAt ?? "",
   }));
 
   const metaCsv = json2csv(metaArray, {
     keys: [
-      "project",
+      "teamId",
+      "projectId",
       "runId",
       "runName",
+      "annotator",
       "annotationType",
       "model",
-      "prompt",
+      "promptName",
       "promptVersion",
+      "promptUserPrompt",
+      "promptAnnotationType",
+      "isHuman",
       "sessionsCount",
+      "createdAt",
+      "startedAt",
+      "finishedAt",
     ],
     emptyFieldValue: "",
   });
