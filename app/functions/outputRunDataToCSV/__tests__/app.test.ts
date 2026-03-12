@@ -248,6 +248,7 @@ describe("outputRunDataToCSV", () => {
     await handler({
       body: {
         run: run as any,
+        teamId: "team1",
         inputFolder: "storage/proj1/runs/run1",
         outputFolder: "storage/proj1/runs/run1/exports",
       },
