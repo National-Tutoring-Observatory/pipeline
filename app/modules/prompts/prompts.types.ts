@@ -39,4 +39,6 @@ export interface AnnotationSchemaItem {
   fieldKey: string;
   value: any;
   isSystem: boolean;
+  fieldType?: string;
+  codes?: string[];
 }
