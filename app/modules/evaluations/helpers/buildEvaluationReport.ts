@@ -10,6 +10,7 @@ import type {
 } from "../evaluations.types";
 import calculateCohensKappa from "./calculateCohensKappa";
 import calculateMeanKappa from "./calculateMeanKappa";
+import calculatePRF1 from "./calculatePRF1";
 import extractAnnotationValues from "./extractAnnotationValues";
 
 interface SessionFileCache {
@@ -171,11 +172,27 @@ export default async function buildEvaluationReport(
 
       console.log(kappa);
 
+      let precision: number | undefined;
+      let recall: number | undefined;
+      let f1: number | undefined;
+
+      if (runIdA === evaluation.baseRun || runIdB === evaluation.baseRun) {
+        const goldLabels = runIdA === evaluation.baseRun ? alignedA : alignedB;
+        const predictions = runIdA === evaluation.baseRun ? alignedB : alignedA;
+        const prf1 = calculatePRF1(predictions, goldLabels);
+        precision = prf1.precision;
+        recall = prf1.recall;
+        f1 = prf1.f1;
+      }
+
       pairwiseResults.push({
         runA: runIdA,
         runB: runIdB,
         kappa: Math.round(kappa * 100) / 100,
         sampleSize: minLength,
+        precision,
+        recall,
+        f1,
       });
     }
 
