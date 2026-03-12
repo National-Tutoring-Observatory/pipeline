@@ -2,19 +2,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { BookCheck, Save } from "lucide-react";
+import { BookCheck, BookOpen, Save } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
 import type { PromptVersion } from "../prompts.types";
 import AnnotationSchemaBuilder from "./annotationSchemaBuilder";
 
 export default function PromptEditor({
   promptVersion,
+  codebook,
   isLoading,
   isProduction,
   onSavePromptVersion,
   onMakePromptVersionProduction,
 }: {
   promptVersion: PromptVersion;
+  codebook: { _id: string; name: string; version: number } | null;
   isLoading: boolean;
   isProduction: boolean;
   onSavePromptVersion: ({
@@ -63,8 +66,17 @@ export default function PromptEditor({
   return (
     <div className="border-l">
       <div className="flex items-center justify-between border-b p-2 text-sm">
-        <div>
+        <div className="flex items-center gap-3">
           <div>{`Version: ${promptVersion.name}`}</div>
+          {codebook && (
+            <Link
+              to={`/codebooks/${codebook._id}/${codebook.version}`}
+              className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs"
+            >
+              <BookOpen className="h-3 w-3" />
+              Built from {codebook.name}
+            </Link>
+          )}
         </div>
         <div className="flex items-center space-x-4">
           {!isProduction && promptVersion.hasBeenSaved && (

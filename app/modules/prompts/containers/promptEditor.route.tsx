@@ -6,6 +6,8 @@ import {
   type ShouldRevalidateFunctionArgs,
 } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { CodebookService } from "~/modules/codebooks/codebook";
+import { CodebookVersionService } from "~/modules/codebooks/codebookVersion";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
 import PromptAuthorization from "../authorization";
@@ -40,7 +42,28 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect("/");
   }
 
-  return { prompt: { data: prompt }, promptVersion: { data: promptVersion } };
+  let codebookData: { _id: string; name: string; version: number } | null =
+    null;
+
+  if (promptVersion.codebook) {
+    const [codebook, codebookVersion] = await Promise.all([
+      CodebookService.findById(promptVersion.codebook),
+      CodebookVersionService.findById(promptVersion.codebookVersion),
+    ]);
+    if (codebook && codebookVersion) {
+      codebookData = {
+        _id: codebook._id,
+        name: codebook.name,
+        version: codebookVersion.version,
+      };
+    }
+  }
+
+  return {
+    prompt: { data: prompt },
+    promptVersion: { data: promptVersion },
+    codebook: codebookData,
+  };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -109,7 +132,7 @@ export default function PromptEditorRoute() {
   const navigation = useNavigation();
   const submit = useSubmit();
 
-  const { prompt, promptVersion } = data;
+  const { prompt, promptVersion, codebook } = data;
 
   const onSavePromptVersion = ({
     name,
@@ -154,6 +177,7 @@ export default function PromptEditorRoute() {
     <PromptEditor
       key={promptVersion.data._id}
       promptVersion={promptVersion.data}
+      codebook={codebook}
       isLoading={navigation.state === "loading"}
       onSavePromptVersion={onSavePromptVersion}
       isProduction={
