@@ -52,7 +52,7 @@ export default function EvaluationTopPerformersItem({
         {performer.precision != null &&
           performer.recall != null &&
           performer.f1 != null && (
-            <div className="flex items-center gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div>
                 <div className="text-muted-foreground text-xs">Precision</div>
                 <div className="text-sm font-semibold">
