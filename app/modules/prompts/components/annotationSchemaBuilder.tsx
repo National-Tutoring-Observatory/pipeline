@@ -12,6 +12,8 @@ import {
 import cloneDeep from "lodash/cloneDeep";
 import map from "lodash/map";
 import { Trash } from "lucide-react";
+import Flag from "~/modules/featureFlags/components/flag";
+import CodesEditor from "./codesEditor";
 
 export default function AnnotationSchemaBuilder({
   annotationSchema,
@@ -60,8 +62,30 @@ export default function AnnotationSchemaBuilder({
       } else {
         annotationSchemaCloned[itemIndex].value = false;
       }
+      if (value !== "string") {
+        delete annotationSchemaCloned[itemIndex].codes;
+      }
     }
     annotationSchemaCloned[itemIndex][field] = value;
+    onAnnotationSchemaChanged(annotationSchemaCloned);
+  };
+
+  const onAddCode = (itemIndex: number, code: string) => {
+    const annotationSchemaCloned = cloneDeep(annotationSchema);
+    const codes = annotationSchemaCloned[itemIndex].codes || [];
+    if (!codes.includes(code)) {
+      codes.push(code);
+    }
+    annotationSchemaCloned[itemIndex].codes = codes;
+    onAnnotationSchemaChanged(annotationSchemaCloned);
+  };
+
+  const onRemoveCode = (itemIndex: number, code: string) => {
+    const annotationSchemaCloned = cloneDeep(annotationSchema);
+    const codes = annotationSchemaCloned[itemIndex].codes || [];
+    annotationSchemaCloned[itemIndex].codes = codes.filter(
+      (c: string) => c !== code,
+    );
     onAnnotationSchemaChanged(annotationSchemaCloned);
   };
 
@@ -112,7 +136,7 @@ export default function AnnotationSchemaBuilder({
                 </Select>
               </div>
               <div>
-                <Label className="mb-0.5 text-xs">Value</Label>
+                <Label className="mb-0.5 text-xs">Default value</Label>
                 {(annotationField.fieldType === "boolean" && (
                   <Checkbox
                     checked={annotationField.value}
@@ -142,6 +166,19 @@ export default function AnnotationSchemaBuilder({
                   />
                 )}
               </div>
+              {annotationField.fieldType === "string" &&
+                !annotationField.isSystem && (
+                  <Flag flag="HAS_CODEBOOKS">
+                    <div className="col-span-3">
+                      <CodesEditor
+                        codes={annotationField.codes || []}
+                        disabled={hasBeenSaved}
+                        onAddCode={(code) => onAddCode(index, code)}
+                        onRemoveCode={(code) => onRemoveCode(index, code)}
+                      />
+                    </div>
+                  </Flag>
+                )}
               {!annotationField.isSystem && (
                 <div className="col-start-3 flex justify-end">
                   <Button
