@@ -34,6 +34,12 @@ const makeRun = (index: number, overrides: Record<string, any> = {}) => ({
       name: "Test Prompt",
       userPrompt: "Annotate this",
       annotationType: "PER_UTTERANCE",
+      annotationSchema: [
+        { fieldKey: "score" },
+        { fieldKey: "label" },
+        { fieldKey: "quality" },
+        { fieldKey: "rating" },
+      ],
       version: 1,
     },
     model: { code: "gpt-4", name: "GPT-4", provider: "openai" },
@@ -175,10 +181,10 @@ describe("outputRunSetDataToCSV", () => {
       const csv = capturedCsvFiles[csvPath!];
       const headers = csv.split("\n")[0].split(",");
 
-      expect(headers).toContain("score-1");
-      expect(headers).toContain("label-1");
-      expect(headers).toContain("model-0");
-      expect(headers).toContain("model-1");
+      expect(headers).toContain("annotator[AI-0][0]score");
+      expect(headers).toContain("annotator[AI-1][0]score");
+      expect(headers).toContain("annotator[AI-0][0]label");
+      expect(headers).toContain("annotator[AI-1][0]label");
     });
 
     it("does not include _sessionRef in CSV output", async () => {
@@ -270,10 +276,10 @@ describe("outputRunSetDataToCSV", () => {
       const csv = capturedCsvFiles[csvPath!];
       const headers = csv.split("\n")[0].split(",");
 
-      expect(headers).toContain("quality-0");
-      expect(headers).toContain("quality-1");
-      expect(headers).toContain("model-0");
-      expect(headers).toContain("model-1");
+      expect(headers).toContain("annotator[AI-0][0]quality");
+      expect(headers).toContain("annotator[AI-1][0]quality");
+      expect(headers).toContain("annotator[AI-0][0]rating");
+      expect(headers).toContain("annotator[AI-1][0]rating");
     });
   });
 
