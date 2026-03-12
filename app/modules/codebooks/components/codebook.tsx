@@ -5,7 +5,7 @@ import {
   PageHeaderRight,
 } from "@/components/ui/pageHeader";
 import map from "lodash/map";
-import { CirclePlus, Pencil } from "lucide-react";
+import { CirclePlus, Pencil, Sparkles } from "lucide-react";
 import { Outlet } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
@@ -22,6 +22,7 @@ type CodebookProps = {
   breadcrumbs: Breadcrumb[];
   onCreateCodebookVersionClicked: () => void;
   onEditCodebookButtonClicked: (codebook: CodebookType) => void;
+  onCreatePromptFromCodebookClicked: () => void;
 };
 
 export default function Codebook({
@@ -31,6 +32,7 @@ export default function Codebook({
   breadcrumbs,
   onCreateCodebookVersionClicked,
   onEditCodebookButtonClicked,
+  onCreatePromptFromCodebookClicked,
 }: CodebookProps) {
   return (
     <div className="max-w-7xl p-8">
@@ -39,6 +41,15 @@ export default function Codebook({
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
         <PageHeaderRight>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={onCreatePromptFromCodebookClicked}
+          >
+            <Sparkles />
+            Create prompt
+          </Button>
           {onEditCodebookButtonClicked && (
             <Button
               size="sm"
