@@ -11,12 +11,13 @@ export const handler = async (event: {
   body: {
     runSet: RunSet;
     runs: Run[];
+    teamId: string;
     inputFolder: string;
     outputFolder: string;
   };
 }) => {
   const { body } = event;
-  const { runSet, runs, inputFolder, outputFolder } = body;
+  const { runSet, runs, teamId, inputFolder, outputFolder } = body;
 
   const sessionsOutputFile = `${outputFolder}/${runSet.project}-${runSet._id}-sessions.jsonl`;
   const metaOutputFile = `${outputFolder}/${runSet.project}-${runSet._id}-meta.jsonl`;
@@ -136,6 +137,7 @@ export const handler = async (event: {
 
   // Output meta JSONL
   const metaArray = runs.map((run, index) => ({
+    team: teamId,
     project: run.project,
     runId: run._id,
     runName: run.name,

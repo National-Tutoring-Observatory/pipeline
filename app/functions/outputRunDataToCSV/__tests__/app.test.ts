@@ -107,6 +107,7 @@ describe("outputRunDataToCSV", () => {
       await handler({
         body: {
           run: run as any,
+          teamId: "team1",
           inputFolder: "storage/proj1/runs/run1",
           outputFolder: "storage/proj1/runs/run1/exports",
         },
@@ -140,6 +141,7 @@ describe("outputRunDataToCSV", () => {
       await handler({
         body: {
           run: run as any,
+          teamId: "team1",
           inputFolder: "storage/proj1/runs/run1",
           outputFolder: "storage/proj1/runs/run1/exports",
         },
@@ -172,6 +174,7 @@ describe("outputRunDataToCSV", () => {
       await handler({
         body: {
           run: run as any,
+          teamId: "team1",
           inputFolder: "storage/proj1/runs/run1",
           outputFolder: "storage/proj1/runs/run1/exports",
         },
@@ -213,6 +216,7 @@ describe("outputRunDataToCSV", () => {
       await handler({
         body: {
           run: run as any,
+          teamId: "team1",
           inputFolder: "storage/proj1/runs/run1",
           outputFolder: "storage/proj1/runs/run1/exports",
         },
@@ -256,8 +260,9 @@ describe("outputRunDataToCSV", () => {
 
     const csv = capturedCsvFiles[csvPath!];
     const headers = csv.split("\n")[0].split(",");
-    expect(headers).toContain("_id");
-    expect(headers).toContain("name");
+    expect(headers).toContain("teamId");
+    expect(headers).toContain("runId");
+    expect(headers).toContain("runName");
     expect(headers).toContain("annotationType");
   });
 });

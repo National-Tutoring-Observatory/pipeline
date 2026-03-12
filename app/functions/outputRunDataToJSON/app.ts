@@ -6,11 +6,11 @@ import type { Run } from "~/modules/runs/runs.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 
 export const handler = async (event: {
-  body: { run: Run; inputFolder: string; outputFolder: string };
+  body: { run: Run; teamId: string; inputFolder: string; outputFolder: string };
 }) => {
   try {
     const { body } = event;
-    const { run, inputFolder, outputFolder } = body;
+    const { run, teamId, inputFolder, outputFolder } = body;
 
     const sessionsOutputFile = `${outputFolder}/${run.project}-${run._id}-sessions.jsonl`;
     const metaOutputFile = `${outputFolder}/${run.project}-${run._id}-meta.jsonl`;
@@ -51,6 +51,7 @@ export const handler = async (event: {
 
     // OUTPUT META
     const runObject: any = {
+      team: teamId,
       project: run.project,
       _id: run._id,
       name: run.name,

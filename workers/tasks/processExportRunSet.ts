@@ -1,6 +1,7 @@
 import type { Job } from "bullmq";
 import { handler as outputRunSetDataToCSV } from "../../app/functions/outputRunSetDataToCSV/app";
 import { handler as outputRunSetDataToJSONL } from "../../app/functions/outputRunSetDataToJSON/app";
+import { ProjectService } from "../../app/modules/projects/project";
 import { RunService } from "../../app/modules/runs/run";
 import { RunSetService } from "../../app/modules/runSets/runSet";
 import emitFromJob from "../helpers/emitFromJob";
@@ -26,6 +27,8 @@ export default async function processExportRunSet(job: Job) {
     sort: { isHuman: -1, createdAt: 1 },
   });
 
+  const project = await ProjectService.findById(runSet.project as string);
+  const teamId = project!.team as string;
   const inputDirectory = `storage/${runSet.project}/runs`;
   const outputDirectory = `storage/${runSet.project}/run-sets/${runSet._id}/exports`;
 
@@ -34,6 +37,7 @@ export default async function processExportRunSet(job: Job) {
       body: {
         runSet,
         runs,
+        teamId,
         inputFolder: inputDirectory,
         outputFolder: outputDirectory,
       },
@@ -43,6 +47,7 @@ export default async function processExportRunSet(job: Job) {
       body: {
         runSet,
         runs,
+        teamId,
         inputFolder: inputDirectory,
         outputFolder: outputDirectory,
       },

@@ -12,12 +12,13 @@ export const handler = async (event: {
   body: {
     runSet: RunSet;
     runs: Run[];
+    teamId: string;
     inputFolder: string;
     outputFolder: string;
   };
 }) => {
   const { body } = event;
-  const { runSet, runs, inputFolder, outputFolder } = body;
+  const { runSet, runs, teamId, inputFolder, outputFolder } = body;
 
   const utterancesOutputFile = `${outputFolder}/${runSet.project}-${runSet._id}-utterances.csv`;
   const sessionsOutputFile = `${outputFolder}/${runSet.project}-${runSet._id}-sessions.csv`;
@@ -76,7 +77,8 @@ export const handler = async (event: {
           if (annotations.length === 0) continue;
 
           const baseUtterance = utterancesArray.find(
-            (u) => u._id === utterance._id && u._sessionRef === session.sessionId,
+            (u) =>
+              u._id === utterance._id && u._sessionRef === session.sessionId,
           );
 
           if (baseUtterance) {
@@ -154,7 +156,8 @@ export const handler = async (event: {
 
   // Export meta CSV
   const metaArray = runs.map((run, index) => ({
-    project: run.project,
+    teamId,
+    projectId: run.project,
     runId: run._id,
     runName: run.name,
     annotator: annotatorNames[index],
@@ -173,7 +176,8 @@ export const handler = async (event: {
 
   const metaCsv = json2csv(metaArray, {
     keys: [
-      "project",
+      "teamId",
+      "projectId",
       "runId",
       "runName",
       "annotator",

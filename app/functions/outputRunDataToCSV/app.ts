@@ -8,11 +8,11 @@ import type { Run } from "~/modules/runs/runs.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 
 export const handler = async (event: {
-  body: { run: Run; inputFolder: string; outputFolder: string };
+  body: { run: Run; teamId: string; inputFolder: string; outputFolder: string };
 }) => {
   try {
     const { body } = event;
-    const { run, inputFolder, outputFolder } = body;
+    const { run, teamId, inputFolder, outputFolder } = body;
 
     const utterancesOutputFile = `${outputFolder}/${run.project}-${run._id}-utterances.csv`;
     const sessionsOutputFile = `${outputFolder}/${run.project}-${run._id}-sessions.csv`;
@@ -124,9 +124,10 @@ export const handler = async (event: {
 
     // OUTPUT META
     const metaObject: any = {
-      project: run.project,
-      _id: run._id,
-      name: run.name,
+      teamId,
+      projectId: run.project,
+      runId: run._id,
+      runName: run.name,
       annotator: annotatorName,
       annotationType: run.annotationType,
       model: getRunModelCode(run),
