@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   isRouteErrorResponse,
   Links,
@@ -5,11 +6,14 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
+  useLocation,
 } from "react-router";
 
 import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "sonner";
+import * as ga from "~/modules/analytics/analytics";
 import type { Route } from "./+types/root";
 import "./app.css";
 import AppSidebar from "./modules/app/components/appSidebar";
@@ -31,6 +35,10 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export const meta: Route.MetaFunction = () => [{ title: "Sandpiper - NTO" }];
+
+export function loader() {
+  return { googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID || null };
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -60,7 +68,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function useGoogleAnalytics(gaId: string | null) {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (gaId) ga.initialize(gaId);
+  }, [gaId]);
+
+  useEffect(() => {
+    if (gaId) ga.trackPageView(gaId, location.pathname);
+  }, [gaId, location]);
+}
+
 export default function App() {
+  const { googleAnalyticsId } = useLoaderData<typeof loader>();
+  useGoogleAnalytics(googleAnalyticsId);
+
   return <Outlet />;
 }
 
