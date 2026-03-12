@@ -29,11 +29,12 @@ export const handler = async (event: {
 
   const utteranceKeys = [
     "_id",
-    "sessionId",
+    "session_id",
+    "sequence_id",
     "role",
+    "content",
     "start_time",
     "end_time",
-    "content",
   ];
   const annotationColumnKeys = new Set<string>();
   let utterancesArray: any[] = [];
@@ -59,12 +60,13 @@ export const handler = async (event: {
       if (isBaseRun) {
         const transcript = map(json.transcript, (utterance) => {
           const { annotations: _annotations, ...rest } = utterance;
-          return { ...rest, sessionId: session.sessionId };
+          return { ...rest, _sessionRef: session.sessionId };
         });
         utterancesArray = utterancesArray.concat(transcript);
 
         sessionsArray.push({
           _id: session.sessionId,
+          session_id: json.transcript[0]?.session_id,
         });
       }
 
@@ -74,7 +76,7 @@ export const handler = async (event: {
           if (annotations.length === 0) continue;
 
           const baseUtterance = utterancesArray.find(
-            (u) => u._id === utterance._id && u.sessionId === session.sessionId,
+            (u) => u._id === utterance._id && u._sessionRef === session.sessionId,
           );
 
           if (baseUtterance) {
@@ -134,7 +136,7 @@ export const handler = async (event: {
   // Export sessions CSV for PER_SESSION
   if (annotationType === "PER_SESSION") {
     const sessionsCsv = json2csv(sessionsArray, {
-      keys: ["_id", ...annotationColumnKeys],
+      keys: ["_id", "session_id", ...annotationColumnKeys],
       emptyFieldValue: "",
     });
 

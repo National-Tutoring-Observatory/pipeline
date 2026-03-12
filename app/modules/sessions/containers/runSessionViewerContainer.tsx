@@ -2,17 +2,17 @@ import find from "lodash/find";
 import findIndex from "lodash/findIndex";
 import { useEffect } from "react";
 import { useFetcher, useLocation, useNavigate } from "react-router";
-import type { Run } from "~/modules/runs/runs.types";
-import SessionViewer from "../components/sessionViewer";
-import type { Session, SessionFile } from "../sessions.types";
+import type { Run, RunSession } from "~/modules/runs/runs.types";
+import RunSessionViewer from "../components/runSessionViewer";
+import type { SessionFile } from "../sessions.types";
 
-export default function SessionViewerContainer({
+export default function RunSessionViewerContainer({
   run,
   session,
   sessionFile,
 }: {
   run: Run;
-  session: Session;
+  session: RunSession;
   sessionFile: SessionFile;
 }) {
   const { hash } = useLocation();
@@ -90,7 +90,25 @@ export default function SessionViewerContainer({
     );
   };
 
+  const reasonFetcher = useFetcher();
+
+  const onSaveVotingReason = (
+    utteranceId: string,
+    annotationIndex: number,
+    reason: string,
+  ) => {
+    reasonFetcher.submit(
+      { votingReason: reason },
+      {
+        action: `/api/annotations/${run._id}/${session.sessionId}/${utteranceId}/${annotationIndex}`,
+        method: "post",
+        encType: "application/json",
+      },
+    );
+  };
+
   const isVoting = fetcher.state !== "idle";
+  const isSavingReason = reasonFetcher.state !== "idle";
 
   useEffect(() => {
     if (selectedUtteranceId) {
@@ -126,7 +144,7 @@ export default function SessionViewerContainer({
   };
 
   return (
-    <SessionViewer
+    <RunSessionViewer
       session={session}
       sessionFile={sessionFile}
       selectedUtteranceId={selectedUtteranceId}
@@ -141,6 +159,8 @@ export default function SessionViewerContainer({
       onJumpToFirstAnnotation={onJumpToFirstAnnotation}
       onDownVoteClicked={onDownVoteClicked}
       onUpVoteClicked={onUpVoteClicked}
+      onSaveVotingReason={onSaveVotingReason}
+      isSavingReason={isSavingReason}
     />
   );
 }

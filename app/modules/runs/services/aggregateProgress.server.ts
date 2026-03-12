@@ -7,7 +7,7 @@ export interface AggregateProgressResult {
   completedRuns: number;
   totalSessions: number;
   completedSessions: number;
-  running: number;
+  processing: number;
   startedAt: string | null;
 }
 
@@ -26,8 +26,24 @@ export default async function aggregateProgress(
           completedRuns: {
             $sum: { $cond: ["$isComplete", 1, 0] },
           },
-          running: {
-            $sum: { $cond: ["$isRunning", 1, 0] },
+          processing: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ["$isComplete", false] },
+                    {
+                      $or: [
+                        { $eq: [{ $type: "$stoppedAt" }, "missing"] },
+                        { $eq: ["$stoppedAt", null] },
+                      ],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
           },
           totalSessions: {
             $sum: { $size: "$sessions" },
@@ -63,7 +79,7 @@ export default async function aggregateProgress(
     completedRuns: progress?.completedRuns ?? 0,
     totalSessions: progress?.totalSessions ?? 0,
     completedSessions: progress?.completedSessions ?? 0,
-    running: progress?.running ?? 0,
+    processing: progress?.processing ?? 0,
     startedAt: earliest ? String(earliest.startedAt) : null,
   };
 }

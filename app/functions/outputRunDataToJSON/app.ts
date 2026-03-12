@@ -28,6 +28,7 @@ export const handler = async (event: {
       });
       const json = await fse.readJSON(downloadedPath);
 
+      json._id = session.sessionId;
       sessionsArray.push(json);
     }
 

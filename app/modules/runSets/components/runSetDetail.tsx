@@ -59,7 +59,7 @@ export default function RunSetDetail({
     completedRuns: number;
     totalSessions: number;
     completedSessions: number;
-    running: number;
+    processing: number;
     startedAt: string | null;
   };
   onExportRunSetButtonClicked: ({ exportType }: { exportType: string }) => void;
@@ -145,7 +145,7 @@ export default function RunSetDetail({
           </div>
         </PageHeaderRight>
       </PageHeader>
-      {annotationProgress.running > 0 &&
+      {annotationProgress.processing > 0 &&
         annotationProgress.completedSessions <
           annotationProgress.totalSessions && (
           <div className="relative mb-6">

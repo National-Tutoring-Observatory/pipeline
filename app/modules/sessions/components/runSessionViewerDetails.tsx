@@ -1,17 +1,17 @@
 import getDateString from "~/modules/app/helpers/getDateString";
-import type { Session } from "../sessions.types";
+import type { RunSession } from "~/modules/runs/runs.types";
 
-interface SessionViewerDetailsProps {
-  session: Session;
+interface RunSessionViewerDetailsProps {
+  session: RunSession;
   utteranceCount: number;
   annotatedUtteranceCount: number;
 }
 
-export default function SessionViewerDetails({
+export default function RunSessionViewerDetails({
   session,
   utteranceCount: utteranceCount,
   annotatedUtteranceCount: annotatedUtteranceCount,
-}: SessionViewerDetailsProps) {
+}: RunSessionViewerDetailsProps) {
   return (
     <div className="border-b px-4 pb-4">
       <div className="mb-2">

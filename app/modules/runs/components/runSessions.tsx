@@ -4,8 +4,8 @@ import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
 import SessionListSidebar from "~/modules/sessions/components/sessionListSidebar";
-import SessionViewerContainer from "~/modules/sessions/containers/sessionViewerContainer";
-import type { Session, SessionFile } from "~/modules/sessions/sessions.types";
+import RunSessionViewerContainer from "~/modules/sessions/containers/runSessionViewerContainer";
+import type { SessionFile } from "~/modules/sessions/sessions.types";
 
 export default function RunSessions({
   run,
@@ -24,7 +24,7 @@ export default function RunSessions({
 }: {
   run: Run;
   sessionFile: SessionFile;
-  session: Session;
+  session: RunSession;
   breadcrumbs: Breadcrumb[];
   runLink: string;
   currentSessionId: string;
@@ -61,7 +61,7 @@ export default function RunSessions({
             <Spinner className="size-6" />
           </div>
         ) : (
-          <SessionViewerContainer
+          <RunSessionViewerContainer
             run={run}
             session={session}
             sessionFile={sessionFile}

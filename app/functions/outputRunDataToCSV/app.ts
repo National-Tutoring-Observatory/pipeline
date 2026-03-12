@@ -66,6 +66,7 @@ export const handler = async (event: {
 
       const sessionObject: any = {
         _id: session.sessionId,
+        session_id: json.transcript[0]?.session_id,
       };
 
       if (json.annotations) {
@@ -105,7 +106,7 @@ export const handler = async (event: {
     // OUTPUT SESSIONS
     if (run.annotationType === "PER_SESSION") {
       const sessionsCsv = json2csv(sessionsArray, {
-        keys: ["_id", ...annotationColumnKeys],
+        keys: ["_id", "session_id", ...annotationColumnKeys],
         emptyFieldValue: "",
       });
 
