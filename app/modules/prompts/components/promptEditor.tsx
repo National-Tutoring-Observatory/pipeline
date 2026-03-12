@@ -28,7 +28,7 @@ export default function PromptEditor({
   }) => void;
   onMakePromptVersionProduction: () => void;
 }) {
-  const [hasChanges, setHasChanges] = useState(false);
+  const [hasChanges, setHasChanges] = useState(!!promptVersion.userPrompt);
   const [name, setName] = useState(promptVersion.name);
   const [userPrompt, setUserPrompt] = useState(promptVersion.userPrompt || "");
   const [annotationSchema, setAnnotationSchema] = useState<any[]>(
