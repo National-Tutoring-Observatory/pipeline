@@ -49,9 +49,9 @@ export default function EvaluationTopPerformersItem({
             {getKappaInterpretation(performer.kappa)}
           </Badge>
         </div>
-        {performer.precision !== undefined &&
-          performer.recall !== undefined &&
-          performer.f1 !== undefined && (
+        {performer.precision != null &&
+          performer.recall != null &&
+          performer.f1 != null && (
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <div className="text-muted-foreground text-xs">Precision</div>
