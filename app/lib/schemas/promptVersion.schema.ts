@@ -6,6 +6,8 @@ export default new mongoose.Schema({
   version: { type: Number },
   userPrompt: { type: String, default: "" },
   annotationSchema: [],
+  codebook: { type: mongoose.Types.ObjectId, ref: "Codebook" },
+  codebookVersion: { type: mongoose.Types.ObjectId, ref: "CodebookVersion" },
   hasBeenSaved: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   createdBy: { type: mongoose.Types.ObjectId, ref: "User" },

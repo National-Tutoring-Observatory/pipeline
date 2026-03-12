@@ -20,6 +20,8 @@ export interface PromptVersion {
   version: number;
   userPrompt: string;
   annotationSchema: any[];
+  codebook?: string;
+  codebookVersion?: string;
   hasBeenSaved: boolean;
   updatedAt: string;
 }
