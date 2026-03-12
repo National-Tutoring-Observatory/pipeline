@@ -23,6 +23,7 @@ export default async function processExportRunSet(job: Job) {
 
   const runs = await RunService.find({
     match: { _id: { $in: runSet.runs || [] } },
+    sort: { isHuman: -1, createdAt: 1 },
   });
 
   const inputDirectory = `storage/${runSet.project}/runs`;

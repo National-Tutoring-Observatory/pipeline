@@ -39,12 +39,13 @@ export const handler = async (event: {
   let utterancesArray: any[] = [];
   const sessionsArray: any[] = [];
   let isBaseRun = true;
-  let annotationIndex = 0;
+  let aiIndex = 0;
 
   const annotatorNames: string[] = [];
 
   for (const run of runs) {
-    const annotatorName = getAnnotatorName(run, annotationIndex);
+    const annotatorName = getAnnotatorName(run, aiIndex);
+    if (!run.isHuman) aiIndex++;
     annotatorNames.push(annotatorName);
     const fieldKeys = getExportFieldKeys(run);
 
@@ -109,7 +110,6 @@ export const handler = async (event: {
     }
 
     if (isBaseRun) isBaseRun = false;
-    annotationIndex++;
   }
 
   // Export utterances CSV for PER_UTTERANCE
@@ -155,7 +155,7 @@ export const handler = async (event: {
     project: run.project,
     runId: run._id,
     runName: run.name,
-    annotator: getAnnotatorName(run, index),
+    annotator: annotatorNames[index],
     annotationType: run.annotationType,
     model: getRunModelCode(run),
     promptName: run.snapshot?.prompt?.name ?? "",
