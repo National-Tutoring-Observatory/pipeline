@@ -163,4 +163,52 @@ describe("getTopPerformersVsGoldLabel", () => {
     expect(performers[1].kappa).toBe(-0.1);
     expect(performers[1].rank).toBe(2);
   });
+
+  it("passes through precision, recall, and f1 from pairwise data", () => {
+    const report = buildReport({
+      pairwise: [
+        {
+          runA: BASE_RUN_ID,
+          runB: "run-2",
+          kappa: 0.85,
+          sampleSize: 100,
+          precision: 0.9,
+          recall: 0.8,
+          f1: 0.85,
+        },
+        {
+          runA: "run-3",
+          runB: BASE_RUN_ID,
+          kappa: 0.72,
+          sampleSize: 100,
+          precision: 0.75,
+          recall: 0.7,
+          f1: 0.72,
+        },
+      ],
+    });
+
+    const performers = getTopPerformersVsGoldLabel(report, BASE_RUN_ID);
+
+    expect(performers[0].precision).toBe(0.9);
+    expect(performers[0].recall).toBe(0.8);
+    expect(performers[0].f1).toBe(0.85);
+    expect(performers[1].precision).toBe(0.75);
+    expect(performers[1].recall).toBe(0.7);
+    expect(performers[1].f1).toBe(0.72);
+  });
+
+  it("leaves precision, recall, and f1 undefined when not on pairwise data", () => {
+    const report = buildReport({
+      pairwise: [
+        { runA: BASE_RUN_ID, runB: "run-2", kappa: 0.85, sampleSize: 100 },
+      ],
+    });
+
+    const performers = getTopPerformersVsGoldLabel(report, BASE_RUN_ID);
+
+    expect(performers[0].precision).toBeUndefined();
+    expect(performers[0].recall).toBeUndefined();
+    expect(performers[0].f1).toBeUndefined();
+  });
 });

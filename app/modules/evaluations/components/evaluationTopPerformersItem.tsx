@@ -49,6 +49,30 @@ export default function EvaluationTopPerformersItem({
             {getKappaInterpretation(performer.kappa)}
           </Badge>
         </div>
+        {performer.precision !== undefined &&
+          performer.recall !== undefined &&
+          performer.f1 !== undefined && (
+            <div className="flex items-center gap-3">
+              <div>
+                <div className="text-muted-foreground text-xs">Precision</div>
+                <div className="text-sm font-semibold">
+                  {performer.precision.toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <div className="text-muted-foreground text-xs">Recall</div>
+                <div className="text-sm font-semibold">
+                  {performer.recall.toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <div className="text-muted-foreground text-xs">F1</div>
+                <div className="text-sm font-semibold">
+                  {performer.f1.toFixed(2)}
+                </div>
+              </div>
+            </div>
+          )}
       </CardContent>
     </Card>
   );

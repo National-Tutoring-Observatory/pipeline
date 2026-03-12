@@ -7,6 +7,9 @@ export interface TopPerformer {
   isHuman: boolean;
   kappa: number;
   sampleSize: number;
+  precision?: number;
+  recall?: number;
+  f1?: number;
 }
 
 export default function getTopPerformersVsGoldLabel(
@@ -34,6 +37,9 @@ export default function getTopPerformersVsGoldLabel(
       isHuman: runIsHumanMap.get(otherRunId) || false,
       kappa: pair.kappa,
       sampleSize: pair.sampleSize,
+      precision: pair.precision,
+      recall: pair.recall,
+      f1: pair.f1,
     };
   });
 
