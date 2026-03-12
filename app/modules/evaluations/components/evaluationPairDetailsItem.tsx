@@ -27,6 +27,32 @@ export default function EvaluationPairDetailsItem({
           </Badge>
         </div>
       </CardContent>
+      {pair.precision !== undefined &&
+        pair.recall !== undefined &&
+        pair.f1 !== undefined && (
+          <CardContent className="border-t pt-3">
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <div className="text-muted-foreground text-xs">Precision</div>
+                <div className="text-sm font-semibold">
+                  {pair.precision.toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <div className="text-muted-foreground text-xs">Recall</div>
+                <div className="text-sm font-semibold">
+                  {pair.recall.toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <div className="text-muted-foreground text-xs">F1</div>
+                <div className="text-sm font-semibold">
+                  {pair.f1.toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        )}
     </Card>
   );
 }
