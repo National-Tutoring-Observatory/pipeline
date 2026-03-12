@@ -19,6 +19,7 @@ import "./app.css";
 import AppSidebar from "./modules/app/components/appSidebar";
 import AuthenticationContainer from "./modules/authentication/containers/authentication.container";
 import DialogContainer from "./modules/dialogs/containers/dialog.container";
+import useHasFeatureFlag from "./modules/featureFlags/hooks/useHasFeatureFlag";
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", href: "/assets/nto-favicon.png", type: "image/png" },
@@ -30,7 +31,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Josefin+Sans:wght@300;400&display=swap",
   },
 ];
 
@@ -83,8 +84,19 @@ function useGoogleAnalytics(gaId: string | null) {
 export default function App() {
   const { googleAnalyticsId } = useLoaderData<typeof loader>();
   useGoogleAnalytics(googleAnalyticsId);
-
-  return <Outlet />;
+  const hasSandpiperTheme = useHasFeatureFlag("HAS_SANDPIPER_THEME");
+  return (
+    <>
+      {hasSandpiperTheme && (
+        <link
+          rel="icon"
+          href="/assets/sandpiper-favicon.svg"
+          type="image/svg+xml"
+        />
+      )}
+      <Outlet />
+    </>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
