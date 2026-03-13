@@ -117,7 +117,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
     return {
       intent: "CREATE_PROMPT",
-      ...prompt,
+      data: prompt,
     };
   }
 
