@@ -1,4 +1,5 @@
 import { initializeDatabase } from "~/lib/database";
+import createQueue from "~/modules/queues/helpers/createQueue";
 
 // Isolate database per test worker by appending pool ID to DB name
 const poolId = process.env.VITEST_POOL_ID;
@@ -22,3 +23,7 @@ if (m) {
 
 // Initialize database connection for all tests
 await initializeDatabase();
+
+// Create queues so route actions can enqueue jobs
+createQueue("general");
+createQueue("tasks");

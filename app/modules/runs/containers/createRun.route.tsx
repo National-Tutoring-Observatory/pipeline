@@ -2,7 +2,9 @@ import map from "lodash/map";
 import { useEffect } from "react";
 import { redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
 import { toast } from "sonner";
+import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import useSubmitGuard from "~/modules/app/hooks/useSubmitGuard";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
@@ -39,6 +41,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
+  const user = await getSessionUser({ request });
+  if (!user) throw new Error("Authentication required");
+
   const { intent, payload = {} } = await request.json();
 
   const { name, annotationType, prompt, promptVersion, model, sessions } =
@@ -65,6 +70,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       });
 
       await RunService.start(run);
+      await trackServerEvent({ name: "run_created", userId: user._id });
 
       return {
         intent: "CREATE_AND_START_RUN",

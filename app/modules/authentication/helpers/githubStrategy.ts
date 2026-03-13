@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import find from "lodash/find";
 import { redirect } from "react-router";
 import { GitHubStrategy } from "remix-auth-github";
+import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import INVITE_LINK_TTL_DAYS from "~/modules/teams/helpers/inviteLink";
 import { UserService } from "~/modules/users/user";
 import type { UserTeam } from "~/modules/users/users.types";
@@ -69,6 +70,7 @@ const githubStrategy = new GitHubStrategy<any>(
           update.registeredAt = new Date();
           update.githubId = githubUser.id;
           update.hasGithubSSO = true;
+          await trackServerEvent({ name: "user_registered", userId: user._id });
         } else {
           throw redirect("/?error=UNREGISTERED");
         }

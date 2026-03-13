@@ -7,6 +7,7 @@ import deleteRunSetData from "../general/deleteRunSetData";
 import removeExpiredTeamAssignment from "../general/removeExpiredTeamAssignment";
 import removeFeatureFlagFromUsers from "../general/removeFeatureFlagFromUsers";
 import runMigration from "../general/runMigration";
+import trackAnalyticsEvent from "../general/trackAnalyticsEvent";
 
 console.log("[general] Initializing database connection...");
 const _dbStart = Date.now();
@@ -33,6 +34,9 @@ export default async (job: Job) => {
       }
       case "RUN_MIGRATION": {
         return runMigration(job);
+      }
+      case "TRACK_ANALYTICS_EVENT": {
+        return trackAnalyticsEvent(job);
       }
       default: {
         return {
