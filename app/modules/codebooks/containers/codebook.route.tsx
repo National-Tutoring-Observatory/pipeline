@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   data,
   redirect,
@@ -140,6 +140,7 @@ export default function CodebookRoute() {
   const { id, version } = useParams();
 
   const fetcher = useFetcher();
+  const createPromptToastId = useRef<string | number | undefined>(undefined);
 
   const { codebook, codebookVersions } = loaderData;
 
@@ -160,6 +161,7 @@ export default function CodebookRoute() {
         fetcher.data.success &&
         fetcher.data.intent === "CREATE_PROMPT_FROM_CODEBOOK"
       ) {
+        toast.dismiss(createPromptToastId.current);
         toast.success("Prompt created from codebook");
         addDialog(null);
         navigate(
@@ -179,6 +181,7 @@ export default function CodebookRoute() {
         toast.success("Codebook updated");
         addDialog(null);
       } else if (fetcher.data.errors) {
+        toast.dismiss(createPromptToastId.current);
         toast.error(fetcher.data.errors.general || "An error occurred");
       }
     }
@@ -209,6 +212,9 @@ export default function CodebookRoute() {
     codebookVersionId: string;
     annotationType: string;
   }) => {
+    createPromptToastId.current = toast.loading(
+      "Creating prompt from codebook...",
+    );
     fetcher.submit(
       JSON.stringify({
         intent: "CREATE_PROMPT_FROM_CODEBOOK",
