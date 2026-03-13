@@ -8,6 +8,7 @@ import {
   useParams,
 } from "react-router";
 import { toast } from "sonner";
+import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import CodebookAuthorization from "~/modules/codebooks/authorization";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -121,6 +122,8 @@ export async function action({ request }: Route.ActionArgs) {
         userId: user._id,
         teamId: codebook.team as string,
       });
+
+      await trackServerEvent({ name: "prompt_created", userId: user._id });
 
       return data({
         success: true,
