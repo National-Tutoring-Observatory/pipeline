@@ -128,9 +128,9 @@ export default function DownloadAnnotationTemplateDialog({
         <div className="space-y-2">
           <Label>Annotation fields</Label>
           <p className="text-muted-foreground text-sm">
-            Select which fields to include. Each slot creates a separate column
-            for that field — use multiple slots when an utterance may have more
-            than one annotation (e.g. multiple tutor moves).
+            Select which fields to include. Use multiple columns when an
+            utterance may have more than one annotation (e.g. multiple tutor
+            moves).
           </p>
           {availableFields.length === 0 ? (
             <p className="text-muted-foreground text-sm italic">
@@ -163,7 +163,7 @@ export default function DownloadAnnotationTemplateDialog({
                     {isSelected && (
                       <div className="flex items-center gap-1">
                         <Label className="text-muted-foreground text-xs">
-                          Slots:
+                          Columns:
                         </Label>
                         <Input
                           type="number"
