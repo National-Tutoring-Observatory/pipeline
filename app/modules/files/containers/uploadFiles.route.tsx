@@ -7,6 +7,7 @@ import {
 import { useEffect } from "react";
 import { data, Link, redirect, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
+import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { FileService } from "~/modules/files/file";
@@ -94,6 +95,8 @@ export async function action({ request, params }: Route.ActionArgs) {
       hasSetupProject: true,
     });
   }
+
+  await trackServerEvent({ name: "sessions_uploaded", userId: user._id });
 
   return data({ success: true });
 }

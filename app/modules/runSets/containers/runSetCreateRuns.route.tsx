@@ -8,6 +8,7 @@ import {
   useNavigate,
 } from "react-router";
 import { toast } from "sonner";
+import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -108,6 +109,10 @@ export async function action({ request, params }: Route.ActionArgs) {
           { errors: { duplicate: result.errors.join(", ") } },
           { status: 400 },
         );
+      }
+
+      if (result.createdRunIds.length > 0) {
+        await trackServerEvent({ name: "run_created", userId: user._id });
       }
 
       return {

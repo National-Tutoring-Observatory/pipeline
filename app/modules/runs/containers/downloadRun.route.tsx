@@ -2,15 +2,18 @@ import archiver from "archiver";
 import map from "lodash/map";
 import { PassThrough, Readable } from "node:stream";
 import { redirect } from "react-router";
-import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { ProjectService } from "~/modules/projects/project";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
+import type { User } from "~/modules/users/users.types";
 import { RunService } from "../run";
 import type { Route } from "./+types/downloadRun.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const authenticationTeams = await getSessionUserTeams({ request });
-  const teamIds = map(authenticationTeams, "team");
+  const user = (await getSessionUser({ request })) as User;
+  if (!user) return redirect("/");
+  const teamIds = map(user.teams, "team");
 
   const project = await ProjectService.findOne({
     _id: params.projectId,
@@ -26,6 +29,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const searchParams = url.searchParams;
 
   const exportType = searchParams.get("exportType");
+  if (!exportType) throw new Error("exportType is required");
 
   const run = await RunService.findById(params.runId);
   if (!run || run.project !== params.projectId) {
@@ -89,6 +93,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   archive.finalize();
+
+  await trackServerEvent({
+    name: "results_downloaded",
+    userId: user._id,
+    params: { source: "run", export_type: exportType.toLowerCase() },
+  });
 
   const webStream = Readable.toWeb(passthroughStream);
 

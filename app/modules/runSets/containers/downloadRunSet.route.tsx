@@ -2,19 +2,21 @@ import archiver from "archiver";
 import map from "lodash/map";
 import { PassThrough, Readable } from "node:stream";
 import { redirect } from "react-router";
-import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import type { RunSet } from "~/modules/runSets/runSets.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import type { StorageAdapter } from "~/modules/storage/storage.types";
+import type { User } from "~/modules/users/users.types";
 import { RunSetService } from "../runSet";
 import type { Route } from "./+types/downloadRunSet.route";
 
 function buildExportFilePaths(
   runSet: RunSet,
   outputDirectory: string,
-  exportType: string | null,
+  exportType: string,
   annotationType: string | undefined,
 ) {
   const files: { path: string; name: string }[] = [];
@@ -64,8 +66,9 @@ async function downloadFiles(
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const authenticationTeams = await getSessionUserTeams({ request });
-  const teamIds = map(authenticationTeams, "team");
+  const user = (await getSessionUser({ request })) as User;
+  if (!user) return redirect("/");
+  const teamIds = map(user.teams, "team");
 
   const project = await ProjectService.findOne({
     _id: params.projectId,
@@ -79,6 +82,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
   const exportType = searchParams.get("exportType");
+  if (!exportType) throw new Error("exportType is required");
 
   const runSet = await RunSetService.findById(params.runSetId);
   if (!runSet || runSet.project !== params.projectId) {
@@ -118,6 +122,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   archive.finalize();
+
+  await trackServerEvent({
+    name: "results_downloaded",
+    userId: user._id,
+    params: { source: "run_set", export_type: exportType.toLowerCase() },
+  });
 
   const webStream = Readable.toWeb(passthroughStream);
 
