@@ -27,7 +27,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   });
 
   const query = buildQueryFromParams({
-    match: { project: params.id },
+    match: { project: params.id, isHuman: { $ne: true } },
     queryParams,
     searchableFields: ["name"],
     sortableFields: ["name", "createdAt"],
