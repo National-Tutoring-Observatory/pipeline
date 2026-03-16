@@ -55,9 +55,10 @@ export default function TeamsSelector({
               {teams.map((team) => (
                 <CommandItem
                   key={team._id}
-                  value={team._id}
-                  onSelect={(currentValue) => {
-                    onTeamSelected(currentValue);
+                  value={team.name}
+                  keywords={[team._id]}
+                  onSelect={() => {
+                    onTeamSelected(team._id);
                     onToggleDropdown(false);
                   }}
                 >
