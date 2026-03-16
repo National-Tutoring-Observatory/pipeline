@@ -101,7 +101,8 @@ export default function PromptSelector({
                 {prompts.map((prompt: Prompt) => (
                   <CommandItem
                     key={prompt._id}
-                    value={prompt._id}
+                    value={prompt.name}
+                    keywords={[prompt._id]}
                     onSelect={() => {
                       onSelectedPromptChange(prompt._id);
                       onTogglePromptPopover(false);
@@ -173,7 +174,11 @@ export default function PromptSelector({
                     {promptVersions.map((promptVersion: PromptVersion) => (
                       <CommandItem
                         key={promptVersion._id}
-                        value={`${promptVersion.version}`}
+                        value={`#${promptVersion.version} ${promptVersion.name}`}
+                        keywords={[
+                          `${promptVersion.version}`,
+                          promptVersion.name,
+                        ]}
                         onSelect={() => {
                           onSelectedPromptVersionChange(promptVersion.version);
                           onTogglePromptVersionsPopover(false);
