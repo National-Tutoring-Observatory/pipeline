@@ -28,7 +28,11 @@ export default function EstimateSummary({
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Estimated processing time</p>
+          <p>
+            Estimated time range based on recent runs.
+            <br />
+            Actual time can vary with load.
+          </p>
         </TooltipContent>
       </Tooltip>
 
