@@ -2,7 +2,11 @@ import getKappaInterpretation from "./getKappaInterpretation";
 
 export default function getKappaCellClass(kappa: number): string {
   const interpretation = getKappaInterpretation(kappa);
-  if (interpretation === "Almost Perfect" || interpretation === "Substantial") {
+  if (
+    interpretation === "Perfect" ||
+    interpretation === "Almost Perfect" ||
+    interpretation === "Substantial"
+  ) {
     return "bg-sandpiper-success/10 dark:bg-sandpiper-success/10";
   }
   if (interpretation === "Moderate") {
