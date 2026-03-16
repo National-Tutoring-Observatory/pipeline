@@ -111,6 +111,7 @@ export async function action({ request }: Route.ActionArgs) {
       const runsUsingPromptCount = await RunService.count({
         prompt: entityId,
         isComplete: false,
+        isHuman: { $ne: true },
       });
 
       if (runsUsingPromptCount > 0) {

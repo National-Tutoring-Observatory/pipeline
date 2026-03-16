@@ -38,7 +38,11 @@ export default function getRunsItemAttributes(item: Run, options?: Options) {
     },
   ];
 
-  if (item.isComplete) {
+  if (item.isHuman) {
+    meta.push({
+      text: `Annotator - ${item.annotator?.name || "Unknown"}`,
+    });
+  } else if (item.isComplete) {
     const modelName = getRunModelDisplayName(item);
     meta.push({
       text: `Prompt - ${promptName}`,
