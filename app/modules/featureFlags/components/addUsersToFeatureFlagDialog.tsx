@@ -48,7 +48,7 @@ export default function AddUsersToFeatureFlagDialog({
           feature.
         </DialogDescription>
       </DialogHeader>
-      <div style={{ height: "calc(100vh - 200px)" }}>
+      <div className="h-[calc(100vh-200px)] overflow-y-auto">
         <Collection
           items={users}
           itemsLayout="list"

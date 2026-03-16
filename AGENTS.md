@@ -672,6 +672,23 @@ Authorization checks are done in route loaders/actions:
 - **Loaders**: Use `redirect()` for auth failures
 - **Actions**: Return `data({ errors: {...} }, { status: 400/403/500 })` for errors
 
+### Human Runs (`isHuman: true`)
+
+Runs can be either LLM-generated or human-annotated. Human runs have `isHuman: true` and an `annotator: { name }` field instead of a prompt/model.
+
+**Filtering rules:**
+
+- **Exclude human runs by default** — Any query that lists or counts runs for general display (e.g., project runs page, project dashboard count, prompt usage count) must include `isHuman: { $ne: true }` in the match.
+- **Include human runs in run sets** — When fetching runs that belong to a run set (queried by `{ _id: { $in: runSet.runs } }`), do NOT filter out human runs. They should appear alongside LLM runs.
+- **Include human runs in evaluations** — Same as run sets; evaluations operate on runs within a run set.
+- **Include human runs in the eligible runs picker** — When finding runs eligible to add to a run set, human runs should be included.
+
+**Display rules for human runs:**
+
+- Do NOT show prompt or model information (human runs have neither).
+- Show the annotator name (`run.annotator?.name`) instead.
+- Annotation type still applies and should be displayed.
+
 ### Background Jobs (BullMQ + Redis)
 
 Jobs are processed by workers in the `workers/` workspace:
