@@ -60,7 +60,8 @@ export default function ModelSelector({
                   {provider.models.map((model) => (
                     <CommandItem
                       key={model.code}
-                      value={model.code}
+                      value={model.name}
+                      keywords={[model.code, provider.name]}
                       onSelect={() => {
                         onSelectedModelChanged(model.code);
                         onToggleModelPopover(false);
