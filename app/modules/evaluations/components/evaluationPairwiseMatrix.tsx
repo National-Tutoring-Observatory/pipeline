@@ -44,7 +44,7 @@ export default function EvaluationPairwiseMatrix({
               {matrix.runs.map((run) => (
                 <TableHead
                   key={run.runId}
-                  className="min-w-50 border-r text-center whitespace-normal"
+                  className="min-w-50 border-r text-center whitespace-normal last:border-r-0"
                 >
                   <div className="flex items-center justify-center gap-1.5">
                     <RunTypeIcon isHuman={run.isHuman} />
