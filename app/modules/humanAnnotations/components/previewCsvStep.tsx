@@ -78,6 +78,19 @@ const PreviewCsvStep = ({
           </AlertDescription>
         </Alert>
       )}
+      {analysisResult.missingSessionNames.length > 0 && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <span className="wrap-break-word">
+              {analysisResult.missingSessionNames.length} session(s) in the run
+              set are missing from the CSV:{" "}
+              {analysisResult.missingSessionNames.join(", ")}. All sessions must
+              be present in the CSV.
+            </span>
+          </AlertDescription>
+        </Alert>
+      )}
       <div className="grid gap-2">
         <Label>Annotation Fields</Label>
         <div className="flex flex-wrap gap-1">
