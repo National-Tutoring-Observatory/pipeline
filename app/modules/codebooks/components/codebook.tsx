@@ -66,7 +66,7 @@ export default function Codebook({
       {codebook.description && (
         <div className="mb-2">
           <p className="text-sm font-bold">Intention</p>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground max-w-prose text-sm">
             {codebook.description}
           </p>
         </div>

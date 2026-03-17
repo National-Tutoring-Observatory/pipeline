@@ -1,6 +1,6 @@
 import each from "lodash/each";
 import isMatch from "lodash/isMatch";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { Socket } from "socket.io-client";
 import { getSockets } from "~/modules/sockets/sockets";
 
@@ -13,13 +13,21 @@ export default function useHandleSockets({
   matches: any[];
   callback: (payload: any) => any;
 }) {
+  const matchesRef = useRef(matches);
+  const callbackRef = useRef(callback);
+
+  useEffect(() => {
+    matchesRef.current = matches;
+    callbackRef.current = callback;
+  });
+
   useEffect(() => {
     let sockets: Socket | null;
 
     const handleSocketsCallback = (payload: any) => {
-      each(matches, (match) => {
+      each(matchesRef.current, (match) => {
         if (isMatch(payload, match)) {
-          callback(payload);
+          callbackRef.current(payload);
         }
       });
     };
@@ -38,5 +46,5 @@ export default function useHandleSockets({
         sockets.off(event, handleSocketsCallback);
       }
     };
-  }, []);
+  }, [event]);
 }

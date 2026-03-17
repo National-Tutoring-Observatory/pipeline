@@ -19,6 +19,7 @@ interface AnalyzeHumanCsvResult {
   annotationFields: string[];
   matchedSessions: MatchedSession[];
   unmatchedSessionIds: string[];
+  missingSessionNames: string[];
 }
 
 export default async function analyzeHumanCsv({
@@ -66,10 +67,14 @@ export default async function analyzeHumanCsv({
     }
   }
 
+  const matchedRunSetIds = new Set(matchedSessions.map((s) => s._id));
+  const missingSessions = sessions.filter((s) => !matchedRunSetIds.has(s._id));
+
   return {
     annotators: Array.from(annotatorSet),
     annotationFields: Array.from(fieldSet),
     matchedSessions,
     unmatchedSessionIds,
+    missingSessionNames: missingSessions.map((s) => s.name),
   };
 }

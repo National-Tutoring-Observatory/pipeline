@@ -104,7 +104,8 @@ const UploadHumanAnnotationsDialog = ({
               disabled={
                 isAnalyzing ||
                 !analysisResult ||
-                analysisResult.matchedSessions.length === 0
+                analysisResult.matchedSessions.length === 0 ||
+                analysisResult.missingSessionNames.length > 0
               }
               onClick={() => {
                 if (csvFile && csvMeta) {
