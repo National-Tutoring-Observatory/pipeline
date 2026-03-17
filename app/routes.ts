@@ -133,6 +133,10 @@ export default [
   ...prefix("invite", [
     route(":id", "modules/teams/containers/invite.route.tsx", { id: "invite" }),
   ]),
+  route(
+    "privacy-policy",
+    "modules/privacyPolicy/containers/privacyPolicy.route.tsx",
+  ),
   ...prefix("featureFlags", [
     route("/", "modules/featureFlags/containers/featureFlags.route.tsx", [
       route(":id", "modules/featureFlags/containers/featureFlag.route.tsx"),

@@ -15,6 +15,7 @@ export default function AuthenticationContainer({
 }) {
   const authenticationFetcher = useFetcher();
   const isInviteRoute = useMatch("/invite/:id");
+  const isPrivacyPolicyRoute = useMatch("/privacy-policy");
   const lastFetchRef = useRef<number>(0);
   const MIN_FETCH_INTERVAL = 1 * 60 * 1000;
   const prevAuthRef = useRef<User | null>(null);
@@ -55,7 +56,7 @@ export default function AuthenticationContainer({
     }
   }, [location.pathname]);
 
-  if (isInviteRoute) {
+  if (isInviteRoute || isPrivacyPolicyRoute) {
     return <Outlet />;
   }
 

@@ -58,6 +58,11 @@ export default function SideBarHelpDropdown() {
               View Existing Issues
             </a>
           </DropdownMenuItem>
+          <DropdownMenuItem>
+            <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">
+              Privacy Policy
+            </a>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
