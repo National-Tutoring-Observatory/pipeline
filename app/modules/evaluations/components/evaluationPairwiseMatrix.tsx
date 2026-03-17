@@ -36,53 +36,55 @@ export default function EvaluationPairwiseMatrix({
           {`Cohen's Kappa between all run pairs`}
         </p>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead />
-            {matrix.runs.map((run) => (
-              <TableHead
-                key={run.runId}
-                className="max-w-24 text-center whitespace-normal"
-              >
-                <div className="flex items-center justify-center gap-1.5">
-                  <RunTypeIcon isHuman={run.isHuman} />
-                  {run.runName}
-                </div>
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {matrix.runs.map((rowRun, rowIndex) => (
-            <TableRow key={rowRun.runId}>
-              <TableCell className="max-w-48 font-medium whitespace-normal">
-                <div className="flex items-center gap-1.5">
-                  <RunTypeIcon isHuman={rowRun.isHuman} />
-                  {rowRun.runName}
-                </div>
-              </TableCell>
-              {matrix.cells[rowIndex].map((cell, colIndex) => (
-                <TableCell
-                  key={matrix.runs[colIndex].runId}
-                  className={cn(
-                    "text-center",
-                    cell.kappa !== null && getKappaCellClass(cell.kappa),
-                  )}
+      <div className="overflow-hidden rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="bg-background sticky left-0 z-10 min-w-50 shadow-[inset_-1px_0_0_0_var(--color-border)]" />
+              {matrix.runs.map((run) => (
+                <TableHead
+                  key={run.runId}
+                  className="min-w-50 border-r text-center whitespace-normal"
                 >
-                  {cell.kappa !== null ? (
-                    <span className="text-sm font-medium">
-                      {cell.kappa.toFixed(2)}
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">—</span>
-                  )}
-                </TableCell>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <RunTypeIcon isHuman={run.isHuman} />
+                    {run.runName}
+                  </div>
+                </TableHead>
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {matrix.runs.map((rowRun, rowIndex) => (
+              <TableRow key={rowRun.runId}>
+                <TableCell className="bg-background sticky left-0 z-10 min-w-50 font-medium whitespace-normal shadow-[inset_-1px_0_0_0_var(--color-border)]">
+                  <div className="flex items-center gap-1.5">
+                    <RunTypeIcon isHuman={rowRun.isHuman} />
+                    {rowRun.runName}
+                  </div>
+                </TableCell>
+                {matrix.cells[rowIndex].map((cell, colIndex) => (
+                  <TableCell
+                    key={matrix.runs[colIndex].runId}
+                    className={cn(
+                      "text-center",
+                      cell.kappa !== null && getKappaCellClass(cell.kappa),
+                    )}
+                  >
+                    {cell.kappa !== null ? (
+                      <span className="text-sm font-medium">
+                        {cell.kappa.toFixed(2)}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">—</span>
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
