@@ -2,8 +2,8 @@ import fse from "fs-extra";
 import { json2csv } from "json-2-csv";
 import map from "lodash/map.js";
 import type { RunSet } from "~/modules/runSets/runSets.types";
+import getAnnotationExportFields from "~/modules/runs/helpers/getAnnotationExportFields";
 import getAnnotatorName from "~/modules/runs/helpers/getAnnotatorName";
-import getExportFieldKeys from "~/modules/runs/helpers/getExportFieldKeys";
 import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
@@ -49,7 +49,7 @@ export const handler = async (event: {
     const annotatorName = getAnnotatorName(run, aiIndex);
     if (!run.isHuman) aiIndex++;
     annotatorNames.push(annotatorName);
-    const fieldKeys = getExportFieldKeys(run);
+    const annotationFields = getAnnotationExportFields(run);
 
     for (const session of run.sessions) {
       const sessionPath = `${inputFolder}/${run._id}/${session.sessionId}/${session.name}`;
@@ -83,9 +83,9 @@ export const handler = async (event: {
 
           if (baseUtterance) {
             annotations.forEach((annotation: any, index: number) => {
-              for (const fieldKey of fieldKeys) {
-                const columnKey = `annotator[${annotatorName}][${index}]${fieldKey}`;
-                baseUtterance[columnKey] = annotation[fieldKey] ?? "";
+              for (const field of annotationFields) {
+                const columnKey = `annotator[${annotatorName}][${index}]${field}`;
+                baseUtterance[columnKey] = annotation[field] ?? "";
                 annotationColumnKeys.add(columnKey);
               }
             });
@@ -102,9 +102,9 @@ export const handler = async (event: {
 
           if (baseSession) {
             annotations.forEach((annotation: any, index: number) => {
-              for (const fieldKey of fieldKeys) {
-                const columnKey = `annotator[${annotatorName}][${index}]${fieldKey}`;
-                baseSession[columnKey] = annotation[fieldKey] ?? "";
+              for (const field of annotationFields) {
+                const columnKey = `annotator[${annotatorName}][${index}]${field}`;
+                baseSession[columnKey] = annotation[field] ?? "";
                 annotationColumnKeys.add(columnKey);
               }
             });
