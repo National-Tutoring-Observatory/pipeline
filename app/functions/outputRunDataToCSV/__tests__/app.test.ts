@@ -1,4 +1,5 @@
 import fse from "fs-extra";
+import { csv2json } from "json-2-csv";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { handler } from "../app";
 
@@ -67,7 +68,13 @@ const makeTranscript = (
 
   if (opts.utteranceAnnotations) {
     transcript[0].annotations = [
-      { _id: `${sessionId}-u1`, score: 5, label: "greeting" },
+      {
+        _id: `${sessionId}-u1`,
+        score: 5,
+        label: "greeting",
+        markedAs: "UP_VOTED",
+        votingReason: "Correct annotation",
+      },
     ];
     transcript[1].annotations = [
       { _id: `${sessionId}-u2`, score: 3, label: "response" },
@@ -77,7 +84,15 @@ const makeTranscript = (
   const result: any = { transcript };
 
   if (opts.sessionAnnotations) {
-    result.annotations = [{ _id: sessionId, quality: "high", rating: 4 }];
+    result.annotations = [
+      {
+        _id: sessionId,
+        quality: "high",
+        rating: 4,
+        markedAs: "DOWN_VOTED",
+        votingReason: "Incorrect quality",
+      },
+    ];
   }
 
   return result;
@@ -96,6 +111,13 @@ describe("outputRunDataToCSV", () => {
       },
     );
   });
+
+  function parseCsv(filename: string) {
+    const csvPath = Object.keys(capturedCsvFiles).find((p) =>
+      p.includes(filename),
+    );
+    return csv2json(capturedCsvFiles[csvPath!]);
+  }
 
   describe("PER_UTTERANCE", () => {
     it("preserves original session_id from transcript data", async () => {
@@ -119,17 +141,10 @@ describe("outputRunDataToCSV", () => {
         },
       });
 
-      const csvPath = Object.keys(capturedCsvFiles).find((p) =>
-        p.includes("utterances.csv"),
-      );
-      const csv = capturedCsvFiles[csvPath!];
-      const lines = csv.split("\n");
-      const headers = lines[0].split(",");
-      const sessionIdIndex = headers.indexOf("session_id");
+      const rows = parseCsv("utterances.csv");
 
-      expect(headers).toContain("session_id");
-      expect(lines[1].split(",")[sessionIdIndex]).toBe("ORIGINAL_S1");
-      expect(lines[3].split(",")[sessionIdIndex]).toBe("ORIGINAL_S2");
+      expect(rows[0]).toHaveProperty("session_id", "ORIGINAL_S1");
+      expect(rows[2]).toHaveProperty("session_id", "ORIGINAL_S2");
     });
 
     it("includes annotation columns", async () => {
@@ -153,14 +168,42 @@ describe("outputRunDataToCSV", () => {
         },
       });
 
-      const csvPath = Object.keys(capturedCsvFiles).find((p) =>
-        p.includes("utterances.csv"),
-      );
-      const csv = capturedCsvFiles[csvPath!];
-      const headers = csv.split("\n")[0].split(",");
+      const rows = parseCsv("utterances.csv");
 
-      expect(headers).toContain("annotator[AI-0][0]score");
-      expect(headers).toContain("annotator[AI-0][0]label");
+      expect(rows[0]).toHaveProperty("annotator[AI-0][0]score", 5);
+      expect(rows[0]).toHaveProperty("annotator[AI-0][0]label", "greeting");
+    });
+
+    it("includes voting columns (markedAs, votingReason)", async () => {
+      const run = makeRun({ annotationType: "PER_UTTERANCE" });
+
+      const transcripts = [
+        makeTranscript("S1", { utteranceAnnotations: true }),
+        makeTranscript("S2", { utteranceAnnotations: true }),
+      ];
+      let callIndex = 0;
+      vi.mocked(fse.readJSON).mockImplementation(
+        async () => transcripts[callIndex++],
+      );
+
+      await handler({
+        body: {
+          run: run as any,
+          teamId: "team1",
+          inputFolder: "storage/proj1/runs/run1",
+          outputFolder: "storage/proj1/runs/run1/exports",
+        },
+      });
+
+      const rows = parseCsv("utterances.csv");
+
+      expect(rows[0]).toHaveProperty("annotator[AI-0][0]markedAs", "UP_VOTED");
+      expect(rows[0]).toHaveProperty(
+        "annotator[AI-0][0]votingReason",
+        "Correct annotation",
+      );
+      expect(rows[1]).toHaveProperty("annotator[AI-0][0]markedAs", "");
+      expect(rows[1]).toHaveProperty("annotator[AI-0][0]votingReason", "");
     });
   });
 
@@ -186,25 +229,12 @@ describe("outputRunDataToCSV", () => {
         },
       });
 
-      const csvPath = Object.keys(capturedCsvFiles).find((p) =>
-        p.includes("sessions.csv"),
-      );
-      expect(csvPath).toBeDefined();
+      const rows = parseCsv("sessions.csv");
 
-      const csv = capturedCsvFiles[csvPath!];
-      const lines = csv.split("\n");
-      const headers = lines[0].split(",");
-
-      expect(headers).toContain("_id");
-      expect(headers).toContain("session_id");
-
-      const idIndex = headers.indexOf("_id");
-      expect(lines[1].split(",")[idIndex]).toBe("mongo-id-abc");
-      expect(lines[2].split(",")[idIndex]).toBe("mongo-id-def");
-
-      const sessionIdIndex = headers.indexOf("session_id");
-      expect(lines[1].split(",")[sessionIdIndex]).toBe("S1");
-      expect(lines[2].split(",")[sessionIdIndex]).toBe("S2");
+      expect(rows[0]).toHaveProperty("_id", "mongo-id-abc");
+      expect(rows[1]).toHaveProperty("_id", "mongo-id-def");
+      expect(rows[0]).toHaveProperty("session_id", "S1");
+      expect(rows[1]).toHaveProperty("session_id", "S2");
     });
 
     it("includes annotation columns", async () => {
@@ -228,14 +258,43 @@ describe("outputRunDataToCSV", () => {
         },
       });
 
-      const csvPath = Object.keys(capturedCsvFiles).find((p) =>
-        p.includes("sessions.csv"),
-      );
-      const csv = capturedCsvFiles[csvPath!];
-      const headers = csv.split("\n")[0].split(",");
+      const rows = parseCsv("sessions.csv");
 
-      expect(headers).toContain("annotator[AI-0][0]quality");
-      expect(headers).toContain("annotator[AI-0][0]rating");
+      expect(rows[0]).toHaveProperty("annotator[AI-0][0]quality", "high");
+      expect(rows[0]).toHaveProperty("annotator[AI-0][0]rating", 4);
+    });
+
+    it("includes voting columns (markedAs, votingReason)", async () => {
+      const run = makeRun({ annotationType: "PER_SESSION" });
+
+      const transcripts = [
+        makeTranscript("S1", { sessionAnnotations: true }),
+        makeTranscript("S2", { sessionAnnotations: true }),
+      ];
+      let callIndex = 0;
+      vi.mocked(fse.readJSON).mockImplementation(
+        async () => transcripts[callIndex++],
+      );
+
+      await handler({
+        body: {
+          run: run as any,
+          teamId: "team1",
+          inputFolder: "storage/proj1/runs/run1",
+          outputFolder: "storage/proj1/runs/run1/exports",
+        },
+      });
+
+      const rows = parseCsv("sessions.csv");
+
+      expect(rows[0]).toHaveProperty(
+        "annotator[AI-0][0]markedAs",
+        "DOWN_VOTED",
+      );
+      expect(rows[0]).toHaveProperty(
+        "annotator[AI-0][0]votingReason",
+        "Incorrect quality",
+      );
     });
   });
 
@@ -260,16 +319,12 @@ describe("outputRunDataToCSV", () => {
       },
     });
 
-    const csvPath = Object.keys(capturedCsvFiles).find((p) =>
-      p.includes("meta.csv"),
-    );
-    expect(csvPath).toBeDefined();
+    const rows = parseCsv("meta.csv");
 
-    const csv = capturedCsvFiles[csvPath!];
-    const headers = csv.split("\n")[0].split(",");
-    expect(headers).toContain("teamId");
-    expect(headers).toContain("runId");
-    expect(headers).toContain("runName");
-    expect(headers).toContain("annotationType");
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toHaveProperty("teamId", "team1");
+    expect(rows[0]).toHaveProperty("runId", "run1");
+    expect(rows[0]).toHaveProperty("runName", "Test Run");
+    expect(rows[0]).toHaveProperty("annotationType", "PER_SESSION");
   });
 });
