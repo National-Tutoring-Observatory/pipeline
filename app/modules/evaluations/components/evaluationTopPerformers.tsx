@@ -1,5 +1,9 @@
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import type { TopPerformer } from "../helpers/getTopPerformersVsGoldLabel";
 import EvaluationTopPerformersItem from "./evaluationTopPerformersItem";
+
+const DEFAULT_VISIBLE_COUNT = 3;
 
 export default function EvaluationTopPerformers({
   performers,
@@ -8,9 +12,13 @@ export default function EvaluationTopPerformers({
   performers: TopPerformer[];
   goldLabelRunName: string;
 }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   if (performers.length === 0) {
     return null;
   }
+
+  const hasMore = performers.length > DEFAULT_VISIBLE_COUNT;
 
   return (
     <div className="space-y-4">
@@ -21,13 +29,25 @@ export default function EvaluationTopPerformers({
         </p>
       </div>
       <div className="grid grid-cols-3 gap-4">
-        {performers.map((performer) => (
-          <EvaluationTopPerformersItem
-            key={performer.runId}
-            performer={performer}
-          />
-        ))}
+        {performers.map((performer, index) => {
+          if (!isExpanded && index >= DEFAULT_VISIBLE_COUNT) return null;
+          return (
+            <EvaluationTopPerformersItem
+              key={performer.runId}
+              performer={performer}
+            />
+          );
+        })}
       </div>
+      {hasMore && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsExpanded((prev) => !prev)}
+        >
+          {isExpanded ? "Show less" : `Show all (${performers.length})`}
+        </Button>
+      )}
     </div>
   );
 }
