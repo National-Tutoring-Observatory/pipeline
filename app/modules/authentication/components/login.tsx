@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AlertCircle, ExternalLink } from "lucide-react";
-import { Link } from "react-router";
 
 export default function Login({
   errorTitle,
@@ -108,14 +107,6 @@ export default function Login({
           </Button>
         </CardFooter>
       </Card>
-      <div className="mt-4">
-        <Link
-          to="/privacy-policy"
-          className="text-muted-foreground text-xs hover:underline"
-        >
-          Privacy Policy
-        </Link>
-      </div>
     </div>
   );
 }
