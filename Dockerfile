@@ -1,6 +1,7 @@
 FROM node:25-alpine AS development-dependencies-env
 RUN apk add --no-cache yarn
 COPY ./package.json yarn.lock /app/
+COPY ./bin /app/bin
 WORKDIR /app
 ENV REDISMS_DISABLE_POSTINSTALL=1
 RUN --mount=type=secret,id=BULLMQ_PRO_TOKEN \
@@ -10,6 +11,7 @@ RUN --mount=type=secret,id=BULLMQ_PRO_TOKEN \
 FROM node:25-alpine AS production-dependencies-env
 RUN apk add --no-cache yarn
 COPY ./package.json yarn.lock /app/
+COPY ./bin /app/bin
 WORKDIR /app
 ENV REDISMS_DISABLE_POSTINSTALL=1
 RUN --mount=type=secret,id=BULLMQ_PRO_TOKEN \
