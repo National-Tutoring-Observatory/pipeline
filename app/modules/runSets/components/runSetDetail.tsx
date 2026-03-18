@@ -19,6 +19,7 @@ import {
   FileInput,
   GitMerge,
   MoreHorizontal,
+  OctagonX,
   Pencil,
   Plus,
   Trash2,
@@ -38,6 +39,7 @@ export default function RunSetDetail({
   project,
   breadcrumbs,
   annotationProgress,
+  onStopAllRunsClicked,
   onExportRunSetButtonClicked,
   onAddRunsClicked,
   onUploadHumanAnnotationsClicked,
@@ -62,6 +64,7 @@ export default function RunSetDetail({
     processing: number;
     startedAt: string | null;
   };
+  onStopAllRunsClicked: () => void;
   onExportRunSetButtonClicked: ({ exportType }: { exportType: string }) => void;
   onAddRunsClicked: () => void;
   onUploadHumanAnnotationsClicked: () => void;
@@ -148,8 +151,25 @@ export default function RunSetDetail({
       {annotationProgress.processing > 0 &&
         annotationProgress.completedSessions <
           annotationProgress.totalSessions && (
-          <div className="relative mb-6">
-            <div className="absolute top-3 right-0 text-xs opacity-40">
+          <div className="mb-6">
+            <div className="mb-1 flex justify-end">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={onStopAllRunsClicked}
+              >
+                <OctagonX className="mr-1 h-4 w-4" />
+                Stop all runs
+              </Button>
+            </div>
+            <Progress
+              value={
+                (annotationProgress.completedSessions /
+                  annotationProgress.totalSessions) *
+                100
+              }
+            />
+            <div className="mt-1 text-right text-xs opacity-40">
               {annotationProgress.completedSessions === 0 ? (
                 "Starting..."
               ) : (
@@ -169,13 +189,6 @@ export default function RunSetDetail({
                 </>
               )}
             </div>
-            <Progress
-              value={
-                (annotationProgress.completedSessions /
-                  annotationProgress.totalSessions) *
-                100
-              }
-            />
           </div>
         )}
       <Flag flag="HAS_EVALUATIONS">

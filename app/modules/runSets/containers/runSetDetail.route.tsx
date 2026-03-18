@@ -22,6 +22,7 @@ import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import RunSetDetail from "~/modules/runSets/components/runSetDetail";
+import StopRunSetDialog from "~/modules/runSets/components/stopRunSetDialog";
 import exportRunSet from "~/modules/runSets/helpers/exportRunSet";
 import { useRunSetActions } from "~/modules/runSets/hooks/useRunSetActions";
 import { RunSetService } from "~/modules/runSets/runSet";
@@ -100,6 +101,12 @@ export async function action({ request, params }: Route.ActionArgs) {
   const { intent, payload = {} } = await request.json();
 
   switch (intent) {
+    case "STOP_ALL_RUNS": {
+      const runSet = await RunSetService.findById(params.runSetId);
+      if (!runSet) throw new Error("Run set not found");
+      await RunSetService.stopAllRuns(runSet._id);
+      return { intent: "STOP_ALL_RUNS" };
+    }
     case "EXPORT_RUN_SET": {
       const runSet = await RunSetService.findById(params.runSetId);
       if (!runSet) throw new Error("Run set not found");
@@ -186,6 +193,17 @@ export default function RunSetDetailRoute() {
         onDownloadClicked={submitDownload}
       />,
     );
+  };
+
+  const submitStopAllRuns = () => {
+    submit(JSON.stringify({ intent: "STOP_ALL_RUNS", payload: {} }), {
+      method: "POST",
+      encType: "application/json",
+    });
+  };
+
+  const openStopRunSetDialog = () => {
+    addDialog(<StopRunSetDialog onStopRunSetClicked={submitStopAllRuns} />);
   };
 
   const onExportRunSetButtonClicked = ({
@@ -299,6 +317,7 @@ export default function RunSetDetailRoute() {
       project={project}
       breadcrumbs={breadcrumbs}
       annotationProgress={annotationProgress}
+      onStopAllRunsClicked={openStopRunSetDialog}
       onExportRunSetButtonClicked={onExportRunSetButtonClicked}
       onAddRunsClicked={() =>
         navigate(`/projects/${project._id}/run-sets/${runSet._id}/add-runs`)

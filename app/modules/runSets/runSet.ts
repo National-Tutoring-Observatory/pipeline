@@ -13,6 +13,7 @@ import findEligibleRunSetsForRunService from "./services/findEligibleRunSetsForR
 import findEligibleRunsService from "./services/findEligibleRuns.server";
 import findMergeableRunSetsService from "./services/findMergeableRunSets.server";
 import mergeRunSetsService from "./services/mergeRunSets.server";
+import stopAllRunsService from "./services/stopAllRuns.server";
 
 const RunSetModel =
   mongoose.models.RunSet || mongoose.model("RunSet", runSetSchema);
@@ -203,5 +204,9 @@ export class RunSetService {
     shouldRunVerification?: boolean;
   }) {
     return createRunsForRunSetService(payload);
+  }
+
+  static async stopAllRuns(runSetId: string): Promise<number> {
+    return stopAllRunsService(runSetId);
   }
 }
