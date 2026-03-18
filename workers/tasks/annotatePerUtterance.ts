@@ -64,7 +64,10 @@ export default async function annotatePerUtterance(job: any) {
 
     const conversation = getConversationFromJSON(originalJSON);
 
-    const responseSchema = buildAnnotationSchema(prompt.annotationSchema);
+    const responseSchema = buildAnnotationSchema(
+      prompt.annotationSchema,
+      prompt.schemaItems,
+    );
 
     const llm = new LLM({ model, user: team, schema: responseSchema });
 

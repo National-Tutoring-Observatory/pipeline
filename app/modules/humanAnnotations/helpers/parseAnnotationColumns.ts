@@ -1,12 +1,11 @@
 export interface ParsedAnnotationColumn {
   annotator: string;
+  index: number;
   field: string;
-  index?: number;
-  subField?: string;
 }
 
 const ANNOTATION_COLUMN_REGEX =
-  /^annotator\[["']?([^\]"']+)["']?\](\w+)(?:\[(\d+)\](\w+)?)?$/;
+  /^annotator\[["']?([^\]"']+)["']?\]\[(\d+)\](\w+)$/;
 
 export default function parseAnnotationColumn(
   columnName: string,
@@ -14,17 +13,11 @@ export default function parseAnnotationColumn(
   const match = columnName.match(ANNOTATION_COLUMN_REGEX);
   if (!match) return null;
 
-  const [, annotator, field, indexStr, subField] = match;
+  const [, annotator, indexStr, field] = match;
 
-  const result: ParsedAnnotationColumn = { annotator, field };
-
-  if (indexStr !== undefined) {
-    result.index = parseInt(indexStr, 10);
-  }
-
-  if (subField) {
-    result.subField = subField;
-  }
-
-  return result;
+  return {
+    annotator,
+    index: parseInt(indexStr, 10),
+    field,
+  };
 }

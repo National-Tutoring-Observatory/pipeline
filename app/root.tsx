@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   isRouteErrorResponse,
   Links,
@@ -5,16 +6,20 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
+  useLocation,
 } from "react-router";
 
 import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "sonner";
+import * as ga from "~/modules/analytics/analytics";
 import type { Route } from "./+types/root";
 import "./app.css";
 import AppSidebar from "./modules/app/components/appSidebar";
 import AuthenticationContainer from "./modules/authentication/containers/authentication.container";
 import DialogContainer from "./modules/dialogs/containers/dialog.container";
+import useHasFeatureFlag from "./modules/featureFlags/hooks/useHasFeatureFlag";
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", href: "/assets/nto-favicon.png", type: "image/png" },
@@ -26,11 +31,15 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Josefin+Sans:wght@300;400&display=swap",
   },
 ];
 
 export const meta: Route.MetaFunction = () => [{ title: "Sandpiper - NTO" }];
+
+export function loader() {
+  return { googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID || null };
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -60,8 +69,34 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function useGoogleAnalytics(gaId: string | null) {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (gaId) ga.initialize(gaId);
+  }, [gaId]);
+
+  useEffect(() => {
+    if (gaId) ga.trackPageView(gaId, location.pathname);
+  }, [gaId, location]);
+}
+
 export default function App() {
-  return <Outlet />;
+  const { googleAnalyticsId } = useLoaderData<typeof loader>();
+  useGoogleAnalytics(googleAnalyticsId);
+  const hasSandpiperTheme = useHasFeatureFlag("HAS_SANDPIPER_THEME");
+  return (
+    <>
+      {hasSandpiperTheme && (
+        <link
+          rel="icon"
+          href="/assets/sandpiper-favicon.svg"
+          type="image/svg+xml"
+        />
+      )}
+      <Outlet />
+    </>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

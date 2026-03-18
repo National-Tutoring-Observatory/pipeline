@@ -3,6 +3,7 @@ import { LoaderPinwheel } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 import { Outlet, useFetcher, useLocation, useMatch } from "react-router";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
+import SandpiperTheme from "~/modules/featureFlags/components/sandpiperTheme";
 import { connectSockets } from "~/modules/sockets/sockets";
 import type { User } from "~/modules/users/users.types";
 import LoginContainer from "./login.container";
@@ -14,6 +15,7 @@ export default function AuthenticationContainer({
 }) {
   const authenticationFetcher = useFetcher();
   const isInviteRoute = useMatch("/invite/:id");
+  const isPrivacyPolicyRoute = useMatch("/privacy-policy");
   const lastFetchRef = useRef<number>(0);
   const MIN_FETCH_INTERVAL = 1 * 60 * 1000;
   const prevAuthRef = useRef<User | null>(null);
@@ -54,7 +56,7 @@ export default function AuthenticationContainer({
     }
   }, [location.pathname]);
 
-  if (isInviteRoute) {
+  if (isInviteRoute || isPrivacyPolicyRoute) {
     return <Outlet />;
   }
 
@@ -72,6 +74,7 @@ export default function AuthenticationContainer({
 
   return (
     <AuthenticationContext value={authentication}>
+      <SandpiperTheme />
       {children}
     </AuthenticationContext>
   );

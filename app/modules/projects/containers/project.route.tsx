@@ -49,7 +49,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const convertedSessionsCount = filter(sessions, {
     hasConverted: true,
   }).length;
-  const runsCount = await RunService.count({ project: params.id });
+  const runsCount = await RunService.count({
+    project: params.id,
+    isHuman: { $ne: true },
+  });
   const runSetsCount = await RunSetService.count({
     project: params.id,
   });

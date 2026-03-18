@@ -2,6 +2,7 @@
 /node_modules/
 /workers/node_modules/
 /localMode/node_modules/
+/e2e/node_modules/
 
 # React Router
 /.react-router/
@@ -21,3 +22,8 @@
 /volume/
 /storage
 /.claude/settings.local.json
+
+# Playwright
+/e2e/.auth/
+/e2e/playwright-report/
+/e2e/test-results/

@@ -101,7 +101,8 @@ export default function PromptSelector({
                 {prompts.map((prompt: Prompt) => (
                   <CommandItem
                     key={prompt._id}
-                    value={prompt._id}
+                    value={prompt.name}
+                    keywords={[prompt._id]}
                     onSelect={() => {
                       onSelectedPromptChange(prompt._id);
                       onTogglePromptPopover(false);
@@ -144,7 +145,7 @@ export default function PromptSelector({
                         selectedPromptVersionItem.version && (
                         <Badge
                           variant="secondary"
-                          className="ml-2 bg-indigo-100"
+                          className="bg-sandpiper-accent/15 ml-2"
                         >
                           <BookCheck className="size-3" />
                           Production
@@ -173,7 +174,11 @@ export default function PromptSelector({
                     {promptVersions.map((promptVersion: PromptVersion) => (
                       <CommandItem
                         key={promptVersion._id}
-                        value={`${promptVersion.version}`}
+                        value={`#${promptVersion.version} ${promptVersion.name}`}
+                        keywords={[
+                          `${promptVersion.version}`,
+                          promptVersion.name,
+                        ]}
                         onSelect={() => {
                           onSelectedPromptVersionChange(promptVersion.version);
                           onTogglePromptVersionsPopover(false);
@@ -193,7 +198,7 @@ export default function PromptSelector({
                             productionVersion === promptVersion.version && (
                               <Badge
                                 variant="secondary"
-                                className="ml-2 bg-indigo-100"
+                                className="bg-sandpiper-accent/15 ml-2"
                               >
                                 <BookCheck className="size-3" />
                                 Production
@@ -227,7 +232,10 @@ export default function PromptSelector({
                   {`#${selectedPromptVersionItem.version}`}
                   {productionVersion &&
                     productionVersion === selectedPromptVersionItem.version && (
-                      <Badge variant="secondary" className="ml-2 bg-indigo-100">
+                      <Badge
+                        variant="secondary"
+                        className="bg-sandpiper-accent/15 ml-2"
+                      >
                         <BookCheck />
                         Production
                       </Badge>

@@ -66,7 +66,7 @@ export default function RunSetOverview({
 }) {
   return (
     <div>
-      <div className="grid max-w-6xl grid-cols-3 justify-start gap-6">
+      <div className="grid max-w-7xl grid-cols-3 justify-start gap-6">
         <StatItem label="Created">{getDateString(runSet.createdAt)}</StatItem>
         <StatItem label="Sessions">{runSet.sessions?.length || 0}</StatItem>
         <StatItem label="Runs">{runSet.runs?.length || 0}</StatItem>

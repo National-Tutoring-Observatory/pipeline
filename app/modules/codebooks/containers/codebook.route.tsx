@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   data,
   redirect,
@@ -8,13 +8,16 @@ import {
   useParams,
 } from "react-router";
 import { toast } from "sonner";
+import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import CodebookAuthorization from "~/modules/codebooks/authorization";
 import addDialog from "~/modules/dialogs/addDialog";
+import PromptAuthorization from "~/modules/prompts/authorization";
 import { CodebookService } from "../codebook";
 import type { Codebook as CodebookType } from "../codebooks.types";
 import { CodebookVersionService } from "../codebookVersion";
 import Codebook from "../components/codebook";
+import CreatePromptFromCodebookDialog from "../components/createPromptFromCodebookDialog";
 import EditCodebookDialog from "../components/editCodebookDialog";
 import type { Route } from "./+types/codebook.route";
 
@@ -97,6 +100,37 @@ export async function action({ request }: Route.ActionArgs) {
         data: updated,
       });
     }
+    case "CREATE_PROMPT_FROM_CODEBOOK": {
+      const { codebookVersionId, annotationType } = payload;
+
+      if (!PromptAuthorization.canCreate(user, codebook.team as string)) {
+        return data(
+          {
+            errors: {
+              general:
+                "You do not have permission to create prompts in this team.",
+            },
+          },
+          { status: 403 },
+        );
+      }
+
+      const prompt = await CodebookService.createPromptFromCodebook({
+        codebookId: entityId,
+        codebookVersionId,
+        annotationType,
+        userId: user._id,
+        teamId: codebook.team as string,
+      });
+
+      await trackServerEvent({ name: "prompt_created", userId: user._id });
+
+      return data({
+        success: true,
+        intent: "CREATE_PROMPT_FROM_CODEBOOK",
+        data: prompt,
+      });
+    }
     default:
       return data({ errors: { general: "Invalid intent" } }, { status: 400 });
   }
@@ -109,6 +143,7 @@ export default function CodebookRoute() {
   const { id, version } = useParams();
 
   const fetcher = useFetcher();
+  const createPromptToastId = useRef<string | number | undefined>(undefined);
 
   const { codebook, codebookVersions } = loaderData;
 
@@ -127,6 +162,16 @@ export default function CodebookRoute() {
     if (fetcher.state === "idle" && fetcher.data) {
       if (
         fetcher.data.success &&
+        fetcher.data.intent === "CREATE_PROMPT_FROM_CODEBOOK"
+      ) {
+        toast.dismiss(createPromptToastId.current);
+        toast.success("Prompt created from codebook");
+        addDialog(null);
+        navigate(
+          `/prompts/${fetcher.data.data._id}/${fetcher.data.data.productionVersion}`,
+        );
+      } else if (
+        fetcher.data.success &&
         fetcher.data.intent === "CREATE_CODEBOOK_VERSION"
       ) {
         navigate(
@@ -139,6 +184,7 @@ export default function CodebookRoute() {
         toast.success("Codebook updated");
         addDialog(null);
       } else if (fetcher.data.errors) {
+        toast.dismiss(createPromptToastId.current);
         toast.error(fetcher.data.errors.general || "An error occurred");
       }
     }
@@ -153,6 +199,34 @@ export default function CodebookRoute() {
       text: codebook.name,
     },
   ];
+
+  const openCreatePromptFromCodebookDialog = () => {
+    addDialog(
+      <CreatePromptFromCodebookDialog
+        codebookVersions={codebookVersions}
+        productionVersion={codebook.productionVersion}
+        onCreatePromptClicked={submitCreatePromptFromCodebook}
+        isSubmitting={fetcher.state === "submitting"}
+      />,
+    );
+  };
+
+  const submitCreatePromptFromCodebook = (options: {
+    codebookVersionId: string;
+    annotationType: string;
+  }) => {
+    createPromptToastId.current = toast.loading(
+      "Creating prompt from codebook...",
+    );
+    fetcher.submit(
+      JSON.stringify({
+        intent: "CREATE_PROMPT_FROM_CODEBOOK",
+        entityId: id,
+        payload: options,
+      }),
+      { method: "POST", encType: "application/json" },
+    );
+  };
 
   const openEditCodebookDialog = (c: CodebookType) => {
     addDialog(
@@ -186,6 +260,7 @@ export default function CodebookRoute() {
       breadcrumbs={breadcrumbs}
       onCreateCodebookVersionClicked={submitCreateCodebookVersion}
       onEditCodebookButtonClicked={openEditCodebookDialog}
+      onCreatePromptFromCodebookClicked={openCreatePromptFromCodebookDialog}
     />
   );
 }

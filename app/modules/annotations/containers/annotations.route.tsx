@@ -8,8 +8,23 @@ import { SessionService } from "~/modules/sessions/session";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import type { Route } from "./+types/annotations.route";
 
+function updateAnnotationVote(
+  annotation: Record<string, unknown>,
+  payload: { markedAs?: string; votingReason?: string },
+) {
+  if (payload.markedAs) {
+    const isSameVote = annotation.markedAs === payload.markedAs;
+    annotation.markedAs = isSameVote ? undefined : payload.markedAs;
+    annotation.votingReason = undefined;
+  }
+
+  if ("votingReason" in payload) {
+    annotation.votingReason = payload.votingReason;
+  }
+}
+
 export async function action({ request, params }: Route.ActionArgs) {
-  const { markedAs } = await request.json();
+  const payload = await request.json();
 
   const user = await getSessionUser({ request });
   if (!user) {
@@ -61,21 +76,14 @@ export async function action({ request, params }: Route.ActionArgs) {
       currentUtterance?.annotations &&
       currentUtterance.annotations[annotationIndex]
     ) {
-      const annotation = currentUtterance.annotations[annotationIndex];
-      if (annotation.markedAs === markedAs) {
-        delete annotation.markedAs;
-      } else {
-        annotation.markedAs = markedAs;
-      }
+      updateAnnotationVote(
+        currentUtterance.annotations[annotationIndex],
+        payload,
+      );
     }
   } else {
     if (sessionFile.annotations && sessionFile.annotations[annotationIndex]) {
-      const annotation = sessionFile.annotations[annotationIndex];
-      if (annotation.markedAs === markedAs) {
-        delete annotation.markedAs;
-      } else {
-        annotation.markedAs = markedAs;
-      }
+      updateAnnotationVote(sessionFile.annotations[annotationIndex], payload);
     }
   }
 

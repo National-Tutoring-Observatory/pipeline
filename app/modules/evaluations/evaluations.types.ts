@@ -3,11 +3,15 @@ export interface PairwiseResult {
   runB: string;
   kappa: number;
   sampleSize: number;
+  precision?: number;
+  recall?: number;
+  f1?: number;
 }
 
 export interface RunSummary {
   runId: string;
   runName: string;
+  isHuman: boolean;
   meanKappaWithOthers: number;
 }
 

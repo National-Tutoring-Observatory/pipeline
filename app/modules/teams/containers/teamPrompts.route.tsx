@@ -9,6 +9,7 @@ import {
   useSubmit,
 } from "react-router";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
+import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
@@ -115,9 +116,11 @@ export async function action({ request, params }: Route.ActionArgs) {
       ],
     });
 
+    await trackServerEvent({ name: "prompt_created", userId: user._id });
+
     return {
       intent: "CREATE_PROMPT",
-      ...prompt,
+      data: prompt,
     };
   }
 

@@ -9,14 +9,12 @@ export default function getCodebooksItemAttributes(item: Codebook) {
   return {
     id: item._id,
     title: item.name,
+    description: item.description || "",
     to: `/codebooks/${item._id}/${item.productionVersion}`,
     meta: [
       {
         icon: <Users />,
         text: teamName,
-      },
-      {
-        text: item.description || "",
       },
       {
         text: `Created at - ${getDateString(item.createdAt)}`,

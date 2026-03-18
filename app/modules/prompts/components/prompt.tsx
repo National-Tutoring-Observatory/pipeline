@@ -35,7 +35,7 @@ export default function Prompt({
   onDeletePromptButtonClicked,
 }: PromptProps) {
   return (
-    <div className="max-w-6xl p-8">
+    <div className="max-w-7xl p-8">
       <PageHeader>
         <PageHeaderLeft>
           <Breadcrumbs breadcrumbs={breadcrumbs} />
@@ -76,7 +76,7 @@ export default function Prompt({
               <Button
                 size="icon"
                 variant="ghost"
-                className="size-4 cursor-pointer hover:text-indigo-600"
+                className="hover:text-sandpiper-accent size-4 cursor-pointer"
                 onClick={onCreatePromptVersionClicked}
                 asChild
               >

@@ -111,7 +111,7 @@ export default function RunDetail({
   const projectId =
     typeof run.project === "string" ? run.project : run.project._id;
   return (
-    <div className="max-w-6xl p-8">
+    <div className="max-w-7xl p-8">
       <PageHeader>
         <PageHeaderLeft>
           <Breadcrumbs breadcrumbs={breadcrumbs} />
@@ -227,40 +227,51 @@ export default function RunDetail({
         )}
       </div>
       <div>
-        <div
-          className={cn(
-            "grid gap-6",
-            hasRunVerification ? "grid-cols-4" : "grid-cols-3",
-          )}
-        >
-          <StatItem label="Annotation type">
-            {find(annotationTypes, { value: run.annotationType })?.name}
-          </StatItem>
-          <StatItem label="Selected prompt">
-            <div>{promptInfo.name}</div>
-            <div>
-              <Badge>Version {promptInfo.version}</Badge>
-            </div>
-          </StatItem>
-          <StatItem label="Selected model">
-            {getRunModelDisplayName(run)}
-          </StatItem>
-          <Flag flag="HAS_RUN_VERIFICATION">
-            <StatItem label="Verification">
-              {run.shouldRunVerification ? (
-                <Badge variant="outline" className="mt-1 gap-1.5">
-                  <BadgeCheck className="h-4 w-4 text-green-600" />
-                  Enabled
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="mt-1 gap-1.5">
-                  <BadgeX className="text-muted-foreground h-4 w-4" />
-                  Disabled
-                </Badge>
-              )}
+        {run.isHuman ? (
+          <div className="grid grid-cols-2 gap-6">
+            <StatItem label="Annotation type">
+              {find(annotationTypes, { value: run.annotationType })?.name}
             </StatItem>
-          </Flag>
-        </div>
+            <StatItem label="Annotator">
+              {run.annotator?.name || "Unknown"}
+            </StatItem>
+          </div>
+        ) : (
+          <div
+            className={cn(
+              "grid gap-6",
+              hasRunVerification ? "grid-cols-4" : "grid-cols-3",
+            )}
+          >
+            <StatItem label="Annotation type">
+              {find(annotationTypes, { value: run.annotationType })?.name}
+            </StatItem>
+            <StatItem label="Selected prompt">
+              <div>{promptInfo.name}</div>
+              <div>
+                <Badge>Version {promptInfo.version}</Badge>
+              </div>
+            </StatItem>
+            <StatItem label="Selected model">
+              {getRunModelDisplayName(run)}
+            </StatItem>
+            <Flag flag="HAS_RUN_VERIFICATION">
+              <StatItem label="Verification">
+                {run.shouldRunVerification ? (
+                  <Badge variant="outline" className="mt-1 gap-1.5">
+                    <BadgeCheck className="text-sandpiper-success h-4 w-4" />
+                    Enabled
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="mt-1 gap-1.5">
+                    <BadgeX className="text-muted-foreground h-4 w-4" />
+                    Disabled
+                  </Badge>
+                )}
+              </StatItem>
+            </Flag>
+          </div>
+        )}
         <div className="mt-6">
           <RunRunSets
             projectId={projectId}

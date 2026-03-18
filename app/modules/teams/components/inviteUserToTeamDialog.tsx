@@ -98,7 +98,7 @@ export default function InviteUserToTeamDialog({
           <div>
             {inviteLink && (
               <div className="relative">
-                <div className="rounded-2xl bg-gray-100 p-2 pr-10 text-sm break-all">
+                <div className="bg-muted rounded-2xl p-2 pr-10 text-sm break-all">
                   {inviteLink}
                 </div>
                 <Button
@@ -112,11 +112,11 @@ export default function InviteUserToTeamDialog({
                   {!hasCopiedInviteLink && <CopyIcon />}
                 </Button>
                 {hasCopiedInviteLink && (
-                  <div className="absolute right-4 -bottom-6 text-xs text-green-500">
+                  <div className="text-sandpiper-success absolute right-4 -bottom-6 text-xs">
                     Invite link copied!
                   </div>
                 )}
-                <div className="mt-4 text-xs text-gray-500">
+                <div className="text-muted-foreground mt-4 text-xs">
                   {`This invite link will expire in ${INVITE_LINK_TTL_DAYS} days.`}
                 </div>
               </div>

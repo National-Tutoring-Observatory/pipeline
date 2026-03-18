@@ -29,7 +29,7 @@ describe("aggregateProgress", () => {
       completedRuns: 0,
       totalSessions: 0,
       completedSessions: 0,
-      running: 0,
+      processing: 0,
       startedAt: null,
     });
   });
@@ -65,7 +65,7 @@ describe("aggregateProgress", () => {
     expect(result.totalSessions).toBe(4);
   });
 
-  it("counts completed and running runs", async () => {
+  it("counts completed and processing runs", async () => {
     const run1 = await createTestRun({
       name: "Complete",
       project: projectId as any,
@@ -91,7 +91,7 @@ describe("aggregateProgress", () => {
     const result = await aggregateProgress([run1._id, run2._id, run3._id]);
 
     expect(result.completedRuns).toBe(1);
-    expect(result.running).toBe(1);
+    expect(result.processing).toBe(2);
   });
 
   it("returns the earliest startedAt", async () => {

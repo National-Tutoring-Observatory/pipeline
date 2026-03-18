@@ -9,6 +9,7 @@ import {
 } from "react-router";
 import { toast } from "sonner";
 import aiGatewayConfig from "~/config/ai_gateway.json";
+import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -236,6 +237,9 @@ export async function action({ request, params }: Route.ActionArgs) {
         annotationType: annotationType as RunAnnotationType,
         shouldRunVerification: !!payload.shouldRunVerification,
       });
+
+      await trackServerEvent({ name: "run_set_created", userId: user._id });
+      await trackServerEvent({ name: "run_created", userId: user._id });
 
       return {
         intent: "CREATE_RUN_SET",

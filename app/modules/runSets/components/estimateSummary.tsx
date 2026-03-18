@@ -20,7 +20,7 @@ export default function EstimateSummary({
     <div className="flex items-center gap-4">
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex cursor-help items-center gap-1 text-blue-700">
+          <div className="text-sandpiper-info flex cursor-help items-center gap-1">
             <Clock className="h-4 w-4" />
             <span className="text-sm">
               {formatTime(estimation.estimatedTimeSeconds)}
@@ -34,7 +34,7 @@ export default function EstimateSummary({
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex cursor-help items-center gap-1 text-blue-700">
+          <div className="text-sandpiper-info flex cursor-help items-center gap-1">
             <DollarSign className="h-4 w-4" />
             <span className="text-sm">
               {formatCost(estimation.estimatedCost)}

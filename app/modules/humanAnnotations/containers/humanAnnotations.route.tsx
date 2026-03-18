@@ -69,9 +69,14 @@ export async function action({ request, params }: Route.ActionArgs) {
         runSetId: params.runSetId,
       });
 
-      if (analysis.matchedSessions.length === 0) {
+      if (analysis.missingSessionNames.length > 0) {
+        const names = analysis.missingSessionNames.join(", ");
         return data(
-          { errors: { general: "No sessions matched" } },
+          {
+            errors: {
+              general: `CSV is missing sessions from the run set: ${names}`,
+            },
+          },
           { status: 400 },
         );
       }
@@ -106,7 +111,16 @@ export async function action({ request, params }: Route.ActionArgs) {
         runIds.push(run._id);
       }
 
-      await RunSetService.addRunsToRunSet(params.runSetId, runIds);
+      const addResult = await RunSetService.addRunsToRunSet(
+        params.runSetId,
+        runIds,
+      );
+      if (addResult.errors.length > 0) {
+        return data(
+          { errors: { general: addResult.errors.join(", ") } },
+          { status: 400 },
+        );
+      }
 
       await uploadHumanAnnotations({
         runIds,

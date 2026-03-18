@@ -2,7 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import isNumber from "lodash/isNumber";
 import isString from "lodash/isString";
 
-export default function SessionViewerAnnotationValue({
+export default function RunSessionViewerAnnotationValue({
   value,
 }: {
   value: any;

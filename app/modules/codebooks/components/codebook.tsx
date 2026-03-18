@@ -5,7 +5,7 @@ import {
   PageHeaderRight,
 } from "@/components/ui/pageHeader";
 import map from "lodash/map";
-import { CirclePlus, Pencil } from "lucide-react";
+import { CirclePlus, Pencil, Sparkles } from "lucide-react";
 import { Outlet } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
@@ -22,6 +22,7 @@ type CodebookProps = {
   breadcrumbs: Breadcrumb[];
   onCreateCodebookVersionClicked: () => void;
   onEditCodebookButtonClicked: (codebook: CodebookType) => void;
+  onCreatePromptFromCodebookClicked: () => void;
 };
 
 export default function Codebook({
@@ -31,14 +32,24 @@ export default function Codebook({
   breadcrumbs,
   onCreateCodebookVersionClicked,
   onEditCodebookButtonClicked,
+  onCreatePromptFromCodebookClicked,
 }: CodebookProps) {
   return (
-    <div className="max-w-6xl p-8">
+    <div className="max-w-7xl p-8">
       <PageHeader>
         <PageHeaderLeft>
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </PageHeaderLeft>
         <PageHeaderRight>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={onCreatePromptFromCodebookClicked}
+          >
+            <Sparkles />
+            Create prompt
+          </Button>
           {onEditCodebookButtonClicked && (
             <Button
               size="sm"
@@ -55,7 +66,7 @@ export default function Codebook({
       {codebook.description && (
         <div className="mb-2">
           <p className="text-sm font-bold">Intention</p>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground max-w-prose text-sm">
             {codebook.description}
           </p>
         </div>
@@ -68,7 +79,7 @@ export default function Codebook({
               <Button
                 size="icon"
                 variant="ghost"
-                className="size-4 cursor-pointer hover:text-indigo-600"
+                className="hover:text-sandpiper-accent size-4 cursor-pointer"
                 onClick={onCreateCodebookVersionClicked}
                 asChild
               >

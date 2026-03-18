@@ -4,8 +4,12 @@ export interface TopPerformer {
   rank: number;
   runId: string;
   runName: string;
+  isHuman: boolean;
   kappa: number;
   sampleSize: number;
+  precision?: number;
+  recall?: number;
+  f1?: number;
 }
 
 export default function getTopPerformersVsGoldLabel(
@@ -14,6 +18,9 @@ export default function getTopPerformersVsGoldLabel(
 ): TopPerformer[] {
   const runNameMap = new Map(
     report.runSummaries.map((s) => [s.runId, s.runName]),
+  );
+  const runIsHumanMap = new Map(
+    report.runSummaries.map((s) => [s.runId, s.isHuman]),
   );
 
   const baseRunPairs = report.pairwise.filter(
@@ -27,8 +34,12 @@ export default function getTopPerformersVsGoldLabel(
       rank: 0,
       runId: otherRunId,
       runName: runNameMap.get(otherRunId) || otherRunId,
+      isHuman: runIsHumanMap.get(otherRunId) || false,
       kappa: pair.kappa,
       sampleSize: pair.sampleSize,
+      precision: pair.precision,
+      recall: pair.recall,
+      f1: pair.f1,
     };
   });
 

@@ -13,7 +13,7 @@ const SelectCsvStep = ({
   isDragActive: boolean;
 }) => {
   const dropzoneClassName = clsx(
-    "border border-dashed border-black/20 p-12 rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 text-center cursor-pointer",
+    "border border-dashed border-border p-12 rounded-md hover:bg-muted dark:hover:bg-gray-900 text-center cursor-pointer",
   );
 
   return (

@@ -31,7 +31,7 @@ export default function Evaluation({
     )?.runName || "Gold Label";
 
   return (
-    <div className="px-8 pt-8">
+    <div className="px-8 py-8">
       <PageHeader>
         <PageHeaderLeft>
           <Breadcrumbs breadcrumbs={breadcrumbs} />
@@ -78,7 +78,7 @@ export default function Evaluation({
                 key={fieldReport.fieldKey}
                 value={fieldReport.fieldKey}
               >
-                <div className="space-y-6">
+                <div className="space-y-12">
                   <EvaluationTopPerformers
                     performers={getTopPerformersVsGoldLabel(
                       fieldReport,

@@ -3,6 +3,7 @@ export interface AnalysisResult {
   annotationFields: string[];
   matchedSessions: { sessionId: string; name: string; _id: string }[];
   unmatchedSessionIds: string[];
+  missingSessionNames: string[];
 }
 
 export interface AnnotationTemplateField {

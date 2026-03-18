@@ -38,7 +38,11 @@ export default function getRunsItemAttributes(item: Run, options?: Options) {
     },
   ];
 
-  if (item.isComplete) {
+  if (item.isHuman) {
+    meta.push({
+      text: `Annotator - ${item.annotator?.name || "Unknown"}`,
+    });
+  } else if (item.isComplete) {
     const modelName = getRunModelDisplayName(item);
     meta.push({
       text: `Prompt - ${promptName}`,
@@ -50,7 +54,7 @@ export default function getRunsItemAttributes(item: Run, options?: Options) {
 
   if (options?.hasRunVerification && item.shouldRunVerification) {
     meta.push({
-      icon: <BadgeCheck className="text-green-600 dark:text-green-400" />,
+      icon: <BadgeCheck className="text-sandpiper-success" />,
       text: "Verified",
     });
   }

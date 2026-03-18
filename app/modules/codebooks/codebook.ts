@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import codebookSchema from "~/lib/schemas/codebook.schema";
 import type { FindOptions } from "~/modules/common/types";
 import type { Codebook } from "./codebooks.types";
+import createPromptFromCodebook from "./services/createPromptFromCodebook.server";
 
 const CodebookModel =
   mongoose.models.Codebook || mongoose.model("Codebook", codebookSchema);
@@ -65,5 +66,15 @@ export class CodebookService {
   static async deleteById(id: string): Promise<Codebook | null> {
     const doc = await CodebookModel.findByIdAndDelete(id);
     return doc ? this.toCodebook(doc) : null;
+  }
+
+  static async createPromptFromCodebook(options: {
+    codebookId: string;
+    codebookVersionId: string;
+    annotationType: string;
+    userId: string;
+    teamId: string;
+  }) {
+    return createPromptFromCodebook(options);
   }
 }

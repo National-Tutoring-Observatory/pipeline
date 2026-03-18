@@ -7,6 +7,9 @@ export interface PairDetail {
   runBName: string;
   kappa: number;
   sampleSize: number;
+  precision?: number;
+  recall?: number;
+  f1?: number;
 }
 
 export default function getPairDetails(report: EvaluationReport): PairDetail[] {
@@ -21,5 +24,8 @@ export default function getPairDetails(report: EvaluationReport): PairDetail[] {
     runBName: runNameMap.get(pair.runB) || pair.runB,
     kappa: pair.kappa,
     sampleSize: pair.sampleSize,
+    precision: pair.precision,
+    recall: pair.recall,
+    f1: pair.f1,
   }));
 }

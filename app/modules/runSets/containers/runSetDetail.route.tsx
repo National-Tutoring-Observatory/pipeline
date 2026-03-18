@@ -54,7 +54,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     completedRuns: 0,
     totalSessions: 0,
     completedSessions: 0,
-    running: 0,
+    processing: 0,
     startedAt: null as string | null,
   };
 

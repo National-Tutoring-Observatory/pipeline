@@ -17,7 +17,7 @@ function NavigationProgress() {
         )}
         aria-hidden="true"
       >
-        <div className="animate-shimmer h-full w-1/3 bg-orange-400" />
+        <div className="animate-shimmer bg-sandpiper-progress h-full w-1/3" />
       </div>
     </>
   );

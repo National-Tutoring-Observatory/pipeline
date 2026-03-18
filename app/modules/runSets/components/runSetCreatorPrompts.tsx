@@ -92,7 +92,7 @@ export default function RunSetPromptsField({
             {selectedPrompts.map((prompt) => (
               <div
                 key={`${prompt.promptId}-${prompt.version}`}
-                className="flex items-center justify-between rounded bg-white p-2"
+                className="bg-background flex items-center justify-between rounded p-2"
               >
                 <span className="text-sm">
                   {prompt.promptName} (v{prompt.version})

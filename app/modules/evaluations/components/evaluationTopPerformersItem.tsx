@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BotIcon, UserIcon } from "lucide-react";
 import getKappaCellClass from "../helpers/getKappaCellClass";
 import getKappaInterpretation from "../helpers/getKappaInterpretation";
 import type { TopPerformer } from "../helpers/getTopPerformersVsGoldLabel";
@@ -18,7 +19,12 @@ export default function EvaluationTopPerformersItem({
           </div>
           <div className="min-w-0 flex-1">
             <CardHeader className="p-0">
-              <CardTitle className="truncate text-sm">
+              <CardTitle className="flex items-center gap-1.5 text-sm">
+                {performer.isHuman ? (
+                  <UserIcon className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
+                ) : (
+                  <BotIcon className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
+                )}
                 {performer.runName}
               </CardTitle>
             </CardHeader>
@@ -43,6 +49,30 @@ export default function EvaluationTopPerformersItem({
             {getKappaInterpretation(performer.kappa)}
           </Badge>
         </div>
+        {performer.precision != null &&
+          performer.recall != null &&
+          performer.f1 != null && (
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <div className="text-muted-foreground text-xs">Precision</div>
+                <div className="text-sm font-semibold">
+                  {performer.precision.toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <div className="text-muted-foreground text-xs">Recall</div>
+                <div className="text-sm font-semibold">
+                  {performer.recall.toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <div className="text-muted-foreground text-xs">F1</div>
+                <div className="text-sm font-semibold">
+                  {performer.f1.toFixed(2)}
+                </div>
+              </div>
+            </div>
+          )}
       </CardContent>
     </Card>
   );

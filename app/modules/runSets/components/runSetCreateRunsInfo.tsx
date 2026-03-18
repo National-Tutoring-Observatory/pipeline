@@ -9,7 +9,7 @@ export default function RunSetCreateRunsInfo({
   runSet,
 }: RunSetCreateRunsInfoProps) {
   return (
-    <div className="rounded-lg border bg-slate-50 p-4">
+    <div className="bg-muted rounded-lg border p-4">
       <h3 className="mb-4 text-sm font-semibold">RunSet Info</h3>
       <div className="grid grid-cols-2 gap-4">
         <StatItem label="Name">{runSet.name}</StatItem>

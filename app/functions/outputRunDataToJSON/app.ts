@@ -1,15 +1,16 @@
 import fse from "fs-extra";
 import map from "lodash/map.js";
+import getAnnotatorName from "~/modules/runs/helpers/getAnnotatorName";
 import { getRunModelInfo } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 
 export const handler = async (event: {
-  body: { run: Run; inputFolder: string; outputFolder: string };
+  body: { run: Run; teamId: string; inputFolder: string; outputFolder: string };
 }) => {
   try {
     const { body } = event;
-    const { run, inputFolder, outputFolder } = body;
+    const { run, teamId, inputFolder, outputFolder } = body;
 
     const sessionsOutputFile = `${outputFolder}/${run.project}-${run._id}-sessions.jsonl`;
     const metaOutputFile = `${outputFolder}/${run.project}-${run._id}-meta.jsonl`;
@@ -27,6 +28,8 @@ export const handler = async (event: {
       });
       const json = await fse.readJSON(downloadedPath);
 
+      json._id = session.sessionId;
+      json.session_id = json.session_id || json.transcript[0]?.session_id;
       sessionsArray.push(json);
     }
 
@@ -49,28 +52,23 @@ export const handler = async (event: {
 
     // OUTPUT META
     const runObject: any = {
-      project: run.project,
-      _id: run._id,
-      name: run.name,
+      teamId,
+      projectId: run.project,
+      runId: run._id,
+      runName: run.name,
+      annotator: getAnnotatorName(run),
       annotationType: run.annotationType,
       model: getRunModelInfo(run),
+      promptName: run.snapshot?.prompt?.name ?? "",
+      promptVersion: run.snapshot?.prompt?.version ?? run.promptVersion ?? "",
+      promptUserPrompt: run.snapshot?.prompt?.userPrompt ?? "",
+      promptAnnotationType: run.snapshot?.prompt?.annotationType ?? "",
+      isHuman: run.isHuman ?? false,
       sessionsCount: run.sessions.length,
+      createdAt: run.createdAt ?? "",
+      startedAt: run.startedAt ?? "",
+      finishedAt: run.finishedAt ?? "",
     };
-
-    // Use snapshot data if available for reproducibility
-    if (run.snapshot?.prompt) {
-      runObject.prompt = {
-        name: run.snapshot.prompt.name,
-        userPrompt: run.snapshot.prompt.userPrompt,
-        version: run.snapshot.prompt.version,
-        annotationType: run.snapshot.prompt.annotationType,
-        annotationSchema: run.snapshot.prompt.annotationSchema,
-      };
-    } else {
-      // Fallback to IDs for old runs without snapshots
-      runObject.prompt = run.prompt;
-      runObject.promptVersion = run.promptVersion;
-    }
 
     metaArray.push(runObject);
 
