@@ -9,17 +9,23 @@ export default async function startAnnotateRun(job: Job) {
     throw new Error("startAnnotateRun: runId is required");
   }
 
-  const result = await RunService.updateById(runId, {
+  const run = await RunService.findById(runId);
+  if (!run) {
+    throw new Error(`startAnnotateRun: Run not found: ${runId}`);
+  }
+
+  if (run.stoppedAt) {
+    await emitFromJob(job, { runId }, "FINISHED");
+    return { status: "STOPPED" };
+  }
+
+  await RunService.updateById(runId, {
     isRunning: true,
     isComplete: false,
     hasErrored: false,
     stoppedAt: null,
     startedAt: new Date(),
   });
-
-  if (!result) {
-    throw new Error(`startAnnotateRun: Run not found: ${runId}`);
-  }
 
   await emitFromJob(job, { runId }, "FINISHED");
 

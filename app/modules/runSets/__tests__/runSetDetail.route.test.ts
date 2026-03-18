@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
+import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
 import { RunSetService } from "~/modules/runSets/runSet";
 import type { RunSet } from "~/modules/runSets/runSets.types";
@@ -14,7 +15,7 @@ import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
-import { loader } from "../containers/runSetDetail.route";
+import { action, loader } from "../containers/runSetDetail.route";
 
 type LoaderResult = {
   runSet: RunSet;
@@ -207,5 +208,92 @@ describe("runSetDetail.route loader", () => {
     expect(data.runSet).toHaveProperty("project");
     expect(data.runSet).toHaveProperty("sessions");
     expect(data.runSet).toHaveProperty("runs");
+  });
+});
+
+describe("runSetDetail.route action", () => {
+  let user: User;
+  let team: Team;
+  let project: Project;
+  let runSet: RunSet;
+  let cookieHeader: string;
+
+  beforeEach(async () => {
+    await clearDocumentDB();
+
+    user = await UserService.create({
+      username: "test_user",
+      teams: [],
+    });
+    team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+    project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+    });
+
+    cookieHeader = await loginUser(user._id);
+  });
+
+  it("stops all active runs in a run set", async () => {
+    const activeRun1 = await createTestRun({
+      name: "Active Run 1",
+      project: project._id,
+      annotationType: "PER_UTTERANCE",
+      isRunning: true,
+      isComplete: false,
+    });
+    const activeRun2 = await createTestRun({
+      name: "Active Run 2",
+      project: project._id,
+      annotationType: "PER_UTTERANCE",
+      isRunning: false,
+      isComplete: false,
+    });
+    const completedRun = await createTestRun({
+      name: "Completed Run",
+      project: project._id,
+      annotationType: "PER_UTTERANCE",
+      isRunning: false,
+      isComplete: true,
+    });
+
+    runSet = await RunSetService.create({
+      name: "Test Run Set",
+      project: project._id,
+      sessions: [],
+      runs: [activeRun1._id, activeRun2._id, completedRun._id],
+      annotationType: "PER_UTTERANCE",
+    });
+
+    const res = await action({
+      request: new Request("http://localhost/", {
+        method: "POST",
+        headers: {
+          cookie: cookieHeader,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ intent: "STOP_ALL_RUNS", payload: {} }),
+      }),
+      params: { projectId: project._id, runSetId: runSet._id },
+      unstable_pattern: "",
+      context: {},
+    } as any);
+
+    expect(res).toEqual({ intent: "STOP_ALL_RUNS" });
+
+    const run1 = await RunService.findById(activeRun1._id);
+    expect(run1!.stoppedAt).not.toBeNull();
+    expect(run1!.isRunning).toBe(false);
+
+    const run2 = await RunService.findById(activeRun2._id);
+    expect(run2!.stoppedAt).not.toBeNull();
+
+    const completedRunAfter = await RunService.findById(completedRun._id);
+    expect(completedRunAfter!.stoppedAt).toBeUndefined();
+    expect(completedRunAfter!.isComplete).toBe(true);
   });
 });
