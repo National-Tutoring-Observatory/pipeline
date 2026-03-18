@@ -9,6 +9,7 @@
 /build/
 
 .env
+.npmrc
 
 # Adapters
 /app/modules/storage/storage.ts

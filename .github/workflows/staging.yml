@@ -24,7 +24,7 @@ jobs:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   build-web-staging:
     needs: preflight
-    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
+    uses: ./.github/workflows/ecs_build_image.yml
     with:
       environment: staging
       dockerfile: Dockerfile
@@ -32,9 +32,10 @@ jobs:
       output-name: web_image
     secrets:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      BULLMQ_PRO_TOKEN: ${{ secrets.BULLMQ_PRO_TOKEN }}
   build-worker-staging:
     needs: preflight
-    uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_build_image.yml@main
+    uses: ./.github/workflows/ecs_build_image.yml
     with:
       environment: staging
       dockerfile: workers/Dockerfile
@@ -42,6 +43,7 @@ jobs:
       output-name: worker_image
     secrets:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      BULLMQ_PRO_TOKEN: ${{ secrets.BULLMQ_PRO_TOKEN }}
   deploy-web-staging:
     needs: build-web-staging
     uses: National-Tutoring-Observatory/workflows/.github/workflows/ecs_deploy_service.yml@main
