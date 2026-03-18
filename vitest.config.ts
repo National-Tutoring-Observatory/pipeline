@@ -2,6 +2,9 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  ssr: {
+    external: ["@taskforcesh/bullmq-pro"],
+  },
   test: {
     exclude: ["**/node_modules/**", "**/dist/**", "e2e/**"],
     globalSetup: "./test/vitest.globalSetup.ts",
