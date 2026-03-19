@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
-import { NotebookPen } from "lucide-react";
+import { BadgeCheck, NotebookPen } from "lucide-react";
 import getUtteranceDetails from "../helpers/getUtteranceDetails";
 import type { Utterance } from "../sessions.types";
 
@@ -9,12 +9,14 @@ export default function SessionViewerUtterance({
   utteranceNumber,
   leadRole = "TEACHER",
   isSelected,
+  hasVerificationChanges,
   onUtteranceClicked,
 }: {
   utterance: Utterance;
   utteranceNumber: number;
   leadRole: string;
   isSelected: boolean;
+  hasVerificationChanges?: boolean;
   onUtteranceClicked: (utteranceId: string) => void;
 }) {
   return (
@@ -53,6 +55,9 @@ export default function SessionViewerUtterance({
                 <NotebookPen className="mr-1 size-3" />
                 {utterance.annotations.length} annotation
                 {utterance.annotations.length > 1 ? "s" : ""}
+                {hasVerificationChanges && (
+                  <BadgeCheck className="text-muted-foreground ml-1 size-3" />
+                )}
               </div>
             </Button>
           )}

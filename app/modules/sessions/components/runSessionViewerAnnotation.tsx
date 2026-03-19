@@ -17,6 +17,7 @@ const HIDDEN_ANNOTATION_KEYS = new Set([
 
 export default function SessionViewerAnnotation({
   annotation,
+  preAnnotation,
   isVoting,
   isSavingReason,
   onDownVoteClicked,
@@ -24,6 +25,7 @@ export default function SessionViewerAnnotation({
   onSaveVotingReason,
 }: {
   annotation: Annotation & any;
+  preAnnotation?: Annotation & any;
   isVoting: boolean;
   isSavingReason: boolean;
   onDownVoteClicked: () => void;
@@ -42,9 +44,19 @@ export default function SessionViewerAnnotation({
           return null;
         }
 
+        const previousValue = preAnnotation?.[annotationKey];
+        const hasChanged =
+          previousValue !== undefined &&
+          String(previousValue) !== String(annotationValue);
+
         return (
           <div className="mb-2" key={annotationKey}>
             <div className="text-muted-foreground text-xs">{annotationKey}</div>
+            {hasChanged && (
+              <div className="text-muted-foreground text-xs line-through">
+                <SessionViewerAnnotationValue value={previousValue} />
+              </div>
+            )}
             <SessionViewerAnnotationValue value={annotationValue} />
           </div>
         );

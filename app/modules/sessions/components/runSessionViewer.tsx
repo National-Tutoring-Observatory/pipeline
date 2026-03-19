@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
+import find from "lodash/find";
 import map from "lodash/map";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
 import SessionVerificationContainer from "../containers/sessionVerificationContainer";
+import getSessionVerificationChanges from "../helpers/getSessionVerificationChanges";
 import type { Annotation, SessionFile, Utterance } from "../sessions.types";
 import SessionViewerAnnotation from "./runSessionViewerAnnotation";
 import SessionViewerDetails from "./runSessionViewerDetails";
@@ -51,6 +53,15 @@ export default function SessionViewer({
 }) {
   const hasSelectedAnnotation = selectedUtteranceIndex !== null;
 
+  const verificationChanges = getSessionVerificationChanges(run, sessionFile);
+
+  const getPreAnnotation = (annotation: Annotation) =>
+    find(
+      verificationChanges?.changed,
+      (c: { after: Annotation; before: Annotation }) =>
+        c.after._id === annotation._id,
+    )?.before ?? null;
+
   return (
     <div className="flex h-full flex-1">
       <div
@@ -59,6 +70,9 @@ export default function SessionViewer({
       >
         {map(sessionFile.transcript, (utterance: Utterance, index: number) => {
           const isSelected = selectedUtteranceId === utterance._id;
+          const hasVerificationChanges = verificationChanges?.changed.some(
+            (c) => c.after._id === utterance._id,
+          );
           return (
             <SessionViewerUtterance
               key={utterance._id}
@@ -66,6 +80,7 @@ export default function SessionViewer({
               leadRole={sessionFile.leadRole}
               utterance={utterance}
               isSelected={isSelected}
+              hasVerificationChanges={hasVerificationChanges}
               onUtteranceClicked={onUtteranceClicked}
             />
           );
@@ -91,6 +106,7 @@ export default function SessionViewer({
                   <SessionViewerAnnotation
                     key={`${annotation._id}-${index}-${annotation.votingReason || ""}`}
                     annotation={annotation}
+                    preAnnotation={getPreAnnotation(annotation)}
                     isVoting={isVoting}
                     isSavingReason={isSavingReason}
                     onDownVoteClicked={() =>
@@ -163,6 +179,7 @@ export default function SessionViewer({
                   <SessionViewerAnnotation
                     key={`${annotation._id}-${index}-${annotation.votingReason || ""}`}
                     annotation={annotation}
+                    preAnnotation={getPreAnnotation(annotation)}
                     isVoting={isVoting}
                     isSavingReason={isSavingReason}
                     onDownVoteClicked={() =>
