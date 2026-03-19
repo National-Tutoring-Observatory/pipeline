@@ -3,7 +3,13 @@ export default function formatTimeRemaining(
   completed: number,
   total: number,
 ): string | null {
-  if (!startedAt || completed < 1 || completed >= total) return null;
+  const MIN_COMPLETED_FOR_ESTIMATE = 3;
+  if (
+    !startedAt ||
+    completed < MIN_COMPLETED_FOR_ESTIMATE ||
+    completed >= total
+  )
+    return null;
 
   const elapsedMs = Date.now() - new Date(startedAt).getTime();
   if (elapsedMs <= 0) return null;
@@ -15,7 +21,7 @@ export default function formatTimeRemaining(
   if (remainingSeconds < 60) return "< 1 min remaining";
 
   const hours = Math.floor(remainingSeconds / 3600);
-  const minutes = Math.round((remainingSeconds % 3600) / 60);
+  const minutes = Math.ceil((remainingSeconds % 3600) / 60);
 
   if (hours === 0) return `~${minutes} min remaining`;
   if (minutes === 0) return `~${hours} hr remaining`;
