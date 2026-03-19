@@ -4,6 +4,7 @@ const STATUS_MATCH: Record<StatusKey, Record<string, any>> = {
   RUNNING: { isRunning: true },
   STOPPED: { stoppedAt: { $exists: true } },
   FAILED: { hasErrored: true },
+  PARTIAL_FAILURE: { hasErrored: true },
   COMPLETE: { isComplete: true, hasErrored: false },
   QUEUED: {
     isRunning: false,

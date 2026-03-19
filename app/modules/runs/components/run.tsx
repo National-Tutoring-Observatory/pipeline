@@ -212,7 +212,16 @@ export default function RunDetail({
             </AlertDescription>
           </Alert>
         )}
-        {run.isComplete && run.hasErrored && (
+        {runStatus === "FAILED" && (
+          <Alert>
+            <TriangleAlert className="h-4 w-4" />
+            <AlertTitle>All sessions failed</AlertTitle>
+            <AlertDescription>
+              This run failed during annotation.
+            </AlertDescription>
+          </Alert>
+        )}
+        {runStatus === "PARTIAL_FAILURE" && (
           <Alert>
             <TriangleAlert className="h-4 w-4" />
             <AlertTitle>
