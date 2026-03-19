@@ -17,18 +17,17 @@ interface Options {
 export default function getRunsItemAttributes(item: Run, options?: Options) {
   const promptName = get(item, "snapshot.prompt.name", "");
 
-  let statusMeta = STATUS_META[getRunStatusKey(item)];
+  const statusKey = getRunStatusKey(item);
+  let statusMeta = STATUS_META[statusKey];
 
-  if (item.isComplete && item.hasErrored) {
+  if (statusKey === "PARTIAL_FAILURE") {
     const failedCount = item.sessions.filter(
       (s) => s.status === "ERRORED",
     ).length;
-    if (failedCount > 0) {
-      statusMeta = {
-        ...statusMeta,
-        text: `${statusMeta.text} - ${failedCount} session${failedCount === 1 ? "" : "s"} failed`,
-      };
-    }
+    statusMeta = {
+      ...statusMeta,
+      text: `${failedCount} session${failedCount === 1 ? "" : "s"} failed`,
+    };
   }
 
   const meta = [

@@ -4,6 +4,7 @@ import {
   Clock,
   LoaderCircle,
   OctagonX,
+  TriangleAlert,
 } from "lucide-react";
 import type { ReactElement } from "react";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
@@ -11,6 +12,7 @@ import type { Run, RunSession } from "~/modules/runs/runs.types";
 export type StatusKey =
   | "RUNNING"
   | "FAILED"
+  | "PARTIAL_FAILURE"
   | "COMPLETE"
   | "QUEUED"
   | "STOPPED";
@@ -26,6 +28,10 @@ export const STATUS_META: Record<
   FAILED: {
     icon: <CircleX className="text-destructive" />,
     text: "Failed",
+  },
+  PARTIAL_FAILURE: {
+    icon: <TriangleAlert className="text-amber-500" />,
+    text: "Partial failure",
   },
   COMPLETE: {
     icon: <CircleCheck className="text-sandpiper-success" />,
@@ -44,7 +50,10 @@ export const STATUS_META: Record<
 export function getRunStatusKey(run: Run): StatusKey {
   if (run.isRunning) return "RUNNING";
   if (run.stoppedAt) return "STOPPED";
-  if (run.hasErrored) return "FAILED";
+  if (run.hasErrored) {
+    const allFailed = run.sessions.every((s) => s.status === "ERRORED");
+    return allFailed ? "FAILED" : "PARTIAL_FAILURE";
+  }
   if (run.isComplete) return "COMPLETE";
   return "QUEUED";
 }
