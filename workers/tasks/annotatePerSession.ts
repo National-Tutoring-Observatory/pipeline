@@ -105,7 +105,13 @@ export default async function annotatePerSession(job: any) {
       const verifyResponse = await verifyLlm.createChat();
       annotations = verifyResponse.annotations || annotations;
 
-      originalJSON.preVerificationAnnotations = preVerificationAnnotations;
+      originalJSON.preVerificationAnnotations = map(
+        preVerificationAnnotations,
+        (annotation: any, index: number) => {
+          annotation._id = `${index}`;
+          return annotation;
+        },
+      );
     }
 
     originalJSON.annotations = map(

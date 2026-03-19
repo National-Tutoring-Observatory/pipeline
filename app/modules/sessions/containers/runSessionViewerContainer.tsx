@@ -153,6 +153,7 @@ export default function RunSessionViewerContainer({
       utteranceCount={utteranceCount}
       annotatedUtteranceCount={annotatedUtteranceCount}
       selectedUtteranceIndex={selectedUtteranceIndex}
+      run={run}
       onUtteranceClicked={onUtteranceClicked}
       onPreviousAnnotationClicked={onPreviousAnnotationClicked}
       onNextAnnotationClicked={onNextAnnotationClicked}

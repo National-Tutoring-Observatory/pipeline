@@ -1,13 +1,15 @@
 import { Button } from "@/components/ui/button";
 import map from "lodash/map";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { RunSession } from "~/modules/runs/runs.types";
+import type { Run, RunSession } from "~/modules/runs/runs.types";
+import SessionVerificationContainer from "../containers/sessionVerificationContainer";
 import type { Annotation, SessionFile, Utterance } from "../sessions.types";
 import SessionViewerAnnotation from "./runSessionViewerAnnotation";
 import SessionViewerDetails from "./runSessionViewerDetails";
 import SessionViewerUtterance from "./sessionViewerUtterance";
 
 export default function SessionViewer({
+  run,
   session,
   sessionFile,
   selectedUtteranceId,
@@ -25,6 +27,7 @@ export default function SessionViewer({
   onSaveVotingReason,
   isSavingReason,
 }: {
+  run: Run;
   session: RunSession;
   sessionFile: SessionFile;
   selectedUtteranceAnnotations: Annotation[];
@@ -69,11 +72,14 @@ export default function SessionViewer({
         })}
       </div>
       <div className="flex h-full w-2/5 min-w-0 flex-col pt-8">
-        <SessionViewerDetails
-          session={session}
-          utteranceCount={utteranceCount}
-          annotatedUtteranceCount={annotatedUtteranceCount}
-        />
+        <div className="border-b px-4 pb-4">
+          <SessionViewerDetails
+            session={session}
+            utteranceCount={utteranceCount}
+            annotatedUtteranceCount={annotatedUtteranceCount}
+          />
+          <SessionVerificationContainer run={run} sessionFile={sessionFile} />
+        </div>
         {sessionFile.annotations && sessionFile.annotations.length > 0 && (
           <div className="flex min-h-0 flex-1 flex-col p-4 pb-0">
             <div className="text-muted-foreground mb-2">

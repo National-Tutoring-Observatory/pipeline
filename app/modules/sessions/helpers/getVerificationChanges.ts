@@ -1,18 +1,11 @@
 import isEqual from "lodash/isEqual";
 import keyBy from "lodash/keyBy";
-import omit from "lodash/omit";
+import pick from "lodash/pick";
+import type { AnnotationSchemaItem } from "~/modules/prompts/prompts.types";
 import type { Annotation } from "../sessions.types";
 
-const IGNORED_KEYS = [
-  "_id",
-  "identifiedBy",
-  "markedAs",
-  "votingReason",
-  "isSystem",
-];
-
-function getComparableFields(annotation: Annotation) {
-  return omit(annotation, IGNORED_KEYS);
+function getComparableFields(annotation: Annotation, fieldKeys: string[]) {
+  return pick(annotation, fieldKeys);
 }
 
 export interface VerificationChanges {
@@ -25,7 +18,12 @@ export interface VerificationChanges {
 export default function getVerificationChanges(
   preAnnotations: Annotation[],
   postAnnotations: Annotation[],
+  annotationSchema: AnnotationSchemaItem[],
 ): VerificationChanges {
+  const comparableFieldKeys = annotationSchema
+    .filter((field) => !field.isSystem)
+    .map((field) => field.fieldKey);
+
   const preById = keyBy(preAnnotations, "_id");
   const postById = keyBy(postAnnotations, "_id");
 
@@ -38,7 +36,12 @@ export default function getVerificationChanges(
     const pre = preById[post._id];
     if (!pre) {
       added.push(post);
-    } else if (isEqual(getComparableFields(pre), getComparableFields(post))) {
+    } else if (
+      isEqual(
+        getComparableFields(pre, comparableFieldKeys),
+        getComparableFields(post, comparableFieldKeys),
+      )
+    ) {
       unchanged.push(post);
     } else {
       changed.push({ before: pre, after: post });
