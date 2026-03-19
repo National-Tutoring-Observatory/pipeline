@@ -20,6 +20,8 @@ export default function SessionViewer({
   utteranceCount,
   selectedUtteranceIndex,
   annotatedUtteranceCount,
+  showVerificationDetails,
+  onToggleVerificationDetails,
   onUtteranceClicked,
   onPreviousAnnotationClicked,
   onNextAnnotationClicked,
@@ -39,6 +41,8 @@ export default function SessionViewer({
   utteranceCount: number;
   selectedUtteranceIndex: number | null;
   annotatedUtteranceCount: number;
+  showVerificationDetails: boolean;
+  onToggleVerificationDetails: () => void;
   onUtteranceClicked: (utteranceId: string) => void;
   onPreviousAnnotationClicked: () => void;
   onNextAnnotationClicked: () => void;
@@ -93,7 +97,12 @@ export default function SessionViewer({
             utteranceCount={utteranceCount}
             annotatedUtteranceCount={annotatedUtteranceCount}
           />
-          <SessionVerificationContainer run={run} sessionFile={sessionFile} />
+          <SessionVerificationContainer
+            run={run}
+            sessionFile={sessionFile}
+            showVerificationDetails={showVerificationDetails}
+            onToggleVerificationDetails={onToggleVerificationDetails}
+          />
         </div>
         {sessionFile.annotations && sessionFile.annotations.length > 0 && (
           <div className="flex min-h-0 flex-1 flex-col p-4 pb-0">

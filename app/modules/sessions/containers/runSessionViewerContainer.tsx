@@ -1,6 +1,6 @@
 import find from "lodash/find";
 import findIndex from "lodash/findIndex";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFetcher, useLocation, useNavigate } from "react-router";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
 import RunSessionViewer from "../components/runSessionViewer";
@@ -17,6 +17,8 @@ export default function RunSessionViewerContainer({
 }) {
   const { hash } = useLocation();
   const navigate = useNavigate();
+
+  const [showVerificationDetails, setShowVerificationDetails] = useState(false);
 
   const fetcher = useFetcher();
 
@@ -154,6 +156,8 @@ export default function RunSessionViewerContainer({
       annotatedUtteranceCount={annotatedUtteranceCount}
       selectedUtteranceIndex={selectedUtteranceIndex}
       run={run}
+      showVerificationDetails={showVerificationDetails}
+      onToggleVerificationDetails={() => setShowVerificationDetails((v) => !v)}
       onUtteranceClicked={onUtteranceClicked}
       onPreviousAnnotationClicked={onPreviousAnnotationClicked}
       onNextAnnotationClicked={onNextAnnotationClicked}
