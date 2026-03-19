@@ -123,7 +123,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   archive.finalize();
 
-  await trackServerEvent({
+  trackServerEvent({
     name: "results_downloaded",
     userId: user._id,
     params: { source: "run_set", export_type: exportType.toLowerCase() },

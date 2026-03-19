@@ -14,6 +14,7 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import addDialog from "~/modules/dialogs/addDialog";
 import PromptAuthorization from "~/modules/prompts/authorization";
 import { usePromptActions } from "~/modules/prompts/hooks/usePromptActions";
+import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
 import type { User } from "~/modules/users/users.types";
 import CreatePromptDialog from "../components/createPromptDialog";
 import Prompts from "../components/prompts";
@@ -127,7 +128,8 @@ export async function action({ request }: Route.ActionArgs) {
         ],
       });
 
-      await trackServerEvent({ name: "prompt_created", userId: user._id });
+      trackServerEvent({ name: "prompt_created", userId: user._id });
+      await createGeneralJob("TRACK_FIRST_PROMPT", { userId: user._id });
 
       return data({
         success: true,

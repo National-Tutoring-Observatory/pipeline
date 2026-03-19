@@ -7,6 +7,7 @@ import useSubmitGuard from "~/modules/app/hooks/useSubmitGuard";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import { ProjectService } from "~/modules/projects/project";
+import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
 import { RunService } from "~/modules/runs/run";
 import type { CreateRun as CreateRunPayload } from "~/modules/runs/runs.types";
 import { validateRunResources } from "~/modules/runs/services/validateRunResources.server";
@@ -70,7 +71,8 @@ export async function action({ request, params }: Route.ActionArgs) {
       });
 
       await RunService.start(run);
-      await trackServerEvent({ name: "run_created", userId: user._id });
+      trackServerEvent({ name: "run_created", userId: user._id });
+      await createGeneralJob("TRACK_FIRST_RUN", { userId: user._id });
 
       return {
         intent: "CREATE_AND_START_RUN",

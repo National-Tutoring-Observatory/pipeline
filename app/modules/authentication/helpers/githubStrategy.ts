@@ -70,7 +70,7 @@ const githubStrategy = new GitHubStrategy<any>(
           update.registeredAt = new Date();
           update.githubId = githubUser.id;
           update.hasGithubSSO = true;
-          await trackServerEvent({ name: "user_registered", userId: user._id });
+          trackServerEvent({ name: "user_registered", userId: user._id });
         } else {
           throw redirect("/?error=UNREGISTERED");
         }

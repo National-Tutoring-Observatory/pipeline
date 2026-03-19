@@ -15,6 +15,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { PromptService } from "~/modules/prompts/prompt";
+import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
 import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import { RunService } from "~/modules/runs/run";
 import type { RunAnnotationType } from "~/modules/runs/runs.types";
@@ -238,8 +239,9 @@ export async function action({ request, params }: Route.ActionArgs) {
         shouldRunVerification: !!payload.shouldRunVerification,
       });
 
-      await trackServerEvent({ name: "run_set_created", userId: user._id });
-      await trackServerEvent({ name: "run_created", userId: user._id });
+      trackServerEvent({ name: "run_set_created", userId: user._id });
+      trackServerEvent({ name: "run_created", userId: user._id });
+      await createGeneralJob("TRACK_FIRST_RUN", { userId: user._id });
 
       return {
         intent: "CREATE_RUN_SET",
