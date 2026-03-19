@@ -1,5 +1,6 @@
 import { Empty, EmptyContent, EmptyTitle } from "@/components/ui/empty";
 import { AlertTriangle, Plus, X } from "lucide-react";
+import findModelByCode from "~/modules/llm/helpers/findModelByCode";
 import { generateRunName } from "~/modules/runSets/helpers/generateRunName";
 import type { RunDefinition } from "~/modules/runSets/runSets.types";
 
@@ -143,7 +144,9 @@ function RunDefinitionCardDetails({
       </div>
       <div>
         <p className="text-muted-foreground text-xs">Model</p>
-        <p className="truncate font-mono text-xs">{definition.modelCode}</p>
+        <p className="truncate font-mono text-xs">
+          {findModelByCode(definition.modelCode)?.name ?? definition.modelCode}
+        </p>
       </div>
     </div>
   );
