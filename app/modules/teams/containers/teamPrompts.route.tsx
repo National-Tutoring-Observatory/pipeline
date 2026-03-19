@@ -20,6 +20,7 @@ import PromptAuthorization from "~/modules/prompts/authorization";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
+import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
 import TeamPrompts from "../components/teamPrompts";
 import type { Route } from "./+types/teamPrompts.route";
 
@@ -116,7 +117,8 @@ export async function action({ request, params }: Route.ActionArgs) {
       ],
     });
 
-    await trackServerEvent({ name: "prompt_created", userId: user._id });
+    trackServerEvent({ name: "prompt_created", userId: user._id });
+    await createGeneralJob("TRACK_FIRST_PROMPT", { userId: user._id });
 
     return {
       intent: "CREATE_PROMPT",

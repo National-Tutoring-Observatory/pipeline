@@ -96,7 +96,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     });
   }
 
-  await trackServerEvent({ name: "sessions_uploaded", userId: user._id });
+  trackServerEvent({ name: "sessions_uploaded", userId: user._id });
 
   return data({ success: true });
 }

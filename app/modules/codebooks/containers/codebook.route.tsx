@@ -13,6 +13,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import CodebookAuthorization from "~/modules/codebooks/authorization";
 import addDialog from "~/modules/dialogs/addDialog";
 import PromptAuthorization from "~/modules/prompts/authorization";
+import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
 import { CodebookService } from "../codebook";
 import type { Codebook as CodebookType } from "../codebooks.types";
 import { CodebookVersionService } from "../codebookVersion";
@@ -123,7 +124,8 @@ export async function action({ request }: Route.ActionArgs) {
         teamId: codebook.team as string,
       });
 
-      await trackServerEvent({ name: "prompt_created", userId: user._id });
+      trackServerEvent({ name: "prompt_created", userId: user._id });
+      await createGeneralJob("TRACK_FIRST_PROMPT", { userId: user._id });
 
       return data({
         success: true,

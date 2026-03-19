@@ -13,6 +13,7 @@ import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
+import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
 import { RunService } from "~/modules/runs/run";
 import getUsedPromptModels, {
   type PromptModelPair,
@@ -112,7 +113,8 @@ export async function action({ request, params }: Route.ActionArgs) {
       }
 
       if (result.createdRunIds.length > 0) {
-        await trackServerEvent({ name: "run_created", userId: user._id });
+        trackServerEvent({ name: "run_created", userId: user._id });
+        await createGeneralJob("TRACK_FIRST_RUN", { userId: user._id });
       }
 
       return {

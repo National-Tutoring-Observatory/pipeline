@@ -17,7 +17,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     "Set-Cookie": await sessionStorage.commitSession(session),
   });
 
-  await trackServerEvent({ name: "user_logged_in", userId: user._id });
+  trackServerEvent({ name: "user_logged_in", userId: user._id });
 
   return redirect("/", { headers });
 }
