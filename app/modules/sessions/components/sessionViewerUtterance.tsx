@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
-import { BadgeCheck, NotebookPen } from "lucide-react";
+import { BadgeCheck, MinusCircle, NotebookPen } from "lucide-react";
 import getUtteranceDetails from "../helpers/getUtteranceDetails";
 import type { Utterance } from "../sessions.types";
 
@@ -10,6 +10,7 @@ export default function SessionViewerUtterance({
   leadRole = "TEACHER",
   isSelected,
   hasVerificationChanges,
+  hasRemovedAnnotation,
   shouldShowVerificationDetails,
   onUtteranceClicked,
 }: {
@@ -18,6 +19,7 @@ export default function SessionViewerUtterance({
   leadRole: string;
   isSelected: boolean;
   hasVerificationChanges?: boolean;
+  hasRemovedAnnotation?: boolean;
   shouldShowVerificationDetails: boolean;
   onUtteranceClicked: (utteranceId: string) => void;
 }) {
@@ -42,7 +44,7 @@ export default function SessionViewerUtterance({
         >
           {utterance.content}
         </div>
-        <div className="text-muted-foreground mt-1 flex items-center text-xs">
+        <div className="text-muted-foreground mt-1 flex min-h-8 items-center text-xs">
           <div>
             #{utteranceNumber} · {getUtteranceDetails({ utterance })}
           </div>
@@ -60,6 +62,19 @@ export default function SessionViewerUtterance({
                 {hasVerificationChanges && shouldShowVerificationDetails && (
                   <BadgeCheck className="text-muted-foreground ml-1 size-3" />
                 )}
+              </div>
+            </Button>
+          )}
+          {hasRemovedAnnotation && shouldShowVerificationDetails && (
+            <Button
+              variant="link"
+              size={"sm"}
+              className="decoration-sandpiper-accent ml-4"
+              onClick={() => onUtteranceClicked(utterance._id)}
+            >
+              <div className="text-destructive flex items-center text-xs">
+                <MinusCircle className="mr-1 size-3" />
+                Removed by verification
               </div>
             </Button>
           )}

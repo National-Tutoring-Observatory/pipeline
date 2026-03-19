@@ -18,6 +18,7 @@ const HIDDEN_ANNOTATION_KEYS = new Set([
 export default function SessionViewerAnnotation({
   annotation,
   preAnnotation,
+  isRemovedByVerification = false,
   isVoting,
   isSavingReason,
   onDownVoteClicked,
@@ -26,6 +27,7 @@ export default function SessionViewerAnnotation({
 }: {
   annotation: Annotation & any;
   preAnnotation?: Annotation & any;
+  isRemovedByVerification?: boolean;
   isVoting: boolean;
   isSavingReason: boolean;
   onDownVoteClicked: () => void;
@@ -39,6 +41,11 @@ export default function SessionViewerAnnotation({
 
   return (
     <div className="bg-muted mb-2 rounded-md p-4">
+      {isRemovedByVerification && (
+        <div className="mb-3">
+          <Badge variant="destructive">Removed by verification</Badge>
+        </div>
+      )}
       {map(annotation, (annotationValue, annotationKey) => {
         if (HIDDEN_ANNOTATION_KEYS.has(annotationKey)) {
           return null;
@@ -65,40 +72,43 @@ export default function SessionViewerAnnotation({
         <div>
           <Badge>{`Identified by ${annotation.identifiedBy}`}</Badge>
         </div>
-        <div className="flex items-center gap-x-4">
-          <Button
-            variant="outline"
-            size="icon"
-            disabled={isVoting}
-            onClick={onDownVoteClicked}
-            className={clsx({
-              "border-sandpiper-accent": annotation.markedAs === "DOWN_VOTED",
-            })}
-          >
-            <ThumbsDown
-              size={10}
+        {!isRemovedByVerification && (
+          <div className="flex items-center gap-x-4">
+            <Button
+              variant="outline"
+              size="icon"
+              disabled={isVoting}
+              onClick={onDownVoteClicked}
               className={clsx({
-                "stroke-sandpiper-accent": annotation.markedAs === "DOWN_VOTED",
+                "border-sandpiper-accent": annotation.markedAs === "DOWN_VOTED",
               })}
-            />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            disabled={isVoting}
-            onClick={onUpVoteClicked}
-            className={clsx({
-              "border-sandpiper-accent": annotation.markedAs === "UP_VOTED",
-            })}
-          >
-            <ThumbsUp
-              size={10}
+            >
+              <ThumbsDown
+                size={10}
+                className={clsx({
+                  "stroke-sandpiper-accent":
+                    annotation.markedAs === "DOWN_VOTED",
+                })}
+              />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              disabled={isVoting}
+              onClick={onUpVoteClicked}
               className={clsx({
-                "stroke-sandpiper-accent": annotation.markedAs === "UP_VOTED",
+                "border-sandpiper-accent": annotation.markedAs === "UP_VOTED",
               })}
-            />
-          </Button>
-        </div>
+            >
+              <ThumbsUp
+                size={10}
+                className={clsx({
+                  "stroke-sandpiper-accent": annotation.markedAs === "UP_VOTED",
+                })}
+              />
+            </Button>
+          </div>
+        )}
       </div>
       {hasVoted && (
         <div className="mt-3 flex gap-2">

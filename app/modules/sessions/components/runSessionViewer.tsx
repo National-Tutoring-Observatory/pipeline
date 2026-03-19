@@ -16,6 +16,7 @@ export default function SessionViewer({
   sessionFile,
   selectedUtteranceId,
   selectedUtteranceAnnotations,
+  removedAnnotations,
   isVoting,
   utteranceCount,
   selectedUtteranceIndex,
@@ -35,6 +36,7 @@ export default function SessionViewer({
   session: RunSession;
   sessionFile: SessionFile;
   selectedUtteranceAnnotations: Annotation[];
+  removedAnnotations: Annotation[];
   selectedUtteranceId: string | null;
   isVoting: boolean;
   isSavingReason: boolean;
@@ -77,6 +79,9 @@ export default function SessionViewer({
           const hasVerificationChanges = verificationChanges?.changed.some(
             (c) => c.after._id === utterance._id,
           );
+          const hasRemovedAnnotation = verificationChanges?.removed.some(
+            (r) => r._id === utterance._id,
+          );
           return (
             <SessionViewerUtterance
               key={utterance._id}
@@ -85,6 +90,7 @@ export default function SessionViewer({
               utterance={utterance}
               isSelected={isSelected}
               hasVerificationChanges={hasVerificationChanges}
+              hasRemovedAnnotation={hasRemovedAnnotation}
               shouldShowVerificationDetails={shouldShowVerificationDetails}
               onUtteranceClicked={onUtteranceClicked}
             />
@@ -134,7 +140,8 @@ export default function SessionViewer({
             </div>
           </div>
         )}
-        {annotatedUtteranceCount > 0 && (
+        {(annotatedUtteranceCount > 0 ||
+          (shouldShowVerificationDetails && removedAnnotations.length > 0)) && (
           <div className="flex min-h-0 flex-1 flex-col p-4 pb-0">
             <div className="mb-2 flex items-center justify-between">
               <div>
@@ -204,6 +211,21 @@ export default function SessionViewer({
                   />
                 );
               })}
+              {shouldShowVerificationDetails &&
+                map(removedAnnotations, (annotation, index) => {
+                  return (
+                    <SessionViewerAnnotation
+                      key={`removed-${annotation._id}-${index}`}
+                      annotation={annotation}
+                      isRemovedByVerification
+                      isVoting={false}
+                      isSavingReason={false}
+                      onDownVoteClicked={() => {}}
+                      onUpVoteClicked={() => {}}
+                      onSaveVotingReason={() => {}}
+                    />
+                  );
+                })}
             </div>
           </div>
         )}
