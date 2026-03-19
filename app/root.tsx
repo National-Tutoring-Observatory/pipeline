@@ -77,8 +77,8 @@ function useGoogleAnalytics(gaId: string | null) {
   }, [gaId]);
 
   useEffect(() => {
-    if (gaId) ga.trackPageView(gaId, location.pathname);
-  }, [gaId, location]);
+    ga.trackPageView(location.pathname);
+  }, [location]);
 }
 
 export default function App() {
