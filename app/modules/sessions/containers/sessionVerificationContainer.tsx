@@ -6,12 +6,12 @@ import type { SessionFile } from "../sessions.types";
 export default function SessionVerificationContainer({
   run,
   sessionFile,
-  showVerificationDetails,
+  shouldShowVerificationDetails,
   onToggleVerificationDetails,
 }: {
   run: Run;
   sessionFile: SessionFile;
-  showVerificationDetails: boolean;
+  shouldShowVerificationDetails: boolean;
   onToggleVerificationDetails: () => void;
 }) {
   const verificationChanges = getSessionVerificationChanges(run, sessionFile);
@@ -23,7 +23,7 @@ export default function SessionVerificationContainer({
   return (
     <SessionVerification
       verificationChanges={verificationChanges}
-      showVerificationDetails={showVerificationDetails}
+      shouldShowVerificationDetails={shouldShowVerificationDetails}
       onToggleVerificationDetails={onToggleVerificationDetails}
     />
   );

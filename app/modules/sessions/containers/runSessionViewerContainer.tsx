@@ -18,7 +18,8 @@ export default function RunSessionViewerContainer({
   const { hash } = useLocation();
   const navigate = useNavigate();
 
-  const [showVerificationDetails, setShowVerificationDetails] = useState(false);
+  const [shouldShowVerificationDetails, setShowVerificationDetails] =
+    useState(false);
 
   const fetcher = useFetcher();
 
@@ -156,7 +157,7 @@ export default function RunSessionViewerContainer({
       annotatedUtteranceCount={annotatedUtteranceCount}
       selectedUtteranceIndex={selectedUtteranceIndex}
       run={run}
-      showVerificationDetails={showVerificationDetails}
+      shouldShowVerificationDetails={shouldShowVerificationDetails}
       onToggleVerificationDetails={() => setShowVerificationDetails((v) => !v)}
       onUtteranceClicked={onUtteranceClicked}
       onPreviousAnnotationClicked={onPreviousAnnotationClicked}

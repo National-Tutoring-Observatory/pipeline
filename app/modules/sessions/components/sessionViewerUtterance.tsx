@@ -10,6 +10,7 @@ export default function SessionViewerUtterance({
   leadRole = "TEACHER",
   isSelected,
   hasVerificationChanges,
+  shouldShowVerificationDetails,
   onUtteranceClicked,
 }: {
   utterance: Utterance;
@@ -17,6 +18,7 @@ export default function SessionViewerUtterance({
   leadRole: string;
   isSelected: boolean;
   hasVerificationChanges?: boolean;
+  shouldShowVerificationDetails: boolean;
   onUtteranceClicked: (utteranceId: string) => void;
 }) {
   return (
@@ -55,7 +57,7 @@ export default function SessionViewerUtterance({
                 <NotebookPen className="mr-1 size-3" />
                 {utterance.annotations.length} annotation
                 {utterance.annotations.length > 1 ? "s" : ""}
-                {hasVerificationChanges && (
+                {hasVerificationChanges && shouldShowVerificationDetails && (
                   <BadgeCheck className="text-muted-foreground ml-1 size-3" />
                 )}
               </div>

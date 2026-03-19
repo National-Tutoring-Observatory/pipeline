@@ -3,11 +3,11 @@ import type { VerificationChanges } from "../helpers/getVerificationChanges";
 
 export default function SessionVerification({
   verificationChanges,
-  showVerificationDetails,
+  shouldShowVerificationDetails,
   onToggleVerificationDetails,
 }: {
   verificationChanges: VerificationChanges;
-  showVerificationDetails: boolean;
+  shouldShowVerificationDetails: boolean;
   onToggleVerificationDetails: () => void;
 }) {
   return (
@@ -19,7 +19,7 @@ export default function SessionVerification({
             Show verifications
           </span>
           <Switch
-            checked={showVerificationDetails}
+            checked={shouldShowVerificationDetails}
             onCheckedChange={onToggleVerificationDetails}
           />
         </div>
