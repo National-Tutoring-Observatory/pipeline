@@ -11,9 +11,10 @@ async function initPro() {
   if (isProInitialized || !isProAvailable) return;
   isProInitialized = true;
   try {
+    const proModule = "@taskforcesh/bullmq-pro";
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - bullmq-pro is conditionally installed
-    const pro = await import("@taskforcesh/bullmq-pro");
+    const pro = await import(proModule);
     FlowProducerClass = pro.FlowProducerPro as unknown as typeof FlowProducer;
     QueueProClass = pro.QueuePro as unknown as typeof Queue;
   } catch {
