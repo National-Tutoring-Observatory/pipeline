@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
+import findModelByCode from "~/modules/llm/helpers/findModelByCode";
 import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
 
 export default function RunSetModelsField({
@@ -53,7 +54,9 @@ export default function RunSetModelsField({
                 key={model}
                 className="bg-background flex items-center justify-between rounded p-2"
               >
-                <span className="text-sm">{model}</span>
+                <span className="text-sm">
+                  {findModelByCode(model)?.name ?? model}
+                </span>
                 <Button
                   size="sm"
                   variant="ghost"
