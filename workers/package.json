@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch --include '**/*' --exclude 'tmp/**' --exclude 'node_modules/**' -r dotenv/config ./index.ts dotenv_config_path=../.env",
-    "prod": "tsx -r dotenv/config ./index.ts dotenv_config_path=../.env"
+    "dev": "tsx watch --include '**/*' --exclude 'tmp/**' --exclude 'node_modules/**' --import ../instrumentation.ts -r dotenv/config ./index.ts dotenv_config_path=../.env",
+    "prod": "tsx --import ../instrumentation.ts -r dotenv/config ./index.ts dotenv_config_path=../.env"
   },
   "dependencies": {
     "@socket.io/redis-emitter": "^5.1.0",

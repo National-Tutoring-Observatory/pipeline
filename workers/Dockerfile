@@ -1,6 +1,6 @@
 FROM node:25-alpine
 RUN apk add --no-cache yarn
-COPY package.json yarn.lock global-bundle.pem tsconfig.json /app/
+COPY package.json yarn.lock global-bundle.pem tsconfig.json instrumentation.ts /app/
 COPY workers/package.json /app/workers/
 COPY ./bin /app/bin
 WORKDIR /app
