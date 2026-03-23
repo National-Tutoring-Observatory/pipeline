@@ -29,7 +29,7 @@ FROM node:25-alpine
 RUN apk add --no-cache yarn
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
-COPY ./package.json yarn.lock tsconfig.json server.ts sessionStorage.ts sockets.ts global-bundle.pem instrumentation.ts /app/
+COPY ./package.json yarn.lock tsconfig.json server.ts sessionStorage.ts sockets.ts global-bundle.pem instrumentation.ts otel-register.mjs /app/
 COPY ./app /app/app
 COPY ./documentation /app/documentation
 COPY ./public /app/public
