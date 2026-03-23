@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { BadgeCheck, MinusCircle, PlusCircle } from "lucide-react";
+import { BadgeCheck, BadgeMinus, BadgePlus } from "lucide-react";
 
 export default function SessionViewerUtteranceVerificationDetails({
   hasChangedAnnotation,
@@ -15,14 +15,14 @@ export default function SessionViewerUtteranceVerificationDetails({
   return (
     <>
       {hasChangedAnnotation && (
-        <div className="text-muted-foreground ml-2 flex items-center text-xs">
+        <div className="ml-2 flex items-center text-xs text-amber-500">
           <BadgeCheck className="mr-1 size-3" />
           Changed by verification
         </div>
       )}
       {hasAddedAnnotation && (
-        <div className="text-muted-foreground ml-2 flex items-center text-xs">
-          <PlusCircle className="mr-1 size-3" />
+        <div className="ml-2 flex items-center text-xs text-green-600">
+          <BadgePlus className="mr-1 size-3" />
           Added by verification
         </div>
       )}
@@ -34,7 +34,7 @@ export default function SessionViewerUtteranceVerificationDetails({
           onClick={onUtteranceClicked}
         >
           <div className="text-destructive flex items-center text-xs">
-            <MinusCircle className="mr-1 size-3" />
+            <BadgeMinus className="mr-1 size-3" />
             Removed by verification
           </div>
         </Button>

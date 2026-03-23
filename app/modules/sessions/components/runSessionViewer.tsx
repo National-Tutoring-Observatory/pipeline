@@ -68,6 +68,13 @@ export default function SessionViewer({
         c.after._id === annotation._id,
     )?.before ?? null;
 
+  const isAddedAnnotation = (annotation: Annotation) =>
+    verificationChanges?.added.some((a) => a._id === annotation._id) ?? false;
+
+  const isChangedAnnotation = (annotation: Annotation) =>
+    verificationChanges?.changed.some((c) => c.after._id === annotation._id) ??
+    false;
+
   return (
     <div className="flex h-full flex-1">
       <div
@@ -76,15 +83,18 @@ export default function SessionViewer({
       >
         {map(sessionFile.transcript, (utterance: Utterance, index: number) => {
           const isSelected = selectedUtteranceId === utterance._id;
-          const hasChangedAnnotation = verificationChanges?.changed.some(
-            (c) => c.after._id === utterance._id,
-          );
-          const hasAddedAnnotation = verificationChanges?.added.some(
-            (a) => a._id === utterance._id,
-          );
-          const hasRemovedAnnotation = verificationChanges?.removed.some(
-            (r) => r._id === utterance._id,
-          );
+          const isPerUtterance = run.annotationType === "PER_UTTERANCE";
+          const hasChangedAnnotation =
+            isPerUtterance &&
+            verificationChanges?.changed.some(
+              (c) => c.after._id === utterance._id,
+            );
+          const hasAddedAnnotation =
+            isPerUtterance &&
+            verificationChanges?.added.some((a) => a._id === utterance._id);
+          const hasRemovedAnnotation =
+            isPerUtterance &&
+            verificationChanges?.removed.some((r) => r._id === utterance._id);
           return (
             <SessionViewerUtterance
               key={utterance._id}
@@ -127,6 +137,14 @@ export default function SessionViewer({
                     key={`${annotation._id}-${index}-${annotation.votingReason || ""}`}
                     annotation={annotation}
                     preAnnotation={getPreAnnotation(annotation)}
+                    isAddedByVerification={
+                      shouldShowVerificationDetails &&
+                      isAddedAnnotation(annotation)
+                    }
+                    isChangedByVerification={
+                      shouldShowVerificationDetails &&
+                      isChangedAnnotation(annotation)
+                    }
                     isVoting={isVoting}
                     isSavingReason={isSavingReason}
                     onDownVoteClicked={() =>
@@ -201,6 +219,14 @@ export default function SessionViewer({
                     key={`${annotation._id}-${index}-${annotation.votingReason || ""}`}
                     annotation={annotation}
                     preAnnotation={getPreAnnotation(annotation)}
+                    isAddedByVerification={
+                      shouldShowVerificationDetails &&
+                      isAddedAnnotation(annotation)
+                    }
+                    isChangedByVerification={
+                      shouldShowVerificationDetails &&
+                      isChangedAnnotation(annotation)
+                    }
                     isVoting={isVoting}
                     isSavingReason={isSavingReason}
                     onDownVoteClicked={() =>

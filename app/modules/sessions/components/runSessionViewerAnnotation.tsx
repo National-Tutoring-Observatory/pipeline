@@ -7,6 +7,7 @@ import { Check, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useState } from "react";
 import type { Annotation } from "../sessions.types";
 import SessionViewerAnnotationValue from "./runSessionViewerAnnotationValue";
+import SessionViewerAnnotationVerificationStatus from "./runSessionViewerAnnotationVerificationStatus";
 
 const HIDDEN_ANNOTATION_KEYS = new Set([
   "_id",
@@ -19,6 +20,8 @@ export default function SessionViewerAnnotation({
   annotation,
   preAnnotation,
   isRemovedByVerification = false,
+  isAddedByVerification = false,
+  isChangedByVerification = false,
   isVoting,
   isSavingReason,
   onDownVoteClicked,
@@ -28,6 +31,8 @@ export default function SessionViewerAnnotation({
   annotation: Annotation & any;
   preAnnotation?: Annotation & any;
   isRemovedByVerification?: boolean;
+  isAddedByVerification?: boolean;
+  isChangedByVerification?: boolean;
   isVoting: boolean;
   isSavingReason: boolean;
   onDownVoteClicked: () => void;
@@ -41,11 +46,11 @@ export default function SessionViewerAnnotation({
 
   return (
     <div className="bg-muted mb-2 rounded-md p-4">
-      {isRemovedByVerification && (
-        <div className="mb-3">
-          <Badge variant="destructive">Removed by verification</Badge>
-        </div>
-      )}
+      <SessionViewerAnnotationVerificationStatus
+        isRemovedByVerification={isRemovedByVerification}
+        isChangedByVerification={isChangedByVerification}
+        isAddedByVerification={isAddedByVerification}
+      />
       {map(annotation, (annotationValue, annotationKey) => {
         if (HIDDEN_ANNOTATION_KEYS.has(annotationKey)) {
           return null;
@@ -53,6 +58,7 @@ export default function SessionViewerAnnotation({
 
         const previousValue = preAnnotation?.[annotationKey];
         const hasChanged =
+          isChangedByVerification &&
           previousValue !== undefined &&
           String(previousValue) !== String(annotationValue);
 

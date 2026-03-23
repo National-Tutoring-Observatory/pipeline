@@ -42,6 +42,7 @@ export default function ViewSession({
                 utterance={utterance}
                 leadRole={leadRole}
                 isSelected={false}
+                shouldShowVerificationDetails={false}
                 onUtteranceClicked={() => {}}
               />
             );
