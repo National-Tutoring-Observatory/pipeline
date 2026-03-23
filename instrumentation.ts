@@ -2,8 +2,26 @@ export {};
 
 if (process.env.OTEL_ENABLED === "true") {
   const { NodeSDK } = await import("@opentelemetry/sdk-node");
-  const { getNodeAutoInstrumentations } =
-    await import("@opentelemetry/auto-instrumentations-node");
+  const { HttpInstrumentation } =
+    await import("@opentelemetry/instrumentation-http");
+  const { ExpressInstrumentation } =
+    await import("@opentelemetry/instrumentation-express");
+  const { IORedisInstrumentation } =
+    await import("@opentelemetry/instrumentation-ioredis");
+  const { MongoDBInstrumentation } =
+    await import("@opentelemetry/instrumentation-mongodb");
+  const { MongooseInstrumentation } =
+    await import("@opentelemetry/instrumentation-mongoose");
+  const { SocketIoInstrumentation } =
+    await import("@opentelemetry/instrumentation-socket.io");
+  const { UndiciInstrumentation } =
+    await import("@opentelemetry/instrumentation-undici");
+  const { RuntimeNodeInstrumentation } =
+    await import("@opentelemetry/instrumentation-runtime-node");
+  const { AwsInstrumentation } =
+    await import("@opentelemetry/instrumentation-aws-sdk");
+  const { OpenAIInstrumentation } =
+    await import("@opentelemetry/instrumentation-openai");
   const { OTLPTraceExporter } =
     await import("@opentelemetry/exporter-trace-otlp-proto");
   const { OTLPMetricExporter } =
@@ -29,7 +47,6 @@ if (process.env.OTEL_ENABLED === "true") {
   const resource = resourceFromAttributes({
     [ATTR_SERVICE_NAME]: serviceName,
     [ATTR_SERVICE_VERSION]: "1.0.0",
-    "deployment.environment.name": process.env.NODE_ENV || "development",
   });
 
   const sdk = new NodeSDK({
@@ -44,11 +61,16 @@ if (process.env.OTEL_ENABLED === "true") {
       exportIntervalMillis: 30000,
     }),
     instrumentations: [
-      getNodeAutoInstrumentations({
-        "@opentelemetry/instrumentation-fs": { enabled: false },
-        "@opentelemetry/instrumentation-dns": { enabled: false },
-        "@opentelemetry/instrumentation-net": { enabled: false },
-      }),
+      new HttpInstrumentation(),
+      new ExpressInstrumentation(),
+      new IORedisInstrumentation(),
+      new MongoDBInstrumentation(),
+      new MongooseInstrumentation(),
+      new SocketIoInstrumentation(),
+      new UndiciInstrumentation(),
+      new RuntimeNodeInstrumentation(),
+      new AwsInstrumentation(),
+      new OpenAIInstrumentation(),
       new BullMQInstrumentation(),
     ],
   });
