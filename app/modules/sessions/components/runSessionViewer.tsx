@@ -76,8 +76,11 @@ export default function SessionViewer({
       >
         {map(sessionFile.transcript, (utterance: Utterance, index: number) => {
           const isSelected = selectedUtteranceId === utterance._id;
-          const hasVerificationChanges = verificationChanges?.changed.some(
+          const hasChangedAnnotation = verificationChanges?.changed.some(
             (c) => c.after._id === utterance._id,
+          );
+          const hasAddedAnnotation = verificationChanges?.added.some(
+            (a) => a._id === utterance._id,
           );
           const hasRemovedAnnotation = verificationChanges?.removed.some(
             (r) => r._id === utterance._id,
@@ -89,7 +92,8 @@ export default function SessionViewer({
               leadRole={sessionFile.leadRole}
               utterance={utterance}
               isSelected={isSelected}
-              hasVerificationChanges={hasVerificationChanges}
+              hasChangedAnnotation={hasChangedAnnotation}
+              hasAddedAnnotation={hasAddedAnnotation}
               hasRemovedAnnotation={hasRemovedAnnotation}
               shouldShowVerificationDetails={shouldShowVerificationDetails}
               onUtteranceClicked={onUtteranceClicked}

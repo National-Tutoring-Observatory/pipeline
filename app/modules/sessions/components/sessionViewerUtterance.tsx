@@ -1,15 +1,17 @@
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
-import { BadgeCheck, MinusCircle, NotebookPen } from "lucide-react";
+import { NotebookPen } from "lucide-react";
 import getUtteranceDetails from "../helpers/getUtteranceDetails";
 import type { Utterance } from "../sessions.types";
+import SessionViewerUtteranceVerificationDetails from "./sessionViewerUtteranceVerificationDetails";
 
 export default function SessionViewerUtterance({
   utterance,
   utteranceNumber,
   leadRole = "TEACHER",
   isSelected,
-  hasVerificationChanges,
+  hasChangedAnnotation,
+  hasAddedAnnotation,
   hasRemovedAnnotation,
   shouldShowVerificationDetails,
   onUtteranceClicked,
@@ -18,7 +20,8 @@ export default function SessionViewerUtterance({
   utteranceNumber: number;
   leadRole: string;
   isSelected: boolean;
-  hasVerificationChanges?: boolean;
+  hasChangedAnnotation?: boolean;
+  hasAddedAnnotation?: boolean;
   hasRemovedAnnotation?: boolean;
   shouldShowVerificationDetails: boolean;
   onUtteranceClicked: (utteranceId: string) => void;
@@ -31,7 +34,7 @@ export default function SessionViewerUtterance({
         "justify-end": utterance.role !== leadRole,
       })}
     >
-      <div className="flex max-w-3/4 flex-col">
+      <div className="flex max-w-7/8 flex-col">
         <div
           id={`session-viewer-utterance-${utterance._id}`}
           className={clsx("scroll-mt-4 rounded-4xl border p-4", {
@@ -44,7 +47,7 @@ export default function SessionViewerUtterance({
         >
           {utterance.content}
         </div>
-        <div className="text-muted-foreground mt-1 flex min-h-8 items-center text-xs">
+        <div className="text-muted-foreground mt-1 flex min-h-8 flex-wrap items-center text-xs">
           <div>
             #{utteranceNumber} · {getUtteranceDetails({ utterance })}
           </div>
@@ -59,24 +62,16 @@ export default function SessionViewerUtterance({
                 <NotebookPen className="mr-1 size-3" />
                 {utterance.annotations.length} annotation
                 {utterance.annotations.length > 1 ? "s" : ""}
-                {hasVerificationChanges && shouldShowVerificationDetails && (
-                  <BadgeCheck className="text-muted-foreground ml-1 size-3" />
-                )}
               </div>
             </Button>
           )}
-          {hasRemovedAnnotation && shouldShowVerificationDetails && (
-            <Button
-              variant="link"
-              size={"sm"}
-              className="decoration-sandpiper-accent ml-4"
-              onClick={() => onUtteranceClicked(utterance._id)}
-            >
-              <div className="text-destructive flex items-center text-xs">
-                <MinusCircle className="mr-1 size-3" />
-                Removed by verification
-              </div>
-            </Button>
+          {shouldShowVerificationDetails && (
+            <SessionViewerUtteranceVerificationDetails
+              hasChangedAnnotation={hasChangedAnnotation}
+              hasAddedAnnotation={hasAddedAnnotation}
+              hasRemovedAnnotation={hasRemovedAnnotation}
+              onUtteranceClicked={() => onUtteranceClicked(utterance._id)}
+            />
           )}
         </div>
       </div>
