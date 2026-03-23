@@ -1,9 +1,14 @@
 import cloneDeep from "lodash/cloneDeep";
 import map from "lodash/map";
+import orderBy from "lodash/orderBy";
 import pull from "lodash/pull";
 import sampleSize from "lodash/sampleSize";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFetcher, useParams } from "react-router";
+import type {
+  SessionSortField,
+  SortDirection,
+} from "../components/sessionSelector";
 import SessionSelector from "../components/sessionSelector";
 
 export default function SessionSelectorContainer({
@@ -15,6 +20,8 @@ export default function SessionSelectorContainer({
 }) {
   const sessionsFetcher = useFetcher({ key: "sessionsList" });
   const [userSampleSize, setUserSampleSize] = useState<number | null>(null);
+  const [sortField, setSortField] = useState<SessionSortField>("name");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   const defaultSampleSize = sessionsFetcher.data?.sessions?.count
     ? Math.floor(sessionsFetcher.data.sessions.count / 3) || 1
@@ -22,6 +29,21 @@ export default function SessionSelectorContainer({
   const randomSampleSize = userSampleSize ?? defaultSampleSize;
 
   const params = useParams();
+
+  const sortedSessions = useMemo(() => {
+    const sessions = sessionsFetcher.data?.sessions?.data;
+    if (!sessions) return [];
+    return orderBy(sessions, [sortField], [sortDirection]);
+  }, [sessionsFetcher.data?.sessions?.data, sortField, sortDirection]);
+
+  const onSortChanged = (field: SessionSortField) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
 
   const onSelectAllToggled = (isChecked: boolean) => {
     if (isChecked) {
@@ -69,9 +91,12 @@ export default function SessionSelectorContainer({
 
   return (
     <SessionSelector
-      sessions={sessionsFetcher.data?.sessions?.data}
+      sessions={sortedSessions}
       selectedSessions={selectedSessions}
       sampleSize={randomSampleSize}
+      sortField={sortField}
+      sortDirection={sortDirection}
+      onSortChanged={onSortChanged}
       onSelectAllToggled={onSelectAllToggled}
       onSelectSessionToggled={onSelectSessionToggled}
       onSampleSizeChanged={onSampleSizeChanged}
