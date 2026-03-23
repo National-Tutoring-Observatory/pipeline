@@ -7,7 +7,8 @@ services:
       - .env
       - .env.docker
     environment:
-      - OTEL_SERVICE_NAME=pipeline-app
+      - OTEL_SERVICE_NAME=sandpiper
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production
     ports:
       - "5173:5173"
     depends_on:
@@ -21,7 +22,8 @@ services:
       - .env
       - .env.docker
     environment:
-      - OTEL_SERVICE_NAME=pipeline-workers
+      - OTEL_SERVICE_NAME=sandpiper
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production
     depends_on:
       - redis
       - mongodb
