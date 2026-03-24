@@ -95,8 +95,7 @@ class LLM {
     };
 
     if (delta.inputTokens === 0 && delta.outputTokens === 0) return;
-
-    this.lastFlushedUsage = { ...this.totalUsage };
+    if (!this.options.user) return;
 
     try {
       const service = await getLlmCostService();
@@ -115,6 +114,7 @@ class LLM {
         }),
         providerCost: delta.providerCost,
       });
+      this.lastFlushedUsage = { ...this.totalUsage };
     } catch (error) {
       console.warn("Failed to write LLM cost record:", error);
     }

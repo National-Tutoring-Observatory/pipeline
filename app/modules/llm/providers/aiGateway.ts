@@ -57,7 +57,10 @@ registerLLM("AI_GATEWAY", {
       usage: {
         inputTokens: chatCompletion.usage?.prompt_tokens ?? 0,
         outputTokens: chatCompletion.usage?.completion_tokens ?? 0,
-        providerCost: providerCostHeader ? parseFloat(providerCostHeader) : 0,
+        providerCost:
+          providerCostHeader && Number.isFinite(parseFloat(providerCostHeader))
+            ? parseFloat(providerCostHeader)
+            : 0,
       },
     };
   },
