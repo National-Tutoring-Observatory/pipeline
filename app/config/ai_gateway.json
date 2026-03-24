@@ -15,26 +15,33 @@
           "pricing": [{ "inputCostPer1M": 0.25, "outputCostPer1M": 1.5 }]
         },
         {
-          "name": "Gemini 3 Flash",
+          "name": "Gemini 3 Flash Preview",
           "code": "nto.google.gemini-3-flash-preview",
+          "pricing": [{ "inputCostPer1M": 0.5, "outputCostPer1M": 3.0 }]
+        },
+        {
+          "name": "Gemini 3 Pro Preview",
+          "code": "nto.google.gemini-3-pro-preview",
           "pricing": [
             {
               "upToInputTokens": 200000,
-              "inputCostPer1M": 0.5,
-              "outputCostPer1M": 3.0
+              "inputCostPer1M": 2.0,
+              "outputCostPer1M": 12.0
             },
-            { "inputCostPer1M": 1.0, "outputCostPer1M": 6.0 }
+            { "inputCostPer1M": 4.0, "outputCostPer1M": 18.0 }
           ]
         },
         {
-          "name": "Gemini 3 Pro",
-          "code": "nto.google.gemini-3-pro-preview",
-          "pricing": [{ "inputCostPer1M": 2.0, "outputCostPer1M": 12.0 }]
-        },
-        {
-          "name": "Gemini 3.1 Pro",
+          "name": "Gemini 3.1 Pro Preview",
           "code": "nto.google.gemini-3.1-pro-preview",
-          "pricing": [{ "inputCostPer1M": 2.0, "outputCostPer1M": 12.0 }]
+          "pricing": [
+            {
+              "upToInputTokens": 200000,
+              "inputCostPer1M": 2.0,
+              "outputCostPer1M": 12.0
+            },
+            { "inputCostPer1M": 4.0, "outputCostPer1M": 18.0 }
+          ]
         }
       ]
     },
@@ -69,12 +76,43 @@
         {
           "name": "Claude 4.5 Sonnet",
           "code": "anthropic.claude-4.5-sonnet",
-          "pricing": [{ "inputCostPer1M": 3.0, "outputCostPer1M": 15.0 }]
+          "pricing": [
+            {
+              "upToInputTokens": 200000,
+              "inputCostPer1M": 3.0,
+              "outputCostPer1M": 15.0
+            },
+            { "inputCostPer1M": 6.0, "outputCostPer1M": 22.5 }
+          ]
         },
         {
           "name": "Claude 4.5 Opus",
           "code": "anthropic.claude-4.5-opus",
           "pricing": [{ "inputCostPer1M": 5.0, "outputCostPer1M": 25.0 }]
+        },
+        {
+          "name": "Claude 4.6 Sonnet",
+          "code": "anthropic.claude-4.6-sonnet",
+          "pricing": [
+            {
+              "upToInputTokens": 200000,
+              "inputCostPer1M": 3.0,
+              "outputCostPer1M": 15.0
+            },
+            { "inputCostPer1M": 6.0, "outputCostPer1M": 22.5 }
+          ]
+        },
+        {
+          "name": "Claude 4.6 Opus",
+          "code": "anthropic.claude-4.6-opus",
+          "pricing": [
+            {
+              "upToInputTokens": 200000,
+              "inputCostPer1M": 5.0,
+              "outputCostPer1M": 25.0
+            },
+            { "inputCostPer1M": 10.0, "outputCostPer1M": 37.5 }
+          ]
         }
       ]
     }
