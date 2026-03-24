@@ -50,14 +50,14 @@ describe("calculateCost", () => {
     expect(cost).toBeGreaterThan(0);
   });
 
-  it("returns 0 for unknown model", () => {
-    const cost = calculateCost({
-      modelCode: "nonexistent.model",
-      inputTokens: 1000,
-      outputTokens: 500,
-    });
-
-    expect(cost).toBe(0);
+  it("throws for unknown model", () => {
+    expect(() =>
+      calculateCost({
+        modelCode: "nonexistent.model",
+        inputTokens: 1000,
+        outputTokens: 500,
+      }),
+    ).toThrow("No pricing found for model: nonexistent.model");
   });
 
   it("returns 0 when tokens are 0", () => {

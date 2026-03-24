@@ -24,7 +24,9 @@ export default function calculateCost({
   outputTokens: number;
 }): number {
   const tiers = getModelPricing(modelCode);
-  if (tiers.length === 0) return 0;
+  if (tiers.length === 0) {
+    throw new Error(`No pricing found for model: ${modelCode}`);
+  }
 
   const tier = selectTier(tiers, inputTokens);
   if (!tier) return 0;
