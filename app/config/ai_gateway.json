@@ -1,5 +1,5 @@
 {
-  "defaultModel": "google.gemini-3-flash-preview",
+  "defaultModel": "nto.google.gemini-3-flash-preview",
   "providers": [
     {
       "name": "Google",
