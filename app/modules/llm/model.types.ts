@@ -8,7 +8,6 @@ export interface ModelInfo {
   code: string;
   name: string;
   provider: string;
-  deprecated?: boolean;
   pricing?: PricingTier[];
 }
 
@@ -17,7 +16,6 @@ export interface Provider {
   models: Array<{
     code: string;
     name: string;
-    deprecated?: boolean;
     pricing: PricingTier[];
   }>;
 }
