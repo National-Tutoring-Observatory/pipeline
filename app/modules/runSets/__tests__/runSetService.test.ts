@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import aiGatewayConfig from "~/config/ai_gateway.json";
+import { getAvailableProviders } from "~/modules/llm/modelRegistry";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
 import { PromptService } from "~/modules/prompts/prompt";
@@ -15,8 +15,9 @@ import { buildUsedPromptModelKey } from "../helpers/getUsedPromptModels";
 import { RunSetService } from "../runSet";
 import type { RunDefinition } from "../runSets.types";
 
-const testModel1 = aiGatewayConfig.providers[0].models[0].code;
-const testModel2 = aiGatewayConfig.providers[0].models[1].code;
+const providers = getAvailableProviders();
+const testModel1 = providers[0].models[0].code;
+const testModel2 = providers[0].models[1].code;
 
 vi.mock("~/modules/runs/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),

@@ -1,5 +1,5 @@
 import type { Db } from "mongodb";
-import findModelByCode from "~/modules/llm/helpers/findModelByCode";
+import { findModelByCode } from "~/modules/llm/modelRegistry";
 import type {
   MigrationFile,
   MigrationResult,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import aiGatewayConfig from "~/config/ai_gateway.json";
+import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
 import RunCreator from "../components/runCreator";
 
@@ -29,7 +29,7 @@ export default function ProjectRunCreatorContainer({
     number | null
   >(initialRun?.promptVersion || null);
   const [selectedModel, setSelectedModel] = useState(
-    initialRun?.snapshot?.model?.code || aiGatewayConfig.defaultModel,
+    initialRun?.snapshot?.model?.code || getDefaultModelCode(),
   );
   const [selectedSessions, setSelectedSessions] = useState<string[]>(
     initialRun?.sessions?.map((s) => s.sessionId) || [],

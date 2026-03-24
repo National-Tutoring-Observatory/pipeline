@@ -8,10 +8,10 @@ import {
   useNavigate,
 } from "react-router";
 import { toast } from "sonner";
-import aiGatewayConfig from "~/config/ai_gateway.json";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { getAvailableModels } from "~/modules/llm/modelRegistry";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { PromptService } from "~/modules/prompts/prompt";
@@ -151,7 +151,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
         // Validate models exist in config
         const availableModelCodes = new Set(
-          aiGatewayConfig.providers.flatMap((p) => p.models.map((m) => m.code)),
+          getAvailableModels().map((m) => m.code),
         );
         const selectedModels: string[] = [];
         for (const modelCode of modelSet) {

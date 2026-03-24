@@ -40,13 +40,25 @@ registerLLM("AI_GATEWAY", {
 
     applySchemaToRequest(requestParams, schema);
 
-    const chatCompletion = await llm.chat.completions.create(requestParams);
+    const { data: chatCompletion, response } = await llm.chat.completions
+      .create(requestParams)
+      .withResponse();
     const message = chatCompletion.choices[0].message;
 
-    if (message.tool_calls?.length > 0) {
-      return JSON.parse(message.tool_calls[0].function.arguments);
-    }
+    const content =
+      message.tool_calls?.length > 0
+        ? JSON.parse(message.tool_calls[0].function.arguments)
+        : JSON.parse(message.content);
 
-    return JSON.parse(message.content);
+    const providerCostHeader = response.headers.get("x-litellm-response-cost");
+
+    return {
+      content,
+      usage: {
+        inputTokens: chatCompletion.usage?.prompt_tokens ?? 0,
+        outputTokens: chatCompletion.usage?.completion_tokens ?? 0,
+        providerCost: providerCostHeader ? parseFloat(providerCostHeader) : 0,
+      },
+    };
   },
 });

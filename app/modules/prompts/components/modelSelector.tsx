@@ -15,8 +15,8 @@ import {
 import clsx from "clsx";
 import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
 
-import findModelByCode from "~/modules/llm/helpers/findModelByCode";
 import type { Provider } from "~/modules/llm/model.types";
+import { findModelByCode } from "~/modules/llm/modelRegistry";
 
 export default function ModelSelector({
   providers,
