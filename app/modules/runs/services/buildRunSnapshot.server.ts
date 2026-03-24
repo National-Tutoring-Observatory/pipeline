@@ -68,7 +68,7 @@ async function buildPromptSnapshot({
  * Builds a model snapshot from the configuration
  * Stores the model code and provider for reproducibility and extensibility
  */
-import findModelByCode from "~/modules/llm/helpers/findModelByCode";
+import { findModelByCode } from "~/modules/llm/modelRegistry";
 
 async function buildModelSnapshot({ modelCode }: BuildModelSnapshotProps) {
   // Look up the display name for the model

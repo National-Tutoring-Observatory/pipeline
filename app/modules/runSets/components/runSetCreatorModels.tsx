@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
-import findModelByCode from "~/modules/llm/helpers/findModelByCode";
+import { findModelByCode } from "~/modules/llm/modelRegistry";
 import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
 
 export default function RunSetModelsField({

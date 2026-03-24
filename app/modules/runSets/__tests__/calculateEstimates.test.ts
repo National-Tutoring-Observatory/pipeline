@@ -1,19 +1,11 @@
 import { describe, expect, it } from "vitest";
-import aiGatewayConfig from "~/config/ai_gateway.json";
+import calculateCost from "~/modules/llm/helpers/calculateCost";
+import { getAvailableModels } from "~/modules/llm/modelRegistry";
 import { calculateEstimates } from "../helpers/calculateEstimates";
 import { buildUsedPromptModelKey } from "../helpers/getUsedPromptModels";
 import type { RunDefinition } from "../runSets.types";
 
-const allModels = aiGatewayConfig.providers.flatMap((p) =>
-  p.models.map((m) => m.code),
-);
-
-const allModelPricing = aiGatewayConfig.providers.flatMap((p) =>
-  p.models.map((m) => ({
-    inputCostPer1M: m.inputCostPer1M,
-    outputCostPer1M: m.outputCostPer1M,
-  })),
-);
+const allModels = getAvailableModels().map((m) => m.code);
 
 function makeDefinition(
   promptId: string,
@@ -36,14 +28,12 @@ function expectedCost(
   const inputTokens = 250;
   const outputTokens = 250;
   return modelIndices.reduce((sum, i) => {
-    const pricing = allModelPricing[i];
     return (
       sum +
       numPrompts *
         numSessions *
         verificationMultiplier *
-        ((inputTokens / 1_000_000) * pricing.inputCostPer1M +
-          (outputTokens / 1_000_000) * pricing.outputCostPer1M)
+        calculateCost({ modelCode: allModels[i], inputTokens, outputTokens })
     );
   }, 0);
 }

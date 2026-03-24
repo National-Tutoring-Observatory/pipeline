@@ -1,4 +1,4 @@
-import findModelByCode from "~/modules/llm/helpers/findModelByCode";
+import { findModelByCode } from "~/modules/llm/modelRegistry";
 import type { PromptReference } from "../runSets.types";
 
 export function generateRunName(

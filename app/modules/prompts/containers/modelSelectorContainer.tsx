@@ -1,5 +1,5 @@
 import { useState } from "react";
-import aiGatewayConfig from "../../../config/ai_gateway.json";
+import { getAvailableProviders } from "~/modules/llm/modelRegistry";
 import ModelSelector from "../components/modelSelector";
 
 export default function ModelSelectorContainer({
@@ -17,12 +17,12 @@ export default function ModelSelectorContainer({
     setIsModelsOpen(isModelsOpen);
   };
 
-  const providersWithFilteredModels = aiGatewayConfig.providers.map(
-    (provider) => ({
-      ...provider,
-      models: provider.models.filter((m) => !excludeModels.includes(m.code)),
-    }),
-  );
+  const providers = getAvailableProviders();
+
+  const providersWithFilteredModels = providers.map((provider) => ({
+    ...provider,
+    models: provider.models.filter((m) => !excludeModels.includes(m.code)),
+  }));
 
   const nonEmptyProviders = providersWithFilteredModels.filter(
     (provider) => provider.models.length > 0,

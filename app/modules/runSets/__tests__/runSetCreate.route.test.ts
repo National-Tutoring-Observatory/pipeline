@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import aiGatewayConfig from "~/config/ai_gateway.json";
+import { getAvailableProviders } from "~/modules/llm/modelRegistry";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
 import { PromptService } from "~/modules/prompts/prompt";
@@ -18,7 +18,7 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/runSetCreate.route";
 
-const testModel = aiGatewayConfig.providers[0].models[0].code;
+const testModel = getAvailableProviders()[0].models[0].code;
 
 vi.mock("~/modules/runs/services/createRunAnnotations.server", () => ({
   default: vi.fn(async () => {}),

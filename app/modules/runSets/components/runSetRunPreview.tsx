@@ -1,6 +1,6 @@
 import { Empty, EmptyContent, EmptyTitle } from "@/components/ui/empty";
 import { AlertTriangle, Plus, X } from "lucide-react";
-import findModelByCode from "~/modules/llm/helpers/findModelByCode";
+import { findModelByCode } from "~/modules/llm/modelRegistry";
 import { generateRunName } from "~/modules/runSets/helpers/generateRunName";
 import type { RunDefinition } from "~/modules/runSets/runSets.types";
 

@@ -1,0 +1,131 @@
+import { describe, expect, it } from "vitest";
+import {
+  findModelByCode,
+  getAvailableModels,
+  getAvailableProviders,
+  getDefaultModelCode,
+  getModelPricing,
+} from "../modelRegistry";
+
+describe("modelRegistry", () => {
+  describe("getDefaultModelCode", () => {
+    it("returns a non-empty string", () => {
+      const code = getDefaultModelCode();
+      expect(code).toBeTruthy();
+      expect(typeof code).toBe("string");
+    });
+  });
+
+  describe("getAvailableProviders", () => {
+    it("returns providers with models", () => {
+      const providers = getAvailableProviders();
+      expect(providers.length).toBeGreaterThan(0);
+      for (const provider of providers) {
+        expect(provider.name).toBeTruthy();
+        expect(provider.models.length).toBeGreaterThan(0);
+      }
+    });
+
+    it("excludes deprecated models from providers", () => {
+      const providers = getAvailableProviders();
+      for (const provider of providers) {
+        for (const model of provider.models) {
+          expect(model.deprecated).not.toBe(true);
+        }
+      }
+    });
+  });
+
+  describe("getAvailableModels", () => {
+    it("returns a flat list of non-deprecated models", () => {
+      const models = getAvailableModels();
+      expect(models.length).toBeGreaterThan(0);
+      for (const model of models) {
+        expect(model.code).toBeTruthy();
+        expect(model.name).toBeTruthy();
+        expect(model.provider).toBeTruthy();
+        expect(model.deprecated).not.toBe(true);
+      }
+    });
+  });
+
+  describe("findModelByCode", () => {
+    it("finds an active model", () => {
+      const models = getAvailableModels();
+      const first = models[0];
+      const found = findModelByCode(first.code);
+      expect(found).not.toBeNull();
+      expect(found?.code).toBe(first.code);
+      expect(found?.name).toBe(first.name);
+      expect(found?.provider).toBe(first.provider);
+    });
+
+    it("returns null for unknown code", () => {
+      expect(findModelByCode("nonexistent.model")).toBeNull();
+    });
+
+    it("returns null for empty string", () => {
+      expect(findModelByCode("")).toBeNull();
+    });
+  });
+
+  describe("getModelPricing", () => {
+    it("returns pricing tiers for a known model", () => {
+      const models = getAvailableModels();
+      const pricing = getModelPricing(models[0].code);
+      expect(pricing.length).toBeGreaterThan(0);
+      for (const tier of pricing) {
+        expect(tier.inputCostPer1M).toBeGreaterThanOrEqual(0);
+        expect(tier.outputCostPer1M).toBeGreaterThanOrEqual(0);
+      }
+    });
+
+    it("returns empty array for unknown model", () => {
+      expect(getModelPricing("nonexistent.model")).toEqual([]);
+    });
+  });
+
+  describe("config validation", () => {
+    it("every non-deprecated model has a non-empty pricing array", () => {
+      const models = getAvailableModels();
+      for (const model of models) {
+        expect(
+          model.pricing?.length,
+          `Model ${model.code} has no pricing tiers`,
+        ).toBeGreaterThan(0);
+      }
+    });
+
+    it("pricing tiers are sorted ascending by upToInputTokens", () => {
+      const providers = getAvailableProviders();
+      for (const provider of providers) {
+        for (const model of provider.models) {
+          const thresholds = model.pricing
+            .filter((t) => t.upToInputTokens != null)
+            .map((t) => t.upToInputTokens!);
+          for (let i = 1; i < thresholds.length; i++) {
+            expect(
+              thresholds[i],
+              `Model ${model.code} has unsorted pricing tiers`,
+            ).toBeGreaterThan(thresholds[i - 1]);
+          }
+        }
+      }
+    });
+
+    it("last pricing tier has no upToInputTokens (catch-all)", () => {
+      const providers = getAvailableProviders();
+      for (const provider of providers) {
+        for (const model of provider.models) {
+          if (model.pricing.length > 1) {
+            const lastTier = model.pricing[model.pricing.length - 1];
+            expect(
+              lastTier.upToInputTokens,
+              `Model ${model.code} last tier should be catch-all (no upToInputTokens)`,
+            ).toBeUndefined();
+          }
+        }
+      }
+    });
+  });
+});
