@@ -163,7 +163,12 @@ describe("LLM", () => {
           usage: scoreUsage,
         });
 
-      const llm = new LLM({ source: SOURCE, model: MODEL, retries: 3 });
+      const llm = new LLM({
+        source: SOURCE,
+        model: MODEL,
+        retries: 3,
+        user: "team-1",
+      });
       llm.setOrchestratorMessage("Check this", {});
       llm.addUserMessage("test", {});
       await llm.createChat();
@@ -184,7 +189,7 @@ describe("LLM", () => {
         usage: mockUsage,
       });
 
-      const llm = new LLM({ source: SOURCE, model: MODEL });
+      const llm = new LLM({ source: SOURCE, model: MODEL, user: "team-1" });
       llm.addUserMessage("test", {});
 
       await expect(llm.createChat()).resolves.toEqual({ result: "ok" });
