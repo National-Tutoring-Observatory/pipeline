@@ -24,8 +24,8 @@ export default async function annotatePerUtterance(job: any) {
     shouldRunVerification,
   } = job.data;
 
-  const run = await RunService.findById(runId);
-  if (run?.stoppedAt) {
+  const currentRun = await RunService.findById(runId);
+  if (currentRun?.stoppedAt) {
     return { status: "STOPPED" };
   }
 
@@ -177,6 +177,10 @@ export default async function annotatePerUtterance(job: any) {
       },
       "FINISHED",
     );
+
+    return {
+      status: "SUCCESS",
+    };
   } catch (error: any) {
     const errorMessage = classifyLLMError(error);
 
