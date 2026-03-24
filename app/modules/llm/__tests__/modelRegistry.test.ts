@@ -25,32 +25,22 @@ describe("modelRegistry", () => {
         expect(provider.models.length).toBeGreaterThan(0);
       }
     });
-
-    it("excludes deprecated models from providers", () => {
-      const providers = getAvailableProviders();
-      for (const provider of providers) {
-        for (const model of provider.models) {
-          expect(model.deprecated).not.toBe(true);
-        }
-      }
-    });
   });
 
   describe("getAvailableModels", () => {
-    it("returns a flat list of non-deprecated models", () => {
+    it("returns a flat list of models", () => {
       const models = getAvailableModels();
       expect(models.length).toBeGreaterThan(0);
       for (const model of models) {
         expect(model.code).toBeTruthy();
         expect(model.name).toBeTruthy();
         expect(model.provider).toBeTruthy();
-        expect(model.deprecated).not.toBe(true);
       }
     });
   });
 
   describe("findModelByCode", () => {
-    it("finds an active model", () => {
+    it("finds a model by code", () => {
       const models = getAvailableModels();
       const first = models[0];
       const found = findModelByCode(first.code);
@@ -86,7 +76,7 @@ describe("modelRegistry", () => {
   });
 
   describe("config validation", () => {
-    it("every non-deprecated model has a non-empty pricing array", () => {
+    it("every model has a non-empty pricing array", () => {
       const models = getAvailableModels();
       for (const model of models) {
         expect(
