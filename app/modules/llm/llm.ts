@@ -101,6 +101,7 @@ class LLM {
     try {
       const service = await getLlmCostService();
       await service.create({
+        // LLMOptions.user is the team ID (named "user" to match OpenAI's API convention)
         team: this.options.user,
         model: this.options.model,
         source: this.options.source,
