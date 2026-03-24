@@ -51,6 +51,7 @@ export default async function convertFilesToSessions({
           inputFile: `${inputDirectory}/${projectFile.file}/${file.name}`,
           outputFolder: `${outputDirectory}/${projectFile._id}`,
           team: project.team,
+          sessionId: projectFile._id,
         },
       });
       hasErrored = false;
