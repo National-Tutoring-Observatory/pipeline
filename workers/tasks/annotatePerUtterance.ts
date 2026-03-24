@@ -69,7 +69,13 @@ export default async function annotatePerUtterance(job: any) {
       prompt.schemaItems,
     );
 
-    const llm = new LLM({ model, user: team, schema: responseSchema });
+    const llm = new LLM({
+      model,
+      user: team,
+      schema: responseSchema,
+      source: "annotation:per-utterance",
+      sourceId: sessionId,
+    });
 
     llm.addSystemMessage(annotationPerUtterancePrompts.system, {
       annotationSchema: JSON.stringify(prompt.annotationSchema),
@@ -87,7 +93,13 @@ export default async function annotatePerUtterance(job: any) {
     if (shouldRunVerification) {
       const preVerificationAnnotations = annotations;
 
-      const verifyLlm = new LLM({ model, user: team, schema: responseSchema });
+      const verifyLlm = new LLM({
+        model,
+        user: team,
+        schema: responseSchema,
+        source: "verification:per-utterance",
+        sourceId: sessionId,
+      });
 
       verifyLlm.addSystemMessage(verifyPerUtterancePrompts.system, {
         annotationSchema: JSON.stringify(prompt.annotationSchema),

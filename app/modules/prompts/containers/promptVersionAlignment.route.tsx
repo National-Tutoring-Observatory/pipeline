@@ -1,7 +1,7 @@
 import { data, redirect } from "react-router";
-import aiGatewayConfig from "~/config/ai_gateway.json";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import LLM from "~/modules/llm/llm";
+import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import type { User } from "~/modules/users/users.types";
 import PromptAuthorization from "../authorization";
 import type { AnnotationSchemaItem } from "../prompts.types";
@@ -13,7 +13,7 @@ export async function action({ request }: Route.ActionArgs) {
     return redirect("/");
   }
 
-  const { userPrompt, annotationSchema, team } = await request.json();
+  const { userPrompt, annotationSchema, team, promptId } = await request.json();
 
   if (!PromptAuthorization.canCreate(user, team)) {
     throw new Error("Access denied");
@@ -34,7 +34,12 @@ export async function action({ request }: Route.ActionArgs) {
   }
   const annotationSchemaArray = [annotationFields];
 
-  const llm = new LLM({ model: aiGatewayConfig.defaultModel, user: team });
+  const llm = new LLM({
+    model: getDefaultModelCode(),
+    user: team,
+    source: "prompt-alignment",
+    sourceId: promptId,
+  });
 
   llm.addSystemMessage(
     `You are an expert at looking over LLM prompts and are able to determine whether the prompt matches the annotation schema provided by the user.

@@ -145,6 +145,7 @@ async function processProjectFiles(
   const attributesMapping = await getAttributeMappingFromFile({
     file: splitFiles[0],
     team: teamId,
+    projectId,
   });
   console.log(`      ✓ Detected attribute mapping from file`);
 

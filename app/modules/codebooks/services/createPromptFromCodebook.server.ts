@@ -1,5 +1,5 @@
-import aiGatewayConfig from "~/config/ai_gateway.json";
 import LLM from "~/modules/llm/llm";
+import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import { CodebookService } from "../codebook";
@@ -44,8 +44,10 @@ export default async function createPromptFromCodebook({
   );
 
   const llm = new LLM({
-    model: aiGatewayConfig.defaultModel,
+    model: getDefaultModelCode(),
     user: teamId,
+    source: "codebook-prompt-generation",
+    sourceId: codebookId,
   });
 
   llm.addSystemMessage(

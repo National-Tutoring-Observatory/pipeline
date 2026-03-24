@@ -1,15 +1,19 @@
 import each from "lodash/each.js";
-import aiGatewayConfig from "../../config/ai_gateway.json";
+import mongoose from "mongoose";
+import calculateCost from "./helpers/calculateCost";
 import getLLM from "./helpers/getLLM";
+import type { LLMUsage } from "./llm.types";
 import "./providers/aiGateway.js";
 import "./providers/openAI.js";
 
-const DEFAULTS = {
-  model: aiGatewayConfig.defaultModel,
-  stream: false,
-  format: "json",
-  retries: 3,
-};
+let LlmCostService: any = null;
+async function getLlmCostService() {
+  if (!LlmCostService) {
+    const mod = await import("~/modules/llmCosts/llmCost");
+    LlmCostService = mod.LlmCostService;
+  }
+  return LlmCostService;
+}
 
 interface Message {
   role: "system" | "assistant" | "user";
@@ -23,17 +27,39 @@ interface OrchestratorMessage {
 
 type Variables = Record<string, any>;
 
+interface LLMOptions {
+  source: string;
+  model: string;
+  sourceId?: string;
+  user?: string;
+  schema?: object;
+  retries?: number;
+}
+
+const DEFAULT_RETRIES = 3;
+
 class LLM {
-  options: Record<string, any>;
+  options: LLMOptions & { retries: number };
   messages: Message[];
   orchestratorMessage: any;
   methods: any;
   retries: number;
   llm: any;
   schema: object | undefined;
+  private totalUsage: LLMUsage = {
+    inputTokens: 0,
+    outputTokens: 0,
+    providerCost: 0,
+  };
 
-  constructor(options: Record<string, any> = {}) {
-    this.options = { ...DEFAULTS, ...options };
+  private lastFlushedUsage: LLMUsage = {
+    inputTokens: 0,
+    outputTokens: 0,
+    providerCost: 0,
+  };
+
+  constructor(options: LLMOptions) {
+    this.options = { retries: DEFAULT_RETRIES, ...options };
     this.messages = [];
     this.schema = options.schema;
     const llm = getLLM(process.env.LLM_PROVIDER || "");
@@ -46,11 +72,59 @@ class LLM {
     }
   }
 
+  private accumulateUsage(usage: LLMUsage) {
+    this.totalUsage.inputTokens += usage.inputTokens;
+    this.totalUsage.outputTokens += usage.outputTokens;
+    this.totalUsage.providerCost += usage.providerCost;
+  }
+
+  getUsage(): LLMUsage {
+    return { ...this.totalUsage };
+  }
+
+  private async writeCostRecord() {
+    if (mongoose.connection.readyState !== 1) return;
+
+    const delta: LLMUsage = {
+      inputTokens:
+        this.totalUsage.inputTokens - this.lastFlushedUsage.inputTokens,
+      outputTokens:
+        this.totalUsage.outputTokens - this.lastFlushedUsage.outputTokens,
+      providerCost:
+        this.totalUsage.providerCost - this.lastFlushedUsage.providerCost,
+    };
+
+    if (delta.inputTokens === 0 && delta.outputTokens === 0) return;
+
+    this.lastFlushedUsage = { ...this.totalUsage };
+
+    try {
+      const service = await getLlmCostService();
+      await service.create({
+        team: this.options.user,
+        model: this.options.model,
+        source: this.options.source,
+        sourceId: this.options.sourceId,
+        inputTokens: delta.inputTokens,
+        outputTokens: delta.outputTokens,
+        cost: calculateCost({
+          modelCode: this.options.model,
+          inputTokens: delta.inputTokens,
+          outputTokens: delta.outputTokens,
+        }),
+        providerCost: delta.providerCost,
+      });
+    } catch (error) {
+      console.warn("Failed to write LLM cost record:", error);
+    }
+  }
+
   createChat = async (): Promise<any> => {
     if (this.orchestratorMessage) {
-      const response = await this.methods.createChat(this);
+      const result = await this.methods.createChat(this);
+      this.accumulateUsage(result.usage);
 
-      const scoreResponse = await this.methods.createChat({
+      const scoreResult = await this.methods.createChat({
         llm: this.llm,
         options: { ...this.options },
         messages: [
@@ -62,25 +136,28 @@ class LLM {
           # Where score is 1 when the output is acceptable and conforms.
           # Where reasoning is your reasoning as to why you scored it the way you did and a potential fix if we were to run it again.
           # You must return the following JSON: {"score": 0, "reasoning": ""}
-          Output: ${JSON.stringify(response)}
+          Output: ${JSON.stringify(result.content)}
           `,
           },
         ],
       });
+      this.accumulateUsage(scoreResult.usage);
 
-      if (scoreResponse.score > 0.8) {
-        return response;
+      if (scoreResult.content.score > 0.8) {
+        await this.writeCostRecord();
+        return result.content;
       } else {
         console.warn(
-          `Score: ${scoreResponse.score}, Reasoning: ${scoreResponse.reasoning}`,
+          `Score: ${scoreResult.content.score}, Reasoning: ${scoreResult.content.reasoning}`,
         );
+        await this.writeCostRecord();
         if (this.retries < this.options.retries) {
           this.retries++;
           console.warn(
             `Retrying ${this.retries} out of ${this.options.retries}`,
           );
           this.addUserMessage(
-            `This is not correct. Please try again with the following reason why this is not correct. Reasoning: ${scoreResponse.reasoning}`,
+            `This is not correct. Please try again with the following reason why this is not correct. Reasoning: ${scoreResult.content.reasoning}`,
             {},
           );
           return await this.createChat();
@@ -89,7 +166,10 @@ class LLM {
         }
       }
     } else {
-      return this.methods.createChat(this);
+      const result = await this.methods.createChat(this);
+      this.accumulateUsage(result.usage);
+      await this.writeCostRecord();
+      return result.content;
     }
   };
 

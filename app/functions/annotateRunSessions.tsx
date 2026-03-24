@@ -98,6 +98,7 @@ export default async function annotateRunSessions({
             prompt: { prompt: promptVersion.userPrompt, annotationSchema },
             model: getRunModelCode(run),
             team: project.team,
+            sessionId: session.sessionId,
           },
         });
       } else {
@@ -108,6 +109,7 @@ export default async function annotateRunSessions({
             prompt: { prompt: promptVersion.userPrompt, annotationSchema },
             model: getRunModelCode(run),
             team: project.team,
+            sessionId: session.sessionId,
           },
         });
       }

@@ -1,7 +1,7 @@
 import each from "lodash/each";
 import has from "lodash/has";
-import aiGatewayConfig from "~/config/ai_gateway.json";
 import LLM from "~/modules/llm/llm";
+import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import leadRolePrompt from "../prompts/leadRole.prompt.json";
 
 const REQUIRED_ATTRIBUTES = {
@@ -22,9 +22,11 @@ const REQUIRED_ATTRIBUTES = {
 export default async function getAttributeMappingFromFile({
   file,
   team,
+  projectId,
 }: {
   file: File;
   team: string;
+  projectId?: string;
 }): Promise<Record<string, string>> {
   const fileContents = await file.text();
 
@@ -55,7 +57,12 @@ export default async function getAttributeMappingFromFile({
     ),
   ];
 
-  const llm = new LLM({ model: aiGatewayConfig.defaultModel, user: team });
+  const llm = new LLM({
+    model: getDefaultModelCode(),
+    user: team,
+    source: "attribute-mapping",
+    sourceId: projectId,
+  });
 
   llm.addSystemMessage(leadRolePrompt.system, {});
 
