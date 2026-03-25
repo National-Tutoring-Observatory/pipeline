@@ -22,6 +22,27 @@ export interface EvaluationReport {
   runSummaries: RunSummary[];
 }
 
+export interface VerificationMetrics {
+  kappa: number;
+  precision: number;
+  recall: number;
+  f1: number;
+}
+
+export interface VerificationRunMetrics {
+  runId: string;
+  runName: string;
+  pre: VerificationMetrics;
+  post: VerificationMetrics;
+  delta: VerificationMetrics;
+  sampleSize: number;
+}
+
+export interface VerificationFieldReport {
+  fieldKey: string;
+  runs: VerificationRunMetrics[];
+}
+
 export interface Evaluation {
   _id: string;
   name: string;
@@ -36,6 +57,7 @@ export interface Evaluation {
   startedAt?: string;
   finishedAt?: string;
   report?: EvaluationReport[];
+  verificationReport?: VerificationFieldReport[];
   isExporting?: boolean;
   createdAt?: string;
 }

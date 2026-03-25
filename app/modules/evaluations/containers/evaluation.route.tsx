@@ -49,7 +49,6 @@ const debounceRevalidate = throttle((revalidate) => {
 export default function EvaluationRoute() {
   const { project, runSet, evaluation } = useLoaderData<typeof loader>();
   const [progress, setProgress] = useState(0);
-  const [step, setStep] = useState("");
   const { revalidate } = useRevalidator();
 
   useHandleSockets({
@@ -80,9 +79,6 @@ export default function EvaluationRoute() {
       if (has(payload, "progress")) {
         setProgress(payload.progress);
       }
-      if (has(payload, "step")) {
-        setStep(payload.step);
-      }
       debounceRevalidate(revalidate);
     },
   });
@@ -107,7 +103,6 @@ export default function EvaluationRoute() {
       evaluation={evaluation}
       breadcrumbs={breadcrumbs}
       progress={progress}
-      step={step}
     />
   );
 }
