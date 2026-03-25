@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import {
   redirect,
   useFetcher,
@@ -15,7 +15,7 @@ import { TeamBillingService } from "~/modules/billing/billing";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
 import AddCreditsDialog from "~/modules/billing/components/addCreditsDialog";
 import AssignBillingPlanDialog from "~/modules/billing/components/assignBillingPlanDialog";
-import SetBillingUserDialog from "~/modules/billing/components/setBillingUserDialog";
+import SetBillingUserDialogContainer from "~/modules/billing/containers/setBillingUserDialog.container";
 import addCredits from "~/modules/billing/services/addCredits.server";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import { TeamCreditService } from "~/modules/billing/teamCredit";
@@ -65,7 +65,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     sortableFields: ["createdAt", "amount"],
   });
 
-  const canAssignPlan = BillingAuthorization.canAssignPlan(user);
+  const isSuperAdmin = BillingAuthorization.canAssignPlan(user);
 
   const [balanceSummary, credits, billingUserInfo, billingPlans] =
     await Promise.all([
@@ -76,7 +76,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
             u ? { _id: u._id, username: u.username } : null,
           )
         : Promise.resolve(null),
-      canAssignPlan ? BillingPlanService.find() : Promise.resolve([]),
+      isSuperAdmin ? BillingPlanService.find() : Promise.resolve([]),
     ]);
 
   return {
@@ -152,23 +152,6 @@ export async function action({ request, params }: Route.ActionArgs) {
       return { success: true };
     }
 
-    case "GET_TEAM_MEMBERS": {
-      if (!BillingAuthorization.canSetBillingUser(user)) {
-        return {
-          success: false as const,
-          error: "Only super admins can manage billing users",
-        };
-      }
-      const members = await UserService.find({
-        match: { "teams.team": params.id },
-      });
-      return {
-        success: true as const,
-        intent: "GET_TEAM_MEMBERS" as const,
-        members: members.map((m) => ({ _id: m._id, username: m.username })),
-      };
-    }
-
     default:
       return { success: false, error: "Invalid intent" };
   }
@@ -178,7 +161,6 @@ export default function TeamBillingRoute() {
   const { team, balanceSummary, credits, billingUserInfo, billingPlans } =
     useLoaderData<typeof loader>();
   const fetcher = useFetcher();
-  const membersFetcher = useFetcher();
   const { revalidate } = useRevalidator();
 
   const {
@@ -244,37 +226,14 @@ export default function TeamBillingRoute() {
   };
 
   const openSetBillingUserDialog = () => {
-    membersFetcher.submit(JSON.stringify({ intent: "GET_TEAM_MEMBERS" }), {
-      method: "POST",
-      encType: "application/json",
-    });
+    addDialog(
+      <SetBillingUserDialogContainer
+        teamId={team._id}
+        currentBillingUserId={team.billingUser}
+        onSetBillingUserClicked={submitSetBillingUser}
+      />,
+    );
   };
-
-  const membersHandledRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (membersFetcher.state !== "idle") return;
-    if (!membersFetcher.data) return;
-
-    const dataKey = JSON.stringify(membersFetcher.data);
-    if (membersHandledRef.current === dataKey) return;
-    membersHandledRef.current = dataKey;
-
-    if (
-      membersFetcher.data.success &&
-      membersFetcher.data.intent === "GET_TEAM_MEMBERS"
-    ) {
-      addDialog(
-        <SetBillingUserDialog
-          members={membersFetcher.data.members}
-          currentBillingUserId={team.billingUser}
-          onSetBillingUserClicked={submitSetBillingUser}
-        />,
-      );
-    } else if (membersFetcher.data.error) {
-      toast.error(membersFetcher.data.error);
-    }
-  }, [membersFetcher.state, membersFetcher.data]);
 
   return (
     <TeamBilling
@@ -283,7 +242,6 @@ export default function TeamBillingRoute() {
       credits={credits}
       billingUserInfo={billingUserInfo}
       isSubmitting={fetcher.state !== "idle"}
-      isLoadingMembers={membersFetcher.state !== "idle"}
       creditsSearchValue={creditsSearchValue}
       creditsCurrentPage={creditsCurrentPage}
       isCreditsSyncing={isCreditsSyncing}
