@@ -15,10 +15,12 @@ export default function AdjudicationDialog({
   performers,
   selectedRuns,
   onSelectedRunsChanged,
+  onStartAdjudication,
 }: {
   performers: TopPerformer[];
   selectedRuns: string[];
   onSelectedRunsChanged: (ids: string[]) => void;
+  onStartAdjudication: () => void;
 }) {
   return (
     <DialogContent>
@@ -79,9 +81,15 @@ export default function AdjudicationDialog({
             Cancel
           </Button>
         </DialogClose>
-        <Button type="button" disabled>
-          Start adjudication
-        </Button>
+        <DialogClose asChild>
+          <Button
+            type="button"
+            disabled={selectedRuns.length === 0}
+            onClick={onStartAdjudication}
+          >
+            Start adjudication
+          </Button>
+        </DialogClose>
       </DialogFooter>
     </DialogContent>
   );

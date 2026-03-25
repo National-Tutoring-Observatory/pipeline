@@ -100,8 +100,17 @@ export default function EvaluationRoute() {
     { text: evaluation.name },
   ];
 
+  const submitStartAdjudication = (selectedRuns: string[]) => {
+    console.log("submitStartAdjudication selectedRuns:", selectedRuns);
+  };
+
   const openAdjudicationDialog = () => {
-    addDialog(<AdjudicationDialogContainer evaluation={evaluation} />);
+    addDialog(
+      <AdjudicationDialogContainer
+        evaluation={evaluation}
+        onStartAdjudication={submitStartAdjudication}
+      />,
+    );
   };
 
   return (
