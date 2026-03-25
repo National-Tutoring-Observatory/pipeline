@@ -4,6 +4,7 @@ import {
   useFetcher,
   useLoaderData,
   useRevalidator,
+  useSearchParams,
 } from "react-router";
 
 import { toast } from "sonner";
@@ -17,11 +18,15 @@ import { BillingPlanService } from "~/modules/billing/billingPlan";
 import AddCreditsDialog from "~/modules/billing/components/addCreditsDialog";
 import AssignBillingPlanDialog from "~/modules/billing/components/assignBillingPlanDialog";
 import SetBillingUserDialogContainer from "~/modules/billing/containers/setBillingUserDialog.container";
+import applyMarkup from "~/modules/billing/helpers/applyMarkup";
+import { groupCostsBySource } from "~/modules/billing/helpers/sourceLabels";
 import addCredits from "~/modules/billing/services/addCredits.server";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import { TeamCreditService } from "~/modules/billing/teamCredit";
 import addDialog from "~/modules/dialogs/addDialog";
 import hasFeatureFlag from "~/modules/featureFlags/helpers/hasFeatureFlag";
+import { LlmCostService } from "~/modules/llmCosts/llmCost";
+import type { SpendGranularity } from "~/modules/llmCosts/llmCosts.types";
 import { UserService } from "~/modules/users/user";
 import TeamAuthorization from "../authorization";
 import TeamBilling from "../components/teamBilling";
@@ -80,12 +85,52 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       isSuperAdmin ? BillingPlanService.find() : Promise.resolve([]),
     ]);
 
+  const emptySpendAnalytics = {
+    byModel: [],
+    bySource: [],
+    overTime: [],
+  };
+
+  if (!balanceSummary) {
+    return {
+      team,
+      balanceSummary,
+      credits,
+      billingUserInfo,
+      billingPlans,
+      spendAnalytics: emptySpendAnalytics,
+    };
+  }
+
+  const url = new URL(request.url);
+  const validGranularities: SpendGranularity[] = ["day", "week", "month"];
+  const rawGranularity = url.searchParams.get("spendGranularity");
+  const spendGranularity: SpendGranularity = validGranularities.includes(
+    rawGranularity as SpendGranularity,
+  )
+    ? (rawGranularity as SpendGranularity)
+    : "month";
+
+  const [costsByModel, costsBySource, costsOverTime] = await Promise.all([
+    LlmCostService.sumCostByModel(params.id),
+    LlmCostService.sumCostBySource(params.id),
+    LlmCostService.sumCostOverTime(params.id, spendGranularity),
+  ]);
+
+  const markupRate = balanceSummary.plan.markupRate;
+  const spendAnalytics = {
+    byModel: applyMarkup(costsByModel, markupRate),
+    bySource: groupCostsBySource(applyMarkup(costsBySource, markupRate)),
+    overTime: applyMarkup(costsOverTime, markupRate),
+  };
+
   return {
     team,
     balanceSummary,
     credits,
     billingUserInfo,
     billingPlans,
+    spendAnalytics,
   };
 }
 
@@ -164,10 +209,17 @@ const successMessages: Record<string, string> = {
 };
 
 export default function TeamBillingRoute() {
-  const { team, balanceSummary, credits, billingUserInfo, billingPlans } =
-    useLoaderData<typeof loader>();
+  const {
+    team,
+    balanceSummary,
+    credits,
+    billingUserInfo,
+    billingPlans,
+    spendAnalytics,
+  } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const { revalidate } = useRevalidator();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     searchValue: creditsSearchValue,
@@ -184,6 +236,19 @@ export default function TeamBillingRoute() {
     },
     { paramPrefix: "credits" },
   );
+
+  const spendGranularity = (searchParams.get("spendGranularity") ??
+    "month") as SpendGranularity;
+  const setSpendGranularity = (value: SpendGranularity) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev.toString());
+        next.set("spendGranularity", value);
+        return next;
+      },
+      { replace: true },
+    );
+  };
 
   useEffect(() => {
     if (fetcher.state !== "idle") return;
@@ -251,6 +316,9 @@ export default function TeamBillingRoute() {
       creditsSearchValue={creditsSearchValue}
       creditsCurrentPage={creditsCurrentPage}
       isCreditsSyncing={isCreditsSyncing}
+      spendAnalytics={spendAnalytics}
+      spendGranularity={spendGranularity}
+      onSpendGranularityChanged={setSpendGranularity}
       onCreditsSearchValueChanged={setCreditsSearchValue}
       onCreditsPaginationChanged={setCreditsCurrentPage}
       onAddCreditsClicked={openAddCreditsDialog}

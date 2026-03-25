@@ -7,11 +7,17 @@ import type {
   BalanceSummary,
   TeamCredit,
 } from "~/modules/billing/billing.types";
+import type {
+  CostByModel,
+  CostOverTime,
+  SpendGranularity,
+} from "~/modules/llmCosts/llmCosts.types";
 import type { Team } from "~/modules/teams/teams.types";
 import type { User } from "~/modules/users/users.types";
 import BillingOverview from "./billingOverview";
 import BillingSettings from "./billingSettings";
 import CreditHistory from "./creditHistory";
+import SpendAnalytics from "./spendAnalytics";
 
 interface BillingUserInfo {
   _id: string;
@@ -24,6 +30,12 @@ interface PaginatedCredits {
   totalPages: number;
 }
 
+interface SpendAnalyticsData {
+  byModel: CostByModel[];
+  bySource: Array<{ label: string; totalCost: number }>;
+  overTime: CostOverTime[];
+}
+
 interface TeamBillingProps {
   balanceSummary: BalanceSummary | null;
   team: Team;
@@ -33,6 +45,9 @@ interface TeamBillingProps {
   creditsSearchValue: string;
   creditsCurrentPage: number;
   isCreditsSyncing: boolean;
+  spendAnalytics: SpendAnalyticsData;
+  spendGranularity: SpendGranularity;
+  onSpendGranularityChanged: (value: SpendGranularity) => void;
   onCreditsSearchValueChanged: (value: string) => void;
   onCreditsPaginationChanged: (page: number) => void;
   onAddCreditsClicked: () => void;
@@ -49,6 +64,9 @@ export default function TeamBilling({
   creditsSearchValue,
   creditsCurrentPage,
   isCreditsSyncing,
+  spendAnalytics,
+  spendGranularity,
+  onSpendGranularityChanged,
   onCreditsSearchValueChanged,
   onCreditsPaginationChanged,
   onAddCreditsClicked,
@@ -90,6 +108,14 @@ export default function TeamBilling({
         isSubmitting={isSubmitting}
         onAddCreditsClicked={onAddCreditsClicked}
         onAssignPlanClicked={onAssignPlanClicked}
+      />
+
+      <SpendAnalytics
+        byModel={spendAnalytics.byModel}
+        bySource={spendAnalytics.bySource}
+        overTime={spendAnalytics.overTime}
+        granularity={spendGranularity}
+        onGranularityChanged={onSpendGranularityChanged}
       />
 
       <div className="grid gap-6 lg:grid-cols-2">

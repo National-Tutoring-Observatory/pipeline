@@ -1,6 +1,15 @@
 import mongoose from "mongoose";
 import llmCostSchema from "~/lib/schemas/llmCost.schema";
-import type { LlmCost } from "./llmCosts.types";
+import type {
+  CostByModel,
+  CostBySource,
+  CostOverTime,
+  LlmCost,
+  SpendGranularity,
+} from "./llmCosts.types";
+import sumCostByModel from "./services/sumCostByModel.server";
+import sumCostBySource from "./services/sumCostBySource.server";
+import sumCostOverTime from "./services/sumCostOverTime.server";
 
 const LlmCostModel =
   mongoose.models.LlmCost || mongoose.model("LlmCost", llmCostSchema);
@@ -35,5 +44,20 @@ export class LlmCostService {
       { $group: { _id: null, total: { $sum: "$cost" } } },
     ]);
     return result[0]?.total ?? 0;
+  }
+
+  static async sumCostByModel(teamId: string): Promise<CostByModel[]> {
+    return sumCostByModel(teamId);
+  }
+
+  static async sumCostBySource(teamId: string): Promise<CostBySource[]> {
+    return sumCostBySource(teamId);
+  }
+
+  static async sumCostOverTime(
+    teamId: string,
+    granularity: SpendGranularity,
+  ): Promise<CostOverTime[]> {
+    return sumCostOverTime(teamId, granularity);
   }
 }

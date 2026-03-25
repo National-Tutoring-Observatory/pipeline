@@ -51,7 +51,7 @@ beforeEach(async () => {
   LLM = mod.default;
 });
 
-const SOURCE = "test";
+const SOURCE = "annotation:per-session" as const;
 const MODEL = "test-model";
 
 describe("LLM", () => {
