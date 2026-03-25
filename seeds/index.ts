@@ -7,6 +7,7 @@
  * - Teams
  * - Projects
  * - Files (with actual file uploads to storage)
+ * - Billing plans
  *
  * Usage:
  *   yarn seeds                    # Run all seeds
@@ -14,6 +15,7 @@
  *   yarn seeds --teams            # Seed only teams
  *   yarn seeds --prompts          # Seed only prompts
  *   yarn seeds --projects         # Seed only projects
+ *   yarn seeds --billing          # Seed only billing plans
  *   yarn seeds --clean            # Clean all seeded data before seeding
  */
 
@@ -34,6 +36,7 @@ const options = {
   teams: args.includes("--teams"),
   prompts: args.includes("--prompts"),
   projects: args.includes("--projects"),
+  billing: args.includes("--billing"),
   clean: args.includes("--clean"),
 };
 
@@ -79,6 +82,14 @@ async function main() {
       const { seedProjects } = await import("./seeders/projectSeeder.js");
       await seedProjects();
       console.log("✅ Projects seeded\n");
+    }
+
+    if (options.all || options.billing) {
+      console.log("💰 Seeding billing plans...");
+      const { seedBillingPlans } =
+        await import("./seeders/billingPlanSeeder.js");
+      await seedBillingPlans();
+      console.log("✅ Billing plans seeded\n");
     }
 
     console.log("🎉 Seeds completed successfully!");
