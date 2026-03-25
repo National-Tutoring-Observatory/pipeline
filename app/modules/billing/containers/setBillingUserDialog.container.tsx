@@ -17,18 +17,28 @@ export default function SetBillingUserDialogContainer({
 
   const fetcher = useFetcher();
 
-  useEffect(() => {
+  const loadMembers = (search: string, page: number) => {
     const params = new URLSearchParams({
       teamId,
-      searchValue,
-      currentPage: currentPage.toString(),
+      searchValue: search,
+      currentPage: page.toString(),
     });
     fetcher.load(`/api/teamMembers?${params.toString()}`);
-  }, [teamId, searchValue, currentPage]);
+  };
+
+  useEffect(() => {
+    loadMembers("", 1);
+  }, [teamId]);
 
   const onSearchValueChanged = (value: string) => {
     setSearchValue(value);
     setCurrentPage(1);
+    loadMembers(value, 1);
+  };
+
+  const onPaginationChanged = (page: number) => {
+    setCurrentPage(page);
+    loadMembers(searchValue, page);
   };
 
   const members = (fetcher.data?.data || []) as User[];
@@ -41,9 +51,10 @@ export default function SetBillingUserDialogContainer({
       searchValue={searchValue}
       currentPage={currentPage}
       totalPages={totalPages}
+      isSyncing={fetcher.state !== "idle"}
       onSetBillingUserClicked={onSetBillingUserClicked}
       onSearchValueChanged={onSearchValueChanged}
-      onPaginationChanged={setCurrentPage}
+      onPaginationChanged={onPaginationChanged}
     />
   );
 }

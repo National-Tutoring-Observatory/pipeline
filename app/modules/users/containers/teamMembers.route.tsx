@@ -14,7 +14,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const teamId = url.searchParams.get("teamId");
 
   if (!teamId) {
-    throw Error("Team id is not defined");
+    throw new Error("Team id is not defined");
   }
 
   if (!TeamAuthorization.canView(user, teamId)) {
