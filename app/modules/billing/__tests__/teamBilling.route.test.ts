@@ -106,53 +106,6 @@ describe("teamBilling.route action", () => {
     });
   });
 
-  describe("GET_TEAM_MEMBERS", () => {
-    it("returns team members for super admin", async () => {
-      const admin = await UserService.create({
-        username: "admin",
-        role: "SUPER_ADMIN",
-        teams: [],
-      });
-      const team = await TeamService.create({ name: "Test Team" });
-      await UserService.create({
-        username: "member1",
-        role: "USER",
-        teams: [{ team: team._id, role: "ADMIN" }],
-      });
-      const cookie = await loginUser(admin._id);
-
-      const result: any = await action(
-        buildActionRequest(cookie, team._id, {
-          intent: "GET_TEAM_MEMBERS",
-        }),
-      );
-
-      expect(result.success).toBe(true);
-      expect(result.intent).toBe("GET_TEAM_MEMBERS");
-      expect(result.members).toHaveLength(1);
-      expect(result.members[0].username).toBe("member1");
-    });
-
-    it("denies non-super-admin from fetching members", async () => {
-      const regular = await UserService.create({
-        username: "regular",
-        role: "USER",
-        teams: [],
-      });
-      const team = await TeamService.create({ name: "Test Team" });
-      const cookie = await loginUser(regular._id);
-
-      const result: any = await action(
-        buildActionRequest(cookie, team._id, {
-          intent: "GET_TEAM_MEMBERS",
-        }),
-      );
-
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("super admins");
-    });
-  });
-
   describe("ASSIGN_PLAN", () => {
     it("allows super admin to assign a plan", async () => {
       const admin = await UserService.create({

@@ -168,6 +168,7 @@ export default [
     "api/availableTeamUsers",
     "modules/users/containers/availableTeamUsers.route.tsx",
   ),
+  route("api/teamMembers", "modules/users/containers/teamMembers.route.tsx"),
   route(
     "api/availableTeams",
     "modules/teams/containers/availableTeams.route.tsx",

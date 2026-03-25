@@ -15,14 +15,12 @@ interface BillingUserInfo {
 interface BillingSettingsProps {
   billingUserInfo: BillingUserInfo | null;
   isSubmitting: boolean;
-  isLoadingMembers: boolean;
   onSetBillingUserClicked: () => void;
 }
 
 export default function BillingSettings({
   billingUserInfo,
   isSubmitting,
-  isLoadingMembers,
   onSetBillingUserClicked,
 }: BillingSettingsProps) {
   const user = useContext(AuthenticationContext) as UserType | null;
@@ -47,9 +45,9 @@ export default function BillingSettings({
                 size="sm"
                 variant="ghost"
                 onClick={onSetBillingUserClicked}
-                disabled={isSubmitting || isLoadingMembers}
+                disabled={isSubmitting}
               >
-                {isLoadingMembers ? "Loading..." : "Change"}
+                Change
               </Button>
             )}
           </div>
