@@ -28,4 +28,12 @@ export class LlmCostService {
     const docs = await LlmCostModel.find({ sourceId }).sort({ createdAt: -1 });
     return docs.map((doc) => this.toLlmCost(doc));
   }
+
+  static async sumCostByTeam(teamId: string): Promise<number> {
+    const result = await LlmCostModel.aggregate([
+      { $match: { team: new mongoose.Types.ObjectId(teamId) } },
+      { $group: { _id: null, total: { $sum: "$cost" } } },
+    ]);
+    return result[0]?.total ?? 0;
+  }
 }
