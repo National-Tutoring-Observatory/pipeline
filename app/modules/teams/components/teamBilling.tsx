@@ -64,15 +64,20 @@ export default function TeamBilling({
   if (!balanceSummary) {
     return (
       <Card>
-        <CardHeader>
-          <CardDescription>
+        <CardHeader className="items-center py-10">
+          <CardDescription className="text-center">
             No billing plan assigned to this team.
             {canAssignPlan
               ? " Assign a billing plan to enable credits and usage tracking."
               : " A super admin must assign a billing plan before credits can be used."}
           </CardDescription>
           {canAssignPlan && (
-            <Button onClick={onAssignPlanClicked}>Assign plan</Button>
+            <Button
+              className="mt-4 w-fit justify-self-center"
+              onClick={onAssignPlanClicked}
+            >
+              Assign plan
+            </Button>
           )}
         </CardHeader>
       </Card>
