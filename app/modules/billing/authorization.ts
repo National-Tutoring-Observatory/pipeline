@@ -13,6 +13,10 @@ const BillingAuthorization = {
     return userIsSuperAdmin(user) || userIsTeamBillingUser(user, team);
   },
 
+  canAssignPlan(user: User | null): boolean {
+    return userIsSuperAdmin(user);
+  },
+
   canSetBillingUser(user: User | null): boolean {
     return userIsSuperAdmin(user);
   },

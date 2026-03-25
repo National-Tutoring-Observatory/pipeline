@@ -12,15 +12,19 @@ import type { BalanceSummary } from "~/modules/billing/billing.types";
 interface BillingOverviewProps {
   balanceSummary: BalanceSummary;
   canAddCredits: boolean;
+  canAssignPlan: boolean;
   isSubmitting: boolean;
   onAddCreditsClicked: () => void;
+  onAssignPlanClicked: () => void;
 }
 
 export default function BillingOverview({
   balanceSummary,
   canAddCredits,
+  canAssignPlan,
   isSubmitting,
   onAddCreditsClicked,
+  onAssignPlanClicked,
 }: BillingOverviewProps) {
   const isLowBalance = balanceSummary.balance < 1 && balanceSummary.balance > 0;
   const isNegativeBalance = balanceSummary.balance <= 0;
@@ -88,6 +92,16 @@ export default function BillingOverview({
             <CardDescription>
               {((balanceSummary.plan.markupRate - 1) * 100).toFixed(0)}% markup
             </CardDescription>
+            {canAssignPlan && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={onAssignPlanClicked}
+                disabled={isSubmitting}
+              >
+                Change
+              </Button>
+            )}
           </CardHeader>
         </Card>
       </div>

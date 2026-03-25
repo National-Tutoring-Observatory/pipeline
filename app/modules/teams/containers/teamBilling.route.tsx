@@ -12,9 +12,12 @@ import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import BillingAuthorization from "~/modules/billing/authorization";
 import { TeamBillingService } from "~/modules/billing/billing";
+import { BillingPlanService } from "~/modules/billing/billingPlan";
 import AddCreditsDialog from "~/modules/billing/components/addCreditsDialog";
+import AssignBillingPlanDialog from "~/modules/billing/components/assignBillingPlanDialog";
 import SetBillingUserDialog from "~/modules/billing/components/setBillingUserDialog";
 import addCredits from "~/modules/billing/services/addCredits.server";
+import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import { TeamCreditService } from "~/modules/billing/teamCredit";
 import addDialog from "~/modules/dialogs/addDialog";
 import hasFeatureFlag from "~/modules/featureFlags/helpers/hasFeatureFlag";
@@ -62,24 +65,30 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     sortableFields: ["createdAt", "amount"],
   });
 
-  const [balanceSummary, credits, billingUserInfo] = await Promise.all([
-    TeamBillingService.getBalanceSummary(params.id),
-    TeamCreditService.paginate(creditsQuery),
-    team.billingUser
-      ? UserService.findById(team.billingUser).then((u) =>
-          u ? { _id: u._id, username: u.username } : null,
-        )
-      : Promise.resolve(null),
-  ]);
+  const canAssignPlan = BillingAuthorization.canAssignPlan(user);
+
+  const [balanceSummary, credits, billingUserInfo, billingPlans] =
+    await Promise.all([
+      TeamBillingService.getBalanceSummary(params.id),
+      TeamCreditService.paginate(creditsQuery),
+      team.billingUser
+        ? UserService.findById(team.billingUser).then((u) =>
+            u ? { _id: u._id, username: u.username } : null,
+          )
+        : Promise.resolve(null),
+      canAssignPlan ? BillingPlanService.find() : Promise.resolve([]),
+    ]);
 
   return {
     team,
     balanceSummary,
     credits,
     billingUserInfo,
+    billingPlans,
     authorization: {
       canViewBilling: BillingAuthorization.canViewBilling(user, params.id),
       canManageBilling: BillingAuthorization.canManageBilling(user, team),
+      canAssignPlan,
       canSetBillingUser: BillingAuthorization.canSetBillingUser(user),
       canAddCredits: BillingAuthorization.canAddCredits(user, team),
     },
@@ -132,6 +141,24 @@ export async function action({ request, params }: Route.ActionArgs) {
       return { success: true };
     }
 
+    case "ASSIGN_PLAN": {
+      if (!BillingAuthorization.canAssignPlan(user)) {
+        return {
+          success: false,
+          error: "Only super admins can assign billing plans",
+        };
+      }
+      if (!payload.planId) {
+        return { success: false, error: "Plan ID is required" };
+      }
+      const plan = await BillingPlanService.findById(payload.planId);
+      if (!plan) {
+        return { success: false, error: "Billing plan not found" };
+      }
+      await TeamBillingPlanService.assignPlan(params.id, plan._id);
+      return { success: true };
+    }
+
     case "GET_TEAM_MEMBERS": {
       if (!BillingAuthorization.canSetBillingUser(user)) {
         return {
@@ -155,8 +182,14 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function TeamBillingRoute() {
-  const { team, balanceSummary, credits, billingUserInfo, authorization } =
-    useLoaderData<typeof loader>();
+  const {
+    team,
+    balanceSummary,
+    credits,
+    billingUserInfo,
+    billingPlans,
+    authorization,
+  } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const membersFetcher = useFetcher();
   const { revalidate } = useRevalidator();
@@ -197,6 +230,23 @@ export default function TeamBillingRoute() {
 
   const openAddCreditsDialog = () => {
     addDialog(<AddCreditsDialog onAddCreditsClicked={submitAddCredits} />);
+  };
+
+  const submitAssignPlan = (planId: string) => {
+    fetcher.submit(
+      JSON.stringify({ intent: "ASSIGN_PLAN", payload: { planId } }),
+      { method: "POST", encType: "application/json" },
+    );
+  };
+
+  const openAssignPlanDialog = () => {
+    addDialog(
+      <AssignBillingPlanDialog
+        plans={billingPlans}
+        currentPlanId={balanceSummary?.plan._id}
+        onAssignPlanClicked={submitAssignPlan}
+      />,
+    );
   };
 
   const submitSetBillingUser = (userId: string) => {
@@ -253,6 +303,7 @@ export default function TeamBillingRoute() {
       onCreditsSearchValueChanged={setCreditsSearchValue}
       onCreditsPaginationChanged={setCreditsCurrentPage}
       onAddCreditsClicked={openAddCreditsDialog}
+      onAssignPlanClicked={openAssignPlanDialog}
       onSetBillingUserClicked={openSetBillingUserDialog}
     />
   );

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import type { BillingAuthorizationShape } from "~/modules/billing/authorization";
 import type {
@@ -32,6 +33,7 @@ interface TeamBillingProps {
   onCreditsSearchValueChanged: (value: string) => void;
   onCreditsPaginationChanged: (page: number) => void;
   onAddCreditsClicked: () => void;
+  onAssignPlanClicked: () => void;
   onSetBillingUserClicked: () => void;
 }
 
@@ -48,6 +50,7 @@ export default function TeamBilling({
   onCreditsSearchValueChanged,
   onCreditsPaginationChanged,
   onAddCreditsClicked,
+  onAssignPlanClicked,
   onSetBillingUserClicked,
 }: TeamBillingProps) {
   if (!balanceSummary) {
@@ -55,9 +58,14 @@ export default function TeamBilling({
       <Card>
         <CardHeader>
           <CardDescription>
-            No billing plan assigned to this team. A super admin must assign a
-            billing plan before credits can be used.
+            No billing plan assigned to this team.
+            {authorization.canAssignPlan
+              ? " Assign a billing plan to enable credits and usage tracking."
+              : " A super admin must assign a billing plan before credits can be used."}
           </CardDescription>
+          {authorization.canAssignPlan && (
+            <Button onClick={onAssignPlanClicked}>Assign plan</Button>
+          )}
         </CardHeader>
       </Card>
     );
@@ -68,8 +76,10 @@ export default function TeamBilling({
       <BillingOverview
         balanceSummary={balanceSummary}
         canAddCredits={authorization.canAddCredits}
+        canAssignPlan={authorization.canAssignPlan}
         isSubmitting={isSubmitting}
         onAddCreditsClicked={onAddCreditsClicked}
+        onAssignPlanClicked={onAssignPlanClicked}
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
