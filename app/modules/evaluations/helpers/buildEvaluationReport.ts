@@ -13,7 +13,7 @@ import calculateMeanKappa from "./calculateMeanKappa";
 import calculatePRF1 from "./calculatePRF1";
 import extractAnnotationValues from "./extractAnnotationValues";
 
-interface SessionFileCache {
+export interface SessionFileCache {
   [runId: string]: {
     [sessionId: string]: any;
   };
@@ -31,7 +31,7 @@ async function downloadSessionFile(
   return fse.readJSON(downloadedPath);
 }
 
-async function loadAllSessionFiles(
+export async function loadAllSessionFiles(
   evaluation: Evaluation,
   runs: Run[],
 ): Promise<SessionFileCache> {
@@ -59,7 +59,7 @@ async function loadAllSessionFiles(
   return cache;
 }
 
-function getCommonSessionIds(runs: Run[]): string[] {
+export function getCommonSessionIds(runs: Run[]): string[] {
   if (runs.length === 0) return [];
 
   const firstRunSessionIds = runs[0].sessions
@@ -113,10 +113,9 @@ function generateRunPairs(runIds: string[]): [string, string][] {
 export default async function buildEvaluationReport(
   evaluation: Evaluation,
   runs: Run[],
+  cache: SessionFileCache,
+  commonSessionIds: string[],
 ): Promise<EvaluationReport[]> {
-  const cache = await loadAllSessionFiles(evaluation, runs);
-  const commonSessionIds = getCommonSessionIds(runs);
-
   if (commonSessionIds.length === 0) {
     return evaluation.annotationFields.map((fieldKey) => ({
       fieldKey,

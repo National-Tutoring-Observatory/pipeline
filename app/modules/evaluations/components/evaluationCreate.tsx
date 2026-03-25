@@ -68,7 +68,7 @@ export default function EvaluationCreate({
 
   return (
     <div className="flex min-h-[calc(100vh-160px)] flex-col">
-      <div className="flex-1 space-y-6">
+      <div className="flex-1 space-y-6 pb-4">
         <div className="max-w-2xl">
           <div className="space-y-2">
             <Label htmlFor="name">Evaluation Name</Label>

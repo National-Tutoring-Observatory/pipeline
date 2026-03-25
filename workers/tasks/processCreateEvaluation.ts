@@ -1,6 +1,10 @@
 import type { Job } from "bullmq";
 import { EvaluationService } from "../../app/modules/evaluations/evaluation";
-import buildEvaluationReport from "../../app/modules/evaluations/helpers/buildEvaluationReport";
+import buildEvaluationReport, {
+  getCommonSessionIds,
+  loadAllSessionFiles,
+} from "../../app/modules/evaluations/helpers/buildEvaluationReport";
+import buildVerificationReport from "../../app/modules/evaluations/helpers/buildVerificationReport";
 import { RunService } from "../../app/modules/runs/run";
 import emitFromJob from "../helpers/emitFromJob";
 
@@ -24,9 +28,26 @@ export default async function processCreateEvaluation(job: Job) {
     match: { _id: { $in: evaluation.runs } },
   });
 
-  const report = await buildEvaluationReport(evaluation, runs);
+  const cache = await loadAllSessionFiles(evaluation, runs);
+  const commonSessionIds = getCommonSessionIds(runs);
 
-  await EvaluationService.updateById(evaluationId, { report });
+  const report = await buildEvaluationReport(
+    evaluation,
+    runs,
+    cache,
+    commonSessionIds,
+  );
+  const verificationReport = buildVerificationReport(
+    evaluation,
+    runs,
+    cache,
+    commonSessionIds,
+  );
+
+  await EvaluationService.updateById(evaluationId, {
+    report,
+    verificationReport,
+  });
 
   await emitFromJob(
     job,

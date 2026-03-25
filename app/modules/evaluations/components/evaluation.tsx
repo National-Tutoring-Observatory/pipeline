@@ -7,23 +7,24 @@ import type { Evaluation as EvaluationType } from "~/modules/evaluations/evaluat
 import buildPairwiseMatrix from "../helpers/buildPairwiseMatrix";
 import getPairDetails from "../helpers/getPairDetails";
 import getTopPerformersVsGoldLabel from "../helpers/getTopPerformersVsGoldLabel";
+import getVerificationImpactData from "../helpers/getVerificationImpactData";
 import EvaluationPairDetails from "./evaluationPairDetails";
 import EvaluationPairwiseMatrix from "./evaluationPairwiseMatrix";
 import EvaluationTopPerformers from "./evaluationTopPerformers";
+import EvaluationVerificationImpact from "./evaluationVerificationImpact";
 
 export default function Evaluation({
   evaluation,
   breadcrumbs,
   progress,
-  step,
 }: {
   evaluation: EvaluationType;
   breadcrumbs: Breadcrumb[];
   progress: number;
-  step: string;
 }) {
   const runCount = evaluation.runs?.length || 0;
   const report = evaluation.report || [];
+  const verificationReport = evaluation.verificationReport || [];
 
   const goldLabelRunName =
     report[0]?.runSummaries.find(
@@ -43,7 +44,7 @@ export default function Evaluation({
           <div>
             <Progress value={progress} />
             <div className="mt-1 text-right text-xs opacity-40">
-              Processing {step}
+              Processing evaluation
             </div>
           </div>
         )}
@@ -90,6 +91,20 @@ export default function Evaluation({
                     matrix={buildPairwiseMatrix(fieldReport)}
                   />
                   <EvaluationPairDetails pairs={getPairDetails(fieldReport)} />
+                  {(() => {
+                    const fieldVerificationReport = verificationReport.find(
+                      (vr) => vr.fieldKey === fieldReport.fieldKey,
+                    );
+                    return fieldVerificationReport &&
+                      fieldVerificationReport.runs.length > 0 ? (
+                      <EvaluationVerificationImpact
+                        rows={getVerificationImpactData(
+                          fieldVerificationReport,
+                        )}
+                        goldLabelRunName={goldLabelRunName}
+                      />
+                    ) : null;
+                  })()}
                 </div>
               </TabsContent>
             ))}

@@ -13,6 +13,7 @@ export default new mongoose.Schema({
   startedAt: { type: Date },
   finishedAt: { type: Date },
   report: [{ type: mongoose.Schema.Types.Mixed }],
+  verificationReport: [{ type: mongoose.Schema.Types.Mixed }],
   isExporting: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   createdBy: { type: mongoose.Types.ObjectId, ref: "User" },
