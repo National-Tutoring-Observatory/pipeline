@@ -26,9 +26,4 @@ const BillingAuthorization = {
   },
 };
 
-type BillingAuthorizationShape = {
-  [K in keyof typeof BillingAuthorization]: boolean;
-};
-
 export default BillingAuthorization;
-export type { BillingAuthorizationShape };

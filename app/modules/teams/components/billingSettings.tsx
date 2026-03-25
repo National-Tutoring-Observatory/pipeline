@@ -2,7 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Settings, User } from "lucide-react";
-import type { BillingAuthorizationShape } from "~/modules/billing/authorization";
+import { useContext } from "react";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
+import BillingAuthorization from "~/modules/billing/authorization";
+import type { User as UserType } from "~/modules/users/users.types";
 
 interface BillingUserInfo {
   _id: string;
@@ -11,7 +14,6 @@ interface BillingUserInfo {
 
 interface BillingSettingsProps {
   billingUserInfo: BillingUserInfo | null;
-  authorization: BillingAuthorizationShape;
   isSubmitting: boolean;
   isLoadingMembers: boolean;
   onSetBillingUserClicked: () => void;
@@ -19,11 +21,11 @@ interface BillingSettingsProps {
 
 export default function BillingSettings({
   billingUserInfo,
-  authorization,
   isSubmitting,
   isLoadingMembers,
   onSetBillingUserClicked,
 }: BillingSettingsProps) {
+  const user = useContext(AuthenticationContext) as UserType | null;
   return (
     <Card>
       <CardHeader>
@@ -40,7 +42,7 @@ export default function BillingSettings({
             <span className="text-sm">
               {billingUserInfo?.username ?? "Not assigned"}
             </span>
-            {authorization.canSetBillingUser && (
+            {BillingAuthorization.canSetBillingUser(user) && (
               <Button
                 size="sm"
                 variant="ghost"

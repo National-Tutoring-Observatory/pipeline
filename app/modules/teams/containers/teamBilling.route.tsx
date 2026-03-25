@@ -85,13 +85,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     credits,
     billingUserInfo,
     billingPlans,
-    authorization: {
-      canViewBilling: BillingAuthorization.canViewBilling(user, params.id),
-      canManageBilling: BillingAuthorization.canManageBilling(user, team),
-      canAssignPlan,
-      canSetBillingUser: BillingAuthorization.canSetBillingUser(user),
-      canAddCredits: BillingAuthorization.canAddCredits(user, team),
-    },
   };
 }
 
@@ -182,14 +175,8 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function TeamBillingRoute() {
-  const {
-    team,
-    balanceSummary,
-    credits,
-    billingUserInfo,
-    billingPlans,
-    authorization,
-  } = useLoaderData<typeof loader>();
+  const { team, balanceSummary, credits, billingUserInfo, billingPlans } =
+    useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const membersFetcher = useFetcher();
   const { revalidate } = useRevalidator();
@@ -292,9 +279,9 @@ export default function TeamBillingRoute() {
   return (
     <TeamBilling
       balanceSummary={balanceSummary}
+      team={team}
       credits={credits}
       billingUserInfo={billingUserInfo}
-      authorization={authorization}
       isSubmitting={fetcher.state !== "idle"}
       isLoadingMembers={membersFetcher.state !== "idle"}
       creditsSearchValue={creditsSearchValue}
