@@ -6,15 +6,6 @@ import type { LLMUsage } from "./llm.types";
 import "./providers/aiGateway.js";
 import "./providers/openAI.js";
 
-let LlmCostService: any = null;
-async function getLlmCostService() {
-  if (!LlmCostService) {
-    const mod = await import("~/modules/llmCosts/llmCost");
-    LlmCostService = mod.LlmCostService;
-  }
-  return LlmCostService;
-}
-
 interface Message {
   role: "system" | "assistant" | "user";
   content: string;
@@ -98,8 +89,8 @@ class LLM {
     if (!this.options.user) return;
 
     try {
-      const service = await getLlmCostService();
-      await service.create({
+      const { LlmCostService } = await import("~/modules/llmCosts/llmCost");
+      await LlmCostService.create({
         // LLMOptions.user is the team ID (named "user" to match OpenAI's API convention)
         team: this.options.user,
         model: this.options.model,
@@ -120,7 +111,24 @@ class LLM {
     }
   }
 
+  private async checkBalance() {
+    if (!process.env.ENFORCE_BILLING) return;
+    if (!this.options.user) return;
+    if (mongoose.connection.readyState !== 1) return;
+
+    const { TeamBillingService } = await import("~/modules/billing/billing");
+    const balance = await TeamBillingService.getBalance(this.options.user);
+
+    if (balance <= 0) {
+      const { InsufficientCreditsError } =
+        await import("~/modules/billing/errors/insufficientCreditsError");
+      throw new InsufficientCreditsError(this.options.user);
+    }
+  }
+
   createChat = async (): Promise<any> => {
+    await this.checkBalance();
+
     if (this.orchestratorMessage) {
       const result = await this.methods.createChat(this);
       this.accumulateUsage(result.usage);

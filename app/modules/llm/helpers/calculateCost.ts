@@ -29,7 +29,11 @@ export default function calculateCost({
   }
 
   const tier = selectTier(tiers, inputTokens);
-  if (!tier) return 0;
+  if (!tier) {
+    throw new Error(
+      `No matching pricing tier for model ${modelCode} with ${inputTokens} input tokens`,
+    );
+  }
 
   const inputCost = new Decimal(inputTokens)
     .div(1_000_000)
