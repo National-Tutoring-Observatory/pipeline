@@ -7,12 +7,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AlertCircle, Plus } from "lucide-react";
+import { useContext } from "react";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
+import BillingAuthorization from "~/modules/billing/authorization";
 import type { BalanceSummary } from "~/modules/billing/billing.types";
+import type { Team } from "~/modules/teams/teams.types";
+import type { User } from "~/modules/users/users.types";
 
 interface BillingOverviewProps {
   balanceSummary: BalanceSummary;
-  canAddCredits: boolean;
-  canAssignPlan: boolean;
+  team: Team;
   isSubmitting: boolean;
   onAddCreditsClicked: () => void;
   onAssignPlanClicked: () => void;
@@ -20,12 +24,14 @@ interface BillingOverviewProps {
 
 export default function BillingOverview({
   balanceSummary,
-  canAddCredits,
-  canAssignPlan,
+  team,
   isSubmitting,
   onAddCreditsClicked,
   onAssignPlanClicked,
 }: BillingOverviewProps) {
+  const user = useContext(AuthenticationContext) as User | null;
+  const canAddCredits = BillingAuthorization.canAddCredits(user, team);
+  const canAssignPlan = BillingAuthorization.canAssignPlan(user);
   const isLowBalance = balanceSummary.balance < 1 && balanceSummary.balance > 0;
   const isNegativeBalance = balanceSummary.balance <= 0;
 

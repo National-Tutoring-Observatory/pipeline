@@ -1,10 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
-import type { BillingAuthorizationShape } from "~/modules/billing/authorization";
+import { useContext } from "react";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
+import BillingAuthorization from "~/modules/billing/authorization";
 import type {
   BalanceSummary,
   TeamCredit,
 } from "~/modules/billing/billing.types";
+import type { Team } from "~/modules/teams/teams.types";
+import type { User } from "~/modules/users/users.types";
 import BillingOverview from "./billingOverview";
 import BillingSettings from "./billingSettings";
 import CreditHistory from "./creditHistory";
@@ -22,9 +26,9 @@ interface PaginatedCredits {
 
 interface TeamBillingProps {
   balanceSummary: BalanceSummary | null;
+  team: Team;
   credits: PaginatedCredits;
   billingUserInfo: BillingUserInfo | null;
-  authorization: BillingAuthorizationShape;
   isSubmitting: boolean;
   isLoadingMembers: boolean;
   creditsSearchValue: string;
@@ -39,9 +43,9 @@ interface TeamBillingProps {
 
 export default function TeamBilling({
   balanceSummary,
+  team,
   credits,
   billingUserInfo,
-  authorization,
   isSubmitting,
   isLoadingMembers,
   creditsSearchValue,
@@ -53,17 +57,21 @@ export default function TeamBilling({
   onAssignPlanClicked,
   onSetBillingUserClicked,
 }: TeamBillingProps) {
+  const user = useContext(AuthenticationContext) as User | null;
+  const canAssignPlan = BillingAuthorization.canAssignPlan(user);
+  const canSetBillingUser = BillingAuthorization.canSetBillingUser(user);
+
   if (!balanceSummary) {
     return (
       <Card>
         <CardHeader>
           <CardDescription>
             No billing plan assigned to this team.
-            {authorization.canAssignPlan
+            {canAssignPlan
               ? " Assign a billing plan to enable credits and usage tracking."
               : " A super admin must assign a billing plan before credits can be used."}
           </CardDescription>
-          {authorization.canAssignPlan && (
+          {canAssignPlan && (
             <Button onClick={onAssignPlanClicked}>Assign plan</Button>
           )}
         </CardHeader>
@@ -75,8 +83,7 @@ export default function TeamBilling({
     <div className="space-y-6">
       <BillingOverview
         balanceSummary={balanceSummary}
-        canAddCredits={authorization.canAddCredits}
-        canAssignPlan={authorization.canAssignPlan}
+        team={team}
         isSubmitting={isSubmitting}
         onAddCreditsClicked={onAddCreditsClicked}
         onAssignPlanClicked={onAssignPlanClicked}
@@ -92,10 +99,9 @@ export default function TeamBilling({
           onPaginationChanged={onCreditsPaginationChanged}
         />
 
-        {authorization.canSetBillingUser && (
+        {canSetBillingUser && (
           <BillingSettings
             billingUserInfo={billingUserInfo}
-            authorization={authorization}
             isSubmitting={isSubmitting}
             isLoadingMembers={isLoadingMembers}
             onSetBillingUserClicked={onSetBillingUserClicked}
