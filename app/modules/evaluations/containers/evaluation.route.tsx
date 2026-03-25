@@ -6,6 +6,7 @@ import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
 import Evaluation from "~/modules/evaluations/components/evaluation";
+import AdjudicationDialogContainer from "~/modules/evaluations/containers/adjudicationDialog.container";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
@@ -100,8 +101,7 @@ export default function EvaluationRoute() {
   ];
 
   const openAdjudicationDialog = () => {
-    console.log("adding");
-    addDialog(<div>Adjudication dialog placeholder</div>);
+    addDialog(<AdjudicationDialogContainer evaluation={evaluation} />);
   };
 
   return (
