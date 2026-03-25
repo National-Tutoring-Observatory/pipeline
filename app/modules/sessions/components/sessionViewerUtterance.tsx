@@ -3,18 +3,27 @@ import clsx from "clsx";
 import { NotebookPen } from "lucide-react";
 import getUtteranceDetails from "../helpers/getUtteranceDetails";
 import type { Utterance } from "../sessions.types";
+import SessionViewerUtteranceVerificationDetails from "./sessionViewerUtteranceVerificationDetails";
 
 export default function SessionViewerUtterance({
   utterance,
   utteranceNumber,
   leadRole = "TEACHER",
   isSelected,
+  hasChangedAnnotation,
+  hasAddedAnnotation,
+  hasRemovedAnnotation,
+  shouldShowVerificationDetails,
   onUtteranceClicked,
 }: {
   utterance: Utterance;
   utteranceNumber: number;
   leadRole: string;
   isSelected: boolean;
+  hasChangedAnnotation?: boolean;
+  hasAddedAnnotation?: boolean;
+  hasRemovedAnnotation?: boolean;
+  shouldShowVerificationDetails: boolean;
   onUtteranceClicked: (utteranceId: string) => void;
 }) {
   return (
@@ -25,7 +34,7 @@ export default function SessionViewerUtterance({
         "justify-end": utterance.role !== leadRole,
       })}
     >
-      <div className="flex max-w-3/4 flex-col">
+      <div className="flex max-w-7/8 flex-col">
         <div
           id={`session-viewer-utterance-${utterance._id}`}
           className={clsx("scroll-mt-4 rounded-4xl border p-4", {
@@ -38,7 +47,7 @@ export default function SessionViewerUtterance({
         >
           {utterance.content}
         </div>
-        <div className="text-muted-foreground mt-1 flex items-center text-xs">
+        <div className="text-muted-foreground mt-1 flex min-h-8 flex-wrap items-center text-xs">
           <div>
             #{utteranceNumber} · {getUtteranceDetails({ utterance })}
           </div>
@@ -55,6 +64,14 @@ export default function SessionViewerUtterance({
                 {utterance.annotations.length > 1 ? "s" : ""}
               </div>
             </Button>
+          )}
+          {shouldShowVerificationDetails && (
+            <SessionViewerUtteranceVerificationDetails
+              hasChangedAnnotation={hasChangedAnnotation}
+              hasAddedAnnotation={hasAddedAnnotation}
+              hasRemovedAnnotation={hasRemovedAnnotation}
+              onUtteranceClicked={() => onUtteranceClicked(utterance._id)}
+            />
           )}
         </div>
       </div>

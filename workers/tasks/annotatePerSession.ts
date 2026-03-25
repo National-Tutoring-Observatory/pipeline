@@ -8,7 +8,6 @@ import LLM from "../../app/modules/llm/llm";
 import { RunService } from "../../app/modules/runs/run";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
 import emitFromJob from "../helpers/emitFromJob";
-import saveRunSessionMetadata from "../helpers/saveRunSessionMetadata";
 import updateRunSession from "../helpers/updateRunSession";
 import annotationPerSessionPrompts from "../prompts/annotatePerSession.prompts.json";
 import verifyPerSessionPrompts from "../prompts/verifyPerSession.prompts.json";
@@ -106,11 +105,13 @@ export default async function annotatePerSession(job: any) {
       const verifyResponse = await verifyLlm.createChat();
       annotations = verifyResponse.annotations || annotations;
 
-      await saveRunSessionMetadata({
-        outputFolder,
-        outputFileName,
+      originalJSON.preVerificationAnnotations = map(
         preVerificationAnnotations,
-      });
+        (annotation: any, index: number) => {
+          annotation._id = `${index}`;
+          return annotation;
+        },
+      );
     }
 
     originalJSON.annotations = map(

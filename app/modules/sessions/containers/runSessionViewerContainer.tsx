@@ -1,9 +1,10 @@
 import find from "lodash/find";
 import findIndex from "lodash/findIndex";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFetcher, useLocation, useNavigate } from "react-router";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
 import RunSessionViewer from "../components/runSessionViewer";
+import getSessionVerificationChanges from "../helpers/getSessionVerificationChanges";
 import type { SessionFile } from "../sessions.types";
 
 export default function RunSessionViewerContainer({
@@ -18,6 +19,9 @@ export default function RunSessionViewerContainer({
   const { hash } = useLocation();
   const navigate = useNavigate();
 
+  const [shouldShowVerificationDetails, setShowVerificationDetails] =
+    useState(false);
+
   const fetcher = useFetcher();
 
   const utteranceCount = sessionFile.transcript.length;
@@ -28,6 +32,12 @@ export default function RunSessionViewerContainer({
     (u) => u.annotations && u.annotations.length > 0,
   );
 
+  const verificationChanges = getSessionVerificationChanges(run, sessionFile);
+
+  const removedAnnotationUtteranceIds = new Set(
+    verificationChanges?.removed.map((a) => a._id) ?? [],
+  );
+
   const hashUtteranceId = hash
     ? hash.replace("#session-viewer-utterance-", "")
     : null;
@@ -35,7 +45,11 @@ export default function RunSessionViewerContainer({
     ? findIndex(annotatedUtterances, { _id: hashUtteranceId })
     : -1;
   const selectedUtteranceId =
-    hashUtteranceIndex !== -1 ? hashUtteranceId : null;
+    hashUtteranceIndex !== -1 ||
+    (hashUtteranceId !== null &&
+      removedAnnotationUtteranceIds.has(hashUtteranceId))
+      ? hashUtteranceId
+      : null;
   const selectedUtteranceIndex =
     hashUtteranceIndex !== -1 ? hashUtteranceIndex : null;
 
@@ -45,7 +59,7 @@ export default function RunSessionViewerContainer({
 
   const onUtteranceClicked = (utteranceId: string) => {
     const newIndex = findIndex(annotatedUtterances, { _id: utteranceId });
-    if (newIndex !== -1) {
+    if (newIndex !== -1 || removedAnnotationUtteranceIds.has(utteranceId)) {
       navigateToUtterance(utteranceId);
     }
   };
@@ -136,6 +150,11 @@ export default function RunSessionViewerContainer({
       selectedUtteranceAnnotations = selectedUtterance.annotations || [];
     }
   }
+  const removedAnnotationsForSelectedUtterance = selectedUtteranceId
+    ? (verificationChanges?.removed.filter(
+        (a) => a._id === selectedUtteranceId,
+      ) ?? [])
+    : [];
 
   const onJumpToFirstAnnotation = () => {
     if (annotatedUtterances.length > 0) {
@@ -149,10 +168,14 @@ export default function RunSessionViewerContainer({
       sessionFile={sessionFile}
       selectedUtteranceId={selectedUtteranceId}
       selectedUtteranceAnnotations={selectedUtteranceAnnotations}
+      removedAnnotations={removedAnnotationsForSelectedUtterance}
       isVoting={isVoting}
       utteranceCount={utteranceCount}
       annotatedUtteranceCount={annotatedUtteranceCount}
       selectedUtteranceIndex={selectedUtteranceIndex}
+      run={run}
+      shouldShowVerificationDetails={shouldShowVerificationDetails}
+      onToggleVerificationDetails={() => setShowVerificationDetails((v) => !v)}
       onUtteranceClicked={onUtteranceClicked}
       onPreviousAnnotationClicked={onPreviousAnnotationClicked}
       onNextAnnotationClicked={onNextAnnotationClicked}

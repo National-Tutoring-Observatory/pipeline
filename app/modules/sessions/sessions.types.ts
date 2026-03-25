@@ -23,6 +23,7 @@ export interface SessionFile {
   transcript: Utterance[];
   leadRole: string;
   annotations: Annotation[];
+  preVerificationAnnotations?: Annotation[];
 }
 
 export interface Utterance {
