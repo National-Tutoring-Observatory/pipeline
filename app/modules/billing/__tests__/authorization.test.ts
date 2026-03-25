@@ -115,6 +115,28 @@ describe("BillingAuthorization", () => {
     });
   });
 
+  describe("canAssignPlan", () => {
+    it("allows super admins only", () => {
+      expect(BillingAuthorization.canAssignPlan(superAdminUser)).toBe(true);
+    });
+
+    it("denies billing user", () => {
+      expect(BillingAuthorization.canAssignPlan(billingUser)).toBe(false);
+    });
+
+    it("denies team admins", () => {
+      expect(BillingAuthorization.canAssignPlan(teamAdminUser)).toBe(false);
+    });
+
+    it("denies team members", () => {
+      expect(BillingAuthorization.canAssignPlan(teamMemberUser)).toBe(false);
+    });
+
+    it("denies null users", () => {
+      expect(BillingAuthorization.canAssignPlan(null)).toBe(false);
+    });
+  });
+
   describe("canSetBillingUser", () => {
     it("allows super admins only", () => {
       expect(BillingAuthorization.canSetBillingUser(superAdminUser)).toBe(true);

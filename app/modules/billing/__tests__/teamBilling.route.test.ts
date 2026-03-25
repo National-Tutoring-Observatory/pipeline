@@ -5,6 +5,7 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action } from "../../teams/containers/teamBilling.route";
 import { BillingPlanService } from "../billingPlan";
+import { TeamBillingPlanService } from "../teamBillingPlan";
 import { TeamCreditService } from "../teamCredit";
 
 function buildActionRequest(
@@ -144,6 +145,89 @@ describe("teamBilling.route action", () => {
       const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "GET_TEAM_MEMBERS",
+        }),
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("super admins");
+    });
+  });
+
+  describe("ASSIGN_PLAN", () => {
+    it("allows super admin to assign a plan", async () => {
+      const admin = await UserService.create({
+        username: "admin",
+        role: "SUPER_ADMIN",
+        teams: [],
+      });
+      const team = await TeamService.create({ name: "Test Team" });
+      const plan = await BillingPlanService.create({
+        name: "Premium",
+        markupRate: 2.0,
+        isDefault: false,
+      });
+      const cookie = await loginUser(admin._id);
+
+      const result = await action(
+        buildActionRequest(cookie, team._id, {
+          intent: "ASSIGN_PLAN",
+          payload: { planId: plan._id },
+        }),
+      );
+
+      expect(result.success).toBe(true);
+
+      const assignment = await TeamBillingPlanService.findByTeam(team._id);
+      expect(assignment).not.toBeNull();
+      expect(assignment!.plan).toBe(plan._id);
+    });
+
+    it("allows super admin to change an existing plan", async () => {
+      const admin = await UserService.create({
+        username: "admin",
+        role: "SUPER_ADMIN",
+        teams: [],
+      });
+      const team = await TeamService.create({ name: "Test Team" });
+      const plan1 = await BillingPlanService.create({
+        name: "Standard",
+        markupRate: 1.5,
+        isDefault: true,
+      });
+      const plan2 = await BillingPlanService.create({
+        name: "Premium",
+        markupRate: 2.0,
+        isDefault: false,
+      });
+      await TeamBillingPlanService.assignPlan(team._id, plan1._id);
+      const cookie = await loginUser(admin._id);
+
+      const result = await action(
+        buildActionRequest(cookie, team._id, {
+          intent: "ASSIGN_PLAN",
+          payload: { planId: plan2._id },
+        }),
+      );
+
+      expect(result.success).toBe(true);
+
+      const assignment = await TeamBillingPlanService.findByTeam(team._id);
+      expect(assignment!.plan).toBe(plan2._id);
+    });
+
+    it("denies non-super-admin from assigning a plan", async () => {
+      const regular = await UserService.create({
+        username: "regular",
+        role: "USER",
+        teams: [],
+      });
+      const team = await TeamService.create({ name: "Test Team" });
+      const cookie = await loginUser(regular._id);
+
+      const result: any = await action(
+        buildActionRequest(cookie, team._id, {
+          intent: "ASSIGN_PLAN",
+          payload: { planId: "some-plan-id" },
         }),
       );
 
