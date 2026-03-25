@@ -21,8 +21,6 @@ export interface VerificationImpactRow {
 export default function getVerificationImpactData(
   fieldReport: VerificationFieldReport,
 ): VerificationImpactRow[] {
-  console.log("getVerificationImpactData", fieldReport);
-
   return fieldReport.runs
     .map((run) => ({
       runId: run.runId,

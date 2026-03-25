@@ -1,9 +1,11 @@
+import { Button } from "@/components/ui/button";
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Evaluation as EvaluationType } from "~/modules/evaluations/evaluations.types";
+import Flag from "~/modules/featureFlags/components/flag";
 import buildPairwiseMatrix from "../helpers/buildPairwiseMatrix";
 import getPairDetails from "../helpers/getPairDetails";
 import getTopPerformersVsGoldLabel from "../helpers/getTopPerformersVsGoldLabel";
@@ -17,10 +19,12 @@ export default function Evaluation({
   evaluation,
   breadcrumbs,
   progress,
+  onAdjudicationClicked,
 }: {
   evaluation: EvaluationType;
   breadcrumbs: Breadcrumb[];
   progress: number;
+  onAdjudicationClicked: () => void;
 }) {
   const runCount = evaluation.runs?.length || 0;
   const report = evaluation.report || [];
@@ -57,6 +61,12 @@ export default function Evaluation({
             {runCount} run{runCount !== 1 ? "s" : ""}
           </p>
         </div>
+
+        <Flag flag="HAS_ADJUDICATION">
+          <Button variant="outline" onClick={onAdjudicationClicked}>
+            Improve via adjudication
+          </Button>
+        </Flag>
 
         {evaluation.isComplete && report.length > 0 && (
           <Tabs defaultValue={report[0].fieldKey}>

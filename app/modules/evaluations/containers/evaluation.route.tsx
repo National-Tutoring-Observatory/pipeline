@@ -4,6 +4,7 @@ import { useState } from "react";
 import { redirect, useLoaderData, useRevalidator } from "react-router";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import addDialog from "~/modules/dialogs/addDialog";
 import Evaluation from "~/modules/evaluations/components/evaluation";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -98,11 +99,17 @@ export default function EvaluationRoute() {
     { text: evaluation.name },
   ];
 
+  const openAdjudicationDialog = () => {
+    console.log("adding");
+    addDialog(<div>Adjudication dialog placeholder</div>);
+  };
+
   return (
     <Evaluation
       evaluation={evaluation}
       breadcrumbs={breadcrumbs}
       progress={progress}
+      onAdjudicationClicked={openAdjudicationDialog}
     />
   );
 }
