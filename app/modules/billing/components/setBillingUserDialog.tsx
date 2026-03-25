@@ -17,6 +17,7 @@ interface SetBillingUserDialogProps {
   searchValue: string;
   currentPage: number;
   totalPages: number;
+  isSyncing: boolean;
   onSetBillingUserClicked: (userId: string) => void;
   onSearchValueChanged: (value: string) => void;
   onPaginationChanged: (page: number) => void;
@@ -28,6 +29,7 @@ const SetBillingUserDialog = ({
   searchValue,
   currentPage,
   totalPages,
+  isSyncing,
   onSetBillingUserClicked,
   onSearchValueChanged,
   onPaginationChanged,
@@ -44,12 +46,13 @@ const SetBillingUserDialog = ({
           The billing user can manage credits and spending limits for this team.
         </DialogDescription>
       </DialogHeader>
-      <div style={{ height: "calc(100vh - 300px)" }}>
+      <div className="h-[calc(100vh-300px)]">
         <Collection
           items={members}
           itemsLayout="list"
           hasSearch
           hasPagination
+          isSyncing={isSyncing}
           searchValue={searchValue}
           currentPage={currentPage}
           totalPages={totalPages}

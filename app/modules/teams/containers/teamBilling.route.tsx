@@ -5,6 +5,7 @@ import {
   useLoaderData,
   useRevalidator,
 } from "react-router";
+
 import { toast } from "sonner";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
@@ -105,13 +106,12 @@ export async function action({ request, params }: Route.ActionArgs) {
           error: "You do not have permission to add credits",
         };
       }
-      const result = await addCredits({
+      return await addCredits({
         teamId: params.id,
         amount: payload.amount,
         note: payload.note,
         addedBy: user._id,
       });
-      return result;
     }
 
     case "SET_BILLING_USER": {
@@ -131,7 +131,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       await TeamService.updateById(params.id, {
         billingUser: payload.userId,
       });
-      return { success: true };
+      return { success: true, intent: "SET_BILLING_USER" };
     }
 
     case "ASSIGN_PLAN": {
@@ -149,13 +149,19 @@ export async function action({ request, params }: Route.ActionArgs) {
         return { success: false, error: "Billing plan not found" };
       }
       await TeamBillingPlanService.assignPlan(params.id, plan._id);
-      return { success: true };
+      return { success: true, intent: "ASSIGN_PLAN" };
     }
 
     default:
       return { success: false, error: "Invalid intent" };
   }
 }
+
+const successMessages: Record<string, string> = {
+  ADD_CREDITS: "Credits added",
+  SET_BILLING_USER: "Billing user updated",
+  ASSIGN_PLAN: "Billing plan assigned",
+};
 
 export default function TeamBillingRoute() {
   const { team, balanceSummary, credits, billingUserInfo, billingPlans } =
@@ -183,7 +189,7 @@ export default function TeamBillingRoute() {
     if (fetcher.state !== "idle") return;
     if (!fetcher.data) return;
     if (fetcher.data.success) {
-      toast.success("Billing updated");
+      toast.success(successMessages[fetcher.data.intent] ?? "Billing updated");
       revalidate();
     } else if (fetcher.data.error) {
       toast.error(fetcher.data.error);
