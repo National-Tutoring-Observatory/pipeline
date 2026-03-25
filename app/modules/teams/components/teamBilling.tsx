@@ -1,34 +1,62 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
-import type { BillingData } from "~/modules/llm/llmBilling.types";
+import { Card, CardDescription, CardHeader } from "@/components/ui/card";
+import type { BillingAuthorizationShape } from "~/modules/billing/authorization";
+import type {
+  BalanceSummary,
+  TeamCredit,
+} from "~/modules/billing/billing.types";
+import BillingOverview from "./billingOverview";
+import BillingSettings from "./billingSettings";
+import CreditHistory from "./creditHistory";
 
-interface TeamBillingProps {
-  billing: BillingData;
+interface BillingUserInfo {
+  _id: string;
+  username: string;
 }
 
-export default function TeamBilling({ billing }: TeamBillingProps) {
-  if (billing.error) {
-    return (
-      <Alert>
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Billing data unavailable</AlertTitle>
-        <AlertDescription>{billing.error}</AlertDescription>
-      </Alert>
-    );
-  }
+interface PaginatedCredits {
+  data: TeamCredit[];
+  count: number;
+  totalPages: number;
+}
 
-  if (!billing.tagSpend) {
+interface TeamBillingProps {
+  balanceSummary: BalanceSummary | null;
+  credits: PaginatedCredits;
+  billingUserInfo: BillingUserInfo | null;
+  authorization: BillingAuthorizationShape;
+  isSubmitting: boolean;
+  isLoadingMembers: boolean;
+  creditsSearchValue: string;
+  creditsCurrentPage: number;
+  isCreditsSyncing: boolean;
+  onCreditsSearchValueChanged: (value: string) => void;
+  onCreditsPaginationChanged: (page: number) => void;
+  onAddCreditsClicked: () => void;
+  onSetBillingUserClicked: () => void;
+}
+
+export default function TeamBilling({
+  balanceSummary,
+  credits,
+  billingUserInfo,
+  authorization,
+  isSubmitting,
+  isLoadingMembers,
+  creditsSearchValue,
+  creditsCurrentPage,
+  isCreditsSyncing,
+  onCreditsSearchValueChanged,
+  onCreditsPaginationChanged,
+  onAddCreditsClicked,
+  onSetBillingUserClicked,
+}: TeamBillingProps) {
+  if (!balanceSummary) {
     return (
       <Card>
         <CardHeader>
           <CardDescription>
-            No billing data found for this team.
+            No billing plan assigned to this team. A super admin must assign a
+            billing plan before credits can be used.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -36,24 +64,34 @@ export default function TeamBilling({ billing }: TeamBillingProps) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Card>
-        <CardHeader>
-          <CardDescription>Total Spend</CardDescription>
-          <CardTitle className="text-2xl">
-            ${billing.tagSpend.totalSpend.toFixed(4)}
-          </CardTitle>
-        </CardHeader>
-      </Card>
+    <div className="space-y-6">
+      <BillingOverview
+        balanceSummary={balanceSummary}
+        canAddCredits={authorization.canAddCredits}
+        isSubmitting={isSubmitting}
+        onAddCreditsClicked={onAddCreditsClicked}
+      />
 
-      <Card>
-        <CardHeader>
-          <CardDescription>Total Requests</CardDescription>
-          <CardTitle className="text-2xl">
-            {billing.tagSpend.logCount.toLocaleString()}
-          </CardTitle>
-        </CardHeader>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <CreditHistory
+          credits={credits}
+          searchValue={creditsSearchValue}
+          currentPage={creditsCurrentPage}
+          isSyncing={isCreditsSyncing}
+          onSearchValueChanged={onCreditsSearchValueChanged}
+          onPaginationChanged={onCreditsPaginationChanged}
+        />
+
+        {authorization.canSetBillingUser && (
+          <BillingSettings
+            billingUserInfo={billingUserInfo}
+            authorization={authorization}
+            isSubmitting={isSubmitting}
+            isLoadingMembers={isLoadingMembers}
+            onSetBillingUserClicked={onSetBillingUserClicked}
+          />
+        )}
+      </div>
     </div>
   );
 }
