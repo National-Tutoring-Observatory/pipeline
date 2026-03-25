@@ -1,5 +1,6 @@
 import each from "lodash/each.js";
 import mongoose from "mongoose";
+import type { LlmCostSource } from "~/modules/llmCosts/llmCosts.types";
 import calculateCost from "./helpers/calculateCost";
 import getLLM from "./helpers/getLLM";
 import type { LLMUsage } from "./llm.types";
@@ -19,7 +20,7 @@ interface OrchestratorMessage {
 type Variables = Record<string, any>;
 
 interface LLMOptions {
-  source: string;
+  source: LlmCostSource;
   model: string;
   sourceId?: string;
   user?: string;
