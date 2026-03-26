@@ -2,6 +2,11 @@ import { getRedisInstance } from "app/helpers/getRedisInstance";
 import { Job, MetricsTime, Worker } from "bullmq";
 import type { Redis } from "ioredis";
 
+// Sandboxed workers fork child processes that pipe stdout/stderr to the parent.
+// With concurrency up to 50 when using grouped pro workers, this exceeds Node's default limit of 10 listeners.
+process.stdout.setMaxListeners(60);
+process.stderr.setMaxListeners(60);
+
 export const WORKERS: Record<string, { worker: Worker; redis: Redis }> = {};
 
 export default async (
