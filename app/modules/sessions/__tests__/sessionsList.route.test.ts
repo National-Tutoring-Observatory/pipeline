@@ -38,7 +38,7 @@ describe("sessionsList.route loader", () => {
       params: {},
       unstable_pattern: "",
       context: {},
-    })) as any;
+    } as any)) as any;
 
     const ids = res.sessions.data.map((d: any) => d._id);
     expect(ids).toContain(sessionA._id);
@@ -70,7 +70,7 @@ describe("sessionsList.route loader", () => {
       params: {},
       unstable_pattern: "",
       context: {},
-    })) as any;
+    } as any)) as any;
 
     expect(res.sessions.data.length).toBe(0);
   });
@@ -110,7 +110,7 @@ describe("sessionsList.route loader", () => {
       params: {},
       unstable_pattern: "",
       context: {},
-    })) as any;
+    } as any)) as any;
 
     const ids = res.sessions.data.map((d: any) => d._id);
     expect(ids).toContain(sessionA._id);
@@ -133,7 +133,7 @@ describe("sessionsList.route loader", () => {
       params: {},
       unstable_pattern: "",
       context: {},
-    })) as any;
+    } as any)) as any;
 
     expect(res.status).toBe(302);
   });
@@ -163,7 +163,7 @@ describe("sessionsList.route loader", () => {
       params: {},
       unstable_pattern: "",
       context: {},
-    })) as any;
+    } as any)) as any;
 
     expect(res.status).toBe(302);
   });

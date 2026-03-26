@@ -27,7 +27,7 @@ describe("migrations.route", () => {
         params: {},
         unstable_pattern: "",
         context: {},
-      })) as any;
+      } as any)) as any;
 
       expect(res.status).toBe(302);
       expect(res.headers.get("location")).toBe("/");
@@ -48,7 +48,7 @@ describe("migrations.route", () => {
         params: {},
         unstable_pattern: "",
         context: {},
-      })) as any;
+      } as any)) as any;
 
       expect(res.status).toBe(302);
       expect(res.headers.get("location")).toBe("/");
@@ -69,7 +69,7 @@ describe("migrations.route", () => {
         params: {},
         unstable_pattern: "",
         context: {},
-      })) as any;
+      } as any)) as any;
 
       expect(res.migrations).toBeDefined();
       expect(Array.isArray(res.migrations)).toBe(true);
@@ -90,7 +90,7 @@ describe("migrations.route", () => {
         params: {},
         unstable_pattern: "",
         context: {},
-      })) as any;
+      } as any)) as any;
 
       if (res.migrations.length > 0) {
         const migration = res.migrations[0];
