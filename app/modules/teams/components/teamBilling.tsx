@@ -31,7 +31,7 @@ interface PaginatedCredits {
 }
 
 interface SpendAnalyticsData {
-  byModel: CostByModel[];
+  byModel: Array<CostByModel & { modelName: string }>;
   bySource: Array<{ label: string; totalCost: number }>;
   overTime: CostOverTime[];
 }

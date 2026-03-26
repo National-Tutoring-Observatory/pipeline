@@ -23,7 +23,6 @@ export interface LlmCost {
 
 export interface CostByModel {
   model: string;
-  modelName?: string;
   totalCost: number;
   totalInputTokens: number;
   totalOutputTokens: number;
