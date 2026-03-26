@@ -15,6 +15,11 @@ export interface Run {
   annotator?: {
     name: string;
   };
+  isAdjudication?: boolean;
+  adjudication?: {
+    sourceRuns: string[];
+    disagreements?: Record<string, any[]>;
+  };
   sessions: RunSession[];
   snapshot: RunSnapshot;
   stoppedAt?: Date | string | null;

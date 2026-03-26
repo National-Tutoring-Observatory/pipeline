@@ -14,6 +14,11 @@ export default new mongoose.Schema({
   annotator: {
     name: { type: String },
   },
+  isAdjudication: { type: Boolean, default: false },
+  adjudication: {
+    sourceRuns: [{ type: mongoose.Types.ObjectId, ref: "Run" }],
+    disagreements: { type: mongoose.Schema.Types.Mixed },
+  },
   sessions: [
     {
       sessionId: {

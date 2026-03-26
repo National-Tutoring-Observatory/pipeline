@@ -6,10 +6,17 @@ import getTopPerformersVsGoldLabel from "../helpers/getTopPerformersVsGoldLabel"
 
 export default function AdjudicationDialogContainer({
   evaluation,
+  evaluationPrompt,
   onStartAdjudication,
 }: {
   evaluation: Evaluation;
-  onStartAdjudication: (selectedRuns: string[], modelCode: string) => void;
+  evaluationPrompt: { promptId: string; promptVersion: number } | null;
+  onStartAdjudication: (
+    selectedRuns: string[],
+    modelCode: string,
+    promptId: string,
+    promptVersion: number,
+  ) => void;
 }) {
   const report = evaluation.report || [];
   const firstReport = report[0];
@@ -30,7 +37,13 @@ export default function AdjudicationDialogContainer({
       onSelectedRunsChanged={setSelectedRuns}
       onSelectedModelChanged={setSelectedModel}
       onStartAdjudication={() =>
-        onStartAdjudication(selectedRuns, selectedModel)
+        evaluationPrompt &&
+        onStartAdjudication(
+          selectedRuns,
+          selectedModel,
+          evaluationPrompt.promptId,
+          evaluationPrompt.promptVersion,
+        )
       }
     />
   );
