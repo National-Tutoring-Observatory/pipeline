@@ -92,12 +92,16 @@ export async function action({ request, params }: Route.ActionArgs) {
         );
       }
 
-      const { modelCode } = payload;
+      const { modelCode, promptId, promptVersion } = payload;
 
-      console.log("START_ADJUDICATION", {
+      EvaluationService.startAdjudication({
         evaluationId: params.evaluationId,
-        selectedRuns,
+        selectedRunIds: selectedRuns,
         modelCode,
+        projectId: params.projectId,
+        runSetId: params.runSetId,
+        promptId,
+        promptVersion,
       });
 
       return data({

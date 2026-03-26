@@ -3,6 +3,7 @@ import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import evaluationSchema from "~/lib/schemas/evaluation.schema";
 import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Evaluation } from "./evaluations.types";
+import createAdjudicationRun from "./services/createAdjudicationRun.server";
 import createEvaluationReport from "./services/createEvaluationReport.server";
 
 const EvaluationModel =
@@ -85,6 +86,18 @@ export class EvaluationService {
 
   static async start(evaluation: Evaluation): Promise<void> {
     createEvaluationReport(evaluation);
+  }
+
+  static startAdjudication(params: {
+    evaluationId: string;
+    selectedRunIds: string[];
+    modelCode: string;
+    projectId: string;
+    runSetId: string;
+    promptId: string;
+    promptVersion: number;
+  }): void {
+    createAdjudicationRun(params);
   }
 
   static async updateById(
