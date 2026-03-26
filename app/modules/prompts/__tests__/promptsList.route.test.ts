@@ -48,7 +48,7 @@ describe("promptsList.route loader", () => {
       params: {},
       unstable_pattern: "",
       context: {},
-    })) as any;
+    } as any)) as any;
 
     const data = result.prompts.data;
     expect(Array.isArray(data)).toBe(true);

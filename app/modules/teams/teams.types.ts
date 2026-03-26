@@ -2,6 +2,7 @@ export interface Team {
   _id: string;
   name: string;
   createdAt: string;
+  billingUser?: string;
 }
 
 export const TEAM_ASSIGNMENT_OPTIONS = ["temporary", "permanent"] as const;

@@ -1,9 +1,14 @@
+export interface PricingTier {
+  upToInputTokens?: number;
+  inputCostPer1M: number;
+  outputCostPer1M: number;
+}
+
 export interface ModelInfo {
   code: string;
   name: string;
   provider: string;
-  inputCostPer1M?: number;
-  outputCostPer1M?: number;
+  pricing?: PricingTier[];
 }
 
 export interface Provider {
@@ -11,7 +16,6 @@ export interface Provider {
   models: Array<{
     code: string;
     name: string;
-    inputCostPer1M?: number;
-    outputCostPer1M?: number;
+    pricing: PricingTier[];
   }>;
 }

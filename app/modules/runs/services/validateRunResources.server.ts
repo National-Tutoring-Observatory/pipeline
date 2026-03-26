@@ -1,4 +1,4 @@
-import findModelByCode from "~/modules/llm/helpers/findModelByCode";
+import { findModelByCode } from "~/modules/llm/modelRegistry";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import type { Run } from "~/modules/runs/runs.types";

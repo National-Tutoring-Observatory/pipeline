@@ -1,5 +1,4 @@
-import aiGatewayConfig from "~/config/ai_gateway.json";
-import type { Provider } from "~/modules/llm/model.types";
+import calculateCost from "~/modules/llm/helpers/calculateCost";
 import type {
   EstimationResult,
   RunDefinition,
@@ -8,22 +7,6 @@ import type {
 const AVG_TOKENS_PER_SESSION = 500;
 const DEFAULT_SECONDS_PER_CALL = 10;
 const DEFAULT_PARALLELISM_FACTOR = 5;
-
-function getModelPricing(modelCode: string) {
-  const providers = aiGatewayConfig.providers as Provider[];
-
-  for (const provider of providers) {
-    const model = provider.models.find((m) => m.code === modelCode);
-    if (model) {
-      return {
-        inputCostPer1M: model.inputCostPer1M ?? 0,
-        outputCostPer1M: model.outputCostPer1M ?? 0,
-      };
-    }
-  }
-
-  return { inputCostPer1M: 0, outputCostPer1M: 0 };
-}
 
 interface CalculateEstimatesOptions {
   shouldRunVerification?: boolean;
@@ -51,13 +34,11 @@ export function calculateEstimates(
 
   let totalCost = 0;
   for (const [modelCode, count] of definitionsByModel) {
-    const pricing = getModelPricing(modelCode);
     totalCost +=
       count *
       numSessions *
       verificationMultiplier *
-      ((inputTokens / 1_000_000) * pricing.inputCostPer1M +
-        (outputTokens / 1_000_000) * pricing.outputCostPer1M);
+      calculateCost({ modelCode, inputTokens, outputTokens });
   }
 
   const totalCalls = runDefinitions.length * numSessions;

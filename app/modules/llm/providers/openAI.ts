@@ -31,10 +31,18 @@ registerLLM("OPEN_AI", {
     const chatCompletion = await llm.chat.completions.create(requestParams);
     const message = chatCompletion.choices[0].message;
 
-    if (message.tool_calls?.length > 0) {
-      return JSON.parse(message.tool_calls[0].function.arguments);
-    }
+    const content =
+      message.tool_calls?.length > 0
+        ? JSON.parse(message.tool_calls[0].function.arguments)
+        : JSON.parse(message.content);
 
-    return JSON.parse(message.content);
+    return {
+      content,
+      usage: {
+        inputTokens: chatCompletion.usage?.prompt_tokens ?? 0,
+        outputTokens: chatCompletion.usage?.completion_tokens ?? 0,
+        providerCost: 0,
+      },
+    };
   },
 });

@@ -68,7 +68,13 @@ export default async function annotatePerSession(job: any) {
       prompt.schemaItems,
     );
 
-    const llm = new LLM({ model, user: team, schema: responseSchema });
+    const llm = new LLM({
+      model,
+      user: team,
+      schema: responseSchema,
+      source: "annotation:per-session",
+      sourceId: sessionId,
+    });
 
     llm.addSystemMessage(annotationPerSessionPrompts.system, {
       annotationSchema: JSON.stringify(prompt.annotationSchema),
@@ -86,7 +92,13 @@ export default async function annotatePerSession(job: any) {
     if (shouldRunVerification) {
       const preVerificationAnnotations = annotations;
 
-      const verifyLlm = new LLM({ model, user: team, schema: responseSchema });
+      const verifyLlm = new LLM({
+        model,
+        user: team,
+        schema: responseSchema,
+        source: "verification:per-session",
+        sourceId: sessionId,
+      });
 
       verifyLlm.addSystemMessage(verifyPerSessionPrompts.system, {
         annotationSchema: JSON.stringify(prompt.annotationSchema),

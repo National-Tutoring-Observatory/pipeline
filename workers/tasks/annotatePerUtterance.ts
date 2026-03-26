@@ -24,8 +24,8 @@ export default async function annotatePerUtterance(job: any) {
     shouldRunVerification,
   } = job.data;
 
-  const run = await RunService.findById(runId);
-  if (run?.stoppedAt) {
+  const currentRun = await RunService.findById(runId);
+  if (currentRun?.stoppedAt) {
     return { status: "STOPPED" };
   }
 
@@ -68,7 +68,13 @@ export default async function annotatePerUtterance(job: any) {
       prompt.schemaItems,
     );
 
-    const llm = new LLM({ model, user: team, schema: responseSchema });
+    const llm = new LLM({
+      model,
+      user: team,
+      schema: responseSchema,
+      source: "annotation:per-utterance",
+      sourceId: sessionId,
+    });
 
     llm.addSystemMessage(annotationPerUtterancePrompts.system, {
       annotationSchema: JSON.stringify(prompt.annotationSchema),
@@ -86,7 +92,13 @@ export default async function annotatePerUtterance(job: any) {
     if (shouldRunVerification) {
       const preVerificationAnnotations = annotations;
 
-      const verifyLlm = new LLM({ model, user: team, schema: responseSchema });
+      const verifyLlm = new LLM({
+        model,
+        user: team,
+        schema: responseSchema,
+        source: "verification:per-utterance",
+        sourceId: sessionId,
+      });
 
       verifyLlm.addSystemMessage(verifyPerUtterancePrompts.system, {
         annotationSchema: JSON.stringify(prompt.annotationSchema),
@@ -165,6 +177,10 @@ export default async function annotatePerUtterance(job: any) {
       },
       "FINISHED",
     );
+
+    return {
+      status: "SUCCESS",
+    };
   } catch (error: any) {
     const errorMessage = classifyLLMError(error);
 

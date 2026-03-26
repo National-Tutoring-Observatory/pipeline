@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import fse from "fs-extra";
 import path from "path";
-import aiGatewayConfig from "~/config/ai_gateway.json";
+import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import LLM from "../../modules/llm/llm";
 import orchestratorPrompt from "./orchestrator.prompt.json";
@@ -16,7 +16,7 @@ interface LambdaEvent {
 
 export const handler = async (event: LambdaEvent) => {
   const { body } = event;
-  const { inputFile, outputFolder, team } = body;
+  const { inputFile, outputFolder, team, sessionId } = body;
 
   const storage = getStorageAdapter();
 
@@ -30,8 +30,10 @@ export const handler = async (event: LambdaEvent) => {
 
   const llm = new LLM({
     retries: 3,
-    model: aiGatewayConfig.defaultModel,
+    model: getDefaultModelCode(),
     user: team,
+    source: "file-conversion",
+    sourceId: sessionId,
   });
 
   llm.setOrchestratorMessage(orchestratorPrompt.prompt, {

@@ -148,6 +148,7 @@ export default function PromptEditorRoute() {
         userPrompt={userPrompt}
         annotationSchema={annotationSchema}
         team={prompt.data.team}
+        promptId={prompt.data._id}
         onSaveClicked={() => {
           submit(
             JSON.stringify({

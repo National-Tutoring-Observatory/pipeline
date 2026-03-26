@@ -6,11 +6,13 @@ export default function SavePromptVersionDialogContainer({
   userPrompt,
   annotationSchema,
   team,
+  promptId,
   onSaveClicked,
 }: {
   userPrompt: string;
   annotationSchema: any;
   team: string;
+  promptId: string;
   onSaveClicked: () => void;
 }) {
   const hasInitialized = useRef(false);
@@ -21,7 +23,7 @@ export default function SavePromptVersionDialogContainer({
     if (!hasInitialized.current) {
       hasInitialized.current = true;
       fetcher.submit(
-        { userPrompt, annotationSchema, team },
+        { userPrompt, annotationSchema, team, promptId },
         {
           action: "/api/promptVersionAlignment",
           method: "post",

@@ -22,6 +22,7 @@ export default async function processUploadedFiles({
   const attributesMapping = await getAttributeMappingFromFile({
     file: splitFiles[0],
     team,
+    projectId,
   });
 
   uploadFiles({ files: splitFiles, entityId: projectId })
