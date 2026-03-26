@@ -19,6 +19,8 @@ function makeDefinition(
   };
 }
 
+const COST_BUFFER_MULTIPLIER = 1.5;
+
 function expectedCost(
   numPrompts: number,
   modelIndices: number[],
@@ -27,7 +29,7 @@ function expectedCost(
 ) {
   const totalInputTokens = numSessions * 250;
   const totalOutputTokens = numSessions * 250;
-  return modelIndices.reduce((sum, i) => {
+  const raw = modelIndices.reduce((sum, i) => {
     return (
       sum +
       numPrompts *
@@ -39,6 +41,7 @@ function expectedCost(
         })
     );
   }, 0);
+  return raw * COST_BUFFER_MULTIPLIER;
 }
 
 function expectedTime(numDefinitions: number, numSessions: number) {
@@ -127,11 +130,12 @@ describe("calculateEstimates", () => {
     const result = calculateEstimates(definitions, sessions);
 
     const totalInputTokens = 10 * 1000;
-    const expected = calculateCost({
-      modelCode: allModels[0],
-      inputTokens: totalInputTokens,
-      outputTokens: totalInputTokens,
-    });
+    const expected =
+      calculateCost({
+        modelCode: allModels[0],
+        inputTokens: totalInputTokens,
+        outputTokens: totalInputTokens,
+      }) * COST_BUFFER_MULTIPLIER;
     expect(result.estimatedCost).toBe(expected);
   });
 
@@ -152,11 +156,12 @@ describe("calculateEstimates", () => {
     const result = calculateEstimates(definitions, sessions);
 
     const totalInputTokens = 1000 + 2000 + 250;
-    const expected = calculateCost({
-      modelCode: allModels[0],
-      inputTokens: totalInputTokens,
-      outputTokens: totalInputTokens,
-    });
+    const expected =
+      calculateCost({
+        modelCode: allModels[0],
+        inputTokens: totalInputTokens,
+        outputTokens: totalInputTokens,
+      }) * COST_BUFFER_MULTIPLIER;
     expect(result.estimatedCost).toBe(expected);
   });
 
@@ -169,11 +174,12 @@ describe("calculateEstimates", () => {
     });
 
     const totalInputTokens = 10 * 1000;
-    const expected = calculateCost({
-      modelCode: allModels[0],
-      inputTokens: totalInputTokens,
-      outputTokens: totalInputTokens * outputToInputRatio,
-    });
+    const expected =
+      calculateCost({
+        modelCode: allModels[0],
+        inputTokens: totalInputTokens,
+        outputTokens: totalInputTokens * outputToInputRatio,
+      }) * COST_BUFFER_MULTIPLIER;
     expect(result.estimatedCost).toBe(expected);
   });
 

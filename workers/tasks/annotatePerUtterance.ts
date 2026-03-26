@@ -73,7 +73,7 @@ export default async function annotatePerUtterance(job: any) {
       user: team,
       schema: responseSchema,
       source: "annotation:per-utterance",
-      sourceId: sessionId,
+      sourceId: runId,
     });
 
     llm.addSystemMessage(annotationPerUtterancePrompts.system, {
@@ -97,7 +97,7 @@ export default async function annotatePerUtterance(job: any) {
         user: team,
         schema: responseSchema,
         source: "verification:per-utterance",
-        sourceId: sessionId,
+        sourceId: runId,
       });
 
       verifyLlm.addSystemMessage(verifyPerUtterancePrompts.system, {

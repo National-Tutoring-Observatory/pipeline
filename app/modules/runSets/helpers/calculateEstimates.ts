@@ -8,6 +8,7 @@ const AVG_TOKENS_PER_SESSION = 500;
 const DEFAULT_SECONDS_PER_CALL = 10;
 const DEFAULT_PARALLELISM_FACTOR = 5;
 const DEFAULT_RATIO = 1.0;
+const COST_BUFFER_MULTIPLIER = 1.5;
 
 interface CalculateEstimatesOptions {
   shouldRunVerification?: boolean;
@@ -66,5 +67,8 @@ export function calculateEstimates(
       DEFAULT_PARALLELISM_FACTOR;
   }
 
-  return { estimatedCost: totalCost, estimatedTimeSeconds };
+  return {
+    estimatedCost: totalCost * COST_BUFFER_MULTIPLIER,
+    estimatedTimeSeconds,
+  };
 }

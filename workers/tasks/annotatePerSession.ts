@@ -73,7 +73,7 @@ export default async function annotatePerSession(job: any) {
       user: team,
       schema: responseSchema,
       source: "annotation:per-session",
-      sourceId: sessionId,
+      sourceId: runId,
     });
 
     llm.addSystemMessage(annotationPerSessionPrompts.system, {
@@ -97,7 +97,7 @@ export default async function annotatePerSession(job: any) {
         user: team,
         schema: responseSchema,
         source: "verification:per-session",
-        sourceId: sessionId,
+        sourceId: runId,
       });
 
       verifyLlm.addSystemMessage(verifyPerSessionPrompts.system, {
