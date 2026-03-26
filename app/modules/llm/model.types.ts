@@ -9,6 +9,7 @@ export interface ModelInfo {
   name: string;
   provider: string;
   pricing?: PricingTier[];
+  deprecated?: boolean;
 }
 
 export interface Provider {

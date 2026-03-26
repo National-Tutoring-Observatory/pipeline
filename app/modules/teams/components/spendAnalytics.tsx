@@ -65,7 +65,7 @@ function SpendByModelChart({ data }: { data: CostByModel[] }) {
       <BarChart data={data} layout="vertical" margin={{ left: 20 }}>
         <CartesianGrid horizontal={false} />
         <YAxis
-          dataKey="model"
+          dataKey="modelName"
           type="category"
           tickLine={false}
           axisLine={false}

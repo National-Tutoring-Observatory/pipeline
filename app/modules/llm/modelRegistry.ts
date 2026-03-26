@@ -1,41 +1,66 @@
-import aiGatewayConfig from "~/config/ai_gateway.json";
+import aiGatewayConfigRaw from "~/config/ai_gateway.json";
 import type { ModelInfo, PricingTier, Provider } from "./model.types";
+
+interface ModelConfig {
+  defaultModel: string;
+  providers: Array<{
+    name: string;
+    models: Array<{
+      code: string;
+      name: string;
+      deprecated?: boolean;
+      pricing: PricingTier[];
+    }>;
+  }>;
+}
+
+const aiGatewayConfig = aiGatewayConfigRaw as unknown as ModelConfig;
 
 export function getDefaultModelCode(): string {
   return aiGatewayConfig.defaultModel;
 }
 
 export function getAvailableProviders(): Provider[] {
-  return aiGatewayConfig.providers.map((provider) => ({
-    name: provider.name,
-    models: provider.models.map((m) => ({
-      code: m.code,
-      name: m.name,
-      pricing: m.pricing as PricingTier[],
-    })),
-  }));
+  return aiGatewayConfig.providers
+    .map((provider) => ({
+      name: provider.name,
+      models: provider.models
+        .filter((m) => !m.deprecated)
+        .map((m) => ({
+          code: m.code,
+          name: m.name,
+          pricing: m.pricing,
+        })),
+    }))
+    .filter((provider) => provider.models.length > 0);
 }
 
 export function getAvailableModels(): ModelInfo[] {
   return aiGatewayConfig.providers.flatMap((provider) =>
-    provider.models.map((m) => ({
-      code: m.code,
-      name: m.name,
-      provider: provider.name,
-      pricing: m.pricing as PricingTier[],
-    })),
+    provider.models
+      .filter((m) => !m.deprecated)
+      .map((m) => ({
+        code: m.code,
+        name: m.name,
+        provider: provider.name,
+        pricing: m.pricing,
+      })),
   );
 }
 
-export function findModelByCode(code: string): ModelInfo | null {
+export function findModelByCode(
+  code: string,
+  { includeDeprecated = false }: { includeDeprecated?: boolean } = {},
+): ModelInfo | null {
   for (const provider of aiGatewayConfig.providers) {
     const model = provider.models.find((m) => m.code === code);
-    if (model) {
+    if (model && (includeDeprecated || !model.deprecated)) {
       return {
         code: model.code,
         name: model.name,
         provider: provider.name,
-        pricing: model.pricing as PricingTier[],
+        pricing: model.pricing,
+        deprecated: model.deprecated,
       };
     }
   }
