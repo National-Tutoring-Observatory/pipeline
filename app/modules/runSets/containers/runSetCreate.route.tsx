@@ -12,6 +12,7 @@ import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.serve
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { getAvailableModels } from "~/modules/llm/modelRegistry";
+import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { PromptService } from "~/modules/prompts/prompt";
@@ -25,6 +26,7 @@ import type {
   PrefillData,
   PromptReference,
 } from "~/modules/runSets/runSets.types";
+import { SessionService } from "~/modules/sessions/session";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/runSetCreate.route";
 
@@ -49,6 +51,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const fromRunSetId = url.searchParams.get("fromRunSet");
 
   let prefillData: PrefillData | null = null;
+  let prefillSessionIds: string[] = [];
 
   if (fromRunId) {
     try {
@@ -66,6 +69,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         const prompt = await PromptService.findById(run.prompt as string);
 
         const modelCode = getRunModelCode(run);
+        prefillSessionIds = sessionIds;
         prefillData = {
           sourceRunId: run._id,
           sourceRunName: run.name,
@@ -78,7 +82,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
             },
           ],
           selectedModels: modelCode ? [modelCode] : [],
-          selectedSessions: sessionIds,
+          selectedSessions: [],
         };
       }
     } catch (error) {
@@ -164,13 +168,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           }
         }
 
+        prefillSessionIds = runSet.sessions || [];
         prefillData = {
           sourceRunSetId: runSet._id,
           sourceRunSetName: runSet.name,
           annotationType,
           selectedPrompts,
           selectedModels,
-          selectedSessions: runSet.sessions || [],
+          selectedSessions: [],
           validationErrors:
             validationErrors.length > 0 ? validationErrors : undefined,
         };
@@ -180,11 +185,27 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }
   }
 
-  const avgSecondsPerSession = await RunService.getAverageSecondsPerSession(
-    params.projectId,
-  );
+  const [avgSecondsPerSession, outputToInputRatio, prefillSessions] =
+    await Promise.all([
+      RunService.getAverageSecondsPerSession(params.projectId),
+      LlmCostService.getOutputToInputRatio(project.team as string),
+      prefillSessionIds.length
+        ? SessionService.find({
+            match: { _id: { $in: prefillSessionIds } },
+            select: "_id inputTokens",
+          })
+        : Promise.resolve([]),
+    ]);
 
-  return { project, prefillData, avgSecondsPerSession };
+  if (prefillData) {
+    const byId = new Map(prefillSessions.map((s) => [s._id, s.inputTokens]));
+    prefillData.selectedSessions = prefillSessionIds.map((id) => ({
+      _id: id,
+      inputTokens: byId.get(id),
+    }));
+  }
+
+  return { project, prefillData, avgSecondsPerSession, outputToInputRatio };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -260,7 +281,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function RunSetCreateRoute() {
-  const { project, prefillData, avgSecondsPerSession } =
+  const { project, prefillData, avgSecondsPerSession, outputToInputRatio } =
     useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
@@ -315,6 +336,7 @@ export default function RunSetCreateRoute() {
       <RunSetCreatorContainer
         prefillData={prefillData}
         avgSecondsPerSession={avgSecondsPerSession}
+        outputToInputRatio={outputToInputRatio}
         onSubmit={handleSubmit}
         isLoading={fetcher.state !== "idle"}
         errors={(fetcher.data as any)?.errors || {}}

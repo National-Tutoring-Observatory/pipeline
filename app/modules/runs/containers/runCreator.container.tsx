@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
+import type { SessionData } from "~/modules/sessions/sessions.types";
 import RunCreator from "../components/runCreator";
 
 interface RunCreatorContainerProps {
@@ -55,8 +56,8 @@ export default function ProjectRunCreatorContainer({
     setSelectedModel(selectedModel);
   };
 
-  const onSelectedSessionsChanged = (selectedSessions: string[]) => {
-    setSelectedSessions(selectedSessions);
+  const onSelectedSessionsChanged = (sessions: SessionData[]) => {
+    setSelectedSessions(sessions.map((s) => s._id));
   };
 
   const onRunNameChangedHandler = (name: string) => {

@@ -17,6 +17,7 @@ import AnnotationTypeSelectorContainer from "~/modules/prompts/containers/annoat
 import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
 import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
+import type { SessionData } from "~/modules/sessions/sessions.types";
 import RunNameAlert from "./runNameAlert";
 
 export default function RunCreator({
@@ -53,7 +54,7 @@ export default function RunCreator({
   onSelectedPromptChanged: (selectedPrompt: string) => void;
   onSelectedPromptVersionChanged: (selectedPromptVersion: number) => void;
   onSelectedModelChanged: (selectedModel: string) => void;
-  onSelectedSessionsChanged: (selectedSessions: string[]) => void;
+  onSelectedSessionsChanged: (sessions: SessionData[]) => void;
   shouldRunVerification: boolean;
   onShouldRunVerificationChanged: (value: boolean) => void;
   onStartRunButtonClicked: () => void;

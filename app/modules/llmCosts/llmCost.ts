@@ -60,4 +60,27 @@ export class LlmCostService {
   ): Promise<CostOverTime[]> {
     return sumCostOverTime(teamId, granularity);
   }
+
+  static async getOutputToInputRatio(teamId: string): Promise<number | null> {
+    const result = await LlmCostModel.aggregate([
+      {
+        $match: {
+          team: new mongoose.Types.ObjectId(teamId),
+          source: { $regex: "^annotation:" },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalInput: { $sum: "$inputTokens" },
+          totalOutput: { $sum: "$outputTokens" },
+        },
+      },
+    ]);
+    if (!result[0] || result[0].totalInput === 0) {
+      return null;
+    } else {
+      return result[0].totalOutput / result[0].totalInput;
+    }
+  }
 }

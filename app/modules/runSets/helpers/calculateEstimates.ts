@@ -7,22 +7,29 @@ import type {
 const AVG_TOKENS_PER_SESSION = 500;
 const DEFAULT_SECONDS_PER_CALL = 10;
 const DEFAULT_PARALLELISM_FACTOR = 5;
+const DEFAULT_RATIO = 1.0;
 
 interface CalculateEstimatesOptions {
   shouldRunVerification?: boolean;
   avgSecondsPerSession?: number | null;
+  outputToInputRatio?: number | null;
 }
 
 export function calculateEstimates(
   runDefinitions: RunDefinition[],
-  selectedSessions: { length: number },
+  selectedSessions: Array<{ inputTokens?: number }>,
   options?: CalculateEstimatesOptions,
 ): EstimationResult {
   const numSessions = selectedSessions.length;
   const verificationMultiplier = options?.shouldRunVerification ? 2 : 1;
 
-  const inputTokens = AVG_TOKENS_PER_SESSION / 2;
-  const outputTokens = AVG_TOKENS_PER_SESSION / 2;
+  const totalInputTokens = selectedSessions.reduce((sum, s) => {
+    return sum + (s.inputTokens ? s.inputTokens : AVG_TOKENS_PER_SESSION / 2);
+  }, 0);
+
+  const rawRatio = options?.outputToInputRatio;
+  const ratio = rawRatio != null && rawRatio > 0 ? rawRatio : DEFAULT_RATIO;
+  const totalOutputTokens = totalInputTokens * ratio;
 
   const definitionsByModel = new Map<string, number>();
   for (const definition of runDefinitions) {
@@ -36,9 +43,12 @@ export function calculateEstimates(
   for (const [modelCode, count] of definitionsByModel) {
     totalCost +=
       count *
-      numSessions *
       verificationMultiplier *
-      calculateCost({ modelCode, inputTokens, outputTokens });
+      calculateCost({
+        modelCode,
+        inputTokens: totalInputTokens,
+        outputTokens: totalOutputTokens,
+      });
   }
 
   const totalCalls = runDefinitions.length * numSessions;
