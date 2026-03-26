@@ -8,6 +8,8 @@ import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromR
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { BillingPlanService } from "~/modules/billing/billingPlan";
+import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
@@ -90,6 +92,10 @@ export async function action({ request }: Route.ActionArgs) {
         );
       }
       const team = await TeamService.create({ name });
+      const defaultPlan = await BillingPlanService.findDefault();
+      if (defaultPlan) {
+        await TeamBillingPlanService.assignPlan(team._id, defaultPlan._id);
+      }
       return data({
         success: true,
         intent: "CREATE_TEAM",
