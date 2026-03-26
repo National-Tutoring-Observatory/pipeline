@@ -25,6 +25,7 @@ import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import { TeamCreditService } from "~/modules/billing/teamCredit";
 import addDialog from "~/modules/dialogs/addDialog";
 import hasFeatureFlag from "~/modules/featureFlags/helpers/hasFeatureFlag";
+import { findModelByCode } from "~/modules/llm/modelRegistry";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import type { SpendGranularity } from "~/modules/llmCosts/llmCosts.types";
 import { UserService } from "~/modules/users/user";
@@ -111,11 +112,17 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     ? (rawGranularity as SpendGranularity)
     : "month";
 
-  const [costsByModel, costsBySource, costsOverTime] = await Promise.all([
+  const [rawCostsByModel, costsBySource, costsOverTime] = await Promise.all([
     LlmCostService.sumCostByModel(params.id),
     LlmCostService.sumCostBySource(params.id),
     LlmCostService.sumCostOverTime(params.id, spendGranularity),
   ]);
+
+  const costsByModel = rawCostsByModel.map((c) => ({
+    ...c,
+    modelName:
+      findModelByCode(c.model, { includeDeprecated: true })?.name ?? c.model,
+  }));
 
   const markupRate = balanceSummary.plan.markupRate;
   const spendAnalytics = {
