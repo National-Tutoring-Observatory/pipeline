@@ -76,7 +76,7 @@ export default async function createRunAnnotations(run: Run) {
         currentSessionIndex,
         shouldRunVerification: !!run.shouldRunVerification,
       },
-      { group: { id: String(project.team) } },
+      { group: { id: String(run.project) } },
     );
   }
 

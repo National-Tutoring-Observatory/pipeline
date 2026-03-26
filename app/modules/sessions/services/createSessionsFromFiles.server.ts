@@ -55,18 +55,25 @@ export default async function createSessionsFromFiles({
     }
     const file = await FileService.findById(projectSession.file as string);
     if (!file) throw new Error("File not found");
-    taskSequencer.addTask("PROCESS", {
-      projectId,
-      sessionId: projectSession._id,
-      inputFile: getProjectFileStoragePath(
+    taskSequencer.addTask(
+      "PROCESS",
+      {
         projectId,
-        String(projectSession.file),
-        file.name,
-      ),
-      outputFolder: getProjectSessionStorageDir(projectId, projectSession._id),
-      team: project.team,
-      attributesMapping,
-    });
+        sessionId: projectSession._id,
+        inputFile: getProjectFileStoragePath(
+          projectId,
+          String(projectSession.file),
+          file.name,
+        ),
+        outputFolder: getProjectSessionStorageDir(
+          projectId,
+          projectSession._id,
+        ),
+        team: project.team,
+        attributesMapping,
+      },
+      { group: { id: projectId } },
+    );
   }
 
   taskSequencer.addTask("FINISH", {

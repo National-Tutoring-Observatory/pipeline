@@ -44,6 +44,7 @@ export default async (
         connection: redis as any,
         group: { concurrency: 50 },
       }) as unknown as Worker;
+      console.log(`[${name}] BullMQ Pro is running`);
     } catch {
       console.warn(
         `[${name}] BullMQ Pro not installed, falling back to BullMQ`,
