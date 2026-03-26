@@ -28,11 +28,11 @@ export default function AdjudicationDialog({
         <DialogTitle>Improve via adjudication</DialogTitle>
         <DialogDescription>
           Select the top performing runs you would like to include in the
-          adjudication.
+          adjudication. A minimum of 2 runs must be selected.
         </DialogDescription>
       </DialogHeader>
 
-      <ItemGroup className="gap-2">
+      <ItemGroup className="max-h-80 gap-2 overflow-y-auto">
         {performers.map((performer) => (
           <Item
             key={performer.runId}
@@ -64,12 +64,19 @@ export default function AdjudicationDialog({
               onClick={(e) => e.stopPropagation()}
             />
             <ItemContent>
-              <ItemTitle>
-                {performer.runName}
-                <span className="text-muted-foreground ml-2 text-xs">
-                  Kappa: {performer.kappa.toFixed(3)}
-                </span>
-              </ItemTitle>
+              <ItemTitle>{performer.runName}</ItemTitle>
+              <div className="text-muted-foreground flex gap-3 text-xs">
+                <span>Kappa: {performer.kappa.toFixed(2)}</span>
+                {performer.precision != null && (
+                  <span>Precision: {performer.precision.toFixed(2)}</span>
+                )}
+                {performer.recall != null && (
+                  <span>Recall: {performer.recall.toFixed(2)}</span>
+                )}
+                {performer.f1 != null && (
+                  <span>F1: {performer.f1.toFixed(2)}</span>
+                )}
+              </div>
             </ItemContent>
           </Item>
         ))}
@@ -84,7 +91,7 @@ export default function AdjudicationDialog({
         <DialogClose asChild>
           <Button
             type="button"
-            disabled={selectedRuns.length === 0}
+            disabled={selectedRuns.length < 2}
             onClick={onStartAdjudication}
           >
             Start adjudication

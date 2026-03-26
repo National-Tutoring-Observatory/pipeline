@@ -19,11 +19,13 @@ export default function Evaluation({
   evaluation,
   breadcrumbs,
   progress,
+  canStartAdjudication,
   onAdjudicationClicked,
 }: {
   evaluation: EvaluationType;
   breadcrumbs: Breadcrumb[];
   progress: number;
+  canStartAdjudication: boolean;
   onAdjudicationClicked: () => void;
 }) {
   const runCount = evaluation.runs?.length || 0;
@@ -62,11 +64,13 @@ export default function Evaluation({
           </p>
         </div>
 
-        <Flag flag="HAS_ADJUDICATION">
-          <Button variant="outline" onClick={onAdjudicationClicked}>
-            Improve via adjudication
-          </Button>
-        </Flag>
+        {canStartAdjudication && (
+          <Flag flag="HAS_ADJUDICATION">
+            <Button variant="outline" onClick={onAdjudicationClicked}>
+              Improve via adjudication
+            </Button>
+          </Flag>
+        )}
 
         {evaluation.isComplete && report.length > 0 && (
           <Tabs defaultValue={report[0].fieldKey}>

@@ -10,17 +10,19 @@ export default function AdjudicationDialogContainer({
   evaluation: Evaluation;
   onStartAdjudication: (selectedRuns: string[]) => void;
 }) {
-  const [selectedRuns, setSelectedRuns] = useState<string[]>([]);
-
   const report = evaluation.report || [];
   const firstReport = report[0];
   const performers = firstReport
     ? getTopPerformersVsGoldLabel(firstReport, evaluation.baseRun)
     : [];
+  const nonHumanPerformers = performers.filter((p) => !p.isHuman);
+
+  const initialSelection = nonHumanPerformers.slice(0, 3).map((p) => p.runId);
+  const [selectedRuns, setSelectedRuns] = useState<string[]>(initialSelection);
 
   return (
     <AdjudicationDialog
-      performers={performers}
+      performers={nonHumanPerformers}
       selectedRuns={selectedRuns}
       onSelectedRunsChanged={setSelectedRuns}
       onStartAdjudication={() => onStartAdjudication(selectedRuns)}
