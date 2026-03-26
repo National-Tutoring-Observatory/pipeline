@@ -9,17 +9,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Item, ItemContent, ItemGroup, ItemTitle } from "@/components/ui/item";
+import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
 import type { TopPerformer } from "../helpers/getTopPerformersVsGoldLabel";
 
 export default function AdjudicationDialog({
   performers,
   selectedRuns,
+  selectedModel,
   onSelectedRunsChanged,
+  onSelectedModelChanged,
   onStartAdjudication,
 }: {
   performers: TopPerformer[];
   selectedRuns: string[];
+  selectedModel: string;
   onSelectedRunsChanged: (ids: string[]) => void;
+  onSelectedModelChanged: (model: string) => void;
   onStartAdjudication: () => void;
 }) {
   return (
@@ -31,6 +36,14 @@ export default function AdjudicationDialog({
           adjudication. A minimum of 2 runs must be selected.
         </DialogDescription>
       </DialogHeader>
+
+      <div>
+        <label className="text-sm font-medium">Adjudicator</label>
+        <ModelSelectorContainer
+          selectedModel={selectedModel}
+          onSelectedModelChanged={onSelectedModelChanged}
+        />
+      </div>
 
       <ItemGroup className="max-h-80 gap-2 overflow-y-auto">
         {performers.map((performer) => (
@@ -91,7 +104,7 @@ export default function AdjudicationDialog({
         <DialogClose asChild>
           <Button
             type="button"
-            disabled={selectedRuns.length < 2}
+            disabled={selectedRuns.length < 2 || !selectedModel}
             onClick={onStartAdjudication}
           >
             Start adjudication

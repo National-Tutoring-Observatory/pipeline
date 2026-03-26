@@ -35,7 +35,7 @@ export default function ModelSelector({
 
   return (
     <div>
-      <Popover open={isModelsOpen} onOpenChange={onToggleModelPopover}>
+      <Popover open={isModelsOpen} onOpenChange={onToggleModelPopover} modal>
         <PopoverTrigger asChild>
           <Button
             variant="outline"

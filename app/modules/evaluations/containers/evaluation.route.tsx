@@ -80,9 +80,12 @@ export async function action({ request, params }: Route.ActionArgs) {
         );
       }
 
+      const { modelCode } = payload;
+
       console.log("START_ADJUDICATION", {
         evaluationId: params.evaluationId,
         selectedRuns,
+        modelCode,
       });
 
       return data({
@@ -171,11 +174,14 @@ export default function EvaluationRoute() {
   const canStartAdjudication =
     evaluation.isComplete === true && nonHumanPerformerCount >= 2;
 
-  const submitStartAdjudication = (selectedRuns: string[]) => {
+  const submitStartAdjudication = (
+    selectedRuns: string[],
+    modelCode: string,
+  ) => {
     fetcher.submit(
       JSON.stringify({
         intent: "START_ADJUDICATION",
-        payload: { selectedRuns },
+        payload: { selectedRuns, modelCode },
       }),
       { method: "POST", encType: "application/json" },
     );
