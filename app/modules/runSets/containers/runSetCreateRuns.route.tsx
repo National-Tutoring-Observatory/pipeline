@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
@@ -19,6 +20,7 @@ import getUsedPromptModels, {
   type PromptModelPair,
 } from "~/modules/runSets/helpers/getUsedPromptModels";
 import { RunSetService } from "~/modules/runSets/runSet";
+import { SessionService } from "~/modules/sessions/session";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/runSetCreateRuns.route";
 import RunSetCreateRunsContainer from "./runSetCreateRuns.container";
@@ -49,15 +51,25 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const usedPromptModels = getUsedPromptModels(existingRuns);
 
-  const avgSecondsPerSession = await RunService.getAverageSecondsPerSession(
-    params.projectId,
-  );
+  const [avgSecondsPerSession, outputToInputRatio, sessions] =
+    await Promise.all([
+      RunService.getAverageSecondsPerSession(params.projectId),
+      LlmCostService.getOutputToInputRatio(project.team as string),
+      runSet.sessions?.length
+        ? SessionService.find({
+            match: { _id: { $in: runSet.sessions } },
+            select: "_id inputTokens",
+          })
+        : Promise.resolve([]),
+    ]);
 
   return {
     runSet,
     project,
     usedPromptModels,
     avgSecondsPerSession,
+    outputToInputRatio,
+    sessions,
   };
 }
 
@@ -135,8 +147,14 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function RunSetCreateRunsRoute() {
-  const { runSet, project, usedPromptModels, avgSecondsPerSession } =
-    useLoaderData<typeof loader>();
+  const {
+    runSet,
+    project,
+    usedPromptModels,
+    avgSecondsPerSession,
+    outputToInputRatio,
+    sessions,
+  } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
 
@@ -199,6 +217,8 @@ export default function RunSetCreateRunsRoute() {
         runSet={runSet}
         usedPromptModels={usedPromptModels as PromptModelPair[]}
         avgSecondsPerSession={avgSecondsPerSession}
+        outputToInputRatio={outputToInputRatio}
+        sessions={sessions}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isLoading={fetcher.state !== "idle"}

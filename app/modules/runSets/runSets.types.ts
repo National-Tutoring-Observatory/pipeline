@@ -1,3 +1,5 @@
+import type { SessionData } from "~/modules/sessions/sessions.types";
+
 export interface RunSet {
   _id: string;
   name: string;
@@ -29,7 +31,7 @@ export interface PrefillData {
   annotationType: string;
   selectedPrompts: PromptReference[];
   selectedModels: string[];
-  selectedSessions: string[];
+  selectedSessions: SessionData[];
   validationErrors?: string[];
 }
 

@@ -10,6 +10,7 @@ export interface Session {
   fileType?: string;
   error?: string;
   hasConverted: boolean;
+  inputTokens?: number;
   hasErrored: boolean;
   startedAt?: string;
   finishedAt?: string;
@@ -18,6 +19,8 @@ export interface Session {
   updatedAt?: string;
   updatedBy?: string;
 }
+
+export type SessionData = Pick<Session, "_id" | "inputTokens">;
 
 export interface SessionFile {
   transcript: Utterance[];
