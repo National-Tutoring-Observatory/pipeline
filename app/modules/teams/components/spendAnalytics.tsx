@@ -27,7 +27,7 @@ import type {
 } from "~/modules/llmCosts/llmCosts.types";
 
 interface SpendAnalyticsProps {
-  byModel: CostByModel[];
+  byModel: Array<CostByModel & { modelName: string }>;
   bySource: Array<{ label: string; totalCost: number }>;
   overTime: CostOverTime[];
   granularity: SpendGranularity;
@@ -57,7 +57,11 @@ function EmptyState() {
   );
 }
 
-function SpendByModelChart({ data }: { data: CostByModel[] }) {
+function SpendByModelChart({
+  data,
+}: {
+  data: Array<CostByModel & { modelName: string }>;
+}) {
   if (data.length === 0) return <EmptyState />;
 
   return (
