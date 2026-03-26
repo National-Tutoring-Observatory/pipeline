@@ -61,7 +61,7 @@ function SpendByModelChart({ data }: { data: CostByModel[] }) {
   if (data.length === 0) return <EmptyState />;
 
   return (
-    <ChartContainer config={costChartConfig} className="max-h-72 w-full">
+    <ChartContainer config={costChartConfig} className="h-72 w-full">
       <BarChart data={data} layout="vertical" margin={{ left: 20 }}>
         <CartesianGrid horizontal={false} />
         <YAxis
@@ -115,7 +115,7 @@ function SpendBySourceChart({
   if (data.length === 0) return <EmptyState />;
 
   return (
-    <ChartContainer config={costChartConfig} className="max-h-72 w-full">
+    <ChartContainer config={costChartConfig} className="h-72 w-full">
       <BarChart data={data} layout="vertical" margin={{ left: 20 }}>
         <CartesianGrid horizontal={false} />
         <YAxis
@@ -165,7 +165,7 @@ function SpendOverTimeChart({
           </SelectContent>
         </Select>
       </div>
-      <ChartContainer config={costChartConfig} className="max-h-72 w-full">
+      <ChartContainer config={costChartConfig} className="h-72 w-full">
         <BarChart data={data}>
           <CartesianGrid vertical={false} />
           <XAxis
