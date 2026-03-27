@@ -3,10 +3,10 @@ import fse from "fs-extra";
 import { encode } from "gpt-tokenizer";
 import map from "lodash/map";
 import path from "path";
+import getConversationFromJSON from "../../app/modules/sessions/helpers/getConversationFromJSON";
 import { SessionService } from "../../app/modules/sessions/session";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
 import emitFromJob from "../helpers/emitFromJob";
-import getConversationFromJSON from "../helpers/getConversationFromJSON";
 dotenv.config({ path: ".env" });
 
 export default async function convertFileToSession(job: any) {
