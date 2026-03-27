@@ -1,8 +1,5 @@
 import calculateCost from "~/modules/llm/helpers/calculateCost";
-import type {
-  EstimationResult,
-  RunDefinition,
-} from "~/modules/runSets/runSets.types";
+import type { EstimationResult } from "~/modules/runSets/runSets.types";
 
 const AVG_TOKENS_PER_SESSION = 500;
 const DEFAULT_SECONDS_PER_CALL = 10;
@@ -17,7 +14,7 @@ interface CalculateEstimatesOptions {
 }
 
 export function calculateEstimates(
-  runDefinitions: RunDefinition[],
+  runDefinitions: Array<{ modelCode: string }>,
   selectedSessions: Array<{ inputTokens?: number }>,
   options?: CalculateEstimatesOptions,
 ): EstimationResult {

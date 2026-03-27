@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
+import { calculateEstimates } from "~/modules/runSets/helpers/calculateEstimates";
 import type { SessionData } from "~/modules/sessions/sessions.types";
 import RunCreator from "../components/runCreator";
 
@@ -9,6 +10,8 @@ interface RunCreatorContainerProps {
   isSubmitting: boolean;
   initialRun?: Run | null;
   duplicateWarnings?: string[];
+  avgSecondsPerSession: number | null;
+  outputToInputRatio: number | null;
 }
 
 export default function ProjectRunCreatorContainer({
@@ -16,6 +19,8 @@ export default function ProjectRunCreatorContainer({
   isSubmitting,
   initialRun,
   duplicateWarnings = [],
+  avgSecondsPerSession,
+  outputToInputRatio,
 }: RunCreatorContainerProps) {
   const [runName, setRunName] = useState(
     initialRun ? `${initialRun.name} (copy)` : "",
@@ -32,8 +37,8 @@ export default function ProjectRunCreatorContainer({
   const [selectedModel, setSelectedModel] = useState(
     initialRun?.snapshot?.model?.code || getDefaultModelCode(),
   );
-  const [selectedSessions, setSelectedSessions] = useState<string[]>(
-    initialRun?.sessions?.map((s) => s.sessionId) || [],
+  const [selectedSessions, setSelectedSessions] = useState<SessionData[]>(
+    initialRun?.sessions?.map((s) => ({ _id: s.sessionId })) || [],
   );
   const [shouldRunVerification, setShouldRunVerification] = useState(
     initialRun?.shouldRunVerification ?? false,
@@ -56,9 +61,27 @@ export default function ProjectRunCreatorContainer({
     setSelectedModel(selectedModel);
   };
 
+  const selectedSessionIds = selectedSessions.map((s) => s._id);
+
   const onSelectedSessionsChanged = (sessions: SessionData[]) => {
-    setSelectedSessions(sessions.map((s) => s._id));
+    setSelectedSessions(sessions);
   };
+
+  const estimation = useMemo(
+    () =>
+      calculateEstimates([{ modelCode: selectedModel }], selectedSessions, {
+        shouldRunVerification,
+        avgSecondsPerSession,
+        outputToInputRatio,
+      }),
+    [
+      selectedModel,
+      selectedSessions,
+      shouldRunVerification,
+      avgSecondsPerSession,
+      outputToInputRatio,
+    ],
+  );
 
   const onRunNameChangedHandler = (name: string) => {
     setRunName(name);
@@ -71,7 +94,7 @@ export default function ProjectRunCreatorContainer({
       selectedPrompt,
       selectedPromptVersion,
       selectedModel,
-      selectedSessions,
+      selectedSessions: selectedSessionIds,
       shouldRunVerification,
     });
   };
@@ -79,7 +102,7 @@ export default function ProjectRunCreatorContainer({
   const isRunButtonDisabled = !(
     selectedPrompt &&
     selectedPromptVersion &&
-    selectedSessions.length > 0
+    selectedSessionIds.length > 0
   );
 
   return (
@@ -90,7 +113,8 @@ export default function ProjectRunCreatorContainer({
       selectedPrompt={selectedPrompt}
       selectedPromptVersion={selectedPromptVersion}
       selectedModel={selectedModel}
-      selectedSessions={selectedSessions}
+      selectedSessions={selectedSessionIds}
+      estimation={estimation}
       isSubmitting={isSubmitting}
       isRunButtonDisabled={isRunButtonDisabled || isSubmitting}
       onRunNameChanged={onRunNameChangedHandler}
