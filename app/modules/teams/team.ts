@@ -95,4 +95,9 @@ export class TeamService {
     const doc = await TeamModel.findByIdAndDelete(id).exec();
     return doc ? this.toTeam(doc) : null;
   }
+
+  static async findAllIds(): Promise<string[]> {
+    const ids = await TeamModel.distinct("_id");
+    return ids.map((id: any) => id.toString());
+  }
 }

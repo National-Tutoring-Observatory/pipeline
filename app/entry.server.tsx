@@ -13,7 +13,7 @@ import type {
 } from "react-router";
 import { ServerRouter } from "react-router";
 
-import createQueue from "./modules/queues/helpers/createQueue";
+import createQueue, { QUEUES } from "./modules/queues/helpers/createQueue";
 import "./modules/storage/storage";
 
 const tracer = trace.getTracer("react-router");
@@ -79,7 +79,17 @@ export const handleError: HandleErrorFunction = (error, { request }) => {
 const setupQueues = async () => {
   createQueue("tasks");
   createQueue("general");
-  createQueue("cron");
+  await createQueue("cron");
+
+  await QUEUES["cron"].upsertJobScheduler(
+    "billing-close-periods",
+    { pattern: "0 0 1 * *" },
+    {
+      name: "BILLING:CLOSE_PERIODS",
+      data: {},
+      opts: { attempts: 3, backoff: { type: "exponential", delay: 5000 } },
+    },
+  );
 };
 
 setTimeout(() => {

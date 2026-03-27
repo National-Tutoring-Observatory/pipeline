@@ -13,3 +13,4 @@ createWorker(
   `${global.root}/runners/tasks.ts`,
 );
 createWorker({ name: "general" }, `${global.root}/runners/general.ts`);
+createWorker({ name: "cron" }, `${global.root}/runners/cron.ts`);

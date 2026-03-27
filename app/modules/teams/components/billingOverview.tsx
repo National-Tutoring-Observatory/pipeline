@@ -6,16 +6,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AlertCircle, Plus } from "lucide-react";
+import { AlertCircle, Clock, Plus } from "lucide-react";
 import { useContext } from "react";
+import getMonthYearString from "~/modules/app/helpers/getMonthYearString";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import BillingAuthorization from "~/modules/billing/authorization";
-import type { BalanceSummary } from "~/modules/billing/billing.types";
+import type {
+  BalanceSummary,
+  PendingPlanChange,
+} from "~/modules/billing/billing.types";
 import type { Team } from "~/modules/teams/teams.types";
 import type { User } from "~/modules/users/users.types";
 
 interface BillingOverviewProps {
   balanceSummary: BalanceSummary;
+  pendingPlanChange: PendingPlanChange | null;
   team: Team;
   isSubmitting: boolean;
   onAddCreditsClicked: () => void;
@@ -24,6 +29,7 @@ interface BillingOverviewProps {
 
 export default function BillingOverview({
   balanceSummary,
+  pendingPlanChange,
   team,
   isSubmitting,
   onAddCreditsClicked,
@@ -33,7 +39,7 @@ export default function BillingOverview({
   const canAddCredits = BillingAuthorization.canAddCredits(user, team);
   const canAssignPlan = BillingAuthorization.canAssignPlan(user);
   const isLowBalance = balanceSummary.balance < 1 && balanceSummary.balance > 0;
-  const isNegativeBalance = balanceSummary.balance <= 0;
+  const isNegativeBalance = balanceSummary.balance < 0;
 
   return (
     <>
@@ -98,6 +104,13 @@ export default function BillingOverview({
             <CardDescription>
               {((balanceSummary.plan.markupRate - 1) * 100).toFixed(0)}% markup
             </CardDescription>
+            {pendingPlanChange && (
+              <CardDescription className="flex items-center gap-1 text-yellow-600">
+                <Clock className="h-3 w-3" />
+                Changing to {pendingPlanChange.plan.name} on{" "}
+                {getMonthYearString(pendingPlanChange.effectiveFrom)}
+              </CardDescription>
+            )}
             {canAssignPlan && (
               <Button
                 size="sm"

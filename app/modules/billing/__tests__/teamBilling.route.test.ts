@@ -164,8 +164,14 @@ describe("teamBilling.route action", () => {
 
       expect(result.success).toBe(true);
 
-      const assignment = await TeamBillingPlanService.findByTeam(team._id);
-      expect(assignment!.plan).toBe(plan2._id);
+      // Reassignment is scheduled for next month — current plan stays plan1
+      const current = await TeamBillingPlanService.findByTeam(team._id);
+      expect(current!.plan).toBe(plan1._id);
+      // plan2 is pending for next month
+      const pending = await TeamBillingPlanService.getPendingPlanChange(
+        team._id,
+      );
+      expect(pending!.plan.name).toBe("Premium");
     });
 
     it("denies non-super-admin from assigning a plan", async () => {

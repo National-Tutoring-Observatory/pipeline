@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import type { BalanceSummary } from "./billing.types";
-import { BillingPlanService } from "./billingPlan";
+import { BillingPeriodService } from "./billingPeriod";
 import { TeamBillingPlanService } from "./teamBillingPlan";
 import { TeamCreditService } from "./teamCredit";
 
@@ -9,20 +9,38 @@ export class TeamBillingService {
   static async getBalanceSummary(
     teamId: string,
   ): Promise<BalanceSummary | null> {
-    const [credits, costs, assignment] = await Promise.all([
+    const [plan, lastClosed] = await Promise.all([
+      TeamBillingPlanService.getEffectivePlan(teamId),
+      BillingPeriodService.getLastClosedPeriod(teamId),
+    ]);
+    if (!plan) return null;
+
+    let credits: number;
+    let costs: number;
+
+    if (lastClosed) {
+      const since = new Date(lastClosed.endAt);
+      [credits, costs] = await Promise.all([
+        TeamCreditService.sumByTeamSince(teamId, since),
+        LlmCostService.sumCostByTeamSince(teamId, since),
+      ]);
+      const base = lastClosed.closingBalance ?? 0;
+      const markedUpCosts = new Decimal(costs)
+        .times(plan.markupRate)
+        .toNumber();
+      const balance = new Decimal(base)
+        .plus(credits)
+        .minus(markedUpCosts)
+        .toNumber();
+
+      return { balance, credits: base + credits, costs, markedUpCosts, plan };
+    }
+
+    // No closed periods yet — fall back to all-time aggregation
+    [credits, costs] = await Promise.all([
       TeamCreditService.sumByTeam(teamId),
       LlmCostService.sumCostByTeam(teamId),
-      TeamBillingPlanService.findByTeam(teamId),
     ]);
-
-    if (!assignment) return null;
-
-    const planId =
-      typeof assignment.plan === "string"
-        ? assignment.plan
-        : assignment.plan._id;
-    const plan = await BillingPlanService.findById(planId);
-    if (!plan) return null;
 
     const markedUpCosts = new Decimal(costs).times(plan.markupRate).toNumber();
     const balance = new Decimal(credits).minus(markedUpCosts).toNumber();
