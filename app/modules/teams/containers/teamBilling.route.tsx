@@ -14,6 +14,7 @@ import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import BillingAuthorization from "~/modules/billing/authorization";
 import { TeamBillingService } from "~/modules/billing/billing";
+import { BillingPeriodService } from "~/modules/billing/billingPeriod";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
 import AddCreditsDialog from "~/modules/billing/components/addCreditsDialog";
 import AssignBillingPlanDialog from "~/modules/billing/components/assignBillingPlanDialog";
@@ -74,17 +75,25 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const isSuperAdmin = BillingAuthorization.canAssignPlan(user);
 
-  const [balanceSummary, credits, billingUserInfo, billingPlans] =
-    await Promise.all([
-      TeamBillingService.getBalanceSummary(params.id),
-      TeamCreditService.paginate(creditsQuery),
-      team.billingUser
-        ? UserService.findById(team.billingUser).then((u) =>
-            u ? { _id: u._id, username: u.username } : null,
-          )
-        : Promise.resolve(null),
-      isSuperAdmin ? BillingPlanService.find() : Promise.resolve([]),
-    ]);
+  const [
+    balanceSummary,
+    credits,
+    billingUserInfo,
+    billingPlans,
+    pendingPlanChange,
+    closedPeriods,
+  ] = await Promise.all([
+    TeamBillingService.getBalanceSummary(params.id),
+    TeamCreditService.paginate(creditsQuery),
+    team.billingUser
+      ? UserService.findById(team.billingUser).then((u) =>
+          u ? { _id: u._id, username: u.username } : null,
+        )
+      : Promise.resolve(null),
+    isSuperAdmin ? BillingPlanService.find() : Promise.resolve([]),
+    TeamBillingPlanService.getPendingPlanChange(params.id),
+    BillingPeriodService.findClosedByTeam(params.id),
+  ]);
 
   const emptySpendAnalytics = {
     byModel: [],
@@ -99,6 +108,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       credits,
       billingUserInfo,
       billingPlans,
+      pendingPlanChange,
+      closedPeriods,
       spendAnalytics: emptySpendAnalytics,
     };
   }
@@ -137,6 +148,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     credits,
     billingUserInfo,
     billingPlans,
+    pendingPlanChange,
+    closedPeriods,
     spendAnalytics,
   };
 }
@@ -222,6 +235,8 @@ export default function TeamBillingRoute() {
     credits,
     billingUserInfo,
     billingPlans,
+    pendingPlanChange,
+    closedPeriods,
     spendAnalytics,
   } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
@@ -316,6 +331,8 @@ export default function TeamBillingRoute() {
   return (
     <TeamBilling
       balanceSummary={balanceSummary}
+      pendingPlanChange={pendingPlanChange}
+      closedPeriods={closedPeriods}
       team={team}
       credits={credits}
       billingUserInfo={billingUserInfo}

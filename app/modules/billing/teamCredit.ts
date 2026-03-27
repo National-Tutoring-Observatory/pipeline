@@ -60,6 +60,19 @@ export class TeamCreditService {
     return result[0]?.total ?? 0;
   }
 
+  static async sumByTeamSince(teamId: string, since: Date): Promise<number> {
+    const result = await TeamCreditModel.aggregate([
+      {
+        $match: {
+          team: new mongoose.Types.ObjectId(teamId),
+          createdAt: { $gte: since },
+        },
+      },
+      { $group: { _id: null, total: { $sum: "$amount" } } },
+    ]);
+    return result[0]?.total ?? 0;
+  }
+
   static async paginate({
     match,
     sort,

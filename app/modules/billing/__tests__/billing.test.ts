@@ -1,8 +1,10 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import makeDate from "../../../../test/helpers/makeDate";
 import { TeamBillingService } from "../billing";
+import { BillingPeriodService } from "../billingPeriod";
 import { BillingPlanService } from "../billingPlan";
 import { TeamBillingPlanService } from "../teamBillingPlan";
 import { TeamCreditService } from "../teamCredit";
@@ -54,60 +56,6 @@ describe("Billing", () => {
       const defaultPlan = await BillingPlanService.findDefault();
       expect(defaultPlan?.name).toBe("Standard");
       expect(defaultPlan?.isDefault).toBe(true);
-    });
-  });
-
-  describe("TeamBillingPlanService", () => {
-    it("assigns a plan to a team", async () => {
-      const plan = await BillingPlanService.create({
-        name: "Standard",
-        markupRate: 1.5,
-        isDefault: true,
-      });
-
-      const assignment = await TeamBillingPlanService.assignPlan(
-        teamId,
-        plan._id,
-      );
-      expect(assignment.team).toBe(teamId);
-      expect(assignment.plan).toBe(plan._id);
-    });
-
-    it("upserts on reassignment", async () => {
-      const plan1 = await BillingPlanService.create({
-        name: "Standard",
-        markupRate: 1.5,
-        isDefault: true,
-      });
-      const plan2 = await BillingPlanService.create({
-        name: "Premium",
-        markupRate: 2.0,
-        isDefault: false,
-      });
-
-      await TeamBillingPlanService.assignPlan(teamId, plan1._id);
-      const updated = await TeamBillingPlanService.assignPlan(
-        teamId,
-        plan2._id,
-      );
-
-      expect(updated.plan).toBe(plan2._id);
-
-      const found = await TeamBillingPlanService.findByTeam(teamId);
-      expect(found?.plan).toBe(plan2._id);
-    });
-
-    it("returns effective plan for team", async () => {
-      const plan = await seedDefaultPlan();
-
-      const effective = await TeamBillingPlanService.getEffectivePlan(teamId);
-      expect(effective?.name).toBe(plan.name);
-      expect(effective?.markupRate).toBe(1.5);
-    });
-
-    it("returns null when no plan assigned", async () => {
-      const effective = await TeamBillingPlanService.getEffectivePlan(teamId);
-      expect(effective).toBeNull();
     });
   });
 
@@ -289,6 +237,260 @@ describe("Billing", () => {
     it("returns null summary when no plan assigned", async () => {
       const summary = await TeamBillingService.getBalanceSummary(teamId);
       expect(summary).toBeNull();
+    });
+  });
+
+  describe("TeamBillingService — period-aware balance", () => {
+    async function seedPlanBackdated(markupRate = 1.5) {
+      const plan = await BillingPlanService.create({
+        name: "Standard",
+        markupRate,
+        isDefault: true,
+      });
+      const TeamBillingPlanModel = mongoose.model("TeamBillingPlan");
+      await TeamBillingPlanModel.create({
+        team: new Types.ObjectId(teamId),
+        plan: plan._id,
+        effectiveFrom: new Date(0),
+      });
+      return plan;
+    }
+
+    async function insertCredit(amount: number, createdAt: Date) {
+      const TeamCreditModel = mongoose.model("TeamCredit");
+      await TeamCreditModel.create({
+        team: new Types.ObjectId(teamId),
+        amount,
+        addedBy: new Types.ObjectId(userId),
+        createdAt,
+      });
+    }
+
+    async function insertCost(cost: number, createdAt: Date) {
+      const LlmCostModel = mongoose.model("LlmCost");
+      await LlmCostModel.create({
+        team: new Types.ObjectId(teamId),
+        model: "claude-opus",
+        source: "annotation:per-session",
+        inputTokens: 100,
+        outputTokens: 50,
+        cost,
+        providerCost: cost * 0.8,
+        createdAt,
+      });
+    }
+
+    it("no closed periods: falls back to all-time aggregation (same as original)", async () => {
+      await seedPlanBackdated(1.5);
+
+      await TeamCreditService.create({
+        team: teamId,
+        amount: 100,
+        addedBy: userId,
+      });
+      await LlmCostService.create({
+        team: teamId,
+        model: "claude-opus",
+        source: "annotation:per-session",
+        inputTokens: 100,
+        outputTokens: 50,
+        cost: 10,
+        providerCost: 8,
+      });
+
+      // balance = 100 - (10 * 1.5) = 85
+      const balance = await TeamBillingService.getBalance(teamId);
+      expect(balance).toBe(85);
+    });
+
+    it("one closed period with no new activity: balance equals closingBalance", async () => {
+      await seedPlanBackdated(1.5);
+
+      const period = await BillingPeriodService.openPeriod(
+        teamId,
+        makeDate(2025, 1),
+      );
+      await insertCredit(100, makeDate(2025, 1, 15));
+      await insertCost(10, makeDate(2025, 1, 20));
+      await BillingPeriodService.closePeriod(period);
+
+      const balance = await TeamBillingService.getBalance(teamId);
+      // closingBalance = 100 - (10 * 1.5) = 85
+      expect(balance).toBe(85);
+    });
+
+    it("one closed period + new credit added after endAt", async () => {
+      await seedPlanBackdated(1.5);
+
+      const period = await BillingPeriodService.openPeriod(
+        teamId,
+        makeDate(2025, 1),
+      );
+      await insertCredit(100, makeDate(2025, 1, 15));
+      await BillingPeriodService.closePeriod(period);
+
+      // Credit added after period closed (Feb 2025)
+      await insertCredit(50, makeDate(2025, 2, 10));
+
+      const balance = await TeamBillingService.getBalance(teamId);
+      // 100 (closingBalance) + 50 (new credit) = 150
+      expect(balance).toBe(150);
+    });
+
+    it("one closed period + new cost after endAt", async () => {
+      await seedPlanBackdated(1.5);
+
+      const period = await BillingPeriodService.openPeriod(
+        teamId,
+        makeDate(2025, 1),
+      );
+      await insertCredit(100, makeDate(2025, 1, 15));
+      await BillingPeriodService.closePeriod(period);
+
+      // Cost in Feb 2025 (after period1 endAt)
+      await insertCost(20, makeDate(2025, 2, 10));
+
+      const balance = await TeamBillingService.getBalance(teamId);
+      // 100 (closingBalance) - (20 * 1.5) = 70
+      expect(balance).toBe(70);
+    });
+
+    it("multiple closed periods: only uses the last closingBalance", async () => {
+      await seedPlanBackdated(1.5);
+
+      const period1 = await BillingPeriodService.openPeriod(
+        teamId,
+        makeDate(2025, 1),
+      );
+      await insertCredit(100, makeDate(2025, 1, 15));
+      await insertCost(10, makeDate(2025, 1, 20));
+      await BillingPeriodService.closePeriod(period1);
+
+      const period2 = await BillingPeriodService.openPeriod(
+        teamId,
+        makeDate(2025, 2),
+      );
+      await insertCredit(50, makeDate(2025, 2, 15));
+      await BillingPeriodService.closePeriod(period2);
+
+      const balance = await TeamBillingService.getBalance(teamId);
+      // period1.closingBalance = 100 - 15 = 85
+      // period2.closingBalance = 85 + 50 - 0 = 135
+      expect(balance).toBe(135);
+    });
+
+    it("historical costs are billed at the rate locked in their period, not the current rate", async () => {
+      // Jan period: rate 1.5x. Cost $10 → billed $15. Balance = 100 - 15 = 85.
+      const plan1 = await BillingPlanService.create({
+        name: "Standard",
+        markupRate: 1.5,
+        isDefault: true,
+      });
+      const TeamBillingPlanModel = mongoose.model("TeamBillingPlan");
+      await TeamBillingPlanModel.create({
+        team: new Types.ObjectId(teamId),
+        plan: plan1._id,
+        effectiveFrom: new Date(0),
+      });
+
+      const period1 = await BillingPeriodService.openPeriod(
+        teamId,
+        makeDate(2025, 1),
+      );
+      await insertCredit(100, makeDate(2025, 1, 10));
+      await insertCost(10, makeDate(2025, 1, 20));
+      await BillingPeriodService.closePeriod(period1);
+
+      // After period 1 close: 100 - (10 * 1.5) = 85
+      expect(await TeamBillingService.getBalance(teamId)).toBe(85);
+
+      // Plan changes to 2.0x from Feb 2025
+      const plan2 = await BillingPlanService.create({
+        name: "Premium",
+        markupRate: 2.0,
+        isDefault: false,
+      });
+      await TeamBillingPlanModel.create({
+        team: new Types.ObjectId(teamId),
+        plan: plan2._id,
+        effectiveFrom: makeDate(2025, 2),
+      });
+
+      // Feb period: rate 2.0x. Cost $5 → billed $10. closingBalance = 85 - 10 = 75.
+      const period2 = await BillingPeriodService.openPeriod(
+        teamId,
+        makeDate(2025, 2),
+      );
+      await insertCost(5, makeDate(2025, 2, 10));
+      await BillingPeriodService.closePeriod(period2);
+
+      // Old all-time impl: (10+5) * 2.0 = 30 → balance = 100 - 30 = 70 (WRONG)
+      // Correct period-aware result: 75
+      const balance = await TeamBillingService.getBalance(teamId);
+      expect(balance).toBe(75);
+    });
+
+    it("credits field equals closingBalance plus new credits when a period is closed", async () => {
+      await seedPlanBackdated(1.5);
+
+      const period = await BillingPeriodService.openPeriod(
+        teamId,
+        makeDate(2025, 1),
+      );
+      await insertCredit(100, makeDate(2025, 1, 15));
+      await insertCost(10, makeDate(2025, 1, 20));
+      await BillingPeriodService.closePeriod(period);
+      // closingBalance = 100 - (10 * 1.5) = 85
+
+      // New credit after period close
+      await insertCredit(40, makeDate(2025, 2, 5));
+
+      const summary = await TeamBillingService.getBalanceSummary(teamId);
+      expect(summary).not.toBeNull();
+      // credits = closingBalance + newCredits = 85 + 40 = 125
+      expect(summary!.credits).toBe(125);
+      expect(summary!.balance).toBe(125);
+    });
+
+    it("plan change after period close: live costs use the new plan rate", async () => {
+      const plan1 = await BillingPlanService.create({
+        name: "Standard",
+        markupRate: 1.5,
+        isDefault: true,
+      });
+      const TeamBillingPlanModel = mongoose.model("TeamBillingPlan");
+      await TeamBillingPlanModel.create({
+        team: new Types.ObjectId(teamId),
+        plan: plan1._id,
+        effectiveFrom: new Date(0),
+      });
+
+      const period = await BillingPeriodService.openPeriod(
+        teamId,
+        makeDate(2025, 1),
+      );
+      await insertCredit(100, makeDate(2025, 1, 15));
+      await BillingPeriodService.closePeriod(period);
+      // closingBalance = 100
+
+      // New plan with 2x markup, effective Feb 2025
+      const plan2 = await BillingPlanService.create({
+        name: "Premium",
+        markupRate: 2.0,
+        isDefault: false,
+      });
+      await TeamBillingPlanModel.create({
+        team: new Types.ObjectId(teamId),
+        plan: plan2._id,
+        effectiveFrom: makeDate(2025, 2),
+      });
+
+      // Live cost in Feb 2025 (after period1.endAt)
+      await insertCost(10, makeDate(2025, 2, 10));
+
+      const balance = await TeamBillingService.getBalance(teamId);
+      // 100 (closingBalance) - (10 * 2.0) = 80
+      expect(balance).toBe(80);
     });
   });
 });

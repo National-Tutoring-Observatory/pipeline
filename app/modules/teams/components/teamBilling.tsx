@@ -5,6 +5,8 @@ import { AuthenticationContext } from "~/modules/authentication/authentication.c
 import BillingAuthorization from "~/modules/billing/authorization";
 import type {
   BalanceSummary,
+  BillingPeriod,
+  PendingPlanChange,
   TeamCredit,
 } from "~/modules/billing/billing.types";
 import type {
@@ -15,6 +17,7 @@ import type {
 import type { Team } from "~/modules/teams/teams.types";
 import type { User } from "~/modules/users/users.types";
 import BillingOverview from "./billingOverview";
+import BillingPeriodHistory from "./billingPeriodHistory";
 import BillingSettings from "./billingSettings";
 import CreditHistory from "./creditHistory";
 import SpendAnalytics from "./spendAnalytics";
@@ -38,6 +41,8 @@ interface SpendAnalyticsData {
 
 interface TeamBillingProps {
   balanceSummary: BalanceSummary | null;
+  pendingPlanChange: PendingPlanChange | null;
+  closedPeriods: BillingPeriod[];
   team: Team;
   credits: PaginatedCredits;
   billingUserInfo: BillingUserInfo | null;
@@ -57,6 +62,8 @@ interface TeamBillingProps {
 
 export default function TeamBilling({
   balanceSummary,
+  pendingPlanChange,
+  closedPeriods,
   team,
   credits,
   billingUserInfo,
@@ -104,6 +111,7 @@ export default function TeamBilling({
     <div className="space-y-6">
       <BillingOverview
         balanceSummary={balanceSummary}
+        pendingPlanChange={pendingPlanChange}
         team={team}
         isSubmitting={isSubmitting}
         onAddCreditsClicked={onAddCreditsClicked}
@@ -117,6 +125,8 @@ export default function TeamBilling({
         granularity={spendGranularity}
         onGranularityChanged={onSpendGranularityChanged}
       />
+
+      <BillingPeriodHistory periods={closedPeriods} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <CreditHistory

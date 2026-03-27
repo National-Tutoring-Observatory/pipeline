@@ -10,7 +10,22 @@ export interface TeamBillingPlan {
   _id: string;
   team: string;
   plan: string | BillingPlan;
+  effectiveFrom: Date | string;
   createdAt: Date | string;
+}
+
+export interface BillingPeriod {
+  _id: string;
+  team: string;
+  plan: string;
+  markupRate: number;
+  startAt: Date | string;
+  endAt: Date | string;
+  status: "open" | "closed";
+  rawCost?: number;
+  billedAmount?: number;
+  closingBalance?: number;
+  closedAt?: Date | string;
 }
 
 export interface TeamCredit {
@@ -20,6 +35,11 @@ export interface TeamCredit {
   addedBy: string;
   note?: string;
   createdAt: Date | string;
+}
+
+export interface PendingPlanChange {
+  plan: BillingPlan;
+  effectiveFrom: Date | string;
 }
 
 export interface BalanceSummary {

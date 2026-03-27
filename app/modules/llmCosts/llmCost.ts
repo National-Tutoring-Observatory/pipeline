@@ -46,6 +46,22 @@ export class LlmCostService {
     return result[0]?.total ?? 0;
   }
 
+  static async sumCostByTeamSince(
+    teamId: string,
+    since: Date,
+  ): Promise<number> {
+    const result = await LlmCostModel.aggregate([
+      {
+        $match: {
+          team: new mongoose.Types.ObjectId(teamId),
+          createdAt: { $gte: since },
+        },
+      },
+      { $group: { _id: null, total: { $sum: "$cost" } } },
+    ]);
+    return result[0]?.total ?? 0;
+  }
+
   static async sumCostByModel(teamId: string): Promise<CostByModel[]> {
     return sumCostByModel(teamId);
   }
