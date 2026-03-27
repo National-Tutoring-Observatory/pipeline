@@ -1,3 +1,4 @@
+import { fileURLToPath } from "url";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
@@ -23,4 +24,13 @@ export default defineConfig({
     },
   },
   plugins: [tsconfigPaths()],
+  resolve: {
+    alias: process.env.BULLMQ_PRO_TOKEN
+      ? {}
+      : {
+          "@taskforcesh/bullmq-pro": fileURLToPath(
+            new URL("./test/mocks/bullmq-pro.ts", import.meta.url),
+          ),
+        },
+  },
 });
