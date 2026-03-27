@@ -5,8 +5,8 @@ import type {
   MigrationFile,
   MigrationResult,
 } from "~/modules/migrations/types";
+import getConversationFromJSON from "~/modules/sessions/helpers/getConversationFromJSON";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
-import getConversationFromJSON from "../../workers/helpers/getConversationFromJSON";
 
 export default {
   id: "20260326101657-backfill-session-input-tokens",

@@ -1,11 +1,11 @@
 import fse from "fs-extra";
 import filter from "lodash/filter";
 import find from "lodash/find.js";
-import getConversationFromJSON from "workers/helpers/getConversationFromJSON";
 import buildAnnotationSchema from "../../app/modules/llm/helpers/buildAnnotationSchema";
 import classifyLLMError from "../../app/modules/llm/helpers/classifyLLMError";
 import LLM from "../../app/modules/llm/llm";
 import { RunService } from "../../app/modules/runs/run";
+import getConversationFromJSON from "../../app/modules/sessions/helpers/getConversationFromJSON";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
 import emitFromJob from "../helpers/emitFromJob";
 import updateRunSession from "../helpers/updateRunSession";
