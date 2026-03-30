@@ -9,4 +9,5 @@ export default new mongoose.Schema({
   ownedBy: [{ type: mongoose.Types.ObjectId, ref: "User" }],
   billingUser: { type: mongoose.Types.ObjectId, ref: "User" },
   stripeCustomerId: { type: String },
+  isPersonal: { type: Boolean, default: false },
 });

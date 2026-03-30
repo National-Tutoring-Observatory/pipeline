@@ -21,4 +21,9 @@ export interface User {
   invitedAt: Date;
   isRegistered: boolean;
   registeredAt: Date;
+  institution?: string;
+  userRole?: string;
+  useCases?: string[];
+  scholarshipInterest?: boolean;
+  onboardingComplete?: boolean;
 }

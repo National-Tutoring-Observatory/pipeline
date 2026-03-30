@@ -7,7 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AlertCircle, ExternalLink } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+import { Link } from "react-router";
 
 export default function Login({
   errorTitle,
@@ -39,10 +40,7 @@ export default function Login({
             analyze tutoring data efficiently.
             <br />
             <br />
-            <b>
-              In the beta phase, only users invited by the NTO will be able to
-              log in and join a team.
-            </b>
+            <b>Sign in to your account or create a new one.</b>
             {hasError && (
               <Alert variant="destructive" className="mt-2 text-left">
                 <AlertCircle />
@@ -97,13 +95,7 @@ export default function Login({
             </Button>
           )}
           <Button variant="outline" className="w-1/2" asChild>
-            <a
-              href="https://docs.google.com/forms/d/e/1FAIpQLSdCvn_LMyj7fV2ITrvp-0AEgmTzziWC1b7s14TaNLySLL7avw/viewform"
-              target="_blank"
-            >
-              <ExternalLink />
-              Sign up to be invited
-            </a>
+            <Link to="/signup">Sign up</Link>
           </Button>
         </CardFooter>
       </Card>

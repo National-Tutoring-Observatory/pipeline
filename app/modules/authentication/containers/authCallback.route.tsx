@@ -19,5 +19,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   trackServerEvent({ name: "user_logged_in", userId: user._id });
 
+  if (!user.onboardingComplete) {
+    return redirect("/onboarding", { headers });
+  }
+
   return redirect("/", { headers });
 }
