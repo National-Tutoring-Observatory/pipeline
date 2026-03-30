@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ExternalLink } from "lucide-react";
 import { Link } from "react-router";
 
 export default function Login({
@@ -100,13 +100,28 @@ export default function Login({
               Login with Github
             </Button>
           )}
-          {openSignup && (
+          {openSignup ? (
             <Button
               variant="outline"
               className={hasError ? "w-full" : "w-1/2"}
               asChild
             >
               <Link to="/signup">Sign up</Link>
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              className={hasError ? "w-full" : "w-1/2"}
+              asChild
+            >
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSdCvn_LMyj7fV2ITrvp-0AEgmTzziWC1b7s14TaNLySLL7avw/viewform"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <ExternalLink />
+                Sign up to be invited
+              </a>
             </Button>
           )}
         </CardFooter>
