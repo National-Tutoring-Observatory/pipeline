@@ -1,7 +1,6 @@
 import fse from "fs-extra";
 import filter from "lodash/filter";
 import map from "lodash/map.js";
-import getConversationFromJSON from "workers/helpers/getConversationFromJSON";
 import buildAnnotationSchema from "../../app/modules/llm/helpers/buildAnnotationSchema";
 import classifyLLMError from "../../app/modules/llm/helpers/classifyLLMError";
 import LLM from "../../app/modules/llm/llm";
@@ -9,6 +8,7 @@ import { RunService } from "../../app/modules/runs/run";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
 import buildAdjudicationPrompt from "../helpers/buildAdjudicationPrompt";
 import emitFromJob from "../helpers/emitFromJob";
+import getConversationFromJSON from "../helpers/getConversationFromJSON";
 import updateRunSession from "../helpers/updateRunSession";
 import adjudicatePerSessionPrompts from "../prompts/adjudicatePerSession.prompts.json";
 
