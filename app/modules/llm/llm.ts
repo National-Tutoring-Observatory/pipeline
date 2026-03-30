@@ -26,6 +26,7 @@ interface LLMOptions {
   user?: string;
   schema?: object;
   retries?: number;
+  timeout?: number;
 }
 
 const DEFAULT_RETRIES = 3;
@@ -58,7 +59,7 @@ class LLM {
     this.retries = 0;
     if (llm && llm.methods) {
       this.methods = llm.methods;
-      this.llm = llm.methods.init();
+      this.llm = llm.methods.init({ timeout: options.timeout });
     } else {
       console.warn(`This LLM does not exist`);
     }
