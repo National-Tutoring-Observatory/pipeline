@@ -3,6 +3,7 @@ export interface Team {
   name: string;
   createdAt: string;
   billingUser?: string;
+  stripeCustomerId?: string;
 }
 
 export const TEAM_ASSIGNMENT_OPTIONS = ["temporary", "permanent"] as const;

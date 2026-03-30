@@ -24,6 +24,7 @@ interface BillingOverviewProps {
   team: Team;
   isSubmitting: boolean;
   onAddCreditsClicked: () => void;
+  onTopUpClicked: () => void;
   onAssignPlanClicked: () => void;
 }
 
@@ -33,6 +34,7 @@ export default function BillingOverview({
   team,
   isSubmitting,
   onAddCreditsClicked,
+  onTopUpClicked,
   onAssignPlanClicked,
 }: BillingOverviewProps) {
   const user = useContext(AuthenticationContext) as User | null;
@@ -126,10 +128,20 @@ export default function BillingOverview({
       </div>
 
       {canAddCredits && (
-        <Button onClick={onAddCreditsClicked} disabled={isSubmitting}>
-          <Plus className="mr-1 h-4 w-4" />
-          Add credits
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={onTopUpClicked} disabled={isSubmitting}>
+            <Plus className="mr-1 h-4 w-4" />
+            Top up
+          </Button>
+          <Button
+            variant="outline"
+            onClick={onAddCreditsClicked}
+            disabled={isSubmitting}
+          >
+            <Plus className="mr-1 h-4 w-4" />
+            Add credits
+          </Button>
+        </div>
       )}
     </>
   );

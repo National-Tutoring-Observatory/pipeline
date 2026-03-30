@@ -5,6 +5,7 @@ const teamCreditSchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   addedBy: { type: mongoose.Types.ObjectId, ref: "User", required: true },
   note: { type: String },
+  stripeSessionId: { type: String, sparse: true, unique: true },
   createdAt: { type: Date, default: Date.now },
 });
 

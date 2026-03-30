@@ -56,6 +56,7 @@ interface TeamBillingProps {
   onCreditsSearchValueChanged: (value: string) => void;
   onCreditsPaginationChanged: (page: number) => void;
   onAddCreditsClicked: () => void;
+  onTopUpClicked: () => void;
   onAssignPlanClicked: () => void;
   onSetBillingUserClicked: () => void;
 }
@@ -77,6 +78,7 @@ export default function TeamBilling({
   onCreditsSearchValueChanged,
   onCreditsPaginationChanged,
   onAddCreditsClicked,
+  onTopUpClicked,
   onAssignPlanClicked,
   onSetBillingUserClicked,
 }: TeamBillingProps) {
@@ -115,6 +117,7 @@ export default function TeamBilling({
         team={team}
         isSubmitting={isSubmitting}
         onAddCreditsClicked={onAddCreditsClicked}
+        onTopUpClicked={onTopUpClicked}
         onAssignPlanClicked={onAssignPlanClicked}
       />
 

@@ -7423,15 +7423,7 @@ socket.io-client@^4.8.1:
     engine.io-client "~6.6.1"
     socket.io-parser "~4.2.4"
 
-socket.io-parser@~4.2.1:
-  version "4.2.6"
-  resolved "https://registry.yarnpkg.com/socket.io-parser/-/socket.io-parser-4.2.6.tgz#19156bf179af3931abd05260cfb1491822578a6f"
-  integrity sha512-asJqbVBDsBCJx0pTqw3WfesSY0iRX+2xzWEWzrpcH7L6fLzrhyF8WPI8UaeM4YCuDfpwA/cgsdugMsmtz8EJeg==
-  dependencies:
-    "@socket.io/component-emitter" "~3.1.0"
-    debug "~4.4.1"
-
-socket.io-parser@~4.2.4:
+socket.io-parser@~4.2.1, socket.io-parser@~4.2.4:
   version "4.2.6"
   resolved "https://registry.yarnpkg.com/socket.io-parser/-/socket.io-parser-4.2.6.tgz#19156bf179af3931abd05260cfb1491822578a6f"
   integrity sha512-asJqbVBDsBCJx0pTqw3WfesSY0iRX+2xzWEWzrpcH7L6fLzrhyF8WPI8UaeM4YCuDfpwA/cgsdugMsmtz8EJeg==
@@ -7629,6 +7621,11 @@ strip-bom@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/strip-bom/-/strip-bom-3.0.0.tgz#2334c18e9c759f7bdd56fdef7e9ae3d588e68ed3"
   integrity sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==
+
+stripe@^21.0.1:
+  version "21.0.1"
+  resolved "https://registry.yarnpkg.com/stripe/-/stripe-21.0.1.tgz#e26d90051442ef7d0d1aa79b6346f1c941d8dc63"
+  integrity sha512-ocv0j7dWttswDWV2XL/kb6+yiLpDXNXL3RQAOB5OB2kr49z0cEatdQc12+zP/j5nrXk6rAsT4N3y/NUvBbK7Pw==
 
 strnum@^2.2.0:
   version "2.2.2"

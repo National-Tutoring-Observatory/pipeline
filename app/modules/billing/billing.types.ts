@@ -34,6 +34,7 @@ export interface TeamCredit {
   amount: number;
   addedBy: string;
   note?: string;
+  stripeSessionId?: string;
   createdAt: Date | string;
 }
 

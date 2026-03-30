@@ -18,13 +18,15 @@ import { BillingPeriodService } from "~/modules/billing/billingPeriod";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
 import AddCreditsDialog from "~/modules/billing/components/addCreditsDialog";
 import AssignBillingPlanDialog from "~/modules/billing/components/assignBillingPlanDialog";
+import TopUpDialog from "~/modules/billing/components/topUpDialog";
 import SetBillingUserDialogContainer from "~/modules/billing/containers/setBillingUserDialog.container";
 import applyMarkup from "~/modules/billing/helpers/applyMarkup";
 import { groupCostsBySource } from "~/modules/billing/helpers/sourceLabels";
 import addCredits from "~/modules/billing/services/addCredits.server";
+import { StripeService } from "~/modules/billing/stripe";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import { TeamCreditService } from "~/modules/billing/teamCredit";
-import addDialog from "~/modules/dialogs/addDialog";
+import addDialog, { closeDialog } from "~/modules/dialogs/addDialog";
 import hasFeatureFlag from "~/modules/featureFlags/helpers/hasFeatureFlag";
 import { findModelByCode } from "~/modules/llm/modelRegistry";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
@@ -217,6 +219,41 @@ export async function action({ request, params }: Route.ActionArgs) {
       return { success: true, intent: "ASSIGN_PLAN" };
     }
 
+    case "INITIATE_TOPUP": {
+      if (!BillingAuthorization.canAddCredits(user, team)) {
+        return {
+          success: false,
+          error: "You do not have permission to top up credits",
+        };
+      }
+      const amount = payload.amount;
+      if (!Number.isInteger(amount) || amount < 1 || amount > 10000) {
+        return { success: false, error: "Invalid amount" };
+      }
+      let session;
+      try {
+        const customerId = await StripeService.ensureCustomer(team);
+        const baseUrl = new URL(request.url).origin;
+        session = await StripeService.createCheckoutSession({
+          customerId,
+          amount,
+          successUrl: `${baseUrl}/teams/${params.id}/billing?topup=success`,
+          cancelUrl: `${baseUrl}/teams/${params.id}/billing`,
+          metadata: { teamId: params.id, userId: user._id.toString() },
+        });
+      } catch {
+        return { success: false, error: "Failed to initiate checkout" };
+      }
+      if (!session.url) {
+        return { success: false, error: "Failed to create checkout session" };
+      }
+      return {
+        success: true,
+        intent: "INITIATE_TOPUP",
+        checkoutUrl: session.url,
+      };
+    }
+
     default:
       return { success: false, error: "Invalid intent" };
   }
@@ -273,13 +310,39 @@ export default function TeamBillingRoute() {
   };
 
   useEffect(() => {
+    if (searchParams.get("topup") !== "success") return;
+    toast.success("Credits purchased successfully");
+    revalidate();
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev.toString());
+        next.delete("topup");
+        return next;
+      },
+      { replace: true },
+    );
+  }, [searchParams, setSearchParams, revalidate]);
+
+  useEffect(() => {
     if (fetcher.state !== "idle") return;
     if (!fetcher.data) return;
+
+    if ("checkoutUrl" in fetcher.data && fetcher.data.success) {
+      window.location.href = (
+        fetcher.data as { checkoutUrl: string }
+      ).checkoutUrl;
+      return;
+    }
+
     if (fetcher.data.success) {
-      toast.success(successMessages[fetcher.data.intent] ?? "Billing updated");
+      toast.success(
+        successMessages[(fetcher.data as { intent: string }).intent] ??
+          "Billing updated",
+      );
       revalidate();
-    } else if (fetcher.data.error) {
-      toast.error(fetcher.data.error);
+    } else {
+      closeDialog();
+      toast.error((fetcher.data as { error: string }).error);
     }
   }, [fetcher.state, fetcher.data, revalidate]);
 
@@ -318,6 +381,17 @@ export default function TeamBillingRoute() {
     );
   };
 
+  const submitTopUp = (amount: number) => {
+    fetcher.submit(
+      JSON.stringify({ intent: "INITIATE_TOPUP", payload: { amount } }),
+      { method: "POST", encType: "application/json" },
+    );
+  };
+
+  const openTopUpDialog = () => {
+    addDialog(<TopUpDialog onTopUpClicked={submitTopUp} />);
+  };
+
   const openSetBillingUserDialog = () => {
     addDialog(
       <SetBillingUserDialogContainer
@@ -346,6 +420,7 @@ export default function TeamBillingRoute() {
       onCreditsSearchValueChanged={setCreditsSearchValue}
       onCreditsPaginationChanged={setCreditsCurrentPage}
       onAddCreditsClicked={openAddCreditsDialog}
+      onTopUpClicked={openTopUpDialog}
       onAssignPlanClicked={openAssignPlanDialog}
       onSetBillingUserClicked={openSetBillingUserDialog}
     />

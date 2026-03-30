@@ -13,7 +13,10 @@ export default defineConfig(({ isSsrBuild }) => ({
       : undefined,
   },
   ssr: {
-    external: ["@taskforcesh/bullmq-pro"],
+    external: ["@taskforcesh/bullmq-pro", "stripe"],
+  },
+  optimizeDeps: {
+    exclude: ["stripe"],
   },
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
 }));

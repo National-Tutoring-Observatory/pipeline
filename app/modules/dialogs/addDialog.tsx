@@ -12,3 +12,7 @@ export const setDispatch = (dispatch: Dispatch<ModalAction>) => {
 export default function addDialog(component: ReactNode) {
   addModalDispatch?.({ type: "ADD", modal: { component } });
 }
+
+export function closeDialog() {
+  addModalDispatch?.({ type: "REMOVE" });
+}

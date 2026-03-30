@@ -8,4 +8,5 @@ export default new mongoose.Schema({
   updatedBy: { type: mongoose.Types.ObjectId, ref: "User" },
   ownedBy: [{ type: mongoose.Types.ObjectId, ref: "User" }],
   billingUser: { type: mongoose.Types.ObjectId, ref: "User" },
+  stripeCustomerId: { type: String },
 });
