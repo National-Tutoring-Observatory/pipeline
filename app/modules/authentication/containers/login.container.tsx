@@ -1,4 +1,4 @@
-import { useFetcher, useSearchParams } from "react-router";
+import { useFetcher, useRouteLoaderData, useSearchParams } from "react-router";
 import Login from "../components/login";
 
 const ERROR_MESSAGES = {
@@ -17,6 +17,10 @@ type ErrorType = keyof typeof ERROR_MESSAGES;
 
 export default function LoginContainer() {
   const fetcher = useFetcher();
+  const rootData = useRouteLoaderData("root") as
+    | { openSignup?: boolean }
+    | undefined;
+  const openSignup = rootData?.openSignup ?? false;
 
   const [searchParams] = useSearchParams();
 
@@ -51,6 +55,7 @@ export default function LoginContainer() {
       errorTitle={errorTitle}
       errorDescription={errorDescription}
       hasError={hasError}
+      openSignup={openSignup}
       onLoginWithGithubClicked={onLoginWithGithubClicked}
     />
   );

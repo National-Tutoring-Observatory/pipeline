@@ -76,7 +76,7 @@ const githubStrategy = new GitHubStrategy<any>(
         } else {
           throw redirect("/?error=UNREGISTERED");
         }
-      } else {
+      } else if (process.env.OPEN_SIGNUP === "true") {
         // Direct signup — no invite required
         const primaryEmail = (
           find(emails, (e: any) => e.primary) ||
@@ -111,6 +111,8 @@ const githubStrategy = new GitHubStrategy<any>(
         });
         trackServerEvent({ name: "user_registered", userId: newUser._id });
         return (await UserService.findById(newUser._id))!;
+      } else {
+        throw redirect("/?error=UNREGISTERED");
       }
     } else if (isInvitedUser) {
       // If user already exists, check teams and add if that team does not exist on the user.
