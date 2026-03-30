@@ -62,7 +62,7 @@ export default function Login({
           {!hasError && (
             <Button
               variant="outline"
-              className={`${openSignup ? "w-1/2" : "w-full"} cursor-pointer`}
+              className="w-1/2 cursor-pointer"
               onClick={onLoginWithGithubClicked}
             >
               <svg
