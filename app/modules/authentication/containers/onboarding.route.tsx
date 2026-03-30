@@ -30,6 +30,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   const user = await getSessionUser({ request });
   if (!user) return redirect("/");
+  if (user.onboardingComplete) return redirect("/");
 
   const { intent, payload = {} } = await request.json();
 
