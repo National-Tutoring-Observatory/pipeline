@@ -13,6 +13,7 @@ interface JobsListProps {
   onDisplayJobClick: (job: Job) => void;
   onRemoveJobClick: (job: Job) => void;
   onRetryJobClick: (job: Job) => void;
+  onRetryAllFailedClicked?: () => void;
   onPaginationChanged: (page: number) => void;
   onSortValueChanged: (sortValue: string) => void;
 }
@@ -27,6 +28,7 @@ export default function JobsList({
   onDisplayJobClick,
   onRemoveJobClick,
   onRetryJobClick,
+  onRetryAllFailedClicked,
   onPaginationChanged,
   onSortValueChanged,
 }: JobsListProps) {
@@ -93,10 +95,22 @@ export default function JobsList({
     }
   };
 
+  const actions =
+    state === "failed" && onRetryAllFailedClicked && jobs.length > 1
+      ? [{ action: "RETRY_ALL", text: "Retry All" }]
+      : [];
+
+  const onActionClicked = (action: string) => {
+    if (action === "RETRY_ALL" && onRetryAllFailedClicked) {
+      onRetryAllFailedClicked();
+    }
+  };
+
   return (
     <Collection
       items={jobs}
       itemsLayout="list"
+      actions={actions}
       filters={[]}
       filtersValues={{}}
       sortOptions={queueJobsSortOptions}
@@ -114,7 +128,7 @@ export default function JobsList({
       onItemClicked={onItemClicked}
       onItemActionClicked={onItemActionClicked}
       onPaginationChanged={onPaginationChanged}
-      onActionClicked={() => {}}
+      onActionClicked={onActionClicked}
       onSortValueChanged={onSortValueChanged}
     />
   );

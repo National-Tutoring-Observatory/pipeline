@@ -17,6 +17,7 @@ import type { User } from "~/modules/users/users.types";
 import DeleteJobDialog from "../components/deleteJobDialog";
 import JobDetailsDialog from "../components/jobDetailsDialog";
 import JobsList from "../components/jobsList";
+import RetryAllFailedJobsDialog from "../components/retryAllFailedJobsDialog";
 import RetryJobDialog from "../components/retryJobDialog";
 import getQueue from "../helpers/getQueue";
 import isQueuePro from "../helpers/isQueuePro";
@@ -148,6 +149,26 @@ export async function action({ request, params }: Route.ActionArgs) {
           intent: "RETRY_JOB",
         });
       }
+      case "RETRY_ALL_FAILED": {
+        const failedJobs = await queue.getJobs("failed");
+        let retried = 0;
+        let failed = 0;
+
+        for (const job of failedJobs) {
+          try {
+            await job.retry();
+            retried++;
+          } catch {
+            failed++;
+          }
+        }
+
+        return data({
+          success: true,
+          intent: "RETRY_ALL_FAILED",
+          data: { retried, failed },
+        });
+      }
       default:
         return data(
           { errors: { general: `Unknown intent: ${intent}` } },
@@ -234,6 +255,24 @@ export default function QueueJobsRoute() {
     });
   };
 
+  const openRetryAllFailedJobsDialog = () => {
+    addDialog(
+      <RetryAllFailedJobsDialog
+        onRetryAllClicked={submitRetryAllFailed}
+        isSubmitting={fetcher.state === "submitting"}
+      />,
+    );
+  };
+
+  const submitRetryAllFailed = () => {
+    addDialog(null);
+    toast.success("Retrying all failed jobs");
+    fetcher.submit(JSON.stringify({ intent: "RETRY_ALL_FAILED" }), {
+      method: "POST",
+      encType: "application/json",
+    });
+  };
+
   return (
     <JobsList
       jobs={loaderData.jobs}
@@ -245,6 +284,7 @@ export default function QueueJobsRoute() {
       onDisplayJobClick={openJobDetailsDialog}
       onRemoveJobClick={openDeleteJobDialog}
       onRetryJobClick={openRetryJobDialog}
+      onRetryAllFailedClicked={openRetryAllFailedJobsDialog}
       onPaginationChanged={onPaginationChanged}
       onSortValueChanged={onSortValueChanged}
     />
