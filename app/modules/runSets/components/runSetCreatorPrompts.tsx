@@ -19,6 +19,9 @@ export default function RunSetPromptsField({
   const [tempPromptVersion, setTempPromptVersion] = useState<number | null>(
     null,
   );
+  const [tempPromptInputTokens, setTempPromptInputTokens] = useState<
+    number | undefined
+  >(undefined);
 
   const onAddPrompt = () => {
     if (!tempPromptId || !tempPromptName || tempPromptVersion == null) return;
@@ -27,6 +30,7 @@ export default function RunSetPromptsField({
       promptId: tempPromptId,
       promptName: tempPromptName,
       version: tempPromptVersion,
+      inputTokens: tempPromptInputTokens,
     };
 
     if (
@@ -40,6 +44,7 @@ export default function RunSetPromptsField({
     setTempPromptId(null);
     setTempPromptName(null);
     setTempPromptVersion(null);
+    setTempPromptInputTokens(undefined);
   };
 
   const onRemovePrompt = (promptId: string, version: number) => {
@@ -64,7 +69,10 @@ export default function RunSetPromptsField({
               setTempPromptId(id);
               setTempPromptName(name || null);
             }}
-            onSelectedPromptVersionChanged={setTempPromptVersion}
+            onSelectedPromptVersionChanged={(version, inputTokens) => {
+              setTempPromptVersion(version);
+              setTempPromptInputTokens(inputTokens);
+            }}
           />
           <Button
             type="button"

@@ -11,10 +11,16 @@ function makeDefinition(
   promptId: string,
   version: number,
   modelCode: string,
+  promptInputTokens?: number,
 ): RunDefinition {
   return {
     key: buildUsedPromptModelKey(promptId, version, modelCode),
-    prompt: { promptId, promptName: promptId, version },
+    prompt: {
+      promptId,
+      promptName: promptId,
+      version,
+      inputTokens: promptInputTokens,
+    },
     modelCode,
   };
 }
@@ -203,5 +209,78 @@ describe("calculateEstimates", () => {
     const withDefault = calculateEstimates(definitions, sessions);
 
     expect(withZero.estimatedCost).toBe(withDefault.estimatedCost);
+  });
+
+  it("adds promptInputTokens per session to input token count", () => {
+    const promptInputTokens = 500;
+    const definitions = [
+      makeDefinition("promptA", 1, allModels[0], promptInputTokens),
+    ];
+    const sessions = Array(10).fill({ inputTokens: 1000 });
+    const result = calculateEstimates(definitions, sessions);
+
+    const totalInputTokens = 10 * (1000 + promptInputTokens);
+    const expected =
+      calculateCost({
+        modelCode: allModels[0],
+        inputTokens: totalInputTokens,
+        outputTokens: totalInputTokens,
+      }) * COST_BUFFER_MULTIPLIER;
+    expect(result.estimatedCost).toBe(expected);
+  });
+
+  it("uses promptInputTokens with fallback session tokens", () => {
+    const promptInputTokens = 800;
+    const definitions = [
+      makeDefinition("promptA", 1, allModels[0], promptInputTokens),
+    ];
+    const result = calculateEstimates(definitions, Array(5).fill({}));
+
+    const totalInputTokens = 5 * (250 + promptInputTokens);
+    const expected =
+      calculateCost({
+        modelCode: allModels[0],
+        inputTokens: totalInputTokens,
+        outputTokens: totalInputTokens,
+      }) * COST_BUFFER_MULTIPLIER;
+    expect(result.estimatedCost).toBe(expected);
+  });
+
+  it("applies different promptInputTokens per definition", () => {
+    const definitions = [
+      makeDefinition("promptA", 1, allModels[0], 300),
+      makeDefinition("promptB", 1, allModels[0], 700),
+    ];
+    const sessions = Array(10).fill({ inputTokens: 1000 });
+    const result = calculateEstimates(definitions, sessions);
+
+    const inputA = 10 * (1000 + 300);
+    const inputB = 10 * (1000 + 700);
+    const expected =
+      (calculateCost({
+        modelCode: allModels[0],
+        inputTokens: inputA,
+        outputTokens: inputA,
+      }) +
+        calculateCost({
+          modelCode: allModels[0],
+          inputTokens: inputB,
+          outputTokens: inputB,
+        })) *
+      COST_BUFFER_MULTIPLIER;
+    expect(result.estimatedCost).toBe(expected);
+  });
+
+  it("treats missing promptInputTokens as zero", () => {
+    const withTokens = calculateEstimates(
+      [makeDefinition("promptA", 1, allModels[0], 0)],
+      Array(10).fill({ inputTokens: 1000 }),
+    );
+    const withoutTokens = calculateEstimates(
+      [makeDefinition("promptA", 1, allModels[0])],
+      Array(10).fill({ inputTokens: 1000 }),
+    );
+
+    expect(withTokens.estimatedCost).toBe(withoutTokens.estimatedCost);
   });
 });

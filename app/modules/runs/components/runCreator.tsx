@@ -56,7 +56,10 @@ export default function RunCreator({
   onRunNameChanged: (name: string) => void;
   onSelectedAnnotationTypeChanged: (selectedAnnotationType: string) => void;
   onSelectedPromptChanged: (selectedPrompt: string) => void;
-  onSelectedPromptVersionChanged: (selectedPromptVersion: number) => void;
+  onSelectedPromptVersionChanged: (
+    selectedPromptVersion: number,
+    inputTokens?: number,
+  ) => void;
   onSelectedModelChanged: (selectedModel: string) => void;
   onSelectedSessionsChanged: (sessions: SessionData[]) => void;
   shouldRunVerification: boolean;
