@@ -2,13 +2,20 @@ import Stripe from "stripe";
 import { TeamService } from "~/modules/teams/team";
 import type { Team } from "~/modules/teams/teams.types";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-03-25.dahlia",
-});
+let _stripe: Stripe | null = null;
+
+function getStripe(): Stripe {
+  if (!_stripe) {
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: "2026-03-25.dahlia",
+    });
+  }
+  return _stripe;
+}
 
 export class StripeService {
   static constructWebhookEvent(body: string, sig: string): Stripe.Event {
-    return stripe.webhooks.constructEvent(
+    return getStripe().webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!,
@@ -18,7 +25,7 @@ export class StripeService {
   static async ensureCustomer(team: Team): Promise<string> {
     if (team.stripeCustomerId) return team.stripeCustomerId;
 
-    const customer = await stripe.customers.create(
+    const customer = await getStripe().customers.create(
       { name: team.name, metadata: { teamId: team._id } },
       { idempotencyKey: `team-customer-${team._id}` },
     );
@@ -35,7 +42,7 @@ export class StripeService {
     cancelUrl: string;
     metadata: Record<string, string>;
   }): Promise<Stripe.Checkout.Session> {
-    return stripe.checkout.sessions.create({
+    return getStripe().checkout.sessions.create({
       customer: params.customerId,
       mode: "payment",
       line_items: [
