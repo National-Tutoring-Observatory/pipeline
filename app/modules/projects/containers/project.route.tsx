@@ -88,7 +88,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
   const { openEditProjectDialog, openDeleteProjectDialog } = useProjectActions({
-    onDeleteSuccess: () => navigate("/"),
+    onDeleteSuccess: () => navigate("/projects"),
   });
 
   const [uploadFilesProgress, setUploadFilesProgress] = useState(0);
@@ -162,7 +162,7 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
   }, [project.isUploadingFiles, project.isConvertingFiles]);
 
   const breadcrumbs = [
-    { text: "Projects", link: "/" },
+    { text: "Projects", link: "/projects" },
     { text: project.name },
     { text: startCase(get(matches, "2.id", "").toLowerCase()) },
   ];
