@@ -1,19 +1,7 @@
 import { useFetcher, useRouteLoaderData, useSearchParams } from "react-router";
 import Login from "../components/login";
 
-const ERROR_MESSAGES = {
-  EXPIRED_INVITE: {
-    title: "Your invite link has expired",
-    description: "Please reach out to your NTO contact.",
-  },
-  UNREGISTERED: {
-    title: "You have not been registered",
-    description:
-      "Please use the 'Sign up to be invited' button below to register your interest.",
-  },
-};
-
-type ErrorType = keyof typeof ERROR_MESSAGES;
+type ErrorType = "EXPIRED_INVITE" | "UNREGISTERED";
 
 export default function LoginContainer() {
   const fetcher = useFetcher();
@@ -26,6 +14,22 @@ export default function LoginContainer() {
 
   const hasError = searchParams.has("error");
   const errorType = searchParams.get("error");
+
+  const ERROR_MESSAGES: Record<
+    ErrorType,
+    { title: string; description: string }
+  > = {
+    EXPIRED_INVITE: {
+      title: "Your invite link has expired",
+      description: "Please reach out to your NTO contact.",
+    },
+    UNREGISTERED: {
+      title: "You have not been registered",
+      description: openSignup
+        ? "Use the Sign up button below to create an account."
+        : "Please reach out to your NTO contact to request access.",
+    },
+  };
 
   const onLoginWithGithubClicked = () => {
     fetcher.submit(
