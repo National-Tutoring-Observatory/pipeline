@@ -1,6 +1,8 @@
 import type { Job } from "bullmq";
 import { initializeDatabase } from "../../app/lib/database";
 import "../../app/modules/storage/storage";
+import adjudicatePerSession from "../tasks/adjudicatePerSession";
+import adjudicatePerUtterance from "../tasks/adjudicatePerUtterance";
 import annotatePerSession from "../tasks/annotatePerSession";
 import annotatePerUtterance from "../tasks/annotatePerUtterance";
 import convertFileToSession from "../tasks/convertFileToSession";
@@ -33,6 +35,13 @@ export default async (job: Job) => {
         return startAnnotateRun(job);
       }
       case "ANNOTATE_RUN:PROCESS": {
+        if (job.data.isAdjudication) {
+          if (job.data.annotationType === "ANNOTATE_PER_UTTERANCE") {
+            return adjudicatePerUtterance(job);
+          } else if (job.data.annotationType === "ANNOTATE_PER_SESSION") {
+            return adjudicatePerSession(job);
+          }
+        }
         if (job.data.annotationType === "ANNOTATE_PER_UTTERANCE") {
           return annotatePerUtterance(job);
         } else if (job.data.annotationType === "ANNOTATE_PER_SESSION") {

@@ -12,6 +12,8 @@ const SOURCE_LABELS: Record<LlmCostSource, string> = {
   "codebook-prompt-generation": "Codebook Generation",
   "attribute-mapping": "Attribute Mapping",
   "prompt-alignment": "Prompt Alignment",
+  "adjudication:per-utterance": "Adjudication",
+  "adjudication:per-session": "Adjudication",
 };
 
 export function getSourceLabel(source: string): string {

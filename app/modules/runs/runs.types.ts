@@ -15,6 +15,11 @@ export interface Run {
   annotator?: {
     name: string;
   };
+  isAdjudication?: boolean;
+  adjudication?: {
+    sourceRuns: string[];
+    disagreements?: Record<string, any[]>;
+  };
   sessions: RunSession[];
   snapshot: RunSnapshot;
   stoppedAt?: Date | string | null;
@@ -57,4 +62,8 @@ export interface CreateRunProps {
   promptVersion: number;
   modelCode: string;
   shouldRunVerification: boolean;
+  isAdjudication?: boolean;
+  adjudication?: {
+    sourceRuns: string[];
+  };
 }

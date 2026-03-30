@@ -93,6 +93,8 @@ export class RunService {
       isRunning: false,
       isComplete: false,
       shouldRunVerification: !!props.shouldRunVerification,
+      isAdjudication: !!props.isAdjudication,
+      adjudication: props.adjudication,
     });
     return this.toRun(doc);
   }

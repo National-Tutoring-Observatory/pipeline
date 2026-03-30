@@ -18,6 +18,7 @@ import { EvaluationService } from "~/modules/evaluations/evaluation";
 import getTopPerformersVsGoldLabel from "~/modules/evaluations/helpers/getTopPerformersVsGoldLabel";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
+import { RunService } from "~/modules/runs/run";
 import { RunSetService } from "~/modules/runSets/runSet";
 import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/evaluation.route";
@@ -49,7 +50,18 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     );
   }
 
-  return { project, runSet, evaluation };
+  const evaluationRuns = await RunService.find({
+    match: { _id: { $in: evaluation.runs } },
+  });
+  const firstRunWithPrompt = evaluationRuns.find((r) => !r.isHuman && r.prompt);
+  const evaluationPrompt = firstRunWithPrompt
+    ? {
+        promptId: String(firstRunWithPrompt.prompt),
+        promptVersion: firstRunWithPrompt.promptVersion!,
+      }
+    : null;
+
+  return { project, runSet, evaluation, evaluationPrompt };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -80,12 +92,16 @@ export async function action({ request, params }: Route.ActionArgs) {
         );
       }
 
-      const { modelCode } = payload;
+      const { modelCode, promptId, promptVersion } = payload;
 
-      console.log("START_ADJUDICATION", {
+      EvaluationService.startAdjudication({
         evaluationId: params.evaluationId,
-        selectedRuns,
+        selectedRunIds: selectedRuns,
         modelCode,
+        projectId: params.projectId,
+        runSetId: params.runSetId,
+        promptId,
+        promptVersion,
       });
 
       return data({
@@ -105,7 +121,8 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function EvaluationRoute() {
-  const { project, runSet, evaluation } = useLoaderData<typeof loader>();
+  const { project, runSet, evaluation, evaluationPrompt } =
+    useLoaderData<typeof loader>();
   const [progress, setProgress] = useState(0);
   const { revalidate } = useRevalidator();
   const fetcher = useFetcher();
@@ -177,11 +194,13 @@ export default function EvaluationRoute() {
   const submitStartAdjudication = (
     selectedRuns: string[],
     modelCode: string,
+    promptId: string,
+    promptVersion: number,
   ) => {
     fetcher.submit(
       JSON.stringify({
         intent: "START_ADJUDICATION",
-        payload: { selectedRuns, modelCode },
+        payload: { selectedRuns, modelCode, promptId, promptVersion },
       }),
       { method: "POST", encType: "application/json" },
     );
@@ -191,6 +210,7 @@ export default function EvaluationRoute() {
     addDialog(
       <AdjudicationDialogContainer
         evaluation={evaluation}
+        evaluationPrompt={evaluationPrompt}
         onStartAdjudication={submitStartAdjudication}
       />,
     );
