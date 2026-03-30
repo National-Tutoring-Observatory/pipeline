@@ -182,6 +182,10 @@ export default [
     "api/downloads/:projectId/run-sets/:runSetId",
     "modules/runSets/containers/downloadRunSet.route.tsx",
   ),
+  route(
+    "api/webhooks/stripe",
+    "modules/billing/containers/stripeWebhook.route.tsx",
+  ),
   route("api/events", "modules/events/containers/events.route.tsx"),
   route("api/projects", "modules/projects/containers/projects.route.tsx", {
     id: "projects",

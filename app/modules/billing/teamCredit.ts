@@ -45,6 +45,13 @@ export class TeamCreditService {
     return this.toTeamCredit(doc);
   }
 
+  static async findByStripeSession(
+    sessionId: string,
+  ): Promise<TeamCredit | null> {
+    const doc = await TeamCreditModel.findOne({ stripeSessionId: sessionId });
+    return doc ? this.toTeamCredit(doc) : null;
+  }
+
   static async findByTeam(teamId: string): Promise<TeamCredit[]> {
     const docs = await TeamCreditModel.find({ team: teamId }).sort({
       createdAt: -1,

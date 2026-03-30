@@ -91,6 +91,16 @@ export class TeamService {
     return doc ? this.toTeam(doc) : null;
   }
 
+  static async setStripeCustomerIdIfMissing(
+    id: string,
+    customerId: string,
+  ): Promise<void> {
+    await TeamModel.updateOne(
+      { _id: id, stripeCustomerId: { $exists: false } },
+      { $set: { stripeCustomerId: customerId } },
+    );
+  }
+
   static async deleteById(id: string): Promise<Team | null> {
     const doc = await TeamModel.findByIdAndDelete(id).exec();
     return doc ? this.toTeam(doc) : null;
