@@ -19,6 +19,7 @@ import JobDetailsDialog from "../components/jobDetailsDialog";
 import JobsList from "../components/jobsList";
 import RetryJobDialog from "../components/retryJobDialog";
 import getQueue from "../helpers/getQueue";
+import isQueuePro from "../helpers/isQueuePro";
 import type { Job } from "../queues.types";
 import type { Route } from "./+types/queueJobs.route";
 
@@ -39,6 +40,43 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const asc = queryParams.sort === "timestamp";
 
   const queue = getQueue(type);
+
+  if (state === "groups" && isQueuePro(queue)) {
+    const total = await queue.getGroupsJobsCount();
+    const groups = await queue.getGroups(0, -1);
+
+    const allJobs = [];
+    for (const group of groups) {
+      const groupJobs = await queue.getGroupJobs(group.id, 0, -1);
+      allJobs.push(...groupJobs);
+    }
+
+    // Sort by timestamp descending by default
+    allJobs.sort((a: any, b: any) => {
+      const timeA = a.timestamp || 0;
+      const timeB = b.timestamp || 0;
+      return asc ? timeA - timeB : timeB - timeA;
+    });
+
+    const paginatedJobs = allJobs.slice(
+      pagination.skip,
+      pagination.skip + pagination.limit,
+    );
+
+    console.log(
+      `[queues] Groups state: ${groups.length} groups, ${allJobs.length} total jobs, showing ${paginatedJobs.length}`,
+    );
+
+    return {
+      queueType: type,
+      state,
+      jobs: paginatedJobs,
+      currentPage: queryParams.currentPage ?? 1,
+      totalPages: getTotalPages(total),
+      sortValue: queryParams.sort ?? "-timestamp",
+    };
+  }
+
   const jobs = await queue.getJobs(
     state,
     pagination.skip,

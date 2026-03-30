@@ -11,6 +11,7 @@ import type { User } from "~/modules/users/users.types";
 import QueueControls from "../components/queueControls";
 import QueueStateTabs from "../components/queueStateTabs";
 import getQueue from "../helpers/getQueue";
+import isQueuePro from "../helpers/isQueuePro";
 import type { Route } from "./+types/queue.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -25,10 +26,18 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const jobCounts = await queue.getJobCounts();
   const isPaused = await queue.isPaused();
 
+  const isPro = isQueuePro(queue);
+  let groupsJobsCount: number | null = null;
+  if (isPro) {
+    groupsJobsCount = await queue.getGroupsJobsCount();
+  }
+
   return {
     queueType,
     jobCounts,
     isPaused,
+    isPro,
+    groupsJobsCount,
   };
 }
 
@@ -79,6 +88,14 @@ export default function QueueRoute() {
       count: data.jobCounts["waiting-children"],
     },
   ];
+
+  if (data.isPro && data.groupsJobsCount !== null) {
+    states.push({
+      key: "groups",
+      label: "Groups",
+      count: data.groupsJobsCount,
+    });
+  }
 
   const handlePauseResume = () => {
     const intent = data.isPaused ? "RESUME_QUEUE" : "PAUSE_QUEUE";

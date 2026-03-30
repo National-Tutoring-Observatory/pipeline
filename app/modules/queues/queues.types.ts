@@ -7,6 +7,7 @@ export interface Job {
     | "completed"
     | "delayed"
     | "failed"
+    | "groups"
     | "paused"
     | "prioritized"
     | "waiting"

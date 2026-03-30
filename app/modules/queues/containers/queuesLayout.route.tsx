@@ -4,6 +4,7 @@ import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthori
 import type { User } from "~/modules/users/users.types";
 import QueuesLayout from "../components/queuesLayout";
 import getQueue from "../helpers/getQueue";
+import isQueuePro from "../helpers/isQueuePro";
 import type { Route } from "./+types/queuesLayout.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -16,9 +17,14 @@ export async function loader({ request }: Route.LoaderArgs) {
   const generalQueue = getQueue("general");
   const cronQueue = getQueue("cron");
 
-  const taskCount = await tasksQueue.count();
+  let taskCount = await tasksQueue.count();
   const generalCount = await generalQueue.count();
   const cronCount = await cronQueue.count();
+
+  if (isQueuePro(tasksQueue)) {
+    const groupedJobsCount = await tasksQueue.getGroupsJobsCount();
+    taskCount += groupedJobsCount;
+  }
 
   const queues = [
     { key: "tasks", label: "Tasks", count: taskCount },
