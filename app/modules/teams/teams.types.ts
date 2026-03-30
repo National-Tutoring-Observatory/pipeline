@@ -4,6 +4,9 @@ export interface Team {
   createdAt: string;
   billingUser?: string;
   stripeCustomerId?: string;
+  isPersonal?: boolean;
+  createdBy?: string;
+  ownedBy?: string[];
 }
 
 export const TEAM_ASSIGNMENT_OPTIONS = ["temporary", "permanent"] as const;

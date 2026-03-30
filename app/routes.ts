@@ -138,6 +138,8 @@ export default [
     "privacy-policy",
     "modules/privacyPolicy/containers/privacyPolicy.route.tsx",
   ),
+  route("signup", "modules/authentication/containers/signup.route.tsx"),
+  route("onboarding", "modules/authentication/containers/onboarding.route.tsx"),
   ...prefix("featureFlags", [
     route("/", "modules/featureFlags/containers/featureFlags.route.tsx", [
       route(":id", "modules/featureFlags/containers/featureFlag.route.tsx"),

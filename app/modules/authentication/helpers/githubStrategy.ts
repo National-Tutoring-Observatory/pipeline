@@ -3,7 +3,9 @@ import find from "lodash/find";
 import { redirect } from "react-router";
 import { GitHubStrategy } from "remix-auth-github";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
+import addCredits from "~/modules/billing/services/addCredits.server";
 import INVITE_LINK_TTL_DAYS from "~/modules/teams/helpers/inviteLink";
+import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import type { UserTeam } from "~/modules/users/users.types";
 import sessionStorage from "../../../../sessionStorage";
@@ -75,7 +77,40 @@ const githubStrategy = new GitHubStrategy<any>(
           throw redirect("/?error=UNREGISTERED");
         }
       } else {
-        throw redirect("/?error=UNREGISTERED");
+        // Direct signup — no invite required
+        const primaryEmail = (
+          find(emails, (e: any) => e.primary) ||
+          emails[0] ||
+          {}
+        ).email;
+        const newUser = await UserService.create({
+          username: githubUser.login,
+          name: githubUser.name || githubUser.login,
+          email: primaryEmail,
+          githubId: githubUser.id,
+          hasGithubSSO: true,
+          isRegistered: true,
+          registeredAt: new Date(),
+          role: "USER",
+          onboardingComplete: false,
+        });
+        const team = await TeamService.create({
+          name: `${githubUser.name || githubUser.login}'s Workspace`,
+          isPersonal: true,
+          createdBy: newUser._id,
+          ownedBy: [newUser._id],
+        });
+        await UserService.updateById(newUser._id, {
+          teams: [{ team: team._id, role: "ADMIN" }],
+        });
+        await addCredits({
+          teamId: team._id,
+          amount: 10,
+          note: "Signup bonus",
+          addedBy: newUser._id,
+        });
+        trackServerEvent({ name: "user_registered", userId: newUser._id });
+        return (await UserService.findById(newUser._id))!;
       }
     } else if (isInvitedUser) {
       // If user already exists, check teams and add if that team does not exist on the user.
