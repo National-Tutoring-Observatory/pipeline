@@ -8,7 +8,8 @@ import {
 
 export default [
   layout("modules/dashboard/containers/dashboard.route.tsx", [
-    index("modules/projects/containers/projects.route.tsx"),
+    index("modules/home/containers/home.route.tsx"),
+    route("projects", "modules/projects/containers/projects.route.tsx"),
   ]),
   ...prefix("projects", [
     route(

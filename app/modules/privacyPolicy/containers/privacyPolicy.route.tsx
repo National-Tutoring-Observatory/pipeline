@@ -14,7 +14,7 @@ export default function PrivacyPolicyRoute() {
             className="w-10"
           />
           <Link
-            to="/"
+            to="/projects"
             className="text-muted-foreground text-sm hover:underline"
           >
             Back to app
