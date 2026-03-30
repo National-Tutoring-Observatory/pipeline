@@ -47,7 +47,7 @@ export default async (
       worker = new WorkerPro(name, file, {
         ...baseOpts,
         connection: redis as any,
-        group: { concurrency: 50 },
+        group: { concurrency: 20 },
       }) as unknown as Worker;
       console.log(`[${name}] BullMQ Pro is running`);
     } catch {
