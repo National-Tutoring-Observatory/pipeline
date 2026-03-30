@@ -5,6 +5,7 @@ import {
   useLoaderData,
   useParams,
 } from "react-router";
+import usePollingRevalidation from "~/modules/app/hooks/usePollingRevalidation";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
 import type { User } from "~/modules/users/users.types";
@@ -74,6 +75,7 @@ export default function QueueRoute() {
   const data = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const queueType = params.type as string;
+  const { secondsRemaining } = usePollingRevalidation();
 
   const states = [
     { key: "active", label: "Active", count: data.jobCounts.active },
@@ -119,6 +121,9 @@ export default function QueueRoute() {
             isPaused={data.isPaused}
           />
         </div>
+        <p className="text-muted-foreground/50 text-right text-xs tabular-nums">
+          Refreshing in {String(secondsRemaining).padStart(2, "0")}s
+        </p>
       </div>
       <Outlet />
     </div>
