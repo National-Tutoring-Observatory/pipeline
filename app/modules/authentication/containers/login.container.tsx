@@ -27,7 +27,7 @@ export default function LoginContainer() {
       title: "You have not been registered",
       description: openSignup
         ? "Use the Sign up button below to create an account."
-        : "Please reach out to your NTO contact to request access.",
+        : "Please use the 'Sign up to be invited' button below to register your interest.",
     },
   };
 
