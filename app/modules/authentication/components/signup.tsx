@@ -15,13 +15,10 @@ export default function Signup({
   onSignupWithGithubClicked: () => void;
 }) {
   return (
-    <div
-      className="flex h-screen w-screen items-center justify-center"
-      style={{ backgroundColor: "#f7f7f7" }}
-    >
+    <div className="flex h-screen w-screen items-center justify-center bg-[#f7f7f7]">
       <Card className="w-full max-w-md text-center">
-        <div className="mx-auto" style={{ maxWidth: "120px" }}>
-          <img src="/assets/nto-logo-icon.png" />
+        <div className="mx-auto max-w-[120px]">
+          <img src="/assets/nto-logo-icon.png" alt="NTO Logo" />
         </div>
         <CardHeader>
           <CardTitle className="mb-2">

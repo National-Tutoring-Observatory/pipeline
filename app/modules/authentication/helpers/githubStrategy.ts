@@ -103,12 +103,17 @@ const githubStrategy = new GitHubStrategy<any>(
         await UserService.updateById(newUser._id, {
           teams: [{ team: team._id, role: "ADMIN" }],
         });
-        await addCredits({
+        const creditResult = await addCredits({
           teamId: team._id,
           amount: 10,
           note: "Signup bonus",
           addedBy: newUser._id,
         });
+        if (!creditResult.success) {
+          console.error(
+            `Failed to grant signup bonus to user ${newUser._id} / team ${team._id}: ${creditResult.error}`,
+          );
+        }
         trackServerEvent({ name: "user_registered", userId: newUser._id });
         return (await UserService.findById(newUser._id))!;
       } else {

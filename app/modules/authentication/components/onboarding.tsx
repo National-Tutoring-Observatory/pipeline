@@ -59,10 +59,7 @@ export default function Onboarding({
   };
 
   return (
-    <div
-      className="flex min-h-screen w-screen items-center justify-center"
-      style={{ backgroundColor: "#f7f7f7" }}
-    >
+    <div className="flex min-h-screen w-screen items-center justify-center bg-[#f7f7f7]">
       <div className="w-full max-w-lg rounded-lg bg-white p-8 shadow-sm">
         <div className="mb-6 flex justify-center">
           <img

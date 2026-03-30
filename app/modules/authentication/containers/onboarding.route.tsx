@@ -5,16 +5,31 @@ import { UserService } from "~/modules/users/user";
 import Onboarding from "../components/onboarding";
 import type { Route } from "./+types/onboarding.route";
 
+const VALID_ROLES = [
+  "Researcher",
+  "Grad Student",
+  "Instructor/Faculty",
+  "Other",
+] as const;
+
+const VALID_USE_CASES = [
+  "Analyzing student-tutor interactions",
+  "Training or evaluating AI tutors",
+  "Educational research",
+  "Curriculum development",
+  "Other",
+] as const;
+
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getSessionUser({ request });
-  if (!user) return redirect("/signup");
+  if (!user) return redirect("/");
   if (user.onboardingComplete) return redirect("/");
   return {};
 }
 
 export async function action({ request }: Route.ActionArgs) {
   const user = await getSessionUser({ request });
-  if (!user) return redirect("/signup");
+  if (!user) return redirect("/");
 
   const { intent, payload = {} } = await request.json();
 
@@ -31,14 +46,20 @@ export async function action({ request }: Route.ActionArgs) {
     );
   }
 
-  if (!userRole) {
+  if (!VALID_ROLES.includes(userRole)) {
     return data(
-      { errors: { userRole: "Please select your role" } },
+      { errors: { userRole: "Please select a valid role" } },
       { status: 400 },
     );
   }
 
-  if (!Array.isArray(useCases) || useCases.length === 0) {
+  if (
+    !Array.isArray(useCases) ||
+    useCases.length === 0 ||
+    !useCases.every((v: string) =>
+      (VALID_USE_CASES as readonly string[]).includes(v),
+    )
+  ) {
     return data(
       { errors: { useCases: "Please select at least one use case" } },
       { status: 400 },
@@ -68,7 +89,8 @@ export default function OnboardingRoute() {
   useEffect(() => {
     if (fetcher.state !== "idle") return;
     if (!fetcher.data || !("success" in fetcher.data)) return;
-    navigate((fetcher.data as any).data.redirectTo);
+    const d = fetcher.data as { success: true; data: { redirectTo: string } };
+    navigate(d.data.redirectTo);
   }, [fetcher.state, fetcher.data, navigate]);
 
   const handleSubmit = (formData: {
