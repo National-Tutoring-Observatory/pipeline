@@ -40,8 +40,12 @@ registerLLM("AI_GATEWAY", {
 
     applySchemaToRequest(requestParams, schema);
 
+    const extraRequestOptions = options.timeout
+      ? { body: { timeout: options.timeout / 1000 } }
+      : {};
+
     const { data: chatCompletion, response } = await llm.chat.completions
-      .create(requestParams)
+      .create(requestParams, extraRequestOptions)
       .withResponse();
     const message = chatCompletion.choices[0].message;
 
