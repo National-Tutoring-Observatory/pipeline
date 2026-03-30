@@ -6,7 +6,9 @@ export type LlmCostSource =
   | "file-conversion"
   | "codebook-prompt-generation"
   | "attribute-mapping"
-  | "prompt-alignment";
+  | "prompt-alignment"
+  | "adjudication:per-utterance"
+  | "adjudication:per-session";
 
 export interface LlmCost {
   _id: string;
