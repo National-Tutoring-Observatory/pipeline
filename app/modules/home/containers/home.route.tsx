@@ -9,14 +9,13 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (process.env.OPEN_SIGNUP !== "true") return redirect("/projects");
 
   const user = await getSessionUser({ request });
-  if (!user) return redirect("/");
 
-  const teamId = (user.teams[0] as UserTeam)?.team;
+  const teamId = (user?.teams[0] as UserTeam | undefined)?.team;
   const creditBalance = teamId
     ? await TeamCreditService.sumByTeam(String(teamId))
     : 0;
 
-  return { creditBalance, userName: user.name || user.username };
+  return { creditBalance, userName: user?.name || user?.username || "" };
 }
 
 export function HydrateFallback() {
