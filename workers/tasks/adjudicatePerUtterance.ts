@@ -89,7 +89,7 @@ export default async function adjudicatePerUtterance(job: any) {
         schema: responseSchema,
         source: "adjudication:per-utterance",
         sourceId: sessionId,
-        timeout: 360_000,
+        timeout: 600_000,
       });
 
       llm.addSystemMessage(adjudicatePerUtterancePrompts.system, {
