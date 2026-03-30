@@ -74,7 +74,7 @@ export default async function annotatePerSession(job: any) {
       schema: responseSchema,
       source: "annotation:per-session",
       sourceId: runId,
-      timeout: 360_000,
+      timeout: 600_000,
     });
 
     llm.addSystemMessage(annotationPerSessionPrompts.system, {
@@ -99,7 +99,7 @@ export default async function annotatePerSession(job: any) {
         schema: responseSchema,
         source: "verification:per-session",
         sourceId: runId,
-        timeout: 360_000,
+        timeout: 600_000,
       });
 
       verifyLlm.addSystemMessage(verifyPerSessionPrompts.system, {

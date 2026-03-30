@@ -74,7 +74,7 @@ export default async function annotatePerUtterance(job: any) {
       schema: responseSchema,
       source: "annotation:per-utterance",
       sourceId: runId,
-      timeout: 360_000,
+      timeout: 600_000,
     });
 
     llm.addSystemMessage(annotationPerUtterancePrompts.system, {
@@ -99,7 +99,7 @@ export default async function annotatePerUtterance(job: any) {
         schema: responseSchema,
         source: "verification:per-utterance",
         sourceId: runId,
-        timeout: 360_000,
+        timeout: 600_000,
       });
 
       verifyLlm.addSystemMessage(verifyPerUtterancePrompts.system, {

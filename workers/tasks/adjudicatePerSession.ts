@@ -86,7 +86,7 @@ export default async function adjudicatePerSession(job: any) {
         schema: responseSchema,
         source: "adjudication:per-session",
         sourceId: sessionId,
-        timeout: 360_000,
+        timeout: 600_000,
       });
 
       llm.addSystemMessage(adjudicatePerSessionPrompts.system, {
