@@ -14,11 +14,13 @@ export default function Login({
   errorTitle,
   errorDescription,
   hasError,
+  openSignup,
   onLoginWithGithubClicked,
 }: {
   errorTitle: string | undefined;
   errorDescription: string | undefined;
   hasError: boolean;
+  openSignup: boolean;
   onLoginWithGithubClicked: () => void;
 }) {
   return (
@@ -40,7 +42,11 @@ export default function Login({
             analyze tutoring data efficiently.
             <br />
             <br />
-            <b>Sign in to your account or create a new one.</b>
+            <b>
+              {openSignup
+                ? "Sign in to your account or create a new one."
+                : "In the beta phase, only users invited by the NTO will be able to log in and join a team."}
+            </b>
             {hasError && (
               <Alert variant="destructive" className="mt-2 text-left">
                 <AlertCircle />
@@ -94,9 +100,11 @@ export default function Login({
               Login with Github
             </Button>
           )}
-          <Button variant="outline" className="w-1/2" asChild>
-            <Link to="/signup">Sign up</Link>
-          </Button>
+          {openSignup && (
+            <Button variant="outline" className="w-1/2" asChild>
+              <Link to="/signup">Sign up</Link>
+            </Button>
+          )}
         </CardFooter>
       </Card>
     </div>

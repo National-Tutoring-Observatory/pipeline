@@ -38,7 +38,10 @@ export const links: Route.LinksFunction = () => [
 export const meta: Route.MetaFunction = () => [{ title: "Sandpiper - NTO" }];
 
 export function loader() {
-  return { googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID || null };
+  return {
+    googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID || null,
+    openSignup: process.env.OPEN_SIGNUP === "true",
+  };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
