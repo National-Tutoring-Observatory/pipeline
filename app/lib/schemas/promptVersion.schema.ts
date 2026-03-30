@@ -9,6 +9,7 @@ export default new mongoose.Schema({
   codebook: { type: mongoose.Types.ObjectId, ref: "Codebook" },
   codebookVersion: { type: mongoose.Types.ObjectId, ref: "CodebookVersion" },
   hasBeenSaved: { type: Boolean, default: false },
+  inputTokens: { type: Number },
   createdAt: { type: Date, default: Date.now },
   createdBy: { type: mongoose.Types.ObjectId, ref: "User" },
   updatedAt: { type: Date },

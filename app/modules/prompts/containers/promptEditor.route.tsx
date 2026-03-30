@@ -12,6 +12,7 @@ import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
 import PromptAuthorization from "../authorization";
 import PromptEditor from "../components/promptEditor";
+import tokenizePromptVersion from "../helpers/tokenizePromptVersion";
 import { PromptService } from "../prompt";
 import { PromptVersionService } from "../promptVersion";
 import type { Route } from "./+types/promptEditor.route";
@@ -97,15 +98,18 @@ export async function action({ request, params }: Route.ActionArgs) {
   }
 
   switch (intent) {
-    case "UPDATE_PROMPT_VERSION":
+    case "UPDATE_PROMPT_VERSION": {
+      const inputTokens = tokenizePromptVersion(userPrompt, annotationSchema);
       await PromptVersionService.updateById(entityId, {
         name,
         userPrompt,
         annotationSchema,
         hasBeenSaved: true,
+        inputTokens,
         updatedAt: new Date().toISOString(),
       });
       return {};
+    }
     case "MAKE_PROMPT_VERSION_PRODUCTION":
       await PromptService.updateById(promptId, {
         productionVersion: Number(params.version),

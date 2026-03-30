@@ -14,38 +14,34 @@ interface CalculateEstimatesOptions {
 }
 
 export function calculateEstimates(
-  runDefinitions: Array<{ modelCode: string }>,
+  runDefinitions: Array<{
+    modelCode: string;
+    prompt?: { inputTokens?: number };
+  }>,
   selectedSessions: Array<{ inputTokens?: number }>,
   options?: CalculateEstimatesOptions,
 ): EstimationResult {
   const numSessions = selectedSessions.length;
   const verificationMultiplier = options?.shouldRunVerification ? 2 : 1;
 
-  const totalInputTokens = selectedSessions.reduce((sum, s) => {
+  const sessionInputTokens = selectedSessions.reduce((sum, s) => {
     return sum + (s.inputTokens ? s.inputTokens : AVG_TOKENS_PER_SESSION / 2);
   }, 0);
 
   const rawRatio = options?.outputToInputRatio;
   const ratio = rawRatio != null && rawRatio > 0 ? rawRatio : DEFAULT_RATIO;
-  const totalOutputTokens = totalInputTokens * ratio;
-
-  const definitionsByModel = new Map<string, number>();
-  for (const definition of runDefinitions) {
-    definitionsByModel.set(
-      definition.modelCode,
-      (definitionsByModel.get(definition.modelCode) || 0) + 1,
-    );
-  }
 
   let totalCost = 0;
-  for (const [modelCode, count] of definitionsByModel) {
+  for (const definition of runDefinitions) {
+    const promptTokens = definition.prompt?.inputTokens ?? 0;
+    const defInputTokens = sessionInputTokens + promptTokens * numSessions;
+    const defOutputTokens = defInputTokens * ratio;
     totalCost +=
-      count *
       verificationMultiplier *
       calculateCost({
-        modelCode,
-        inputTokens: totalInputTokens,
-        outputTokens: totalOutputTokens,
+        modelCode: definition.modelCode,
+        inputTokens: defInputTokens,
+        outputTokens: defOutputTokens,
       });
   }
 

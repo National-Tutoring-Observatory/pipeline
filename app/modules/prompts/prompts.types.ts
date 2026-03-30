@@ -23,6 +23,7 @@ export interface PromptVersion {
   codebook?: string;
   codebookVersion?: string;
   hasBeenSaved: boolean;
+  inputTokens?: number;
   updatedAt: string;
 }
 

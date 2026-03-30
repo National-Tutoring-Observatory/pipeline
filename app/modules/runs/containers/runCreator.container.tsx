@@ -34,6 +34,9 @@ export default function ProjectRunCreatorContainer({
   const [selectedPromptVersion, setSelectedPromptVersion] = useState<
     number | null
   >(initialRun?.promptVersion || null);
+  const [selectedPromptInputTokens, setSelectedPromptInputTokens] = useState<
+    number | undefined
+  >(undefined);
   const [selectedModel, setSelectedModel] = useState(
     initialRun?.snapshot?.model?.code || getDefaultModelCode(),
   );
@@ -51,10 +54,15 @@ export default function ProjectRunCreatorContainer({
 
   const onSelectedPromptChanged = (selectedPrompt: string) => {
     setSelectedPrompt(selectedPrompt);
+    setSelectedPromptInputTokens(undefined);
   };
 
-  const onSelectedPromptVersionChanged = (selectedPromptVersion: number) => {
+  const onSelectedPromptVersionChanged = (
+    selectedPromptVersion: number,
+    inputTokens?: number,
+  ) => {
     setSelectedPromptVersion(selectedPromptVersion);
+    setSelectedPromptInputTokens(inputTokens);
   };
 
   const onSelectedModelChanged = (selectedModel: string) => {
@@ -69,17 +77,27 @@ export default function ProjectRunCreatorContainer({
 
   const estimation = useMemo(
     () =>
-      calculateEstimates([{ modelCode: selectedModel }], selectedSessions, {
-        shouldRunVerification,
-        avgSecondsPerSession,
-        outputToInputRatio,
-      }),
+      calculateEstimates(
+        [
+          {
+            modelCode: selectedModel,
+            prompt: { inputTokens: selectedPromptInputTokens },
+          },
+        ],
+        selectedSessions,
+        {
+          shouldRunVerification,
+          avgSecondsPerSession,
+          outputToInputRatio,
+        },
+      ),
     [
       selectedModel,
       selectedSessions,
       shouldRunVerification,
       avgSecondsPerSession,
       outputToInputRatio,
+      selectedPromptInputTokens,
     ],
   );
 

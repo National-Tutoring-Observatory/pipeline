@@ -21,6 +21,7 @@ export interface PromptReference {
   promptId: string;
   promptName: string;
   version: number;
+  inputTokens?: number;
 }
 
 export interface PrefillData {

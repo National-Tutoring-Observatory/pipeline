@@ -22,7 +22,10 @@ export default function PromptSelectorContainer({
     selectedPrompt: string,
     selectedPromptName?: string,
   ) => void;
-  onSelectedPromptVersionChanged: (selectedPromptVersion: number) => void;
+  onSelectedPromptVersionChanged: (
+    selectedPromptVersion: number,
+    inputTokens?: number,
+  ) => void;
 }) {
   const [isPromptsOpen, setIsPromptsOpen] = useState(false);
   const [isPromptVersionsOpen, setIsPromptVersionsOpen] = useState(false);
@@ -74,7 +77,10 @@ export default function PromptSelectorContainer({
   };
 
   const onSelectedPromptVersionChange = (selectedPromptVersion: number) => {
-    onSelectedPromptVersionChanged(selectedPromptVersion);
+    const version = promptVersions.find(
+      (v) => v.version === selectedPromptVersion,
+    );
+    onSelectedPromptVersionChanged(selectedPromptVersion, version?.inputTokens);
   };
 
   const prompts = get(promptsFetcher, "data.prompts.data", []);
