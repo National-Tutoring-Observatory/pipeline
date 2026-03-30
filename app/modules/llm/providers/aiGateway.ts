@@ -3,12 +3,12 @@ import applySchemaToRequest from "../helpers/applySchemaToRequest";
 import registerLLM from "../helpers/registerLLM";
 
 registerLLM("AI_GATEWAY", {
-  init: () => {
+  init: (config?: { timeout?: number }) => {
     const openai = new OpenAI({
       apiKey: process.env.AI_GATEWAY_KEY,
       baseURL: process.env.AI_GATEWAY_BASE_URL,
       maxRetries: 0,
-      timeout: 180_000,
+      timeout: config?.timeout ?? 180_000,
     });
     return openai;
   },
