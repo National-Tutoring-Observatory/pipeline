@@ -27,11 +27,11 @@ describe("closeBillingPeriods worker", () => {
   const teamId = new Types.ObjectId().toString();
   const otherTeamId = new Types.ObjectId().toString();
 
-  async function seedPlan(team: string, markupRate = 1.5) {
+  async function seedPlan(team: string, markupRate = 1.5, isDefault = false) {
     const plan = await BillingPlanService.create({
       name: "Standard",
       markupRate,
-      isDefault: true,
+      isDefault,
     });
     const TeamBillingPlanModel = mongoose.model("TeamBillingPlan");
     await TeamBillingPlanModel.create({
