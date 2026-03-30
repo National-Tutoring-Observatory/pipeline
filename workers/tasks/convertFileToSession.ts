@@ -1,7 +1,9 @@
 import dotenv from "dotenv";
 import fse from "fs-extra";
+import { encode } from "gpt-tokenizer";
 import map from "lodash/map";
 import path from "path";
+import getConversationFromJSON from "../../app/modules/sessions/helpers/getConversationFromJSON";
 import { SessionService } from "../../app/modules/sessions/session";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
 import emitFromJob from "../helpers/emitFromJob";
@@ -57,23 +59,25 @@ export default async function convertFileToSession(job: any) {
         leadRole: attributesMapping.leadRole,
         annotations: [],
       };
+      const inputTokens = encode(getConversationFromJSON(json)).length;
       await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, json);
+
+      const buffer = await fse.readFile(
+        `tmp/${outputFolder}/${outputFileName}.json`,
+      );
+
+      await storage.upload({
+        file: { buffer, size: buffer.length, type: "application/json" },
+        uploadPath: `${outputFolder}/${outputFileName}.json`,
+      });
+
+      await SessionService.updateById(sessionId, {
+        hasConverted: true,
+        inputTokens,
+      });
     } else {
       throw new Error("Files do not match the given format");
     }
-
-    const buffer = await fse.readFile(
-      `tmp/${outputFolder}/${outputFileName}.json`,
-    );
-
-    await storage.upload({
-      file: { buffer, size: buffer.length, type: "application/json" },
-      uploadPath: `${outputFolder}/${outputFileName}.json`,
-    });
-
-    await SessionService.updateById(sessionId, {
-      hasConverted: true,
-    });
 
     const sessionsCount = await SessionService.count({ project: projectId });
     const completedSessionsCount = await SessionService.count({

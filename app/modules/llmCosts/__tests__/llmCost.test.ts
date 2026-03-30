@@ -65,4 +65,61 @@ describe("LlmCostService", () => {
     expect(results).toHaveLength(2);
     results.forEach((r) => expect(r.sourceId).toBe(sourceId));
   });
+
+  describe("getOutputToInputRatio", () => {
+    it("returns null when no annotation records exist", async () => {
+      const result = await LlmCostService.getOutputToInputRatio(teamId);
+      expect(result).toBeNull();
+    });
+
+    it("returns null when records exist but not for annotation source", async () => {
+      await LlmCostService.create({ ...baseCost, source: "billing:check" });
+      const result = await LlmCostService.getOutputToInputRatio(teamId);
+      expect(result).toBeNull();
+    });
+
+    it("returns null when no records exist for the team", async () => {
+      const otherTeam = new Types.ObjectId().toString();
+      await LlmCostService.create({ ...baseCost, team: otherTeam });
+      const result = await LlmCostService.getOutputToInputRatio(teamId);
+      expect(result).toBeNull();
+    });
+
+    it("computes weighted output/input ratio across annotation records", async () => {
+      await LlmCostService.create({
+        ...baseCost,
+        source: "annotation:per-session",
+        inputTokens: 1000,
+        outputTokens: 200,
+      });
+      await LlmCostService.create({
+        ...baseCost,
+        source: "annotation:per-utterance",
+        inputTokens: 500,
+        outputTokens: 300,
+      });
+
+      const result = await LlmCostService.getOutputToInputRatio(teamId);
+      // totalInput = 1500, totalOutput = 500 → ratio = 500/1500 ≈ 0.333
+      expect(result).toBeCloseTo(500 / 1500, 5);
+    });
+
+    it("excludes non-annotation sources from the ratio", async () => {
+      await LlmCostService.create({
+        ...baseCost,
+        source: "annotation:per-session",
+        inputTokens: 1000,
+        outputTokens: 200,
+      });
+      await LlmCostService.create({
+        ...baseCost,
+        source: "billing:check",
+        inputTokens: 9999,
+        outputTokens: 9999,
+      });
+
+      const result = await LlmCostService.getOutputToInputRatio(teamId);
+      expect(result).toBeCloseTo(200 / 1000, 5);
+    });
+  });
 });

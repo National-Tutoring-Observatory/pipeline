@@ -6,6 +6,7 @@ import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.serve
 import useSubmitGuard from "~/modules/app/hooks/useSubmitGuard";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import { ProjectService } from "~/modules/projects/project";
 import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
 import { RunService } from "~/modules/runs/run";
@@ -38,7 +39,20 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }
   }
 
-  return { project, initialRun, duplicateWarnings };
+  const teamId =
+    typeof project.team === "string" ? project.team : project.team._id;
+  const [avgSecondsPerSession, outputToInputRatio] = await Promise.all([
+    RunService.getAverageSecondsPerSession(params.projectId),
+    LlmCostService.getOutputToInputRatio(teamId),
+  ]);
+
+  return {
+    project,
+    initialRun,
+    duplicateWarnings,
+    avgSecondsPerSession,
+    outputToInputRatio,
+  };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -86,7 +100,13 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function ProjectCreateRunRoute() {
-  const { project, initialRun, duplicateWarnings } = useLoaderData();
+  const {
+    project,
+    initialRun,
+    duplicateWarnings,
+    avgSecondsPerSession,
+    outputToInputRatio,
+  } = useLoaderData();
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const { isSubmitting, guard } = useSubmitGuard(
@@ -144,6 +164,8 @@ export default function ProjectCreateRunRoute() {
       isSubmitting={isSubmitting}
       initialRun={initialRun}
       duplicateWarnings={duplicateWarnings}
+      avgSecondsPerSession={avgSecondsPerSession}
+      outputToInputRatio={outputToInputRatio}
     />
   );
 }

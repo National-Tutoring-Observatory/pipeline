@@ -1,5 +1,4 @@
 import cloneDeep from "lodash/cloneDeep";
-import map from "lodash/map";
 import orderBy from "lodash/orderBy";
 import pull from "lodash/pull";
 import sampleSize from "lodash/sampleSize";
@@ -10,13 +9,14 @@ import type {
   SortDirection,
 } from "../components/sessionSelector";
 import SessionSelector from "../components/sessionSelector";
+import type { SessionData } from "../sessions.types";
 
 export default function SessionSelectorContainer({
   selectedSessions,
   onSelectedSessionsChanged,
 }: {
   selectedSessions: string[];
-  onSelectedSessionsChanged: (selectedSessions: string[]) => void;
+  onSelectedSessionsChanged: (sessions: SessionData[]) => void;
 }) {
   const sessionsFetcher = useFetcher({ key: "sessionsList" });
   const [userSampleSize, setUserSampleSize] = useState<number | null>(null);
@@ -36,6 +36,13 @@ export default function SessionSelectorContainer({
     return orderBy(sessions, [sortField], [sortDirection]);
   }, [sessionsFetcher.data?.sessions?.data, sortField, sortDirection]);
 
+  const toSessionData = (ids: string[]): SessionData[] => {
+    const idSet = new Set(ids);
+    return sortedSessions
+      .filter((s) => idSet.has(s._id))
+      .map((s) => ({ _id: s._id, inputTokens: s.inputTokens }));
+  };
+
   const onSortChanged = (field: SessionSortField) => {
     if (field === sortField) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -48,7 +55,7 @@ export default function SessionSelectorContainer({
   const onSelectAllToggled = (isChecked: boolean) => {
     if (isChecked) {
       onSelectedSessionsChanged(
-        map(sessionsFetcher.data?.sessions?.data, "_id"),
+        sortedSessions.map((s) => ({ _id: s._id, inputTokens: s.inputTokens })),
       );
     } else {
       onSelectedSessionsChanged([]);
@@ -62,14 +69,13 @@ export default function SessionSelectorContainer({
     sessionId: string;
     isChecked: boolean;
   }) => {
-    const clonedSelectedSessions = cloneDeep(selectedSessions);
+    const clonedIds = cloneDeep(selectedSessions);
     if (isChecked) {
-      clonedSelectedSessions.push(sessionId);
-      onSelectedSessionsChanged(clonedSelectedSessions);
+      clonedIds.push(sessionId);
     } else {
-      pull(clonedSelectedSessions, sessionId);
-      onSelectedSessionsChanged(clonedSelectedSessions);
+      pull(clonedIds, sessionId);
     }
+    onSelectedSessionsChanged(toSessionData(clonedIds));
   };
 
   const onSampleSizeChanged = (size: number) => {
@@ -77,10 +83,11 @@ export default function SessionSelectorContainer({
   };
 
   const onRandomizeClicked = () => {
-    if (!sessionsFetcher.data?.sessions?.data) return;
-    const allSessionIds = map(sessionsFetcher.data.sessions.data, "_id");
-    const randomSessions = sampleSize(allSessionIds, randomSampleSize);
-    onSelectedSessionsChanged(randomSessions);
+    if (!sortedSessions.length) return;
+    const randomSessions = sampleSize(sortedSessions, randomSampleSize);
+    onSelectedSessionsChanged(
+      randomSessions.map((s) => ({ _id: s._id, inputTokens: s.inputTokens })),
+    );
   };
 
   useEffect(() => {
@@ -88,6 +95,13 @@ export default function SessionSelectorContainer({
     queryParams.set("project", params.projectId || "");
     sessionsFetcher.load(`/api/sessionsList?${queryParams.toString()}`);
   }, []);
+
+  useEffect(() => {
+    if (!sessionsFetcher.data?.sessions?.data) return;
+    if (selectedSessions.length > 0) {
+      onSelectedSessionsChanged(toSessionData(selectedSessions));
+    }
+  }, [sessionsFetcher.data?.sessions?.data]);
 
   return (
     <SessionSelector

@@ -8,6 +8,7 @@ export default new mongoose.Schema({
   fileType: { type: String },
   error: { type: String },
   hasConverted: { type: Boolean, default: false },
+  inputTokens: { type: Number },
   startedAt: { type: Date },
   finishedAt: { type: Date },
   hasErrored: { type: Boolean, default: false },

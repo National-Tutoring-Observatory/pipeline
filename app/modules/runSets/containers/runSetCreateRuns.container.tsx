@@ -19,6 +19,8 @@ interface RunSetCreateRunsContainerProps {
   runSet: RunSet;
   usedPromptModels: PromptModelPair[];
   avgSecondsPerSession: number | null;
+  outputToInputRatio: number | null;
+  sessions: Array<{ inputTokens?: number }>;
   onSubmit: (requestBody: string) => void;
   onCancel: () => void;
   isLoading: boolean;
@@ -29,6 +31,8 @@ export default function RunSetCreateRunsContainer({
   runSet,
   usedPromptModels,
   avgSecondsPerSession,
+  outputToInputRatio,
+  sessions,
   onSubmit,
   onCancel,
   isLoading,
@@ -55,9 +59,10 @@ export default function RunSetCreateRunsContainer({
     usedKeys.has(d.key),
   );
 
-  const estimation = calculateEstimates(runDefinitions, runSet.sessions || [], {
+  const estimation = calculateEstimates(runDefinitions, sessions, {
     shouldRunVerification,
     avgSecondsPerSession,
+    outputToInputRatio,
   });
 
   const handleRemoveCard = (key: string) => {

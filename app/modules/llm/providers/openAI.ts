@@ -3,11 +3,11 @@ import applySchemaToRequest from "../helpers/applySchemaToRequest.js";
 import registerLLM from "../helpers/registerLLM.js";
 
 registerLLM("OPEN_AI", {
-  init: () => {
+  init: (config?: { timeout?: number }) => {
     const openai = new OpenAI({
       apiKey: process.env.OPEN_AI_KEY,
       maxRetries: 0,
-      timeout: 180_000,
+      timeout: config?.timeout ?? 180_000,
     });
     return openai;
   },

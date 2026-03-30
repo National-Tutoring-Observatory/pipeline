@@ -27,7 +27,7 @@ import type {
 } from "~/modules/llmCosts/llmCosts.types";
 
 interface SpendAnalyticsProps {
-  byModel: CostByModel[];
+  byModel: Array<CostByModel & { modelName: string }>;
   bySource: Array<{ label: string; totalCost: number }>;
   overTime: CostOverTime[];
   granularity: SpendGranularity;
@@ -57,15 +57,19 @@ function EmptyState() {
   );
 }
 
-function SpendByModelChart({ data }: { data: CostByModel[] }) {
+function SpendByModelChart({
+  data,
+}: {
+  data: Array<CostByModel & { modelName: string }>;
+}) {
   if (data.length === 0) return <EmptyState />;
 
   return (
-    <ChartContainer config={costChartConfig} className="max-h-72 w-full">
+    <ChartContainer config={costChartConfig} className="h-72 w-full">
       <BarChart data={data} layout="vertical" margin={{ left: 20 }}>
         <CartesianGrid horizontal={false} />
         <YAxis
-          dataKey="model"
+          dataKey="modelName"
           type="category"
           tickLine={false}
           axisLine={false}
@@ -115,7 +119,7 @@ function SpendBySourceChart({
   if (data.length === 0) return <EmptyState />;
 
   return (
-    <ChartContainer config={costChartConfig} className="max-h-72 w-full">
+    <ChartContainer config={costChartConfig} className="h-72 w-full">
       <BarChart data={data} layout="vertical" margin={{ left: 20 }}>
         <CartesianGrid horizontal={false} />
         <YAxis
@@ -165,7 +169,7 @@ function SpendOverTimeChart({
           </SelectContent>
         </Select>
       </div>
-      <ChartContainer config={costChartConfig} className="max-h-72 w-full">
+      <ChartContainer config={costChartConfig} className="h-72 w-full">
         <BarChart data={data}>
           <CartesianGrid vertical={false} />
           <XAxis

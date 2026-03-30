@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import Flag from "~/modules/featureFlags/components/flag";
+import type { SessionData } from "~/modules/sessions/sessions.types";
 import RunSetCreatorAnnotationType from "../components/runSetCreatorAnnotationType";
 import RunSetCreatorFooter from "../components/runSetCreatorFooter";
 import RunSetCreatorFormAlerts from "../components/runSetCreatorFormAlerts";
@@ -27,12 +28,14 @@ function getDefaultName(prefillData?: PrefillData | null): string {
 export default function RunSetCreatorContainer({
   prefillData,
   avgSecondsPerSession,
+  outputToInputRatio,
   onSubmit,
   isLoading,
   errors,
 }: {
   prefillData?: PrefillData | null;
   avgSecondsPerSession: number | null;
+  outputToInputRatio: number | null;
   onSubmit: (requestBody: string) => void;
   isLoading: boolean;
   errors: Record<string, string>;
@@ -47,7 +50,7 @@ export default function RunSetCreatorContainer({
   const [selectedModels, setSelectedModels] = useState<string[]>(
     prefillData?.selectedModels || [],
   );
-  const [selectedSessions, setSelectedSessions] = useState<string[]>(
+  const [selectedSessions, setSelectedSessions] = useState<SessionData[]>(
     prefillData?.selectedSessions || [],
   );
   const [shouldRunVerification, setShouldRunVerification] = useState(false);
@@ -66,6 +69,7 @@ export default function RunSetCreatorContainer({
   const estimation = calculateEstimates(runDefinitions, selectedSessions, {
     shouldRunVerification,
     avgSecondsPerSession,
+    outputToInputRatio,
   });
 
   const handleAnnotationTypeChange = (type: string) => {
@@ -103,7 +107,7 @@ export default function RunSetCreatorContainer({
         name,
         annotationType,
         definitions: runDefinitions,
-        sessions: selectedSessions,
+        sessions: selectedSessions.map((s) => s._id),
         shouldRunVerification,
       },
     });
@@ -142,7 +146,7 @@ export default function RunSetCreatorContainer({
           </Flag>
 
           <RunSetCreatorSessions
-            selectedSessions={selectedSessions}
+            selectedSessions={selectedSessions.map((s) => s._id)}
             onSessionsChanged={setSelectedSessions}
           />
         </div>
@@ -160,7 +164,7 @@ export default function RunSetCreatorContainer({
       <RunSetCreatorFooter
         name={name}
         runsCount={runDefinitions.length}
-        selectedSessions={selectedSessions}
+        selectedSessions={selectedSessions.map((s) => s._id)}
         estimation={estimation}
         isLoading={isLoading}
         onCreateClicked={handleSubmit}

@@ -16,7 +16,10 @@ import Flag from "~/modules/featureFlags/components/flag";
 import AnnotationTypeSelectorContainer from "~/modules/prompts/containers/annoationTypeSelectorContainer";
 import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
 import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
+import EstimateSummary from "~/modules/runSets/components/estimateSummary";
+import type { EstimationResult } from "~/modules/runSets/runSets.types";
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
+import type { SessionData } from "~/modules/sessions/sessions.types";
 import RunNameAlert from "./runNameAlert";
 
 export default function RunCreator({
@@ -27,6 +30,7 @@ export default function RunCreator({
   selectedPromptVersion,
   selectedModel,
   selectedSessions,
+  estimation,
   isSubmitting,
   isRunButtonDisabled,
   onRunNameChanged,
@@ -46,6 +50,7 @@ export default function RunCreator({
   selectedPromptVersion: number | null;
   selectedModel: string;
   selectedSessions: string[];
+  estimation: EstimationResult;
   isSubmitting: boolean;
   isRunButtonDisabled: boolean;
   onRunNameChanged: (name: string) => void;
@@ -53,7 +58,7 @@ export default function RunCreator({
   onSelectedPromptChanged: (selectedPrompt: string) => void;
   onSelectedPromptVersionChanged: (selectedPromptVersion: number) => void;
   onSelectedModelChanged: (selectedModel: string) => void;
-  onSelectedSessionsChanged: (selectedSessions: string[]) => void;
+  onSelectedSessionsChanged: (sessions: SessionData[]) => void;
   shouldRunVerification: boolean;
   onShouldRunVerificationChanged: (value: boolean) => void;
   onStartRunButtonClicked: () => void;
@@ -190,7 +195,8 @@ export default function RunCreator({
             selectedSessions={selectedSessions}
             onSelectedSessionsChanged={onSelectedSessionsChanged}
           />
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex items-center justify-center gap-4">
+            <EstimateSummary estimation={estimation} />
             <Button
               size="sm"
               disabled={isRunButtonDisabled}

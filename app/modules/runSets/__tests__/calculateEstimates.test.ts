@@ -19,23 +19,29 @@ function makeDefinition(
   };
 }
 
+const COST_BUFFER_MULTIPLIER = 1.5;
+
 function expectedCost(
   numPrompts: number,
   modelIndices: number[],
   numSessions: number,
   verificationMultiplier = 1,
 ) {
-  const inputTokens = 250;
-  const outputTokens = 250;
-  return modelIndices.reduce((sum, i) => {
+  const totalInputTokens = numSessions * 250;
+  const totalOutputTokens = numSessions * 250;
+  const raw = modelIndices.reduce((sum, i) => {
     return (
       sum +
       numPrompts *
-        numSessions *
         verificationMultiplier *
-        calculateCost({ modelCode: allModels[i], inputTokens, outputTokens })
+        calculateCost({
+          modelCode: allModels[i],
+          inputTokens: totalInputTokens,
+          outputTokens: totalOutputTokens,
+        })
     );
   }, 0);
+  return raw * COST_BUFFER_MULTIPLIER;
 }
 
 function expectedTime(numDefinitions: number, numSessions: number) {
@@ -47,8 +53,8 @@ describe("calculateEstimates", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
     const result = calculateEstimates(definitions, Array(10).fill({}));
 
-    expect(result.estimatedCost).toBeCloseTo(expectedCost(1, [0], 10), 5);
-    expect(result.estimatedTimeSeconds).toBeCloseTo(expectedTime(1, 10), 1);
+    expect(result.estimatedCost).toBe(expectedCost(1, [0], 10));
+    expect(result.estimatedTimeSeconds).toBe(expectedTime(1, 10));
   });
 
   it("calculates cost and time for multiple models", () => {
@@ -60,8 +66,8 @@ describe("calculateEstimates", () => {
     ];
     const result = calculateEstimates(definitions, Array(10).fill({}));
 
-    expect(result.estimatedCost).toBeCloseTo(expectedCost(2, [0, 2], 10), 5);
-    expect(result.estimatedTimeSeconds).toBeCloseTo(expectedTime(4, 10), 1);
+    expect(result.estimatedCost).toBe(expectedCost(2, [0, 2], 10));
+    expect(result.estimatedTimeSeconds).toBe(expectedTime(4, 10));
   });
 
   it("returns zero when no selections", () => {
@@ -77,8 +83,8 @@ describe("calculateEstimates", () => {
       shouldRunVerification: true,
     });
 
-    expect(result.estimatedCost).toBeCloseTo(expectedCost(1, [0], 10, 2), 5);
-    expect(result.estimatedTimeSeconds).toBeCloseTo(expectedTime(1, 10) * 2, 1);
+    expect(result.estimatedCost).toBe(expectedCost(1, [0], 10, 2));
+    expect(result.estimatedTimeSeconds).toBe(expectedTime(1, 10) * 2);
   });
 
   it("uses historical avgSecondsPerSession when provided", () => {
@@ -106,7 +112,7 @@ describe("calculateEstimates", () => {
       avgSecondsPerSession: null,
     });
 
-    expect(result.estimatedTimeSeconds).toBeCloseTo(expectedTime(1, 10), 1);
+    expect(result.estimatedTimeSeconds).toBe(expectedTime(1, 10));
   });
 
   it("falls back to default when avgSecondsPerSession is 0", () => {
@@ -115,6 +121,87 @@ describe("calculateEstimates", () => {
       avgSecondsPerSession: 0,
     });
 
-    expect(result.estimatedTimeSeconds).toBeCloseTo(expectedTime(1, 10), 1);
+    expect(result.estimatedTimeSeconds).toBe(expectedTime(1, 10));
+  });
+
+  it("uses real session inputTokens for cost", () => {
+    const definitions = [makeDefinition("promptA", 1, allModels[0])];
+    const sessions = Array(10).fill({ inputTokens: 1000 });
+    const result = calculateEstimates(definitions, sessions);
+
+    const totalInputTokens = 10 * 1000;
+    const expected =
+      calculateCost({
+        modelCode: allModels[0],
+        inputTokens: totalInputTokens,
+        outputTokens: totalInputTokens,
+      }) * COST_BUFFER_MULTIPLIER;
+    expect(result.estimatedCost).toBe(expected);
+  });
+
+  it("uses per-session fallback for sessions without inputTokens", () => {
+    const definitions = [makeDefinition("promptA", 1, allModels[0])];
+    const withDefault = calculateEstimates(definitions, Array(10).fill({}));
+    const withUndefined = calculateEstimates(
+      definitions,
+      Array(10).fill({ inputTokens: undefined }),
+    );
+
+    expect(withUndefined.estimatedCost).toBe(withDefault.estimatedCost);
+  });
+
+  it("mixes real tokens and fallback for sessions without inputTokens", () => {
+    const definitions = [makeDefinition("promptA", 1, allModels[0])];
+    const sessions = [{ inputTokens: 1000 }, { inputTokens: 2000 }, {}];
+    const result = calculateEstimates(definitions, sessions);
+
+    const totalInputTokens = 1000 + 2000 + 250;
+    const expected =
+      calculateCost({
+        modelCode: allModels[0],
+        inputTokens: totalInputTokens,
+        outputTokens: totalInputTokens,
+      }) * COST_BUFFER_MULTIPLIER;
+    expect(result.estimatedCost).toBe(expected);
+  });
+
+  it("uses outputToInputRatio for output tokens", () => {
+    const definitions = [makeDefinition("promptA", 1, allModels[0])];
+    const sessions = Array(10).fill({ inputTokens: 1000 });
+    const outputToInputRatio = 2.5;
+    const result = calculateEstimates(definitions, sessions, {
+      outputToInputRatio,
+    });
+
+    const totalInputTokens = 10 * 1000;
+    const expected =
+      calculateCost({
+        modelCode: allModels[0],
+        inputTokens: totalInputTokens,
+        outputTokens: totalInputTokens * outputToInputRatio,
+      }) * COST_BUFFER_MULTIPLIER;
+    expect(result.estimatedCost).toBe(expected);
+  });
+
+  it("falls back to default ratio when outputToInputRatio is null", () => {
+    const definitions = [makeDefinition("promptA", 1, allModels[0])];
+    const sessions = Array(10).fill({ inputTokens: 1000 });
+    const withNull = calculateEstimates(definitions, sessions, {
+      outputToInputRatio: null,
+    });
+    const withDefault = calculateEstimates(definitions, sessions);
+
+    expect(withNull.estimatedCost).toBe(withDefault.estimatedCost);
+  });
+
+  it("falls back to default ratio when outputToInputRatio is 0", () => {
+    const definitions = [makeDefinition("promptA", 1, allModels[0])];
+    const sessions = Array(10).fill({ inputTokens: 1000 });
+    const withZero = calculateEstimates(definitions, sessions, {
+      outputToInputRatio: 0,
+    });
+    const withDefault = calculateEstimates(definitions, sessions);
+
+    expect(withZero.estimatedCost).toBe(withDefault.estimatedCost);
   });
 });

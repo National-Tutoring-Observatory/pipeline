@@ -8,6 +8,7 @@ import { renderToPipeableStream } from "react-dom/server";
 import type {
   AppLoadContext,
   EntryContext,
+  HandleErrorFunction,
   unstable_ServerInstrumentation,
 } from "react-router";
 import { ServerRouter } from "react-router";
@@ -63,6 +64,17 @@ const otelServerInstrumentation: unstable_ServerInstrumentation = {
 };
 
 export const unstable_instrumentations = [otelServerInstrumentation];
+
+export const handleError: HandleErrorFunction = (error, { request }) => {
+  if (!request.signal.aborted) {
+    console.error(error);
+    const span = trace.getActiveSpan();
+    if (span) {
+      span.recordException(error as Error);
+      span.setStatus({ code: SpanStatusCode.ERROR });
+    }
+  }
+};
 
 const setupQueues = async () => {
   createQueue("tasks");
