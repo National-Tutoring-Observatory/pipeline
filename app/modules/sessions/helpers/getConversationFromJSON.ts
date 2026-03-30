@@ -1,9 +1,6 @@
 import map from "lodash/map";
 import pick from "lodash/pick";
-import type {
-  SessionFile,
-  Utterance,
-} from "../../app/modules/sessions/sessions.types";
+import type { SessionFile, Utterance } from "~/modules/sessions/sessions.types";
 
 export default (sessionJson: SessionFile) => {
   return JSON.stringify({

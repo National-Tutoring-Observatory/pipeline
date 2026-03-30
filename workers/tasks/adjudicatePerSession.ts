@@ -5,10 +5,10 @@ import buildAnnotationSchema from "../../app/modules/llm/helpers/buildAnnotation
 import classifyLLMError from "../../app/modules/llm/helpers/classifyLLMError";
 import LLM from "../../app/modules/llm/llm";
 import { RunService } from "../../app/modules/runs/run";
+import getConversationFromJSON from "../../app/modules/sessions/helpers/getConversationFromJSON";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
 import buildAdjudicationPrompt from "../helpers/buildAdjudicationPrompt";
 import emitFromJob from "../helpers/emitFromJob";
-import getConversationFromJSON from "../helpers/getConversationFromJSON";
 import updateRunSession from "../helpers/updateRunSession";
 import adjudicatePerSessionPrompts from "../prompts/adjudicatePerSession.prompts.json";
 
