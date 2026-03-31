@@ -13,7 +13,6 @@ import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromR
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import BillingAuthorization from "~/modules/billing/authorization";
-import { TeamBillingService } from "~/modules/billing/billing";
 import { BillingPeriodService } from "~/modules/billing/billingPeriod";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
 import AddCreditsDialog from "~/modules/billing/components/addCreditsDialog";
@@ -25,6 +24,7 @@ import isBillingEnabled from "~/modules/billing/helpers/isBillingEnabled.server"
 import { groupCostsBySource } from "~/modules/billing/helpers/sourceLabels";
 import addCredits from "~/modules/billing/services/addCredits.server";
 import { StripeService } from "~/modules/billing/stripe";
+import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import { TeamCreditService } from "~/modules/billing/teamCredit";
 import addDialog, { closeDialog } from "~/modules/dialogs/addDialog";

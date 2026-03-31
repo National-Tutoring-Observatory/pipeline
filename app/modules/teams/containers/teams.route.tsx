@@ -8,7 +8,7 @@ import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromR
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import { TeamBillingService } from "~/modules/billing/billing";
+import { TeamBillingService } from "~/modules/billing/teamBilling";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";

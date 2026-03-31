@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import makeDate from "../../../../test/helpers/makeDate";
-import { TeamBillingService } from "../billing";
 import { BillingPeriodService } from "../billingPeriod";
 import { BillingPlanService } from "../billingPlan";
+import { TeamBillingService } from "../teamBilling";
 import { TeamBillingPlanService } from "../teamBillingPlan";
 import { TeamCreditService } from "../teamCredit";
 
