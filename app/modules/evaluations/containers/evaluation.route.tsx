@@ -16,6 +16,7 @@ import Evaluation from "~/modules/evaluations/components/evaluation";
 import AdjudicationDialogContainer from "~/modules/evaluations/containers/adjudicationDialog.container";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
 import getTopPerformersVsGoldLabel from "~/modules/evaluations/helpers/getTopPerformersVsGoldLabel";
+
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
@@ -224,9 +225,11 @@ export default function EvaluationRoute() {
   ];
 
   const report = evaluation.report || [];
-  const firstReport = report[0];
-  const performers = firstReport
-    ? getTopPerformersVsGoldLabel(firstReport, evaluation.baseRun)
+  const [activeTab, setActiveTab] = useState(report[0]?.fieldKey || "");
+
+  const activeReport = report.find((r) => r.fieldKey === activeTab);
+  const performers = activeReport
+    ? getTopPerformersVsGoldLabel(activeReport, evaluation.baseRun)
     : [];
   const nonHumanPerformerCount = performers.filter((p) => !p.isHuman).length;
   const canStartAdjudication =
@@ -250,7 +253,8 @@ export default function EvaluationRoute() {
   const openAdjudicationDialog = () => {
     addDialog(
       <AdjudicationDialogContainer
-        evaluation={evaluation}
+        report={activeReport || null}
+        baseRun={evaluation.baseRun}
         evaluationPrompt={evaluationPrompt}
         onStartAdjudication={submitStartAdjudication}
       />,
@@ -264,6 +268,8 @@ export default function EvaluationRoute() {
       progress={progress}
       adjudicationRun={adjudicationRun}
       adjudicationProgress={adjudicationProgress}
+      activeTab={activeTab}
+      onActiveTabChanged={setActiveTab}
       canStartAdjudication={canStartAdjudication}
       onAdjudicationClicked={openAdjudicationDialog}
     />

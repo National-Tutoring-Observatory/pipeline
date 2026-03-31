@@ -22,6 +22,8 @@ export default function Evaluation({
   progress,
   adjudicationRun,
   adjudicationProgress,
+  activeTab,
+  onActiveTabChanged,
   canStartAdjudication,
   onAdjudicationClicked,
 }: {
@@ -30,6 +32,8 @@ export default function Evaluation({
   progress: number;
   adjudicationRun: Run | null;
   adjudicationProgress: number;
+  activeTab: string;
+  onActiveTabChanged: (value: string) => void;
   canStartAdjudication: boolean;
   onAdjudicationClicked: () => void;
 }) {
@@ -86,7 +90,7 @@ export default function Evaluation({
         )}
 
         {evaluation.isComplete && report.length > 0 && (
-          <Tabs defaultValue={report[0].fieldKey}>
+          <Tabs value={activeTab} onValueChange={onActiveTabChanged}>
             <p className="text-muted-foreground mb-2 text-sm">
               This shows an evaluation based upon the following annotation
               schema field:
