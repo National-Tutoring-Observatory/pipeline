@@ -4,6 +4,7 @@ export interface PairwiseMatrixRun {
   runId: string;
   runName: string;
   isHuman: boolean;
+  isAdjudication: boolean;
 }
 
 export interface PairwiseMatrixCell {
@@ -23,6 +24,7 @@ export default function buildPairwiseMatrix(
     runId: summary.runId,
     runName: summary.runName,
     isHuman: summary.isHuman,
+    isAdjudication: summary.isAdjudication,
   }));
 
   const kappaLookup = new Map<string, PairwiseMatrixCell>();
