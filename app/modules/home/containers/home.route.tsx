@@ -1,6 +1,7 @@
 import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { TeamCreditService } from "~/modules/billing/teamCredit";
+import { TeamService } from "~/modules/teams/team";
 import type { UserTeam } from "~/modules/users/users.types";
 import Home from "../components/home";
 import type { Route } from "./+types/home.route";
@@ -11,6 +12,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   const user = await getSessionUser({ request });
 
   const teamId = (user?.teams[0] as UserTeam | undefined)?.team;
+
+  if (teamId) {
+    const team = await TeamService.findById(teamId);
+    if (!team?.isPersonal) return redirect("/projects");
+  }
+
   const creditBalance = teamId
     ? await TeamCreditService.sumByTeam(String(teamId))
     : 0;
