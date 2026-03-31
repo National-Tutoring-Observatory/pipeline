@@ -36,10 +36,10 @@ describe("TeamAuthorization", () => {
       expect(TeamAuthorization.canCreate(superAdminUser)).toBe(true);
     });
 
-    it("denies regular users from creating teams", () => {
-      expect(TeamAuthorization.canCreate(teamAdminUser)).toBe(false);
-      expect(TeamAuthorization.canCreate(teamMemberUser)).toBe(false);
-      expect(TeamAuthorization.canCreate(nonTeamUser)).toBe(false);
+    it("allows regular users to create teams", () => {
+      expect(TeamAuthorization.canCreate(teamAdminUser)).toBe(true);
+      expect(TeamAuthorization.canCreate(teamMemberUser)).toBe(true);
+      expect(TeamAuthorization.canCreate(nonTeamUser)).toBe(true);
     });
 
     it("denies null users from creating teams", () => {

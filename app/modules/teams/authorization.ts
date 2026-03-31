@@ -7,7 +7,7 @@ import {
 
 const TeamAuthorization = {
   canCreate(user: User | null): boolean {
-    return userIsSuperAdmin(user);
+    return user !== null;
   },
 
   canView(user: User | null, teamId: string): boolean {

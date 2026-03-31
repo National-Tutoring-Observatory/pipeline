@@ -8,8 +8,6 @@ import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromR
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import { BillingPlanService } from "~/modules/billing/billingPlan";
-import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
@@ -74,8 +72,7 @@ export async function action({ request }: Route.ActionArgs) {
         return data(
           {
             errors: {
-              general:
-                "Insufficient permissions. Only super admins can create teams.",
+              general: "Insufficient permissions.",
             },
           },
           { status: 403 },
@@ -91,11 +88,7 @@ export async function action({ request }: Route.ActionArgs) {
           { status: 400 },
         );
       }
-      const team = await TeamService.create({ name, createdBy: user._id });
-      const defaultPlan = await BillingPlanService.findDefault();
-      if (defaultPlan) {
-        await TeamBillingPlanService.assignPlan(team._id, defaultPlan._id);
-      }
+      const team = await TeamService.createForUser(name, user._id);
       return data({
         success: true,
         intent: "CREATE_TEAM",

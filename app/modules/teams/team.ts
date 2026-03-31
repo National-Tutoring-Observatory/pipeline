@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import teamSchema from "~/lib/schemas/team.schema";
+import { BillingPlanService } from "~/modules/billing/billingPlan";
+import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import type { FindOptions, PaginateProps } from "~/modules/common/types";
+import { UserService } from "~/modules/users/user";
 import type { Team } from "./teams.types";
 
 const TeamModel = mongoose.models.Team || mongoose.model("Team", teamSchema);
@@ -109,5 +112,21 @@ export class TeamService {
   static async findAllIds(): Promise<string[]> {
     const ids = await TeamModel.distinct("_id");
     return ids.map((id: any) => id.toString());
+  }
+
+  static async createForUser(name: string, userId: string): Promise<Team> {
+    const [team, defaultPlan] = await Promise.all([
+      this.create({ name, createdBy: userId }),
+      BillingPlanService.findDefault(),
+    ]);
+
+    await Promise.all([
+      defaultPlan
+        ? TeamBillingPlanService.assignPlan(team._id, defaultPlan._id)
+        : Promise.resolve(),
+      UserService.addTeam(userId, team._id, "ADMIN"),
+    ]);
+
+    return team;
   }
 }

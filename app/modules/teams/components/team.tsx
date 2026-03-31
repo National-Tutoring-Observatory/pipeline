@@ -6,11 +6,14 @@ import {
 } from "@/components/ui/pageHeader";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Pencil } from "lucide-react";
+import { useContext } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
+import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import Flag from "~/modules/featureFlags/components/flag";
-import useTeamAuthorization from "../hooks/useTeamAuthorization";
+import type { User } from "~/modules/users/users.types";
+import TeamAuthorization from "../authorization";
 import type { Team } from "../teams.types";
 
 interface TeamProps {
@@ -26,7 +29,8 @@ export default function Team({
 }: TeamProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { canUpdate } = useTeamAuthorization(team._id);
+  const user = useContext(AuthenticationContext) as User | null;
+  const canUpdate = TeamAuthorization.canUpdate(user, team._id);
 
   const parts = location.pathname.split("/").filter(Boolean);
   // Expect path like /teams/:id(/projects|prompts|users)
