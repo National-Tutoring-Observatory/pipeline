@@ -102,6 +102,16 @@ export class UserService {
     return doc ? this.toUser(doc) : null;
   }
 
+  static async addTeam(
+    userId: string,
+    teamId: string,
+    role: string,
+  ): Promise<void> {
+    await UserModel.findByIdAndUpdate(userId, {
+      $push: { teams: { team: teamId, role } },
+    });
+  }
+
   static async removeTeam(userId: string, teamId: string): Promise<void> {
     await UserModel.findByIdAndUpdate(userId, {
       $pull: { teams: { team: teamId } },

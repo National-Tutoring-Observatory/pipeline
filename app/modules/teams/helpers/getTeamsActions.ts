@@ -1,9 +1,8 @@
-import useTeamAuthorization from "../hooks/useTeamAuthorization";
+import type { User } from "~/modules/users/users.types";
+import TeamAuthorization from "../authorization";
 
-export default () => {
-  const { canCreate } = useTeamAuthorization();
-
-  if (!canCreate) return [];
+export default (user: User | null) => {
+  if (!TeamAuthorization.canCreate(user)) return [];
 
   return [
     {

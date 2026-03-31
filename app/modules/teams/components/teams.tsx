@@ -56,7 +56,7 @@ export default function Teams({
       <Collection
         items={teams}
         itemsLayout="list"
-        actions={getTeamsActions()}
+        actions={getTeamsActions(user)}
         filters={teamsFilters}
         sortOptions={teamsSortOptions}
         hasSearch

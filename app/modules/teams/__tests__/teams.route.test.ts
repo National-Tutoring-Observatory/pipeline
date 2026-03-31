@@ -102,6 +102,13 @@ describe("teams.route", () => {
       const retrieved = await TeamService.findById(result.data._id);
       expect(retrieved).toBeDefined();
       expect(retrieved?.name).toBe("new team");
+
+      const updatedAdmin = await UserService.findById(admin._id);
+      expect(
+        updatedAdmin?.teams.some(
+          (t) => t.team === result.data._id && t.role === "ADMIN",
+        ),
+      ).toBe(true);
     });
 
     it("assigns the default billing plan to the new team", async () => {
@@ -182,6 +189,61 @@ describe("teams.route", () => {
 
       expect(result.errors).toBeDefined();
       expect(result.errors.general).toMatch(/Team name is required/);
+    });
+
+    it("creates a team when user is a regular user", async () => {
+      const user = await UserService.create({
+        username: "user1",
+        role: "USER",
+        teams: [],
+      });
+
+      const cookieHeader = await loginUser(user._id);
+
+      const response = (await action({
+        request: new Request("http://localhost/teams", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body: JSON.stringify({
+            intent: "CREATE_TEAM",
+            payload: { name: "my team" },
+          }),
+        }),
+        params: {},
+      } as any)) as any;
+
+      const result = response.data;
+
+      expect(result.success).toBe(true);
+      expect(result.data.name).toBe("my team");
+    });
+
+    it("adds the regular user as ADMIN of the newly created team", async () => {
+      const user = await UserService.create({
+        username: "user1",
+        role: "USER",
+        teams: [],
+      });
+
+      const cookieHeader = await loginUser(user._id);
+
+      const response = (await action({
+        request: new Request("http://localhost/teams", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body: JSON.stringify({
+            intent: "CREATE_TEAM",
+            payload: { name: "my team" },
+          }),
+        }),
+        params: {},
+      } as any)) as any;
+
+      const teamId = response.data.data._id;
+      const updated = await UserService.findById(user._id);
+      expect(
+        updated?.teams.some((t) => t.team === teamId && t.role === "ADMIN"),
+      ).toBe(true);
     });
   });
 
