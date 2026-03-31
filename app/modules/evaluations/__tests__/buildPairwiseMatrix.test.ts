@@ -18,18 +18,21 @@ function buildReport(
         runId: "run-1",
         runName: "Run A",
         isHuman: false,
+        isAdjudication: false,
         meanKappaWithOthers: 0.78,
       },
       {
         runId: "run-2",
         runName: "Run B",
         isHuman: false,
+        isAdjudication: false,
         meanKappaWithOthers: 0.75,
       },
       {
         runId: "run-3",
         runName: "Run C",
         isHuman: false,
+        isAdjudication: false,
         meanKappaWithOthers: 0.68,
       },
     ],
@@ -46,16 +49,19 @@ describe("buildPairwiseMatrix", () => {
       runId: "run-1",
       runName: "Run A",
       isHuman: false,
+      isAdjudication: false,
     });
     expect(matrix.runs[1]).toEqual({
       runId: "run-2",
       runName: "Run B",
       isHuman: false,
+      isAdjudication: false,
     });
     expect(matrix.runs[2]).toEqual({
       runId: "run-3",
       runName: "Run C",
       isHuman: false,
+      isAdjudication: false,
     });
   });
 

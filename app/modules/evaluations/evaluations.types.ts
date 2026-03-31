@@ -12,6 +12,7 @@ export interface RunSummary {
   runId: string;
   runName: string;
   isHuman: boolean;
+  isAdjudication: boolean;
   meanKappaWithOthers: number;
 }
 

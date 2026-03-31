@@ -5,6 +5,7 @@ export interface TopPerformer {
   runId: string;
   runName: string;
   isHuman: boolean;
+  isAdjudication: boolean;
   kappa: number;
   sampleSize: number;
   precision?: number;
@@ -22,6 +23,9 @@ export default function getTopPerformersVsGoldLabel(
   const runIsHumanMap = new Map(
     report.runSummaries.map((s) => [s.runId, s.isHuman]),
   );
+  const runIsAdjudicationMap = new Map(
+    report.runSummaries.map((s) => [s.runId, s.isAdjudication]),
+  );
 
   const baseRunPairs = report.pairwise.filter(
     (pair) => pair.runA === baseRunId || pair.runB === baseRunId,
@@ -35,6 +39,7 @@ export default function getTopPerformersVsGoldLabel(
       runId: otherRunId,
       runName: runNameMap.get(otherRunId) || otherRunId,
       isHuman: runIsHumanMap.get(otherRunId) || false,
+      isAdjudication: runIsAdjudicationMap.get(otherRunId) || false,
       kappa: pair.kappa,
       sampleSize: pair.sampleSize,
       precision: pair.precision,

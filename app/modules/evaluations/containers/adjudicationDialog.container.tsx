@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import AdjudicationDialog from "../components/adjudicationDialog";
-import type { Evaluation } from "../evaluations.types";
+import type { EvaluationReport } from "../evaluations.types";
 import getTopPerformersVsGoldLabel from "../helpers/getTopPerformersVsGoldLabel";
 
 export default function AdjudicationDialogContainer({
-  evaluation,
+  report,
+  baseRun,
+  adjudicationRunIds,
   evaluationPrompt,
   onStartAdjudication,
 }: {
-  evaluation: Evaluation;
+  report: EvaluationReport | null;
+  baseRun: string;
+  adjudicationRunIds: string[];
   evaluationPrompt: { promptId: string; promptVersion: number } | null;
   onStartAdjudication: (
     selectedRuns: string[],
@@ -18,10 +22,10 @@ export default function AdjudicationDialogContainer({
     promptVersion: number,
   ) => void;
 }) {
-  const report = evaluation.report || [];
-  const firstReport = report[0];
-  const performers = firstReport
-    ? getTopPerformersVsGoldLabel(firstReport, evaluation.baseRun)
+  const performers = report
+    ? getTopPerformersVsGoldLabel(report, baseRun).filter(
+        (p) => !adjudicationRunIds.includes(p.runId),
+      )
     : [];
   const nonHumanPerformers = performers.filter((p) => !p.isHuman);
 

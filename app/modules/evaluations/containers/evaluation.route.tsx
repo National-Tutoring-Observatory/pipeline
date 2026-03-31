@@ -16,6 +16,7 @@ import Evaluation from "~/modules/evaluations/components/evaluation";
 import AdjudicationDialogContainer from "~/modules/evaluations/containers/adjudicationDialog.container";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
 import getTopPerformersVsGoldLabel from "~/modules/evaluations/helpers/getTopPerformersVsGoldLabel";
+
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
@@ -61,7 +62,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       }
     : null;
 
-  return { project, runSet, evaluation, evaluationPrompt };
+  return { project, runSet, evaluation, evaluationPrompt, evaluationRuns };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -94,7 +95,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
       const { modelCode, promptId, promptVersion } = payload;
 
-      EvaluationService.startAdjudication({
+      await EvaluationService.startAdjudication({
         evaluationId: params.evaluationId,
         selectedRunIds: selectedRuns,
         modelCode,
@@ -121,9 +122,18 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function EvaluationRoute() {
-  const { project, runSet, evaluation, evaluationPrompt } =
+  const { project, runSet, evaluation, evaluationPrompt, evaluationRuns } =
     useLoaderData<typeof loader>();
+
+  const adjudicationRun =
+    evaluationRuns.find(
+      (r) => r.isAdjudication && !r.isComplete && !r.stoppedAt,
+    ) || null;
+  const adjudicationRunIds = evaluationRuns
+    .filter((r) => r.isAdjudication)
+    .map((r) => r._id);
   const [progress, setProgress] = useState(0);
+  const [adjudicationProgress, setAdjudicationProgress] = useState(0);
   const { revalidate } = useRevalidator();
   const fetcher = useFetcher();
 
@@ -132,8 +142,43 @@ export default function EvaluationRoute() {
     if (!fetcher.data || !("success" in fetcher.data)) return;
     if (fetcher.data.intent === "START_ADJUDICATION") {
       toast.success("Adjudication started");
+      revalidate();
     }
-  }, [fetcher.state, fetcher.data]);
+  }, [fetcher.state, fetcher.data, revalidate]);
+
+  useHandleSockets({
+    event: "ANNOTATE_RUN",
+    matches: adjudicationRun
+      ? [
+          {
+            runId: adjudicationRun._id,
+            task: "ANNOTATE_RUN:START",
+            status: "FINISHED",
+          },
+          {
+            runId: adjudicationRun._id,
+            task: "ANNOTATE_RUN:PROCESS",
+            status: "STARTED",
+          },
+          {
+            runId: adjudicationRun._id,
+            task: "ANNOTATE_RUN:PROCESS",
+            status: "FINISHED",
+          },
+          {
+            runId: adjudicationRun._id,
+            task: "ANNOTATE_RUN:FINISH",
+            status: "FINISHED",
+          },
+        ]
+      : [],
+    callback: (payload) => {
+      if (has(payload, "progress")) {
+        setAdjudicationProgress(payload.progress);
+      }
+      debounceRevalidate(revalidate);
+    },
+  });
 
   useHandleSockets({
     event: "CREATE_EVALUATION",
@@ -183,9 +228,13 @@ export default function EvaluationRoute() {
   ];
 
   const report = evaluation.report || [];
-  const firstReport = report[0];
-  const performers = firstReport
-    ? getTopPerformersVsGoldLabel(firstReport, evaluation.baseRun)
+  const [activeTab, setActiveTab] = useState(report[0]?.fieldKey || "");
+
+  const activeReport = report.find((r) => r.fieldKey === activeTab);
+  const performers = activeReport
+    ? getTopPerformersVsGoldLabel(activeReport, evaluation.baseRun).filter(
+        (p) => !adjudicationRunIds.includes(p.runId),
+      )
     : [];
   const nonHumanPerformerCount = performers.filter((p) => !p.isHuman).length;
   const canStartAdjudication =
@@ -209,7 +258,9 @@ export default function EvaluationRoute() {
   const openAdjudicationDialog = () => {
     addDialog(
       <AdjudicationDialogContainer
-        evaluation={evaluation}
+        report={activeReport || null}
+        baseRun={evaluation.baseRun}
+        adjudicationRunIds={adjudicationRunIds}
         evaluationPrompt={evaluationPrompt}
         onStartAdjudication={submitStartAdjudication}
       />,
@@ -221,6 +272,10 @@ export default function EvaluationRoute() {
       evaluation={evaluation}
       breadcrumbs={breadcrumbs}
       progress={progress}
+      adjudicationRun={adjudicationRun}
+      adjudicationProgress={adjudicationProgress}
+      activeTab={activeTab}
+      onActiveTabChanged={setActiveTab}
       canStartAdjudication={canStartAdjudication}
       onAdjudicationClicked={openAdjudicationDialog}
     />
