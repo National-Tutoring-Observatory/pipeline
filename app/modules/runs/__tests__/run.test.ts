@@ -63,6 +63,6 @@ describe("RunService.start", () => {
 
     await RunService.start(run);
 
-    expect(createRunAnnotations).toHaveBeenCalledWith(run);
+    expect(createRunAnnotations).toHaveBeenCalledWith(run, undefined);
   });
 });
