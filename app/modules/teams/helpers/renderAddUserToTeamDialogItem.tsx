@@ -1,12 +1,23 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { User } from "~/modules/users/users.types";
+import type { TeamRole } from "../teams.types";
 
 export default function renderAddUserToTeamDialogItem(
   user: User,
-  selectedUsers: string[],
+  selectedUsers: Record<string, TeamRole>,
+  onRoleChanged: (userId: string, role: TeamRole) => void,
 ) {
-  const isChecked = selectedUsers.includes(user._id);
+  const role = selectedUsers[user._id];
+  const isChecked = role !== undefined;
+
   return (
     <div className="flex items-center gap-3 p-3">
       <Checkbox id={`user-${user._id}`} checked={isChecked} />
@@ -18,6 +29,26 @@ export default function renderAddUserToTeamDialogItem(
           {user.email} · {user.username}
         </p>
       </div>
+      {isChecked && (
+        // Stop propagation at capture phase so the role select doesn't
+        // also trigger the parent item's toggle (which uses bubbling).
+        <div className="ml-4" onClickCapture={(e) => e.stopPropagation()}>
+          <Select
+            value={role}
+            onValueChange={(value) =>
+              onRoleChanged(user._id, value as TeamRole)
+            }
+          >
+            <SelectTrigger className="w-28">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="MEMBER">Member</SelectItem>
+              <SelectItem value="ADMIN">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
     </div>
   );
 }

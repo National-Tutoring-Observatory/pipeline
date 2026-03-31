@@ -8,7 +8,7 @@ export default new mongoose.Schema({
   teams: [
     {
       team: { type: mongoose.Types.ObjectId, ref: "Team" },
-      role: { type: String, enum: ["ADMIN"] },
+      role: { type: String, enum: ["ADMIN", "MEMBER"] },
       _id: false,
     },
   ],

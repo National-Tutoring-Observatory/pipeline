@@ -91,7 +91,7 @@ export async function action({ request }: Route.ActionArgs) {
           { status: 400 },
         );
       }
-      const team = await TeamService.create({ name });
+      const team = await TeamService.create({ name, createdBy: user._id });
       const defaultPlan = await BillingPlanService.findDefault();
       if (defaultPlan) {
         await TeamBillingPlanService.assignPlan(team._id, defaultPlan._id);

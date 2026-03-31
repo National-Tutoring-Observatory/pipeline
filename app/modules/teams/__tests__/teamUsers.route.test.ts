@@ -119,7 +119,12 @@ describe("teamUsers.route", () => {
 
       const body = JSON.stringify({
         intent: "ADD_USERS_TO_TEAM",
-        payload: { userIds: [user1._id, user2._id] },
+        payload: {
+          users: [
+            { userId: user1._id, role: "MEMBER" },
+            { userId: user2._id, role: "MEMBER" },
+          ],
+        },
       });
 
       await action({
@@ -138,11 +143,53 @@ describe("teamUsers.route", () => {
 
       expect(updatedUser1?.teams).toContainEqual({
         team: team._id,
-        role: "ADMIN",
+        role: "MEMBER",
       });
       expect(updatedUser2?.teams).toContainEqual({
         team: team._id,
-        role: "ADMIN",
+        role: "MEMBER",
+      });
+    });
+
+    it("falls back to MEMBER when role is invalid", async () => {
+      const team = await TeamService.create({ name: "test-team" });
+
+      const admin = await UserService.create({
+        username: "admin",
+        role: "SUPER_ADMIN",
+        githubId: 1,
+        teams: [{ team: team._id, role: "ADMIN" }],
+      });
+
+      const user1 = await UserService.create({
+        username: "user1",
+        githubId: 2,
+      });
+
+      const cookieHeader = await loginUser(admin._id);
+
+      const body = JSON.stringify({
+        intent: "ADD_USERS_TO_TEAM",
+        payload: {
+          users: [{ userId: user1._id, role: "INVALID_ROLE" }],
+        },
+      });
+
+      await action({
+        request: new Request("http://localhost/", {
+          method: "PUT",
+          headers: { cookie: cookieHeader },
+          body,
+        }),
+        params: { id: team._id },
+        unstable_pattern: "",
+        context: {},
+      } as any);
+
+      const updatedUser = await UserService.findById(user1._id);
+      expect(updatedUser?.teams).toContainEqual({
+        team: team._id,
+        role: "MEMBER",
       });
     });
 
@@ -164,6 +211,83 @@ describe("teamUsers.route", () => {
       const body = JSON.stringify({
         intent: "ADD_USERS_TO_TEAM",
         payload: { userIds: [user1._id] },
+      });
+
+      await expect(
+        action({
+          request: new Request("http://localhost/", {
+            method: "PUT",
+            headers: { cookie: cookieHeader },
+            body,
+          }),
+          params: { id: team._id },
+          unstable_pattern: "",
+          context: {},
+        } as any),
+      ).rejects.toThrow("You do not have permission to manage team users");
+    });
+  });
+
+  describe("action - UPDATE_USER_ROLE", () => {
+    it("changes a user's role", async () => {
+      const team = await TeamService.create({ name: "test-team" });
+
+      const admin = await UserService.create({
+        username: "admin",
+        role: "SUPER_ADMIN",
+        githubId: 1,
+        teams: [{ team: team._id, role: "ADMIN" }],
+      });
+
+      const user = await UserService.create({
+        username: "user1",
+        githubId: 2,
+        teams: [{ team: team._id, role: "MEMBER" }],
+      });
+
+      const cookieHeader = await loginUser(admin._id);
+
+      const body = JSON.stringify({
+        intent: "UPDATE_USER_ROLE",
+        payload: { userId: user._id, role: "ADMIN" },
+      });
+
+      await action({
+        request: new Request("http://localhost/", {
+          method: "PUT",
+          headers: { cookie: cookieHeader },
+          body,
+        }),
+        params: { id: team._id },
+        unstable_pattern: "",
+        context: {},
+      } as any);
+
+      const updatedUser = await UserService.findById(user._id);
+      expect(
+        updatedUser?.teams?.find((t: any) => t.team === team._id)?.role,
+      ).toBe("ADMIN");
+    });
+
+    it("throws when user is not authorized", async () => {
+      const team = await TeamService.create({ name: "test-team" });
+
+      const unauthorizedUser = await UserService.create({
+        username: "unauthorized",
+        githubId: 1,
+      });
+
+      const target = await UserService.create({
+        username: "user1",
+        githubId: 2,
+        teams: [{ team: team._id, role: "MEMBER" }],
+      });
+
+      const cookieHeader = await loginUser(unauthorizedUser._id);
+
+      const body = JSON.stringify({
+        intent: "UPDATE_USER_ROLE",
+        payload: { userId: target._id, role: "ADMIN" },
       });
 
       await expect(

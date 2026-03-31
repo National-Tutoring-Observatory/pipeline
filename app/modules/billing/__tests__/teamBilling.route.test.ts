@@ -85,7 +85,7 @@ describe("teamBilling.route action", () => {
       expect(updated?.billingUser).toBe(member._id);
     });
 
-    it("denies non-super-admin from setting billing user", async () => {
+    it("denies non-admin from setting billing user", async () => {
       const regular = await UserService.create({
         username: "regular",
         role: "USER",
@@ -102,7 +102,7 @@ describe("teamBilling.route action", () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("super admins");
+      expect(result.error).toContain("permission");
     });
   });
 

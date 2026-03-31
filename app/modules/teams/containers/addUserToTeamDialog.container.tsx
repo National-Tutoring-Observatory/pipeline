@@ -2,15 +2,18 @@ import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import type { User } from "~/modules/users/users.types";
 import AddUserToTeamDialog from "../components/addUserToTeamDialog";
+import type { TeamRole } from "../teams.types";
 
 export default function AddUserToTeamDialogContainer({
   teamId,
   onAddUsersClicked,
 }: {
   teamId: string;
-  onAddUsersClicked: (userIds: string[]) => void;
+  onAddUsersClicked: (users: Array<{ userId: string; role: TeamRole }>) => void;
 }) {
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<Record<string, TeamRole>>(
+    {},
+  );
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -26,10 +29,17 @@ export default function AddUserToTeamDialogContainer({
   }, [teamId, searchValue, currentPage]);
 
   const onSelectUserToggled = (userId: string) => {
-    const updated = selectedUsers.includes(userId)
-      ? selectedUsers.filter((id) => id !== userId)
-      : [...selectedUsers, userId];
-    setSelectedUsers(updated);
+    setSelectedUsers((prev) => {
+      if (userId in prev) {
+        const { [userId]: _, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, [userId]: "MEMBER" };
+    });
+  };
+
+  const onUserRoleChanged = (userId: string, role: TeamRole) => {
+    setSelectedUsers((prev) => ({ ...prev, [userId]: role }));
   };
 
   const onSearchValueChanged = (value: string) => {
@@ -43,6 +53,7 @@ export default function AddUserToTeamDialogContainer({
 
   const users = (fetcher.data?.data || []) as User[];
   const totalPages = fetcher.data?.totalPages || 1;
+  const selectedCount = Object.keys(selectedUsers).length;
 
   return (
     <AddUserToTeamDialog
@@ -51,9 +62,17 @@ export default function AddUserToTeamDialogContainer({
       searchValue={searchValue}
       currentPage={currentPage}
       totalPages={totalPages}
-      isSubmitButtonDisabled={selectedUsers.length === 0}
-      onAddUsersClicked={() => onAddUsersClicked(selectedUsers)}
+      isSubmitButtonDisabled={selectedCount === 0}
+      onAddUsersClicked={() =>
+        onAddUsersClicked(
+          Object.entries(selectedUsers).map(([userId, role]) => ({
+            userId,
+            role,
+          })),
+        )
+      }
       onSelectUserToggled={onSelectUserToggled}
+      onUserRoleChanged={onUserRoleChanged}
       onSearchValueChanged={onSearchValueChanged}
       onPaginationChanged={onPaginationChanged}
     />

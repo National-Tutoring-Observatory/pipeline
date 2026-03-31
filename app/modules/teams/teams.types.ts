@@ -6,7 +6,13 @@ export interface Team {
   stripeCustomerId?: string;
   isPersonal?: boolean;
   createdBy?: string;
-  ownedBy?: string[];
+}
+
+export const TEAM_ROLES = ["ADMIN", "MEMBER"] as const;
+export type TeamRole = (typeof TEAM_ROLES)[number];
+
+export function isTeamRole(v: unknown): v is TeamRole {
+  return typeof v === "string" && (TEAM_ROLES as readonly string[]).includes(v);
 }
 
 export const TEAM_ASSIGNMENT_OPTIONS = ["temporary", "permanent"] as const;

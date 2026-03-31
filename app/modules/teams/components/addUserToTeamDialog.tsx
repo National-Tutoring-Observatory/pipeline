@@ -13,6 +13,7 @@ import getAddUserToTeamDialogEmptyAttributes from "../helpers/getAddUserToTeamDi
 import getAddUserToTeamDialogItemActions from "../helpers/getAddUserToTeamDialogItemActions";
 import getAddUserToTeamDialogItemAttributes from "../helpers/getAddUserToTeamDialogItemAttributes";
 import renderAddUserToTeamDialogItem from "../helpers/renderAddUserToTeamDialogItem";
+import type { TeamRole } from "../teams.types";
 
 export default function AddUserToTeamDialog({
   users,
@@ -23,17 +24,19 @@ export default function AddUserToTeamDialog({
   isSubmitButtonDisabled,
   onAddUsersClicked,
   onSelectUserToggled,
+  onUserRoleChanged,
   onSearchValueChanged,
   onPaginationChanged,
 }: {
   users: User[];
-  selectedUsers: string[];
+  selectedUsers: Record<string, TeamRole>;
   searchValue: string;
   currentPage: number;
   totalPages: number;
   isSubmitButtonDisabled: boolean;
   onAddUsersClicked: () => void;
   onSelectUserToggled: (userId: string) => void;
+  onUserRoleChanged: (userId: string, role: TeamRole) => void;
   onSearchValueChanged: (searchValue: string) => void;
   onPaginationChanged: (page: number) => void;
 }) {
@@ -58,7 +61,11 @@ export default function AddUserToTeamDialog({
           filtersValues={{}}
           emptyAttributes={getAddUserToTeamDialogEmptyAttributes()}
           renderItem={(user: User) =>
-            renderAddUserToTeamDialogItem(user, selectedUsers)
+            renderAddUserToTeamDialogItem(
+              user,
+              selectedUsers,
+              onUserRoleChanged,
+            )
           }
           getItemAttributes={getAddUserToTeamDialogItemAttributes}
           getItemActions={getAddUserToTeamDialogItemActions}

@@ -98,7 +98,6 @@ const githubStrategy = new GitHubStrategy<any>(
           name: `${githubUser.name || githubUser.login}'s Workspace`,
           isPersonal: true,
           createdBy: newUser._id,
-          ownedBy: [newUser._id],
         });
         await UserService.updateById(newUser._id, {
           teams: [{ team: team._id, role: "ADMIN" }],

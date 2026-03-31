@@ -33,7 +33,7 @@ const canUserManageProject = (user: User | null, project: Project): boolean => {
 
 const ProjectAuthorization = {
   canCreate(user: User | null, teamId: string): boolean {
-    return userIsTeamAdmin(user, teamId);
+    return userIsTeamMember(user, teamId);
   },
 
   canView(user: User | null, project: Project): boolean {
