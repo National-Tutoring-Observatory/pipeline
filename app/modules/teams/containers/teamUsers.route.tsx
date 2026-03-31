@@ -18,8 +18,8 @@ import TeamAuthorization from "../authorization";
 import ConfirmRemoveUserDialog from "../components/confirmRemoveUserDialog";
 import TeamUsers from "../components/teamUsers";
 import { addSuperAdminToTeam } from "../services/teamUsers.server";
-import type { TeamAssignmentOption } from "../teams.types";
-import { isTeamAssignmentOption } from "../teams.types";
+import type { TeamAssignmentOption, TeamRole } from "../teams.types";
+import { isTeamAssignmentOption, isTeamRole } from "../teams.types";
 import type { Route } from "./+types/teamUsers.route";
 import AddSuperAdminToTeamDialogContainer from "./addSuperAdminToTeamDialogContainer";
 import AddUserToTeamDialogContainer from "./addUserToTeamDialog.container";
@@ -55,7 +55,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {
   const { intent, payload = {} } = await request.json();
-  const { userIds, userId } = payload;
+  const { userId } = payload;
 
   const user = (await getSessionUser({ request })) as User | null;
   if (!user) return redirect("/");
@@ -78,19 +78,40 @@ export async function action({ request, params }: Route.ActionArgs) {
       });
       return {};
     }
-    case "ADD_USERS_TO_TEAM":
+    case "ADD_USERS_TO_TEAM": {
       if (!TeamAuthorization.Users.canUpdate(user, params.id)) {
         throw new Error("You do not have permission to manage team users.");
       }
-      for (const id of userIds) {
+      const users: Array<{ userId: string; role: TeamRole }> = (
+        payload.users ?? []
+      ).map((u: any) => ({
+        userId: u.userId,
+        role: isTeamRole(u.role) ? u.role : "MEMBER",
+      }));
+      for (const { userId: id, role } of users) {
         const userDoc = await UserService.findById(id);
         if (userDoc) {
           if (!userDoc.teams) userDoc.teams = [];
-          userDoc.teams.push({ team: params.id, role: "ADMIN" });
+          userDoc.teams.push({ team: params.id, role });
           await UserService.updateById(id, { teams: userDoc.teams });
         }
       }
       return {};
+    }
+    case "UPDATE_USER_ROLE": {
+      if (!TeamAuthorization.Users.canUpdate(user, params.id)) {
+        throw new Error("You do not have permission to manage team users.");
+      }
+      const { userId: targetUserId, role: newRole } = payload;
+      if (!targetUserId || !isTeamRole(newRole)) return {};
+      const targetUser = await UserService.findById(targetUserId);
+      if (!targetUser) return {};
+      const updatedTeams = targetUser.teams.map((t: any) =>
+        t.team === params.id ? { ...t, role: newRole } : t,
+      );
+      await UserService.updateById(targetUserId, { teams: updatedTeams });
+      return {};
+    }
     case "REMOVE_USER_FROM_TEAM":
       if (!TeamAuthorization.Users.canUpdate(user, params.id)) {
         throw new Error("You do not have permission to manage team users.");
@@ -126,9 +147,11 @@ export default function TeamUsersRoute() {
     filters: {},
   });
 
-  const onAddUsersClicked = (userIds: string[]) => {
+  const onAddUsersClicked = (
+    users: Array<{ userId: string; role: TeamRole }>,
+  ) => {
     submit(
-      JSON.stringify({ intent: "ADD_USERS_TO_TEAM", payload: { userIds } }),
+      JSON.stringify({ intent: "ADD_USERS_TO_TEAM", payload: { users } }),
       { method: "PUT", encType: "application/json" },
     );
   };
@@ -165,6 +188,16 @@ export default function TeamUsersRoute() {
 
   const onInviteUserToTeamButtonClicked = () => {
     addDialog(<InviteUserToTeamDialogContainer teamId={ctx.team._id} />);
+  };
+
+  const onChangeUserRoleClicked = (targetUser: User, newRole: TeamRole) => {
+    submit(
+      JSON.stringify({
+        intent: "UPDATE_USER_ROLE",
+        payload: { userId: targetUser._id, role: newRole },
+      }),
+      { method: "PUT", encType: "application/json" },
+    );
   };
 
   const onRemoveUserFromTeamClicked = (userId: string) => {
@@ -204,11 +237,17 @@ export default function TeamUsersRoute() {
     id: string;
     action: string;
   }) => {
-    const user = find(data.users.data, { _id: id });
-    if (!user) return null;
+    const targetUser = find(data.users.data, { _id: id });
+    if (!targetUser) return null;
     switch (action) {
       case "REMOVE":
-        onRemoveUserFromTeamClicked(user._id);
+        onRemoveUserFromTeamClicked(targetUser._id);
+        break;
+      case "MAKE_ADMIN":
+        onChangeUserRoleClicked(targetUser, "ADMIN");
+        break;
+      case "MAKE_MEMBER":
+        onChangeUserRoleClicked(targetUser, "MEMBER");
         break;
     }
   };

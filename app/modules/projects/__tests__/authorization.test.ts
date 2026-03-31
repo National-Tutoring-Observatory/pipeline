@@ -69,9 +69,9 @@ describe("ProjectAuthorization", () => {
       );
     });
 
-    it("denies team members from creating projects", () => {
+    it("allows team members to create projects", () => {
       expect(ProjectAuthorization.canCreate(teamMemberUser, "team-1")).toBe(
-        false,
+        true,
       );
     });
 
@@ -346,9 +346,9 @@ describe("ProjectAuthorization", () => {
         ProjectAuthorization.canUpdate(multiTeamUser, projectInTeam1),
       ).toBe(true);
 
-      // Cannot manage projects in team-2 (is only a member)
+      // Can also create in team-2 (is a member)
       expect(ProjectAuthorization.canCreate(multiTeamUser, "team-2")).toBe(
-        false,
+        true,
       );
       expect(
         ProjectAuthorization.canUpdate(multiTeamUser, projectInTeam2),

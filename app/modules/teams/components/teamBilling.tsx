@@ -84,7 +84,6 @@ export default function TeamBilling({
 }: TeamBillingProps) {
   const user = useContext(AuthenticationContext) as User | null;
   const canAssignPlan = BillingAuthorization.canAssignPlan(user);
-  const canSetBillingUser = BillingAuthorization.canSetBillingUser(user);
 
   if (!balanceSummary) {
     return (
@@ -141,13 +140,12 @@ export default function TeamBilling({
           onPaginationChanged={onCreditsPaginationChanged}
         />
 
-        {canSetBillingUser && (
-          <BillingSettings
-            billingUserInfo={billingUserInfo}
-            isSubmitting={isSubmitting}
-            onSetBillingUserClicked={onSetBillingUserClicked}
-          />
-        )}
+        <BillingSettings
+          teamId={team._id}
+          billingUserInfo={billingUserInfo}
+          isSubmitting={isSubmitting}
+          onSetBillingUserClicked={onSetBillingUserClicked}
+        />
       </div>
     </div>
   );

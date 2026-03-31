@@ -138,26 +138,40 @@ describe("BillingAuthorization", () => {
   });
 
   describe("canSetBillingUser", () => {
-    it("allows super admins only", () => {
-      expect(BillingAuthorization.canSetBillingUser(superAdminUser)).toBe(true);
+    it("allows super admins", () => {
+      expect(
+        BillingAuthorization.canSetBillingUser(superAdminUser, "team-1"),
+      ).toBe(true);
     });
 
-    it("denies billing user", () => {
-      expect(BillingAuthorization.canSetBillingUser(billingUser)).toBe(false);
+    it("allows team admins for their team", () => {
+      expect(
+        BillingAuthorization.canSetBillingUser(teamAdminUser, "team-1"),
+      ).toBe(true);
     });
 
-    it("denies team admins", () => {
-      expect(BillingAuthorization.canSetBillingUser(teamAdminUser)).toBe(false);
+    it("denies team admins for other teams", () => {
+      expect(
+        BillingAuthorization.canSetBillingUser(teamAdminUser, "team-999"),
+      ).toBe(false);
     });
 
     it("denies team members", () => {
-      expect(BillingAuthorization.canSetBillingUser(teamMemberUser)).toBe(
-        false,
-      );
+      expect(
+        BillingAuthorization.canSetBillingUser(teamMemberUser, "team-1"),
+      ).toBe(false);
+    });
+
+    it("denies non-team users", () => {
+      expect(
+        BillingAuthorization.canSetBillingUser(nonTeamUser, "team-1"),
+      ).toBe(false);
     });
 
     it("denies null users", () => {
-      expect(BillingAuthorization.canSetBillingUser(null)).toBe(false);
+      expect(BillingAuthorization.canSetBillingUser(null, "team-1")).toBe(
+        false,
+      );
     });
   });
 

@@ -13,12 +13,14 @@ interface BillingUserInfo {
 }
 
 interface BillingSettingsProps {
+  teamId: string;
   billingUserInfo: BillingUserInfo | null;
   isSubmitting: boolean;
   onSetBillingUserClicked: () => void;
 }
 
 export default function BillingSettings({
+  teamId,
   billingUserInfo,
   isSubmitting,
   onSetBillingUserClicked,
@@ -40,7 +42,7 @@ export default function BillingSettings({
             <span className="text-sm">
               {billingUserInfo?.username ?? "Not assigned"}
             </span>
-            {BillingAuthorization.canSetBillingUser(user) && (
+            {BillingAuthorization.canSetBillingUser(user, teamId) && (
               <Button
                 size="sm"
                 variant="ghost"

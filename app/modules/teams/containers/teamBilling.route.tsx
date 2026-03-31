@@ -182,10 +182,10 @@ export async function action({ request, params }: Route.ActionArgs) {
     }
 
     case "SET_BILLING_USER": {
-      if (!BillingAuthorization.canSetBillingUser(user)) {
+      if (!BillingAuthorization.canSetBillingUser(user, params.id)) {
         return {
           success: false,
-          error: "Only super admins can set the billing user",
+          error: "You do not have permission to set the billing user",
         };
       }
       const targetUser = await UserService.findById(payload.userId);
