@@ -11,7 +11,6 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
-import Flag from "~/modules/featureFlags/components/flag";
 import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
 import type { Team } from "../teams.types";
@@ -19,12 +18,14 @@ import type { Team } from "../teams.types";
 interface TeamProps {
   team: Team;
   breadcrumbs: Breadcrumb[];
+  canViewBilling: boolean;
   onEditTeamButtonClicked: (team: Team) => void;
 }
 
 export default function Team({
   team,
   breadcrumbs,
+  canViewBilling,
   onEditTeamButtonClicked,
 }: TeamProps) {
   const navigate = useNavigate();
@@ -68,9 +69,7 @@ export default function Team({
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="prompts">Prompts</TabsTrigger>
-          <Flag flag="HAS_BILLING">
-            <TabsTrigger value="billing">Billing</TabsTrigger>
-          </Flag>
+          {canViewBilling && <TabsTrigger value="billing">Billing</TabsTrigger>}
         </TabsList>
       </Tabs>
 

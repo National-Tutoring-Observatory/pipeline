@@ -3,7 +3,7 @@ import find from "lodash/find";
 import { redirect } from "react-router";
 import { GitHubStrategy } from "remix-auth-github";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
-import addCredits from "~/modules/billing/services/addCredits.server";
+import { TeamBillingService } from "~/modules/billing/billing";
 import INVITE_LINK_TTL_DAYS from "~/modules/teams/helpers/inviteLink";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
@@ -94,25 +94,12 @@ const githubStrategy = new GitHubStrategy<any>(
           role: "USER",
           onboardingComplete: false,
         });
-        const team = await TeamService.create({
-          name: `${githubUser.name || githubUser.login}'s Workspace`,
-          isPersonal: true,
-          createdBy: newUser._id,
-        });
-        await UserService.updateById(newUser._id, {
-          teams: [{ team: team._id, role: "ADMIN" }],
-        });
-        const creditResult = await addCredits({
-          teamId: team._id,
-          amount: 10,
-          note: "Signup bonus",
-          addedBy: newUser._id,
-        });
-        if (!creditResult.success) {
-          console.error(
-            `Failed to grant signup bonus to user ${newUser._id} / team ${team._id}: ${creditResult.error}`,
-          );
-        }
+        const team = await TeamService.createForUser(
+          `${githubUser.name || githubUser.login}'s Workspace`,
+          newUser._id,
+          { isPersonal: true },
+        );
+        await TeamBillingService.setupNewTeam(team._id, newUser._id);
         trackServerEvent({ name: "user_registered", userId: newUser._id });
         return (await UserService.findById(newUser._id))!;
       } else {

@@ -8,6 +8,7 @@ import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromR
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { TeamBillingService } from "~/modules/billing/billing";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
@@ -89,6 +90,7 @@ export async function action({ request }: Route.ActionArgs) {
         );
       }
       const team = await TeamService.createForUser(name, user._id);
+      await TeamBillingService.setupNewTeam(team._id, user._id);
       return data({
         success: true,
         intent: "CREATE_TEAM",

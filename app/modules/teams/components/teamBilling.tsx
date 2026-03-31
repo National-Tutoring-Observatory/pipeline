@@ -47,6 +47,7 @@ interface TeamBillingProps {
   credits: PaginatedCredits;
   billingUserInfo: BillingUserInfo | null;
   isSubmitting: boolean;
+  isBillingEnabled: boolean;
   creditsSearchValue: string;
   creditsCurrentPage: number;
   isCreditsSyncing: boolean;
@@ -69,6 +70,7 @@ export default function TeamBilling({
   credits,
   billingUserInfo,
   isSubmitting,
+  isBillingEnabled,
   creditsSearchValue,
   creditsCurrentPage,
   isCreditsSyncing,
@@ -115,6 +117,7 @@ export default function TeamBilling({
         pendingPlanChange={pendingPlanChange}
         team={team}
         isSubmitting={isSubmitting}
+        isBillingEnabled={isBillingEnabled}
         onAddCreditsClicked={onAddCreditsClicked}
         onTopUpClicked={onTopUpClicked}
         onAssignPlanClicked={onAssignPlanClicked}

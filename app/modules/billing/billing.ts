@@ -2,6 +2,8 @@ import Decimal from "decimal.js";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import type { BalanceSummary } from "./billing.types";
 import { BillingPeriodService } from "./billingPeriod";
+import { BillingPlanService } from "./billingPlan";
+import isBillingEnabled from "./helpers/isBillingEnabled.server";
 import { TeamBillingPlanService } from "./teamBillingPlan";
 import { TeamCreditService } from "./teamCredit";
 
@@ -51,5 +53,27 @@ export class TeamBillingService {
   static async getBalance(teamId: string): Promise<number> {
     const summary = await this.getBalanceSummary(teamId);
     return summary?.balance ?? 0;
+  }
+
+  static async setupNewTeam(teamId: string, userId: string): Promise<void> {
+    const defaultPlan = await BillingPlanService.findDefault();
+    if (!defaultPlan) {
+      console.warn(
+        `No default billing plan found, skipping billing setup for team ${teamId}`,
+      );
+      return;
+    }
+
+    const initialCredits = isBillingEnabled() ? 10 : 75;
+
+    await Promise.all([
+      TeamBillingPlanService.assignPlan(teamId, defaultPlan._id),
+      TeamCreditService.create({
+        team: teamId,
+        amount: initialCredits,
+        addedBy: userId,
+        note: "Initial credits",
+      }),
+    ]);
   }
 }

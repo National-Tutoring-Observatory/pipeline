@@ -114,7 +114,6 @@ class LLM {
   }
 
   private async checkBalance() {
-    if (process.env.ENFORCE_BILLING !== "true") return;
     if (!this.options.user) return;
     if (mongoose.connection.readyState !== 1) return;
 
