@@ -23,6 +23,7 @@ interface BillingOverviewProps {
   pendingPlanChange: PendingPlanChange | null;
   team: Team;
   isSubmitting: boolean;
+  isBillingEnabled: boolean;
   onAddCreditsClicked: () => void;
   onTopUpClicked: () => void;
   onAssignPlanClicked: () => void;
@@ -33,6 +34,7 @@ export default function BillingOverview({
   pendingPlanChange,
   team,
   isSubmitting,
+  isBillingEnabled,
   onAddCreditsClicked,
   onTopUpClicked,
   onAssignPlanClicked,
@@ -129,10 +131,12 @@ export default function BillingOverview({
 
       {canAddCredits && (
         <div className="flex gap-2">
-          <Button onClick={onTopUpClicked} disabled={isSubmitting}>
-            <Plus className="mr-1 h-4 w-4" />
-            Top up
-          </Button>
+          {isBillingEnabled && (
+            <Button onClick={onTopUpClicked} disabled={isSubmitting}>
+              <Plus className="mr-1 h-4 w-4" />
+              Top up
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={onAddCreditsClicked}

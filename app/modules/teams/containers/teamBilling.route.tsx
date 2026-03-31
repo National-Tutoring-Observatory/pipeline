@@ -21,13 +21,13 @@ import AssignBillingPlanDialog from "~/modules/billing/components/assignBillingP
 import TopUpDialog from "~/modules/billing/components/topUpDialog";
 import SetBillingUserDialogContainer from "~/modules/billing/containers/setBillingUserDialog.container";
 import applyMarkup from "~/modules/billing/helpers/applyMarkup";
+import isBillingEnabled from "~/modules/billing/helpers/isBillingEnabled.server";
 import { groupCostsBySource } from "~/modules/billing/helpers/sourceLabels";
 import addCredits from "~/modules/billing/services/addCredits.server";
 import { StripeService } from "~/modules/billing/stripe";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import { TeamCreditService } from "~/modules/billing/teamCredit";
 import addDialog, { closeDialog } from "~/modules/dialogs/addDialog";
-import hasFeatureFlag from "~/modules/featureFlags/helpers/hasFeatureFlag";
 import { findModelByCode } from "~/modules/llm/modelRegistry";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import type { SpendGranularity } from "~/modules/llmCosts/llmCosts.types";
@@ -45,17 +45,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect("/");
   }
 
-  const hasBilling = await hasFeatureFlag(
-    "HAS_BILLING",
-    { request },
-    { defaultValue: false },
-  );
-  if (!hasBilling) {
-    return redirect(`/teams/${params.id}/users`);
-  }
-
   const team = await TeamService.findById(params.id);
   if (!team) return redirect("/teams");
+
+  if (!BillingAuthorization.canViewBilling(user, team)) {
+    return redirect(`/teams/${params.id}/users`);
+  }
 
   const creditsQueryParams = getQueryParamsFromRequest(
     request,
@@ -103,6 +98,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     overTime: [],
   };
 
+  const billingEnabled = isBillingEnabled();
+
   if (!balanceSummary) {
     return {
       team,
@@ -113,6 +110,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       pendingPlanChange,
       closedPeriods,
       spendAnalytics: emptySpendAnalytics,
+      isBillingEnabled: billingEnabled,
     };
   }
 
@@ -153,6 +151,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     pendingPlanChange,
     closedPeriods,
     spendAnalytics,
+    isBillingEnabled: billingEnabled,
   };
 }
 
@@ -220,6 +219,9 @@ export async function action({ request, params }: Route.ActionArgs) {
     }
 
     case "INITIATE_TOPUP": {
+      if (!isBillingEnabled()) {
+        return { success: false, error: "Billing is not enabled" };
+      }
       if (!BillingAuthorization.canAddCredits(user, team)) {
         return {
           success: false,
@@ -275,6 +277,7 @@ export default function TeamBillingRoute() {
     pendingPlanChange,
     closedPeriods,
     spendAnalytics,
+    isBillingEnabled: billingEnabled,
   } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const { revalidate } = useRevalidator();
@@ -411,6 +414,7 @@ export default function TeamBillingRoute() {
       credits={credits}
       billingUserInfo={billingUserInfo}
       isSubmitting={fetcher.state !== "idle"}
+      isBillingEnabled={billingEnabled}
       creditsSearchValue={creditsSearchValue}
       creditsCurrentPage={creditsCurrentPage}
       isCreditsSyncing={isCreditsSyncing}

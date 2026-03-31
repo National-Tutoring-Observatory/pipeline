@@ -12,7 +12,7 @@ describe("InsufficientCreditsError", () => {
   it("has the correct name and message", () => {
     const error = new InsufficientCreditsError("team-123");
     expect(error.name).toBe("InsufficientCreditsError");
-    expect(error.message).toContain("Insufficient credits");
+    expect(error.message).toContain("usage limit");
     expect(error.teamId).toBe("team-123");
     expect(error).toBeInstanceOf(Error);
   });

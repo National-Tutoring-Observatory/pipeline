@@ -41,6 +41,12 @@ vi.mock("mongoose", () => ({
   default: { connection: { readyState: 1 } },
 }));
 
+vi.mock("~/modules/billing/billing", () => ({
+  TeamBillingService: {
+    getBalance: vi.fn().mockResolvedValue(100),
+  },
+}));
+
 let LLM: typeof import("../llm").default;
 
 beforeEach(async () => {

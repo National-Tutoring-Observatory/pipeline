@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { redirect, useFetcher } from "react-router";
 import { toast } from "sonner";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import BillingAuthorization from "~/modules/billing/authorization";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
@@ -26,7 +27,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!team) {
     return redirect("/teams");
   }
-  return { team };
+  return {
+    team,
+    canViewBilling: BillingAuthorization.canViewBilling(userSession, team),
+  };
 }
 
 export function HydrateFallback() {
@@ -38,9 +42,10 @@ export default function TeamRoute({
 }: {
   loaderData: {
     team: Team;
+    canViewBilling: boolean;
   };
 }) {
-  const { team } = loaderData;
+  const { team, canViewBilling } = loaderData;
 
   const fetcher = useFetcher();
 
@@ -74,6 +79,7 @@ export default function TeamRoute({
     <TeamComponent
       team={team}
       breadcrumbs={breadcrumbs}
+      canViewBilling={canViewBilling}
       onEditTeamButtonClicked={onEditTeamButtonClicked}
     />
   );
