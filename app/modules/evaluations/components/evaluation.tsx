@@ -6,6 +6,7 @@ import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import type { Evaluation as EvaluationType } from "~/modules/evaluations/evaluations.types";
 import Flag from "~/modules/featureFlags/components/flag";
+import type { Run } from "~/modules/runs/runs.types";
 import buildPairwiseMatrix from "../helpers/buildPairwiseMatrix";
 import getPairDetails from "../helpers/getPairDetails";
 import getTopPerformersVsGoldLabel from "../helpers/getTopPerformersVsGoldLabel";
@@ -19,12 +20,16 @@ export default function Evaluation({
   evaluation,
   breadcrumbs,
   progress,
+  adjudicationRun,
+  adjudicationProgress,
   canStartAdjudication,
   onAdjudicationClicked,
 }: {
   evaluation: EvaluationType;
   breadcrumbs: Breadcrumb[];
   progress: number;
+  adjudicationRun: Run | null;
+  adjudicationProgress: number;
   canStartAdjudication: boolean;
   onAdjudicationClicked: () => void;
 }) {
@@ -46,7 +51,15 @@ export default function Evaluation({
       </PageHeader>
 
       <div className="relative mb-8">
-        {evaluation.isRunning && (
+        {adjudicationRun && (
+          <div>
+            <Progress value={adjudicationProgress} />
+            <div className="mt-1 text-right text-xs opacity-40">
+              Running adjudication...
+            </div>
+          </div>
+        )}
+        {!adjudicationRun && evaluation.isRunning && (
           <div>
             <Progress value={progress} />
             <div className="mt-1 text-right text-xs opacity-40">

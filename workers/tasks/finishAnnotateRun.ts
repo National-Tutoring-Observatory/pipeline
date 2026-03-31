@@ -39,7 +39,7 @@ export default async function finishAnnotateRun(job: Job) {
     !run.stoppedAt &&
     job.data.evaluationId
   ) {
-    EvaluationService.rerunEvaluation(job.data.evaluationId, runId);
+    EvaluationService.rerunEvaluation(job.data.evaluationId);
   }
 
   return { status: "SUCCESS" };

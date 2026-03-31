@@ -61,7 +61,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       }
     : null;
 
-  return { project, runSet, evaluation, evaluationPrompt };
+  const adjudicationRun =
+    evaluationRuns.find(
+      (r) => r.isAdjudication && !r.isComplete && !r.stoppedAt,
+    ) || null;
+
+  return { project, runSet, evaluation, evaluationPrompt, adjudicationRun };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -94,7 +99,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
       const { modelCode, promptId, promptVersion } = payload;
 
-      EvaluationService.startAdjudication({
+      await EvaluationService.startAdjudication({
         evaluationId: params.evaluationId,
         selectedRunIds: selectedRuns,
         modelCode,
@@ -121,9 +126,10 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function EvaluationRoute() {
-  const { project, runSet, evaluation, evaluationPrompt } =
+  const { project, runSet, evaluation, evaluationPrompt, adjudicationRun } =
     useLoaderData<typeof loader>();
   const [progress, setProgress] = useState(0);
+  const [adjudicationProgress, setAdjudicationProgress] = useState(0);
   const { revalidate } = useRevalidator();
   const fetcher = useFetcher();
 
@@ -132,8 +138,43 @@ export default function EvaluationRoute() {
     if (!fetcher.data || !("success" in fetcher.data)) return;
     if (fetcher.data.intent === "START_ADJUDICATION") {
       toast.success("Adjudication started");
+      revalidate();
     }
-  }, [fetcher.state, fetcher.data]);
+  }, [fetcher.state, fetcher.data, revalidate]);
+
+  useHandleSockets({
+    event: "ANNOTATE_RUN",
+    matches: adjudicationRun
+      ? [
+          {
+            runId: adjudicationRun._id,
+            task: "ANNOTATE_RUN:START",
+            status: "FINISHED",
+          },
+          {
+            runId: adjudicationRun._id,
+            task: "ANNOTATE_RUN:PROCESS",
+            status: "STARTED",
+          },
+          {
+            runId: adjudicationRun._id,
+            task: "ANNOTATE_RUN:PROCESS",
+            status: "FINISHED",
+          },
+          {
+            runId: adjudicationRun._id,
+            task: "ANNOTATE_RUN:FINISH",
+            status: "FINISHED",
+          },
+        ]
+      : [],
+    callback: (payload) => {
+      if (has(payload, "progress")) {
+        setAdjudicationProgress(payload.progress);
+      }
+      debounceRevalidate(revalidate);
+    },
+  });
 
   useHandleSockets({
     event: "CREATE_EVALUATION",
@@ -221,6 +262,8 @@ export default function EvaluationRoute() {
       evaluation={evaluation}
       breadcrumbs={breadcrumbs}
       progress={progress}
+      adjudicationRun={adjudicationRun}
+      adjudicationProgress={adjudicationProgress}
       canStartAdjudication={canStartAdjudication}
       onAdjudicationClicked={openAdjudicationDialog}
     />

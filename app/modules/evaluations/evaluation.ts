@@ -89,7 +89,7 @@ export class EvaluationService {
     createEvaluationReport(evaluation);
   }
 
-  static startAdjudication(params: {
+  static async startAdjudication(params: {
     evaluationId: string;
     selectedRunIds: string[];
     modelCode: string;
@@ -97,12 +97,12 @@ export class EvaluationService {
     runSetId: string;
     promptId: string;
     promptVersion: number;
-  }): void {
-    createAdjudicationRun(params);
+  }): Promise<void> {
+    await createAdjudicationRun(params);
   }
 
-  static rerunEvaluation(evaluationId: string, runId: string): void {
-    rerunEvaluationService(evaluationId, runId);
+  static rerunEvaluation(evaluationId: string): void {
+    rerunEvaluationService(evaluationId);
   }
 
   static async updateById(

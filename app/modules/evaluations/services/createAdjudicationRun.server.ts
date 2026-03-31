@@ -2,6 +2,7 @@ import { findModelByCode } from "~/modules/llm/modelRegistry";
 import { RunService } from "~/modules/runs/run";
 import type { RunAnnotationType } from "~/modules/runs/runs.types";
 import { RunSetService } from "~/modules/runSets/runSet";
+import { EvaluationService } from "../evaluation";
 
 interface CreateAdjudicationRunParams {
   evaluationId: string;
@@ -68,9 +69,18 @@ export default async function createAdjudicationRun(
 
   console.log("[createAdjudicationRun] Run added to RunSet");
 
+  // Add the run to the Evaluation so the UI can track it
+  const evaluation = await EvaluationService.findById(evaluationId);
+  if (evaluation) {
+    await EvaluationService.updateById(evaluationId, {
+      runs: [...evaluation.runs, run._id],
+    });
+    console.log("[createAdjudicationRun] Run added to Evaluation");
+  }
+
   // Start the run — reuses the standard ANNOTATE_RUN worker pipeline.
   // The worker will detect isAdjudication and adjust behaviour.
-  await RunService.start(run, evaluationId);
+  RunService.start(run, evaluationId);
 
   console.log("[createAdjudicationRun] Run started");
 }

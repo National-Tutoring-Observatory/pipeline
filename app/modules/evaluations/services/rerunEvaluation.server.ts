@@ -1,20 +1,12 @@
 import { EvaluationService } from "../evaluation";
 import createEvaluationReport from "./createEvaluationReport.server";
 
-export default async function rerunEvaluation(
-  evaluationId: string,
-  runId: string,
-) {
+export default async function rerunEvaluation(evaluationId: string) {
   const evaluation = await EvaluationService.findById(evaluationId);
   if (!evaluation) return;
   if (evaluation.isRunning) return;
 
-  const updatedRuns = evaluation.runs.includes(runId)
-    ? evaluation.runs
-    : [...evaluation.runs, runId];
-
   const updated = await EvaluationService.updateById(evaluationId, {
-    runs: updatedRuns,
     report: [],
     verificationReport: [],
     isRunning: true,
