@@ -70,7 +70,7 @@ export default async function createAdjudicationRun(
 
   // Start the run — reuses the standard ANNOTATE_RUN worker pipeline.
   // The worker will detect isAdjudication and adjust behaviour.
-  await RunService.start(run);
+  await RunService.start(run, evaluationId);
 
   console.log("[createAdjudicationRun] Run started");
 }

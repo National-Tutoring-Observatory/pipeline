@@ -99,14 +99,14 @@ export class RunService {
     return this.toRun(doc);
   }
 
-  static async start(run: Run): Promise<void> {
+  static async start(run: Run, evaluationId?: string): Promise<void> {
     await this.updateById(run._id, {
       isRunning: false,
       stoppedAt: null,
       isComplete: false,
       hasErrored: false,
     });
-    await createRunAnnotations(run);
+    await createRunAnnotations(run, evaluationId);
   }
 
   static async stop(runId: string): Promise<Run | null> {

@@ -6,7 +6,10 @@ import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import { SessionService } from "~/modules/sessions/session";
 
-export default async function createRunAnnotations(run: Run) {
+export default async function createRunAnnotations(
+  run: Run,
+  evaluationId?: string,
+) {
   const project = await ProjectService.findById(run.project as string);
   if (!project) throw new Error(`Project not found: ${run.project}`);
 
@@ -85,6 +88,7 @@ export default async function createRunAnnotations(run: Run) {
   taskSequencer.addTask("FINISH", {
     projectId: run.project,
     runId: run._id,
+    evaluationId,
   });
 
   taskSequencer.run();

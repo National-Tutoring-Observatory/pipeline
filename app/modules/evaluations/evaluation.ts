@@ -5,6 +5,7 @@ import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Evaluation } from "./evaluations.types";
 import createAdjudicationRun from "./services/createAdjudicationRun.server";
 import createEvaluationReport from "./services/createEvaluationReport.server";
+import rerunEvaluationService from "./services/rerunEvaluation.server";
 
 const EvaluationModel =
   mongoose.models.Evaluation || mongoose.model("Evaluation", evaluationSchema);
@@ -98,6 +99,10 @@ export class EvaluationService {
     promptVersion: number;
   }): void {
     createAdjudicationRun(params);
+  }
+
+  static rerunEvaluation(evaluationId: string, runId: string): void {
+    rerunEvaluationService(evaluationId, runId);
   }
 
   static async updateById(
