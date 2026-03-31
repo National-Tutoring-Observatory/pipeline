@@ -38,14 +38,17 @@ registerLLM("AI_GATEWAY", {
       metadata,
     };
 
-    if (options.timeout) {
-      requestParams.timeout = options.timeout / 1000;
-    }
-
     applySchemaToRequest(requestParams, schema);
 
+    const requestOptions: Record<string, any> = {};
+    if (options.timeout) {
+      requestOptions.headers = {
+        "x-litellm-timeout": String(options.timeout / 1000),
+      };
+    }
+
     const { data: chatCompletion, response } = await llm.chat.completions
-      .create(requestParams)
+      .create(requestParams, requestOptions)
       .withResponse();
     const message = chatCompletion.choices[0].message;
 
