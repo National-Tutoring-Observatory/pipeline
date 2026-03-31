@@ -131,6 +131,9 @@ export default async function buildEvaluationReport(
   const runPairs = generateRunPairs(runIds);
   const runNameMap = new Map(runs.map((run) => [run._id, run.name]));
   const runIsHumanMap = new Map(runs.map((run) => [run._id, !!run.isHuman]));
+  const runIsAdjudicationMap = new Map(
+    runs.map((run) => [run._id, !!run.isAdjudication]),
+  );
 
   const reports: EvaluationReport[] = [];
 
@@ -207,6 +210,7 @@ export default async function buildEvaluationReport(
         runId,
         runName: runNameMap.get(runId) || runId,
         isHuman: runIsHumanMap.get(runId) || false,
+        isAdjudication: runIsAdjudicationMap.get(runId) || false,
         meanKappaWithOthers: runMeanKappa,
       };
     });

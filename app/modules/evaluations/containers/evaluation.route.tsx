@@ -62,12 +62,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       }
     : null;
 
-  const adjudicationRun =
-    evaluationRuns.find(
-      (r) => r.isAdjudication && !r.isComplete && !r.stoppedAt,
-    ) || null;
-
-  return { project, runSet, evaluation, evaluationPrompt, adjudicationRun };
+  return { project, runSet, evaluation, evaluationPrompt, evaluationRuns };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -127,8 +122,16 @@ const debounceRevalidate = throttle((revalidate) => {
 }, 2000);
 
 export default function EvaluationRoute() {
-  const { project, runSet, evaluation, evaluationPrompt, adjudicationRun } =
+  const { project, runSet, evaluation, evaluationPrompt, evaluationRuns } =
     useLoaderData<typeof loader>();
+
+  const adjudicationRun =
+    evaluationRuns.find(
+      (r) => r.isAdjudication && !r.isComplete && !r.stoppedAt,
+    ) || null;
+  const adjudicationRunIds = evaluationRuns
+    .filter((r) => r.isAdjudication)
+    .map((r) => r._id);
   const [progress, setProgress] = useState(0);
   const [adjudicationProgress, setAdjudicationProgress] = useState(0);
   const { revalidate } = useRevalidator();
@@ -229,7 +232,9 @@ export default function EvaluationRoute() {
 
   const activeReport = report.find((r) => r.fieldKey === activeTab);
   const performers = activeReport
-    ? getTopPerformersVsGoldLabel(activeReport, evaluation.baseRun)
+    ? getTopPerformersVsGoldLabel(activeReport, evaluation.baseRun).filter(
+        (p) => !adjudicationRunIds.includes(p.runId),
+      )
     : [];
   const nonHumanPerformerCount = performers.filter((p) => !p.isHuman).length;
   const canStartAdjudication =
@@ -255,6 +260,7 @@ export default function EvaluationRoute() {
       <AdjudicationDialogContainer
         report={activeReport || null}
         baseRun={evaluation.baseRun}
+        adjudicationRunIds={adjudicationRunIds}
         evaluationPrompt={evaluationPrompt}
         onStartAdjudication={submitStartAdjudication}
       />,

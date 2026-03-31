@@ -7,11 +7,13 @@ import getTopPerformersVsGoldLabel from "../helpers/getTopPerformersVsGoldLabel"
 export default function AdjudicationDialogContainer({
   report,
   baseRun,
+  adjudicationRunIds,
   evaluationPrompt,
   onStartAdjudication,
 }: {
   report: EvaluationReport | null;
   baseRun: string;
+  adjudicationRunIds: string[];
   evaluationPrompt: { promptId: string; promptVersion: number } | null;
   onStartAdjudication: (
     selectedRuns: string[],
@@ -20,7 +22,11 @@ export default function AdjudicationDialogContainer({
     promptVersion: number,
   ) => void;
 }) {
-  const performers = report ? getTopPerformersVsGoldLabel(report, baseRun) : [];
+  const performers = report
+    ? getTopPerformersVsGoldLabel(report, baseRun).filter(
+        (p) => !adjudicationRunIds.includes(p.runId),
+      )
+    : [];
   const nonHumanPerformers = performers.filter((p) => !p.isHuman);
 
   const initialSelection = nonHumanPerformers.slice(0, 3).map((p) => p.runId);
