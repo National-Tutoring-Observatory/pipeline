@@ -117,7 +117,8 @@ class LLM {
     if (!this.options.user) return;
     if (mongoose.connection.readyState !== 1) return;
 
-    const { TeamBillingService } = await import("~/modules/billing/billing");
+    const { TeamBillingService } =
+      await import("~/modules/billing/teamBilling");
     const balance = await TeamBillingService.getBalance(this.options.user);
 
     if (balance <= 0) {

@@ -41,7 +41,7 @@ vi.mock("mongoose", () => ({
   default: { connection: { readyState: 1 } },
 }));
 
-vi.mock("~/modules/billing/billing", () => ({
+vi.mock("~/modules/billing/teamBilling", () => ({
   TeamBillingService: {
     getBalance: vi.fn().mockResolvedValue(100),
   },

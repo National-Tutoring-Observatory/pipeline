@@ -3,7 +3,7 @@ import find from "lodash/find";
 import { redirect } from "react-router";
 import { GitHubStrategy } from "remix-auth-github";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
-import { TeamBillingService } from "~/modules/billing/billing";
+import { TeamBillingService } from "~/modules/billing/teamBilling";
 import INVITE_LINK_TTL_DAYS from "~/modules/teams/helpers/inviteLink";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";

@@ -2,9 +2,9 @@ import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
-import { TeamBillingService } from "../billing";
 import { BillingPlanService } from "../billingPlan";
 import { InsufficientCreditsError } from "../errors/insufficientCreditsError";
+import { TeamBillingService } from "../teamBilling";
 import { TeamBillingPlanService } from "../teamBillingPlan";
 import { TeamCreditService } from "../teamCredit";
 
