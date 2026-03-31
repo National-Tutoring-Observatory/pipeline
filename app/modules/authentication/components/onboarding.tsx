@@ -127,7 +127,7 @@ export default function Onboarding({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="border-primary flex gap-2 border border-dashed p-4">
             <Checkbox
               id="scholarshipInterest"
               checked={scholarshipInterest}
@@ -139,8 +139,10 @@ export default function Onboarding({
               htmlFor="scholarshipInterest"
               className="cursor-pointer font-normal"
             >
-              I'm interested in scholarship or grant opportunities related to
-              tutoring research
+              Apply for NTO Research Scholarship.
+              <br />
+              Free credits for qualifying research projects. We'll follow up by
+              email
             </Label>
           </div>
 
