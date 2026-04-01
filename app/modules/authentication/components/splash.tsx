@@ -40,13 +40,7 @@ function GithubIcon({
   );
 }
 
-function Navbar({
-  openSignup,
-  onLoginWithGithubClicked,
-}: {
-  openSignup: boolean;
-  onLoginWithGithubClicked: () => void;
-}) {
+function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -102,20 +96,12 @@ function Navbar({
           </div>
 
           <div className="hidden items-center gap-3 lg:flex">
-            <button
-              onClick={onLoginWithGithubClicked}
-              className="cursor-pointer rounded-[0.625rem] border-2 border-[#A64B2A] bg-transparent px-4 py-2 text-sm font-semibold text-[#A64B2A] transition-all hover:bg-[#A64B2A] hover:text-white"
+            <Link
+              to="/signup"
+              className="rounded-[0.625rem] bg-[#367181] px-4 py-2 text-sm font-semibold text-white no-underline transition-all hover:bg-[#2a5a68]"
             >
-              Login with GitHub
-            </button>
-            {openSignup && (
-              <Link
-                to="/signup"
-                className="rounded-[0.625rem] bg-[#A64B2A] px-4 py-2 text-sm font-semibold text-white no-underline transition-all hover:bg-[#8B3D21]"
-              >
-                Sign Up
-              </Link>
-            )}
+              Open App
+            </Link>
           </div>
 
           <button
@@ -139,25 +125,14 @@ function Navbar({
                   {link.label}
                 </a>
               ))}
-              <div className="mt-2 flex gap-3">
-                <button
-                  onClick={() => {
-                    onLoginWithGithubClicked();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="cursor-pointer rounded-[0.625rem] border-2 border-[#A64B2A] bg-transparent px-4 py-2 text-sm font-semibold text-[#A64B2A]"
+              <div className="mt-2">
+                <Link
+                  to="/signup"
+                  className="inline-block rounded-[0.625rem] bg-[#367181] px-4 py-2 text-sm font-semibold text-white no-underline"
+                  onClick={() => setMobileMenuOpen(false)}
                 >
-                  Login with GitHub
-                </button>
-                {openSignup && (
-                  <Link
-                    to="/signup"
-                    className="rounded-[0.625rem] bg-[#A64B2A] px-4 py-2 text-sm font-semibold text-white no-underline"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Sign Up
-                  </Link>
-                )}
+                  Open App
+                </Link>
               </div>
             </div>
           </div>
@@ -1697,10 +1672,8 @@ function Footer() {
 }
 
 export default function Splash({
-  openSignup,
   onLoginWithGithubClicked,
 }: {
-  openSignup: boolean;
   onLoginWithGithubClicked: () => void;
 }) {
   return (
@@ -1712,10 +1685,7 @@ export default function Splash({
         scrollBehavior: "smooth",
       }}
     >
-      <Navbar
-        openSignup={openSignup}
-        onLoginWithGithubClicked={onLoginWithGithubClicked}
-      />
+      <Navbar />
       <Hero onLoginWithGithubClicked={onLoginWithGithubClicked} />
       <Partners />
       <Benefits onLoginWithGithubClicked={onLoginWithGithubClicked} />
