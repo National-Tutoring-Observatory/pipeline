@@ -6,7 +6,6 @@ import {
   CheckCircle,
   ChevronRight,
   CloudUpload,
-  ExternalLink,
   FileText,
   GraduationCap,
   Heart,
@@ -142,11 +141,7 @@ function Navbar() {
   );
 }
 
-function Hero({
-  onLoginWithGithubClicked,
-}: {
-  onLoginWithGithubClicked: () => void;
-}) {
+function Hero() {
   return (
     <section
       id="hero"
@@ -220,12 +215,12 @@ function Hero({
               </span>
             </div>
             <div className="flex flex-wrap gap-3">
-              <button
-                onClick={onLoginWithGithubClicked}
-                className="cursor-pointer rounded-[0.625rem] border-none bg-[#A64B2A] px-7 py-3 font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-[#8B3D21] hover:shadow-lg"
+              <Link
+                to="/signup"
+                className="rounded-[0.625rem] bg-[#A64B2A] px-7 py-3 font-semibold text-white no-underline transition-all hover:-translate-y-0.5 hover:bg-[#8B3D21] hover:shadow-lg"
               >
                 Try Sandpiper Now
-              </button>
+              </Link>
               <a
                 href="#how-it-works"
                 className="rounded-[0.625rem] border-2 border-[#367181] bg-transparent px-6 py-3 font-semibold text-[#367181] no-underline transition-all hover:bg-[#367181] hover:text-white"
@@ -317,11 +312,7 @@ function Partners() {
   );
 }
 
-function Benefits({
-  onLoginWithGithubClicked,
-}: {
-  onLoginWithGithubClicked: () => void;
-}) {
+function Benefits() {
   const stats = [
     {
       number: "Deep",
@@ -427,12 +418,12 @@ function Benefits({
           ))}
         </div>
         <div className="mt-12 text-center">
-          <button
-            onClick={onLoginWithGithubClicked}
-            className="cursor-pointer rounded-[0.625rem] border-none bg-[#367181] px-7 py-3 text-lg font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
+          <Link
+            to="/signup"
+            className="rounded-[0.625rem] bg-[#367181] px-7 py-3 text-lg font-semibold text-white no-underline transition-all hover:-translate-y-0.5 hover:shadow-lg"
           >
             Start Annotating
-          </button>
+          </Link>
         </div>
       </div>
     </section>
@@ -553,11 +544,7 @@ function Features() {
   );
 }
 
-function HowItWorks({
-  onLoginWithGithubClicked,
-}: {
-  onLoginWithGithubClicked: () => void;
-}) {
+function HowItWorks() {
   const steps = [
     {
       icon: <CloudUpload size={22} />,
@@ -651,23 +638,19 @@ function HowItWorks({
           ))}
         </div>
         <div className="mt-12 text-center">
-          <button
-            onClick={onLoginWithGithubClicked}
-            className="cursor-pointer rounded-[0.625rem] border-none bg-[#A64B2A] px-7 py-3 font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-[#8B3D21] hover:shadow-lg"
+          <Link
+            to="/signup"
+            className="rounded-[0.625rem] bg-[#A64B2A] px-7 py-3 font-semibold text-white no-underline transition-all hover:-translate-y-0.5 hover:bg-[#8B3D21] hover:shadow-lg"
           >
             Get Started Now
-          </button>
+          </Link>
         </div>
       </div>
     </section>
   );
 }
 
-function Orchestration({
-  onLoginWithGithubClicked,
-}: {
-  onLoginWithGithubClicked: () => void;
-}) {
+function Orchestration() {
   const orchSteps = [
     {
       num: "1",
@@ -872,13 +855,12 @@ function Orchestration({
         </div>
 
         <div className="mt-12 text-center">
-          <button
-            onClick={onLoginWithGithubClicked}
-            className="cursor-pointer rounded-[0.625rem] border-none bg-white px-7 py-3 font-semibold text-[#B31B1B] transition-all hover:-translate-y-0.5 hover:shadow-lg"
+          <Link
+            to="/signup"
+            className="inline-flex items-center rounded-[0.625rem] bg-white px-7 py-3 font-semibold text-[#B31B1B] no-underline transition-all hover:-translate-y-0.5 hover:shadow-lg"
           >
-            <ExternalLink size={16} className="mr-2 inline" />
             Try Orchestrated Annotation
-          </button>
+          </Link>
         </div>
       </div>
     </section>
@@ -1538,11 +1520,7 @@ function Impact() {
   );
 }
 
-function CTASection({
-  onLoginWithGithubClicked,
-}: {
-  onLoginWithGithubClicked: () => void;
-}) {
+function CTASection() {
   return (
     <section
       id="cta"
@@ -1579,12 +1557,12 @@ function CTASection({
           standard evaluation metrics &mdash; all in one sitting.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
-          <button
-            onClick={onLoginWithGithubClicked}
-            className="cursor-pointer rounded-[0.625rem] border-none bg-white px-8 py-3 font-bold text-[#A64B2A] transition-all hover:-translate-y-0.5 hover:text-[#8B3D21] hover:shadow-lg"
+          <Link
+            to="/signup"
+            className="rounded-[0.625rem] bg-white px-8 py-3 font-bold text-[#A64B2A] no-underline transition-all hover:-translate-y-0.5 hover:text-[#8B3D21] hover:shadow-lg"
           >
             Try Sandpiper Now
-          </button>
+          </Link>
           <a
             href="https://github.com/National-Tutoring-Observatory"
             target="_blank"
@@ -1671,11 +1649,7 @@ function Footer() {
   );
 }
 
-export default function Splash({
-  onLoginWithGithubClicked,
-}: {
-  onLoginWithGithubClicked: () => void;
-}) {
+export default function Splash() {
   return (
     <div
       className="min-h-screen"
@@ -1686,17 +1660,17 @@ export default function Splash({
       }}
     >
       <Navbar />
-      <Hero onLoginWithGithubClicked={onLoginWithGithubClicked} />
+      <Hero />
       <Partners />
-      <Benefits onLoginWithGithubClicked={onLoginWithGithubClicked} />
+      <Benefits />
       <Features />
-      <HowItWorks onLoginWithGithubClicked={onLoginWithGithubClicked} />
-      <Orchestration onLoginWithGithubClicked={onLoginWithGithubClicked} />
+      <HowItWorks />
+      <Orchestration />
       <Metrics />
       <Research />
       <About />
       <Impact />
-      <CTASection onLoginWithGithubClicked={onLoginWithGithubClicked} />
+      <CTASection />
       <Footer />
     </div>
   );
