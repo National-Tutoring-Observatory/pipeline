@@ -601,42 +601,29 @@ function HowItWorks() {
             Three Steps to Validated Insights
           </h2>
         </div>
-        <div className="flex flex-col items-center gap-6 md:flex-row md:items-start md:gap-0">
+        <div className="relative flex flex-col items-center gap-6 md:grid md:grid-cols-3 md:gap-0">
           {steps.map((step, index) => (
-            <div
-              key={step.title}
-              className="flex flex-1 flex-col items-center md:flex-row md:items-start"
-            >
-              <div className="relative z-10 text-center">
-                <div
-                  className="mx-auto mb-4 flex h-[52px] w-[52px] items-center justify-center rounded-full text-white shadow-md"
-                  style={{ background: step.gradient }}
-                >
-                  {step.icon}
-                </div>
-                <h5 className="mb-1.5 text-[1.05rem] font-bold text-[#2C241B]">
-                  {step.title}
-                </h5>
-                <p className="mx-auto max-w-[260px] text-[0.88rem] leading-[1.65] text-[#5D534A]">
-                  {step.description}
-                </p>
+            <div key={step.title} className="relative z-10 text-center">
+              <div
+                className="mx-auto mb-4 flex h-[52px] w-[52px] items-center justify-center rounded-full text-white shadow-md"
+                style={{ background: step.gradient }}
+              >
+                {step.icon}
               </div>
+              <h5 className="mb-1.5 text-[1.05rem] font-bold text-[#2C241B]">
+                {step.title}
+              </h5>
+              <p className="mx-auto max-w-[260px] text-[0.88rem] leading-[1.65] text-[#5D534A]">
+                {step.description}
+              </p>
               {index < steps.length - 1 && (
                 <div
-                  className="mx-4 mt-6 hidden h-[2px] flex-1 opacity-30 md:block"
+                  className="absolute top-[26px] left-[calc(50%+36px)] hidden h-[2px] opacity-30 md:block"
                   style={{
+                    width: "calc(100% - 72px)",
                     background: "linear-gradient(90deg, #A64B2A, #367181)",
                   }}
-                >
-                  <div
-                    className="absolute -top-1 right-[-3px] h-2.5 w-2.5"
-                    style={{
-                      borderRight: "2px solid #367181",
-                      borderTop: "2px solid #367181",
-                      transform: "rotate(45deg)",
-                    }}
-                  />
-                </div>
+                />
               )}
             </div>
           ))}
