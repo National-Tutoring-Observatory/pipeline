@@ -1,4 +1,5 @@
 import { Label } from "@/components/ui/label";
+import type { Run } from "~/modules/runs/runs.types";
 import type { AnnotationSchemaFieldCount } from "../helpers/getAnnotationSchemaFieldCounts";
 import EvaluationCreateAnnotationSchemaDisplay from "./evaluationCreateAnnotationSchemaDisplay";
 import EvaluationCreateBaseRunSelector from "./evaluationCreateBaseRunSelector";
@@ -15,9 +16,9 @@ export default function EvaluationCreateRunsSelector({
   onSelectedRunsChanged,
   onAnnotationFieldToggled,
 }: {
-  runs: Array<{ _id: string; name: string }>;
+  runs: Run[];
   baseRun: string | null;
-  compatibleRuns: Array<{ _id: string; name: string }>;
+  compatibleRuns: Run[];
   selectedRuns: string[];
   annotationSchemaFieldCounts: AnnotationSchemaFieldCount[];
   selectedAnnotationFields: string[];

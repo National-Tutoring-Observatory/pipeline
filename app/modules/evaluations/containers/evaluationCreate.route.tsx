@@ -14,6 +14,7 @@ import EvaluationCreate from "~/modules/evaluations/components/evaluationCreate"
 import { EvaluationService } from "~/modules/evaluations/evaluation";
 import getAnnotationSchemaFieldCounts from "~/modules/evaluations/helpers/getAnnotationSchemaFieldCounts";
 import getEvaluationCompatibleRuns from "~/modules/evaluations/helpers/getEvaluationCompatibleRuns";
+import getRunDisabledReason from "~/modules/evaluations/helpers/getRunDisabledReason";
 import isAbleToCreateEvaluation from "~/modules/evaluations/helpers/isAbleToCreateEvaluation";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
@@ -123,6 +124,20 @@ export async function action({ request, params }: Route.ActionArgs) {
         );
       }
 
+      const nonSelectableRun = fetchedRuns.find(
+        (run) => !!getRunDisabledReason(run),
+      );
+      if (nonSelectableRun) {
+        return data(
+          {
+            errors: {
+              runs: `Run "${nonSelectableRun.name}" is not selectable: ${getRunDisabledReason(nonSelectableRun)}`,
+            },
+          },
+          { status: 400 },
+        );
+      }
+
       const compatible = getEvaluationCompatibleRuns(fetchedRuns, baseRun);
 
       if (compatible.length !== selectedRuns.length) {
@@ -203,7 +218,11 @@ export default function EvaluationCreateRoute() {
       return;
     }
     const compatible = getEvaluationCompatibleRuns(runs, id);
-    setSelectedRuns(compatible.map((run) => run._id));
+    setSelectedRuns(
+      compatible
+        .filter((run) => !getRunDisabledReason(run))
+        .map((run) => run._id),
+    );
     setSelectedAnnotationFields([]);
   };
 
