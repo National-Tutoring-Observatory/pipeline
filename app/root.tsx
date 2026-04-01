@@ -11,12 +11,10 @@ import {
 } from "react-router";
 
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "sonner";
 import * as ga from "~/modules/analytics/analytics";
 import type { Route } from "./+types/root";
 import "./app.css";
-import AppSidebar from "./modules/app/components/appSidebar";
 import AuthenticationContainer from "./modules/authentication/containers/authentication.container";
 import DialogContainer from "./modules/dialogs/containers/dialog.container";
 import useHasFeatureFlag from "./modules/featureFlags/hooks/useHasFeatureFlag";
@@ -55,14 +53,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <NavigationProgress />
-        <AuthenticationContainer>
-          <SidebarProvider defaultOpen={true}>
-            <AppSidebar />
-            <SidebarInset>
-              <main>{children}</main>
-            </SidebarInset>
-          </SidebarProvider>
-        </AuthenticationContainer>
+        <AuthenticationContainer>{children}</AuthenticationContainer>
         <Toaster />
         <DialogContainer />
         <ScrollRestoration />
