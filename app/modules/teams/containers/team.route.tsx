@@ -3,6 +3,7 @@ import { redirect, useFetcher } from "react-router";
 import { toast } from "sonner";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import BillingAuthorization from "~/modules/billing/authorization";
+import isBillingEnabled from "~/modules/billing/helpers/isBillingEnabled.server";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
@@ -29,7 +30,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
   return {
     team,
-    canViewBilling: BillingAuthorization.canViewBilling(userSession, team),
+    canViewBilling: BillingAuthorization.canViewBilling(
+      userSession,
+      team,
+      isBillingEnabled(),
+    ),
   };
 }
 
