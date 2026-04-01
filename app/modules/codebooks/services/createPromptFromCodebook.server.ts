@@ -1,3 +1,4 @@
+import handleLLMError from "~/modules/llm/helpers/handleLLMError";
 import LLM from "~/modules/llm/llm";
 import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import { PromptService } from "~/modules/prompts/prompt";
@@ -43,32 +44,39 @@ export default async function createPromptFromCodebook({
     codebookVersion.categories,
   );
 
-  const llm = new LLM({
-    model: getDefaultModelCode(),
-    user: teamId,
-    source: "codebook-prompt-generation",
-    sourceId: codebookId,
-  });
+  let userPrompt: string;
 
-  llm.addSystemMessage(
-    `You are an expert at writing LLM annotation prompts for analysing tutoring transcripts.
+  try {
+    const llm = new LLM({
+      model: getDefaultModelCode(),
+      user: teamId,
+      source: "codebook-prompt-generation",
+      sourceId: codebookId,
+    });
+
+    llm.addSystemMessage(
+      `You are an expert at writing LLM annotation prompts for analysing tutoring transcripts.
     - You will be given a codebook summary containing categories, codes, definitions, and examples.
     - Your task is to write a clear, detailed prompt that an LLM can use to annotate transcripts according to the codebook.
     - The prompt should instruct the LLM to classify each annotation field using the codes defined in the codebook.
     - Include the code definitions and examples from the codebook so the LLM understands each code.
     - Do not include any JSON schema or output format instructions — those are handled separately.
     - Always return your result as the following JSON: {{output}}.`,
-    {
-      output: JSON.stringify({ prompt: "" }),
-    },
-  );
+      {
+        output: JSON.stringify({ prompt: "" }),
+      },
+    );
 
-  llm.addUserMessage(`Codebook summary:\n{{summary}}`, {
-    summary,
-  });
+    llm.addUserMessage(`Codebook summary:\n{{summary}}`, {
+      summary,
+    });
 
-  const response = await llm.createChat();
-  const userPrompt = response.prompt;
+    const response = await llm.createChat();
+    userPrompt = response.prompt;
+  } catch (error) {
+    const errorMessage = handleLLMError(error);
+    throw new Error(errorMessage, { cause: error });
+  }
 
   const prompt = await PromptService.create({
     name: codebook.name,

@@ -1,5 +1,6 @@
 import each from "lodash/each";
 import has from "lodash/has";
+import handleLLMError from "~/modules/llm/helpers/handleLLMError";
 import LLM from "~/modules/llm/llm";
 import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import leadRolePrompt from "../prompts/leadRole.prompt.json";
@@ -57,22 +58,27 @@ export default async function getAttributeMappingFromFile({
     ),
   ];
 
-  const llm = new LLM({
-    model: getDefaultModelCode(),
-    user: team,
-    source: "attribute-mapping",
-    sourceId: projectId,
-  });
+  try {
+    const llm = new LLM({
+      model: getDefaultModelCode(),
+      user: team,
+      source: "attribute-mapping",
+      sourceId: projectId,
+    });
 
-  llm.addSystemMessage(leadRolePrompt.system, {});
+    llm.addSystemMessage(leadRolePrompt.system, {});
 
-  llm.addUserMessage(leadRolePrompt.user, {
-    roles: uniqueRoles.join(" | "),
-  });
+    llm.addUserMessage(leadRolePrompt.user, {
+      roles: uniqueRoles.join(" | "),
+    });
 
-  const response = await llm.createChat();
+    const response = await llm.createChat();
 
-  attributeMapping.leadRole = response.leadRole;
+    attributeMapping.leadRole = response.leadRole;
+  } catch (error) {
+    const errorMessage = handleLLMError(error);
+    throw new Error(errorMessage, { cause: error });
+  }
 
   return attributeMapping;
 }
