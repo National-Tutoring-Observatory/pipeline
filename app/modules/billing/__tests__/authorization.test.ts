@@ -1,11 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { Team } from "../../teams/teams.types";
 import type { User } from "../../users/users.types";
 import BillingAuthorization from "../authorization";
-
-vi.mock("~/modules/billing/helpers/isBillingEnabled.server", () => ({
-  default: vi.fn().mockReturnValue(false),
-}));
 
 describe("BillingAuthorization", () => {
   const superAdminUser = {
@@ -57,73 +53,67 @@ describe("BillingAuthorization", () => {
   };
 
   describe("canViewBilling", () => {
-    describe("when billing is disabled (default)", () => {
+    describe("when billing is disabled", () => {
       it("allows super admins", () => {
-        expect(BillingAuthorization.canViewBilling(superAdminUser, team)).toBe(
-          true,
-        );
+        expect(
+          BillingAuthorization.canViewBilling(superAdminUser, team, false),
+        ).toBe(true);
       });
 
       it("denies team admins", () => {
-        expect(BillingAuthorization.canViewBilling(teamAdminUser, team)).toBe(
-          false,
-        );
+        expect(
+          BillingAuthorization.canViewBilling(teamAdminUser, team, false),
+        ).toBe(false);
       });
 
       it("denies billing users", () => {
-        expect(BillingAuthorization.canViewBilling(billingUser, team)).toBe(
-          false,
-        );
+        expect(
+          BillingAuthorization.canViewBilling(billingUser, team, false),
+        ).toBe(false);
       });
 
       it("denies team members", () => {
-        expect(BillingAuthorization.canViewBilling(teamMemberUser, team)).toBe(
-          false,
-        );
+        expect(
+          BillingAuthorization.canViewBilling(teamMemberUser, team, false),
+        ).toBe(false);
       });
 
       it("denies null users", () => {
-        expect(BillingAuthorization.canViewBilling(null, team)).toBe(false);
+        expect(BillingAuthorization.canViewBilling(null, team, false)).toBe(
+          false,
+        );
       });
     });
 
     describe("when billing is enabled", () => {
-      beforeEach(async () => {
-        const mod =
-          await import("~/modules/billing/helpers/isBillingEnabled.server");
-        vi.mocked(mod.default).mockReturnValue(true);
-      });
-
-      afterEach(() => {
-        vi.resetAllMocks();
-      });
-
       it("allows super admins", () => {
-        expect(BillingAuthorization.canViewBilling(superAdminUser, team)).toBe(
-          true,
-        );
+        expect(
+          BillingAuthorization.canViewBilling(superAdminUser, team, true),
+        ).toBe(true);
       });
 
       it("allows team admins", () => {
-        expect(BillingAuthorization.canViewBilling(teamAdminUser, team)).toBe(
-          true,
-        );
+        expect(
+          BillingAuthorization.canViewBilling(teamAdminUser, team, true),
+        ).toBe(true);
       });
 
       it("allows billing users", () => {
-        expect(BillingAuthorization.canViewBilling(billingUser, team)).toBe(
-          true,
-        );
+        expect(
+          BillingAuthorization.canViewBilling(billingUser, team, true),
+        ).toBe(true);
       });
 
       it("denies team members", () => {
-        expect(BillingAuthorization.canViewBilling(teamMemberUser, team)).toBe(
-          false,
-        );
+        expect(
+          BillingAuthorization.canViewBilling(teamMemberUser, team, true),
+        ).toBe(false);
       });
 
       it("denies null users", () => {
-        expect(BillingAuthorization.canViewBilling(null, team)).toBe(false);
+        expect(BillingAuthorization.canViewBilling(null, team, true)).toBe(
+          false,
+        );
       });
     });
   });

@@ -1,13 +1,16 @@
 import { userIsSuperAdmin } from "~/modules/authorization/helpers/superAdmin";
 import { userIsTeamBillingUser } from "~/modules/authorization/helpers/teamBilling";
 import { userIsTeamAdmin } from "~/modules/authorization/helpers/teamMembership";
-import isBillingEnabled from "~/modules/billing/helpers/isBillingEnabled.server";
 import type { Team } from "~/modules/teams/teams.types";
 import type { User } from "~/modules/users/users.types";
 
 const BillingAuthorization = {
-  canViewBilling(user: User | null, team: Team | null): boolean {
-    if (isBillingEnabled()) {
+  canViewBilling(
+    user: User | null,
+    team: Team | null,
+    billingEnabled: boolean,
+  ): boolean {
+    if (billingEnabled) {
       return (
         userIsSuperAdmin(user) ||
         userIsTeamAdmin(user, team?._id ?? "") ||
