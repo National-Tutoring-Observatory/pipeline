@@ -4,13 +4,13 @@ import type {
   MigrationResult,
 } from "~/modules/migrations/types";
 
-const INITIAL_CREDITS = process.env.BILLING_ENABLED === "true" ? 10 : 75;
+const INITIAL_CREDITS = process.env.BILLING_ENABLED === "true" ? 10 : 20;
 
 export default {
   id: "20260401000001-backfill-initial-team-credits",
   name: "Backfill Initial Team Credits",
   description:
-    "Grants $75 initial credits to all existing teams that have no credits yet.",
+    "Grants $20 initial credits to all existing teams that have no credits yet.",
 
   async up(db: Db): Promise<MigrationResult> {
     console.log("Starting Backfill Initial Team Credits migration...");
