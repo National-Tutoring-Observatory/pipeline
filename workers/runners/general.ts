@@ -4,6 +4,7 @@ import type { Job } from "bullmq";
 import deleteProject from "../general/deleteProject";
 import deleteProjectData from "../general/deleteProjectData";
 import deleteRunSetData from "../general/deleteRunSetData";
+import notifyCreditsExhausted from "../general/notifyCreditsExhausted";
 import removeExpiredTeamAssignment from "../general/removeExpiredTeamAssignment";
 import removeFeatureFlagFromUsers from "../general/removeFeatureFlagFromUsers";
 import runMigration from "../general/runMigration";
@@ -41,6 +42,9 @@ export default async (job: Job) => {
       }
       case "TRACK_FIRST_PROMPT": {
         return trackFirstPrompt(job);
+      }
+      case "NOTIFY_CREDITS_EXHAUSTED": {
+        return notifyCreditsExhausted(job);
       }
       default: {
         return {

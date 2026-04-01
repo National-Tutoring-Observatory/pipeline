@@ -2,7 +2,7 @@ import fse from "fs-extra";
 import filter from "lodash/filter";
 import map from "lodash/map.js";
 import buildAnnotationSchema from "../../app/modules/llm/helpers/buildAnnotationSchema";
-import classifyLLMError from "../../app/modules/llm/helpers/classifyLLMError";
+import handleLLMError from "../../app/modules/llm/helpers/handleLLMError";
 import LLM from "../../app/modules/llm/llm";
 import { RunService } from "../../app/modules/runs/run";
 import getConversationFromJSON from "../../app/modules/sessions/helpers/getConversationFromJSON";
@@ -187,8 +187,8 @@ export default async function annotatePerSession(job: any) {
     return {
       status: "SUCCESS",
     };
-  } catch (error: any) {
-    const errorMessage = classifyLLMError(error);
+  } catch (error: unknown) {
+    const errorMessage = handleLLMError(error);
 
     await updateRunSession({
       runId,

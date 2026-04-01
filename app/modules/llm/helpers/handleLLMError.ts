@@ -1,6 +1,14 @@
 import { APIConnectionTimeoutError, APIError, RateLimitError } from "openai";
+import { InsufficientCreditsError } from "~/modules/billing/errors/insufficientCreditsError";
+import { NotificationService } from "~/modules/notifications/notification";
 
-export default function classifyLLMError(error: unknown): string {
+export default function handleLLMError(error: unknown): string {
+  if (error instanceof InsufficientCreditsError) {
+    NotificationService.notifyCreditsExhausted(error.teamId).catch(
+      console.warn,
+    );
+    return error.message;
+  }
   if (error instanceof RateLimitError) {
     return "Rate limit exceeded. Too many requests to the LLM provider.";
   }
