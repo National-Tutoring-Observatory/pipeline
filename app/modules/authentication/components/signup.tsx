@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Link } from "react-router";
 
 export default function Signup({
   onSignupWithGithubClicked,
@@ -75,12 +74,12 @@ export default function Signup({
           </Button>
           <p className="text-muted-foreground text-sm">
             Already have an account?{" "}
-            <Link
-              to="/"
-              className="text-foreground underline hover:no-underline"
+            <button
+              onClick={onSignupWithGithubClicked}
+              className="text-foreground cursor-pointer underline hover:no-underline"
             >
               Sign in
-            </Link>
+            </button>
           </p>
         </CardFooter>
       </Card>
