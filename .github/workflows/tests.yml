@@ -72,3 +72,8 @@ jobs:
 
       - name: Run tests
         run: yarn test
+
+      - name: Build app
+        run: yarn app:build
+        env:
+          BULLMQ_PRO_TOKEN: ${{ secrets.BULLMQ_PRO_TOKEN }}
