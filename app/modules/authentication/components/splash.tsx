@@ -230,11 +230,15 @@ function Hero() {
             </div>
           </div>
           <div className="lg:w-[60%]">
-            <img
-              src="/assets/splash/screenshot-runset-overview.png"
-              alt="Sandpiper Run Set Overview"
-              className="w-full rounded-2xl border border-[rgba(0,0,0,0.05)] shadow-2xl"
-            />
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+            >
+              <source src="/assets/splash/hero-demo.mp4" type="video/mp4" />
+            </video>
           </div>
         </div>
       </div>
