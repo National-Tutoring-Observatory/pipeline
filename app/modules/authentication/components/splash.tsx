@@ -1098,92 +1098,17 @@ function Research() {
           </p>
         </div>
 
-        <div className="mb-12 grid gap-6 lg:grid-cols-12">
-          <div className="lg:col-span-8">
-            <h4
-              className="mb-5 text-[1rem] font-semibold tracking-[0.06em] text-[#367181] uppercase"
-              style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-            >
-              From the Sandpiper Team
-            </h4>
-            <div className="grid gap-4 md:grid-cols-2">
-              {sandpiperPapers.map((paper) => (
-                <PaperCard
-                  key={paper.href}
-                  categoryColor="#367181"
-                  {...paper}
-                />
-              ))}
-            </div>
-          </div>
-          <div className="lg:col-span-4">
-            <div className="sticky top-[100px] rounded-xl border border-[#d1cec8] bg-[#E6E2D6] p-5 text-center">
-              <h5
-                className="mb-4 text-[0.85rem] font-semibold text-[#2C241B]"
-                style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-              >
-                Orchestration, Self-Verification &amp; Adjudication
-              </h5>
-              <div className="mb-1.5 flex flex-wrap justify-center gap-2">
-                {["GPT-4", "Gemini", "Claude"].map((model, i) => {
-                  const labels = ["Run A", "Run B", "Run C"];
-                  const colors = [
-                    { bg: "#e8f5e9", text: "#2e7d32" },
-                    { bg: "#e3f2fd", text: "#1565c0" },
-                    { bg: "#fce4ec", text: "#c62828" },
-                  ];
-                  return (
-                    <div
-                      key={model}
-                      className="rounded-md border border-[#d1cec8] bg-white px-2.5 py-1.5 text-center"
-                    >
-                      <div className="flex items-center justify-center gap-1">
-                        <span className="text-[0.75rem] font-bold text-[#2C241B]">
-                          {model}
-                        </span>
-                        <span className="text-[0.85rem] text-[#b8942a]">
-                          &#x21bb;
-                        </span>
-                      </div>
-                      <span
-                        className="mt-0.5 inline-block rounded-sm px-1.5 py-0.5 text-[0.55rem]"
-                        style={{
-                          background: colors[i].bg,
-                          color: colors[i].text,
-                        }}
-                      >
-                        {labels[i]}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="mb-1.5 text-[0.65rem] font-semibold text-[#8a7a1a]">
-                &#x21bb; Self-Verification
-              </div>
-              <div className="mb-1.5 text-[0.85rem] tracking-[0.4rem] text-[#5D534A] opacity-40">
-                &#x25BC; &#x25BC; &#x25BC;
-              </div>
-              <div className="mx-auto mb-1.5 max-w-[180px] rounded-md bg-[#367181] px-2.5 py-1.5 text-white">
-                <div className="text-[0.72rem] font-bold">
-                  Adjudication Engine
-                </div>
-                <div className="text-[0.55rem] opacity-70">
-                  Compare &middot; Resolve &middot; Consensus
-                </div>
-              </div>
-              <div className="mb-1.5 text-[0.85rem] text-[#5D534A] opacity-40">
-                &#x25BC;
-              </div>
-              <div className="mx-auto max-w-[200px] rounded-md border-[1.5px] border-[#A64B2A] bg-white px-2.5 py-1.5">
-                <div className="text-[0.72rem] font-bold text-[#A64B2A]">
-                  Consensus Annotation
-                </div>
-                <div className="text-[0.55rem] text-[#5D534A]">
-                  More reliable than any single model
-                </div>
-              </div>
-            </div>
+        <div className="mb-12">
+          <h4
+            className="mb-5 text-[1rem] font-semibold tracking-[0.06em] text-[#367181] uppercase"
+            style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+          >
+            From the Sandpiper Team
+          </h4>
+          <div className="grid gap-4 md:grid-cols-2">
+            {sandpiperPapers.map((paper) => (
+              <PaperCard key={paper.href} categoryColor="#367181" {...paper} />
+            ))}
           </div>
         </div>
 
@@ -1508,7 +1433,7 @@ function Impact() {
             effort.
           </p>
           <a
-            href="mailto:nto@cornell.edu"
+            href="mailto:CIS-NTO-PARTNERSHIPS-L@list.cornell.edu"
             className="inline-flex items-center gap-2 rounded-[0.625rem] border-none bg-[#A64B2A] px-7 py-3 font-semibold text-white no-underline transition-all hover:-translate-y-0.5 hover:bg-[#8B3D21] hover:shadow-lg"
           >
             <Mail size={16} />
