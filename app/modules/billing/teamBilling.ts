@@ -70,7 +70,7 @@ export class TeamBillingService {
     teamId: string,
     userId: string,
   ): Promise<void> {
-    const initialCredits = isBillingEnabled() ? 10 : 75;
+    const initialCredits = isBillingEnabled() ? 10 : 20;
     await TeamCreditService.create({
       team: teamId,
       amount: initialCredits,

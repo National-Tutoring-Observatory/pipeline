@@ -275,14 +275,14 @@ describe("Billing", () => {
     });
 
     describe("assignInitialCredits", () => {
-      it("assigns 75 credits when billing is disabled", async () => {
+      it("assigns 20 credits when billing is disabled", async () => {
         const original = process.env.BILLING_ENABLED;
         delete process.env.BILLING_ENABLED;
 
         await TeamBillingService.assignInitialCredits(teamId, userId);
 
         const credits = await TeamCreditService.sumByTeam(teamId);
-        expect(credits).toBe(75);
+        expect(credits).toBe(20);
 
         process.env.BILLING_ENABLED = original;
       });
