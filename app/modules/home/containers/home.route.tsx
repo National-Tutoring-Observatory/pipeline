@@ -8,7 +8,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (process.env.OPEN_SIGNUP !== "true") return redirect("/projects");
 
   const user = await getSessionUser({ request });
-  if (!user) return { billingEnabled: false };
+  if (!user) return { billingEnabled: isBillingEnabled() };
 
   return { billingEnabled: isBillingEnabled() };
 }
