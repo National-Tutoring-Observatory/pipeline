@@ -1,7 +1,9 @@
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import get from "lodash/get";
 import { LoaderPinwheel } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 import { Outlet, useFetcher, useLocation, useMatch } from "react-router";
+import AppSidebar from "~/modules/app/components/appSidebar";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import SandpiperTheme from "~/modules/featureFlags/components/sandpiperTheme";
 import { connectSockets } from "~/modules/sockets/sockets";
@@ -82,7 +84,12 @@ export default function AuthenticationContainer({
   return (
     <AuthenticationContext value={authentication}>
       <SandpiperTheme />
-      {children}
+      <SidebarProvider defaultOpen={true}>
+        <AppSidebar />
+        <SidebarInset>
+          <main>{children}</main>
+        </SidebarInset>
+      </SidebarProvider>
     </AuthenticationContext>
   );
 }
