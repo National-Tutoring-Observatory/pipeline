@@ -81,7 +81,7 @@ function Navbar() {
             Sandpiper
           </a>
 
-          <div className="hidden items-center gap-6 lg:flex">
+          <div className="hidden items-center gap-6 lg:mr-6 lg:ml-auto lg:flex">
             {navLinks.map((link) => (
               <a
                 key={link.href}
