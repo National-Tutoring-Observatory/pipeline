@@ -5,8 +5,16 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Item, ItemContent, ItemGroup, ItemTitle } from "@/components/ui/item";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemTitle,
+} from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
+import getRunDisabledReason from "~/modules/evaluations/helpers/getRunDisabledReason";
+import type { Run } from "~/modules/runs/runs.types";
 
 export default function EvaluationCreateCompatibleRunsSelector({
   baseRun,
@@ -15,7 +23,7 @@ export default function EvaluationCreateCompatibleRunsSelector({
   onSelectedRunsChanged,
 }: {
   baseRun: string | null;
-  compatibleRuns: Array<{ _id: string; name: string }>;
+  compatibleRuns: Run[];
   selectedRuns: string[];
   onSelectedRunsChanged: (ids: string[]) => void;
 }) {
@@ -26,41 +34,57 @@ export default function EvaluationCreateCompatibleRunsSelector({
       </Label>
       {baseRun && compatibleRuns.length > 0 && (
         <ItemGroup className="mt-3 gap-2">
-          {compatibleRuns.map((run) => (
-            <Item
-              key={run._id}
-              variant="muted"
-              size="sm"
-              className="hover:bg-accent cursor-pointer"
-              onClick={() => {
-                if (selectedRuns.includes(run._id)) {
-                  onSelectedRunsChanged(
-                    selectedRuns.filter((id) => id !== run._id),
-                  );
-                } else {
-                  onSelectedRunsChanged([...selectedRuns, run._id]);
+          {compatibleRuns.map((run) => {
+            const disabledReason = getRunDisabledReason(run);
+            return (
+              <Item
+                key={run._id}
+                variant="muted"
+                size="sm"
+                className={
+                  disabledReason
+                    ? "cursor-not-allowed opacity-50"
+                    : "hover:bg-accent cursor-pointer"
                 }
-              }}
-            >
-              <Checkbox
-                id={`right-${run._id}`}
-                checked={selectedRuns.includes(run._id)}
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    onSelectedRunsChanged([...selectedRuns, run._id]);
-                  } else {
-                    onSelectedRunsChanged(
-                      selectedRuns.filter((id) => id !== run._id),
-                    );
-                  }
-                }}
-                onClick={(e) => e.stopPropagation()}
-              />
-              <ItemContent>
-                <ItemTitle>{run.name}</ItemTitle>
-              </ItemContent>
-            </Item>
-          ))}
+                onClick={
+                  disabledReason
+                    ? undefined
+                    : () => {
+                        if (selectedRuns.includes(run._id)) {
+                          onSelectedRunsChanged(
+                            selectedRuns.filter((id) => id !== run._id),
+                          );
+                        } else {
+                          onSelectedRunsChanged([...selectedRuns, run._id]);
+                        }
+                      }
+                }
+              >
+                <Checkbox
+                  id={`right-${run._id}`}
+                  checked={selectedRuns.includes(run._id)}
+                  disabled={!!disabledReason}
+                  onCheckedChange={(checked) => {
+                    if (disabledReason) return;
+                    if (checked) {
+                      onSelectedRunsChanged([...selectedRuns, run._id]);
+                    } else {
+                      onSelectedRunsChanged(
+                        selectedRuns.filter((id) => id !== run._id),
+                      );
+                    }
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <ItemContent>
+                  <ItemTitle>{run.name}</ItemTitle>
+                  {disabledReason && (
+                    <ItemDescription>{disabledReason}</ItemDescription>
+                  )}
+                </ItemContent>
+              </Item>
+            );
+          })}
         </ItemGroup>
       )}
       {baseRun && compatibleRuns.length === 0 && (
