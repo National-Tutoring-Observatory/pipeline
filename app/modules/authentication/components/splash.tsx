@@ -850,38 +850,45 @@ function Orchestration({
               </div>
               <div className="mx-auto flex max-w-[320px] items-end justify-center gap-8">
                 <div className="flex flex-col items-center">
+                  <span className="mb-1 text-sm font-bold text-[#5D534A]">
+                    0.55
+                  </span>
+                  <div
+                    className="w-14 rounded-t bg-[#5D534A] opacity-60"
+                    style={{ height: 71 }}
+                  />
+                  <span
+                    className="mt-2 text-[0.53rem] font-semibold"
+                    style={{ color: "rgba(255,255,255,0.5)" }}
+                  >
+                    Single LLM
+                  </span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="mb-1 text-sm font-bold text-[#367181]">
+                    0.74
+                  </span>
+                  <div
+                    className="w-14 rounded-t bg-[#367181]"
+                    style={{ height: 96 }}
+                  />
+                  <span
+                    className="mt-2 text-[0.53rem] font-semibold"
+                    style={{ color: "rgba(255,255,255,0.5)" }}
+                  >
+                    Multi-Model
+                  </span>
+                </div>
+                <div className="flex flex-col items-center">
                   <span className="mb-1 text-sm font-bold text-[#D4A843]">
-                    Fail
+                    0.81
                   </span>
-                  <div className="h-0 w-14 rounded-t bg-[#367181] opacity-50" />
-                  <span
-                    className="mt-2 text-[0.53rem] font-semibold"
-                    style={{ color: "rgba(255,255,255,0.5)" }}
-                  >
-                    Chat Bot
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="mb-1 text-sm font-bold text-[#6B9BAD]">
-                    0.10
-                  </span>
-                  <div className="h-3.5 w-14 rounded-t bg-[#6B9BAD]" />
-                  <span
-                    className="mt-2 text-[0.53rem] font-semibold"
-                    style={{ color: "rgba(255,255,255,0.5)" }}
-                  >
-                    Basic API Call
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="mb-1 flex items-center gap-1">
-                    <span className="rounded-full border border-[#367181] px-2 py-0.5 text-[0.625rem] font-extrabold text-[#367181]">
-                      4.1&times;
-                    </span>
-                  </div>
-                  <div className="h-[105px] w-14 rounded-t bg-[#A64B2A]" />
+                  <div
+                    className="w-14 rounded-t bg-[#D4A843]"
+                    style={{ height: 105 }}
+                  />
                   <span className="mt-2 text-[0.5625rem] font-bold text-white">
-                    Sandpiper
+                    Orchestrated+Adj
                   </span>
                 </div>
               </div>
@@ -1386,6 +1393,18 @@ function About() {
                   alt="MIT Teaching Systems Lab"
                   className="h-9 opacity-60 invert transition-opacity hover:opacity-100"
                 />
+              </a>
+              <a
+                href="https://www.cmu.edu"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[0.8rem] font-semibold opacity-60 transition-opacity hover:opacity-100"
+                style={{
+                  color: "rgba(255,255,255,0.8)",
+                  fontFamily: "'Josefin Sans', sans-serif",
+                }}
+              >
+                Carnegie Mellon University
               </a>
             </div>
           </div>
