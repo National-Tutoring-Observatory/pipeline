@@ -115,7 +115,11 @@ export default function UploadFilesPageRoute({
       toast.success("Files uploaded successfully");
       navigate(`/projects/${project._id}/files`);
     } else if (fetcher.data.errors) {
-      toast.error(fetcher.data.errors.general || "Upload failed");
+      toast.error(
+        fetcher.data.errors.general ||
+          fetcher.data.errors.files ||
+          "Upload failed",
+      );
     }
   }, [fetcher.state, fetcher.data, navigate, project._id]);
 

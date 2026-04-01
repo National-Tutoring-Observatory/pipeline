@@ -116,13 +116,20 @@ export async function action({ request }: Route.ActionArgs) {
         );
       }
 
-      const prompt = await CodebookService.createPromptFromCodebook({
-        codebookId: entityId,
-        codebookVersionId,
-        annotationType,
-        userId: user._id,
-        teamId: codebook.team as string,
-      });
+      let prompt;
+      try {
+        prompt = await CodebookService.createPromptFromCodebook({
+          codebookId: entityId,
+          codebookVersionId,
+          annotationType,
+          userId: user._id,
+          teamId: codebook.team as string,
+        });
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        return data({ errors: { general: errorMessage } }, { status: 500 });
+      }
 
       trackServerEvent({ name: "prompt_created", userId: user._id });
       await createGeneralJob("TRACK_FIRST_PROMPT", { userId: user._id });
