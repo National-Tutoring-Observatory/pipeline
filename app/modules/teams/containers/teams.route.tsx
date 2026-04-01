@@ -90,7 +90,7 @@ export async function action({ request }: Route.ActionArgs) {
         );
       }
       const team = await TeamService.createForUser(name, user._id);
-      await TeamBillingService.setupNewTeam(team._id, user._id);
+      await TeamBillingService.setupTeamBilling(team._id);
       return data({
         success: true,
         intent: "CREATE_TEAM",

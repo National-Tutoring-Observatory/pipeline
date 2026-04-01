@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
+import { TeamCreditService } from "~/modules/billing/teamCredit";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
@@ -140,6 +141,37 @@ describe("teams.route", () => {
       const teamId = response.data.data._id;
       const assignment = await TeamBillingPlanService.findByTeam(teamId);
       expect(assignment).toBeDefined();
+    });
+
+    it("does not assign credits to the new team", async () => {
+      await BillingPlanService.create({
+        name: "Standard",
+        markupRate: 1.5,
+        isDefault: true,
+      });
+
+      const admin = await UserService.create({
+        username: "admin",
+        role: "SUPER_ADMIN",
+      });
+
+      const cookieHeader = await loginUser(admin._id);
+
+      const response = (await action({
+        request: new Request("http://localhost/teams", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body: JSON.stringify({
+            intent: "CREATE_TEAM",
+            payload: { name: "new team" },
+          }),
+        }),
+        params: {},
+      } as any)) as any;
+
+      const teamId = response.data.data._id;
+      const credits = await TeamCreditService.sumByTeam(teamId);
+      expect(credits).toBe(0);
     });
 
     it("creates a team without a plan if no default plan exists", async () => {
