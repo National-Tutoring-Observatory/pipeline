@@ -104,6 +104,8 @@ function Navbar() {
           </div>
 
           <button
+            type="button"
+            aria-label="Toggle menu"
             className="cursor-pointer border-none bg-transparent text-[#2C241B] lg:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
@@ -250,7 +252,7 @@ function Partners() {
   const partners = [
     {
       name: "National Tutoring Observatory",
-      src: "/assets/splash/nto-logo.png",
+      src: "/assets/splash/nto-logo.webp",
       href: "https://nationaltutoringobservatory.org",
       className: "h-[54px] max-w-[180px]",
     },
@@ -262,7 +264,7 @@ function Partners() {
     },
     {
       name: "MIT Teaching Systems Lab",
-      src: "/assets/splash/mit-tsl.png",
+      src: "/assets/splash/mit-tsl.webp",
       href: "https://tsl.mit.edu/",
       className: "h-[60px] max-w-[220px]",
     },
@@ -273,7 +275,7 @@ function Partners() {
     },
     {
       name: "FreshCognate",
-      src: "/assets/splash/freshcognate.png",
+      src: "/assets/splash/freshcognate.webp",
       href: "https://freshcognate.com",
       className: "h-[44px] max-w-[180px]",
     },
@@ -306,6 +308,7 @@ function Partners() {
                   src={partner.src}
                   alt={partner.name}
                   className={`object-contain opacity-75 grayscale-[20%] transition-all hover:opacity-100 hover:grayscale-0 ${partner.className}`}
+                  loading="lazy"
                 />
               )}
             </a>
@@ -531,15 +534,17 @@ function Features() {
         </div>
         <div className="relative mx-auto mt-16 h-[440px] max-w-4xl">
           <img
-            src="/assets/splash/screenshot-runset-creator.png"
+            src="/assets/splash/screenshot-runset-creator.webp"
             alt="Run Set Creator"
             className="absolute left-0 w-[58%] rounded-xl border border-[rgba(0,0,0,0.05)] shadow-xl"
+            loading="lazy"
             style={{ transform: "rotate(-2deg)" }}
           />
           <img
-            src="/assets/splash/screenshot-runset-overview.png"
+            src="/assets/splash/screenshot-runset-overview.webp"
             alt="Run Set Overview"
             className="absolute left-[30%] z-10 w-[58%] rounded-xl border border-[rgba(0,0,0,0.05)] shadow-2xl"
+            loading="lazy"
             style={{ transform: "rotate(1.5deg)", top: "40px" }}
           />
         </div>
@@ -922,9 +927,10 @@ function Metrics() {
           </div>
           <div className="lg:w-7/12">
             <img
-              src="/assets/splash/screenshot-evaluation.png"
+              src="/assets/splash/screenshot-evaluation.webp"
               alt="Evaluation metrics dashboard"
               className="w-full rounded-2xl border border-[#E6E2D6] shadow-xl"
+              loading="lazy"
             />
           </div>
         </div>
@@ -1236,6 +1242,7 @@ function About() {
                   src="/assets/splash/cornell-bowers-white.svg"
                   alt="Cornell Bowers CIS"
                   className="h-9 opacity-60 transition-opacity hover:opacity-100"
+                  loading="lazy"
                 />
               </a>
               <a
@@ -1244,9 +1251,10 @@ function About() {
                 rel="noreferrer"
               >
                 <img
-                  src="/assets/splash/freshcognate-white.png"
+                  src="/assets/splash/freshcognate-white.webp"
                   alt="FreshCognate"
                   className="h-9 opacity-60 transition-opacity hover:opacity-100"
+                  loading="lazy"
                 />
               </a>
               <a
@@ -1255,16 +1263,18 @@ function About() {
                 rel="noreferrer"
               >
                 <img
-                  src="/assets/splash/nto-logo.png"
+                  src="/assets/splash/nto-logo.webp"
                   alt="National Tutoring Observatory"
                   className="h-9 opacity-60 invert transition-opacity hover:opacity-100"
+                  loading="lazy"
                 />
               </a>
               <a href="https://tsl.mit.edu/" target="_blank" rel="noreferrer">
                 <img
-                  src="/assets/splash/mit-tsl.png"
+                  src="/assets/splash/mit-tsl.webp"
                   alt="MIT Teaching Systems Lab"
                   className="h-9 opacity-60 invert transition-opacity hover:opacity-100"
+                  loading="lazy"
                 />
               </a>
               <a
@@ -1572,7 +1582,6 @@ export default function Splash() {
       style={{
         fontFamily: "'Inter', sans-serif",
         color: "#2C241B",
-        scrollBehavior: "smooth",
       }}
     >
       <Navbar />

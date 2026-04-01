@@ -14,8 +14,8 @@ import { AuthenticationContext } from "~/modules/authentication/authentication.c
 import SandpiperTheme from "~/modules/featureFlags/components/sandpiperTheme";
 import { connectSockets } from "~/modules/sockets/sockets";
 import type { User } from "~/modules/users/users.types";
+import Splash from "../components/splash";
 import LoginContainer from "./login.container";
-import SplashContainer from "./splash.container";
 
 export default function AuthenticationContainer({
   children,
@@ -32,7 +32,7 @@ export default function AuthenticationContainer({
   const prevAuthRef = useRef<User | null>(null);
   const location = useLocation();
   const rootData = useRouteLoaderData("root") as
-    | { openSignup?: boolean }
+    | { openSignup: boolean }
     | undefined;
   const openSignup = rootData?.openSignup ?? false;
 
@@ -90,7 +90,7 @@ export default function AuthenticationContainer({
 
   if (!authentication) {
     if (openSignup) {
-      return <SplashContainer />;
+      return <Splash />;
     }
     return <LoginContainer />;
   }
