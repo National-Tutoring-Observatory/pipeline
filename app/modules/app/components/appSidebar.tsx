@@ -29,7 +29,7 @@ import {
   Users,
 } from "lucide-react";
 import { useContext, useEffect } from "react";
-import { NavLink, useFetcher } from "react-router";
+import { Link, NavLink, useFetcher } from "react-router";
 import SideBarHelpDropdown from "~/modules/app/components/sidebarHelpDropdown";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import Role from "~/modules/authentication/components/role";
@@ -64,11 +64,13 @@ export default function AppSidebar() {
     <Sidebar variant="inset">
       <SidebarHeader className="p-4">
         {hasSandpiperTheme && (
-          <img
-            src="/assets/sandpiper-logo.svg"
-            alt="Sandpiper"
-            className="mx-auto w-full max-w-28"
-          />
+          <Link to={"/"}>
+            <img
+              src="/assets/sandpiper-logo.svg"
+              alt="Sandpiper"
+              className="mx-auto w-full max-w-28"
+            />
+          </Link>
         )}
       </SidebarHeader>
       <SidebarContent>
@@ -78,7 +80,7 @@ export default function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to={"/"}>
+                  <NavLink to={"/projects"}>
                     {({ isActive }) => (
                       <>
                         <Folder />
