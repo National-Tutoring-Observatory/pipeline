@@ -238,6 +238,78 @@ describe("Billing", () => {
       const summary = await TeamBillingService.getBalanceSummary(teamId);
       expect(summary).toBeNull();
     });
+
+    describe("setupTeamBilling", () => {
+      it("assigns the default billing plan to the team", async () => {
+        await BillingPlanService.create({
+          name: "Standard",
+          markupRate: 1.5,
+          isDefault: true,
+        });
+
+        await TeamBillingService.setupTeamBilling(teamId);
+
+        const assignment = await TeamBillingPlanService.findByTeam(teamId);
+        expect(assignment).not.toBeNull();
+      });
+
+      it("does not create any credits", async () => {
+        await BillingPlanService.create({
+          name: "Standard",
+          markupRate: 1.5,
+          isDefault: true,
+        });
+
+        await TeamBillingService.setupTeamBilling(teamId);
+
+        const credits = await TeamCreditService.sumByTeam(teamId);
+        expect(credits).toBe(0);
+      });
+
+      it("does nothing when no default plan exists", async () => {
+        await TeamBillingService.setupTeamBilling(teamId);
+
+        const assignment = await TeamBillingPlanService.findByTeam(teamId);
+        expect(assignment).toBeNull();
+      });
+    });
+
+    describe("assignInitialCredits", () => {
+      it("assigns 75 credits when billing is disabled", async () => {
+        const original = process.env.BILLING_ENABLED;
+        delete process.env.BILLING_ENABLED;
+
+        await TeamBillingService.assignInitialCredits(teamId, userId);
+
+        const credits = await TeamCreditService.sumByTeam(teamId);
+        expect(credits).toBe(75);
+
+        process.env.BILLING_ENABLED = original;
+      });
+
+      it("assigns 10 credits when billing is enabled", async () => {
+        const original = process.env.BILLING_ENABLED;
+        process.env.BILLING_ENABLED = "true";
+
+        await TeamBillingService.assignInitialCredits(teamId, userId);
+
+        const credits = await TeamCreditService.sumByTeam(teamId);
+        expect(credits).toBe(10);
+
+        process.env.BILLING_ENABLED = original;
+      });
+
+      it("records the credit with the correct note and addedBy", async () => {
+        delete process.env.BILLING_ENABLED;
+
+        await TeamBillingService.assignInitialCredits(teamId, userId);
+
+        const all = await TeamCreditService.findByTeam(teamId);
+        expect(all).toHaveLength(1);
+        expect(all[0].note).toBe("Initial credits");
+        expect(all[0].addedBy).toBe(userId);
+      });
+    });
   });
 
   describe("TeamBillingService — period-aware balance", () => {

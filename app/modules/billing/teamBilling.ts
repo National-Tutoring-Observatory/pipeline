@@ -55,7 +55,7 @@ export class TeamBillingService {
     return summary?.balance ?? 0;
   }
 
-  static async setupNewTeam(teamId: string, userId: string): Promise<void> {
+  static async setupTeamBilling(teamId: string): Promise<void> {
     const defaultPlan = await BillingPlanService.findDefault();
     if (!defaultPlan) {
       console.warn(
@@ -63,17 +63,19 @@ export class TeamBillingService {
       );
       return;
     }
+    await TeamBillingPlanService.assignPlan(teamId, defaultPlan._id);
+  }
 
+  static async assignInitialCredits(
+    teamId: string,
+    userId: string,
+  ): Promise<void> {
     const initialCredits = isBillingEnabled() ? 10 : 75;
-
-    await Promise.all([
-      TeamBillingPlanService.assignPlan(teamId, defaultPlan._id),
-      TeamCreditService.create({
-        team: teamId,
-        amount: initialCredits,
-        addedBy: userId,
-        note: "Initial credits",
-      }),
-    ]);
+    await TeamCreditService.create({
+      team: teamId,
+      amount: initialCredits,
+      addedBy: userId,
+      note: "Initial credits",
+    });
   }
 }

@@ -99,7 +99,8 @@ const githubStrategy = new GitHubStrategy<any>(
           newUser._id,
           { isPersonal: true },
         );
-        await TeamBillingService.setupNewTeam(team._id, newUser._id);
+        await TeamBillingService.setupTeamBilling(team._id);
+        await TeamBillingService.assignInitialCredits(team._id, newUser._id);
         trackServerEvent({ name: "user_registered", userId: newUser._id });
         return (await UserService.findById(newUser._id))!;
       } else {
