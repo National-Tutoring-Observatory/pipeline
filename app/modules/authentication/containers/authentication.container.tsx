@@ -2,13 +2,20 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import get from "lodash/get";
 import { LoaderPinwheel } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
-import { Outlet, useFetcher, useLocation, useMatch } from "react-router";
+import {
+  Outlet,
+  useFetcher,
+  useLocation,
+  useMatch,
+  useRouteLoaderData,
+} from "react-router";
 import AppSidebar from "~/modules/app/components/appSidebar";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import SandpiperTheme from "~/modules/featureFlags/components/sandpiperTheme";
 import { connectSockets } from "~/modules/sockets/sockets";
 import type { User } from "~/modules/users/users.types";
 import LoginContainer from "./login.container";
+import SplashContainer from "./splash.container";
 
 export default function AuthenticationContainer({
   children,
@@ -24,6 +31,10 @@ export default function AuthenticationContainer({
   const MIN_FETCH_INTERVAL = 1 * 60 * 1000;
   const prevAuthRef = useRef<User | null>(null);
   const location = useLocation();
+  const rootData = useRouteLoaderData("root") as
+    | { openSignup?: boolean }
+    | undefined;
+  const openSignup = rootData?.openSignup ?? false;
 
   const isFetching = !authenticationFetcher.data;
   const authentication: User | null = get(
@@ -78,6 +89,9 @@ export default function AuthenticationContainer({
   }
 
   if (!authentication) {
+    if (openSignup) {
+      return <SplashContainer />;
+    }
     return <LoginContainer />;
   }
 
