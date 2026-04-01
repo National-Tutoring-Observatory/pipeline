@@ -6,7 +6,7 @@ type ErrorType = "EXPIRED_INVITE" | "UNREGISTERED";
 export default function LoginContainer() {
   const fetcher = useFetcher();
   const rootData = useRouteLoaderData("root") as
-    | { openSignup?: boolean }
+    | { openSignup: boolean }
     | undefined;
   const openSignup = rootData?.openSignup ?? false;
 
