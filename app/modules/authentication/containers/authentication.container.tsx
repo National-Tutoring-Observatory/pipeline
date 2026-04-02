@@ -11,7 +11,6 @@ import {
 } from "react-router";
 import AppSidebar from "~/modules/app/components/appSidebar";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
-import SandpiperTheme from "~/modules/featureFlags/components/sandpiperTheme";
 import { connectSockets } from "~/modules/sockets/sockets";
 import type { User } from "~/modules/users/users.types";
 import Splash from "../components/splash";
@@ -97,7 +96,6 @@ export default function AuthenticationContainer({
 
   return (
     <AuthenticationContext value={authentication}>
-      <SandpiperTheme />
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
         <SidebarInset>

@@ -34,13 +34,10 @@ import SideBarHelpDropdown from "~/modules/app/components/sidebarHelpDropdown";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import Role from "~/modules/authentication/components/role";
 import FeatureFlag from "~/modules/featureFlags/components/flag";
-import useHasFeatureFlag from "~/modules/featureFlags/hooks/useHasFeatureFlag";
 import type { User } from "~/modules/users/users.types";
 
 export default function AppSidebar() {
   const user = useContext(AuthenticationContext) as User;
-  const hasSandpiperTheme = useHasFeatureFlag("HAS_SANDPIPER_THEME");
-
   const fetcher = useFetcher();
 
   useEffect(() => {
@@ -63,15 +60,13 @@ export default function AppSidebar() {
   return (
     <Sidebar variant="inset">
       <SidebarHeader className="p-4">
-        {hasSandpiperTheme && (
-          <Link to={"/"}>
-            <img
-              src="/assets/sandpiper-logo.svg"
-              alt="Sandpiper"
-              className="mx-auto w-full max-w-28"
-            />
-          </Link>
-        )}
+        <Link to={"/"}>
+          <img
+            src="/assets/sandpiper-logo.svg"
+            alt="Sandpiper"
+            className="mx-auto w-full max-w-28"
+          />
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
