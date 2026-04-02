@@ -1,6 +1,16 @@
 import { OpenAI } from "openai";
+import { Agent } from "undici";
 import applySchemaToRequest from "../helpers/applySchemaToRequest";
 import registerLLM from "../helpers/registerLLM";
+
+const keepAliveDispatcher = new Agent({
+  keepAliveTimeout: 600_000,
+  keepAliveMaxTimeout: 600_000,
+  connect: {
+    keepAlive: true,
+    keepAliveInitialDelay: 30_000,
+  },
+});
 
 registerLLM("AI_GATEWAY", {
   init: (config?: { timeout?: number }) => {
@@ -9,6 +19,7 @@ registerLLM("AI_GATEWAY", {
       baseURL: process.env.AI_GATEWAY_BASE_URL,
       maxRetries: 0,
       timeout: config?.timeout ?? 180_000,
+      fetchOptions: { dispatcher: keepAliveDispatcher },
     });
     return openai;
   },
