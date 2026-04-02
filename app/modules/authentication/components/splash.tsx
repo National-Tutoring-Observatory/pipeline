@@ -147,14 +147,14 @@ function Hero() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden pt-[160px] pb-20"
+      className="relative flex min-h-svh items-center overflow-hidden pt-24 pb-10 lg:pt-36 lg:pb-20 [@media(min-height:900px)]:min-h-0 [@media(min-height:900px)]:flex-1"
       style={{
         background:
           "linear-gradient(170deg, #F9F7F1 0%, #f0ece0 40%, #e8ddd0 100%)",
       }}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center gap-12 lg:flex-row">
+        <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-16">
           <div className="lg:w-[40%]">
             <div
               className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-[rgba(166,75,42,0.12)] px-4 py-1.5"
@@ -173,7 +173,7 @@ function Hero() {
               style={{
                 fontFamily: "'Josefin Sans', sans-serif",
                 fontWeight: 700,
-                fontSize: "clamp(2.4rem, 5vw, 4.2rem)",
+                fontSize: "clamp(2.4rem, 5vh, 4.5rem)",
                 lineHeight: 1.1,
                 letterSpacing: "-0.02em",
                 color: "#2C241B",
@@ -196,7 +196,7 @@ function Hero() {
               className="mb-4"
               style={{
                 color: "#5D534A",
-                fontSize: "1.12rem",
+                fontSize: "clamp(1.12rem, 1.8vh, 1.35rem)",
                 lineHeight: 1.75,
                 maxWidth: "520px",
               }}
@@ -1585,8 +1585,10 @@ export default function Splash() {
       }}
     >
       <Navbar />
-      <Hero />
-      <Partners />
+      <div className="flex flex-col [@media(min-height:900px)]:min-h-svh">
+        <Hero />
+        <Partners />
+      </div>
       <Benefits />
       <Features />
       <HowItWorks />
