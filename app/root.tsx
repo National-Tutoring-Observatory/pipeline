@@ -17,10 +17,9 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import AuthenticationContainer from "./modules/authentication/containers/authentication.container";
 import DialogContainer from "./modules/dialogs/containers/dialog.container";
-import useHasFeatureFlag from "./modules/featureFlags/hooks/useHasFeatureFlag";
 
 export const links: Route.LinksFunction = () => [
-  { rel: "icon", href: "/assets/nto-favicon.png", type: "image/png" },
+  { rel: "icon", href: "/assets/sandpiper-favicon.svg", type: "image/svg+xml" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
@@ -78,19 +77,7 @@ function useGoogleAnalytics(gaId: string | null) {
 export default function App() {
   const { googleAnalyticsId } = useLoaderData<typeof loader>();
   useGoogleAnalytics(googleAnalyticsId);
-  const hasSandpiperTheme = useHasFeatureFlag("HAS_SANDPIPER_THEME");
-  return (
-    <>
-      {hasSandpiperTheme && (
-        <link
-          rel="icon"
-          href="/assets/sandpiper-favicon.svg"
-          type="image/svg+xml"
-        />
-      )}
-      <Outlet />
-    </>
-  );
+  return <Outlet />;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
