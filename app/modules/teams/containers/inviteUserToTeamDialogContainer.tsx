@@ -8,7 +8,7 @@ export default function InviteUserToTeamDialogContainer({
 }: {
   teamId: string;
 }) {
-  const [role, setRole] = useState("ADMIN");
+  const [role, setRole] = useState("MEMBER");
   const [name, setName] = useState("");
   const [hasCopiedInviteLink, setHasCopiedInviteLink] = useState(false);
   const [isGeneratingInviteLink, setIsGeneratingInviteLink] = useState(false);

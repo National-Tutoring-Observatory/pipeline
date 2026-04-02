@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import type { User } from "~/modules/users/users.types";
 import type { TeamRole } from "../teams.types";
+import getRoles from "./getRoles";
 
 export default function renderAddUserToTeamDialogItem(
   user: User,
@@ -17,6 +18,8 @@ export default function renderAddUserToTeamDialogItem(
 ) {
   const role = selectedUsers[user._id];
   const isChecked = role !== undefined;
+
+  const roles = getRoles();
 
   return (
     <div className="flex items-center gap-3 p-3">
@@ -43,8 +46,11 @@ export default function renderAddUserToTeamDialogItem(
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="MEMBER">Member</SelectItem>
-              <SelectItem value="ADMIN">Admin</SelectItem>
+              {roles.map((r) => (
+                <SelectItem key={r.value} value={r.value}>
+                  {r.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
