@@ -11,6 +11,7 @@ export interface CreateRunSetWithRunsPayload {
   definitions: RunDefinition[];
   annotationType: RunAnnotationType;
   shouldRunVerification?: boolean;
+  acknowledgedInsufficientCredits?: boolean;
 }
 
 export default async function createRunSetWithRuns(
@@ -44,6 +45,8 @@ export default async function createRunSetWithRuns(
         promptVersion: definition.prompt.version,
         modelCode: definition.modelCode,
         shouldRunVerification: !!payload.shouldRunVerification,
+        acknowledgedInsufficientCredits:
+          !!payload.acknowledgedInsufficientCredits,
       });
 
       generatedRunIds.push(newRun._id);

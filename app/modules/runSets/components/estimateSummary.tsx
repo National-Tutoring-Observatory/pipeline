@@ -3,18 +3,22 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Clock, DollarSign } from "lucide-react";
+import { Clock, DollarSign, Wallet } from "lucide-react";
 import type { EstimationResult } from "~/modules/runSets/runSets.types";
 import { formatCost, formatTime } from "../helpers/formatEstimates";
 
 export default function EstimateSummary({
   estimation,
+  balance,
 }: {
   estimation: EstimationResult;
+  balance: number | null;
 }) {
   if (estimation.estimatedTimeSeconds === 0) {
     return null;
   }
+
+  const exceedsBalance = balance !== null && estimation.estimatedCost > balance;
 
   return (
     <div className="flex items-center gap-4">
@@ -49,6 +53,24 @@ export default function EstimateSummary({
           <p>Estimate based on avg 500 tokens/session</p>
         </TooltipContent>
       </Tooltip>
+
+      {balance !== null && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              className={`flex cursor-help items-center gap-1 ${exceedsBalance ? "text-sandpiper-warning" : "text-sandpiper-info"}`}
+            >
+              <Wallet className="h-4 w-4" />
+              <span className="text-sm whitespace-nowrap">
+                ${formatCost(balance)} remaining
+              </span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Your team&apos;s remaining credits</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
     </div>
   );
 }

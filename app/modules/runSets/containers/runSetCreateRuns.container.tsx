@@ -13,6 +13,7 @@ import {
   buildUsedPromptModelSet,
   type PromptModelPair,
 } from "../helpers/getUsedPromptModels";
+import useCreditAcknowledgment from "../hooks/useCreditAcknowledgment";
 import type { PromptReference, RunSet } from "../runSets.types";
 
 interface RunSetCreateRunsContainerProps {
@@ -21,6 +22,7 @@ interface RunSetCreateRunsContainerProps {
   avgSecondsPerSession: number | null;
   outputToInputRatio: number | null;
   sessions: Array<{ inputTokens?: number }>;
+  balance: number;
   onSubmit: (requestBody: string) => void;
   onCancel: () => void;
   isLoading: boolean;
@@ -33,6 +35,7 @@ export default function RunSetCreateRunsContainer({
   avgSecondsPerSession,
   outputToInputRatio,
   sessions,
+  balance,
   onSubmit,
   onCancel,
   isLoading,
@@ -65,6 +68,11 @@ export default function RunSetCreateRunsContainer({
     outputToInputRatio,
   });
 
+  const creditAcknowledgment = useCreditAcknowledgment(
+    estimation.estimatedCost,
+    balance,
+  );
+
   const handleRemoveCard = (key: string) => {
     setRemovedKeys((prev) => new Set(prev).add(key));
   };
@@ -91,7 +99,8 @@ export default function RunSetCreateRunsContainer({
     isLoading ||
     selectedPrompts.length === 0 ||
     selectedModels.length === 0 ||
-    runDefinitions.length === 0;
+    runDefinitions.length === 0 ||
+    (creditAcknowledgment.exceedsBalance && !creditAcknowledgment.acknowledged);
 
   const handleCreateRuns = () => {
     const requestBody = JSON.stringify({
@@ -99,6 +108,7 @@ export default function RunSetCreateRunsContainer({
       payload: {
         definitions: runDefinitions,
         shouldRunVerification,
+        acknowledgedInsufficientCredits: creditAcknowledgment.acknowledged,
       },
     });
     onSubmit(requestBody);
@@ -149,6 +159,8 @@ export default function RunSetCreateRunsContainer({
         newRunsCount={runDefinitions.length}
         duplicateCount={duplicateDefinitions.length}
         estimation={estimation}
+        balance={balance}
+        creditAcknowledgment={creditAcknowledgment}
         isLoading={isLoading}
         isSubmitDisabled={isSubmitDisabled}
         onCancel={onCancel}

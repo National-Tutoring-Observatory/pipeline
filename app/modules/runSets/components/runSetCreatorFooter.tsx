@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
+import type { CreditAcknowledgment } from "~/modules/runSets/hooks/useCreditAcknowledgment";
 import type { EstimationResult } from "~/modules/runSets/runSets.types";
 import EstimateSummary from "./estimateSummary";
+import InsufficientCreditsAlert from "./insufficientCreditsAlert";
 import RunSetValidationAlert from "./runSetValidationAlert";
 
 export default function RunSetCreatorFooter({
@@ -8,6 +10,8 @@ export default function RunSetCreatorFooter({
   runsCount,
   selectedSessions,
   estimation,
+  balance,
+  creditAcknowledgment,
   isLoading,
   onCreateClicked,
 }: {
@@ -15,39 +19,51 @@ export default function RunSetCreatorFooter({
   runsCount: number;
   selectedSessions: string[];
   estimation: EstimationResult;
+  balance: number;
+  creditAcknowledgment: CreditAcknowledgment;
   isLoading: boolean;
   onCreateClicked: () => void;
 }) {
+  const hasValidationErrors =
+    !name.trim() || runsCount === 0 || selectedSessions.length === 0;
   const isSubmitDisabled =
     isLoading ||
-    !name.trim() ||
-    runsCount === 0 ||
-    selectedSessions.length === 0;
+    hasValidationErrors ||
+    (creditAcknowledgment.exceedsBalance && !creditAcknowledgment.acknowledged);
 
   return (
-    <div className="bg-background sticky bottom-0 flex items-center gap-8 rounded-b-4xl border-t px-8 py-4">
-      <div className="flex-1">
-        {isSubmitDisabled ? (
-          <RunSetValidationAlert
-            name={name}
-            runsCount={runsCount}
-            selectedSessions={selectedSessions}
-          />
-        ) : (
-          <div className="border-sandpiper-info/20 bg-sandpiper-info/5 rounded-lg border p-4">
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-foreground text-sm">
-                This will create <strong>{runsCount}</strong> run(s) across{" "}
-                {selectedSessions.length} session(s)
-              </p>
-              <EstimateSummary estimation={estimation} />
-            </div>
+    <div className="bg-background sticky bottom-0 space-y-3 rounded-b-4xl border-t px-8 py-4">
+      {hasValidationErrors ? (
+        <RunSetValidationAlert
+          name={name}
+          runsCount={runsCount}
+          selectedSessions={selectedSessions}
+        />
+      ) : (
+        <div className="border-sandpiper-info/20 bg-sandpiper-info/5 rounded-lg border p-4">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-foreground text-sm">
+              This will create <strong>{runsCount}</strong> run(s) across{" "}
+              {selectedSessions.length} session(s)
+            </p>
+            <EstimateSummary estimation={estimation} balance={balance} />
           </div>
-        )}
+        </div>
+      )}
+
+      {!hasValidationErrors && (
+        <InsufficientCreditsAlert
+          exceedsBalance={creditAcknowledgment.exceedsBalance}
+          acknowledged={creditAcknowledgment.acknowledged}
+          onAcknowledgedChanged={creditAcknowledgment.setAcknowledged}
+        />
+      )}
+
+      <div className="flex justify-end">
+        <Button size="lg" onClick={onCreateClicked} disabled={isSubmitDisabled}>
+          Create Run Set & Launch Runs
+        </Button>
       </div>
-      <Button size="lg" onClick={onCreateClicked} disabled={isSubmitDisabled}>
-        Create Run Set & Launch Runs
-      </Button>
     </div>
   );
 }

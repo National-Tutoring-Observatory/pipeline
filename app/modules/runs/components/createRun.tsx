@@ -12,6 +12,7 @@ export default function CreateRunComponent({
   duplicateWarnings = [],
   avgSecondsPerSession,
   outputToInputRatio,
+  balance,
 }: {
   breadcrumbs: Breadcrumb[];
   onStartRunClicked: (createRun: CreateRun) => void;
@@ -20,6 +21,7 @@ export default function CreateRunComponent({
   duplicateWarnings?: string[];
   avgSecondsPerSession: number | null;
   outputToInputRatio: number | null;
+  balance: number;
 }) {
   return (
     <div className="max-w-7xl p-8">
@@ -35,6 +37,7 @@ export default function CreateRunComponent({
         duplicateWarnings={duplicateWarnings}
         avgSecondsPerSession={avgSecondsPerSession}
         outputToInputRatio={outputToInputRatio}
+        balance={balance}
       />
     </div>
   );

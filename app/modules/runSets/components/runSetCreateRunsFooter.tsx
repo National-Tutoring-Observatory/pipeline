@@ -2,8 +2,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertTriangle, Info } from "lucide-react";
+import type { CreditAcknowledgment } from "../hooks/useCreditAcknowledgment";
 import type { EstimationResult, RunSet } from "../runSets.types";
 import EstimateSummary from "./estimateSummary";
+import InsufficientCreditsAlert from "./insufficientCreditsAlert";
 
 type FooterState = "ready" | "all_duplicates" | "empty";
 
@@ -14,6 +16,8 @@ interface RunSetCreateRunsFooterProps {
   newRunsCount: number;
   duplicateCount: number;
   estimation: EstimationResult;
+  balance: number;
+  creditAcknowledgment: CreditAcknowledgment;
   isLoading: boolean;
   isSubmitDisabled: boolean;
   onCancel: () => void;
@@ -27,6 +31,8 @@ export default function RunSetCreateRunsFooter({
   newRunsCount,
   duplicateCount,
   estimation,
+  balance,
+  creditAcknowledgment,
   isLoading,
   isSubmitDisabled,
   onCancel,
@@ -44,50 +50,56 @@ export default function RunSetCreateRunsFooter({
   const footerState = getFooterState();
 
   return (
-    <div className="bg-background sticky bottom-0 flex items-center gap-8 rounded-b-4xl border-t px-8 py-4">
-      <div className="flex-1">
-        {footerState === "ready" && (
-          <div className="border-sandpiper-info/20 bg-sandpiper-info/5 rounded-lg border p-4">
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-foreground text-sm">
-                This will create <strong>{newRunsCount}</strong> new run(s) with{" "}
-                {selectedPromptsCount} prompt(s) × {selectedModelsCount}{" "}
-                model(s) across {runSet.sessions?.length || 0} session(s)
-                {duplicateCount > 0 && (
-                  <span className="text-sandpiper-warning">
-                    {" "}
-                    ({duplicateCount} duplicate combination(s) will be skipped)
-                  </span>
-                )}
-              </p>
-              <EstimateSummary estimation={estimation} />
-            </div>
+    <div className="bg-background sticky bottom-0 space-y-3 rounded-b-4xl border-t px-8 py-4">
+      {footerState === "ready" && (
+        <div className="border-sandpiper-info/20 bg-sandpiper-info/5 rounded-lg border p-4">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-foreground text-sm">
+              This will create <strong>{newRunsCount}</strong> new run(s) with{" "}
+              {selectedPromptsCount} prompt(s) × {selectedModelsCount} model(s)
+              across {runSet.sessions?.length || 0} session(s)
+              {duplicateCount > 0 && (
+                <span className="text-sandpiper-warning">
+                  {" "}
+                  ({duplicateCount} duplicate combination(s) will be skipped)
+                </span>
+              )}
+            </p>
+            <EstimateSummary estimation={estimation} balance={balance} />
           </div>
-        )}
+        </div>
+      )}
 
-        {footerState === "all_duplicates" && (
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>All combinations already exist</AlertTitle>
-            <AlertDescription>
-              All selected prompt+model combinations are already in this runSet.
-              Please select different prompts or models.
-            </AlertDescription>
-          </Alert>
-        )}
+      {footerState === "all_duplicates" && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>All combinations already exist</AlertTitle>
+          <AlertDescription>
+            All selected prompt+model combinations are already in this runSet.
+            Please select different prompts or models.
+          </AlertDescription>
+        </Alert>
+      )}
 
-        {footerState === "empty" && (
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertTitle>Select prompts and models</AlertTitle>
-            <AlertDescription>
-              Choose at least one prompt and one model to create new runs.
-            </AlertDescription>
-          </Alert>
-        )}
-      </div>
+      {footerState === "empty" && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>Select prompts and models</AlertTitle>
+          <AlertDescription>
+            Choose at least one prompt and one model to create new runs.
+          </AlertDescription>
+        </Alert>
+      )}
 
-      <div className="flex gap-2">
+      {footerState === "ready" && (
+        <InsufficientCreditsAlert
+          exceedsBalance={creditAcknowledgment.exceedsBalance}
+          acknowledged={creditAcknowledgment.acknowledged}
+          onAcknowledgedChanged={creditAcknowledgment.setAcknowledged}
+        />
+      )}
+
+      <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
