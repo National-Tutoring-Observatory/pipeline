@@ -4,6 +4,7 @@ import { redirect } from "react-router";
 import { GitHubStrategy } from "remix-auth-github";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
+import { PromptService } from "~/modules/prompts/prompt";
 import INVITE_LINK_TTL_DAYS from "~/modules/teams/helpers/inviteLink";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
@@ -101,6 +102,7 @@ const githubStrategy = new GitHubStrategy<any>(
         );
         await TeamBillingService.setupTeamBilling(team._id);
         await TeamBillingService.assignInitialCredits(team._id, newUser._id);
+        await PromptService.createDefaultPrompts(team._id, newUser._id);
         trackServerEvent({ name: "user_registered", userId: newUser._id });
         return (await UserService.findById(newUser._id))!;
       } else {
