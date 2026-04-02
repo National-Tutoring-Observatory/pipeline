@@ -24,17 +24,14 @@ export default function Login({
   onLoginWithGithubClicked: () => void;
 }) {
   return (
-    <div
-      className="flex h-screen w-screen items-center justify-center"
-      style={{ backgroundColor: "#f7f7f7" }}
-    >
+    <div className="bg-sandpiper-canvas flex h-screen w-screen items-center justify-center">
       <Card className="w-full max-w-md text-center">
-        <div className="mx-auto" style={{ maxWidth: "120px" }}>
-          <img src="/assets/nto-logo-icon.png" />
+        <div className="mx-auto max-w-[120px]">
+          <img src="/assets/sandpiper-logo.svg" alt="Sandpiper" />
         </div>
         <CardHeader>
           <CardTitle className="mb-2">
-            <h1 className="text-2xl">National Tutoring Observatory</h1>
+            <h1 className="text-2xl">Sandpiper</h1>
           </CardTitle>
           <CardDescription>
             Welcome to Sandpiper! This application is designed to help

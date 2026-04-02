@@ -14,10 +14,10 @@ export default function Signup({
   onSignupWithGithubClicked: () => void;
 }) {
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-[#f7f7f7]">
+    <div className="bg-sandpiper-canvas flex h-screen w-screen items-center justify-center">
       <Card className="w-full max-w-md text-center">
         <div className="mx-auto max-w-[120px]">
-          <img src="/assets/nto-logo-icon.png" alt="NTO Logo" />
+          <img src="/assets/sandpiper-logo.svg" alt="Sandpiper" />
         </div>
         <CardHeader>
           <CardTitle className="mb-2">
