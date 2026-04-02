@@ -3,14 +3,9 @@ import addDialog from "~/modules/dialogs/addDialog";
 import DataPrivacyDialog from "../components/dataPrivacyDialog";
 import UploadFiles from "../components/uploadFiles";
 import { SUPPORTED_FILE_TYPES } from "../constants";
-import type { FileType } from "../files.types";
+import type { FileType, UploadFilesData } from "../files.types";
 import getInstructionsByFileType from "../helpers/getInstructionsByFileType";
 import useFileAccumulator from "../hooks/useFileAccumulator";
-
-interface UploadFilesData {
-  errors?: Record<string, string>;
-  success?: boolean;
-}
 
 interface UploadFilesContainerProps {
   projectId: string;

@@ -11,3 +11,8 @@ export interface File {
 }
 
 export type FileType = "CSV" | "JSON" | "JSONL" | "VTT";
+
+export interface UploadFilesData {
+  errors?: Record<string, string>;
+  success?: boolean;
+}
