@@ -36,6 +36,8 @@ registerLLM("AI_GATEWAY", {
       model: model,
       messages: messages,
       metadata,
+      stream: true,
+      stream_options: { include_usage: true },
     };
 
     applySchemaToRequest(requestParams, schema);
@@ -47,23 +49,45 @@ registerLLM("AI_GATEWAY", {
       };
     }
 
-    const { data: chatCompletion, response } = await llm.chat.completions
+    const { data: stream, response } = await llm.chat.completions
       .create(requestParams, requestOptions)
       .withResponse();
-    const message = chatCompletion.choices[0].message;
 
-    const content =
-      message.tool_calls?.length > 0
-        ? JSON.parse(message.tool_calls[0].function.arguments)
-        : JSON.parse(message.content);
+    let contentStr = "";
+    let toolCallArgs = "";
+    let usage: { prompt_tokens?: number; completion_tokens?: number } = {};
+
+    for await (const chunk of stream) {
+      const delta = chunk.choices?.[0]?.delta;
+      if (delta?.content) {
+        contentStr += delta.content;
+      }
+      if (delta?.tool_calls?.[0]?.function?.arguments) {
+        toolCallArgs += delta.tool_calls[0].function.arguments;
+      }
+      if (chunk.usage) {
+        usage = chunk.usage;
+      }
+    }
+
+    const content = toolCallArgs
+      ? JSON.parse(toolCallArgs)
+      : JSON.parse(contentStr);
+
+    const litellmHeaders: Record<string, string> = {};
+    response.headers.forEach((value: string, key: string) => {
+      if (key.startsWith("x-litellm")) {
+        litellmHeaders[key] = value;
+      }
+    });
 
     const providerCostHeader = response.headers.get("x-litellm-response-cost");
 
     return {
       content,
       usage: {
-        inputTokens: chatCompletion.usage?.prompt_tokens ?? 0,
-        outputTokens: chatCompletion.usage?.completion_tokens ?? 0,
+        inputTokens: usage?.prompt_tokens ?? 0,
+        outputTokens: usage?.completion_tokens ?? 0,
         providerCost:
           providerCostHeader && Number.isFinite(parseFloat(providerCostHeader))
             ? parseFloat(providerCostHeader)
