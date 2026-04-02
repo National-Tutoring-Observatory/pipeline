@@ -55,6 +55,8 @@ export default function Project({
   const user = useContext(AuthenticationContext) as User | null;
   const canUpdate = ProjectAuthorization.canUpdate(user, project);
   const canDelete = ProjectAuthorization.canDelete(user, project);
+  const teamId =
+    typeof project.team === "string" ? project.team : project.team._id;
 
   return (
     <div className="max-w-7xl p-8">
@@ -159,7 +161,14 @@ export default function Project({
             <CardHeader>
               <CardTitle>Runs</CardTitle>
               <CardDescription>
-                Runs are a way to annotate your data via Prompts
+                Annotate sessions using a Prompt and AI model.{" "}
+                <Link
+                  to={`/teams/${teamId}/prompts`}
+                  className="underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Need a prompt?
+                </Link>
               </CardDescription>
             </CardHeader>
             <CardContent className="h-8">
