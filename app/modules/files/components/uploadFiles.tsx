@@ -24,13 +24,8 @@ import { useDropzone } from "react-dropzone";
 import type { FetcherWithComponents } from "react-router";
 import { Link } from "react-router";
 import { SUPPORTED_FILE_TYPES } from "../constants";
-import type { FileType } from "../files.types";
+import type { FileType, UploadFilesData } from "../files.types";
 import getFileUploadAccepts from "../helpers/getFileUploadAccepts";
-
-interface UploadFilesData {
-  errors?: Record<string, string>;
-  success?: boolean;
-}
 
 export default function UploadFiles({
   acceptedFiles,
