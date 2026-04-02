@@ -57,9 +57,6 @@ export default function InviteUserToTeamDialog({
               <br />
               Adding a name will help you identify who you have sent this invite
               link to.
-              <br />
-              <br />
-              More roles will be added soon.
             </span>
           )}
         </DialogDescription>
