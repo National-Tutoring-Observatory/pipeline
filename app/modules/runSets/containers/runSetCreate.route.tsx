@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { getAvailableModels } from "~/modules/llm/modelRegistry";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -185,7 +186,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }
   }
 
-  const [avgSecondsPerSession, outputToInputRatio, prefillSessions] =
+  const [avgSecondsPerSession, outputToInputRatio, prefillSessions, balance] =
     await Promise.all([
       RunService.getAverageSecondsPerSession(params.projectId),
       LlmCostService.getOutputToInputRatio(project.team as string),
@@ -195,6 +196,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
             select: "_id inputTokens",
           })
         : Promise.resolve([]),
+      TeamBillingService.getBalance(project.team as string),
     ]);
 
   if (prefillData) {
@@ -205,7 +207,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }));
   }
 
-  return { project, prefillData, avgSecondsPerSession, outputToInputRatio };
+  return {
+    project,
+    prefillData,
+    avgSecondsPerSession,
+    outputToInputRatio,
+    balance,
+  };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -258,6 +266,8 @@ export async function action({ request, params }: Route.ActionArgs) {
         definitions,
         annotationType: annotationType as RunAnnotationType,
         shouldRunVerification: !!payload.shouldRunVerification,
+        acknowledgedInsufficientCredits:
+          !!payload.acknowledgedInsufficientCredits,
       });
 
       trackServerEvent({ name: "run_set_created", userId: user._id });
@@ -281,8 +291,13 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function RunSetCreateRoute() {
-  const { project, prefillData, avgSecondsPerSession, outputToInputRatio } =
-    useLoaderData<typeof loader>();
+  const {
+    project,
+    prefillData,
+    avgSecondsPerSession,
+    outputToInputRatio,
+    balance,
+  } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
 
@@ -337,6 +352,7 @@ export default function RunSetCreateRoute() {
         prefillData={prefillData}
         avgSecondsPerSession={avgSecondsPerSession}
         outputToInputRatio={outputToInputRatio}
+        balance={balance}
         onSubmit={handleSubmit}
         isLoading={fetcher.state !== "idle"}
         errors={(fetcher.data as any)?.errors || {}}

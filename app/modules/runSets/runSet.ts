@@ -129,6 +129,7 @@ export class RunSetService {
     definitions: RunDefinition[];
     annotationType: RunAnnotationType;
     shouldRunVerification?: boolean;
+    acknowledgedInsufficientCredits?: boolean;
   }): Promise<{ runSet: RunSet; errors: string[] }> {
     return createRunSetWithRuns(payload);
   }
@@ -202,6 +203,7 @@ export class RunSetService {
     runSetId: string;
     definitions: RunDefinition[];
     shouldRunVerification?: boolean;
+    acknowledgedInsufficientCredits?: boolean;
   }) {
     return createRunsForRunSetService(payload);
   }

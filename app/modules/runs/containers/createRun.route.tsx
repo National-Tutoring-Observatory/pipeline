@@ -6,6 +6,7 @@ import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.serve
 import useSubmitGuard from "~/modules/app/hooks/useSubmitGuard";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import { ProjectService } from "~/modules/projects/project";
 import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
@@ -41,10 +42,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const teamId =
     typeof project.team === "string" ? project.team : project.team._id;
-  const [avgSecondsPerSession, outputToInputRatio] = await Promise.all([
-    RunService.getAverageSecondsPerSession(params.projectId),
-    LlmCostService.getOutputToInputRatio(teamId),
-  ]);
+  const [avgSecondsPerSession, outputToInputRatio, balance] = await Promise.all(
+    [
+      RunService.getAverageSecondsPerSession(params.projectId),
+      LlmCostService.getOutputToInputRatio(teamId),
+      TeamBillingService.getBalance(teamId),
+    ],
+  );
 
   return {
     project,
@@ -52,6 +56,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     duplicateWarnings,
     avgSecondsPerSession,
     outputToInputRatio,
+    balance,
   };
 }
 
@@ -82,6 +87,8 @@ export async function action({ request, params }: Route.ActionArgs) {
         promptVersion: Number(promptVersion),
         modelCode: model,
         shouldRunVerification: !!payload.shouldRunVerification,
+        acknowledgedInsufficientCredits:
+          !!payload.acknowledgedInsufficientCredits,
       });
 
       await RunService.start(run);
@@ -106,6 +113,7 @@ export default function ProjectCreateRunRoute() {
     duplicateWarnings,
     avgSecondsPerSession,
     outputToInputRatio,
+    balance,
   } = useLoaderData();
   const fetcher = useFetcher();
   const navigate = useNavigate();
@@ -122,6 +130,7 @@ export default function ProjectCreateRunRoute() {
     selectedModel,
     selectedSessions,
     shouldRunVerification,
+    acknowledgedInsufficientCredits,
   }: CreateRunPayload) => {
     fetcher.submit(
       JSON.stringify({
@@ -134,6 +143,7 @@ export default function ProjectCreateRunRoute() {
           model: selectedModel,
           sessions: selectedSessions,
           shouldRunVerification,
+          acknowledgedInsufficientCredits,
         },
       }),
       { method: "POST", encType: "application/json" },
@@ -166,6 +176,7 @@ export default function ProjectCreateRunRoute() {
       duplicateWarnings={duplicateWarnings}
       avgSecondsPerSession={avgSecondsPerSession}
       outputToInputRatio={outputToInputRatio}
+      balance={balance}
     />
   );
 }

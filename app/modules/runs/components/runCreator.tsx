@@ -17,6 +17,8 @@ import AnnotationTypeSelectorContainer from "~/modules/prompts/containers/annoat
 import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
 import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
 import EstimateSummary from "~/modules/runSets/components/estimateSummary";
+import InsufficientCreditsAlert from "~/modules/runSets/components/insufficientCreditsAlert";
+import type { CreditAcknowledgment } from "~/modules/runSets/hooks/useCreditAcknowledgment";
 import type { EstimationResult } from "~/modules/runSets/runSets.types";
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 import type { SessionData } from "~/modules/sessions/sessions.types";
@@ -31,6 +33,8 @@ export default function RunCreator({
   selectedModel,
   selectedSessions,
   estimation,
+  balance,
+  creditAcknowledgment,
   isSubmitting,
   isRunButtonDisabled,
   onRunNameChanged,
@@ -51,6 +55,8 @@ export default function RunCreator({
   selectedModel: string;
   selectedSessions: string[];
   estimation: EstimationResult;
+  balance: number;
+  creditAcknowledgment: CreditAcknowledgment;
   isSubmitting: boolean;
   isRunButtonDisabled: boolean;
   onRunNameChanged: (name: string) => void;
@@ -198,15 +204,22 @@ export default function RunCreator({
             selectedSessions={selectedSessions}
             onSelectedSessionsChanged={onSelectedSessionsChanged}
           />
-          <div className="mt-4 flex items-center justify-center gap-4">
-            <EstimateSummary estimation={estimation} />
-            <Button
-              size="sm"
-              disabled={isRunButtonDisabled}
-              onClick={onStartRunButtonClicked}
-            >
-              {isSubmitting ? "Starting run..." : "Start run"}
-            </Button>
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-center gap-4">
+              <EstimateSummary estimation={estimation} balance={balance} />
+              <Button
+                size="sm"
+                disabled={isRunButtonDisabled}
+                onClick={onStartRunButtonClicked}
+              >
+                {isSubmitting ? "Starting run..." : "Start run"}
+              </Button>
+            </div>
+            <InsufficientCreditsAlert
+              exceedsBalance={creditAcknowledgment.exceedsBalance}
+              acknowledged={creditAcknowledgment.acknowledged}
+              onAcknowledgedChanged={creditAcknowledgment.setAcknowledged}
+            />
           </div>
         </CardContent>
       </Card>

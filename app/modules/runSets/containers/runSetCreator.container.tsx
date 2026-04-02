@@ -12,6 +12,7 @@ import RunSetCreatorVerificationToggle from "../components/runSetCreatorVerifica
 import RunSetRunPreview from "../components/runSetRunPreview";
 import buildDefinitionsFromSelection from "../helpers/buildDefinitionsFromSelection";
 import { calculateEstimates } from "../helpers/calculateEstimates";
+import useCreditAcknowledgment from "../hooks/useCreditAcknowledgment";
 import type { PrefillData, PromptReference } from "../runSets.types";
 
 function getDefaultName(prefillData?: PrefillData | null): string {
@@ -29,6 +30,7 @@ export default function RunSetCreatorContainer({
   prefillData,
   avgSecondsPerSession,
   outputToInputRatio,
+  balance,
   onSubmit,
   isLoading,
   errors,
@@ -36,6 +38,7 @@ export default function RunSetCreatorContainer({
   prefillData?: PrefillData | null;
   avgSecondsPerSession: number | null;
   outputToInputRatio: number | null;
+  balance: number;
   onSubmit: (requestBody: string) => void;
   isLoading: boolean;
   errors: Record<string, string>;
@@ -71,6 +74,11 @@ export default function RunSetCreatorContainer({
     avgSecondsPerSession,
     outputToInputRatio,
   });
+
+  const creditAcknowledgment = useCreditAcknowledgment(
+    estimation.estimatedCost,
+    balance,
+  );
 
   const handleAnnotationTypeChange = (type: string) => {
     setAnnotationType(type);
@@ -109,6 +117,7 @@ export default function RunSetCreatorContainer({
         definitions: runDefinitions,
         sessions: selectedSessions.map((s) => s._id),
         shouldRunVerification,
+        acknowledgedInsufficientCredits: creditAcknowledgment.acknowledged,
       },
     });
     onSubmit(requestBody);
@@ -166,6 +175,8 @@ export default function RunSetCreatorContainer({
         runsCount={runDefinitions.length}
         selectedSessions={selectedSessions.map((s) => s._id)}
         estimation={estimation}
+        balance={balance}
+        creditAcknowledgment={creditAcknowledgment}
         isLoading={isLoading}
         onCreateClicked={handleSubmit}
       />

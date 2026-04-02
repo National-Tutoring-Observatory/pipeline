@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
@@ -51,7 +52,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const usedPromptModels = getUsedPromptModels(existingRuns);
 
-  const [avgSecondsPerSession, outputToInputRatio, sessions] =
+  const [avgSecondsPerSession, outputToInputRatio, sessions, balance] =
     await Promise.all([
       RunService.getAverageSecondsPerSession(params.projectId),
       LlmCostService.getOutputToInputRatio(project.team as string),
@@ -61,6 +62,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
             select: "_id inputTokens",
           })
         : Promise.resolve([]),
+      TeamBillingService.getBalance(project.team as string),
     ]);
 
   return {
@@ -70,6 +72,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     avgSecondsPerSession,
     outputToInputRatio,
     sessions,
+    balance,
   };
 }
 
@@ -108,6 +111,8 @@ export async function action({ request, params }: Route.ActionArgs) {
         runSetId: params.runSetId,
         definitions,
         shouldRunVerification: !!payload.shouldRunVerification,
+        acknowledgedInsufficientCredits:
+          !!payload.acknowledgedInsufficientCredits,
       });
 
       if (!result.runSet) {
@@ -154,6 +159,7 @@ export default function RunSetCreateRunsRoute() {
     avgSecondsPerSession,
     outputToInputRatio,
     sessions,
+    balance,
   } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
@@ -219,6 +225,7 @@ export default function RunSetCreateRunsRoute() {
         avgSecondsPerSession={avgSecondsPerSession}
         outputToInputRatio={outputToInputRatio}
         sessions={sessions}
+        balance={balance}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isLoading={fetcher.state !== "idle"}

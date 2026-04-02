@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
 import { calculateEstimates } from "~/modules/runSets/helpers/calculateEstimates";
+import useCreditAcknowledgment from "~/modules/runSets/hooks/useCreditAcknowledgment";
 import type { SessionData } from "~/modules/sessions/sessions.types";
 import RunCreator from "../components/runCreator";
 
@@ -12,6 +13,7 @@ interface RunCreatorContainerProps {
   duplicateWarnings?: string[];
   avgSecondsPerSession: number | null;
   outputToInputRatio: number | null;
+  balance: number;
 }
 
 export default function ProjectRunCreatorContainer({
@@ -21,6 +23,7 @@ export default function ProjectRunCreatorContainer({
   duplicateWarnings = [],
   avgSecondsPerSession,
   outputToInputRatio,
+  balance,
 }: RunCreatorContainerProps) {
   const [runName, setRunName] = useState(
     initialRun ? `${initialRun.name} (copy)` : "",
@@ -101,6 +104,11 @@ export default function ProjectRunCreatorContainer({
     ],
   );
 
+  const creditAcknowledgment = useCreditAcknowledgment(
+    estimation.estimatedCost,
+    balance,
+  );
+
   const onRunNameChangedHandler = (name: string) => {
     setRunName(name);
   };
@@ -114,14 +122,17 @@ export default function ProjectRunCreatorContainer({
       selectedModel,
       selectedSessions: selectedSessionIds,
       shouldRunVerification,
+      acknowledgedInsufficientCredits: creditAcknowledgment.acknowledged,
     });
   };
 
-  const isRunButtonDisabled = !(
-    selectedPrompt &&
-    selectedPromptVersion &&
-    selectedSessionIds.length > 0
-  );
+  const isRunButtonDisabled =
+    !(
+      selectedPrompt &&
+      selectedPromptVersion &&
+      selectedSessionIds.length > 0
+    ) ||
+    (creditAcknowledgment.exceedsBalance && !creditAcknowledgment.acknowledged);
 
   return (
     <RunCreator
@@ -133,6 +144,8 @@ export default function ProjectRunCreatorContainer({
       selectedModel={selectedModel}
       selectedSessions={selectedSessionIds}
       estimation={estimation}
+      balance={balance}
+      creditAcknowledgment={creditAcknowledgment}
       isSubmitting={isSubmitting}
       isRunButtonDisabled={isRunButtonDisabled || isSubmitting}
       onRunNameChanged={onRunNameChangedHandler}
