@@ -61,11 +61,9 @@ registerLLM("AI_GATEWAY", {
       const delta = chunk.choices?.[0]?.delta;
       if (delta?.content) {
         contentStr += delta.content;
-        console.log("[AI_GATEWAY] LiteLLM contentStr:", contentStr);
       }
       if (delta?.tool_calls?.[0]?.function?.arguments) {
         toolCallArgs += delta.tool_calls[0].function.arguments;
-        console.log("[AI_GATEWAY] LiteLLM toolCallArgs:", toolCallArgs);
       }
       if (chunk.usage) {
         usage = chunk.usage;
@@ -82,8 +80,6 @@ registerLLM("AI_GATEWAY", {
         litellmHeaders[key] = value;
       }
     });
-    console.log("[AI_GATEWAY] LiteLLM response headers:", litellmHeaders);
-    console.log("[AI_GATEWAY] Stream usage:", usage);
 
     const providerCostHeader = response.headers.get("x-litellm-response-cost");
 
