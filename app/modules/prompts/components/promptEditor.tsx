@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { BookCheck, BookOpen, Save } from "lucide-react";
+import { BookCheck, BookOpen, ExternalLink, Save } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import type { PromptVersion } from "../prompts.types";
@@ -115,7 +115,18 @@ export default function PromptEditor({
           />
         </div>
         <div className="grid gap-3">
-          <Label htmlFor="prompt">Prompt</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="prompt">Prompt</Label>
+            <a
+              href="https://docs.google.com/document/d/1Rf2p3ltWSCk3VTeuTtXTpVu7NkrAi8yNDloYLId-KU8/edit?tab=t.0"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs"
+            >
+              <ExternalLink className="h-3 w-3" />
+              Prompt writing guide
+            </a>
+          </div>
           <Textarea
             id="prompt"
             placeholder="Write your prompt here."
