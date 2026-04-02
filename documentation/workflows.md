@@ -2,7 +2,7 @@
 <h2>Overview</h2>
 <p>The National Tutoring Observatory uses GitHub Actions for automated deployment of its application to AWS ECS (Elastic Container Service). The CI/CD architecture is split across two repositories:</p>
 <ul>
-<li><strong><code>pipeline</code></strong> — the application repository, containing environment-specific caller workflows (<code>staging.yml</code>, <code>release.yml</code>)</li>
+<li><strong><code>sandpiper</code></strong> — the application repository, containing environment-specific caller workflows (<code>staging.yml</code>, <code>release.yml</code>)</li>
 <li><strong><code>workflows</code></strong> — a shared repository of reusable GitHub Actions workflows that contain the actual deployment logic</li>
 </ul>
 <p>This separation keeps deployment logic consistent across environments, reduces duplication, and allows changes to be tested in staging before being promoted to production.</p>
@@ -10,7 +10,7 @@
 <h2>Architecture</h2>
 <h3>Repository Structure</h3>
 <pre><code>National-Tutoring-Observatory/
-├── pipeline/                          # Application code + caller workflows
+├── sandpiper/                         # Application code + caller workflows
 │   └── .github/workflows/
 │       ├── staging.yml                # Deploys to staging on push to main
 │       └── release.yml                # Deploys to production on release tag
@@ -24,8 +24,8 @@
         └── deployment_summary.yml     # Outputs a formatted deployment summary
 </code></pre>
 <h3>How It Works</h3>
-<p>Caller workflows in <code>pipeline</code> invoke reusable workflows from <code>workflows</code> via the <code>uses:</code> keyword with <code>workflow_call</code>. Each reusable workflow is environment-agnostic and fully parameterised — the caller passes in the environment name, secrets, and any service-specific configuration.</p>
-<pre><code>Caller (pipeline)                     Reusable (workflows)
+<p>Caller workflows in <code>sandpiper</code> invoke reusable workflows from <code>workflows</code> via the <code>uses:</code> keyword with <code>workflow_call</code>. Each reusable workflow is environment-agnostic and fully parameterised — the caller passes in the environment name, secrets, and any service-specific configuration.</p>
+<pre><code>Caller (sandpiper)                     Reusable (workflows)
 ┌─────────────┐                       ┌──────────────────────┐
 │ staging.yml │──uses:───────────────▶│ ecs_preflight.yml    │
 │             │──uses:───────────────▶│ ecs_build_image.yml  │
@@ -35,7 +35,7 @@
 </code></pre>
 <hr>
 <h2>Staging Pipeline</h2>
-<p><strong>File:</strong> <code>pipeline/.github/workflows/staging.yml</code></p>
+<p><strong>File:</strong> <code>sandpiper/.github/workflows/staging.yml</code></p>
 <p><strong>Triggers:</strong></p>
 <ul>
 <li>Push to <code>main</code> branch (automatic)</li>
@@ -94,8 +94,8 @@
 <h2>Related Links</h2>
 <ul>
 <li><a href="https://github.com/National-Tutoring-Observatory/workflows">Reusable workflows repository</a></li>
-<li><a href="https://github.com/National-Tutoring-Observatory/pipeline">Pipeline repository</a></li>
-<li><a href="https://github.com/National-Tutoring-Observatory/pipeline/pull/1407">Release refactor PR #1407</a></li>
+<li><a href="https://github.com/National-Tutoring-Observatory/sandpiper">Sandpiper repository</a></li>
+<li><a href="https://github.com/National-Tutoring-Observatory/sandpiper/pull/1407">Release refactor PR #1407</a></li>
 <li><a href="https://github.com/National-Tutoring-Observatory/infrastructure/issues/86">Infrastructure issue #86</a></li>
 </ul></body></html># NTO CI/CD Workflow Documentation
 
@@ -103,7 +103,7 @@
 
 The National Tutoring Observatory uses GitHub Actions for automated deployment of its application to AWS ECS (Elastic Container Service). The CI/CD architecture is split across two repositories:
 
-- **`pipeline`** — the application repository, containing environment-specific caller workflows (`staging.yml`, `release.yml`)
+- **`sandpiper`** — the application repository, containing environment-specific caller workflows (`staging.yml`, `release.yml`)
 - **`workflows`** — a shared repository of reusable GitHub Actions workflows that contain the actual deployment logic
 
 This separation keeps deployment logic consistent across environments, reduces duplication, and allows changes to be tested in staging before being promoted to production.
@@ -116,7 +116,7 @@ This separation keeps deployment logic consistent across environments, reduces d
 
 ```
 National-Tutoring-Observatory/
-├── pipeline/                          # Application code + caller workflows
+├── sandpiper/                         # Application code + caller workflows
 │   └── .github/workflows/
 │       ├── staging.yml                # Deploys to staging on push to main
 │       └── release.yml                # Deploys to production on release tag
@@ -132,10 +132,10 @@ National-Tutoring-Observatory/
 
 ### How It Works
 
-Caller workflows in `pipeline` invoke reusable workflows from `workflows` via the `uses:` keyword with `workflow_call`. Each reusable workflow is environment-agnostic and fully parameterised — the caller passes in the environment name, secrets, and any service-specific configuration.
+Caller workflows in `sandpiper` invoke reusable workflows from `workflows` via the `uses:` keyword with `workflow_call`. Each reusable workflow is environment-agnostic and fully parameterised — the caller passes in the environment name, secrets, and any service-specific configuration.
 
 ```
-Caller (pipeline)                     Reusable (workflows)
+Caller (sandpiper)                     Reusable (workflows)
 ┌─────────────┐                       ┌──────────────────────┐
 │ staging.yml │──uses:───────────────▶│ ecs_preflight.yml    │
 │             │──uses:───────────────▶│ ecs_build_image.yml  │
@@ -148,7 +148,7 @@ Caller (pipeline)                     Reusable (workflows)
 
 ## Staging Pipeline
 
-**File:** `pipeline/.github/workflows/staging.yml`
+**File:** `sandpiper/.github/workflows/staging.yml`
 
 **Triggers:**
 
@@ -187,7 +187,7 @@ preflight
 
 ## Production Pipeline (Release)
 
-**File:** `pipeline/.github/workflows/release.yml`
+**File:** `sandpiper/.github/workflows/release.yml`
 
 **Trigger:** Semantic version tag push (e.g., `v1.2.3`)
 
@@ -358,6 +358,6 @@ Both services are built and deployed in parallel after the preflight check passe
 ## Related Links
 
 - [[Reusable workflows repository](https://github.com/National-Tutoring-Observatory/workflows)](https://github.com/National-Tutoring-Observatory/workflows)
-- [[Pipeline repository](https://github.com/National-Tutoring-Observatory/pipeline)](https://github.com/National-Tutoring-Observatory/pipeline)
-- [[Release refactor PR #1407](https://github.com/National-Tutoring-Observatory/pipeline/pull/1407)](https://github.com/National-Tutoring-Observatory/pipeline/pull/1407)
+- [[Sandpiper repository](https://github.com/National-Tutoring-Observatory/sandpiper)](https://github.com/National-Tutoring-Observatory/sandpiper)
+- [[Release refactor PR #1407](https://github.com/National-Tutoring-Observatory/sandpiper/pull/1407)](https://github.com/National-Tutoring-Observatory/sandpiper/pull/1407)
 - [[Infrastructure issue #86](https://github.com/National-Tutoring-Observatory/infrastructure/issues/86)](https://github.com/National-Tutoring-Observatory/infrastructure/issues/86)

@@ -7,7 +7,7 @@ isPublished: false
 
 # Transcript Format Specification
 
-This document describes the JSON format for tutoring session transcripts used in the NTO Pipeline.
+This document describes the JSON format for tutoring session transcripts used in Sandpiper.
 
 ## Overview
 
@@ -104,7 +104,7 @@ Session-level annotations appear in the root `annotations` array and apply to th
 
 ## Annotation Types
 
-The NTO Pipeline supports two annotation granularities:
+Sandpiper supports two annotation granularities:
 
 ### PER_UTTERANCE
 

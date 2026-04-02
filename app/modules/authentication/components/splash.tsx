@@ -1316,7 +1316,7 @@ function About() {
                 equitable access to high-quality research tools.
               </p>
               <a
-                href="https://github.com/National-Tutoring-Observatory/pipeline"
+                href="https://github.com/National-Tutoring-Observatory/sandpiper"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-[0.625rem] border-2 border-[rgba(255,255,255,0.5)] bg-transparent px-5 py-2.5 text-sm font-semibold text-white no-underline transition-all hover:border-white hover:bg-[rgba(255,255,255,0.12)]"
@@ -1490,7 +1490,7 @@ function CTASection() {
             Try Sandpiper Now
           </Link>
           <a
-            href="https://github.com/National-Tutoring-Observatory/pipeline"
+            href="https://github.com/National-Tutoring-Observatory/sandpiper"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 rounded-[0.625rem] border-2 border-[rgba(255,255,255,0.5)] bg-transparent px-6 py-3 font-semibold text-white no-underline transition-all hover:border-white hover:bg-[rgba(255,255,255,0.12)]"

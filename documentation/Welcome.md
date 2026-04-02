@@ -1,21 +1,21 @@
 ---
-title: "Welcome to the NTO Pipeline"
+title: "Welcome to NTO's Sandpiper"
 tags: ["welcome", "overview"]
 category: "Overview"
 isPublished: true
 ---
 
-# Welcome to the NTO Pipeline
+# Welcome to NTO's Sandpiper
 
 ## Overview
 
-The NTO (National Tutoring Observatory) Pipeline is a powerful application designed to streamline the analysis of one-on-one tutoring data. The core functionality of the app lies in its ability to leverage large language models (**LLM**s) to automatically create detailed **Annotations** of tutoring transcripts.
+Sandpiper is the National Tutoring Observatory's (NTO) application designed to streamline the analysis of one-on-one tutoring data. The core functionality of the app lies in its ability to leverage large language models (**LLM**s) to automatically create detailed **Annotations** of tutoring transcripts.
 
-**Users** can create, manage, and version their own custom **Prompts** to guide the LLM's analysis, allowing them to pinpoint specific instructional moves, such as giving praise or asking a probing question. The NTO Pipeline organizes this process into **Projects**, **Sessions**, and **Runs**, and provides a central **Dashboard** for monitoring progress and exporting the annotated data for further analysis in formats like CSV and JSON. This tool empowers users to efficiently transform raw tutoring data into structured, meaningful insights.
+**Users** can create, manage, and version their own custom **Prompts** to guide the LLM's analysis, allowing them to pinpoint specific instructional moves, such as giving praise or asking a probing question. Sandpiper organizes this process into **Projects**, **Sessions**, and **Runs**, and provides a central **Dashboard** for monitoring progress and exporting the annotated data for further analysis in formats like CSV and JSON. This tool empowers users to efficiently transform raw tutoring data into structured, meaningful insights.
 
 ## How to use
 
-The NTO Pipeline is designed for a streamlined workflow, from data ingestion to analysis.
+Sandpiper is designed for a streamlined workflow, from data ingestion to analysis.
 
 1.  **Create a Project:** Start by creating a new **Project** to organize your work.
 2.  **Import Data:** Upload your tutoring data **Files**. The app will automatically perform **Normalization** and **De-identification** and break the files into individual **Sessions**.

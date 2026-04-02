@@ -9,7 +9,7 @@ isPublished: true
 
 ## Overview
 
-**Annotations** are the core output of the NTO Pipeline's analysis. They are pieces of data created by an LLM based on a specific **Prompt**. An annotation is essentially a tag or a label applied to a segment of a tutoring transcript. It often includes a tag (e.g., "gives praise"), a description explaining why the tag was applied, and other information as defined by a **Schema**.
+**Annotations** are the core output of Sandpiper's analysis. They are pieces of data created by an LLM based on a specific **Prompt**. An annotation is essentially a tag or a label applied to a segment of a tutoring transcript. It often includes a tag (e.g., "gives praise"), a description explaining why the tag was applied, and other information as defined by a **Schema**.
 
 Annotations are created during a **Run** and provide the detailed, structured data you need for your research. They are attached to specific lines or full transcripts of a **Session**.
 

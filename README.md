@@ -1,4 +1,4 @@
-[![API Healthcheck](https://github.com/National-Tutoring-Observatory/pipeline/actions/workflows/api-healthcheck.yml/badge.svg)](https://github.com/National-Tutoring-Observatory/pipeline/actions/workflows/api-healthcheck.yml)
+[![API Healthcheck](https://github.com/National-Tutoring-Observatory/sandpiper/actions/workflows/api-healthcheck.yml/badge.svg)](https://github.com/National-Tutoring-Observatory/sandpiper/actions/workflows/api-healthcheck.yml)
 
 ## Getting Started
 

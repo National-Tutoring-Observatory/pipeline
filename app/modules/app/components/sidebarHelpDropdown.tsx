@@ -42,7 +42,7 @@ export default function SideBarHelpDropdown() {
           </DropdownMenuItem>
           <DropdownMenuItem>
             <a
-              href="https://github.com/National-Tutoring-Observatory/pipeline/issues/new/choose"
+              href="https://github.com/National-Tutoring-Observatory/sandpiper/issues/new/choose"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -51,7 +51,7 @@ export default function SideBarHelpDropdown() {
           </DropdownMenuItem>
           <DropdownMenuItem>
             <a
-              href="https://github.com/National-Tutoring-Observatory/pipeline/issues"
+              href="https://github.com/National-Tutoring-Observatory/sandpiper/issues"
               target="_blank"
               rel="noopener noreferrer"
             >

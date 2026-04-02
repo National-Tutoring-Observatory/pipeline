@@ -1,5 +1,5 @@
 {
-  "description": "Overview dashboard for the Pipeline application covering HTTP requests, BullMQ jobs, and database operations",
+  "description": "Overview dashboard for Sandpiper covering HTTP requests, BullMQ jobs, and database operations",
   "dotMigrated": true,
   "layout": [
     {
@@ -130,8 +130,8 @@
     }
   ],
   "panelMap": {},
-  "tags": ["pipeline", "apm", "overview"],
-  "title": "Pipeline Overview",
+  "tags": ["sandpiper", "apm", "overview"],
+  "title": "Sandpiper Overview",
   "uploadedGrafana": false,
   "variables": {
     "4789176f-8aaa-40da-83f7-68fa152c0449": {

@@ -37,9 +37,8 @@ export default function Login({
             <h1 className="text-2xl">National Tutoring Observatory</h1>
           </CardTitle>
           <CardDescription>
-            Welcome to the Beta National Tutoring Observatory Pipeline tool!
-            This application is designed to help researchers and product teams
-            analyze tutoring data efficiently.
+            Welcome to Sandpiper! This application is designed to help
+            researchers and product teams analyze tutoring data efficiently.
             <br />
             <br />
             <b>

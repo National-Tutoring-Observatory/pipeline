@@ -1,8 +1,8 @@
-# NTO Pipeline - Copilot Instructions
+# Sandpiper - Copilot Instructions
 
 ## Repository Overview
 
-This is the **NTO (National Tutoring Observatory) Pipeline**, a React-based web application designed for analyzing one-on-one tutoring data. The app enables researchers to normalize, de-identify, and automatically annotate tutoring transcripts using large language models (LLMs). Users can create custom prompts, organize work into projects/runs/sessions, and export annotated data in CSV/JSON formats.
+**Sandpiper** is the National Tutoring Observatory's (NTO) React-based web application designed for analyzing one-on-one tutoring data. The app enables researchers to normalize, de-identify, and automatically annotate tutoring transcripts using large language models (LLMs). Users can create custom prompts, organize work into projects/runs/sessions, and export annotated data in CSV/JSON formats.
 
 **Repository size**: ~446 source files (excluding node_modules), ~276MB total
 **Primary language**: TypeScript (React 19)

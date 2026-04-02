@@ -28,6 +28,6 @@ A clear and concise description of what actually happened. (Please include error
 
 ### 4. Environment
 
-- **Pipeline Version:** (e.g., v1.2.0 or main branch)
+- **Sandpiper Version:** (e.g., v1.2.0 or main branch)
 - **Browser/OS (if UI-related):** (e.g., Chrome 105, Windows 11)
 - **Any other relevant context:**

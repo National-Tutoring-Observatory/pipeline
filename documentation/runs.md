@@ -11,7 +11,7 @@ isPublished: true
 
 A **Run** is the process of applying a **Prompt** to your tutoring data to generate **Annotations**. This is the action that triggers the LLM to begin its analysis. When you initiate a run, you define all the parameters for the analysis, including which **Sessions** to analyze, the **Annotation Type** to use, and which **Prompt** and LLM model to apply.
 
-The NTO Pipeline's core purpose is to facilitate and manage these runs, providing a structured way to get valuable insights from your data.
+Sandpiper's core purpose is to facilitate and manage these runs, providing a structured way to get valuable insights from your data.
 
 ## How to use
 

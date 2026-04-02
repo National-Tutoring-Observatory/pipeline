@@ -6,7 +6,7 @@ import { ProcessManager } from "../../app/processManager/processManager.js";
 if (import.meta.url === `file://${process.argv[1]}`) {
   const manager = new ProcessManager();
   manager.start(async (pm) => {
-    console.log("🏗️  Building NTO Pipeline...");
+    console.log("🏗️  Building Sandpiper...");
     await pm.runSequential("yarn", ["app:build"], { label: "build" });
 
     console.log("✅ Build completed successfully!");
