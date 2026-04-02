@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import promptSchema from "~/lib/schemas/prompt.schema";
 import type { FindOptions } from "~/modules/common/types";
 import type { Prompt } from "./prompts.types";
+import createDefaultPrompts from "./services/createDefaultPrompts.server";
 
 const PromptModel =
   mongoose.models.Prompt || mongoose.model("Prompt", promptSchema);
@@ -65,5 +66,12 @@ export class PromptService {
   static async deleteById(id: string): Promise<Prompt | null> {
     const doc = await PromptModel.findByIdAndDelete(id);
     return doc ? this.toPrompt(doc) : null;
+  }
+
+  static async createDefaultPrompts(
+    teamId: string,
+    userId: string,
+  ): Promise<void> {
+    return createDefaultPrompts(teamId, userId);
   }
 }
