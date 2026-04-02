@@ -3,13 +3,11 @@ import find from "lodash/find";
 import { redirect } from "react-router";
 import { GitHubStrategy } from "remix-auth-github";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
-import { TeamBillingService } from "~/modules/billing/teamBilling";
-import { PromptService } from "~/modules/prompts/prompt";
 import INVITE_LINK_TTL_DAYS from "~/modules/teams/helpers/inviteLink";
-import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import type { UserTeam } from "~/modules/users/users.types";
 import sessionStorage from "../../../../sessionStorage";
+import setupNewUser from "../services/setupNewUser.server";
 
 const githubStrategy = new GitHubStrategy<any>(
   {
@@ -73,6 +71,12 @@ const githubStrategy = new GitHubStrategy<any>(
           update.registeredAt = new Date();
           update.githubId = githubUser.id;
           update.hasGithubSSO = true;
+          if (process.env.OPEN_SIGNUP === "true") {
+            await setupNewUser(
+              user._id,
+              `${githubUser.name || githubUser.login}'s Workspace`,
+            );
+          }
           trackServerEvent({ name: "user_registered", userId: user._id });
         } else {
           throw redirect("/?error=UNREGISTERED");
@@ -95,14 +99,10 @@ const githubStrategy = new GitHubStrategy<any>(
           role: "USER",
           onboardingComplete: false,
         });
-        const team = await TeamService.createForUser(
-          `${githubUser.name || githubUser.login}'s Workspace`,
+        await setupNewUser(
           newUser._id,
-          { isPersonal: true },
+          `${githubUser.name || githubUser.login}'s Workspace`,
         );
-        await TeamBillingService.setupTeamBilling(team._id);
-        await TeamBillingService.assignInitialCredits(team._id, newUser._id);
-        await PromptService.createDefaultPrompts(team._id, newUser._id);
         trackServerEvent({ name: "user_registered", userId: newUser._id });
         return (await UserService.findById(newUser._id))!;
       } else {
