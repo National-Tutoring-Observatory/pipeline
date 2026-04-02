@@ -36,6 +36,32 @@ export async function seedTeams() {
     console.log(`  ℹ️  Found 'local' user, will add to Research Team Alpha`);
   }
 
+  const existingPersonal = await TeamService.find({
+    match: { isPersonal: true, createdBy: admin._id },
+  });
+
+  if (existingPersonal.length > 0) {
+    console.log(
+      `  ⏭️  Personal workspace for '${admin.username}' already exists, skipping...`,
+    );
+  } else {
+    const personalTeam = await TeamService.createForUser(
+      `${admin.name}'s Workspace`,
+      admin._id,
+      { isPersonal: true },
+    );
+    await TeamBillingService.setupTeamBilling(personalTeam._id);
+    await TeamCreditService.create({
+      team: personalTeam._id,
+      amount: SEED_CREDITS,
+      addedBy: admin._id,
+      note: "Seed credits",
+    });
+    console.log(
+      `  ✓ Created personal workspace: ${personalTeam.name} (ID: ${personalTeam._id})`,
+    );
+  }
+
   for (const teamData of SEED_TEAMS) {
     try {
       // Check if team already exists
@@ -67,22 +93,13 @@ export async function seedTeams() {
     }
   }
 
-  // Add "local" user to Research Team Alpha
   const teams = await TeamService.find({
     match: { name: "Research Team Alpha" },
   });
   const team = teams[0];
 
   if (team) {
-    // Update admin user to include first team
-    await UserService.updateById(admin._id, {
-      teams: [
-        {
-          team: team._id,
-          role: "ADMIN",
-        },
-      ],
-    });
+    await UserService.addTeam(admin._id, team._id, "ADMIN");
   }
 }
 

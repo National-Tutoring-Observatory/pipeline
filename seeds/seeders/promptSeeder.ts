@@ -1,124 +1,22 @@
+import DEFAULT_PROMPTS from "../../app/modules/prompts/helpers/defaultPrompts.js";
 import { PromptService } from "../../app/modules/prompts/prompt.js";
 import { PromptVersionService } from "../../app/modules/prompts/promptVersion.js";
-import { getSeededTeams } from "./teamSeeder.js";
-
-const SEED_PROMPTS = [
-  {
-    name: "Student Engagement Analysis",
-    annotationType: "PER_SESSION",
-    versionName: "initial",
-    userPrompt:
-      "Analyze the following tutoring exchange and rate the student engagement level (High, Medium, Low). Consider factors like question asking, response length, and initiative.\n",
-    annotationSchema: [
-      {
-        isSystem: true,
-        fieldKey: "_id",
-        fieldType: "string",
-        value: "",
-      },
-      {
-        isSystem: true,
-        fieldKey: "identifiedBy",
-        fieldType: "string",
-        value: "AI",
-      },
-      {
-        isSystem: true,
-        fieldKey: "reasoning",
-        fieldType: "string",
-        value: "",
-      },
-      {
-        isSystem: false,
-        fieldType: "string",
-        fieldKey: "engagement_level",
-        value: "",
-      },
-    ],
-  },
-  {
-    name: "Teacher Feedback Classification",
-    annotationType: "PER_SESSION",
-    versionName: "initial",
-    userPrompt:
-      "Classify the teacher feedback in this exchange into one of these categories: Praise, Corrective, Questioning, Instruction, or Mixed.\n",
-    annotationSchema: [
-      {
-        isSystem: true,
-        fieldKey: "_id",
-        fieldType: "string",
-        value: "",
-      },
-      {
-        isSystem: true,
-        fieldKey: "identifiedBy",
-        fieldType: "string",
-        value: "AI",
-      },
-      {
-        isSystem: true,
-        fieldKey: "reasoning",
-        fieldType: "string",
-        value: "",
-      },
-      {
-        isSystem: false,
-        fieldType: "string",
-        fieldKey: "feedback_type",
-        value: "",
-      },
-    ],
-  },
-  {
-    name: "Praise classification",
-    annotationType: "PER_UTTERANCE",
-    versionName: "initial",
-    userPrompt:
-      "Identify each utterance where the teacher has given praise to the student. Only annotate an utterance if praise was given\n",
-    annotationSchema: [
-      {
-        isSystem: true,
-        fieldKey: "_id",
-        fieldType: "string",
-        value: "",
-      },
-      {
-        isSystem: true,
-        fieldKey: "identifiedBy",
-        fieldType: "string",
-        value: "AI",
-      },
-      {
-        isSystem: true,
-        fieldKey: "reasoning",
-        fieldType: "string",
-        value: "",
-      },
-      {
-        isSystem: false,
-        fieldType: "boolean",
-        fieldKey: "given_praise",
-        value: "",
-      },
-    ],
-  },
-];
+import { TeamService } from "../../app/modules/teams/team.js";
 
 export async function seedPrompts() {
-  const teams = await getSeededTeams();
+  const personalTeams = await TeamService.find({
+    match: { isPersonal: true },
+  });
 
-  if (teams.length === 0) {
-    console.warn(
-      "  ⚠️  No seeded teams found. Please run other seeders first.",
-    );
+  if (personalTeams.length === 0) {
+    console.warn("  ⚠️  No personal team found. Please run team seeder first.");
     return;
   }
 
-  const team = teams.find((t) => t.name === "Research Team Alpha") ?? teams[0];
+  const team = personalTeams[0];
 
-  for (const promptData of SEED_PROMPTS) {
+  for (const promptData of DEFAULT_PROMPTS) {
     try {
-      // Check if prompt already exists
       const existing = await PromptService.find({
         match: { name: promptData.name },
       });
@@ -130,7 +28,6 @@ export async function seedPrompts() {
         continue;
       }
 
-      // Create prompt
       const prompt = await PromptService.create({
         name: promptData.name,
         team: team._id,
@@ -140,9 +37,8 @@ export async function seedPrompts() {
 
       console.log(`  ✓ Created prompt: ${promptData.name} (ID: ${prompt._id})`);
 
-      // Create initial version
       await PromptVersionService.create({
-        name: promptData.versionName,
+        name: "initial",
         prompt: prompt._id,
         version: 1,
         userPrompt: promptData.userPrompt,
@@ -160,6 +56,6 @@ export async function seedPrompts() {
 
 export async function getSeededPrompts() {
   return PromptService.find({
-    match: { name: { $in: SEED_PROMPTS.map((p) => p.name) } },
+    match: { name: { $in: DEFAULT_PROMPTS.map((p) => p.name) } },
   });
 }
