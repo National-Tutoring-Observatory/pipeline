@@ -63,6 +63,14 @@ async function main() {
       console.log("✅ Users seeded\n");
     }
 
+    if (options.all || options.billing) {
+      console.log("💰 Seeding billing plans...");
+      const { seedBillingPlans } =
+        await import("./seeders/billingPlanSeeder.js");
+      await seedBillingPlans();
+      console.log("✅ Billing plans seeded\n");
+    }
+
     if (options.all || options.teams) {
       console.log("👥 Seeding teams...");
       const { seedTeams } = await import("./seeders/teamSeeder.js");
@@ -82,14 +90,6 @@ async function main() {
       const { seedProjects } = await import("./seeders/projectSeeder.js");
       await seedProjects();
       console.log("✅ Projects seeded\n");
-    }
-
-    if (options.all || options.billing) {
-      console.log("💰 Seeding billing plans...");
-      const { seedBillingPlans } =
-        await import("./seeders/billingPlanSeeder.js");
-      await seedBillingPlans();
-      console.log("✅ Billing plans seeded\n");
     }
 
     console.log("🎉 Seeds completed successfully!");

@@ -1,6 +1,10 @@
+import { TeamBillingService } from "../../app/modules/billing/teamBilling.js";
+import { TeamCreditService } from "../../app/modules/billing/teamCredit.js";
 import { TeamService } from "../../app/modules/teams/team.js";
 import { UserService } from "../../app/modules/users/user.js";
 import { getSeededUsers } from "./userSeeder.js";
+
+const SEED_CREDITS = 1000;
 
 const SEED_TEAMS = [
   {
@@ -48,6 +52,15 @@ export async function seedTeams() {
 
       const result = await TeamService.create(teamData);
       console.log(`  ✓ Created team: ${teamData.name} (ID: ${result._id})`);
+
+      await TeamBillingService.setupTeamBilling(result._id);
+      await TeamCreditService.create({
+        team: result._id,
+        amount: SEED_CREDITS,
+        addedBy: admin._id,
+        note: "Seed credits",
+      });
+      console.log(`  ✓ Assigned billing plan and $${SEED_CREDITS} credits`);
     } catch (error) {
       console.error(`  ✗ Error creating team ${teamData.name}:`, error);
       throw error;
