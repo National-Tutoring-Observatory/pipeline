@@ -32,7 +32,7 @@ export default function PrivacyPolicyRoute() {
           <section className="mb-8">
             <h2 className="mb-3 text-xl font-semibold">Overview</h2>
             <p className="mb-4 leading-7">
-              The National Tutoring Observatory (NTO) Pipeline is a research
+              Sandpiper is the National Tutoring Observatory's (NTO) research
               tool that helps researchers and product teams analyze one-on-one
               tutoring data. This privacy policy explains how we collect, use,
               and protect information when you use our application.

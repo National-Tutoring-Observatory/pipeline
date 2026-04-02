@@ -1,6 +1,6 @@
 # E2E Tests
 
-End-to-end tests for the NTO Pipeline application using Playwright.
+End-to-end tests for the Sandpiper application using Playwright.
 
 ## Prerequisites
 

@@ -40,7 +40,7 @@ if (process.env.OTEL_ENABLED === "true") {
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
   }
 
-  const serviceName = process.env.OTEL_SERVICE_NAME || "pipeline-app";
+  const serviceName = process.env.OTEL_SERVICE_NAME || "sandpiper-app";
   const otlpEndpoint =
     process.env.OTEL_EXPORTER_OTLP_ENDPOINT || "http://localhost:4318";
 

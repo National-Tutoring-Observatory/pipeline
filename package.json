@@ -1,5 +1,5 @@
 {
-  "name": "pipeline",
+  "name": "sandpiper",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -13,8 +13,8 @@
     "app:build": "node ./app/adapters.js && react-router build",
     "app:dev": "node ./app/adapters.js && cross-env NODE_ENV=development tsx watch -r dotenv/config --import ./otel-register.mjs --import ./instrumentation.ts ./server.ts",
     "app:prod": "PORT=5173 tsx --import ./otel-register.mjs --import ./instrumentation.ts ./server.ts",
-    "workers:dev": "yarn workspace pipeline-worker dev",
-    "workers:prod": "yarn workspace pipeline-worker prod",
+    "workers:dev": "yarn workspace sandpiper-worker dev",
+    "workers:prod": "yarn workspace sandpiper-worker prod",
     "local:redis": "yarn workspace localMode redis",
     "local:start": "./localMode/bin/start-all.js",
     "seeds": "tsx -r dotenv/config ./seeds/index.ts",

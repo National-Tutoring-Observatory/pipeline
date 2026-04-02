@@ -1,8 +1,8 @@
-# NTO Pipeline - Agent Instructions
+# Sandpiper - Agent Instructions
 
 ## Overview
 
-NTO (National Tutoring Observatory) Pipeline - React-based web application for analyzing one-on-one tutoring data. The app enables researchers to normalize, de-identify, and automatically annotate tutoring transcripts using large language models (LLMs).
+Sandpiper - the National Tutoring Observatory's (NTO) React-based web application for analyzing one-on-one tutoring data. The app enables researchers to normalize, de-identify, and automatically annotate tutoring transcripts using large language models (LLMs).
 
 **Stack**: TypeScript, React 19, React Router v7 (SSR), Vite 6, Tailwind CSS 4, shadcn/ui, Mongoose, BullMQ, Yarn
 
@@ -103,7 +103,7 @@ To skip hooks (e.g., WIP commits): `HUSKY=0 git commit -m "wip"`
 The project is organized as a Yarn workspace monorepo:
 
 ```
-pipeline/
+sandpiper/
 ├── app/                    # Main React/Node.js application
 │   ├── modules/           # Feature modules
 │   ├── uikit/             # Reusable UI components (shadcn/ui)

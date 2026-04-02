@@ -23,7 +23,7 @@ export interface RequestParams {
 /**
  * StorageAdapter is a plugin-based interface for abstracting storage operations.
  *
- * The NTO Pipeline supports multiple storage backends (local filesystem, AWS S3) through
+ * Sandpiper supports multiple storage backends (local filesystem, AWS S3) through
  * adapter implementations. Adapters are self-registering and selected at runtime via
  * environment variables (STORAGE_ADAPTER).
  *

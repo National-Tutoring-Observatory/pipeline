@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://nto-pipeline.example.com/schemas/transcript.json",
-  "title": "NTO Pipeline Transcript",
-  "description": "Schema for tutoring session transcripts used in the NTO Pipeline for annotation",
+  "$id": "https://nto-sandpiper.example.com/schemas/transcript.json",
+  "title": "Sandpiper Transcript",
+  "description": "Schema for tutoring session transcripts used in Sandpiper for annotation",
   "type": "object",
   "required": ["transcript"],
   "properties": {

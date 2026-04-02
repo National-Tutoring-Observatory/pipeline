@@ -1,7 +1,7 @@
 services:
   redis:
     image: redis:7-alpine
-    container_name: pipeline-redis
+    container_name: sandpiper-redis
     ports:
       - "6379:6379"
     volumes:
@@ -17,14 +17,14 @@ services:
 
   mongodb:
     image: mongo:5.0
-    container_name: pipeline-mongodb
+    container_name: sandpiper-mongodb
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: pipeline
-      MONGO_INITDB_ROOT_PASSWORD: pipeline123
+      MONGO_INITDB_ROOT_USERNAME: sandpiper
+      MONGO_INITDB_ROOT_PASSWORD: sandpiper123
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok"]
@@ -69,8 +69,8 @@ services:
     command:
       - -c
       - |
-        aws s3api create-bucket --endpoint-url http://localstack-main:4566 --bucket nto-pipeline-local --region us-east-1
-        aws s3api put-bucket-cors --endpoint-url http://localstack-main:4566 --bucket nto-pipeline-local --cors-configuration '{
+        aws s3api create-bucket --endpoint-url http://localstack-main:4566 --bucket nto-sandpiper-local --region us-east-1
+        aws s3api put-bucket-cors --endpoint-url http://localstack-main:4566 --bucket nto-sandpiper-local --cors-configuration '{
           "CORSRules": [
             {
               "AllowedOrigins": ["http://localhost:5173"],

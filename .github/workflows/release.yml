@@ -13,7 +13,7 @@ name: Production Release
 #   git push origin v1.2.3
 
 # Or create a GitHub Release
-#   - https://github.com/National-Tutoring-Observatory/pipeline/releases/new
+#   - https://github.com/National-Tutoring-Observatory/sandpiper/releases/new
 
 on:
   push:

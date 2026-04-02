@@ -9,7 +9,7 @@ isPublished: true
 
 ## Overview
 
-The **Dashboard** is your personal home page in the NTO Pipeline. It's designed to give you a quick, at-a-glance overview of your recent activity and the status of your data. Think of it as a control panel where you can monitor your progress.
+The **Dashboard** is your personal home page in Sandpiper. It's designed to give you a quick, at-a-glance overview of your recent activity and the status of your data. Think of it as a control panel where you can monitor your progress.
 
 From here, you can see a summary of your most recent **Runs**, including their completion status and key analytics. It's the primary location for you to track ongoing work and quickly access the results of your analyses.
 

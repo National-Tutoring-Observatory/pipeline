@@ -1,6 +1,6 @@
-# Contributing to the NTO Pipeline
+# Contributing to Sandpiper
 
-Welcome! This guide explains how to set up and run the NTO Pipeline project for local development and testing. Follow these steps to get started and contribute effectively.
+Welcome! This guide explains how to set up and run the Sandpiper project for local development and testing. Follow these steps to get started and contribute effectively.
 
 ---
 
@@ -58,14 +58,14 @@ Add these lines to your `.env` if you want to use the DocumentDB adapter with th
 ```env
 # Use DocumentDB adapter with local MongoDB
 DOCUMENTS_ADAPTER='DOCUMENT_DB'
-DOCUMENT_DB_CONNECTION_STRING='localhost:27017/pipeline?authSource=admin'
-DOCUMENT_DB_USERNAME='pipeline'
-DOCUMENT_DB_PASSWORD='pipeline123'
+DOCUMENT_DB_CONNECTION_STRING='localhost:27017/sandpiper?authSource=admin'
+DOCUMENT_DB_USERNAME='sandpiper'
+DOCUMENT_DB_PASSWORD='sandpiper123'
 DOCUMENT_DB_LOCAL='true'
 
 AWS_S3_ENDPOINT='http://localhost:4566' # For LocalStack testing
 AWS_S3_REGION='us-east-1'
-AWS_S3_BUCKET='nto-pipeline-local'
+AWS_S3_BUCKET='nto-sandpiper-local'
 AWS_S3_FORCE_PATH_STYLE='true' # Required for LocalStack
 AWS_ACCESS_KEY_ID=test
 AWS_SECRET_ACCESS_KEY=test
