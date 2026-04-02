@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
+import Flag from "~/modules/featureFlags/components/flag";
 
 export default function Home({ billingEnabled }: { billingEnabled: boolean }) {
   return (
@@ -65,12 +66,14 @@ export default function Home({ billingEnabled }: { billingEnabled: boolean }) {
                 Create a Prompt
               </Link>
             </Button>
-            <Button variant="outline" asChild>
-              <Link to="/">
-                <Globe className="h-4 w-4" />
-                Use the MTM Dataset
-              </Link>
-            </Button>
+            <Flag flag="HAS_MTM_DATASET">
+              <Button variant="outline" asChild>
+                <Link to="/">
+                  <Globe className="h-4 w-4" />
+                  Use the MTM Dataset
+                </Link>
+              </Button>
+            </Flag>
           </div>
         </CardContent>
       </Card>
