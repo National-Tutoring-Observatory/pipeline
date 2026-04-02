@@ -3,7 +3,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { FileService } from "../../app/modules/files/file.js";
 import { ProjectService } from "../../app/modules/projects/project.js";
-import getAttributeMappingFromFile from "../../app/modules/sessions/helpers/getAttributeMappingFromFile.js";
 import createSessionsFromFiles from "../../app/modules/sessions/services/createSessionsFromFiles.server.js";
 import { getProjectFileStoragePath } from "../../app/modules/uploads/helpers/projectFileStorage.js";
 import splitMultipleSessionsIntoFiles from "../../app/modules/uploads/services/splitMultipleSessionsIntoFiles.js";
@@ -82,9 +81,7 @@ export async function seedProjects() {
 
       // Create sessions from uploaded files and queue processing jobs
       console.log(`    → Processing files into sessions...`);
-      const teamId =
-        typeof project.team === "string" ? project.team : project.team._id;
-      await processProjectFiles(project._id, teamId, projectData.files);
+      await processProjectFiles(project._id, projectData.files);
 
       console.log(
         `  ✅ Project '${projectData.name}' seeded with ${projectData.files.length} files\n`,
@@ -98,7 +95,6 @@ export async function seedProjects() {
 
 async function processProjectFiles(
   projectId: string,
-  teamId: string,
   files: Array<{ name: string; type: string }>,
 ) {
   // Load fixture files as File objects
@@ -141,15 +137,15 @@ async function processProjectFiles(
     `      ✓ Split ${fixtureFiles.length} file(s) into ${splitFiles.length} session(s)`,
   );
 
-  // Step 2: Get attribute mapping from first split file
-  const attributesMapping = await getAttributeMappingFromFile({
-    file: splitFiles[0],
-    team: teamId,
-    projectId,
-  });
-  console.log(`      ✓ Detected attribute mapping from file`);
+  const attributesMapping = {
+    session_id: "session_id",
+    role: "role",
+    content: "content",
+    sequence_id: "sequence_id",
+    leadRole: "Tutor",
+  };
 
-  // Step 3: Upload split files to storage
+  // Step 2: Upload split files to storage
   const uploadedFileIds: string[] = [];
 
   for (const splitFile of splitFiles) {
@@ -173,7 +169,7 @@ async function processProjectFiles(
   }
   console.log(`      ✓ Uploaded ${uploadedFileIds.length} file(s)`);
 
-  // Step 4: Create sessions and queue processing (same as app route)
+  // Step 3: Create sessions and queue processing
   await createSessionsFromFiles({
     projectId,
     shouldCreateSessionModels: true,
