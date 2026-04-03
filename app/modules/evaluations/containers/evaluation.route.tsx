@@ -196,6 +196,11 @@ export default function EvaluationRoute() {
       {
         evaluationId: evaluation._id,
         task: "CREATE_EVALUATION:PROCESS",
+        status: "UPDATED",
+      },
+      {
+        evaluationId: evaluation._id,
+        task: "CREATE_EVALUATION:PROCESS",
         status: "FINISHED",
       },
       {
