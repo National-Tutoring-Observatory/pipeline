@@ -34,9 +34,16 @@ async function downloadSessionFile(
 export async function loadAllSessionFiles(
   evaluation: Evaluation,
   runs: Run[],
+  onProgress?: (loaded: number, total: number) => void,
 ): Promise<SessionFileCache> {
   const cache: SessionFileCache = {};
   const projectId = evaluation.project;
+
+  const totalSessions = runs.reduce(
+    (sum, run) => sum + run.sessions.filter((s) => s.status === "DONE").length,
+    0,
+  );
+  let loaded = 0;
 
   for (const run of runs) {
     cache[run._id] = {};
@@ -53,6 +60,11 @@ export async function loadAllSessionFiles(
         session.name,
       );
       cache[run._id][runSession.sessionId] = sessionJSON;
+
+      loaded++;
+      if (onProgress) {
+        onProgress(loaded, totalSessions);
+      }
     }
   }
 

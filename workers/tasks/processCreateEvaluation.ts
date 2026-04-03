@@ -34,14 +34,15 @@ export default async function processCreateEvaluation(job: Job) {
     "UPDATED",
   );
 
-  const cache = await loadAllSessionFiles(evaluation, runs);
+  const cache = await loadAllSessionFiles(evaluation, runs, (loaded, total) => {
+    const fileProgress = Math.round(10 + (loaded / total) * 40);
+    emitFromJob(
+      job,
+      { evaluationId, progress: fileProgress, step: "2/5" },
+      "UPDATED",
+    );
+  });
   const commonSessionIds = getCommonSessionIds(runs);
-
-  await emitFromJob(
-    job,
-    { evaluationId, progress: 50, step: "2/5" },
-    "UPDATED",
-  );
 
   const report = await buildEvaluationReport(
     evaluation,

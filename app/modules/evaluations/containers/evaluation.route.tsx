@@ -235,6 +235,14 @@ export default function EvaluationRoute() {
   const report = evaluation.report || [];
   const [activeTab, setActiveTab] = useState(report[0]?.fieldKey || "");
 
+  // Set the first tab when the report arrives after evaluation completes
+  useEffect(() => {
+    if (!activeTab && report[0]?.fieldKey) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveTab(report[0].fieldKey);
+    }
+  }, [activeTab, report]);
+
   const activeReport = report.find((r) => r.fieldKey === activeTab);
   const performers = activeReport
     ? getTopPerformersVsGoldLabel(activeReport, evaluation.baseRun).filter(
