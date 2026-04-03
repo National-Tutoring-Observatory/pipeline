@@ -8,10 +8,12 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { CircleHelp } from "lucide-react";
 import { useState } from "react";
+import FullTermsDialog from "~/modules/authentication/components/fullTermsDialog";
 import SupportArticlesContainer from "~/modules/support/containers/supportArticles.container";
 
 export default function SideBarHelpDropdown() {
   const [docsOpen, setDocsOpen] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
 
   return (
     <>
@@ -58,10 +60,8 @@ export default function SideBarHelpDropdown() {
               View Existing Issues
             </a>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">
-              Privacy Policy
-            </a>
+          <DropdownMenuItem onClick={() => setTermsOpen(true)}>
+            Terms of Use & Privacy Policy
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -71,6 +71,8 @@ export default function SideBarHelpDropdown() {
           <SupportArticlesContainer />
         </SheetContent>
       </Sheet>
+
+      <FullTermsDialog open={termsOpen} onOpenChange={setTermsOpen} />
     </>
   );
 }

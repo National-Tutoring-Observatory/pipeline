@@ -134,10 +134,6 @@ export default [
   ...prefix("invite", [
     route(":id", "modules/teams/containers/invite.route.tsx", { id: "invite" }),
   ]),
-  route(
-    "privacy-policy",
-    "modules/privacyPolicy/containers/privacyPolicy.route.tsx",
-  ),
   route("signup", "modules/authentication/containers/signup.route.tsx"),
   route("onboarding", "modules/authentication/containers/onboarding.route.tsx"),
   ...prefix("featureFlags", [
