@@ -17,6 +17,11 @@ const SystemAdminAuthorization = {
       return userIsSuperAdmin(user);
     },
   },
+  Maintenance: {
+    canManage(user: User | null): boolean {
+      return userIsSuperAdmin(user);
+    },
+  },
 };
 
 type SystemAuthorizationShape = {
@@ -26,6 +31,9 @@ type SystemAuthorizationShape = {
   Queues: { [K in keyof typeof SystemAdminAuthorization.Queues]: boolean };
   Migrations: {
     [K in keyof typeof SystemAdminAuthorization.Migrations]: boolean;
+  };
+  Maintenance: {
+    [K in keyof typeof SystemAdminAuthorization.Maintenance]: boolean;
   };
 };
 

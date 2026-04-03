@@ -52,4 +52,22 @@ describe("SystemAdminAuthorization", () => {
       expect(SystemAdminAuthorization.Queues.canManage(null)).toBe(false);
     });
   });
+
+  describe("Maintenance.canManage", () => {
+    it("allows super admins to manage maintenance", () => {
+      expect(
+        SystemAdminAuthorization.Maintenance.canManage(superAdminUser),
+      ).toBe(true);
+    });
+
+    it("denies regular users from managing maintenance", () => {
+      expect(SystemAdminAuthorization.Maintenance.canManage(regularUser)).toBe(
+        false,
+      );
+    });
+
+    it("denies null users from managing maintenance", () => {
+      expect(SystemAdminAuthorization.Maintenance.canManage(null)).toBe(false);
+    });
+  });
 });

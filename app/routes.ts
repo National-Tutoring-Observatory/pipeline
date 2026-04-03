@@ -235,5 +235,9 @@ export default [
   ]),
   ...prefix("admin", [
     route("users", "modules/users/containers/adminUsers.route.tsx"),
+    route(
+      "maintenance",
+      "modules/systemSettings/containers/maintenance.route.tsx",
+    ),
   ]),
 ] satisfies RouteConfig;

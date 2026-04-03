@@ -12,6 +12,7 @@ import {
 import AppSidebar from "~/modules/app/components/appSidebar";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import { connectSockets } from "~/modules/sockets/sockets";
+import MaintenanceBanner from "~/modules/systemSettings/components/maintenanceBanner";
 import type { User } from "~/modules/users/users.types";
 import Splash from "../components/splash";
 import LoginContainer from "./login.container";
@@ -96,6 +97,7 @@ export default function AuthenticationContainer({
 
   return (
     <AuthenticationContext value={authentication}>
+      <MaintenanceBanner />
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
         <SidebarInset>

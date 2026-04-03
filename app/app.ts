@@ -1,6 +1,7 @@
 import { createRequestHandler } from "@react-router/express";
 import express from "express";
 import "react-router";
+import maintenanceMiddleware from "~/modules/systemSettings/maintenanceMiddleware";
 
 declare module "react-router" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -8,6 +9,8 @@ declare module "react-router" {
 }
 
 export const app = express();
+
+app.use(maintenanceMiddleware);
 
 app.use((req, res, next) => {
   if (req.path.startsWith("/socket.io/")) {
