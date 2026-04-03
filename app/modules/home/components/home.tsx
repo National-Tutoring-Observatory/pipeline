@@ -13,7 +13,13 @@ import type { ReactNode } from "react";
 import { Link } from "react-router";
 import Flag from "~/modules/featureFlags/components/flag";
 
-export default function Home({ billingEnabled }: { billingEnabled: boolean }) {
+export default function Home({
+  billingEnabled,
+  initialCredits,
+}: {
+  billingEnabled: boolean;
+  initialCredits: number;
+}) {
   return (
     <div className="container mx-auto max-w-4xl space-y-4 px-6 py-8">
       <div className="flex items-start justify-between gap-6">
@@ -37,10 +43,12 @@ export default function Home({ billingEnabled }: { billingEnabled: boolean }) {
         {billingEnabled && (
           <div className="bg-primary text-primary-foreground flex w-72 shrink-0 items-center gap-4 rounded-lg p-4">
             <div className="bg-sandpiper-primary-hover flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-lg font-bold">
-              $10
+              ${initialCredits}
             </div>
             <div>
-              <p className="text-sm font-bold">$10 in free credits</p>
+              <p className="text-sm font-bold">
+                ${initialCredits} in free credits
+              </p>
               <p className="text-primary-foreground/80 mt-1 text-xs">
                 Annotate <strong>hundreds of transcripts</strong> across
                 multiple LLMs, a full research pilot at no cost.
@@ -49,7 +57,6 @@ export default function Home({ billingEnabled }: { billingEnabled: boolean }) {
           </div>
         )}
       </div>
-
       <Card>
         <CardContent className="flex flex-col items-center gap-4 p-6">
           <h2 className="text-xl font-semibold">Get Started</h2>
