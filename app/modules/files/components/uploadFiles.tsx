@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -18,7 +17,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import clsx from "clsx";
 import map from "lodash/map";
-import { ShieldCheck, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import type { FetcherWithComponents } from "react-router";
@@ -37,7 +36,6 @@ export default function UploadFiles({
   onDeleteAcceptedFileClicked,
   fetcher,
   onUploadClick,
-  onLearnMoreClicked,
   onUseMtmDatasetClicked,
 }: {
   acceptedFiles: { _id: string; name: string; type: string }[];
@@ -47,11 +45,9 @@ export default function UploadFiles({
   onDeleteAcceptedFileClicked: (id: string) => void;
   fetcher: FetcherWithComponents<UploadFilesData>;
   onUploadClick: () => void;
-  onLearnMoreClicked: () => void;
   onUseMtmDatasetClicked: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<FileType>("CSV");
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const data = fetcher.data as UploadFilesData | undefined;
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -92,39 +88,6 @@ export default function UploadFiles({
                   Drag & drop files here, or click to browse
                 </p>
               )}
-            </div>
-            <div className="bg-card rounded-lg border p-3">
-              <div className="text-muted-foreground flex items-center gap-2 text-xs leading-relaxed">
-                <ShieldCheck className="text-primary size-4 shrink-0" />
-                <span>
-                  Your data is stored securely and never accessed, shared, or
-                  published.&nbsp;
-                  <button
-                    type="button"
-                    className="text-primary cursor-pointer font-semibold hover:underline"
-                    onClick={onLearnMoreClicked}
-                  >
-                    Learn more
-                  </button>
-                </span>
-              </div>
-              <div className="mt-2 flex items-start gap-2 pl-0.5">
-                <Checkbox
-                  id="privacy-agree"
-                  checked={privacyAccepted}
-                  onCheckedChange={(checked) =>
-                    setPrivacyAccepted(checked === true)
-                  }
-                />
-                <label
-                  htmlFor="privacy-agree"
-                  className="cursor-pointer text-xs leading-relaxed"
-                >
-                  I understand that my data will be processed by the LLM
-                  providers I select for annotation, and that Sandpiper will not
-                  use my data for any other purpose.
-                </label>
-              </div>
             </div>
             {data?.errors?.files && (
               <div className="text-destructive space-y-1 text-sm">
@@ -219,11 +182,7 @@ export default function UploadFiles({
             </Table>
           </div>
           <div className="mt-2 flex justify-center">
-            <Button
-              size="lg"
-              disabled={isUploading || !privacyAccepted}
-              onClick={onUploadClick}
-            >
+            <Button size="lg" disabled={isUploading} onClick={onUploadClick}>
               {uploadButtonText}
             </Button>
           </div>

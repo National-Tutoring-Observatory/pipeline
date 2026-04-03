@@ -1,6 +1,4 @@
 import type { FetcherWithComponents } from "react-router";
-import addDialog from "~/modules/dialogs/addDialog";
-import DataPrivacyDialog from "../components/dataPrivacyDialog";
 import UploadFiles from "../components/uploadFiles";
 import { SUPPORTED_FILE_TYPES } from "../constants";
 import type { FileType, UploadFilesData } from "../files.types";
@@ -25,10 +23,6 @@ export default function UploadFilesContainer({
     },
     {} as Record<FileType, { overview: string; link: string }>,
   );
-
-  const openDataPrivacyDialog = () => {
-    addDialog(<DataPrivacyDialog />);
-  };
 
   const handleUpload = () => {
     const formData = new FormData();
@@ -66,7 +60,6 @@ export default function UploadFilesContainer({
       onDeleteAcceptedFileClicked={removeFile}
       fetcher={uploadFetcher}
       onUploadClick={handleUpload}
-      onLearnMoreClicked={openDataPrivacyDialog}
       onUseMtmDatasetClicked={handleUseMtmDataset}
     />
   );
