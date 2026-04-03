@@ -65,7 +65,6 @@ registerLLM("AI_GATEWAY", {
       .withResponse();
 
     let contentStr = "";
-    let toolCallArgs = "";
     let usage: { prompt_tokens?: number; completion_tokens?: number } = {};
 
     for await (const chunk of stream) {
@@ -73,24 +72,12 @@ registerLLM("AI_GATEWAY", {
       if (delta?.content) {
         contentStr += delta.content;
       }
-      if (delta?.tool_calls?.[0]?.function?.arguments) {
-        toolCallArgs += delta.tool_calls[0].function.arguments;
-      }
       if (chunk.usage) {
         usage = chunk.usage;
       }
     }
 
-    const content = toolCallArgs
-      ? JSON.parse(toolCallArgs)
-      : JSON.parse(contentStr);
-
-    const litellmHeaders: Record<string, string> = {};
-    response.headers.forEach((value: string, key: string) => {
-      if (key.startsWith("x-litellm")) {
-        litellmHeaders[key] = value;
-      }
-    });
+    const content = JSON.parse(contentStr);
 
     const providerCostHeader = response.headers.get("x-litellm-response-cost");
 

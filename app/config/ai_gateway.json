@@ -20,18 +20,6 @@
           "pricing": [{ "inputCostPer1M": 0.5, "outputCostPer1M": 3.0 }]
         },
         {
-          "name": "Gemini 3 Pro Preview",
-          "code": "nto.google.gemini-3-pro-preview",
-          "pricing": [
-            {
-              "upToInputTokens": 200000,
-              "inputCostPer1M": 2.0,
-              "outputCostPer1M": 12.0
-            },
-            { "inputCostPer1M": 4.0, "outputCostPer1M": 18.0 }
-          ]
-        },
-        {
           "name": "Gemini 3.1 Pro Preview",
           "code": "nto.google.gemini-3.1-pro-preview",
           "pricing": [
