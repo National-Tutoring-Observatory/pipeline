@@ -26,8 +26,18 @@ export default function Login({
   return (
     <div className="bg-sandpiper-canvas flex h-screen w-screen items-center justify-center">
       <Card className="w-full max-w-md text-center">
-        <div className="mx-auto max-w-[120px]">
-          <img src="/assets/sandpiper-logo.svg" alt="Sandpiper" />
+        <div className="flex flex-col items-center gap-1 pt-2">
+          <img
+            src="/assets/sandpiper-logo.svg"
+            alt="Sandpiper"
+            className="max-w-[120px]"
+          />
+          <span className="text-muted-foreground text-xs">by</span>
+          <img
+            src="/assets/nto-logo-horizontal.webp"
+            alt="National Tutoring Observatory"
+            className="max-w-[160px]"
+          />
         </div>
         <CardHeader>
           <CardTitle className="mb-2">
