@@ -15,7 +15,7 @@ export default async function processCreateEvaluation(job: Job) {
     throw new Error("processCreateEvaluation: evaluationId is required");
   }
 
-  await emitFromJob(job, { evaluationId, progress: 0, step: "0/1" }, "STARTED");
+  await emitFromJob(job, { evaluationId, progress: 0, step: "0/5" }, "STARTED");
 
   const evaluation = await EvaluationService.findById(evaluationId);
   if (!evaluation) {
@@ -28,7 +28,20 @@ export default async function processCreateEvaluation(job: Job) {
     match: { _id: { $in: evaluation.runs } },
   });
 
-  const cache = await loadAllSessionFiles(evaluation, runs);
+  await emitFromJob(
+    job,
+    { evaluationId, progress: 10, step: "1/5" },
+    "UPDATED",
+  );
+
+  const cache = await loadAllSessionFiles(evaluation, runs, (loaded, total) => {
+    const fileProgress = Math.round(10 + (loaded / total) * 40);
+    emitFromJob(
+      job,
+      { evaluationId, progress: fileProgress, step: "2/5" },
+      "UPDATED",
+    );
+  });
   const commonSessionIds = getCommonSessionIds(runs);
 
   const report = await buildEvaluationReport(
@@ -37,11 +50,24 @@ export default async function processCreateEvaluation(job: Job) {
     cache,
     commonSessionIds,
   );
+
+  await emitFromJob(
+    job,
+    { evaluationId, progress: 75, step: "3/5" },
+    "UPDATED",
+  );
+
   const verificationReport = buildVerificationReport(
     evaluation,
     runs,
     cache,
     commonSessionIds,
+  );
+
+  await emitFromJob(
+    job,
+    { evaluationId, progress: 90, step: "4/5" },
+    "UPDATED",
   );
 
   await EvaluationService.updateById(evaluationId, {
@@ -51,7 +77,7 @@ export default async function processCreateEvaluation(job: Job) {
 
   await emitFromJob(
     job,
-    { evaluationId, progress: 100, step: "1/1" },
+    { evaluationId, progress: 100, step: "5/5" },
     "FINISHED",
   );
 

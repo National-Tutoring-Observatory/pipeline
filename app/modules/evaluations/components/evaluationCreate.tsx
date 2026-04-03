@@ -78,6 +78,7 @@ export default function EvaluationCreate({
               value={name}
               onChange={(e) => onNameChanged(e.target.value)}
               placeholder="Enter evaluation name"
+              autoFocus
             />
           </div>
         </div>
