@@ -1,10 +1,7 @@
-import mongoose from "mongoose";
-import runSchema from "~/lib/schemas/run.schema";
 import type { AnnotationSchemaItem } from "~/modules/prompts/prompts.types";
+import { RunService } from "~/modules/runs/run";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
 import { SessionService } from "~/modules/sessions/session";
-
-const RunModel = mongoose.models.Run || mongoose.model("Run", runSchema);
 
 interface CreateHumanRunProps {
   project: string;
@@ -35,7 +32,7 @@ export default async function createHumanRun({
     });
   }
 
-  const doc = await RunModel.create({
+  return RunService.createFromData({
     project,
     name,
     annotationType,
@@ -55,6 +52,4 @@ export default async function createHumanRun({
     isComplete: false,
     shouldRunVerification: false,
   });
-
-  return doc.toJSON({ flattenObjectIds: true });
 }

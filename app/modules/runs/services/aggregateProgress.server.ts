@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
-import runSchema from "~/lib/schemas/run.schema";
-
-const RunModel = mongoose.models.Run || mongoose.model("Run", runSchema);
+import { RunModel } from "../run";
 
 export interface AggregateProgressResult {
   completedRuns: number;

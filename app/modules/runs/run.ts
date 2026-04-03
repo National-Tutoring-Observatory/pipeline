@@ -10,7 +10,7 @@ import createRunAnnotations from "./services/createRunAnnotations.server";
 import getAverageSecondsPerSession from "./services/getAverageSecondsPerSession.server";
 import paginateSessionsService from "./services/paginateSessions.server";
 
-const RunModel = mongoose.models.Run || mongoose.model("Run", runSchema);
+export const RunModel = mongoose.models.Run || mongoose.model("Run", runSchema);
 
 export class RunService {
   private static toRun(doc: any): Run {
@@ -97,6 +97,11 @@ export class RunService {
       isAdjudication: !!props.isAdjudication,
       adjudication: props.adjudication,
     });
+    return this.toRun(doc);
+  }
+
+  static async createFromData(data: Record<string, unknown>): Promise<Run> {
+    const doc = await RunModel.create(data);
     return this.toRun(doc);
   }
 
