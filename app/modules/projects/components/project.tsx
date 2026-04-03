@@ -159,7 +159,14 @@ export default function Project({
             <CardHeader>
               <CardTitle>Runs</CardTitle>
               <CardDescription>
-                Runs are a way to annotate your data via Prompts
+                Annotate sessions using a Prompt and AI model.&nbsp;
+                <Link
+                  to={`/teams/${project.team}/prompts`}
+                  className="text-primary underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Need a prompt?
+                </Link>
               </CardDescription>
             </CardHeader>
             <CardContent className="h-8">
