@@ -16,8 +16,17 @@ export default function Signup({
   return (
     <div className="bg-sandpiper-canvas flex h-screen w-screen items-center justify-center">
       <Card className="w-full max-w-md text-center">
-        <div className="mx-auto max-w-[120px]">
-          <img src="/assets/sandpiper-logo.svg" alt="Sandpiper" />
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <img
+            src="/assets/nto-logo-horizontal.webp"
+            alt="National Tutoring Observatory"
+            className="h-20 object-contain"
+          />
+          <img
+            src="/assets/sandpiper-logo.svg"
+            alt="Sandpiper"
+            className="h-20 object-contain"
+          />
         </div>
         <CardHeader>
           <CardTitle className="mb-2">

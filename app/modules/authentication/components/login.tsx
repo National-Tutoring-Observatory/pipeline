@@ -26,17 +26,16 @@ export default function Login({
   return (
     <div className="bg-sandpiper-canvas flex h-screen w-screen items-center justify-center">
       <Card className="w-full max-w-md text-center">
-        <div className="flex flex-col items-center gap-1 pt-2">
-          <img
-            src="/assets/sandpiper-logo.svg"
-            alt="Sandpiper"
-            className="max-w-[120px]"
-          />
-          <span className="text-muted-foreground text-xs">by</span>
+        <div className="flex items-center justify-center gap-3 pt-2">
           <img
             src="/assets/nto-logo-horizontal.webp"
             alt="National Tutoring Observatory"
-            className="max-w-[160px]"
+            className="h-20 object-contain"
+          />
+          <img
+            src="/assets/sandpiper-logo.svg"
+            alt="Sandpiper"
+            className="h-20 object-contain"
           />
         </div>
         <CardHeader>
