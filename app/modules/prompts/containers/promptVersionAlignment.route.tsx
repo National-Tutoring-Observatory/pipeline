@@ -19,32 +19,47 @@ export async function action({ request }: Route.ActionArgs) {
     throw new Error("Access denied");
   }
 
-  const annotationFields: Record<string, any> = {};
+  const annotationSchemaArray = [];
+
+  let annotationSchemaCodes = ``;
 
   for (const annotationSchemaItem of annotationSchema as AnnotationSchemaItem[]) {
     if (!annotationSchemaItem.isSystem) {
-      const field: Record<string, any> = {
-        value: annotationSchemaItem.value,
-      };
+      annotationSchemaArray.push({
+        [annotationSchemaItem.fieldKey]: annotationSchemaItem.value,
+      });
+
       if (annotationSchemaItem.codes && annotationSchemaItem.codes.length > 0) {
-        field.codes = annotationSchemaItem.codes;
+        annotationSchemaCodes += `${annotationSchemaItem.fieldKey}: ${annotationSchemaItem.codes.join(" | ")}\n`;
       }
-      annotationFields[annotationSchemaItem.fieldKey] = field;
     }
   }
-  const annotationSchemaArray = [annotationFields];
+
+  const schema = {
+    type: "object",
+    properties: {
+      isMatching: { type: "boolean" },
+      prompt: { type: "string" },
+      reasoning: { type: "string" },
+    },
+    required: ["isMatching", "prompt", "reasoning"],
+  };
 
   const llm = new LLM({
     model: getDefaultModelCode(),
     user: team,
     source: "prompt-alignment",
     sourceId: promptId,
+    schema,
   });
 
+  const codesRule = annotationSchemaCodes
+    ? `\n- If an "Annotation schema codes" section is provided, check that the prompt instructs the LLM to use values from those lists for the corresponding fields.`
+    : "";
+
   llm.addSystemMessage(
-    `You are an expert at looking over LLM prompts and are able to determine whether the prompt matches the annotation schema provided by the user.
-    - The main focus for you is to make sure whatever is written in the prompt has an annotation field associated with it.
-    - If a field has codes, check that the prompt mentions those codes and that they match the codes in the schema.
+    `- The main focus for you is to make sure whatever is written in the prompt has an annotation field associated with it.
+    ${codesRule}
     - If they match, pass back a boolean true value.
     - If they do not match, pass back a boolean false value and rewrite the whole prompt with the suggested improvement.
     - Give your reasoning in the reasoning value.
@@ -62,13 +77,24 @@ export async function action({ request }: Route.ActionArgs) {
     },
   );
 
-  llm.addUserMessage(
-    `Prompt:\n{{prompt}}\n\nAnnotation schema:\n{{annotationSchema}}`,
-    {
-      prompt: userPrompt,
-      annotationSchema: JSON.stringify(annotationSchemaArray),
-    },
-  );
+  const userMessageParts = [
+    `Prompt:\n{{prompt}}`,
+    `Annotation schema:\n{{annotationSchema}}`,
+  ];
+
+  const userMessageVariables: Record<string, string> = {
+    prompt: userPrompt,
+    annotationSchema: JSON.stringify(annotationSchemaArray),
+  };
+
+  if (annotationSchemaCodes) {
+    userMessageParts.push(
+      `Annotation schema codes:\n{{annotationSchemaCodes}}`,
+    );
+    userMessageVariables.annotationSchemaCodes = annotationSchemaCodes;
+  }
+
+  llm.addUserMessage(userMessageParts.join("\n\n"), userMessageVariables);
 
   try {
     const response = await llm.createChat();

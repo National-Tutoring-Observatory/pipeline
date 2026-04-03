@@ -31,10 +31,7 @@ registerLLM("OPEN_AI", {
     const chatCompletion = await llm.chat.completions.create(requestParams);
     const message = chatCompletion.choices[0].message;
 
-    const content =
-      message.tool_calls?.length > 0
-        ? JSON.parse(message.tool_calls[0].function.arguments)
-        : JSON.parse(message.content);
+    const content = JSON.parse(message.content);
 
     return {
       content,
