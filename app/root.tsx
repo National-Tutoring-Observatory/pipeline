@@ -13,6 +13,7 @@ import {
 import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { Toaster } from "sonner";
 import * as ga from "~/modules/analytics/analytics";
+import { SystemSettingsService } from "~/modules/systemSettings/systemSettings";
 import type { Route } from "./+types/root";
 import "./app.css";
 import AuthenticationContainer from "./modules/authentication/containers/authentication.container";
@@ -34,10 +35,18 @@ export const links: Route.LinksFunction = () => [
 
 export const meta: Route.MetaFunction = () => [{ title: "Sandpiper - NTO" }];
 
-export function loader() {
+export async function loader() {
+  let maintenanceMode = false;
+  try {
+    maintenanceMode = await SystemSettingsService.isMaintenanceMode();
+  } catch {
+    // DB not ready or unavailable — default to false
+  }
+
   return {
     googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID || null,
     openSignup: process.env.OPEN_SIGNUP === "true",
+    maintenanceMode,
   };
 }
 
