@@ -4,6 +4,7 @@ import {
   Links,
   Meta,
   Outlet,
+  redirect,
   Scripts,
   ScrollRestoration,
   useLoaderData,
@@ -13,6 +14,7 @@ import {
 import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { Toaster } from "sonner";
 import * as ga from "~/modules/analytics/analytics";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { SystemSettingsService } from "~/modules/systemSettings/systemSettings";
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -35,12 +37,31 @@ export const links: Route.LinksFunction = () => [
 
 export const meta: Route.MetaFunction = () => [{ title: "Sandpiper - NTO" }];
 
-export async function loader() {
+const TERMS_EXEMPT_PATHS = [
+  "/onboarding",
+  "/auth/",
+  "/api/authentication",
+  "/api/webhooks/",
+  "/signup",
+  "/invite/",
+];
+
+export async function loader({ request }: Route.LoaderArgs) {
   let maintenanceMode = false;
   try {
     maintenanceMode = await SystemSettingsService.isMaintenanceMode();
   } catch {
     // DB not ready or unavailable — default to false
+  }
+
+  const url = new URL(request.url);
+  const isExempt = TERMS_EXEMPT_PATHS.some((p) => url.pathname.startsWith(p));
+
+  if (!isExempt) {
+    const user = await getSessionUser({ request });
+    if (user && user.onboardingComplete && !user.termsAcceptedAt) {
+      return redirect("/onboarding");
+    }
   }
 
   return {

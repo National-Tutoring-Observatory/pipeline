@@ -25,5 +25,6 @@ export interface User {
   userRole?: string;
   useCases?: string[];
   scholarshipInterest?: boolean;
+  termsAcceptedAt?: Date;
   onboardingComplete?: boolean;
 }

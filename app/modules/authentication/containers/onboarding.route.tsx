@@ -1,8 +1,15 @@
 import { useEffect } from "react";
-import { data, redirect, useFetcher, useNavigate } from "react-router";
+import {
+  data,
+  redirect,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+} from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { UserService } from "~/modules/users/user";
 import Onboarding from "../components/onboarding";
+import TermsAcceptance from "../components/termsAcceptance";
 import type { Route } from "./+types/onboarding.route";
 
 const VALID_ROLES = [
@@ -23,59 +30,73 @@ const VALID_USE_CASES = [
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getSessionUser({ request });
   if (!user) return redirect("/");
-  if (user.onboardingComplete) return redirect("/");
-  return {};
+  if (user.onboardingComplete && user.termsAcceptedAt) return redirect("/");
+  return { termsAccepted: Boolean(user.termsAcceptedAt) };
 }
 
 export async function action({ request }: Route.ActionArgs) {
   const user = await getSessionUser({ request });
   if (!user) return redirect("/");
-  if (user.onboardingComplete) return redirect("/");
+  if (user.onboardingComplete && user.termsAcceptedAt) return redirect("/");
 
   const { intent, payload = {} } = await request.json();
 
-  if (intent !== "COMPLETE_ONBOARDING") {
-    return data({ errors: { general: "Invalid intent" } }, { status: 400 });
+  if (intent === "ACCEPT_TERMS") {
+    await UserService.updateById(user._id, {
+      termsAcceptedAt: new Date(),
+    });
+    return data({ success: true, intent: "ACCEPT_TERMS" });
   }
 
-  const { institution, userRole, useCases, scholarshipInterest } = payload;
+  if (intent === "COMPLETE_ONBOARDING") {
+    if (!user.termsAcceptedAt) {
+      return data(
+        { errors: { general: "You must accept the terms first" } },
+        { status: 400 },
+      );
+    }
 
-  if (!institution || !String(institution).trim()) {
-    return data(
-      { errors: { institution: "Institution is required" } },
-      { status: 400 },
-    );
+    const { institution, userRole, useCases, scholarshipInterest } = payload;
+
+    if (!institution || !String(institution).trim()) {
+      return data(
+        { errors: { institution: "Institution is required" } },
+        { status: 400 },
+      );
+    }
+
+    if (!VALID_ROLES.includes(userRole)) {
+      return data(
+        { errors: { userRole: "Please select a valid role" } },
+        { status: 400 },
+      );
+    }
+
+    if (
+      !Array.isArray(useCases) ||
+      useCases.length === 0 ||
+      !useCases.every((v: string) =>
+        (VALID_USE_CASES as readonly string[]).includes(v),
+      )
+    ) {
+      return data(
+        { errors: { useCases: "Please select at least one use case" } },
+        { status: 400 },
+      );
+    }
+
+    await UserService.updateById(user._id, {
+      institution: String(institution).trim(),
+      userRole,
+      useCases,
+      scholarshipInterest: Boolean(scholarshipInterest),
+      onboardingComplete: true,
+    });
+
+    return data({ success: true, data: { redirectTo: "/" } });
   }
 
-  if (!VALID_ROLES.includes(userRole)) {
-    return data(
-      { errors: { userRole: "Please select a valid role" } },
-      { status: 400 },
-    );
-  }
-
-  if (
-    !Array.isArray(useCases) ||
-    useCases.length === 0 ||
-    !useCases.every((v: string) =>
-      (VALID_USE_CASES as readonly string[]).includes(v),
-    )
-  ) {
-    return data(
-      { errors: { useCases: "Please select at least one use case" } },
-      { status: 400 },
-    );
-  }
-
-  await UserService.updateById(user._id, {
-    institution: String(institution).trim(),
-    userRole,
-    useCases,
-    scholarshipInterest: Boolean(scholarshipInterest),
-    onboardingComplete: true,
-  });
-
-  return data({ success: true, data: { redirectTo: "/" } });
+  return data({ errors: { general: "Invalid intent" } }, { status: 400 });
 }
 
 export function HydrateFallback() {
@@ -83,6 +104,7 @@ export function HydrateFallback() {
 }
 
 export default function OnboardingRoute() {
+  const { termsAccepted } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const isSubmitting = fetcher.state !== "idle";
@@ -90,9 +112,18 @@ export default function OnboardingRoute() {
   useEffect(() => {
     if (fetcher.state !== "idle") return;
     if (!fetcher.data || !("success" in fetcher.data)) return;
-    const d = fetcher.data as { success: true; data: { redirectTo: string } };
-    navigate(d.data.redirectTo);
+    const d = fetcher.data as { success: true; data?: { redirectTo: string } };
+    if (d.data?.redirectTo) {
+      navigate(d.data.redirectTo);
+    }
   }, [fetcher.state, fetcher.data, navigate]);
+
+  const handleAcceptTerms = () => {
+    fetcher.submit(JSON.stringify({ intent: "ACCEPT_TERMS" }), {
+      method: "POST",
+      encType: "application/json",
+    });
+  };
 
   const handleSubmit = (formData: {
     institution: string;
@@ -110,6 +141,15 @@ export default function OnboardingRoute() {
     fetcher.data && "errors" in fetcher.data
       ? (fetcher.data.errors as Record<string, string>)
       : undefined;
+
+  if (!termsAccepted) {
+    return (
+      <TermsAcceptance
+        isSubmitting={isSubmitting}
+        onAccept={handleAcceptTerms}
+      />
+    );
+  }
 
   return (
     <Onboarding
