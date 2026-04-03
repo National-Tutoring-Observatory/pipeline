@@ -98,6 +98,7 @@ describe("availableTeamUsers.route loader", () => {
 
     expect(result.data).toHaveLength(1);
     expect(result.data[0]._id).toBe(userNotInTeam._id);
+    expect(result.totalPages).toBe(1);
   });
 
   it("returns only registered users", async () => {
@@ -141,5 +142,6 @@ describe("availableTeamUsers.route loader", () => {
 
     expect(result.data).toHaveLength(1);
     expect(result.data[0]._id).toBe(registeredUser._id);
+    expect(result.totalPages).toBe(1);
   });
 });

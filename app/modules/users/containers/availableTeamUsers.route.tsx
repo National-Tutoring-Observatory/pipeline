@@ -42,7 +42,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     filterableFields: [],
   });
 
-  const result = await UserService.find({ match: query.match });
+  const result = await UserService.paginate(query);
 
-  return { data: result };
+  return { data: result.data, totalPages: result.totalPages };
 }
