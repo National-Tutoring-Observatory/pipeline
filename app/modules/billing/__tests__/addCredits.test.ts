@@ -82,6 +82,17 @@ describe("addCredits", () => {
     expect(credits[0].addedBy).toBe(userId);
   });
 
+  it("defaults note to 'Added by System Admin' when not provided", async () => {
+    await addCredits({
+      teamId,
+      amount: 25,
+      addedBy: userId,
+    });
+
+    const credits = await TeamCreditService.findByTeam(teamId);
+    expect(credits[0].note).toBe("Added by System Admin");
+  });
+
   it("stores optional note with credit", async () => {
     const result = await addCredits({
       teamId,

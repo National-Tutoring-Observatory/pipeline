@@ -39,7 +39,7 @@ export default async function addCredits({
     team: teamId,
     amount,
     addedBy,
-    note,
+    note: note?.trim() || "Added by System Admin",
   });
 
   return { success: true };
