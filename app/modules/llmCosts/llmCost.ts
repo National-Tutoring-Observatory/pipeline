@@ -11,7 +11,7 @@ import sumCostByModel from "./services/sumCostByModel.server";
 import sumCostBySource from "./services/sumCostBySource.server";
 import sumCostOverTime from "./services/sumCostOverTime.server";
 
-const LlmCostModel =
+export const LlmCostModel =
   mongoose.models.LlmCost || mongoose.model("LlmCost", llmCostSchema);
 
 export class LlmCostService {

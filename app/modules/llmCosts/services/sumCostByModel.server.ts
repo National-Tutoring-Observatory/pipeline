@@ -1,9 +1,6 @@
 import mongoose from "mongoose";
-import llmCostSchema from "~/lib/schemas/llmCost.schema";
+import { LlmCostModel } from "../llmCost";
 import type { CostByModel } from "../llmCosts.types";
-
-const LlmCostModel =
-  mongoose.models.LlmCost || mongoose.model("LlmCost", llmCostSchema);
 
 export default async function sumCostByModel(
   teamId: string,

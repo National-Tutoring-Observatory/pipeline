@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
-
-const RunModel = mongoose.models.Run;
+import { RunModel } from "../run";
 
 export default async function getAverageSecondsPerSession(
   projectId: string,
