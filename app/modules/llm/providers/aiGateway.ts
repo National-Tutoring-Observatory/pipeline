@@ -3,9 +3,11 @@ import { Agent } from "undici";
 import applySchemaToRequest from "../helpers/applySchemaToRequest";
 import registerLLM from "../helpers/registerLLM";
 
+const CHUNK_TIMEOUT_MS = 300_000;
+
 const keepAliveDispatcher = new Agent({
-  keepAliveTimeout: 600_000,
-  keepAliveMaxTimeout: 600_000,
+  keepAliveTimeout: 290_000,
+  keepAliveMaxTimeout: 290_000,
   connect: {
     keepAlive: true,
     keepAliveInitialDelay: 30_000,
@@ -35,17 +37,15 @@ registerLLM("AI_GATEWAY", {
     schema?: object;
   }) => {
     const { model, user } = options;
-
     const metadata: any = {};
-
     if (user) {
       metadata.tags = [user];
     }
 
     const requestParams: any = {
       user,
-      model: model,
-      messages: messages,
+      model,
+      messages,
       metadata,
       stream: true,
       stream_options: { include_usage: true },
@@ -68,18 +68,45 @@ registerLLM("AI_GATEWAY", {
     let toolCallArgs = "";
     let usage: { prompt_tokens?: number; completion_tokens?: number } = {};
 
-    for await (const chunk of stream) {
-      const delta = chunk.choices?.[0]?.delta;
-      if (delta?.content) {
-        contentStr += delta.content;
-      }
-      if (delta?.tool_calls?.[0]?.function?.arguments) {
-        toolCallArgs += delta.tool_calls[0].function.arguments;
-      }
-      if (chunk.usage) {
-        usage = chunk.usage;
-      }
-    }
+    let chunkTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const resetChunkTimer = (reject: (err: Error) => void) => {
+      if (chunkTimer) clearTimeout(chunkTimer);
+      chunkTimer = setTimeout(() => {
+        reject(
+          new Error(
+            `[AI_GATEWAY] No chunk received within ${CHUNK_TIMEOUT_MS / 1000}s — aborting stream (model: ${model})`,
+          ),
+        );
+      }, CHUNK_TIMEOUT_MS);
+    };
+
+    await new Promise<void>((resolve, reject) => {
+      resetChunkTimer(reject);
+
+      (async () => {
+        try {
+          for await (const chunk of stream) {
+            resetChunkTimer(reject);
+            const delta = chunk.choices?.[0]?.delta;
+            if (delta?.content) {
+              contentStr += delta.content;
+            }
+            if (delta?.tool_calls?.[0]?.function?.arguments) {
+              toolCallArgs += delta.tool_calls[0].function.arguments;
+            }
+            if (chunk.usage) {
+              usage = chunk.usage;
+            }
+          }
+          resolve();
+        } catch (err) {
+          reject(err);
+        } finally {
+          if (chunkTimer) clearTimeout(chunkTimer);
+        }
+      })();
+    });
 
     const content = toolCallArgs
       ? JSON.parse(toolCallArgs)
