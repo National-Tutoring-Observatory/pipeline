@@ -47,8 +47,13 @@ export default {
         console.log(`  ✓ Session ${session._id}: ${inputTokens} tokens`);
         migrated++;
       } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const cause =
+          error instanceof Error && error.cause
+            ? ` | Cause: ${error.cause instanceof Error ? error.cause.message : String(error.cause)}`
+            : "";
         console.error(
-          `  ❌ Session ${session._id} (${filePath}): ${error instanceof Error ? error.message : String(error)}`,
+          `  ❌ Session ${session._id} (${filePath}): ${message}${cause}`,
         );
         failed++;
       }
