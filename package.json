@@ -32,7 +32,8 @@
     "test:e2e": "yarn workspace e2e test",
     "test:e2e:ui": "yarn workspace e2e test:ui",
     "test:e2e:headed": "yarn workspace e2e test:headed",
-    "test:e2e:setup": "yarn workspace e2e test:setup"
+    "test:e2e:setup": "yarn workspace e2e test:setup",
+    "dataset:prepare-mtm": "tsx -r dotenv/config scripts/datasets/prepareMtmDataset.ts"
   },
   "dependencies": {
     "@appsignal/opentelemetry-instrumentation-bullmq": "^0.8.0",

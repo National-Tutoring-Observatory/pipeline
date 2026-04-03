@@ -119,7 +119,38 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
       },
     ],
     callback: (payload) => {
-      console.log(payload);
+      if (has(payload, "progress")) {
+        setConvertFilesProgress(payload.progress);
+      }
+      debounceRevalidate(revalidate);
+    },
+  });
+
+  useHandleSockets({
+    event: "INSERT_MTM_DATASET",
+    matches: [
+      {
+        projectId: project._id,
+        task: "INSERT_MTM_DATASET:START",
+        status: "FINISHED",
+      },
+      {
+        projectId: project._id,
+        task: "INSERT_MTM_DATASET:PROCESS",
+        status: "STARTED",
+      },
+      {
+        projectId: project._id,
+        task: "INSERT_MTM_DATASET:PROCESS",
+        status: "FINISHED",
+      },
+      {
+        projectId: project._id,
+        task: "INSERT_MTM_DATASET:FINISH",
+        status: "FINISHED",
+      },
+    ],
+    callback: (payload) => {
       if (has(payload, "progress")) {
         setConvertFilesProgress(payload.progress);
       }

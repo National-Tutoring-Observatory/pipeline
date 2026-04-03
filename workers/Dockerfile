@@ -10,6 +10,7 @@ RUN --mount=type=secret,id=BULLMQ_PRO_TOKEN \
     yarn install --frozen-lockfile --production && rm -f .npmrc
 COPY ./workers ./workers
 COPY ./app ./app
+COPY ./datasets ./datasets
 RUN node ./app/adapters.js
 EXPOSE 4000
 CMD ["yarn", "workers:prod"]

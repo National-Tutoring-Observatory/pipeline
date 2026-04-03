@@ -1,0 +1,20 @@
+import find from "lodash/find.js";
+import { ProjectService } from "../../app/modules/projects/project";
+import emitFromJob from "../helpers/emitFromJob";
+
+export default async function finishInsertMtmDataset(job: any) {
+  const { projectId } = job.data;
+
+  const jobResults = await job.getChildrenValues();
+  const hasFailedTasks = !!find(jobResults, { status: "ERRORED" });
+
+  await ProjectService.updateById(projectId, {
+    isConvertingFiles: false,
+    hasSetupProject: true,
+    hasErrored: hasFailedTasks,
+  });
+
+  await emitFromJob(job, { projectId }, "FINISHED");
+
+  return { status: "SUCCESS" };
+}

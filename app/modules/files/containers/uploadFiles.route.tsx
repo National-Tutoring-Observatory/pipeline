@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import insertMtmDataset from "~/modules/datasets/services/insertMtmDataset.server";
 import { FileService } from "~/modules/files/file";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
@@ -65,6 +66,48 @@ export async function action({ request, params }: Route.ActionArgs) {
     );
   }
 
+  const contentType = request.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    const payload = await request.json();
+
+    if (payload.intent === "INSERT_MTM_DATASET") {
+      const existingFiles = await FileService.count({
+        project: params.projectId,
+      });
+      if (existingFiles > 0) {
+        return data(
+          { errors: { general: "Project already has files." } },
+          { status: 409 },
+        );
+      }
+
+      try {
+        await ProjectService.updateById(params.projectId, {
+          hasSetupProject: true,
+        });
+        await insertMtmDataset({ projectId: params.projectId });
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        return data(
+          {
+            errors: {
+              general: `MTM dataset insertion failed: ${errorMessage}`,
+            },
+          },
+          { status: 500 },
+        );
+      }
+
+      trackServerEvent({ name: "mtm_dataset_inserted", userId: user._id });
+
+      return data({ success: true, intent: "INSERT_MTM_DATASET" });
+    }
+
+    return data({ errors: { general: "Invalid intent" } }, { status: 400 });
+  }
+
   const formData = await request.formData();
   const uploadedFiles = formData.getAll("files") as File[];
 
@@ -98,7 +141,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   trackServerEvent({ name: "sessions_uploaded", userId: user._id });
 
-  return data({ success: true });
+  return data({ success: true, intent: "UPLOAD_FILES" });
 }
 
 export default function UploadFilesPageRoute({
@@ -112,8 +155,13 @@ export default function UploadFilesPageRoute({
     if (fetcher.state !== "idle") return;
     if (!fetcher.data) return;
     if (fetcher.data.success) {
-      toast.success("Files uploaded successfully");
-      navigate(`/projects/${project._id}/files`);
+      if (fetcher.data.intent === "UPLOAD_FILES") {
+        toast.success("Files uploaded successfully");
+        navigate(`/projects/${project._id}/files`);
+      } else if (fetcher.data.intent === "INSERT_MTM_DATASET") {
+        toast.success("MTM dataset is being added to your project");
+        navigate(`/projects/${project._id}`);
+      }
     } else if (fetcher.data.errors) {
       toast.error(
         fetcher.data.errors.general ||

@@ -11,10 +11,12 @@ import finishConvertedFilesToSessions from "../tasks/finishConvertedFilesToSessi
 import finishCreateEvaluation from "../tasks/finishCreateEvaluation";
 import finishExportRun from "../tasks/finishExportRun";
 import finishExportRunSet from "../tasks/finishExportRunSet";
+import finishInsertMtmDataset from "../tasks/finishInsertMtmDataset";
 import finishUploadHumanAnnotations from "../tasks/finishUploadHumanAnnotations";
 import processCreateEvaluation from "../tasks/processCreateEvaluation";
 import processExportRun from "../tasks/processExportRun";
 import processExportRunSet from "../tasks/processExportRunSet";
+import processInsertMtmSession from "../tasks/processInsertMtmSession";
 import processUploadHumanAnnotations from "../tasks/processUploadHumanAnnotations";
 import startAnnotateRun from "../tasks/startAnnotateRun";
 import startConvertFilesToSessions from "../tasks/startConvertFilesToSessions";
@@ -99,6 +101,15 @@ export default async (job: Job) => {
       }
       case "UPLOAD_HUMAN_ANNOTATIONS:FINISH": {
         return finishUploadHumanAnnotations(job);
+      }
+      case "INSERT_MTM_DATASET:START": {
+        return startConvertFilesToSessions(job);
+      }
+      case "INSERT_MTM_DATASET:PROCESS": {
+        return processInsertMtmSession(job);
+      }
+      case "INSERT_MTM_DATASET:FINISH": {
+        return finishInsertMtmDataset(job);
       }
       default: {
         return { status: "ERRORED", message: `Missing task for ${job.name}` };
