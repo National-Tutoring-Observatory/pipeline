@@ -812,6 +812,20 @@ import { Button } from "@/components/ui/button"; // @/* → ./app/uikit/*
 import { getProjects } from "~/modules/projects/queries"; // ~/* → ./app/*
 ```
 
+### `PROJECT_ROOT` for File Paths
+
+**Never use `path.resolve(relativePath)` or `process.cwd()`** to locate files in the repo. The app and workers run from different working directories (the app from the repo root, workers from the `workers/` workspace), and in Docker containers `cwd` may differ again.
+
+Use `PROJECT_ROOT` from `~/helpers/projectRoot.ts` instead:
+
+```typescript
+import { PROJECT_ROOT } from "~/helpers/projectRoot";
+
+const csvPath = path.join(PROJECT_ROOT, "datasets/mtm/v1.csv");
+```
+
+`PROJECT_ROOT` resolves reliably by checking the `PROJECT_ROOT` env var first, then walking up from `cwd` to find `yarn.lock`. It works in local dev, workers, and Docker containers.
+
 ## Code Conventions
 
 ### File Naming

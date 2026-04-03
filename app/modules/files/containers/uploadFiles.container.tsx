@@ -50,6 +50,13 @@ export default function UploadFilesContainer({
     });
   };
 
+  const handleUseMtmDataset = () => {
+    uploadFetcher.submit(JSON.stringify({ intent: "INSERT_MTM_DATASET" }), {
+      method: "POST",
+      encType: "application/json",
+    });
+  };
+
   return (
     <UploadFiles
       acceptedFiles={acceptedFiles}
@@ -60,6 +67,7 @@ export default function UploadFilesContainer({
       fetcher={uploadFetcher}
       onUploadClick={handleUpload}
       onLearnMoreClicked={openDataPrivacyDialog}
+      onUseMtmDatasetClicked={handleUseMtmDataset}
     />
   );
 }

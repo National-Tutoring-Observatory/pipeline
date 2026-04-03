@@ -23,9 +23,11 @@ import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import type { FetcherWithComponents } from "react-router";
 import { Link } from "react-router";
+import Flag from "~/modules/featureFlags/components/flag";
 import { SUPPORTED_FILE_TYPES } from "../constants";
 import type { FileType, UploadFilesData } from "../files.types";
 import getFileUploadAccepts from "../helpers/getFileUploadAccepts";
+import MtmDatasetBanner from "./mtmDatasetBanner";
 
 export default function UploadFiles({
   acceptedFiles,
@@ -36,6 +38,7 @@ export default function UploadFiles({
   fetcher,
   onUploadClick,
   onLearnMoreClicked,
+  onUseMtmDatasetClicked,
 }: {
   acceptedFiles: { _id: string; name: string; type: string }[];
   instructionsByType: Record<FileType, { overview: string; link: string }>;
@@ -45,6 +48,7 @@ export default function UploadFiles({
   fetcher: FetcherWithComponents<UploadFilesData>;
   onUploadClick: () => void;
   onLearnMoreClicked: () => void;
+  onUseMtmDatasetClicked: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<FileType>("CSV");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
@@ -168,6 +172,12 @@ export default function UploadFiles({
           </Card>
         </div>
       </div>
+      <Flag flag="HAS_MTM_DATASET">
+        <MtmDatasetBanner
+          isUploading={isUploading}
+          onUseMtmDatasetClicked={onUseMtmDatasetClicked}
+        />
+      </Flag>
       {acceptedFiles.length > 0 && (
         <div className="mt-8">
           <div className="rounded-md border">

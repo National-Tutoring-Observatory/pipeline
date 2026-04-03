@@ -105,11 +105,16 @@ export default function Project({
               </CardDescription>
             </CardHeader>
             <CardContent className="h-8">
-              {!project.isUploadingFiles && <div>{`${filesCount} files`}</div>}
+              {!project.isUploadingFiles && !project.isConvertingFiles && (
+                <div>{`${filesCount} files`}</div>
+              )}
               {project.isUploadingFiles && (
                 <div>
                   <Progress value={uploadFilesProgress} />
                 </div>
+              )}
+              {!project.isUploadingFiles && project.isConvertingFiles && (
+                <div className="text-muted-foreground text-xs">Processing…</div>
               )}
             </CardContent>
           </Card>
@@ -131,14 +136,14 @@ export default function Project({
               </CardDescription>
             </CardHeader>
             <CardContent className="h-8">
-              <div>
-                {`${sessionsCount} sessions`}
-                {!project.isConvertingFiles && (
+              {!project.isConvertingFiles && (
+                <div>
+                  {`${sessionsCount} sessions`}
                   <div className="text-xs opacity-40">
                     {convertedSessionsCount} converted
                   </div>
-                )}
-              </div>
+                </div>
+              )}
               {project.isConvertingFiles && (
                 <div className="relative">
                   <div className="absolute top-3 right-0 text-xs opacity-40">
