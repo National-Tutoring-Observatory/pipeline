@@ -3,7 +3,7 @@ import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import type { BalanceSummary } from "./billing.types";
 import { BillingPeriodService } from "./billingPeriod";
 import { BillingPlanService } from "./billingPlan";
-import isBillingEnabled from "./helpers/isBillingEnabled.server";
+import getInitialCreditsAmount from "./helpers/getInitialCreditsAmount.server";
 import { TeamBillingPlanService } from "./teamBillingPlan";
 import { TeamCreditService } from "./teamCredit";
 
@@ -70,7 +70,7 @@ export class TeamBillingService {
     teamId: string,
     userId: string,
   ): Promise<void> {
-    const initialCredits = isBillingEnabled() ? 10 : 20;
+    const initialCredits = getInitialCreditsAmount();
     await TeamCreditService.create({
       team: teamId,
       amount: initialCredits,

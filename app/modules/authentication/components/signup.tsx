@@ -10,8 +10,10 @@ import {
 
 export default function Signup({
   onSignupWithGithubClicked,
+  initialCredits,
 }: {
   onSignupWithGithubClicked: () => void;
+  initialCredits: number;
 }) {
   return (
     <div className="bg-sandpiper-canvas flex h-screen w-screen items-center justify-center">
@@ -38,7 +40,7 @@ export default function Signup({
               built for researchers.
             </p>
             <Badge variant="secondary" className="text-sm">
-              $10 free credits to get started
+              ${initialCredits} free credits to get started
             </Badge>
           </CardDescription>
         </CardHeader>
