@@ -151,6 +151,11 @@ export class RunService {
     return doc ? this.toRun(doc) : null;
   }
 
+  static async deleteByProject(projectId: string): Promise<number> {
+    const result = await RunModel.deleteMany({ project: projectId });
+    return result.deletedCount || 0;
+  }
+
   static async findOne(match: Record<string, any>): Promise<Run | null> {
     const docs = await this.find({ match });
     return docs[0] || null;

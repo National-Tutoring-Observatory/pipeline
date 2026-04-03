@@ -119,4 +119,9 @@ export class EvaluationService {
     const doc = await EvaluationModel.findByIdAndDelete(id);
     return doc ? this.toEvaluation(doc) : null;
   }
+
+  static async deleteByProject(projectId: string): Promise<number> {
+    const result = await EvaluationModel.deleteMany({ project: projectId });
+    return result.deletedCount || 0;
+  }
 }
