@@ -1,6 +1,7 @@
 import { ProjectService } from "~/modules/projects/project";
 import getAttributeMappingFromFile from "~/modules/sessions/helpers/getAttributeMappingFromFile";
 import createSessionsFromFiles from "~/modules/sessions/services/createSessionsFromFiles.server";
+import detectAnnotatorsFromFiles from "./detectAnnotatorsFromFiles.server";
 import splitMultipleSessionsIntoFiles from "./splitMultipleSessionsIntoFiles";
 import uploadFiles from "./uploadFiles";
 
@@ -13,6 +14,8 @@ export default async function processUploadedFiles({
   files: File[];
   team: string;
 }) {
+  const annotatorMeta = await detectAnnotatorsFromFiles({ files, projectId });
+
   const splitFiles = await splitMultipleSessionsIntoFiles({ files });
 
   if (splitFiles.length === 0) {
@@ -31,6 +34,7 @@ export default async function processUploadedFiles({
         projectId,
         shouldCreateSessionModels: true,
         attributesMapping,
+        annotatorMeta,
       }),
     )
     .catch(async (error) => {

@@ -4,15 +4,18 @@ import TaskSequencer from "~/modules/queues/helpers/taskSequencer";
 import { SessionService } from "~/modules/sessions/session";
 import { getProjectFileStoragePath } from "~/modules/uploads/helpers/projectFileStorage";
 import { getProjectSessionStorageDir } from "~/modules/uploads/helpers/projectSessionStorage";
+import type { AnnotatorMeta } from "~/modules/uploads/services/detectAnnotatorsFromFiles.server";
 
 export default async function createSessionsFromFiles({
   projectId,
   shouldCreateSessionModels = true,
   attributesMapping,
+  annotatorMeta,
 }: {
   projectId: string;
   shouldCreateSessionModels: boolean;
   attributesMapping?: any;
+  annotatorMeta?: AnnotatorMeta | null;
 }) {
   const projectFiles = await FileService.findByProject(projectId);
 
@@ -78,6 +81,7 @@ export default async function createSessionsFromFiles({
 
   taskSequencer.addTask("FINISH", {
     projectId,
+    annotatorMeta,
   });
 
   await taskSequencer.run();
