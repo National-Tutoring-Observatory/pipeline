@@ -23,6 +23,7 @@ export default function AddUsersToFeatureFlagDialog({
   isSubmitButtonDisabled,
   onAddUsersClicked,
   onSelectUserToggled,
+  isSyncing,
   onSearchValueChanged,
   onPaginationChanged,
   isSubmitting = false,
@@ -35,6 +36,7 @@ export default function AddUsersToFeatureFlagDialog({
   isSubmitButtonDisabled: boolean;
   onAddUsersClicked: () => void;
   onSelectUserToggled: (userId: string) => void;
+  isSyncing: boolean;
   onSearchValueChanged: (searchValue: string) => void;
   onPaginationChanged: (page: number) => void;
   isSubmitting?: boolean;
@@ -54,6 +56,7 @@ export default function AddUsersToFeatureFlagDialog({
           itemsLayout="list"
           hasSearch={true}
           hasPagination={true}
+          isSyncing={isSyncing}
           searchValue={searchValue}
           currentPage={currentPage}
           totalPages={totalPages}

@@ -73,6 +73,7 @@ export default function AddUserToTeamDialogContainer({
       }
       onSelectUserToggled={onSelectUserToggled}
       onUserRoleChanged={onUserRoleChanged}
+      isSyncing={fetcher.state !== "idle"}
       onSearchValueChanged={onSearchValueChanged}
       onPaginationChanged={onPaginationChanged}
     />
