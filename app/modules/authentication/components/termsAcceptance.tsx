@@ -69,9 +69,10 @@ export default function TermsAcceptance({
 
         <div className="border-border mb-5 border-t" />
 
-        <div className="mb-6 flex items-start gap-2">
+        <div className="mb-6 flex items-center gap-2">
           <Checkbox
             id="terms-accept"
+            className="mb-0.5"
             checked={accepted}
             onCheckedChange={(checked) => setAccepted(checked === true)}
           />

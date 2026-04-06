@@ -127,17 +127,18 @@ export default function Onboarding({
             )}
           </div>
 
-          <div className="border-primary flex gap-2 border border-dashed p-4">
+          <div className="border-primary flex gap-2 rounded-lg border border-dashed p-4">
             <Checkbox
               id="scholarshipInterest"
               checked={scholarshipInterest}
+              className="mt-0.5"
               onCheckedChange={(checked) =>
                 setScholarshipInterest(checked === true)
               }
             />
             <Label
               htmlFor="scholarshipInterest"
-              className="cursor-pointer font-normal"
+              className="cursor-pointer leading-relaxed font-normal"
             >
               Apply for NTO Research Scholarship.
               <br />
