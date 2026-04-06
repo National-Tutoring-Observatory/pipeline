@@ -1,7 +1,13 @@
 import find from "lodash/find";
 import map from "lodash/map";
 import { useContext, useEffect } from "react";
-import { data, redirect, useFetcher, useNavigate } from "react-router";
+import {
+  data,
+  redirect,
+  useFetcher,
+  useLocation,
+  useNavigate,
+} from "react-router";
 import { toast } from "sonner";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
@@ -196,6 +202,15 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
       />,
     );
   };
+
+  const { state } = useLocation();
+
+  useEffect(() => {
+    if (state?.create === true) {
+      navigate(".", { replace: true, state: {} });
+      openCreatePromptDialog();
+    }
+  }, []);
 
   const submitCreatePrompt = ({
     name,
