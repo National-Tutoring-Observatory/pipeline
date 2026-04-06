@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Empty,
@@ -27,11 +28,42 @@ export default function EvaluationCreateCompatibleRunsSelector({
   selectedRuns: string[];
   onSelectedRunsChanged: (ids: string[]) => void;
 }) {
+  const selectableRuns = compatibleRuns.filter(
+    (run) => !getRunDisabledReason(run),
+  );
+
+  const allSelected =
+    selectableRuns.length > 0 &&
+    selectableRuns.every((run) => selectedRuns.includes(run._id));
+
+  const toggleSelectAll = () => {
+    const selectableIds = selectableRuns.map((run) => run._id);
+    if (allSelected) {
+      onSelectedRunsChanged(
+        selectedRuns.filter((id) => !selectableIds.includes(id)),
+      );
+    } else {
+      onSelectedRunsChanged([...new Set([...selectedRuns, ...selectableIds])]);
+    }
+  };
+
   return (
     <div className="p-4">
-      <Label className="text-muted-foreground text-xs tracking-wide uppercase">
-        Compatible runs
-      </Label>
+      <div className="flex items-center justify-between">
+        <Label className="text-muted-foreground text-xs tracking-wide uppercase">
+          Compatible runs
+        </Label>
+        {baseRun && selectableRuns.length > 0 && (
+          <Button
+            variant="link"
+            size="sm"
+            className="p-0 text-xs"
+            onClick={toggleSelectAll}
+          >
+            {allSelected ? "Deselect all" : "Select all"}
+          </Button>
+        )}
+      </div>
       {baseRun && compatibleRuns.length > 0 && (
         <ItemGroup className="mt-3 gap-2">
           {compatibleRuns.map((run) => {

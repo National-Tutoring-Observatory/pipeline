@@ -30,6 +30,12 @@ export default function EvaluationCreateRunsSelector({
     <div className="max-w-7xl">
       <div className="space-y-2">
         <Label>Select your runs for evaluation</Label>
+        <p className="text-muted-foreground text-sm">
+          Start by selecting a base run that will become the run that all other
+          runs will be compared to. This is usually a human annotated run but
+          can also be AI generated. Once you've selected a base run, choose the
+          runs you would like to compare in the compatible runs list.
+        </p>
 
         <div className="rounded-md border">
           <div className="grid grid-cols-2">
