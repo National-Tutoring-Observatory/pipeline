@@ -92,7 +92,7 @@ const Collection = ({
         onFiltersValueChanged={onFiltersValueChanged}
         onSortValueChanged={onSortValueChanged}
       />
-      {items.length === 0 && (
+      {items.length === 0 && !isSyncing && (
         <CollectionEmpty
           searchValue={searchValue}
           filtersValues={filtersValues}
