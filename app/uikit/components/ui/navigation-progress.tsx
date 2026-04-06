@@ -12,8 +12,8 @@ function NavigationProgress() {
       </div>
       <div
         className={cn(
-          "bg-primary/20 fixed top-0 right-0 left-0 z-50 h-1 overflow-hidden transition-opacity duration-200",
-          isNavigating ? "opacity-100" : "pointer-events-none opacity-0",
+          "bg-primary/20 fixed top-0 right-0 left-0 z-50 h-1 overflow-hidden",
+          isNavigating ? "visible" : "hidden",
         )}
         aria-hidden="true"
       >
