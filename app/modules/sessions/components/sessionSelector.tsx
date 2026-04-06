@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import includes from "lodash/includes";
 import map from "lodash/map";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowDownWideNarrow, ArrowUpWideNarrow } from "lucide-react";
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { Session } from "../sessions.types";
 import SessionRandomizer from "./sessionRandomizer";
@@ -46,7 +46,8 @@ export default function SessionSelector({
   onSampleSizeChanged: (size: number) => void;
   onRandomizeClicked: () => void;
 }) {
-  const SortIcon = sortDirection === "asc" ? ChevronUp : ChevronDown;
+  const SortIcon =
+    sortDirection === "asc" ? ArrowUpWideNarrow : ArrowDownWideNarrow;
 
   return (
     <div>
