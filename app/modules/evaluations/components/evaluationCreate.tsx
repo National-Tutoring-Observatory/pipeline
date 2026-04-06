@@ -1,11 +1,11 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle } from "lucide-react";
 import { Link } from "react-router";
 import type { Run } from "~/modules/runs/runs.types";
 import type { AnnotationSchemaFieldCount } from "../helpers/getAnnotationSchemaFieldCounts";
+import EvaluationCreateFooter from "./evaluationCreateFooter";
 import EvaluationCreateRunsSelector from "./evaluationCreateRunsSelector";
 
 export default function EvaluationCreate({
@@ -96,33 +96,16 @@ export default function EvaluationCreate({
         />
       </div>
 
-      <div className="bg-background sticky bottom-0 -mx-8 flex items-center gap-8 rounded-b-lg border-t px-8 py-4">
-        <div className="flex-1">
-          <div className="border-sandpiper-info/20 bg-sandpiper-info/5 rounded-lg border p-4">
-            <p className="text-foreground text-sm">
-              {baseRun && selectedRuns.length > 0 ? (
-                <>
-                  This evaluation will compare{" "}
-                  <strong>{selectedRuns.length + 1}</strong> run(s) — 1 base run
-                  + {selectedRuns.length} comparison run(s) over{" "}
-                  <strong>{selectedAnnotationFields.length}</strong> annotation
-                  field(s).
-                </>
-              ) : (
-                "Select a base run and comparison runs to create an evaluation"
-              )}
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-4">
-          <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button size="lg" onClick={onSubmit} disabled={isSubmitDisabled}>
-            {isSubmitting ? "Creating..." : "Create Evaluation"}
-          </Button>
-        </div>
-      </div>
+      <EvaluationCreateFooter
+        name={name}
+        baseRun={baseRun}
+        selectedRuns={selectedRuns}
+        selectedAnnotationFields={selectedAnnotationFields}
+        isSubmitting={isSubmitting}
+        isSubmitDisabled={isSubmitDisabled}
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+      />
     </div>
   );
 }
