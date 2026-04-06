@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
-  ExternalLinkIcon,
   LockIcon,
   ShieldCheckIcon,
   Trash2Icon,
@@ -23,8 +23,8 @@ export default function TermsAcceptance({
   const [termsOpen, setTermsOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen w-screen items-center justify-center bg-[#f7f7f7]">
-      <div className="w-full max-w-lg rounded-lg bg-white p-8 shadow-sm">
+    <div className="bg-muted flex min-h-screen w-screen items-center justify-center">
+      <div className="bg-background w-full max-w-lg rounded-lg p-8 shadow-sm">
         <div className="mb-6 flex justify-center">
           <img
             src="/assets/nto-logo-icon.png"
@@ -42,14 +42,7 @@ export default function TermsAcceptance({
         <p className="text-muted-foreground mb-5 text-sm leading-relaxed">
           By using Sandpiper, you agree to our Terms of Use and Privacy Policy.
           Your data is encrypted, routed through Cornell&rsquo;s Secure AI
-          Gateway, and never used to train AI models.{" "}
-          <button
-            type="button"
-            className="text-primary font-semibold hover:underline"
-            onClick={() => setTermsOpen(true)}
-          >
-            View full terms
-          </button>
+          Gateway, and never used to train AI models.
         </p>
 
         <div className="mb-5 space-y-3">
@@ -76,30 +69,22 @@ export default function TermsAcceptance({
             checked={accepted}
             onCheckedChange={(checked) => setAccepted(checked === true)}
           />
-          <label
+          <Label
             htmlFor="terms-accept"
             className="cursor-pointer text-sm leading-relaxed font-medium"
           >
-            I have read and agree to the{" "}
-            <button
-              type="button"
-              className="text-primary font-semibold hover:underline"
-              onClick={() => setTermsOpen(true)}
-            >
-              Terms&nbsp;of&nbsp;Use and Privacy&nbsp;Policy
-            </button>
-          </label>
-        </div>
-
-        <div className="flex items-center justify-between">
+            I have read and agree to the&nbsp;
+          </Label>
           <button
             type="button"
-            className="text-primary flex items-center gap-1 text-sm font-semibold hover:underline"
+            className="text-primary -ml-1.5 text-sm font-semibold hover:underline"
             onClick={() => setTermsOpen(true)}
           >
-            <ExternalLinkIcon className="size-3.5" />
-            View full terms
+            Terms&nbsp;of&nbsp;Use and Privacy&nbsp;Policy
           </button>
+        </div>
+
+        <div className="flex items-center justify-end">
           <Button disabled={!accepted || isSubmitting} onClick={onAccept}>
             {isSubmitting ? "Saving..." : "Continue \u2192"}
           </Button>
