@@ -25,7 +25,7 @@ export default function FullTermsDialog({
 }: FullTermsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileTextIcon className="size-5" />
@@ -34,7 +34,7 @@ export default function FullTermsDialog({
           <DialogDescription>Hosted by Cornell University</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 text-sm">
+        <div className="space-y-4 overflow-y-auto text-sm">
           <p className="text-muted-foreground leading-relaxed">
             This Contract governing Users&rsquo; Terms of Use (TOU or Agreement)
             constitutes a legal and binding contract between you and{" "}
