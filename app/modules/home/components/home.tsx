@@ -30,12 +30,12 @@ export default function Home({
             built for rigorous research.
           </p>
           <p className="text-muted-foreground mt-3 text-xs">
-            Built by the &nbsp;
+            Built by the&nbsp;
             <strong className="text-foreground">
               National Tutoring Observatory
             </strong>
-            &nbsp; at Cornell Bowers CIS, with MIT Teaching Systems Lab,
-            Carnegie Mellon, and FreshCognate.
+            &nbsp;at Cornell Bowers CIS, with MIT Teaching Systems Lab, Carnegie
+            Mellon, and FreshCognate.
           </p>
         </div>
         {billingEnabled && (
@@ -77,7 +77,7 @@ export default function Home({
 
       <Card>
         <CardContent className="p-6">
-          <p className="text-muted-foreground mb-6 text-center text-[10px] font-semibold tracking-widest uppercase">
+          <p className="text-muted-foreground mb-6 text-center text-lg font-semibold tracking-widest">
             How It Works
           </p>
           <div className="flex items-start justify-center gap-4">
@@ -89,10 +89,10 @@ export default function Home({
             />
             <span className="text-muted-foreground mt-6 text-sm">→</span>
             <Step
-              icon={<PenLine className="text-destructive h-5 w-5" />}
+              icon={<PenLine className="text-primary h-5 w-5" />}
               label="Prompt"
               sub="Define coding scheme"
-              borderClass="border-destructive"
+              borderClass="border-primary"
             />
             <span className="text-muted-foreground mt-6 text-sm">→</span>
             <Step
@@ -103,10 +103,10 @@ export default function Home({
             />
             <span className="text-muted-foreground mt-6 text-sm">→</span>
             <Step
-              icon={<Link2 className="text-destructive h-5 w-5" />}
+              icon={<Link2 className="text-primary h-5 w-5" />}
               label="Evaluate"
               sub="Kappa, F1, precision, recall"
-              borderClass="border-destructive"
+              borderClass="border-primary"
             />
           </div>
         </CardContent>
