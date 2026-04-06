@@ -60,13 +60,13 @@ export default function Home({
           <h2 className="text-xl font-semibold">Get Started</h2>
           <div className="flex items-center gap-3">
             <Button asChild>
-              <Link to="/projects">
+              <Link to="/projects" state={{ create: true }}>
                 <FolderOpen className="h-4 w-4" />
                 Start a Project
               </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/prompts">
+              <Link to="/prompts" state={{ create: true }}>
                 <PenLine className="h-4 w-4" />
                 Create a Prompt
               </Link>

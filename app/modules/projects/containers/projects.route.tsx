@@ -1,8 +1,14 @@
 import escapeRegExp from "lodash/escapeRegExp";
 import find from "lodash/find";
 import map from "lodash/map";
-import { useContext } from "react";
-import { data, redirect, useNavigate, useRevalidator } from "react-router";
+import { useContext, useEffect } from "react";
+import {
+  data,
+  redirect,
+  useLocation,
+  useNavigate,
+  useRevalidator,
+} from "react-router";
 import { toast } from "sonner";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
@@ -223,6 +229,15 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
       />,
     );
   };
+
+  const { state } = useLocation();
+
+  useEffect(() => {
+    if (state?.create === true) {
+      navigate(".", { replace: true, state: {} });
+      openCreateProjectDialog();
+    }
+  }, []);
 
   const onActionClicked = (action: string) => {
     if (action === "CREATE") {
