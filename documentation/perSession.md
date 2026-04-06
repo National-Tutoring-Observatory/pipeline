@@ -20,3 +20,15 @@ You select "Per session" when you set up a **Run**.
 1.  **Start a New Run:** Begin the run configuration process.
 2.  **Select Annotation Type:** From the "Annotation Type" dropdown menu, choose "Per session."
 3.  **Finalize Run:** Complete the rest of your run configuration by selecting your **Prompt** and **Sessions** before starting the analysis.
+
+## External Guides
+
+- **[Prompt Writing Guide](https://docs.google.com/document/d/1Rf2p3ltWSCk3VTeuTtXTpVu7NkrAi8yNDloYLId-KU8/edit)** — Includes per-session prompt examples (e.g., session quality, dominant teaching strategy)
+
+## Related Concepts
+
+- **[Annotation Type](annotationType)** — Overview of all annotation types
+- **[Per Utterance](perUtterance)** — Alternative fine-grained annotation
+- **[Prompts](prompts)** — Instructions that guide per-session analysis
+- **[Schema](schema)** — Defines the fields for session-level annotations
+- **[Runs](runs)** — Where per-session annotation is applied

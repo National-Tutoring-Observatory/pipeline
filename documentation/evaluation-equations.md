@@ -1,10 +1,25 @@
-# Evaluation Metrics: TypeScript Equations
-
-Pure TypeScript implementations for inter-rater agreement and classification metrics.
-
+---
+title: "Evaluation Equations"
+tags: ["evaluation", "metrics", "kappa"]
+category: "Analysis"
+isPublished: true
 ---
 
-## 1. Cohen's Kappa (κ)
+# Evaluation Equations
+
+## Overview
+
+Sandpiper uses a set of standard inter-rater agreement and classification metrics to compare **Runs** within a **Run Set**. These metrics allow you to measure how closely different LLM models, prompts, or human annotators agree on the same data. The equations below are implemented in TypeScript and power the **Evaluation** tab.
+
+## How to use
+
+1.  **Create a Run Set:** Group two or more **Runs** that analyzed the same **Sessions**.
+2.  **Open the Evaluation Tab:** Navigate to the run set and click the "Evaluation" tab.
+3.  **View Metrics:** Sandpiper automatically calculates Cohen's Kappa, Precision, Recall, and F1 for all run pairs. If **Human Annotations** are included, they serve as the gold standard for accuracy metrics.
+
+## Metrics
+
+### 1. Cohen's Kappa (κ)
 
 Measures agreement between two raters beyond chance.
 
@@ -244,3 +259,10 @@ console.log(`P: ${metrics.precision}, R: ${metrics.recall}, F1: ${metrics.f1}`);
 | **Standard Cohen's Kappa**     | Simplest inter-rater metric; Fleiss' Kappa (3+ raters) deferred to future |
 | **Round to 2 decimals**        | Sufficient precision for research comparison                              |
 | **Exclude zero-sample pairs**  | Pairs with no overlapping sessions shouldn't affect mean                  |
+
+## Related Concepts
+
+- **[Run Sets](run-sets)** — Where evaluations are performed
+- **[Runs](runs)** — The annotation runs being compared
+- **[Human Annotations](humanAnnotations)** — Gold standard labels for accuracy metrics
+- **[Adjudication](adjudication)** — Resolve disagreements identified by evaluation
