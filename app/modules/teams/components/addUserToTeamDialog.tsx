@@ -25,6 +25,7 @@ export default function AddUserToTeamDialog({
   onAddUsersClicked,
   onSelectUserToggled,
   onUserRoleChanged,
+  isSyncing,
   onSearchValueChanged,
   onPaginationChanged,
 }: {
@@ -37,6 +38,7 @@ export default function AddUserToTeamDialog({
   onAddUsersClicked: () => void;
   onSelectUserToggled: (userId: string) => void;
   onUserRoleChanged: (userId: string, role: TeamRole) => void;
+  isSyncing: boolean;
   onSearchValueChanged: (searchValue: string) => void;
   onPaginationChanged: (page: number) => void;
 }) {
@@ -54,6 +56,7 @@ export default function AddUserToTeamDialog({
           itemsLayout="list"
           hasSearch={true}
           hasPagination={true}
+          isSyncing={isSyncing}
           searchValue={searchValue}
           currentPage={currentPage}
           totalPages={totalPages}

@@ -56,6 +56,7 @@ export default function AddUsersToFeatureFlagDialogContainer({
       isSubmitButtonDisabled={selectedUsers.length === 0 || isSubmitting}
       onAddUsersClicked={() => onAddUsersClicked(selectedUsers)}
       onSelectUserToggled={onSelectUserToggled}
+      isSyncing={fetcher.state !== "idle"}
       onSearchValueChanged={onSearchValueChanged}
       onPaginationChanged={onPaginationChanged}
       isSubmitting={isSubmitting}
