@@ -29,13 +29,13 @@ describe("createDefaultPrompts", () => {
 
     expect(prompts).toHaveLength(3);
 
-    expect(prompts[0].name).toBe("Interaction Types");
+    expect(prompts[0].name).toBe("Talk Moves (sample prompt)");
     expect(prompts[0].annotationType).toBe("PER_UTTERANCE");
 
-    expect(prompts[1].name).toBe("Talk Moves");
+    expect(prompts[1].name).toBe("Tutor Moves (sample prompt)");
     expect(prompts[1].annotationType).toBe("PER_UTTERANCE");
 
-    expect(prompts[2].name).toBe("Tutoring Quality Rubric");
+    expect(prompts[2].name).toBe("Tutoring Quality Rubric (sample prompt)");
     expect(prompts[2].annotationType).toBe("PER_SESSION");
 
     for (const prompt of prompts) {
