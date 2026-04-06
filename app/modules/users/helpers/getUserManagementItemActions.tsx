@@ -1,4 +1,4 @@
-import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
+import type { CollectionItemAction } from "@/components/ui/collectionItemContent";
 import UserManagementAuthorization from "../authorization";
 import type { User } from "../users.types";
 

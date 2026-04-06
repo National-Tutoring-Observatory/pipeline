@@ -1,4 +1,4 @@
-import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
+import type { CollectionItemAction } from "@/components/ui/collectionItemContent";
 import { Copy, Edit, FileInput, Trash2 } from "lucide-react";
 import type { RunSet } from "../runSets.types";
 
