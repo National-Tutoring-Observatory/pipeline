@@ -15,7 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import clsx from "clsx";
 import { Pencil, Trash2 } from "lucide-react";
 import { useContext } from "react";
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useNavigate } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
@@ -52,6 +52,7 @@ export default function Project({
   onEditProjectButtonClicked,
   onDeleteProjectButtonClicked,
 }: ProjectProps) {
+  const navigate = useNavigate();
   const user = useContext(AuthenticationContext) as User | null;
   const canUpdate = ProjectAuthorization.canUpdate(user, project);
   const canDelete = ProjectAuthorization.canDelete(user, project);
@@ -165,13 +166,15 @@ export default function Project({
               <CardTitle>Runs</CardTitle>
               <CardDescription>
                 Annotate sessions using a Prompt and AI model.&nbsp;
-                <Link
-                  to={`/teams/${project.team}/prompts`}
+                <button
                   className="text-primary underline"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`/teams/${project.team}/prompts`);
+                  }}
                 >
                   Need a prompt?
-                </Link>
+                </button>
               </CardDescription>
             </CardHeader>
             <CardContent className="h-8">
