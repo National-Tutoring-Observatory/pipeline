@@ -90,6 +90,16 @@ const setupQueues = async () => {
       opts: { attempts: 3, backoff: { type: "exponential", delay: 5000 } },
     },
   );
+
+  await QUEUES["cron"].upsertJobScheduler(
+    "notify-low-credits-report",
+    { pattern: "0 8 * * *" },
+    {
+      name: "NOTIFY:LOW_CREDITS_REPORT",
+      data: {},
+      opts: { attempts: 3, backoff: { type: "exponential", delay: 5000 } },
+    },
+  );
 };
 
 setTimeout(() => {

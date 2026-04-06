@@ -2,6 +2,7 @@ import { initializeDatabase } from "app/lib/database";
 import "app/modules/storage/storage";
 import type { Job } from "bullmq";
 import closeBillingPeriods from "../general/closeBillingPeriods";
+import reportLowCredits from "../general/reportLowCredits";
 
 console.log("[cron] Initializing database connection...");
 const _dbStart = Date.now();
@@ -13,6 +14,9 @@ export default async (job: Job) => {
     switch (job.name) {
       case "BILLING:CLOSE_PERIODS": {
         return closeBillingPeriods(job);
+      }
+      case "NOTIFY:LOW_CREDITS_REPORT": {
+        return reportLowCredits(job);
       }
       default: {
         return {
