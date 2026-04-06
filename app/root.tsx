@@ -59,7 +59,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   if (!isExempt) {
     const user = await getSessionUser({ request });
-    if (user && user.onboardingComplete && !user.termsAcceptedAt) {
+    if (user && (!user.onboardingComplete || !user.termsAcceptedAt)) {
       return redirect("/onboarding");
     }
   }
