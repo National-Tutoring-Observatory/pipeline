@@ -27,3 +27,14 @@ You configure the schema as part of your **Prompt** creation process.
 3.  **Instruct the LLM:** In the main **Prompt** instructions, tell the LLM how to fill in the schema you've defined (e.g., "Set `praise_detected` to true if praise is found.").
 4.  **Save and Validate:** When you save the prompt, the app will automatically run a script to check that the schema you defined in the prompt's instructions matches the user-defined schema section. This ensures your analysis runs smoothly and produces the expected output.
 5.  **Verify Output:** After a **Run**, you can review the generated **Annotations** to ensure they follow the structured schema you provided.
+
+## External Guides
+
+- **[Prompt Writing Guide](https://docs.google.com/document/d/1Rf2p3ltWSCk3VTeuTtXTpVu7NkrAi8yNDloYLId-KU8/edit)** — Covers schema setup in detail, including field types and how to align schema with prompt instructions
+
+## Related Concepts
+
+- **[Prompts](prompts)** — Where the schema is defined and used
+- **[Codebooks](codebooks)** — Classification schemes that inform schema fields
+- **[Annotations](annotations)** — The structured output that follows the schema
+- **[Runs](runs)** — Where the schema is applied to produce annotations

@@ -20,3 +20,12 @@ Annotations are generated automatically during a **Run**. You primarily interact
 1.  **View Annotations:** After a run has finished, you can view the generated annotations by navigating to the specific **Run**'s details page. The annotations will be displayed alongside the original transcript.
 2.  **Download Annotations:** From the **Dashboard** or the **Run** details page, you can download all the annotations in a structured format, such as CSV or JSON, for further analysis.
 3.  **Refine Prompts:** If the annotations are not meeting your expectations, you can go back and edit your **Prompt**, create a new **Prompt version**, and run the analysis again.
+
+## Related Concepts
+
+- **[Runs](runs)** — The process that generates annotations
+- **[Prompts](prompts)** — The instructions that guide annotation creation
+- **[Schema](schema)** — Defines the structure of annotation output
+- **[Annotation Type](annotationType)** — Per utterance vs. per session granularity
+- **[Sessions](sessions)** — The data that annotations are attached to
+- **[Dashboard](dashboard)** — View and download annotations

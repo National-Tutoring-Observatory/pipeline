@@ -21,3 +21,13 @@ The process of using projects in Sandpiper involves creating a new project, addi
 2.  **Adding Resources:** Once the project is created, you can begin adding resources to it. This includes importing your tutoring data files and creating or importing new prompts.
 3.  **Initiating a Run:** Inside your project, you can select the sessions and prompts you wish to analyze and initiate a new **Run**.
 4.  **Viewing and Exporting Results:** After a run is complete, you can view the results and download the annotated data directly from the project dashboard.
+
+## Related Concepts
+
+- **[Sessions](sessions)** — The tutoring data within a project
+- **[Files](files)** — Raw data files uploaded to a project
+- **[Prompts](prompts)** — Instructions created within a team for use in projects
+- **[Runs](runs)** — Analysis runs within a project
+- **[Run Sets](run-sets)** — Grouped runs for comparison
+- **[Teams](teams)** — Projects belong to teams
+- **[MTM Dataset](mtmDataset)** — Import pre-built sessions into a project
