@@ -81,6 +81,10 @@ yarn migration:generate <Name Of Migration>
 # - Return { success: failed === 0, message: string, stats: { migrated, failed } }
 ```
 
+### Git Commits
+
+If the current branch name starts with a number (e.g., `1404-break-force-stop-a-run-in-the-middle`), include `Fixes #NUMBER` in the commit message (e.g., `Fixes #1404`).
+
 ### Pre-commit Hooks (Automatic)
 
 Formatting and linting run automatically on staged files via **husky + lint-staged**:
@@ -527,88 +531,22 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
 
 #### Multiple Collections on Same Page
 
-When you have multiple collections (e.g., users list + audit log), use **separate instances** with `paramPrefix`:
-
-**Loader**:
+Without a prefix, all collections share the same URL params (`searchValue`, `currentPage`, etc.) — searching one would affect the other. Use `{ paramPrefix: "name" }` to namespace each collection's params. The prefix must match between loader and hook.
 
 ```typescript
-// First collection - users
-const queryParams = getQueryParamsFromRequest(request, {
-  searchValue: "",
-  currentPage: 1,
-  sort: "username",
-  filters: {},
-});
-
-const usersQuery = buildQueryFromParams({
-  match: {},
-  queryParams,
-  searchableFields: ["username", "email"],
-  sortableFields: ["username", "createdAt"],
-});
-
-const users = await UserService.paginate(usersQuery);
-
-// Second collection - audit log with prefix
+// Loader — second collection uses prefix
 const auditQueryParams = getQueryParamsFromRequest(
   request,
-  {
-    searchValue: "",
-    currentPage: 1,
-    sort: "-createdAt",
-    filters: {},
-  },
-  { paramPrefix: "audit" }, // Creates auditSearchValue, auditCurrentPage
+  { searchValue: "", currentPage: 1, sort: "-createdAt", filters: {} },
+  { paramPrefix: "audit" },
 );
 
-const auditQuery = buildQueryFromParams({
-  match: { action: "USER_ACTION" },
-  queryParams: auditQueryParams,
-  searchableFields: ["username", "action"],
-  sortableFields: ["createdAt"],
-});
-
-const audits = await AuditService.paginate(auditQuery);
-
-return { users, audits };
-```
-
-**Component**:
-
-```typescript
-// First collection hook
-const {
-  searchValue,
-  setSearchValue,
-  currentPage,
-  setCurrentPage,
-  // ...
-} = useSearchQueryParams({
-  searchValue: "",
-  currentPage: 1,
-  sortValue: "username",
-  filters: {},
-});
-
-// Second collection hook with same prefix
-const {
-  searchValue: auditSearchValue,
-  setSearchValue: setAuditSearchValue,
-  currentPage: auditCurrentPage,
-  setCurrentPage: setAuditCurrentPage,
-  // ...
-} = useSearchQueryParams(
-  {
-    searchValue: "",
-    currentPage: 1,
-    sortValue: "-createdAt",
-    filters: {},
-  },
-  { paramPrefix: "audit" }, // Must match loader prefix!
+// Component — same prefix
+const { searchValue: auditSearchValue, ... } = useSearchQueryParams(
+  { searchValue: "", currentPage: 1, sortValue: "-createdAt", filters: {} },
+  { paramPrefix: "audit" },
 );
 ```
-
-**IMPORTANT**: The `paramPrefix` must match between the hook and loader.
 
 #### Collection Helpers Pattern
 
@@ -838,13 +776,6 @@ const csvPath = path.join(PROJECT_ROOT, "datasets/mtm/v1.csv");
   export const JobDialog = () => { ... }
   ```
 
-### Formatting
-
-- **2 spaces** for indentation (no tabs)
-- **No trailing whitespace**
-- **Single newline** at end of file
-- **Always save files** after editing to apply auto-formatting
-
 ### Date Formatting
 
 **ALWAYS** use the `getDateString` helper for displaying dates in the UI. Never use `new Date().toLocaleDateString()` or `dayjs().format()` directly.
@@ -1046,54 +977,7 @@ import Flag from "~/modules/featureFlags/components/flag";
 </Flag>
 ```
 
-## Environment Configuration
-
-### Required Variables
-
-```bash
-# Storage adapter (LOCAL or AWS_S3)
-STORAGE_ADAPTER='LOCAL'
-
-# LLM Provider (AI_GATEWAY or OPENAI)
-LLM_PROVIDER='AI_GATEWAY'
-
-# Session encryption (generate with: openssl rand -hex 64)
-SESSION_SECRET='...'
-
-# GitHub OAuth
-GITHUB_CLIENT_ID='...'
-GITHUB_CLIENT_SECRET='...'
-SUPER_ADMIN_GITHUB_ID='...'
-AUTH_CALLBACK_URL='http://localhost:5173/auth/callback'
-
-# Redis (choose one)
-REDIS_LOCAL='true'                  # Local Redis (development)
-# REDIS_URL='redis://localhost:6379' # External Redis URL (production)
-```
-
-### Optional Variables
-
-- AWS credentials (if using AWS_S3 or DOCUMENT_DB)
-- AI Gateway credentials (if using AI_GATEWAY)
-- OpenAI key (if using OPENAI provider)
-
 ## Testing Patterns
-
-### Running Tests
-
-```bash
-# All tests
-yarn test
-
-# Specific module
-yarn test app/modules/runSets
-
-# Watch mode
-yarn test:watch
-
-# With coverage
-yarn test:coverage
-```
 
 ### Test Structure
 
@@ -1131,24 +1015,6 @@ describe("ProjectAuthorization", () => {
 - **Validate all inputs** and sanitize outputs
 - **Use .env for secrets** - Never commit credentials
 
-### Example Permission Check
-
-```typescript
-export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getUser(request);
-  if (!user) return redirect("/");
-
-  const project = await ProjectService.findById(params.projectId);
-  if (!project) throw new Response("Not Found", { status: 404 });
-
-  if (!ProjectAuthorization.canView(user, project)) {
-    throw new Error("Access denied");
-  }
-
-  return { project };
-}
-```
-
 ## Common Development Tasks
 
 ### Adding a New Feature Module
@@ -1175,66 +1041,5 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 2. Implement interface: `download`, `upload`, `remove`, `request`
 3. Call `registerStorageAdapter()` with adapter object
 4. Run `yarn app:build` - adapters.js will auto-generate imports
-
-## Troubleshooting
-
-### Type Errors During Build
-
-**Cause**: TypeScript compilation errors
-**Fix**: Run `yarn typecheck` to see detailed errors
-**Note**: Build warnings about unused imports are expected and safe to ignore
-
-### Storage Imports Not Found
-
-**Cause**: `app/adapters.js` didn't run or failed
-**Fix**: Manually run `node ./app/adapters.js` to see errors
-
-### Module Not Found Errors
-
-**Cause**: Stale or corrupted dependencies
-**Fix**:
-
-```bash
-rm -rf node_modules .react-router build
-yarn install --frozen-lockfile
-yarn typecheck
-yarn app:build
-```
-
-### Workers Failing to Start
-
-**Cause**: Missing dependencies or Redis configuration
-**Fix**: Run `yarn install` at root (handles all workspaces) and ensure Redis is running
-
-### Port 5173 Already in Use
-
-**Cause**: Another process using the port
-**Fix**: `lsof -i :5173` to find process, then kill it
-**Alternative**: `PORT=3000 yarn app:dev`
-
-## Additional Resources
-
-- **Contributing Guide**: See `CONTRIBUTING.md` for Docker Compose setup
-- **Copilot Instructions**: See `.github/copilot-instructions.md` for detailed guidelines
-- **API Documentation**: See `documentation/` directory for feature specs
-
-## Quick Reference
-
-**Full build & validation cycle** (recommended before PR):
-
-```bash
-yarn install --frozen-lockfile
-yarn typecheck
-yarn app:build
-```
-
-**Start development**:
-
-```bash
-cp .env.example .env
-# Edit .env as needed
-yarn install --frozen-lockfile
-yarn app:dev
-```
 
 **Bash Context Note**: Commands run in the workspace root by default. Don't pass `cwd` parameter—it's unnecessary.
