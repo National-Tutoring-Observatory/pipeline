@@ -20,3 +20,10 @@ The dashboard is your starting point for monitoring activity and accessing resul
 1.  **View Recent Runs:** When you log in, the dashboard will display a list of your most recent runs. You can check the status of a run (e.g., pending, in progress, complete) without having to navigate into a specific **Project**.
 2.  **Access Analytics:** The dashboard provides high-level analytics for your runs, such as the number of **Annotations** created. This helps you quickly assess the output of your analysis.
 3.  **Download Data:** For completed runs, the dashboard provides a direct link to download the annotated data in formats like CSV and JSON.
+
+## Related Concepts
+
+- **[Runs](runs)** — Monitor run status from the dashboard
+- **[Annotations](annotations)** — View and download annotation results
+- **[Projects](projects)** — Access your projects from the dashboard
+- **[Run Sets](run-sets)** — Track evaluation progress

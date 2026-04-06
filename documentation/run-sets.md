@@ -1,6 +1,6 @@
 ---
 title: "Run Sets"
-tags: ["run-sets", "runs", "evaluation"]
+tags: ["run-sets", "runs"]
 category: "Analysis"
 isPublished: true
 ---
@@ -11,21 +11,14 @@ isPublished: true
 
 A **Run Set** is a container that groups multiple **Runs** together for comparison and analysis. Run sets enable researchers to organize related experiments—such as comparing different prompt versions or LLM models on the same data—and evaluate their relative performance.
 
-Run sets are the foundation of the **Evaluation** feature, allowing you to:
-
-- Compare annotation agreement across multiple runs using **Cohen's Kappa**
-- Identify top-performing prompt/model combinations
-- Calculate **Precision, Recall, and F1** scores when human labels are available
-- Export comparison results for external analysis or sharing
-
 ## Key Concepts
 
 | Concept             | Description                                                                         |
 | ------------------- | ----------------------------------------------------------------------------------- |
 | **Runs**            | A run set contains 2 or more runs that were applied to the same sessions            |
 | **Sessions**        | The shared tutoring data that each run analyzed                                     |
-| **Annotation Type** | Run sets require runs with the same annotation type (e.g., per-line or per-session) |
-| **Evaluation**      | When runs are grouped, you can compare their annotations for agreement              |
+| **Annotation Type** | Run sets require runs with the same annotation type (e.g., per utterance or per session) |
+| **Human Runs**      | Upload human-annotated CSVs to include human labels in the comparison               |
 
 ## How to Use
 
@@ -39,14 +32,16 @@ Run sets can be created from two entry points:
 2. Click **"New Run Set"**
 3. Enter a name for your run set
 4. Select the **Sessions** you want to analyze
-5. Select 2 or more **Runs** that annotated those sessions
-6. Click **"Create Run Set"**
+5. Click **"Create Run Set"**
 
-**From the Runs Page (Quick Selection):**
+**Batch Run Creation:**
 
-1. In the Runs tab, check the boxes next to 2+ runs you want to compare
-2. Click **"Create Run Set"** from the selection action bar
-3. The run set wizard opens with your selected runs pre-filled
+You can define multiple prompt/model combinations and create all runs at once:
+
+1. In the run set creation screen, click **"Add Run Definition"**
+2. For each run, select a **Prompt** and **LLM Model**
+3. Review the **Cost Estimate** — Sandpiper calculates the estimated cost and time for all runs combined
+4. Click **"Create & Start Runs"** to launch all runs simultaneously
 
 ### Adding Runs to a Run Set
 
@@ -82,52 +77,7 @@ Export all annotation data from a run set:
 
 1. Open a **Run Set** detail page
 2. Click **"Export"** in the header
-3. Choose format: **CSV** or **JSONL**
-4. The export includes annotations from all runs for comparison
-
-## Evaluation Tab
-
-The Evaluation tab provides at-a-glance comparison of all runs in the run set:
-
-### Summary Statistics
-
-- **Mean Kappa** — Average agreement across all run pairs
-- **Best Performer** — Top-ranked prompt/model combination
-- **Human Label** — Whether ground truth labels are available
-- **Comparisons** — Number of pairwise evaluations
-
-### Top Performers
-
-Ranked cards showing the best 3 runs by:
-
-- **Agreement (κ)** with human labels (when available), or
-- **Mean agreement** with other runs (when no human labels)
-
-When human labels are present, cards also show **Precision**, **Recall**, and **F1** scores.
-
-### Pairwise Agreement Matrix
-
-A heatmap showing Cohen's Kappa between every pair of runs:
-
-- **Green cells** (κ ≥ 0.61) — Substantial agreement
-- **Amber cells** (κ 0.41–0.60) — Moderate agreement
-- **Red cells** (κ < 0.41) — Fair/Poor agreement
-
-### Adding Human Labels
-
-To enable accuracy metrics (Precision, Recall, F1):
-
-1. Include a `human_label` column in your session data CSV
-2. Upload sessions with human-verified annotations
-3. The Evaluation tab will automatically detect and use these labels
-
-**Example CSV format:**
-
-```csv
-session_id,utterance_id,annotation,human_label
-sess_001,utt_001,CREATIVE,CREATIVE
-sess_001,utt_002,NOT_CREATIVE,CREATIVE
-```
+3. The export includes annotations from all runs for comparison
 
 ## Best Practices
 
@@ -143,3 +93,6 @@ sess_001,utt_002,NOT_CREATIVE,CREATIVE
 - **[Sessions](sessions)** — The data that runs analyze
 - **[Projects](projects)** — The workspace containing run sets
 - **[Prompts](prompts)** — The prompts used in runs
+- **[Evaluations](evaluations)** — Compare and measure run agreement
+- **[Human Annotations](humanAnnotations)** — Uploading human labels
+- **[Annotation Type](annotationType)** — Runs must share the same annotation type

@@ -21,3 +21,10 @@ Your user account is your gateway to Sandpiper.
 2.  **Manage Projects:** Create, edit, and delete **Projects** to organize your work.
 3.  **Join Teams:** Accept invitations to join **Teams** to collaborate with others.
 4.  **Perform Actions:** As a user, you have the ability to perform all the core actions in the app, including uploading **Files**, creating **Prompts**, and initiating **Runs**.
+
+## Related Concepts
+
+- **[Teams](teams)** — Collaborate with other users through teams
+- **[Projects](projects)** — Organize your work into projects
+- **[Authentication](authentication)** — How you sign in to Sandpiper
+- **[Privacy Policy](privacyPolicy)** — How your data is handled
