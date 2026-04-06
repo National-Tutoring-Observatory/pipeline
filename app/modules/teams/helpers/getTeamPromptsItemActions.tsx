@@ -1,4 +1,4 @@
-import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
+import type { CollectionItemAction } from "@/components/ui/collectionItemContent";
 
 export default function getTeamPromptsItemActions(): CollectionItemAction[] {
   return [];

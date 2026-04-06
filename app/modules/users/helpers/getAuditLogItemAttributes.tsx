@@ -1,4 +1,4 @@
-import type { CollectionItemAttributes } from "@/components/ui/collectionContentItem";
+import type { CollectionItemAttributes } from "@/components/ui/collectionItemContent";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { AuditRecord } from "~/modules/audits/audit.types";

@@ -1,4 +1,4 @@
-import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
+import type { CollectionItemAction } from "@/components/ui/collectionItemContent";
 import find from "lodash/find";
 import { ShieldCheck, ShieldMinus, Trash2 } from "lucide-react";
 import type { User } from "~/modules/users/users.types";

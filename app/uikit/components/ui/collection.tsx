@@ -3,12 +3,12 @@ import map from "lodash/map";
 import React, { type ReactElement } from "react";
 import { Link } from "react-router";
 import { ActionBar, type Action } from "./actionBar";
+import { CollectionEmpty } from "./collectionEmpty";
 import type {
   CollectionItemAction,
   CollectionItemAttributes,
-} from "./collectionContentItem";
-import CollectionItemContent from "./collectionContentItem";
-import { CollectionEmpty } from "./collectionEmpty";
+} from "./collectionItemContent";
+import CollectionItemContent from "./collectionItemContent";
 import type { FiltersProps } from "./filters";
 import { Item, ItemGroup, ItemSeparator } from "./item";
 import type { PaginationProps } from "./pagination";
@@ -125,7 +125,7 @@ const Collection = ({
                 className={clsx({ "opacity-50": isDisabled })}
               >
                 {to && !isDisabled ? (
-                  <Link to={to}>
+                  <Link to={to} className="rounded-none">
                     {(renderItem && renderItem(item)) || (
                       <CollectionItemContent
                         id={id}
@@ -140,7 +140,7 @@ const Collection = ({
                   </Link>
                 ) : (
                   <div
-                    className={clsx({
+                    className={clsx("rounded-none", {
                       "hover:bg-accent/50 cursor-pointer": onItemClicked,
                     })}
                     onClick={() => {

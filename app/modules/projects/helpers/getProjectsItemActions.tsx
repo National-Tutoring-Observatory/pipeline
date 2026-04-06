@@ -1,4 +1,4 @@
-import type { CollectionItemAction } from "@/components/ui/collectionContentItem";
+import type { CollectionItemAction } from "@/components/ui/collectionItemContent";
 import { Edit, Trash2 } from "lucide-react";
 import type { User } from "~/modules/users/users.types";
 import ProjectAuthorization from "../authorization";
