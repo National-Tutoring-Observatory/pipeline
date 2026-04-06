@@ -84,11 +84,13 @@ export default function TermsAcceptance({
           </button>
         </div>
 
-        <div className="flex items-center justify-end">
-          <Button disabled={!accepted || isSubmitting} onClick={onAccept}>
-            {isSubmitting ? "Saving..." : "Continue \u2192"}
-          </Button>
-        </div>
+        <Button
+          className="w-full"
+          disabled={!accepted || isSubmitting}
+          onClick={onAccept}
+        >
+          {isSubmitting ? "Saving..." : "Continue \u2192"}
+        </Button>
       </div>
 
       <FullTermsDialog open={termsOpen} onOpenChange={setTermsOpen} />

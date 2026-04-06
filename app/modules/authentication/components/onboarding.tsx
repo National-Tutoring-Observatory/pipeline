@@ -53,19 +53,22 @@ export default function Onboarding({
     );
   };
 
+  const canSubmit =
+    !!institution && !!userRole && useCases.length > 0 && !isSubmitting;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({ institution, userRole, useCases, scholarshipInterest });
   };
 
   return (
-    <div className="flex min-h-screen w-screen items-center justify-center bg-[#f7f7f7]">
-      <div className="w-full max-w-lg rounded-lg bg-white p-8 shadow-sm">
+    <div className="bg-muted flex min-h-screen w-screen items-center justify-center">
+      <div className="bg-background w-full max-w-lg rounded-lg p-8 shadow-sm">
         <div className="mb-6 flex justify-center">
           <img
-            src="/assets/nto-logo-icon.png"
-            alt="NTO Logo"
-            className="w-12"
+            src="/assets/sandpiper-logo.svg"
+            alt="Sandpiper"
+            className="h-12 object-contain"
           />
         </div>
         <h1 className="mb-1 text-center text-2xl font-semibold">
@@ -151,7 +154,7 @@ export default function Onboarding({
             <p className="text-destructive text-sm">{errors.general}</p>
           )}
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button type="submit" className="w-full" disabled={!canSubmit}>
             {isSubmitting ? "Saving..." : "Continue →"}
           </Button>
         </form>
