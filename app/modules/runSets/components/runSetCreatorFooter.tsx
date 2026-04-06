@@ -32,7 +32,7 @@ export default function RunSetCreatorFooter({
     (creditAcknowledgment.exceedsBalance && !creditAcknowledgment.acknowledged);
 
   return (
-    <div className="bg-background sticky bottom-0 space-y-3 rounded-b-4xl border-t px-8 py-4">
+    <div className="bg-background sticky bottom-0 z-10 space-y-3 rounded-b-4xl border-t px-8 py-4">
       {hasValidationErrors ? (
         <RunSetValidationAlert
           name={name}
