@@ -27,9 +27,9 @@ export default function TermsAcceptance({
       <div className="bg-background w-full max-w-lg rounded-lg p-8 shadow-sm">
         <div className="mb-6 flex justify-center">
           <img
-            src="/assets/nto-logo-icon.png"
-            alt="NTO Logo"
-            className="w-12"
+            src="/assets/sandpiper-logo.svg"
+            alt="Sandpiper"
+            className="h-12 object-contain"
           />
         </div>
         <h1 className="mb-1 text-center text-2xl font-semibold">
