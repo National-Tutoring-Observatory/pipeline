@@ -53,7 +53,19 @@ export async function loader({ request }: Route.LoaderArgs) {
     page: query.page,
   });
 
-  return { teams };
+  const balances: Record<string, number> =
+    userSession.role === "SUPER_ADMIN"
+      ? Object.fromEntries(
+          await Promise.all(
+            teams.data.map(async (team) => [
+              team._id,
+              await TeamBillingService.getBalance(team._id),
+            ]),
+          ),
+        )
+      : {};
+
+  return { teams, balances };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -126,7 +138,7 @@ export function HydrateFallback() {
 }
 
 export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
-  const { teams } = loaderData;
+  const { teams, balances } = loaderData;
   const user = useContext(AuthenticationContext) as User;
   const fetcher = useFetcher();
   const navigate = useNavigate();
@@ -240,6 +252,7 @@ export default function TeamsRoute({ loaderData }: Route.ComponentProps) {
     <Teams
       teams={teams?.data}
       user={user}
+      balances={balances}
       breadcrumbs={breadcrumbs}
       searchValue={searchValue}
       currentPage={currentPage}

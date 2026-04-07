@@ -14,6 +14,7 @@ import type { Team } from "../teams.types";
 interface TeamsProps {
   teams: Team[];
   user: User;
+  balances: Record<string, number>;
   breadcrumbs: Breadcrumb[];
   searchValue: string;
   currentPage: number;
@@ -32,6 +33,7 @@ interface TeamsProps {
 export default function Teams({
   teams,
   user,
+  balances,
   breadcrumbs,
   filtersValues,
   sortValue,
@@ -68,7 +70,9 @@ export default function Teams({
         totalPages={totalPages}
         emptyAttributes={getTeamsEmptyAttributes()}
         isSyncing={isSyncing}
-        getItemAttributes={getTeamsItemAttributes}
+        getItemAttributes={(item) =>
+          getTeamsItemAttributes(item, balances[item._id])
+        }
         getItemActions={(item) => getTeamsItemActions(item, user)}
         onActionClicked={onActionClicked}
         onItemActionClicked={onItemActionClicked}
