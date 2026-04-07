@@ -1,6 +1,12 @@
 import map from "lodash/map";
 import { useEffect } from "react";
-import { redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
+import {
+  data,
+  redirect,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+} from "react-router";
 import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import useSubmitGuard from "~/modules/app/hooks/useSubmitGuard";
@@ -8,6 +14,7 @@ import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
+import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
 import { RunService } from "~/modules/runs/run";
@@ -62,7 +69,16 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {
   const user = await getSessionUser({ request });
-  if (!user) throw new Error("Authentication required");
+  if (!user) return redirect("/");
+
+  const project = await ProjectService.findById(params.projectId);
+  if (!project) {
+    return data({ errors: { project: "Project not found" } }, { status: 404 });
+  }
+
+  if (!ProjectAuthorization.Runs.canManage(user, project)) {
+    return data({ errors: { project: "Access denied" } }, { status: 403 });
+  }
 
   const { intent, payload = {} } = await request.json();
 
@@ -71,11 +87,30 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   switch (intent) {
     case "CREATE_AND_START_RUN": {
-      if (typeof name !== "string") {
-        throw new Error("Run name is required and must be a string.");
+      const errors: Record<string, string> = {};
+
+      if (typeof name !== "string" || name.trim().length < 3) {
+        errors.name = "Run name must be at least 3 characters";
       }
+
       if (!["PER_UTTERANCE", "PER_SESSION"].includes(annotationType)) {
-        throw new Error("Invalid annotation type.");
+        errors.annotationType = "Invalid annotation type";
+      }
+
+      if (!prompt) {
+        errors.prompt = "A prompt is required";
+      }
+
+      if (!promptVersion) {
+        errors.promptVersion = "A prompt version is required";
+      }
+
+      if (!Array.isArray(sessions) || sessions.length === 0) {
+        errors.sessions = "At least one session is required";
+      }
+
+      if (Object.keys(errors).length > 0) {
+        return data({ errors }, { status: 400 });
       }
 
       const run = await RunService.create({
@@ -95,10 +130,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       trackServerEvent({ name: "run_created", userId: user._id });
       await createGeneralJob("TRACK_FIRST_RUN", { userId: user._id });
 
-      return {
-        intent: "CREATE_AND_START_RUN",
-        data: run,
-      };
+      return data({ intent: "CREATE_AND_START_RUN", data: run });
     }
     default: {
       return {};
@@ -114,7 +146,7 @@ export default function ProjectCreateRunRoute() {
     avgSecondsPerSession,
     outputToInputRatio,
     balance,
-  } = useLoaderData();
+  } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const { isSubmitting, guard } = useSubmitGuard(
@@ -152,8 +184,15 @@ export default function ProjectCreateRunRoute() {
 
   useEffect(() => {
     if (fetcher.state !== "idle") return;
-    if (!fetcher.data || !("intent" in fetcher.data)) return;
-    if (fetcher.data.intent === "CREATE_AND_START_RUN") {
+    if (!fetcher.data) return;
+    if ("errors" in fetcher.data) {
+      toast.error(Object.values(fetcher.data.errors)[0] as string);
+      return;
+    }
+    if (
+      "intent" in fetcher.data &&
+      fetcher.data.intent === "CREATE_AND_START_RUN"
+    ) {
       toast.success("Run created and started");
       navigate(
         `/projects/${fetcher.data.data.project}/runs/${fetcher.data.data._id}`,

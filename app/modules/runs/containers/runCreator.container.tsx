@@ -109,10 +109,6 @@ export default function ProjectRunCreatorContainer({
     balance,
   );
 
-  const onRunNameChangedHandler = (name: string) => {
-    setRunName(name);
-  };
-
   const onStartRunButtonClicked = () => {
     onStartRunClicked({
       name: runName,
@@ -128,6 +124,7 @@ export default function ProjectRunCreatorContainer({
 
   const isRunButtonDisabled =
     !(
+      runName.trim().length >= 3 &&
       selectedPrompt &&
       selectedPromptVersion &&
       selectedSessionIds.length > 0
@@ -148,7 +145,7 @@ export default function ProjectRunCreatorContainer({
       creditAcknowledgment={creditAcknowledgment}
       isSubmitting={isSubmitting}
       isRunButtonDisabled={isRunButtonDisabled || isSubmitting}
-      onRunNameChanged={onRunNameChangedHandler}
+      onRunNameChanged={setRunName}
       onSelectedAnnotationTypeChanged={onSelectedAnnotationTypeChanged}
       onSelectedPromptChanged={onSelectedPromptChanged}
       onSelectedPromptVersionChanged={onSelectedPromptVersionChanged}
