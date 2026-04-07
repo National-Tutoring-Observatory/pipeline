@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import type { CreditAcknowledgment } from "~/modules/runSets/hooks/useCreditAcknowledgment";
 import type { EstimationResult } from "~/modules/runSets/runSets.types";
+import EstimateInfoBox from "./estimateInfoBox";
 import EstimateSummary from "./estimateSummary";
 import InsufficientCreditsAlert from "./insufficientCreditsAlert";
 import RunSetValidationAlert from "./runSetValidationAlert";
@@ -40,7 +41,7 @@ export default function RunSetCreatorFooter({
           selectedSessions={selectedSessions}
         />
       ) : (
-        <div className="border-sandpiper-info/20 bg-sandpiper-info/5 rounded-lg border p-4">
+        <EstimateInfoBox>
           <div className="flex items-center justify-between gap-4">
             <p className="text-foreground text-sm">
               This will create <strong>{runsCount}</strong> run(s) across{" "}
@@ -48,7 +49,7 @@ export default function RunSetCreatorFooter({
             </p>
             <EstimateSummary estimation={estimation} balance={balance} />
           </div>
-        </div>
+        </EstimateInfoBox>
       )}
 
       {!hasValidationErrors && (

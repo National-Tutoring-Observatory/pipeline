@@ -4,7 +4,7 @@ import { AlertCircleIcon, CheckCircle } from "lucide-react";
 const RunNameAlert = ({ name }: { name: string }) => {
   return (
     <>
-      {name.trim().length === 0 && (
+      {name.length === 0 && (
         <Alert variant="destructive">
           <AlertCircleIcon />
           <AlertDescription>Run name is required</AlertDescription>
@@ -22,7 +22,7 @@ const RunNameAlert = ({ name }: { name: string }) => {
         <Alert variant="destructive">
           <AlertCircleIcon />
           <AlertDescription>
-            Run name must be longer than 3 characters
+            Run name must be at least 3 characters
           </AlertDescription>
         </Alert>
       )}

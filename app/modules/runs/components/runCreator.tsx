@@ -11,18 +11,19 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Info } from "lucide-react";
-import { useState } from "react";
+
 import Flag from "~/modules/featureFlags/components/flag";
 import AnnotationTypeSelectorContainer from "~/modules/prompts/containers/annoationTypeSelectorContainer";
 import ModelSelectorContainer from "~/modules/prompts/containers/modelSelectorContainer";
 import PromptSelectorContainer from "~/modules/prompts/containers/promptSelectorContainer";
+import EstimateInfoBox from "~/modules/runSets/components/estimateInfoBox";
 import EstimateSummary from "~/modules/runSets/components/estimateSummary";
 import InsufficientCreditsAlert from "~/modules/runSets/components/insufficientCreditsAlert";
 import type { CreditAcknowledgment } from "~/modules/runSets/hooks/useCreditAcknowledgment";
 import type { EstimationResult } from "~/modules/runSets/runSets.types";
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 import type { SessionData } from "~/modules/sessions/sessions.types";
-import RunNameAlert from "./runNameAlert";
+import RunValidationAlert from "./runValidationAlert";
 
 export default function RunCreator({
   duplicateWarnings = [],
@@ -72,15 +73,6 @@ export default function RunCreator({
   onShouldRunVerificationChanged: (value: boolean) => void;
   onStartRunButtonClicked: () => void;
 }) {
-  const [runNameTouched, setRunNameTouched] = useState(false);
-
-  const handleRunNameChange = (value: string) => {
-    if (!runNameTouched) {
-      setRunNameTouched(true);
-    }
-    onRunNameChanged(value);
-  };
-
   return (
     <div className="mx-0 w-full max-w-3xl pt-4 pb-8">
       {duplicateWarnings.length > 0 && (
@@ -111,11 +103,10 @@ export default function RunCreator({
               name="name"
               value={runName}
               autoComplete="off"
-              onChange={(e) => handleRunNameChange(e.target.value)}
+              onChange={(e) => onRunNameChanged(e.target.value)}
               className="w-96"
               autoFocus
             />
-            {runNameTouched && <RunNameAlert name={runName} />}
           </div>
         </CardContent>
       </Card>
@@ -205,21 +196,36 @@ export default function RunCreator({
             onSelectedSessionsChanged={onSelectedSessionsChanged}
           />
           <div className="mt-4 space-y-3">
-            <div className="flex items-center justify-center gap-4">
-              <EstimateSummary estimation={estimation} balance={balance} />
+            {runName.trim().length < 3 ||
+            !selectedPrompt ||
+            !selectedPromptVersion ||
+            selectedSessions.length === 0 ? (
+              <RunValidationAlert
+                runName={runName}
+                selectedPrompt={selectedPrompt}
+                selectedPromptVersion={selectedPromptVersion}
+                selectedSessions={selectedSessions}
+              />
+            ) : (
+              <EstimateInfoBox>
+                <div className="flex justify-end">
+                  <EstimateSummary estimation={estimation} balance={balance} />
+                </div>
+              </EstimateInfoBox>
+            )}
+            <InsufficientCreditsAlert
+              exceedsBalance={creditAcknowledgment.exceedsBalance}
+              acknowledged={creditAcknowledgment.acknowledged}
+              onAcknowledgedChanged={creditAcknowledgment.setAcknowledged}
+            />
+            <div className="flex justify-end">
               <Button
-                size="sm"
                 disabled={isRunButtonDisabled}
                 onClick={onStartRunButtonClicked}
               >
                 {isSubmitting ? "Starting run..." : "Start run"}
               </Button>
             </div>
-            <InsufficientCreditsAlert
-              exceedsBalance={creditAcknowledgment.exceedsBalance}
-              acknowledged={creditAcknowledgment.acknowledged}
-              onAcknowledgedChanged={creditAcknowledgment.setAcknowledged}
-            />
           </div>
         </CardContent>
       </Card>
