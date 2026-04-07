@@ -111,7 +111,9 @@ registerStorageAdapter({
 
       await upload.done();
     } catch (error) {
-      console.log(error);
+      throw new Error(`AWS_S3 upload error for ${uploadPath}`, {
+        cause: error,
+      });
     }
   },
   remove: async ({ sourcePath }: RemoveParams): Promise<void> => {
