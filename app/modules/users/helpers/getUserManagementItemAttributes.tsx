@@ -10,6 +10,7 @@ export default function getUserManagementItemAttributes(item: User) {
       {
         text: item.role || "USER",
       },
+      ...(item.institution ? [{ text: item.institution }] : []),
       {
         text: `Created ${getDateString(item.createdAt)}`,
       },

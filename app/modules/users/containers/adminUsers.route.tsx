@@ -8,9 +8,11 @@ import { AuditService } from "~/modules/audits/audit";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { userIsSuperAdmin } from "~/modules/authorization/helpers/superAdmin";
 import addDialog from "~/modules/dialogs/addDialog";
+import { TeamService } from "~/modules/teams/team";
 import UserManagementAuthorization from "../authorization";
 import AdminUsers from "../components/adminUsers";
 import EditUserDialog from "../components/editUserDialog";
+import UserDetailDialog from "../components/userDetailDialog";
 import { UserService } from "../user";
 import type { User } from "../users.types";
 import AssignSuperAdminDialogContainer from "./assignSuperAdminDialogContainer";
@@ -35,11 +37,19 @@ export async function loader({ request }: Route.LoaderArgs) {
   const query = buildQueryFromParams({
     match: {},
     queryParams,
-    searchableFields: ["username", "email", "name"],
+    searchableFields: ["username", "email", "name", "institution"],
     sortableFields: ["username", "name", "createdAt"],
   });
 
   const users = await UserService.paginate(query);
+
+  const teamIds = [
+    ...new Set(users.data.flatMap((u: User) => u.teams.map((t) => t.team))),
+  ];
+  const teams = await TeamService.find({ match: { _id: { $in: teamIds } } });
+  const teamsByIds: Record<string, string> = Object.fromEntries(
+    teams.map((t) => [t._id, t.name]),
+  );
 
   const auditQueryParams = getQueryParamsFromRequest(
     request,
@@ -69,6 +79,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     users,
     audits,
     currentUser: user,
+    teamsByIds,
   };
 }
 
@@ -258,7 +269,7 @@ export async function action({ request }: Route.ActionArgs) {
 export default function UserManagementRoute({
   loaderData,
 }: Route.ComponentProps) {
-  const { users, audits, currentUser } = loaderData;
+  const { users, audits, currentUser, teamsByIds } = loaderData;
   const fetcher = useFetcher();
 
   const {
@@ -361,7 +372,9 @@ export default function UserManagementRoute({
     const targetUser = users.data.find((u: User) => u._id === id);
     if (!targetUser) return;
 
-    if (action === "EDIT") {
+    if (action === "VIEW") {
+      addDialog(<UserDetailDialog user={targetUser} teamsByIds={teamsByIds} />);
+    } else if (action === "EDIT") {
       openEditUserDialog(targetUser);
     } else if (action === "ASSIGN_SUPER_ADMIN") {
       addDialog(
