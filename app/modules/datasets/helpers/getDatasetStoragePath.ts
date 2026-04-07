@@ -1,5 +1,5 @@
 export function getDatasetDir(version: number) {
-  return `datasets/mtm/v${version}`;
+  return `storage/datasets/mtm/v${version}`;
 }
 
 export function getDatasetSessionPath(version: number, filename: string) {
@@ -11,5 +11,5 @@ export function getDatasetManifestPath(version: number) {
 }
 
 export function getDatasetLatestPath() {
-  return `datasets/mtm/latest.json`;
+  return `storage/datasets/mtm/latest.json`;
 }
