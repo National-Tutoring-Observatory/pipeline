@@ -47,6 +47,65 @@ describe("teams.route", () => {
       expect(result.teams.data.map((t: any) => t._id)).toContain(team2._id);
     });
 
+    it("returns balances for each team when user is super admin", async () => {
+      const plan = await BillingPlanService.create({
+        name: "Standard",
+        markupRate: 1,
+        isDefault: true,
+      });
+
+      const admin = await UserService.create({
+        username: "admin",
+        role: "SUPER_ADMIN",
+        teams: [],
+      });
+
+      const team1 = await TeamService.create({ name: "team 1" });
+      const team2 = await TeamService.create({ name: "team 2" });
+
+      await TeamBillingPlanService.assignPlan(team1._id, plan._id);
+      await TeamBillingPlanService.assignPlan(team2._id, plan._id);
+      await TeamCreditService.create({
+        team: team1._id,
+        amount: 50,
+        addedBy: admin._id,
+      });
+
+      const cookieHeader = await loginUser(admin._id);
+
+      const result = (await loader({
+        request: new Request("http://localhost/teams", {
+          headers: { cookie: cookieHeader },
+        }),
+        params: {},
+      } as any)) as any;
+
+      expect(result.balances).toBeDefined();
+      expect(result.balances[team1._id]).toBe(50);
+      expect(result.balances[team2._id]).toBe(0);
+    });
+
+    it("returns empty balances for non-super admin", async () => {
+      const team1 = await TeamService.create({ name: "team 1" });
+
+      const user = await UserService.create({
+        username: "user1",
+        role: "USER",
+        teams: [{ team: team1._id, role: "ADMIN" }],
+      });
+
+      const cookieHeader = await loginUser(user._id);
+
+      const result = (await loader({
+        request: new Request("http://localhost/teams", {
+          headers: { cookie: cookieHeader },
+        }),
+        params: {},
+      } as any)) as any;
+
+      expect(result.balances).toEqual({});
+    });
+
     it("returns only user's teams for regular user", async () => {
       const team1 = await TeamService.create({ name: "team 1" });
       await TeamService.create({ name: "team 2" });
