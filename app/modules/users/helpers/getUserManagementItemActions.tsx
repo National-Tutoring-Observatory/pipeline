@@ -6,7 +6,9 @@ export default function getUserManagementItemActions(
   item: User,
   currentUser: User,
 ): CollectionItemAction[] {
-  const actions: CollectionItemAction[] = [];
+  const actions: CollectionItemAction[] = [
+    { action: "VIEW", text: "View Details" },
+  ];
 
   if (UserManagementAuthorization.canUpdate(currentUser)) {
     actions.push({
