@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { FileService } from "~/modules/files/file";
 import { ProjectService } from "~/modules/projects/project";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
@@ -7,6 +8,10 @@ import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/uploadFiles.route";
+
+vi.mock("~/modules/datasets/services/insertMtmDataset.server", () => ({
+  default: vi.fn().mockResolvedValue(undefined),
+}));
 
 const createValidId = () => new Types.ObjectId().toString();
 
@@ -221,6 +226,45 @@ describe("uploadFiles.route action", () => {
 
     expect(resp.init?.status).toBe(400);
     expect(resp.data?.errors?.files).toContain("File processing failed");
+  });
+
+  it("allows INSERT_MTM_DATASET even when project already has files", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+      hasSetupProject: true,
+    });
+
+    await FileService.create({ project: project._id, name: "existing.csv" });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const req = new Request(
+      `http://localhost/projects/${project._id}/upload-files`,
+      {
+        method: "POST",
+        headers: {
+          cookie: cookieHeader,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ intent: "INSERT_MTM_DATASET" }),
+      },
+    );
+
+    const resp = (await action({
+      request: req,
+      params: { projectId: project._id },
+    } as any)) as any;
+
+    expect(resp.data?.success).toBe(true);
+    expect(resp.data?.intent).toBe("INSERT_MTM_DATASET");
   });
 
   it("returns 409 when upload is already in progress", async () => {

@@ -72,16 +72,6 @@ export async function action({ request, params }: Route.ActionArgs) {
     const payload = await request.json();
 
     if (payload.intent === "INSERT_MTM_DATASET") {
-      const existingFiles = await FileService.count({
-        project: params.projectId,
-      });
-      if (existingFiles > 0) {
-        return data(
-          { errors: { general: "Project already has files." } },
-          { status: 409 },
-        );
-      }
-
       try {
         await ProjectService.updateById(params.projectId, {
           hasSetupProject: true,
