@@ -3,7 +3,7 @@ export class InsufficientCreditsError extends Error {
 
   constructor(teamId: string) {
     super(
-      "Your account has reached its usage limit. Please contact support to continue: https://github.com/National-Tutoring-Observatory/sandpiper/issues/new/choose",
+      "Your account has reached its usage limit. Please contact support to continue: https://forms.gle/e23QwDvQAVZyKD9g8",
     );
     this.name = "InsufficientCreditsError";
     this.teamId = teamId;
