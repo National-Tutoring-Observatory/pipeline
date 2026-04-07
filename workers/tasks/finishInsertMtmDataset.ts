@@ -11,6 +11,7 @@ export default async function finishInsertMtmDataset(job: any) {
   await ProjectService.updateById(projectId, {
     isConvertingFiles: false,
     hasSetupProject: true,
+    hasMtmDataset: !hasFailedTasks,
     hasErrored: hasFailedTasks,
   });
 

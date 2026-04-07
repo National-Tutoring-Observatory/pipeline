@@ -228,6 +228,45 @@ describe("uploadFiles.route action", () => {
     expect(resp.data?.errors?.files).toContain("File processing failed");
   });
 
+  it("returns 409 when MTM dataset has already been added", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+      hasMtmDataset: true,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const req = new Request(
+      `http://localhost/projects/${project._id}/upload-files`,
+      {
+        method: "POST",
+        headers: {
+          cookie: cookieHeader,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ intent: "INSERT_MTM_DATASET" }),
+      },
+    );
+
+    const resp = (await action({
+      request: req,
+      params: { projectId: project._id },
+    } as any)) as any;
+
+    expect(resp.init?.status).toBe(409);
+    expect(resp.data?.errors?.general).toBe(
+      "MTM dataset has already been added.",
+    );
+  });
+
   it("allows INSERT_MTM_DATASET even when project already has files", async () => {
     const user = await UserService.create({ username: "test_user", teams: [] });
     const team = await TeamService.create({ name: "Test Team" });

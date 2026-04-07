@@ -11,5 +11,6 @@ export interface Project {
   isUploadingFiles: boolean;
   isConvertingFiles: boolean;
   hasSetupProject: boolean;
+  hasMtmDataset: boolean;
   isDeleted?: boolean;
 }

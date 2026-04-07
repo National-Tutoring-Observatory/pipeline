@@ -72,6 +72,13 @@ export async function action({ request, params }: Route.ActionArgs) {
     const payload = await request.json();
 
     if (payload.intent === "INSERT_MTM_DATASET") {
+      if (project.hasMtmDataset) {
+        return data(
+          { errors: { general: "MTM dataset has already been added." } },
+          { status: 409 },
+        );
+      }
+
       try {
         await ProjectService.updateById(params.projectId, {
           hasSetupProject: true,

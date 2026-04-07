@@ -42,6 +42,7 @@ describe("ProjectAuthorization", () => {
     isUploadingFiles: false,
     isConvertingFiles: false,
     hasSetupProject: true,
+    hasMtmDataset: false,
   };
 
   const projectInTeam2: Project = {
