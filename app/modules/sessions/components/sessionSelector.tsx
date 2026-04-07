@@ -9,13 +9,35 @@ import {
 } from "@/components/ui/table";
 import includes from "lodash/includes";
 import map from "lodash/map";
-import { ArrowDownWideNarrow, ArrowUpWideNarrow } from "lucide-react";
+import {
+  ArrowDownWideNarrow,
+  ArrowUpDown,
+  ArrowUpWideNarrow,
+} from "lucide-react";
 import getDateString from "~/modules/app/helpers/getDateString";
 import type { Session } from "../sessions.types";
 import SessionRandomizer from "./sessionRandomizer";
 
 export type SessionSortField = "name" | "createdAt";
 export type SortDirection = "asc" | "desc";
+
+function ColumnSortIcon({
+  field,
+  sortField,
+  sortDirection,
+}: {
+  field: SessionSortField;
+  sortField: SessionSortField;
+  sortDirection: SortDirection;
+}) {
+  const Icon =
+    sortDirection === "asc" ? ArrowUpWideNarrow : ArrowDownWideNarrow;
+  return sortField === field ? (
+    <Icon className="h-4 w-4" />
+  ) : (
+    <ArrowUpDown className="text-muted-foreground/30 h-4 w-4" />
+  );
+}
 
 export default function SessionSelector({
   sessions = [],
@@ -46,9 +68,6 @@ export default function SessionSelector({
   onSampleSizeChanged: (size: number) => void;
   onRandomizeClicked: () => void;
 }) {
-  const SortIcon =
-    sortDirection === "asc" ? ArrowUpWideNarrow : ArrowDownWideNarrow;
-
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
@@ -78,7 +97,11 @@ export default function SessionSelector({
                   className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center gap-1 transition-colors"
                 >
                   Name
-                  {sortField === "name" && <SortIcon className="h-4 w-4" />}
+                  <ColumnSortIcon
+                    field="name"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                  />
                 </button>
               </TableHead>
               <TableHead>
@@ -87,9 +110,11 @@ export default function SessionSelector({
                   className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center gap-1 transition-colors"
                 >
                   Created
-                  {sortField === "createdAt" && (
-                    <SortIcon className="h-4 w-4" />
-                  )}
+                  <ColumnSortIcon
+                    field="createdAt"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                  />
                 </button>
               </TableHead>
               <TableHead>File type</TableHead>
