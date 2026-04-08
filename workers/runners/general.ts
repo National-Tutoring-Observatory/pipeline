@@ -46,6 +46,10 @@ export default async (job: Job) => {
       case "NOTIFY_CREDITS_EXHAUSTED": {
         return notifyCreditsExhausted(job);
       }
+      case "WARM_UP": {
+        console.log("[general] Process warmed up");
+        return { status: "OK" };
+      }
       default: {
         return {
           status: "ERRORED",

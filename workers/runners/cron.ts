@@ -18,6 +18,10 @@ export default async (job: Job) => {
       case "NOTIFY:LOW_CREDITS_REPORT": {
         return reportLowCredits(job);
       }
+      case "WARM_UP": {
+        console.log("[cron] Process warmed up");
+        return { status: "OK" };
+      }
       default: {
         return {
           status: "ERRORED",

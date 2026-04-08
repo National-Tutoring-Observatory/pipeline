@@ -29,7 +29,7 @@ export default async (
 
   const baseOpts = {
     connection: redis,
-    concurrency: isProWorker ? 10 : 5,
+    concurrency: isProWorker ? 20 : 5,
     metrics: {
       maxDataPoints: MetricsTime.ONE_WEEK * 2,
     },
@@ -47,7 +47,7 @@ export default async (
       worker = new WorkerPro(name, file, {
         ...baseOpts,
         connection: redis as any,
-        group: { concurrency: 10 },
+        group: { concurrency: 20 },
       }) as unknown as Worker;
       console.log(`[${name}] BullMQ Pro is running`);
     } catch {
