@@ -8,11 +8,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { CircleAlert, CircleCheck, LoaderPinwheel } from "lucide-react";
 
 const SavePromptVersionDialog = ({
   error,
   reasoning,
+  suggestedPrompt,
   isSubmitButtonDisabled,
   isFetching,
   isMatching,
@@ -20,6 +22,7 @@ const SavePromptVersionDialog = ({
 }: {
   error: string;
   reasoning: string;
+  suggestedPrompt: string | null;
   isSubmitButtonDisabled: boolean;
   isFetching: boolean;
   isMatching: boolean;
@@ -63,6 +66,17 @@ const SavePromptVersionDialog = ({
             <AlertTitle>Prompt and schema are not aligned!</AlertTitle>
             <AlertDescription>{reasoning}</AlertDescription>
           </Alert>
+        )}
+      </div>
+      <div>
+        {!error && !isFetching && !isMatching && (
+          <Textarea
+            id="prompt"
+            placeholder="Write your prompt here."
+            value={suggestedPrompt}
+            className="h-80"
+            disabled={true}
+          />
         )}
       </div>
       <DialogFooter className="justify-end">

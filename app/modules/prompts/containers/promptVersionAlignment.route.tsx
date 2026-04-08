@@ -41,8 +41,12 @@ export async function action({ request }: Route.ActionArgs) {
       isMatching: { type: "boolean" },
       prompt: { type: "string" },
       reasoning: { type: "string" },
+      annotationSchema: {
+        type: "object",
+        additionalProperties: true,
+      },
     },
-    required: ["isMatching", "prompt", "reasoning"],
+    required: ["isMatching", "prompt", "reasoning", "annotationSchema"],
   };
 
   const llm = new LLM({
@@ -62,16 +66,19 @@ export async function action({ request }: Route.ActionArgs) {
     ${codesRule}
     - If they match, pass back a boolean true value.
     - If they do not match, pass back a boolean false value and rewrite the whole prompt with the suggested improvement.
+    - Do not include the annotationSchema in the prompt text. Make sure this is returned in the annotationSchema array.
     - Give your reasoning in the reasoning value.
     - Your reasoning should be one sentence maximum.
     - Only rewrite the prompt if isMatching is equal to false.
     - Do not return the prompt if isMatching is equal to true.
+    - If the prompt is re-written include the annotationSchema array to have the correct annotation fields.
     - Always return you result as the following JSON: {{output}}.
     `,
     {
       output: JSON.stringify({
         isMatching: false,
         prompt: "",
+        annotationSchema: { fieldName: "value" },
         reasoning: "",
       }),
     },
