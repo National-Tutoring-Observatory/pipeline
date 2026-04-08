@@ -209,6 +209,88 @@ describe("run.route action", () => {
     await clearDocumentDB();
   });
 
+  it("redirects to / when unauthenticated", async () => {
+    const owner = await UserService.create({ username: "owner", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(owner._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: owner._id,
+      team: team._id,
+    });
+    const run = await RunService.create({
+      project: project._id,
+      name: "Test Run",
+      sessions: [],
+      annotationType: "PER_UTTERANCE",
+      prompt: new Types.ObjectId().toString(),
+      promptVersion: 1,
+      modelCode: "gpt-4",
+      shouldRunVerification: false,
+    });
+
+    const res = await action({
+      request: new Request(
+        "http://localhost/projects/" + project._id + "/runs/" + run._id,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ intent: "DELETE_RUN", payload: {} }),
+        },
+      ),
+      params: { projectId: project._id, runId: run._id },
+    } as any);
+
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).headers.get("Location")).toBe("/");
+  });
+
+  it("redirects to / when user is not in project team", async () => {
+    const owner = await UserService.create({ username: "owner", teams: [] });
+    const team = await TeamService.create({ name: "Private Team" });
+    await UserService.updateById(owner._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+    const project = await ProjectService.create({
+      name: "Private Project",
+      createdBy: owner._id,
+      team: team._id,
+    });
+    const run = await RunService.create({
+      project: project._id,
+      name: "Private Run",
+      sessions: [],
+      annotationType: "PER_UTTERANCE",
+      prompt: new Types.ObjectId().toString(),
+      promptVersion: 1,
+      modelCode: "gpt-4",
+      shouldRunVerification: false,
+    });
+
+    const otherUser = await UserService.create({
+      username: "other_user",
+      teams: [],
+    });
+    const cookieHeader = await loginUser(otherUser._id);
+
+    const res = await action({
+      request: new Request(
+        "http://localhost/projects/" + project._id + "/runs/" + run._id,
+        {
+          method: "POST",
+          headers: { cookie: cookieHeader, "Content-Type": "application/json" },
+          body: JSON.stringify({ intent: "DELETE_RUN", payload: {} }),
+        },
+      ),
+      params: { projectId: project._id, runId: run._id },
+    } as any);
+
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).headers.get("Location")).toBe("/");
+  });
+
   it("GET_ALL_RUN_SETS returns all run sets containing the run", async () => {
     const user = await UserService.create({ username: "test_user", teams: [] });
     const team = await TeamService.create({ name: "Test Team" });
@@ -240,12 +322,14 @@ describe("run.route action", () => {
       annotationType: "PER_UTTERANCE",
     });
 
+    const cookieHeader = await loginUser(user._id);
+
     const res = await action({
       request: new Request(
         "http://localhost/projects/" + project._id + "/runs/" + run._id,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { cookie: cookieHeader, "Content-Type": "application/json" },
           body: JSON.stringify({ intent: "GET_ALL_RUN_SETS" }),
         },
       ),
@@ -281,12 +365,14 @@ describe("run.route action", () => {
       shouldRunVerification: false,
     });
 
+    const cookieHeader = await loginUser(user._id);
+
     const res = await action({
       request: new Request(
         "http://localhost/projects/" + project._id + "/runs/" + run._id,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { cookie: cookieHeader, "Content-Type": "application/json" },
           body: JSON.stringify({
             intent: "UPDATE_RUN",
             payload: { name: "New Name" },
@@ -327,12 +413,14 @@ describe("run.route action", () => {
       shouldRunVerification: false,
     });
 
+    const cookieHeader = await loginUser(user._id);
+
     const res = await action({
       request: new Request(
         "http://localhost/projects/" + project._id + "/runs/" + run._id,
         {
           method: "DELETE",
-          headers: { "Content-Type": "application/json" },
+          headers: { cookie: cookieHeader, "Content-Type": "application/json" },
           body: JSON.stringify({ intent: "DELETE_RUN", payload: {} }),
         },
       ),

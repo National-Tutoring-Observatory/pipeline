@@ -95,6 +95,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
+  const user = await getSessionUser({ request });
+  if (!user) return redirect("/");
+
   const { intent, payload = {} } = await request.json();
 
   switch (intent) {

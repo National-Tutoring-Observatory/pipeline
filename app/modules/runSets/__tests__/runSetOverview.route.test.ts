@@ -13,7 +13,7 @@ import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
-import { loader } from "../containers/runSetOverview.route";
+import { action, loader } from "../containers/runSetOverview.route";
 
 type LoaderResult = {
   runs: { data: Run[]; count: number; totalPages: number };
@@ -298,5 +298,80 @@ describe("runSetOverview.route loader", () => {
     const data = res as LoaderResult;
     expect(data.sessions.data).toHaveLength(1);
     expect(data.sessions.totalPages).toBe(1);
+  });
+});
+
+describe("runSetOverview.route action", () => {
+  let user: User;
+  let team: Team;
+  let project: Project;
+  let runSet: RunSet;
+  let run: Run;
+  let cookieHeader: string;
+
+  beforeEach(async () => {
+    await clearDocumentDB();
+
+    user = await UserService.create({ username: "test_user", teams: [] });
+    team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+    project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+    });
+    run = await createTestRun({
+      name: "Test Run",
+      project: project._id,
+      annotationType: "PER_UTTERANCE",
+      isRunning: false,
+      isComplete: false,
+    });
+    runSet = await RunSetService.create({
+      name: "Test Run Set",
+      project: project._id,
+      sessions: [],
+      runs: [run._id],
+      annotationType: "PER_UTTERANCE",
+    });
+    cookieHeader = await loginUser(user._id);
+  });
+
+  it("redirects to / when unauthenticated for REMOVE_RUN_FROM_RUN_SET", async () => {
+    const res = await action({
+      request: new Request("http://localhost/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          intent: "REMOVE_RUN_FROM_RUN_SET",
+          payload: { runId: run._id },
+        }),
+      }),
+      params: { projectId: project._id, runSetId: runSet._id },
+    } as any);
+
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).headers.get("Location")).toBe("/");
+  });
+
+  it("removes run from run set when authenticated", async () => {
+    const res = await action({
+      request: new Request("http://localhost/", {
+        method: "POST",
+        headers: { cookie: cookieHeader, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          intent: "REMOVE_RUN_FROM_RUN_SET",
+          payload: { runId: run._id },
+        }),
+      }),
+      params: { projectId: project._id, runSetId: runSet._id },
+    } as any);
+
+    expect(res).not.toBeInstanceOf(Response);
+    expect((res as any).intent).toBe("REMOVE_RUN_FROM_RUN_SET");
+    const updated = await RunSetService.findById(runSet._id);
+    expect(updated?.runs).not.toContain(run._id);
   });
 });
