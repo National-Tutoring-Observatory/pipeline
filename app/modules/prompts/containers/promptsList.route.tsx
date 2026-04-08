@@ -21,12 +21,14 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (!annotationType || !validAnnotationTypes.includes(annotationType)) {
     throw new Error("Invalid or missing annotationType");
   }
-  const prompts = await PromptService.find({
+
+  const prompts = await PromptService.findWithSavedVersions({
     match: {
       annotationType,
       team: { $in: teamIds },
       deletedAt: { $exists: false },
     },
   });
+
   return { prompts: { data: prompts } };
 }

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import promptSchema from "~/lib/schemas/prompt.schema";
 import type { FindOptions } from "~/modules/common/types";
 import type { Prompt } from "./prompts.types";
+import { PromptVersionService } from "./promptVersion";
 import createDefaultPrompts from "./services/createDefaultPrompts.server";
 
 const PromptModel =
@@ -66,6 +67,21 @@ export class PromptService {
   static async deleteById(id: string): Promise<Prompt | null> {
     const doc = await PromptModel.findByIdAndDelete(id);
     return doc ? this.toPrompt(doc) : null;
+  }
+
+  static async findWithSavedVersions(options?: FindOptions): Promise<Prompt[]> {
+    const prompts = await this.find(options);
+    if (prompts.length === 0) return [];
+
+    const promptIds = prompts.map((p) => p._id);
+    const savedVersions = await PromptVersionService.find({
+      match: { prompt: { $in: promptIds }, hasBeenSaved: true },
+      select: ["prompt"],
+    });
+    const withSavedVersions = new Set(
+      savedVersions.map((v) => v.prompt as string),
+    );
+    return prompts.filter((p) => withSavedVersions.has(p._id));
   }
 
   static async createDefaultPrompts(

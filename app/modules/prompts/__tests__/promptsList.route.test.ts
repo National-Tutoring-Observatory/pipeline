@@ -5,6 +5,7 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/promptsList.route";
 import { PromptService } from "../prompt";
+import { PromptVersionService } from "../promptVersion";
 
 describe("promptsList.route loader", () => {
   beforeEach(async () => {
@@ -20,7 +21,7 @@ describe("promptsList.route loader", () => {
     expect((res as Response).headers.get("Location")).toBe("/");
   });
 
-  it("creates a session user and returns prompts filtered by annotationType + teamId (real adapter)", async () => {
+  it("returns prompts that have at least one saved version, filtered by annotationType + teamId", async () => {
     const team = await TeamService.create({ name: "team 1" });
     const teamOther = await TeamService.create({ name: "team 2" });
 
@@ -32,6 +33,14 @@ describe("promptsList.route loader", () => {
       name: "prompt 1",
       annotationType: "PER_UTTERANCE",
       team: team._id,
+    });
+    await PromptVersionService.create({
+      prompt: prompt._id,
+      version: 1,
+      name: "v1",
+      userPrompt: "Do something",
+      annotationSchema: [{ name: "label" }],
+      hasBeenSaved: true,
     });
     const promptOther = await PromptService.create({
       name: "prompt 2",
@@ -56,6 +65,64 @@ describe("promptsList.route loader", () => {
     const ids = data.map((d: any) => d._id ?? d.id);
     expect(ids).toContain(prompt._id);
     expect(ids).not.toContain(promptOther._id);
+  });
+
+  it("excludes prompts with no saved versions", async () => {
+    const team = await TeamService.create({ name: "team" });
+    const user = await UserService.create({
+      username: "test",
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const promptWithSavedVersion = await PromptService.create({
+      name: "saved prompt",
+      annotationType: "PER_UTTERANCE",
+      team: team._id,
+    });
+    await PromptVersionService.create({
+      prompt: promptWithSavedVersion._id,
+      version: 1,
+      name: "v1",
+      userPrompt: "Do something",
+      annotationSchema: [{ name: "label" }],
+      hasBeenSaved: true,
+    });
+
+    const promptWithNoVersions = await PromptService.create({
+      name: "empty prompt",
+      annotationType: "PER_UTTERANCE",
+      team: team._id,
+    });
+
+    const promptWithOnlyUnsavedVersion = await PromptService.create({
+      name: "unsaved prompt",
+      annotationType: "PER_UTTERANCE",
+      team: team._id,
+    });
+    await PromptVersionService.create({
+      prompt: promptWithOnlyUnsavedVersion._id,
+      version: 1,
+      name: "v1",
+      userPrompt: "",
+      annotationSchema: [],
+      hasBeenSaved: false,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const result = (await loader({
+      request: new Request("http://localhost/?annotationType=PER_UTTERANCE", {
+        headers: { cookie: cookieHeader },
+      }),
+      params: {},
+      unstable_pattern: "",
+      context: {},
+    } as any)) as any;
+
+    const ids = result.prompts.data.map((d: any) => d._id ?? d.id);
+    expect(ids).toContain(promptWithSavedVersion._id);
+    expect(ids).not.toContain(promptWithNoVersions._id);
+    expect(ids).not.toContain(promptWithOnlyUnsavedVersion._id);
   });
 
   it("throws when annotationType is invalid", async () => {

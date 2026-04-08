@@ -30,7 +30,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   const result = await PromptVersionService.find({
-    match: { prompt: promptId },
+    match: { prompt: promptId, hasBeenSaved: true },
     sort: { version: -1 },
   });
   const promptVersions = { data: result };
