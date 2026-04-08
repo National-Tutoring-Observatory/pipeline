@@ -35,19 +35,18 @@ export default function SavePromptVersionDialogContainer({
 
   const error = fetcher.data?.errors?.general ?? "";
   const isFetching = !fetcher.data;
-  const isMatching = fetcher.data?.isMatching ?? false;
-  const isSubmitButtonDisabled = !fetcher.data?.isMatching || !!error;
+  const isMatching = fetcher.data?.alignmentScore >= 0.8;
+  const isSubmitButtonDisabled = !isMatching || !!error;
   const reasoning = fetcher.data?.reasoning ?? "";
-  const suggestedPrompt = fetcher.data?.prompt;
+  const suggestedPrompt = fetcher.data?.prompt || "";
   const suggestedAnnotationSchema = fetcher.data?.annotationSchema || {};
-
-  console.log(suggestedAnnotationSchema);
 
   return (
     <SavePromptVersionDialog
       error={error}
       reasoning={reasoning}
       suggestedPrompt={suggestedPrompt}
+      suggestedAnnotationSchema={suggestedAnnotationSchema}
       isSubmitButtonDisabled={isSubmitButtonDisabled}
       isFetching={isFetching}
       isMatching={isMatching}

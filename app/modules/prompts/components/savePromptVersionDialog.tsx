@@ -8,13 +8,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CircleAlert, CircleCheck, LoaderPinwheel } from "lucide-react";
+import AnnotationSchemaViewer from "./annotationSchemaViewer";
 
 const SavePromptVersionDialog = ({
   error,
   reasoning,
   suggestedPrompt,
+  suggestedAnnotationSchema,
   isSubmitButtonDisabled,
   isFetching,
   isMatching,
@@ -22,14 +25,15 @@ const SavePromptVersionDialog = ({
 }: {
   error: string;
   reasoning: string;
-  suggestedPrompt: string | null;
+  suggestedPrompt: string;
+  suggestedAnnotationSchema: [];
   isSubmitButtonDisabled: boolean;
   isFetching: boolean;
   isMatching: boolean;
   onSaveClicked: () => void;
 }) => {
   return (
-    <DialogContent>
+    <DialogContent className="min-w-3xl">
       <DialogHeader>
         <DialogTitle>Save prompt version</DialogTitle>
         <DialogDescription>
@@ -68,34 +72,62 @@ const SavePromptVersionDialog = ({
           </Alert>
         )}
       </div>
-      <div>
-        {!error && !isFetching && !isMatching && (
-          <Textarea
-            id="prompt"
-            placeholder="Write your prompt here."
-            value={suggestedPrompt}
-            className="h-80"
-            disabled={true}
-          />
-        )}
-      </div>
+      {!error && !isFetching && !isMatching && (
+        <div className="space-y-2">
+          <p>
+            We've suggested a few changes to your prompt and annotation schema:
+          </p>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Prompt</Label>
+              <Textarea
+                id="prompt"
+                placeholder="Write your prompt here."
+                value={suggestedPrompt}
+                className="h-80"
+                disabled={true}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Annotation schema</Label>
+              <AnnotationSchemaViewer
+                annotationSchema={suggestedAnnotationSchema}
+              />
+            </div>
+          </div>
+        </div>
+      )}
       <DialogFooter className="justify-end">
         <DialogClose asChild>
           <Button type="button" variant="secondary">
             Cancel
           </Button>
         </DialogClose>
-        <DialogClose asChild>
-          <Button
-            type="button"
-            disabled={isSubmitButtonDisabled}
-            onClick={() => {
-              onSaveClicked();
-            }}
-          >
-            Save version
-          </Button>
-        </DialogClose>
+        {isMatching && (
+          <DialogClose asChild>
+            <Button
+              type="button"
+              disabled={isSubmitButtonDisabled}
+              onClick={() => {
+                onSaveClicked();
+              }}
+            >
+              Save version
+            </Button>
+          </DialogClose>
+        )}
+        {!error && !isFetching && !isMatching && (
+          <DialogClose asChild>
+            <Button
+              type="button"
+              onClick={() => {
+                onSaveClicked();
+              }}
+            >
+              Accept suggestions
+            </Button>
+          </DialogClose>
+        )}
       </DialogFooter>
     </DialogContent>
   );
