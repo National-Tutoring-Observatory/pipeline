@@ -65,25 +65,12 @@ function Navbar() {
   ];
 
   return (
-    <nav
-      className="fixed top-[32px] right-0 left-0 z-50 border-b border-[rgba(230,226,214,0.6)]"
-      style={{
-        background: "rgba(249, 247, 241, 0.82)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-      }}
-    >
+    <nav className="fixed top-[32px] right-0 left-0 z-50 border-b border-[rgba(230,226,214,0.6)] bg-[#f9f7f1]/82 backdrop-blur-[20px]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <a
             href="#hero"
-            className="flex items-center gap-2 no-underline"
-            style={{
-              fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 700,
-              fontSize: "1.3rem",
-              color: "#2C241B",
-            }}
+            className="font-display flex items-center gap-2 text-[1.3rem] font-bold text-[#2C241B] no-underline"
           >
             <img
               src="/assets/sandpiper-logo.svg"
@@ -98,8 +85,7 @@ function Navbar() {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-[0.88rem] font-medium text-[#5D534A] transition-colors hover:text-[#B31B1B]"
-                style={{ textDecoration: "none" }}
+                className="text-[0.88rem] font-medium text-[#5D534A] no-underline transition-colors hover:text-[#B31B1B]"
               >
                 {link.label}
               </a>
@@ -168,29 +154,10 @@ function Hero() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-16">
           <div className="lg:w-[40%]">
-            <div
-              className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-[rgba(166,75,42,0.12)] px-4 py-1.5"
-              style={{
-                background: "#e8f4f7",
-                color: "#367181",
-                fontSize: "0.78rem",
-                fontWeight: 600,
-                letterSpacing: "0.03em",
-              }}
-            >
+            <div className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-[rgba(166,75,42,0.12)] bg-[#e8f4f7] px-4 py-1.5 text-[0.78rem] font-semibold tracking-[0.03em] text-[#367181]">
               <GraduationCap size={14} />A National Tutoring Observatory Project
             </div>
-            <h1
-              className="mb-4"
-              style={{
-                fontFamily: "'Josefin Sans', sans-serif",
-                fontWeight: 700,
-                fontSize: "clamp(2.4rem, 5vh, 4.5rem)",
-                lineHeight: 1.1,
-                letterSpacing: "-0.02em",
-                color: "#2C241B",
-              }}
-            >
+            <h1 className="font-display mb-4 text-[clamp(2.4rem,5vh,4.5rem)] leading-[1.1] font-bold tracking-[-0.02em] text-[#2C241B]">
               The Future of Discourse
               <br />
               <span
@@ -204,15 +171,7 @@ function Hero() {
                 Annotation
               </span>
             </h1>
-            <p
-              className="mb-4"
-              style={{
-                color: "#5D534A",
-                fontSize: "clamp(1.12rem, 1.8vh, 1.35rem)",
-                lineHeight: 1.75,
-                maxWidth: "520px",
-              }}
-            >
+            <p className="mb-4 max-w-[520px] text-[clamp(1.12rem,1.8vh,1.35rem)] leading-[1.75] text-[#5D534A]">
               Sandpiper orchestrates multiple LLMs to produce reliable, highly
               accurate annotations at scale. Starting with tutoring transcripts,
               built for any field.
@@ -309,10 +268,7 @@ function Partners() {
               className="flex h-14 items-center justify-center"
             >
               {partner.isText ? (
-                <span
-                  className="text-center text-sm font-semibold text-[#5D534A] opacity-75 transition-opacity hover:opacity-100"
-                  style={{ maxWidth: "253px" }}
-                >
+                <span className="max-w-[253px] text-center text-sm font-semibold text-[#5D534A] opacity-75 transition-opacity hover:opacity-100">
                   Carnegie Mellon University
                 </span>
               ) : (
@@ -374,30 +330,15 @@ function Benefits() {
       />
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
-          <div
-            className="mb-2 text-[0.72rem] font-bold tracking-[0.14em] uppercase"
-            style={{ color: "#D4A843" }}
-          >
+          <div className="mb-2 text-[0.72rem] font-bold tracking-[0.14em] text-[#D4A843] uppercase">
             Why Sandpiper
           </div>
-          <h2
-            style={{
-              fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 700,
-              fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.15,
-              marginBottom: "1rem",
-            }}
-          >
+          <h2 className="font-display text-section-heading mb-4 leading-[1.15] font-bold tracking-[-0.01em]">
             Annotation Research,
             <br />
             Reimagined
           </h2>
-          <p
-            className="mx-auto max-w-[620px] text-[1.05rem] leading-[1.7]"
-            style={{ color: "rgba(255,255,255,0.5)" }}
-          >
+          <p className="mx-auto max-w-[620px] text-[1.05rem] leading-[1.7] text-white/50">
             Traditional qualitative coding is slow, expensive, and hard to
             scale. Sandpiper changes that &mdash; using orchestrated LLMs to
             annotate textual data at the utterance and session level, then
@@ -408,17 +349,11 @@ function Benefits() {
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className="rounded-2xl border border-[rgba(255,255,255,0.08)] p-10 text-center transition-all hover:-translate-y-1 hover:border-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.08)]"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                backdropFilter: "blur(12px)",
-              }}
+              className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-white/4 p-10 text-center backdrop-blur-[12px] transition-all hover:-translate-y-1 hover:border-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.08)]"
             >
               <div
-                className="mb-2 text-5xl leading-none"
+                className="font-display mb-2 text-5xl leading-none font-bold"
                 style={{
-                  fontFamily: "'Josefin Sans', sans-serif",
-                  fontWeight: 700,
                   color: stat.color,
                 }}
               >
@@ -427,10 +362,7 @@ function Benefits() {
               <div className="mb-1 text-[0.95rem] font-semibold">
                 {stat.label}
               </div>
-              <div
-                className="text-[0.85rem] leading-relaxed"
-                style={{ color: "rgba(255,255,255,0.55)" }}
-              >
+              <div className="text-[0.85rem] leading-relaxed text-white/55">
                 {stat.description}
               </div>
             </div>
@@ -496,17 +428,7 @@ function Features() {
           <div className="mb-2 text-[0.72rem] font-bold tracking-[0.14em] text-[#A64B2A] uppercase">
             Features
           </div>
-          <h2
-            style={{
-              fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 700,
-              fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.15,
-              marginBottom: "1rem",
-              color: "#2C241B",
-            }}
-          >
+          <h2 className="font-display text-section-heading mb-4 leading-[1.15] font-bold tracking-[-0.01em] text-[#2C241B]">
             Everything You Need to
             <br />
             Annotate &amp; Validate
@@ -548,16 +470,14 @@ function Features() {
           <img
             src="/assets/splash/screenshot-runset-creator.webp"
             alt="Run Set Creator"
-            className="absolute left-0 w-[62%] rounded-xl border border-[rgba(0,0,0,0.05)] shadow-xl"
+            className="absolute left-0 w-[62%] -rotate-2 rounded-xl border border-[rgba(0,0,0,0.05)] shadow-xl"
             loading="lazy"
-            style={{ transform: "rotate(-2deg)" }}
           />
           <img
             src="/assets/splash/screenshot-runset-overview.webp"
             alt="Run Set Overview"
-            className="absolute left-[28%] z-10 w-[62%] rounded-xl border border-[rgba(0,0,0,0.05)] shadow-2xl"
+            className="absolute top-[40px] left-[28%] z-10 w-[62%] rotate-[1.5deg] rounded-xl border border-[rgba(0,0,0,0.05)] shadow-2xl"
             loading="lazy"
-            style={{ transform: "rotate(1.5deg)", top: "40px" }}
           />
         </div>
       </div>
@@ -604,17 +524,7 @@ function HowItWorks() {
           <div className="mb-2 text-[0.72rem] font-bold tracking-[0.14em] text-[#A64B2A] uppercase">
             How It Works
           </div>
-          <h2
-            className="text-[#2C241B]"
-            style={{
-              fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 700,
-              fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.15,
-              marginBottom: "1rem",
-            }}
-          >
+          <h2 className="font-display text-section-heading mb-4 leading-[1.15] font-bold tracking-[-0.01em] text-[#2C241B]">
             Three Steps to Validated Insights
           </h2>
         </div>
@@ -700,27 +610,13 @@ function Orchestration() {
     >
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
-          <div
-            className="mb-2 text-[0.72rem] font-bold uppercase"
-            style={{ color: "#B31B1B", letterSpacing: "0.16em" }}
-          >
+          <div className="mb-2 text-[0.72rem] font-bold tracking-[0.16em] text-[#B31B1B] uppercase">
             LLM Orchestration &amp; Adjudication
           </div>
-          <h2
-            style={{
-              fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 700,
-              fontSize: "clamp(2rem, 3.8vw, 2.8rem)",
-              lineHeight: 1.15,
-              marginBottom: "1rem",
-            }}
-          >
+          <h2 className="font-display mb-4 text-[clamp(2rem,3.8vw,2.8rem)] leading-[1.15] font-bold">
             Surpass Human-Level Annotation Quality
           </h2>
-          <p
-            className="mx-auto max-w-[680px] text-[1.05rem] leading-[1.75]"
-            style={{ color: "rgba(255,255,255,0.55)" }}
-          >
+          <p className="mx-auto max-w-[680px] text-[1.05rem] leading-[1.75] text-white/55">
             Sandpiper doesn&rsquo;t just run a single model and hope for the
             best. It orchestrates multiple LLMs across the same data, then uses
             adjudication logic to synthesize a consensus annotation that
@@ -733,10 +629,8 @@ function Orchestration() {
           {orchSteps.map((step, index) => (
             <div key={step.title} className="flex flex-1 items-stretch">
               <div
-                className="flex-1 border border-[rgba(255,255,255,0.06)] p-8 transition-all hover:border-[rgba(255,255,255,0.12)] hover:bg-[rgba(255,255,255,0.06)]"
+                className="flex-1 border border-[rgba(255,255,255,0.06)] bg-white/3 p-8 backdrop-blur-[8px] transition-all hover:border-[rgba(255,255,255,0.12)] hover:bg-[rgba(255,255,255,0.06)]"
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  backdropFilter: "blur(8px)",
                   borderRadius:
                     index === 0
                       ? "1rem 0 0 1rem"
@@ -752,10 +646,7 @@ function Orchestration() {
                   {step.num}
                 </div>
                 <h5 className="mb-1 text-[0.95rem] font-bold">{step.title}</h5>
-                <p
-                  className="m-0 text-[0.82rem] leading-relaxed"
-                  style={{ color: "rgba(255,255,255,0.5)" }}
-                >
+                <p className="m-0 text-[0.82rem] leading-relaxed text-white/50">
                   {step.description}
                 </p>
               </div>
@@ -777,25 +668,11 @@ function Orchestration() {
                   "linear-gradient(135deg, rgba(179,27,27,0.15), rgba(179,27,27,0.05))",
               }}
             >
-              <h4
-                className="mb-2"
-                style={{
-                  fontFamily: "'Josefin Sans', sans-serif",
-                  fontWeight: 700,
-                  fontSize: "1.3rem",
-                }}
-              >
-                <Trophy
-                  size={18}
-                  className="mr-2 inline"
-                  style={{ color: "#D4A843" }}
-                />
+              <h4 className="font-display mb-2 text-[1.3rem] font-bold">
+                <Trophy size={18} className="mr-2 inline text-[#D4A843]" />
                 Why This Matters
               </h4>
-              <p
-                className="m-0 text-[0.92rem] leading-[1.7]"
-                style={{ color: "rgba(255,255,255,0.55)" }}
-              >
+              <p className="m-0 text-[0.92rem] leading-[1.7] text-white/55">
                 Traditional annotation pipelines rely on a single LLM pass or
                 expensive human coding teams. Sandpiper&rsquo;s orchestration
                 approach treats LLMs the way research teams treat human coders
@@ -811,10 +688,7 @@ function Orchestration() {
               <div className="mb-0.5 text-[0.78rem] font-bold text-white">
                 Talk Moves Classification Performance
               </div>
-              <div
-                className="mb-4 text-[0.6rem] italic"
-                style={{ color: "rgba(255,255,255,0.4)" }}
-              >
+              <div className="mb-4 text-[0.6rem] text-white/40 italic">
                 F1 score averaged across all talk move constructs
               </div>
               <div className="mx-auto flex max-w-[320px] items-end justify-center gap-6">
@@ -822,14 +696,8 @@ function Orchestration() {
                   <span className="mb-1 text-[0.72rem] font-bold text-[#D4A843]">
                     Fail
                   </span>
-                  <div
-                    className="w-14 rounded-t bg-[#367181] opacity-30"
-                    style={{ height: 2 }}
-                  />
-                  <span
-                    className="mt-2 text-[0.53rem] font-semibold"
-                    style={{ color: "rgba(255,255,255,0.5)" }}
-                  >
+                  <div className="h-[2px] w-14 rounded-t bg-[#367181] opacity-30" />
+                  <span className="mt-2 text-[0.53rem] font-semibold text-white/50">
                     Chat Bot
                   </span>
                 </div>
@@ -837,14 +705,8 @@ function Orchestration() {
                   <span className="mb-1 text-[0.72rem] font-bold text-[#6B9BAD]">
                     0.10
                   </span>
-                  <div
-                    className="w-14 rounded-t bg-[#6B9BAD]"
-                    style={{ height: 14 }}
-                  />
-                  <span
-                    className="mt-2 text-[0.53rem] font-semibold"
-                    style={{ color: "rgba(255,255,255,0.5)" }}
-                  >
+                  <div className="h-[14px] w-14 rounded-t bg-[#6B9BAD]" />
+                  <span className="mt-2 text-[0.53rem] font-semibold text-white/50">
                     Basic API Call
                   </span>
                 </div>
@@ -852,10 +714,7 @@ function Orchestration() {
                   <span className="mb-2 rounded-full border border-[#367181] px-2 py-0.5 text-[0.62rem] font-extrabold text-[#367181]">
                     9.2&times;
                   </span>
-                  <div
-                    className="w-14 rounded-t bg-[#A64B2A]"
-                    style={{ height: 105 }}
-                  />
+                  <div className="h-[105px] w-14 rounded-t bg-[#A64B2A]" />
                   <span className="mt-2 text-[0.53rem] font-bold text-white">
                     Sandpiper
                   </span>
@@ -907,17 +766,7 @@ function Metrics() {
             <div className="mb-2 text-[0.72rem] font-bold tracking-[0.14em] text-[#367181] uppercase">
               Evaluation Engine
             </div>
-            <h2
-              className="text-[#2C241B]"
-              style={{
-                fontFamily: "'Josefin Sans', sans-serif",
-                fontWeight: 700,
-                fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
-                letterSpacing: "-0.01em",
-                lineHeight: 1.15,
-                marginBottom: "1rem",
-              }}
-            >
+            <h2 className="font-display text-section-heading mb-4 leading-[1.15] font-bold tracking-[-0.01em] text-[#2C241B]">
               Know Exactly How Good Your Annotations Are
             </h2>
             <p className="mb-6 max-w-[620px] text-[1.05rem] leading-[1.7] text-[#5D534A]">
@@ -977,13 +826,7 @@ function PaperCard({
       >
         {category}
       </div>
-      <h5
-        className="text-[1.05rem] leading-[1.4] text-[#2C241B]"
-        style={{
-          fontFamily: "'Josefin Sans', sans-serif",
-          fontWeight: 400,
-        }}
-      >
+      <h5 className="font-display text-[1.05rem] leading-[1.4] text-[#2C241B]">
         {title}
       </h5>
       <p className="flex-1 text-[0.82rem] leading-[1.55] text-[#5D534A]">
@@ -1090,17 +933,7 @@ function Research() {
           <div className="mb-2 text-[0.72rem] font-bold tracking-[0.14em] text-[#A64B2A] uppercase">
             Research
           </div>
-          <h2
-            className="text-[#2C241B]"
-            style={{
-              fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 700,
-              fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.15,
-              marginBottom: "1rem",
-            }}
-          >
+          <h2 className="font-display text-section-heading mb-4 leading-[1.15] font-bold tracking-[-0.01em] text-[#2C241B]">
             Built on Peer-Reviewed Science
           </h2>
           <p className="mx-auto max-w-[640px] text-[1.05rem] leading-[1.7] text-[#5D534A]">
@@ -1111,10 +944,7 @@ function Research() {
         </div>
 
         <div className="mb-12">
-          <h4
-            className="mb-5 text-[1rem] font-semibold tracking-[0.06em] text-[#367181] uppercase"
-            style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-          >
+          <h4 className="font-display mb-5 text-[1rem] font-semibold tracking-[0.06em] text-[#367181] uppercase">
             From the Sandpiper Team
           </h4>
           <div className="grid gap-4 md:grid-cols-2">
@@ -1124,10 +954,7 @@ function Research() {
           </div>
         </div>
 
-        <h4
-          className="mb-5 text-[1rem] font-semibold tracking-[0.06em] text-[#5D534A] uppercase"
-          style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-        >
+        <h4 className="font-display mb-5 text-[1rem] font-semibold tracking-[0.06em] text-[#5D534A] uppercase">
           Foundational Research
         </h4>
         <div className="grid gap-4 md:grid-cols-2">
@@ -1160,28 +987,13 @@ function About() {
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-12 lg:flex-row lg:items-center">
           <div className="lg:w-[60%]">
-            <div
-              className="mb-2 text-[0.72rem] font-bold tracking-[0.14em] uppercase"
-              style={{ color: "#D4A843" }}
-            >
+            <div className="mb-2 text-[0.72rem] font-bold tracking-[0.14em] text-[#D4A843] uppercase">
               About the Project
             </div>
-            <h2
-              className="mb-4"
-              style={{
-                fontFamily: "'Josefin Sans', sans-serif",
-                fontWeight: 700,
-                fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
-                letterSpacing: "-0.01em",
-                lineHeight: 1.15,
-              }}
-            >
+            <h2 className="font-display text-section-heading mb-4 leading-[1.15] font-bold tracking-[-0.01em]">
               A National Tutoring Observatory Initiative
             </h2>
-            <p
-              className="mb-4 text-base leading-[1.8]"
-              style={{ color: "rgba(255,255,255,0.6)" }}
-            >
+            <p className="mb-4 text-base leading-[1.8] text-white/60">
               Sandpiper is developed as part of the{" "}
               <a
                 href="https://nationaltutoringobservatory.org"
@@ -1222,10 +1034,7 @@ function About() {
               scale by creating the world&rsquo;s largest repository of tutoring
               interaction data &mdash; the Million Tutor Moves dataset.
             </p>
-            <p
-              className="mb-4 text-base leading-[1.8]"
-              style={{ color: "rgba(255,255,255,0.6)" }}
-            >
+            <p className="mb-4 text-base leading-[1.8] text-white/60">
               The application&rsquo;s design and engineering is led by{" "}
               <a
                 href="https://freshcognate.com"
@@ -1239,10 +1048,7 @@ function About() {
               with deep expertise in learning technology and data-driven
               storytelling.
             </p>
-            <p
-              className="mt-6 text-[0.85rem]"
-              style={{ color: "rgba(255,255,255,0.45)" }}
-            >
+            <p className="mt-6 text-[0.85rem] text-white/45">
               This material is based upon work supported by the National Science
               Foundation (Grant No. 2321499), the Gates Foundation, and the Chan
               Zuckerberg Initiative.
@@ -1296,40 +1102,20 @@ function About() {
                 href="https://www.cmu.edu"
                 target="_blank"
                 rel="noreferrer"
-                className="text-[0.8rem] font-semibold opacity-60 transition-opacity hover:opacity-100"
-                style={{
-                  color: "rgba(255,255,255,0.8)",
-                  fontFamily: "'Josefin Sans', sans-serif",
-                }}
+                className="font-display text-[0.8rem] font-semibold text-white/80 opacity-60 transition-opacity hover:opacity-100"
               >
                 Carnegie Mellon University
               </a>
             </div>
           </div>
           <div className="text-center text-2xl lg:w-[40%]">
-            <div
-              className="rounded-2xl border border-[rgba(255,255,255,0.08)] p-10 transition-colors hover:border-[rgba(255,255,255,0.15)]"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                backdropFilter: "blur(8px)",
-              }}
-            >
+            <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-white/4 p-10 backdrop-blur-[8px] transition-colors hover:border-[rgba(255,255,255,0.15)]">
               <GithubIcon
                 size={64}
                 className="mx-auto mb-5 block text-[#D4A843]"
               />
-              <h4
-                className="mb-2 font-bold"
-                style={{
-                  fontFamily: "'Josefin Sans', sans-serif",
-                }}
-              >
-                Open Source
-              </h4>
-              <p
-                className="mb-6 text-[0.9rem] leading-[1.65]"
-                style={{ color: "rgba(255,255,255,0.45)" }}
-              >
+              <h4 className="font-display mb-2 font-bold">Open Source</h4>
+              <p className="mb-6 text-[0.9rem] leading-[1.65] text-white/45">
                 Sandpiper is open-source and freely available. We believe in
                 equitable access to high-quality research tools.
               </p>
@@ -1400,17 +1186,7 @@ function Impact() {
           <div className="mb-2 text-[0.72rem] font-bold tracking-[0.14em] text-[#A64B2A] uppercase">
             Impact &amp; Partnership
           </div>
-          <h2
-            className="text-[#2C241B]"
-            style={{
-              fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 700,
-              fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.15,
-              marginBottom: "1rem",
-            }}
-          >
+          <h2 className="font-display text-section-heading mb-4 leading-[1.15] font-bold tracking-[-0.01em] text-[#2C241B]">
             Insights That Drive
             <br />
             Better Outcomes
@@ -1482,20 +1258,10 @@ function CTASection() {
         }}
       />
       <div className="relative z-10 mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-        <h2
-          className="mb-3"
-          style={{
-            fontFamily: "'Josefin Sans', sans-serif",
-            fontWeight: 700,
-            fontSize: "clamp(1.6rem, 3vw, 2.4rem)",
-          }}
-        >
+        <h2 className="font-display mb-3 text-[clamp(1.6rem,3vw,2.4rem)] font-bold">
           The Future of Annotation Research Starts Here
         </h2>
-        <p
-          className="mx-auto mb-8 max-w-[560px] text-[1.05rem]"
-          style={{ color: "rgba(255,255,255,0.8)" }}
-        >
+        <p className="mx-auto mb-8 max-w-[560px] text-[1.05rem] text-white/80">
           Sandpiper is free, open-source, and ready to use. Upload your data,
           orchestrate AI annotations across multiple models, and get industry
           standard evaluation metrics &mdash; all in one sitting.
@@ -1534,13 +1300,7 @@ function Footer() {
                 alt="Sandpiper"
                 className="h-5 w-5 rounded-sm opacity-70"
               />
-              <span
-                className="font-semibold"
-                style={{
-                  color: "rgba(255,255,255,0.6)",
-                  fontFamily: "'Josefin Sans', sans-serif",
-                }}
-              >
+              <span className="font-display font-semibold text-white/60">
                 Sandpiper
               </span>
             </div>
@@ -1581,8 +1341,7 @@ function Footer() {
               href="https://freshcognate.com"
               target="_blank"
               rel="noreferrer"
-              className="no-underline"
-              style={{ color: "#D4A843" }}
+              className="text-[#D4A843] no-underline"
             >
               FreshCognate
             </a>
@@ -1595,13 +1354,7 @@ function Footer() {
 
 export default function Splash() {
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        fontFamily: "'Inter', sans-serif",
-        color: "#2C241B",
-      }}
-    >
+    <div className="min-h-screen font-sans text-[#2C241B]">
       <AnnouncementBanner />
       <Navbar />
       <div className="flex flex-col [@media(min-height:900px)]:min-h-svh">
