@@ -11,7 +11,6 @@ import type { Run } from "~/modules/runs/runs.types";
 
 interface Options {
   runSetId?: string;
-  hasRunVerification?: boolean;
 }
 
 export default function getRunsItemAttributes(item: Run, options?: Options) {
@@ -51,7 +50,7 @@ export default function getRunsItemAttributes(item: Run, options?: Options) {
     });
   }
 
-  if (options?.hasRunVerification && item.shouldRunVerification) {
+  if (item.shouldRunVerification) {
     meta.push({
       icon: <BadgeCheck className="text-sandpiper-success" />,
       text: "Verified",

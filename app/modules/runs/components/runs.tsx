@@ -9,7 +9,6 @@ import runsSortOptions from "../helpers/runsSortOptions";
 
 export default function Runs({
   runs,
-  hasRunVerification,
   searchValue,
   currentPage,
   totalPages,
@@ -24,7 +23,6 @@ export default function Runs({
   onSortValueChanged,
 }: {
   runs: Run[];
-  hasRunVerification: boolean;
   searchValue: string;
   currentPage: number;
   totalPages: number;
@@ -57,9 +55,7 @@ export default function Runs({
         totalPages={totalPages}
         isSyncing={isSyncing}
         emptyAttributes={getRunsEmptyAttributes()}
-        getItemAttributes={(item) =>
-          getRunsItemAttributes(item, { hasRunVerification })
-        }
+        getItemAttributes={(item) => getRunsItemAttributes(item)}
         getItemActions={getItemActions}
         onActionClicked={onActionClicked}
         onItemActionClicked={onItemActionClicked}

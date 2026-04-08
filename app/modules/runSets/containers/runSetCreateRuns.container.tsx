@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import Flag from "~/modules/featureFlags/components/flag";
 import RunSetCreateRunsFooter from "../components/runSetCreateRunsFooter";
 import RunSetCreateRunsInfo from "../components/runSetCreateRunsInfo";
 import RunSetCreatorFormAlerts from "../components/runSetCreatorFormAlerts";
@@ -133,12 +132,10 @@ export default function RunSetCreateRunsContainer({
             onModelsChanged={handleModelsChanged}
           />
 
-          <Flag flag="HAS_RUN_VERIFICATION">
-            <RunSetCreatorVerificationToggle
-              shouldRunVerification={shouldRunVerification}
-              onShouldRunVerificationChanged={setShouldRunVerification}
-            />
-          </Flag>
+          <RunSetCreatorVerificationToggle
+            shouldRunVerification={shouldRunVerification}
+            onShouldRunVerificationChanged={setShouldRunVerification}
+          />
         </div>
 
         <RunSetRunPreview

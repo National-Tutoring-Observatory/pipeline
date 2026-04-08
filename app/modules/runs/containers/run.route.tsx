@@ -16,7 +16,6 @@ import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
-import useHasFeatureFlag from "~/modules/featureFlags/hooks/useHasFeatureFlag";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import exportRun from "~/modules/runs/helpers/exportRun";
@@ -199,7 +198,6 @@ export default function ProjectRunRoute() {
   const submit = useSubmit();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
-  const hasRunVerification = useHasFeatureFlag("HAS_RUN_VERIFICATION");
   const { openEditRunDialog, openDeleteRunDialog } = useRunActions({
     projectId: project._id,
     onDeleteSuccess: () => {
@@ -365,7 +363,6 @@ export default function ProjectRunRoute() {
       run={run}
       isExporting={isSubmittingExport || run.isExporting || false}
       promptInfo={promptInfo}
-      hasRunVerification={hasRunVerification}
       runSets={runRunSets || []}
       runSetsCount={runRunSetsCount || 0}
       runSessionsProgress={runSessionsProgress}

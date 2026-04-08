@@ -12,7 +12,6 @@ import type { Session } from "~/modules/sessions/sessions.types";
 export default function RunSetOverview({
   runSet,
   runs,
-  hasRunVerification,
   runsTotalPages,
   runsCurrentPage,
   runsSearchValue,
@@ -38,7 +37,6 @@ export default function RunSetOverview({
 }: {
   runSet: RunSet;
   runs: Run[];
-  hasRunVerification: boolean;
   runsTotalPages: number;
   runsCurrentPage: number;
   runsSearchValue: string;
@@ -123,7 +121,6 @@ export default function RunSetOverview({
               getItemAttributes={(item) =>
                 getRunsItemAttributes(item, {
                   runSetId: runSet._id,
-                  hasRunVerification,
                 })
               }
               getItemActions={() => [
