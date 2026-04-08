@@ -185,6 +185,10 @@ export default [
     "api/webhooks/stripe",
     "modules/billing/containers/stripeWebhook.route.tsx",
   ),
+  route(
+    "api/downloadMtmDataset",
+    "modules/datasets/containers/downloadMtmDataset.route.tsx",
+  ),
   route("api/events", "modules/events/containers/events.route.tsx"),
   route("api/projects", "modules/projects/containers/projects.route.tsx", {
     id: "projects",

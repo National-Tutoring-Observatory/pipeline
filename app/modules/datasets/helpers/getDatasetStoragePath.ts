@@ -13,3 +13,7 @@ export function getDatasetManifestPath(version: number) {
 export function getDatasetLatestPath() {
   return `storage/datasets/mtm/latest.json`;
 }
+
+export function getMtmFullDatasetZipPath() {
+  return `storage/datasets/mtm/mtm-full-dataset.zip`;
+}
