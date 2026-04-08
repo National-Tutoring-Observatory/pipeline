@@ -22,7 +22,6 @@ import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import type { FetcherWithComponents } from "react-router";
 import { Link } from "react-router";
-import Flag from "~/modules/featureFlags/components/flag";
 import { SUPPORTED_FILE_TYPES } from "../constants";
 import type { FileType, UploadFilesData } from "../files.types";
 import getFileUploadAccepts from "../helpers/getFileUploadAccepts";
@@ -135,12 +134,10 @@ export default function UploadFiles({
           </Card>
         </div>
       </div>
-      <Flag flag="HAS_MTM_DATASET">
-        <MtmDatasetBanner
-          isUploading={isUploading}
-          onUseMtmDatasetClicked={onUseMtmDatasetClicked}
-        />
-      </Flag>
+      <MtmDatasetBanner
+        isUploading={isUploading}
+        onUseMtmDatasetClicked={onUseMtmDatasetClicked}
+      />
       {acceptedFiles.length > 0 && (
         <div className="mt-8">
           <div className="rounded-md border">
