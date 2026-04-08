@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,14 +8,30 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
+
+const ERROR_MESSAGES: Record<string, { title: string; description: string }> = {
+  EXPIRED_INVITE: {
+    title: "Your invite link has expired",
+    description: "Please reach out to your NTO contact.",
+  },
+  UNREGISTERED: {
+    title: "You have not been registered",
+    description: "Use the Sign up button below to create an account.",
+  },
+};
 
 export default function Signup({
   onSignupWithGithubClicked,
   initialCredits,
+  errorType,
 }: {
   onSignupWithGithubClicked: () => void;
   initialCredits: number;
+  errorType: string | null;
 }) {
+  const error = errorType ? ERROR_MESSAGES[errorType] : null;
+
   return (
     <div className="bg-sandpiper-canvas flex h-screen w-screen items-center justify-center">
       <Card className="w-full max-w-md text-center">
@@ -42,6 +59,13 @@ export default function Signup({
             <Badge variant="secondary" className="text-sm">
               ${initialCredits} free credits to get started
             </Badge>
+            {error && (
+              <Alert variant="destructive" className="mt-2 text-left">
+                <AlertCircle />
+                <AlertTitle>{error.title}</AlertTitle>
+                <AlertDescription>{error.description}</AlertDescription>
+              </Alert>
+            )}
           </CardDescription>
         </CardHeader>
         <CardFooter className="flex-col gap-3">

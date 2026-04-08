@@ -257,7 +257,7 @@ const orcidStrategy = new OrcidStrategy<any>(
       match: { orcidId: profile.id, hasOrcidSSO: true },
     });
     if (users.length === 0) {
-      throw redirect("/?error=UNREGISTERED");
+      throw redirect("/signup?error=UNREGISTERED");
     }
 
     return users[0] as any;

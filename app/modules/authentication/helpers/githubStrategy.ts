@@ -64,7 +64,7 @@ const githubStrategy = new GitHubStrategy<any>(
               dayjs(user.invitedAt).add(INVITE_LINK_TTL_DAYS, "day"),
             )
           ) {
-            throw redirect("/?error=EXPIRED_INVITE");
+            throw redirect("/signup?error=EXPIRED_INVITE");
           }
           update.inviteId = null;
           update.isRegistered = true;
@@ -77,7 +77,7 @@ const githubStrategy = new GitHubStrategy<any>(
           );
           trackServerEvent({ name: "user_registered", userId: user._id });
         } else {
-          throw redirect("/?error=UNREGISTERED");
+          throw redirect("/signup?error=UNREGISTERED");
         }
       } else {
         // Direct signup — no invite required
@@ -109,14 +109,14 @@ const githubStrategy = new GitHubStrategy<any>(
       const invitedUsers = await UserService.find({ match: { inviteId } });
       const invitedUser = invitedUsers.length > 0 ? invitedUsers[0] : null;
 
-      if (!invitedUser) throw redirect("/?error=UNREGISTERED");
+      if (!invitedUser) throw redirect("/signup?error=UNREGISTERED");
 
       if (
         dayjs().isAfter(
           dayjs(invitedUser.invitedAt).add(INVITE_LINK_TTL_DAYS, "day"),
         )
       ) {
-        throw redirect("/?error=EXPIRED_INVITE");
+        throw redirect("/signup?error=EXPIRED_INVITE");
       }
 
       const invitedUserTeam = invitedUser.teams[0] as UserTeam;
