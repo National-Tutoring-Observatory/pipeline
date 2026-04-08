@@ -28,7 +28,6 @@ import {
 import { Outlet } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
-import Flag from "~/modules/featureFlags/components/flag";
 import DownloadDropdown from "~/modules/runs/components/downloadDropdown";
 import formatTimeRemaining from "~/modules/runs/helpers/formatTimeRemaining";
 import type { RunSet } from "~/modules/runSets/runSets.types";
@@ -104,20 +103,14 @@ export default function RunSetDetail({
                   <Plus className="mr-2 h-4 w-4" />
                   Add Runs
                 </DropdownMenuItem>
-                <Flag flag="HAS_EVALUATIONS">
-                  <>
-                    <DropdownMenuItem
-                      onClick={onDownloadAnnotationTemplateClicked}
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download Annotation Template
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={onUploadHumanAnnotationsClicked}>
-                      <Upload className="mr-2 h-4 w-4" />
-                      Upload Human Annotations
-                    </DropdownMenuItem>
-                  </>
-                </Flag>
+                <DropdownMenuItem onClick={onDownloadAnnotationTemplateClicked}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download Annotation Template
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onUploadHumanAnnotationsClicked}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Human Annotations
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={onMergeClicked}>
                   <GitMerge className="mr-2 h-4 w-4" />
                   Merge
@@ -191,18 +184,16 @@ export default function RunSetDetail({
             </div>
           </div>
         )}
-      <Flag flag="HAS_EVALUATIONS">
-        <Tabs
-          value={activeView}
-          onValueChange={onActiveViewChange}
-          className="mb-4"
-        >
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="evaluations">Evaluations</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </Flag>
+      <Tabs
+        value={activeView}
+        onValueChange={onActiveViewChange}
+        className="mb-4"
+      >
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="evaluations">Evaluations</TabsTrigger>
+        </TabsList>
+      </Tabs>
       <Outlet context={{ runSet, project }} />
     </div>
   );
