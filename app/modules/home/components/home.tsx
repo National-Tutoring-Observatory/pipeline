@@ -1,17 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   ArrowUpToLine,
+  Download,
   ExternalLink,
   FolderOpen,
   Link2,
+  Loader2,
   PenLine,
   Share2,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 
-export default function Home() {
+export default function Home({
+  onDownloadClicked,
+  isDownloading,
+}: {
+  onDownloadClicked: () => void;
+  isDownloading: boolean;
+}) {
+  const [agreed, setAgreed] = useState(false);
   return (
     <div className="container mx-auto max-w-4xl space-y-4 px-6 py-8">
       <div className="flex items-start justify-between gap-6">
@@ -185,6 +196,50 @@ export default function Home() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="mb-2 text-center text-sm font-bold">
+            Million Tutor Moves Dataset
+          </h3>
+          <p className="text-muted-foreground mb-4 text-center text-sm">
+            Download over one million tutoring interactions from seven platforms
+            — ready for annotation in Sandpiper or your own research pipeline.
+          </p>
+          <div className="bg-muted mb-4 flex items-start gap-3 rounded-lg p-4">
+            <Checkbox
+              id="mtmAgree"
+              checked={agreed}
+              onCheckedChange={(checked) => setAgreed(checked === true)}
+            />
+            <label
+              htmlFor="mtmAgree"
+              className="text-foreground cursor-pointer text-xs leading-relaxed"
+            >
+              I agree that MTM data made available in Sandpiper cannot be used
+              in any way that may harm teachers and/or students, including but
+              not limited to trying to re-identify students or teachers after
+              de-identification has occurred, building a model that could
+              discriminate against teachers or students from a particular
+              demographic group, or to surveil and punish teachers based on
+              their practice.
+            </label>
+          </div>
+          <div className="flex justify-center">
+            <Button
+              disabled={!agreed || isDownloading}
+              onClick={onDownloadClicked}
+            >
+              {isDownloading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+              Download MTM Dataset
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
