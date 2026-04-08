@@ -104,9 +104,9 @@ describe("PromptAuthorization", () => {
       );
     });
 
-    it("denies super admins to view prompts in a team", () => {
+    it("allows super admins to view prompts in a team", () => {
       expect(PromptAuthorization.canView(superAdminUser, promptInTeam1)).toBe(
-        false,
+        true,
       );
     });
 

@@ -62,9 +62,7 @@ export default function TeamPrompts({
         currentPage={currentPage}
         totalPages={totalPages}
         emptyAttributes={getTeamPromptsEmptyAttributes()}
-        getItemAttributes={(item) =>
-          getTeamPromptsItemAttributes(item, team._id, user)
-        }
+        getItemAttributes={(item) => getTeamPromptsItemAttributes(item, user)}
         getItemActions={getTeamPromptsItemActions}
         isSyncing={isSyncing}
         onActionClicked={onActionClicked}
