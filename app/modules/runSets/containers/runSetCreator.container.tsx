@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import Flag from "~/modules/featureFlags/components/flag";
 import type { SessionData } from "~/modules/sessions/sessions.types";
 import RunSetCreatorAnnotationType from "../components/runSetCreatorAnnotationType";
 import RunSetCreatorFooter from "../components/runSetCreatorFooter";
@@ -147,12 +146,10 @@ export default function RunSetCreatorContainer({
             onModelsChanged={handleModelsChanged}
           />
 
-          <Flag flag="HAS_RUN_VERIFICATION">
-            <RunSetCreatorVerificationToggle
-              shouldRunVerification={shouldRunVerification}
-              onShouldRunVerificationChanged={setShouldRunVerification}
-            />
-          </Flag>
+          <RunSetCreatorVerificationToggle
+            shouldRunVerification={shouldRunVerification}
+            onShouldRunVerificationChanged={setShouldRunVerification}
+          />
 
           <RunSetCreatorSessions
             selectedSessions={selectedSessions.map((s) => s._id)}

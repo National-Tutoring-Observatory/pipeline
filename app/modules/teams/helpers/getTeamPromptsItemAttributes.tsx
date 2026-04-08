@@ -6,17 +6,14 @@ import type { User } from "~/modules/users/users.types";
 
 export default function getTeamPromptsItemAttributes(
   item: Prompt,
-  teamId: string,
   user: User | null,
 ) {
-  const canCreate = PromptAuthorization.canCreate(user, teamId);
+  const canView = PromptAuthorization.canView(user, item);
 
   return {
     id: item._id,
     title: item.name,
-    to: canCreate
-      ? `/prompts/${item._id}/${item.productionVersion}`
-      : undefined,
+    to: canView ? `/prompts/${item._id}/${item.productionVersion}` : undefined,
     meta: [
       {
         text: `Annotation type - ${getAnnotationLabel(item.annotationType)}`,

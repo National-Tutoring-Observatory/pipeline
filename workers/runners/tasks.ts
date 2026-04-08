@@ -1,6 +1,4 @@
 import type { Job } from "bullmq";
-import { initializeDatabase } from "../../app/lib/database";
-import "../../app/modules/storage/storage";
 import adjudicatePerSession from "../tasks/adjudicatePerSession";
 import adjudicatePerUtterance from "../tasks/adjudicatePerUtterance";
 import annotatePerSession from "../tasks/annotatePerSession";
@@ -24,11 +22,6 @@ import startCreateEvaluation from "../tasks/startCreateEvaluation";
 import startExportRun from "../tasks/startExportRun";
 import startExportRunSet from "../tasks/startExportRunSet";
 import startUploadHumanAnnotations from "../tasks/startUploadHumanAnnotations";
-
-console.log("[tasks] Initializing database connection...");
-const dbStartDate = Date.now();
-await initializeDatabase();
-console.log(`[tasks] Database ready (${Date.now() - dbStartDate}ms)`);
 
 export default async (job: Job) => {
   try {
@@ -110,10 +103,6 @@ export default async (job: Job) => {
       }
       case "INSERT_MTM_DATASET:FINISH": {
         return finishInsertMtmDataset(job);
-      }
-      case "WARM_UP": {
-        console.log("[tasks] Process warmed up");
-        return { status: "OK" };
       }
       default: {
         return { status: "ERRORED", message: `Missing task for ${job.name}` };

@@ -14,13 +14,13 @@ import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import { userIsTeamMember } from "~/modules/authorization/helpers/teamMembership";
 import addDialog from "~/modules/dialogs/addDialog";
 import PromptAuthorization from "~/modules/prompts/authorization";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
+import TeamAuthorization from "../authorization";
 import TeamPrompts from "../components/teamPrompts";
 import type { Route } from "./+types/teamPrompts.route";
 
@@ -29,7 +29,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!user) {
     return redirect("/");
   }
-  if (!userIsTeamMember(user, params.id)) {
+  if (!TeamAuthorization.canView(user, params.id)) {
     return redirect("/");
   }
 

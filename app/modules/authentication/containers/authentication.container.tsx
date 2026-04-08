@@ -3,11 +3,11 @@ import get from "lodash/get";
 import { LoaderPinwheel } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 import {
+  Navigate,
   Outlet,
   useFetcher,
   useLocation,
   useMatch,
-  useRouteLoaderData,
 } from "react-router";
 import AppSidebar from "~/modules/app/components/appSidebar";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
@@ -15,7 +15,6 @@ import { connectSockets } from "~/modules/sockets/sockets";
 import MaintenanceBanner from "~/modules/systemSettings/components/maintenanceBanner";
 import type { User } from "~/modules/users/users.types";
 import Splash from "../components/splash";
-import LoginContainer from "./login.container";
 
 export default function AuthenticationContainer({
   children,
@@ -23,6 +22,7 @@ export default function AuthenticationContainer({
   children: ReactNode;
 }) {
   const authenticationFetcher = useFetcher();
+  const isHomeRoute = useMatch("/");
   const isInviteRoute = useMatch("/invite/:id");
   const isSignupRoute = useMatch("/signup");
   const isOnboardingRoute = useMatch("/onboarding");
@@ -30,11 +30,6 @@ export default function AuthenticationContainer({
   const MIN_FETCH_INTERVAL = 1 * 60 * 1000;
   const prevAuthRef = useRef<User | null>(null);
   const location = useLocation();
-  const rootData = useRouteLoaderData("root") as
-    | { openSignup: boolean }
-    | undefined;
-  const openSignup = rootData?.openSignup ?? false;
-
   const isFetching = !authenticationFetcher.data;
   const authentication: User | null = get(
     authenticationFetcher,
@@ -83,10 +78,7 @@ export default function AuthenticationContainer({
   }
 
   if (!authentication) {
-    if (openSignup) {
-      return <Splash />;
-    }
-    return <LoginContainer />;
+    return isHomeRoute ? <Splash /> : <Navigate to="/signup" replace />;
   }
 
   return (

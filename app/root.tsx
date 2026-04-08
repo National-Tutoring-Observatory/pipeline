@@ -66,7 +66,6 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   return {
     googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID || null,
-    openSignup: process.env.OPEN_SIGNUP === "true",
     maintenanceMode,
   };
 }

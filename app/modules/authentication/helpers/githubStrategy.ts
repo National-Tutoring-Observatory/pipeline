@@ -64,24 +64,22 @@ const githubStrategy = new GitHubStrategy<any>(
               dayjs(user.invitedAt).add(INVITE_LINK_TTL_DAYS, "day"),
             )
           ) {
-            throw redirect("/?error=EXPIRED_INVITE");
+            throw redirect("/signup?error=EXPIRED_INVITE");
           }
           update.inviteId = null;
           update.isRegistered = true;
           update.registeredAt = new Date();
           update.githubId = githubUser.id;
           update.hasGithubSSO = true;
-          if (process.env.OPEN_SIGNUP === "true") {
-            await setupNewUser(
-              user._id,
-              `${githubUser.name || githubUser.login}'s Workspace`,
-            );
-          }
+          await setupNewUser(
+            user._id,
+            `${githubUser.name || githubUser.login}'s Workspace`,
+          );
           trackServerEvent({ name: "user_registered", userId: user._id });
         } else {
-          throw redirect("/?error=UNREGISTERED");
+          throw redirect("/signup?error=UNREGISTERED");
         }
-      } else if (process.env.OPEN_SIGNUP === "true") {
+      } else {
         // Direct signup — no invite required
         const primaryEmail = (
           find(emails, (e: any) => e.primary) ||
@@ -105,22 +103,20 @@ const githubStrategy = new GitHubStrategy<any>(
         );
         trackServerEvent({ name: "user_registered", userId: newUser._id });
         return (await UserService.findById(newUser._id))!;
-      } else {
-        throw redirect("/?error=UNREGISTERED");
       }
     } else if (isInvitedUser) {
       // If user already exists, check teams and add if that team does not exist on the user.
       const invitedUsers = await UserService.find({ match: { inviteId } });
       const invitedUser = invitedUsers.length > 0 ? invitedUsers[0] : null;
 
-      if (!invitedUser) throw redirect("/?error=UNREGISTERED");
+      if (!invitedUser) throw redirect("/signup?error=UNREGISTERED");
 
       if (
         dayjs().isAfter(
           dayjs(invitedUser.invitedAt).add(INVITE_LINK_TTL_DAYS, "day"),
         )
       ) {
-        throw redirect("/?error=EXPIRED_INVITE");
+        throw redirect("/signup?error=EXPIRED_INVITE");
       }
 
       const invitedUserTeam = invitedUser.teams[0] as UserTeam;

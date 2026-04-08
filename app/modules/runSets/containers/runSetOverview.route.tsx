@@ -15,7 +15,6 @@ import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
-import useHasFeatureFlag from "~/modules/featureFlags/hooks/useHasFeatureFlag";
 import buildRunStatusMatch from "~/modules/runs/helpers/buildRunStatusMatch";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
@@ -121,8 +120,6 @@ export default function RunSetOverviewRoute() {
   const revalidator = useRevalidator();
   const navigate = useNavigate();
   const submit = useSubmit();
-  const hasRunVerification = useHasFeatureFlag("HAS_RUN_VERIFICATION");
-
   const {
     searchValue: runsSearchValue,
     setSearchValue: setRunsSearchValue,
@@ -257,7 +254,6 @@ export default function RunSetOverviewRoute() {
     <RunSetOverview
       runSet={runSet}
       runs={runs.data}
-      hasRunVerification={hasRunVerification}
       runsTotalPages={runs.totalPages}
       runsCurrentPage={runsCurrentPage}
       runsSearchValue={runsSearchValue}

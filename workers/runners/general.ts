@@ -1,5 +1,3 @@
-import { initializeDatabase } from "app/lib/database";
-import "app/modules/storage/storage";
 import type { Job } from "bullmq";
 import deleteProject from "../general/deleteProject";
 import deleteProjectData from "../general/deleteProjectData";
@@ -10,11 +8,6 @@ import removeFeatureFlagFromUsers from "../general/removeFeatureFlagFromUsers";
 import runMigration from "../general/runMigration";
 import trackFirstPrompt from "../general/trackFirstPrompt";
 import trackFirstRun from "../general/trackFirstRun";
-
-console.log("[general] Initializing database connection...");
-const _dbStart = Date.now();
-await initializeDatabase();
-console.log(`[general] Database ready (${Date.now() - _dbStart}ms)`);
 
 export default async (job: Job) => {
   try {
@@ -45,10 +38,6 @@ export default async (job: Job) => {
       }
       case "NOTIFY_CREDITS_EXHAUSTED": {
         return notifyCreditsExhausted(job);
-      }
-      case "WARM_UP": {
-        console.log("[general] Process warmed up");
-        return { status: "OK" };
       }
       default: {
         return {
