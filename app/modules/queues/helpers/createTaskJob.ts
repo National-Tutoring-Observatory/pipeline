@@ -37,13 +37,7 @@ export default async ({
           task: `${name}:FINISH`,
         },
       },
-      children: map(children, (child, index) => {
-        let delay = Math.floor(11 / 2) * 5000;
-
-        if (index < 10) {
-          delay = Math.floor(index / 2) * 5000;
-        }
-
+      children: map(children, (child) => {
         return {
           name: child.name,
           queueName: "tasks",
@@ -53,7 +47,6 @@ export default async ({
               type: "exponential",
               delay: 1000,
             },
-            delay,
             ...(child.group && { group: child.group }),
           },
           data: {

@@ -111,6 +111,10 @@ export default async (job: Job) => {
       case "INSERT_MTM_DATASET:FINISH": {
         return finishInsertMtmDataset(job);
       }
+      case "WARM_UP": {
+        console.log("[tasks] Process warmed up");
+        return { status: "OK" };
+      }
       default: {
         return { status: "ERRORED", message: `Missing task for ${job.name}` };
       }
