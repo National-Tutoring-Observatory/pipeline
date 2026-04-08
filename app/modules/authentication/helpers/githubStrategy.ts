@@ -71,17 +71,15 @@ const githubStrategy = new GitHubStrategy<any>(
           update.registeredAt = new Date();
           update.githubId = githubUser.id;
           update.hasGithubSSO = true;
-          if (process.env.OPEN_SIGNUP === "true") {
-            await setupNewUser(
-              user._id,
-              `${githubUser.name || githubUser.login}'s Workspace`,
-            );
-          }
+          await setupNewUser(
+            user._id,
+            `${githubUser.name || githubUser.login}'s Workspace`,
+          );
           trackServerEvent({ name: "user_registered", userId: user._id });
         } else {
           throw redirect("/?error=UNREGISTERED");
         }
-      } else if (process.env.OPEN_SIGNUP === "true") {
+      } else {
         // Direct signup — no invite required
         const primaryEmail = (
           find(emails, (e: any) => e.primary) ||
@@ -105,8 +103,6 @@ const githubStrategy = new GitHubStrategy<any>(
         );
         trackServerEvent({ name: "user_registered", userId: newUser._id });
         return (await UserService.findById(newUser._id))!;
-      } else {
-        throw redirect("/?error=UNREGISTERED");
       }
     } else if (isInvitedUser) {
       // If user already exists, check teams and add if that team does not exist on the user.

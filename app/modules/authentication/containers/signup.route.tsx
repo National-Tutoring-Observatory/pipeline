@@ -5,7 +5,6 @@ import Signup from "../components/signup";
 import type { Route } from "./+types/signup.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  if (process.env.OPEN_SIGNUP !== "true") return redirect("/");
   const user = await getSessionUser({ request });
   if (user) return redirect("/");
   return { initialCredits: getInitialCreditsAmount() };
