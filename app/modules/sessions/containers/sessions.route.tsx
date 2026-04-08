@@ -51,6 +51,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
+  const user = (await getSessionUser({ request })) as User;
+  if (!user) return redirect("/");
+
+  const project = await ProjectService.findById(params.id);
+  if (!project || !ProjectAuthorization.canView(user, project)) {
+    return redirect("/");
+  }
+
   const { intent } = await request.json();
 
   switch (intent) {

@@ -608,7 +608,30 @@ export const ProjectAuthorization = {
 Authorization checks are done in route loaders/actions:
 
 - **Loaders**: Use `redirect()` for auth failures
-- **Actions**: Return `data({ errors: {...} }, { status: 400/403/500 })` for errors
+- **Actions**: Use `redirect()` for auth/authorization failures; return `data({ errors: {...} }, { status: 400/403/500 })` for business logic errors
+
+**CRITICAL: Actions are not protected by the loader.** React Router loaders and actions are independent HTTP endpoints. A user can POST directly to a route without triggering the loader — so an action that relies on the loader's auth check has no auth at all. Every action must independently verify authentication (and authorization where the resource is team/user-scoped):
+
+```typescript
+// ✅ Action must check auth independently — never rely on the loader
+export async function action({ request, params }: Route.ActionArgs) {
+  const user = (await getSessionUser({ request })) as User;
+  if (!user) return redirect("/");
+
+  const project = await ProjectService.findById(params.projectId);
+  if (!project || !ProjectAuthorization.canView(user, project)) {
+    return redirect("/");
+  }
+
+  // ... rest of action
+}
+
+// ❌ This action has no auth — the loader's check doesn't protect it
+export async function action({ request, params }: Route.ActionArgs) {
+  const { intent } = await request.json(); // Anyone can call this
+  await RunService.deleteById(params.runId);
+}
+```
 
 ### Human Runs (`isHuman: true`)
 
