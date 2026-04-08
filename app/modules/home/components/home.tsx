@@ -5,7 +5,6 @@ import {
   FolderOpen,
   Link2,
   PenLine,
-  Play,
   Share2,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -158,18 +157,20 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
+        <Card className="flex flex-col">
+          <CardContent className="flex flex-1 flex-col p-6">
             <h3 className="mb-4 text-center text-sm font-semibold">
               See Sandpiper in Action
             </h3>
-            <div className="bg-sandpiper-surface flex h-52 items-center justify-center rounded-lg">
-              <div className="text-muted-foreground space-y-3 text-center">
-                <div className="border-muted-foreground/40 mx-auto flex h-12 w-12 items-center justify-center rounded-full border-2">
-                  <Play className="text-muted-foreground/60 ml-0.5 h-5 w-5" />
-                </div>
-                <p className="text-sm">YouTube walkthrough coming soon</p>
-              </div>
+            <div className="bg-sandpiper-surface flex-1 overflow-hidden rounded-lg">
+              <iframe
+                src="https://www.youtube.com/embed/cHshZ9bQMxg?si=siFkRjq434GcQLb0"
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+                className="h-full w-full"
+              />
             </div>
           </CardContent>
         </Card>
