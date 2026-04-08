@@ -1,13 +1,6 @@
-import { initializeDatabase } from "app/lib/database";
-import "app/modules/storage/storage";
 import type { Job } from "bullmq";
 import closeBillingPeriods from "../general/closeBillingPeriods";
 import reportLowCredits from "../general/reportLowCredits";
-
-console.log("[cron] Initializing database connection...");
-const _dbStart = Date.now();
-await initializeDatabase();
-console.log(`[cron] Database ready (${Date.now() - _dbStart}ms)`);
 
 export default async (job: Job) => {
   try {
@@ -17,10 +10,6 @@ export default async (job: Job) => {
       }
       case "NOTIFY:LOW_CREDITS_REPORT": {
         return reportLowCredits(job);
-      }
-      case "WARM_UP": {
-        console.log("[cron] Process warmed up");
-        return { status: "OK" };
       }
       default: {
         return {

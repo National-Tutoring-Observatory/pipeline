@@ -1,17 +1,12 @@
 import { getRedisInstance } from "app/helpers/getRedisInstance";
-import { Job, MetricsTime, Worker } from "bullmq";
+import { Job, MetricsTime, Worker, type Processor } from "bullmq";
 import type { Redis } from "ioredis";
-
-// Sandboxed workers fork child processes that pipe stdout/stderr to the parent.
-// With concurrency up to 50 when using grouped pro workers, this exceeds Node's default limit of 10 listeners.
-process.stdout.setMaxListeners(60);
-process.stderr.setMaxListeners(60);
 
 export const WORKERS: Record<string, { worker: Worker; redis: Redis }> = {};
 
 export default async (
   { name, isGrouped }: { name: string; isGrouped?: boolean },
-  file: string,
+  processor: Processor,
 ) => {
   const redis = getRedisInstance({ maxRetriesPerRequest: null });
 
@@ -33,7 +28,6 @@ export default async (
     metrics: {
       maxDataPoints: MetricsTime.ONE_WEEK * 2,
     },
-    useWorkerThreads: false,
     // Increase lock duration given how long some scripts can take - set to 5 mins.
     lockDuration: 300000,
   };
@@ -44,7 +38,7 @@ export default async (
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - bullmq-pro is conditionally installed
       const { WorkerPro } = await import("@taskforcesh/bullmq-pro");
-      worker = new WorkerPro(name, file, {
+      worker = new WorkerPro(name, processor, {
         ...baseOpts,
         connection: redis as any,
         group: { concurrency: 20 },
@@ -54,10 +48,10 @@ export default async (
       console.warn(
         `[${name}] BullMQ Pro not installed, falling back to BullMQ`,
       );
-      worker = new Worker(name, file, baseOpts);
+      worker = new Worker(name, processor, baseOpts);
     }
   } else {
-    worker = new Worker(name, file, baseOpts);
+    worker = new Worker(name, processor, baseOpts);
   }
 
   worker.on("active", (job: Job) => {
