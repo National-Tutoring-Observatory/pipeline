@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/pageHeader";
 import { Progress } from "@/components/ui/progress";
 import { StatItem } from "@/components/ui/stat-item";
-import { cn } from "@/lib/utils";
 import find from "lodash/find";
 import {
   BadgeCheck,
@@ -33,7 +32,6 @@ import {
 } from "lucide-react";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
-import Flag from "~/modules/featureFlags/components/flag";
 import annotationTypes from "~/modules/prompts/annotationTypes";
 import formatTimeRemaining from "~/modules/runs/helpers/formatTimeRemaining";
 import getRunSessionsItemAttributes from "~/modules/runs/helpers/getRunSessionsItemAttributes";
@@ -48,7 +46,6 @@ export default function RunDetail({
   run,
   isExporting,
   promptInfo,
-  hasRunVerification,
   runSets,
   runSetsCount,
   runSessionsProgress,
@@ -79,7 +76,6 @@ export default function RunDetail({
   run: Run;
   isExporting: boolean;
   promptInfo: { name: string; version: number };
-  hasRunVerification: boolean;
   runSets: RunSet[];
   runSetsCount: number;
   runSessionsProgress: number;
@@ -246,12 +242,7 @@ export default function RunDetail({
             </StatItem>
           </div>
         ) : (
-          <div
-            className={cn(
-              "grid gap-6",
-              hasRunVerification ? "grid-cols-4" : "grid-cols-3",
-            )}
-          >
+          <div className="grid grid-cols-4 gap-6">
             <StatItem label="Annotation type">
               {find(annotationTypes, { value: run.annotationType })?.name}
             </StatItem>
@@ -264,21 +255,19 @@ export default function RunDetail({
             <StatItem label="Selected model">
               {getRunModelDisplayName(run)}
             </StatItem>
-            <Flag flag="HAS_RUN_VERIFICATION">
-              <StatItem label="Verification">
-                {run.shouldRunVerification ? (
-                  <Badge variant="outline" className="mt-1 gap-1.5">
-                    <BadgeCheck className="text-sandpiper-success h-4 w-4" />
-                    Enabled
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="mt-1 gap-1.5">
-                    <BadgeX className="text-muted-foreground h-4 w-4" />
-                    Disabled
-                  </Badge>
-                )}
-              </StatItem>
-            </Flag>
+            <StatItem label="Verification">
+              {run.shouldRunVerification ? (
+                <Badge variant="outline" className="mt-1 gap-1.5">
+                  <BadgeCheck className="text-sandpiper-success h-4 w-4" />
+                  Enabled
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="mt-1 gap-1.5">
+                  <BadgeX className="text-muted-foreground h-4 w-4" />
+                  Disabled
+                </Badge>
+              )}
+            </StatItem>
           </div>
         )}
         <div className="mt-6">
