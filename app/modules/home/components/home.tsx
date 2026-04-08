@@ -11,13 +11,7 @@ import {
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 
-export default function Home({
-  billingEnabled,
-  initialCredits,
-}: {
-  billingEnabled: boolean;
-  initialCredits: number;
-}) {
+export default function Home() {
   return (
     <div className="container mx-auto max-w-4xl space-y-4 px-6 py-8">
       <div className="flex items-start justify-between gap-6">
@@ -38,22 +32,19 @@ export default function Home({
             Mellon, and FreshCognate.
           </p>
         </div>
-        {billingEnabled && (
-          <div className="bg-primary text-primary-foreground flex w-72 shrink-0 items-center gap-4 rounded-lg p-4">
-            <div className="bg-sandpiper-primary-hover flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-lg font-bold">
-              ${initialCredits}
-            </div>
-            <div>
-              <p className="text-sm font-bold">
-                ${initialCredits} in free credits
-              </p>
-              <p className="text-primary-foreground/80 mt-1 text-xs">
-                Annotate <strong>hundreds of transcripts</strong> across
-                multiple LLMs, a full research pilot at no cost.
-              </p>
-            </div>
-          </div>
-        )}
+        <div className="border-primary flex w-48 shrink-0 flex-col items-center rounded-lg border-2 bg-gradient-to-br from-[#e8f4f7] to-[#f0f7f4] p-4 text-center">
+          <p className="text-primary text-4xl leading-none font-extrabold">
+            $20
+          </p>
+          <p className="text-primary mt-1 text-xs font-semibold">
+            free credit included
+          </p>
+          <p className="text-muted-foreground mt-2 text-xs leading-snug">
+            Enough to annotate{" "}
+            <strong className="text-foreground">~500 sessions</strong> across 3
+            models with self-verification and adjudication.
+          </p>
+        </div>
       </div>
       <Card>
         <CardContent className="flex flex-col items-center gap-4 p-6">
@@ -160,7 +151,7 @@ export default function Home({
               </div>
               <div className="flex justify-center pt-1">
                 <span className="bg-destructive rounded-full px-3 py-1 text-xs text-white">
-                  15% more accurate vs. single-model
+                  130% better performance than conversational AI
                 </span>
               </div>
             </div>
@@ -177,7 +168,7 @@ export default function Home({
                 <div className="border-muted-foreground/40 mx-auto flex h-12 w-12 items-center justify-center rounded-full border-2">
                   <Play className="text-muted-foreground/60 ml-0.5 h-5 w-5" />
                 </div>
-                <p className="text-sm">Walkthrough video coming soon</p>
+                <p className="text-sm">YouTube walkthrough coming soon</p>
               </div>
             </div>
           </CardContent>
