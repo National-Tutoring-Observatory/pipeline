@@ -1,7 +1,12 @@
+import fse from "fs-extra";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
-import { getMtmFullDatasetZipPath } from "../helpers/getDatasetStoragePath";
+import type { MtmLatest } from "../datasets.types";
+import {
+  getDatasetLatestPath,
+  getMtmFullDatasetZipPath,
+} from "../helpers/getDatasetStoragePath";
 
 export async function action({ request }: { request: Request }) {
   const user = await getSessionUser({ request });
@@ -18,8 +23,14 @@ export async function action({ request }: { request: Request }) {
     trackServerEvent({ name: "mtm_dataset_downloaded", userId: user._id });
 
     const storage = getStorageAdapter();
+
+    const latestPath = await storage.download({
+      sourcePath: getDatasetLatestPath(),
+    });
+    const { version }: MtmLatest = await fse.readJSON(latestPath);
+
     const downloadUrl = await storage.request({
-      url: getMtmFullDatasetZipPath(),
+      url: getMtmFullDatasetZipPath(version),
     });
     return { downloadUrl };
   }

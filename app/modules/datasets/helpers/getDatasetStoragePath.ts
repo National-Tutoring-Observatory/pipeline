@@ -14,6 +14,6 @@ export function getDatasetLatestPath() {
   return `storage/datasets/mtm/latest.json`;
 }
 
-export function getMtmFullDatasetZipPath() {
-  return `storage/datasets/mtm/mtm-full-dataset.zip`;
+export function getMtmFullDatasetZipPath(version: number) {
+  return `${getDatasetDir(version)}/mtm-full-dataset.zip`;
 }

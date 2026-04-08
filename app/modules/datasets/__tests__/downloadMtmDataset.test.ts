@@ -6,8 +6,15 @@ import { action } from "../containers/downloadMtmDataset.route";
 
 vi.mock("~/modules/storage/helpers/getStorageAdapter", () => ({
   default: () => ({
+    download: vi.fn().mockResolvedValue("/tmp/fake-latest.json"),
     request: vi.fn().mockResolvedValue("https://example.com/presigned-url"),
   }),
+}));
+
+vi.mock("fs-extra", () => ({
+  default: {
+    readJSON: vi.fn().mockResolvedValue({ version: 1 }),
+  },
 }));
 
 describe("downloadMtmDataset.route action", () => {
