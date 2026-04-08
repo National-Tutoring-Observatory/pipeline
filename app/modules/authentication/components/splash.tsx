@@ -11,11 +11,12 @@ import {
   Heart,
   Mail,
   Menu,
+  TrendingUp,
   Trophy,
   Users,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Link } from "react-router";
 
 function GithubIcon({
@@ -39,6 +40,17 @@ function GithubIcon({
   );
 }
 
+function AnnouncementBanner() {
+  return (
+    <div className="fixed top-0 right-0 left-0 z-[60] bg-[#367181] py-2 text-center">
+      <span className="text-[0.82rem] font-semibold tracking-[0.02em] text-white">
+        🎁 New users get <strong>$20 in free credits</strong> to start
+        annotating
+      </span>
+    </div>
+  );
+}
+
 function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -54,7 +66,7 @@ function Navbar() {
 
   return (
     <nav
-      className="fixed top-0 right-0 left-0 z-50 border-b border-[rgba(230,226,214,0.6)]"
+      className="fixed top-[32px] right-0 left-0 z-50 border-b border-[rgba(230,226,214,0.6)]"
       style={{
         background: "rgba(249, 247, 241, 0.82)",
         backdropFilter: "blur(20px)",
@@ -147,7 +159,7 @@ function Hero() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-svh items-center overflow-hidden pt-24 pb-10 lg:pt-36 lg:pb-20 [@media(min-height:900px)]:min-h-0 [@media(min-height:900px)]:flex-1"
+      className="relative flex min-h-svh items-center overflow-hidden pt-36 pb-10 lg:pt-44 lg:pb-20 [@media(min-height:900px)]:min-h-0 [@media(min-height:900px)]:flex-1"
       style={{
         background:
           "linear-gradient(170deg, #F9F7F1 0%, #f0ece0 40%, #e8ddd0 100%)",
@@ -210,10 +222,10 @@ function Hero() {
               style={{ background: "rgba(54,113,129,0.08)" }}
             >
               <span className="rounded-full bg-[#367181] px-2.5 py-1 text-[1.1rem] leading-none font-extrabold text-white">
-                4.1&times;
+                130%
               </span>
               <span className="text-[0.88rem] font-semibold text-[#2C241B]">
-                more accurate than conversational AI
+                better performance than an AI chat interface
               </span>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -532,18 +544,18 @@ function Features() {
             </div>
           ))}
         </div>
-        <div className="relative mx-auto mt-16 h-[440px] max-w-4xl">
+        <div className="relative mx-auto mt-16 h-[560px] max-w-5xl">
           <img
             src="/assets/splash/screenshot-runset-creator.webp"
             alt="Run Set Creator"
-            className="absolute left-0 w-[58%] rounded-xl border border-[rgba(0,0,0,0.05)] shadow-xl"
+            className="absolute left-0 w-[62%] rounded-xl border border-[rgba(0,0,0,0.05)] shadow-xl"
             loading="lazy"
             style={{ transform: "rotate(-2deg)" }}
           />
           <img
             src="/assets/splash/screenshot-runset-overview.webp"
             alt="Run Set Overview"
-            className="absolute left-[30%] z-10 w-[58%] rounded-xl border border-[rgba(0,0,0,0.05)] shadow-2xl"
+            className="absolute left-[28%] z-10 w-[62%] rounded-xl border border-[rgba(0,0,0,0.05)] shadow-2xl"
             loading="lazy"
             style={{ transform: "rotate(1.5deg)", top: "40px" }}
           />
@@ -570,7 +582,7 @@ function HowItWorks() {
         "Select a prompt and LLM model, then launch an annotation run. Try multiple configurations to find the best results.",
     },
     {
-      icon: <BarChart3 size={22} />,
+      icon: <TrendingUp size={22} />,
       gradient: "linear-gradient(135deg, #7A9E7E, #367181)",
       title: "Evaluate & Compare",
       description:
@@ -606,31 +618,34 @@ function HowItWorks() {
             Three Steps to Validated Insights
           </h2>
         </div>
-        <div className="relative flex flex-col items-center gap-6 md:grid md:grid-cols-3 md:gap-0">
+        <div className="flex flex-col items-center gap-8 md:flex-row md:items-start md:justify-center md:gap-0">
           {steps.map((step, index) => (
-            <div key={step.title} className="relative z-10 text-center">
-              <div
-                className="mx-auto mb-4 flex h-[52px] w-[52px] items-center justify-center rounded-full text-white shadow-md"
-                style={{ background: step.gradient }}
-              >
-                {step.icon}
-              </div>
-              <h5 className="mb-1.5 text-[1.05rem] font-bold text-[#2C241B]">
-                {step.title}
-              </h5>
-              <p className="mx-auto max-w-[260px] text-[0.88rem] leading-[1.65] text-[#5D534A]">
-                {step.description}
-              </p>
-              {index < steps.length - 1 && (
+            <Fragment key={step.title}>
+              <div className="z-10 w-full text-center md:max-w-[260px]">
                 <div
-                  className="absolute top-[26px] left-[calc(50%+36px)] hidden h-[2px] opacity-30 md:block"
-                  style={{
-                    width: "calc(100% - 72px)",
-                    background: "linear-gradient(90deg, #A64B2A, #367181)",
-                  }}
-                />
+                  className="mx-auto mb-4 flex h-[52px] w-[52px] items-center justify-center rounded-full text-white shadow-md"
+                  style={{ background: step.gradient }}
+                >
+                  {step.icon}
+                </div>
+                <h5 className="mb-1.5 text-[1.05rem] font-bold text-[#2C241B]">
+                  {step.title}
+                </h5>
+                <p className="mx-auto max-w-[240px] text-[0.88rem] leading-[1.65] text-[#5D534A]">
+                  {step.description}
+                </p>
+              </div>
+              {index < steps.length - 1 && (
+                <div className="hidden shrink-0 items-start px-4 pt-[25px] opacity-30 md:flex">
+                  <div
+                    className="relative h-[2px] w-[60px] after:absolute after:top-[-4px] after:right-[-4px] after:h-[10px] after:w-[10px] after:rotate-45 after:border-t-2 after:border-r-2 after:border-[#367181] after:content-['']"
+                    style={{
+                      background: "linear-gradient(90deg, #A64B2A, #367181)",
+                    }}
+                  />
+                </div>
               )}
-            </div>
+            </Fragment>
           ))}
         </div>
         <div className="mt-12 text-center">
@@ -802,47 +817,47 @@ function Orchestration() {
               >
                 F1 score averaged across all talk move constructs
               </div>
-              <div className="mx-auto flex max-w-[320px] items-end justify-center gap-8">
+              <div className="mx-auto flex max-w-[320px] items-end justify-center gap-6">
                 <div className="flex flex-col items-center">
-                  <span className="mb-1 text-sm font-bold text-[#5D534A]">
-                    0.55
+                  <span className="mb-1 text-[0.72rem] font-bold text-[#D4A843]">
+                    Fail
                   </span>
                   <div
-                    className="w-14 rounded-t bg-[#5D534A] opacity-60"
-                    style={{ height: 71 }}
+                    className="w-14 rounded-t bg-[#367181] opacity-30"
+                    style={{ height: 2 }}
                   />
                   <span
                     className="mt-2 text-[0.53rem] font-semibold"
                     style={{ color: "rgba(255,255,255,0.5)" }}
                   >
-                    Single LLM
+                    Chat Bot
                   </span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="mb-1 text-sm font-bold text-[#367181]">
-                    0.74
+                  <span className="mb-1 text-[0.72rem] font-bold text-[#6B9BAD]">
+                    0.10
                   </span>
                   <div
-                    className="w-14 rounded-t bg-[#367181]"
-                    style={{ height: 96 }}
+                    className="w-14 rounded-t bg-[#6B9BAD]"
+                    style={{ height: 14 }}
                   />
                   <span
                     className="mt-2 text-[0.53rem] font-semibold"
                     style={{ color: "rgba(255,255,255,0.5)" }}
                   >
-                    Multi-Model
+                    Basic API Call
                   </span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="mb-1 text-sm font-bold text-[#D4A843]">
-                    0.81
+                  <span className="mb-2 rounded-full border border-[#367181] px-2 py-0.5 text-[0.62rem] font-extrabold text-[#367181]">
+                    9.2&times;
                   </span>
                   <div
-                    className="w-14 rounded-t bg-[#D4A843]"
+                    className="w-14 rounded-t bg-[#A64B2A]"
                     style={{ height: 105 }}
                   />
-                  <span className="mt-2 text-[0.5625rem] font-bold text-white">
-                    Orchestrated+Adj
+                  <span className="mt-2 text-[0.53rem] font-bold text-white">
+                    Sandpiper
                   </span>
                 </div>
               </div>
@@ -1143,7 +1158,7 @@ function About() {
         }}
       />
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-12 lg:flex-row lg:items-start">
+        <div className="flex flex-col gap-12 lg:flex-row lg:items-center">
           <div className="lg:w-[60%]">
             <div
               className="mb-2 text-[0.72rem] font-bold tracking-[0.14em] uppercase"
@@ -1291,7 +1306,7 @@ function About() {
               </a>
             </div>
           </div>
-          <div className="lg:w-[40%]">
+          <div className="text-center text-2xl lg:w-[40%]">
             <div
               className="rounded-2xl border border-[rgba(255,255,255,0.08)] p-10 transition-colors hover:border-[rgba(255,255,255,0.15)]"
               style={{
@@ -1299,7 +1314,10 @@ function About() {
                 backdropFilter: "blur(8px)",
               }}
             >
-              <GithubIcon size={64} className="mb-5 block text-[#D4A843]" />
+              <GithubIcon
+                size={64}
+                className="mx-auto mb-5 block text-[#D4A843]"
+              />
               <h4
                 className="mb-2 font-bold"
                 style={{
@@ -1434,7 +1452,7 @@ function Impact() {
             effort.
           </p>
           <a
-            href="mailto:CIS-NTO-PARTNERSHIPS-L@list.cornell.edu"
+            href="mailto:sandpipersupport@cornell.edu"
             className="inline-flex items-center gap-2 rounded-[0.625rem] border-none bg-[#A64B2A] px-7 py-3 font-semibold text-white no-underline transition-all hover:-translate-y-0.5 hover:bg-[#8B3D21] hover:shadow-lg"
           >
             <Mail size={16} />
@@ -1584,6 +1602,7 @@ export default function Splash() {
         color: "#2C241B",
       }}
     >
+      <AnnouncementBanner />
       <Navbar />
       <div className="flex flex-col [@media(min-height:900px)]:min-h-svh">
         <Hero />
