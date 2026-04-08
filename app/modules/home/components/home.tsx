@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ArrowUpToLine,
+  ExternalLink,
   FolderOpen,
   Link2,
   PenLine,
@@ -30,6 +31,15 @@ export default function Home() {
             &nbsp;at Cornell Bowers CIS, with MIT Teaching Systems Lab, Carnegie
             Mellon, and FreshCognate.
           </p>
+          <a
+            href="https://doi.org/10.48550/arXiv.2603.08406"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary mt-2 inline-flex items-center gap-1 text-xs font-semibold"
+          >
+            <ExternalLink className="h-3 w-3" />
+            Read the paper
+          </a>
         </div>
         <div className="border-primary flex w-48 shrink-0 flex-col items-center rounded-lg border-2 bg-gradient-to-br from-[#e8f4f7] to-[#f0f7f4] p-4 text-center">
           <p className="text-primary text-4xl leading-none font-extrabold">
