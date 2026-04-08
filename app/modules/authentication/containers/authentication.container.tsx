@@ -2,7 +2,13 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import get from "lodash/get";
 import { LoaderPinwheel } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
-import { Outlet, useFetcher, useLocation, useMatch } from "react-router";
+import {
+  Navigate,
+  Outlet,
+  useFetcher,
+  useLocation,
+  useMatch,
+} from "react-router";
 import AppSidebar from "~/modules/app/components/appSidebar";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import { connectSockets } from "~/modules/sockets/sockets";
@@ -16,6 +22,7 @@ export default function AuthenticationContainer({
   children: ReactNode;
 }) {
   const authenticationFetcher = useFetcher();
+  const isHomeRoute = useMatch("/");
   const isInviteRoute = useMatch("/invite/:id");
   const isSignupRoute = useMatch("/signup");
   const isOnboardingRoute = useMatch("/onboarding");
@@ -71,7 +78,7 @@ export default function AuthenticationContainer({
   }
 
   if (!authentication) {
-    return <Splash />;
+    return isHomeRoute ? <Splash /> : <Navigate to="/signup" replace />;
   }
 
   return (
