@@ -1,0 +1,303 @@
+{
+  "transcript": [
+    {
+      "_id": "0",
+      "role": "volunteer",
+      "content": "Hi there how is your day going",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "0",
+      "annotations": []
+    },
+    {
+      "_id": "1",
+      "role": "student",
+      "content": "hello I need help with unit one of alg 1",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "1",
+      "annotations": []
+    },
+    {
+      "_id": "2",
+      "role": "volunteer",
+      "content": "Okay can you give me a topic and/or a practice problem to help you with?",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "2",
+      "annotations": []
+    },
+    {
+      "_id": "3",
+      "role": "student",
+      "content": "yeah hold",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "3",
+      "annotations": []
+    },
+    {
+      "_id": "4",
+      "role": "student",
+      "content": "Practice rearranging equations",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "4",
+      "annotations": []
+    },
+    {
+      "_id": "5",
+      "role": "student",
+      "content": "I need to do this but idek how to do it",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "5",
+      "annotations": []
+    },
+    {
+      "_id": "6",
+      "role": "student",
+      "content": "but i just need to do any eqations",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "6",
+      "annotations": []
+    },
+    {
+      "_id": "7",
+      "role": "volunteer",
+      "content": "I am unsure by the goal of rearranging equations in a general sense. Can you provide an example? or does this look similar to what you have been learning?",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "7",
+      "annotations": []
+    },
+    {
+      "_id": "8",
+      "role": "student",
+      "content": "yes",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "8",
+      "annotations": []
+    },
+    {
+      "_id": "9",
+      "role": "student",
+      "content": "and then you solve for x and y",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "9",
+      "annotations": []
+    },
+    {
+      "_id": "10",
+      "role": "volunteer",
+      "content": "Yes I believe so",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "10",
+      "annotations": []
+    },
+    {
+      "_id": "11",
+      "role": "volunteer",
+      "content": "What would you do in this example to solve for each?",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "11",
+      "annotations": []
+    },
+    {
+      "_id": "12",
+      "role": "student",
+      "content": "cant you subtract",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "12",
+      "annotations": []
+    },
+    {
+      "_id": "13",
+      "role": "volunteer",
+      "content": "To solve for which one? You can go ahead and work it out all the way and then we can evaluate it",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "13",
+      "annotations": []
+    },
+    {
+      "_id": "14",
+      "role": "student",
+      "content": "ok",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "14",
+      "annotations": []
+    },
+    {
+      "_id": "15",
+      "role": "student",
+      "content": "is that right",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "15",
+      "annotations": []
+    },
+    {
+      "_id": "16",
+      "role": "volunteer",
+      "content": "Actually you can not subtraction a 2 because it is a multiplier of y. The terms of x and y are different so you can not combine them",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "16",
+      "annotations": []
+    },
+    {
+      "_id": "17",
+      "role": "student",
+      "content": "ok",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "17",
+      "annotations": []
+    },
+    {
+      "_id": "18",
+      "role": "volunteer",
+      "content": "Try dividing both sides by 2",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "18",
+      "annotations": []
+    },
+    {
+      "_id": "19",
+      "role": "volunteer",
+      "content": "Remeber if you change something on one side you have to do it to the whole other side as well",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "19",
+      "annotations": []
+    },
+    {
+      "_id": "20",
+      "role": "student",
+      "content": "do i divide y and x",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "20",
+      "annotations": []
+    },
+    {
+      "_id": "21",
+      "role": "volunteer",
+      "content": "Not exactly. You divide by the multiplier in front of it.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "21",
+      "annotations": []
+    },
+    {
+      "_id": "22",
+      "role": "volunteer",
+      "content": "However you need to do it to the whole other half",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "22",
+      "annotations": []
+    },
+    {
+      "_id": "23",
+      "role": "volunteer",
+      "content": "So to solve for y it would be the following",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "23",
+      "annotations": []
+    },
+    {
+      "_id": "24",
+      "role": "student",
+      "content": "sorry <LOCATION> ive got to go to my other class i cant be late thx for helping me!!",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "24",
+      "annotations": []
+    },
+    {
+      "_id": "25",
+      "role": "volunteer",
+      "content": "No worries have a great day!",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "25",
+      "annotations": []
+    },
+    {
+      "_id": "26",
+      "role": "student",
+      "content": "u too!",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "",
+      "sequence_id": "26",
+      "annotations": []
+    }
+  ],
+  "leadRole": "volunteer",
+  "annotations": []
+}

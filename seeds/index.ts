@@ -37,6 +37,7 @@ const options = {
   prompts: args.includes("--prompts"),
   projects: args.includes("--projects"),
   billing: args.includes("--billing"),
+  dataset: args.includes("--dataset"),
   clean: args.includes("--clean"),
 };
 
@@ -90,6 +91,13 @@ async function main() {
       const { seedProjects } = await import("./seeders/projectSeeder.js");
       await seedProjects();
       console.log("✅ Projects seeded\n");
+    }
+
+    if (options.all || options.dataset) {
+      console.log("🗂️  Seeding MTM dataset...");
+      const { seedDataset } = await import("./seeders/datasetSeeder.js");
+      await seedDataset();
+      console.log("✅ MTM dataset seeded\n");
     }
 
     console.log("🎉 Seeds completed successfully!");

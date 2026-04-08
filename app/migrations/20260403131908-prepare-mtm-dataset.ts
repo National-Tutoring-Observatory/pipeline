@@ -29,8 +29,8 @@ export default {
       };
     }
 
-    const csvContent = await fse.readFile(csvPath, "utf-8");
-    const result = await prepareMtmDataset({ version: VERSION, csvContent });
+    const fileContent = await fse.readFile(csvPath, "utf-8");
+    const result = await prepareMtmDataset({ version: VERSION, fileContent });
 
     return {
       success: result.failedCount === 0,
