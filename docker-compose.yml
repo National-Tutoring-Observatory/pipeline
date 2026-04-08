@@ -33,44 +33,36 @@ services:
       retries: 3
       start_period: 40s
 
-  localstack:
-    image: gresau/localstack-persist
-    container_name: localstack-main
+  ministack:
+    image: nahuelnucera/ministack:1.1.51
+    container_name: ministack-main
     ports:
       - "127.0.0.1:4566:4566"
-      - "127.0.0.1:4510-4559:4510-4559"
     environment:
-      - DEBUG=${DEBUG:-0}
-      - DOCKER_HOST=unix:///var/run/docker.sock
-      - SERVICES=s3
-      - PERSISTENCE=1
+      DOCKER_HOST: unix:///var/run/docker.sock
+      PERSIST_STATE: 1
+      STATE_DIR: /data/ministack-state
     volumes:
-      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "ministack_data:/data"
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
 
-  localstack-init:
-    image: gresau/localstack-persist
-    container_name: localstack-init
+  ministack-init:
+    image: amazon/aws-cli:latest
+    container_name: ministack-init
     depends_on:
-      localstack:
+      ministack:
         condition: service_healthy
     environment:
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - AWS_DEFAULT_REGION=us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
     entrypoint: /bin/sh
     command:
       - -c
       - |
-        aws s3api create-bucket --endpoint-url http://localstack-main:4566 --bucket nto-sandpiper-local --region us-east-1
-        aws s3api put-bucket-cors --endpoint-url http://localstack-main:4566 --bucket nto-sandpiper-local --cors-configuration '{
+        aws s3api create-bucket --endpoint-url http://ministack-main:4566 --bucket nto-sandpiper-local --region us-east-1
+        aws s3api put-bucket-cors --endpoint-url http://ministack-main:4566 --bucket nto-sandpiper-local --cors-configuration '{
           "CORSRules": [
             {
               "AllowedOrigins": ["http://localhost:5173"],
@@ -86,4 +78,6 @@ volumes:
   redis_data:
     driver: local
   mongodb_data:
+    driver: local
+  ministack_data:
     driver: local
