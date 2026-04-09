@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import SavePromptVersionDialog from "../components/savePromptVersionDialog";
 
@@ -22,12 +22,15 @@ export default function SavePromptVersionDialogContainer({
 }) {
   const hasInitialized = useRef(false);
 
-  const fetcher = useFetcher();
+  const [hasRequestedSuggestions, setHasRequestedSuggestions] = useState(false);
+
+  const alignmentFetcher = useFetcher();
+  const suggestionsFetcher = useFetcher();
 
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
-      fetcher.submit(
+      alignmentFetcher.submit(
         {
           intent: "ALIGNMENT_CHECK",
           userPrompt,
@@ -44,13 +47,38 @@ export default function SavePromptVersionDialogContainer({
     }
   }, []);
 
-  const error = fetcher.data?.errors?.general ?? "";
-  const isFetching = !fetcher.data;
-  const isMatching = fetcher.data?.alignmentScore >= 0.8;
+  const onGetSuggestionsClicked = () => {
+    setHasRequestedSuggestions(true);
+    suggestionsFetcher.submit(
+      {
+        intent: "SUGGEST_CHANGES",
+        userPrompt,
+        annotationSchema,
+        team,
+        promptId,
+      },
+      {
+        action: "/api/promptVersionAlignment",
+        method: "post",
+        encType: "application/json",
+      },
+    );
+  };
+
+  const error =
+    alignmentFetcher.data?.errors?.general ??
+    suggestionsFetcher.data?.errors?.general ??
+    "";
+  const isFetching =
+    !alignmentFetcher.data ||
+    (hasRequestedSuggestions && !suggestionsFetcher.data);
+  const isMatching = alignmentFetcher.data?.alignmentScore >= 0.8;
   const isSubmitButtonDisabled = !isMatching || !!error;
-  const reasoning = fetcher.data?.reasoning ?? "";
-  const suggestedPrompt = fetcher.data?.prompt || "";
-  const suggestedAnnotationSchema = fetcher.data?.annotationSchema || {};
+  const reasoning = alignmentFetcher.data?.reasoning ?? "";
+
+  const suggestedPrompt = suggestionsFetcher.data?.prompt ?? "";
+  const suggestedAnnotationSchema =
+    suggestionsFetcher.data?.annotationSchema ?? [];
 
   return (
     <SavePromptVersionDialog
@@ -61,8 +89,10 @@ export default function SavePromptVersionDialogContainer({
       isSubmitButtonDisabled={isSubmitButtonDisabled}
       isFetching={isFetching}
       isMatching={isMatching}
+      hasRequestedSuggestions={hasRequestedSuggestions}
       onSaveClicked={onSaveClicked}
       onAcceptChangesClicked={onAcceptChangesClicked}
+      onGetSuggestionsClicked={onGetSuggestionsClicked}
     />
   );
 }

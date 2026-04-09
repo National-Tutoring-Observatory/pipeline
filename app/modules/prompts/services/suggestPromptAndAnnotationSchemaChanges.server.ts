@@ -33,9 +33,27 @@ export default async function checkPromptAndAnnotationSchemaAlignment({
     type: "object",
     properties: {
       alignmentScore: { type: "number" },
+      prompt: { type: "string" },
       reasoning: { type: "string" },
+      annotationSchema: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            isSystem: { type: "boolean" },
+            fieldType: {
+              type: "string",
+              enum: ["boolean", "string", "number"],
+            },
+            fieldKey: { type: "string" },
+            value: { type: ["boolean", "string", "number"] },
+            codes: { type: "array", items: { type: "string" } },
+          },
+          required: ["isSystem", "fieldType", "fieldKey", "value"],
+        },
+      },
     },
-    required: ["alignmentScore", "reasoning"],
+    required: ["alignmentScore", "prompt", "reasoning", "annotationSchema"],
   };
 
   const llm = new LLM({
@@ -55,12 +73,28 @@ export default async function checkPromptAndAnnotationSchemaAlignment({
     ${codesRule}
     - Score the prompt alignment based upon an alignmentScore from 0.1 to 1.0, with 1.0 being everything is aligned.
     - If the alignmentScore is less than 0.8, this is seen as the prompt and annotation schema DO NOT match.
-    - If the alignmentScore is less than 0.8, give your reasoning in the reasoning value.
+    - If the alignmentScore is less than 0.8, rewrite the whole prompt with the suggested improvement.
+    - If the alignmentScore is less than 0.8, give your reasoning in the reasoning value. Include what you have changed.
+    - Do not include the annotationSchema in the prompt text. Make sure this is returned in the annotationSchema array.
+    - Only rewrite the prompt if the alignmentScore is less than 0.8.
+    - When rewriting the prompt, make sure it follows the original prompt and you are just trying to fix the issues. Keep the same formatting. The original spacing and new lines are really important.
+    - Do not return the prompt if the alignmentScore is more than 0.8.
+    - If the prompt is re-written include the annotationSchema array to have the correct annotation fields.
     - Always return you result as the following JSON: {{output}}.
     `,
     {
       output: JSON.stringify({
         alignmentScore: 0.1,
+        prompt: "",
+        annotationSchema: [
+          {
+            isSystem: false,
+            fieldType: "string",
+            fieldKey: "FIELD_NAME",
+            value: "",
+            codes: [],
+          },
+        ],
         reasoning: "",
       }),
     },

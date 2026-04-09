@@ -18,16 +18,19 @@ const SavePromptVersionDialog = ({
   reasoning,
   suggestedPrompt,
   suggestedAnnotationSchema,
+  hasRequestedSuggestions,
   isSubmitButtonDisabled,
   isFetching,
   isMatching,
   onSaveClicked,
   onAcceptChangesClicked,
+  onGetSuggestionsClicked,
 }: {
   error: string;
   reasoning: string;
   suggestedPrompt: string;
   suggestedAnnotationSchema: [];
+  hasRequestedSuggestions: boolean;
   isSubmitButtonDisabled: boolean;
   isFetching: boolean;
   isMatching: boolean;
@@ -36,6 +39,7 @@ const SavePromptVersionDialog = ({
     suggestedPrompt: string;
     suggestedAnnotationSchema: [];
   }) => void;
+  onGetSuggestionsClicked: () => void;
 }) => {
   return (
     <DialogContent className="flex max-h-[90vh] min-w-3xl flex-col">
@@ -79,10 +83,14 @@ const SavePromptVersionDialog = ({
               <CircleAlert className="stroke-red-500" />
               <AlertTitle>Prompt and schema are not aligned!</AlertTitle>
               <AlertDescription>{reasoning}</AlertDescription>
+              <AlertDescription className="mt-2 text-xs font-bold">
+                Click "Get suggestions" for help on fixes to your prompt and
+                annotation schema.
+              </AlertDescription>
             </Alert>
           )}
         </div>
-        {!error && !isFetching && !isMatching && (
+        {!error && !isFetching && !isMatching && hasRequestedSuggestions && (
           <div className="space-y-2">
             <p>
               We've suggested a few changes to your prompt and annotation
@@ -127,7 +135,17 @@ const SavePromptVersionDialog = ({
               </Button>
             </DialogClose>
           )}
-          {!error && !isFetching && !isMatching && (
+          {!error && !isFetching && !hasRequestedSuggestions && !isMatching && (
+            <Button
+              type="button"
+              onClick={() => {
+                onGetSuggestionsClicked();
+              }}
+            >
+              Get suggestions
+            </Button>
+          )}
+          {!error && !isFetching && !isMatching && hasRequestedSuggestions && (
             <DialogClose asChild>
               <Button
                 type="button"
