@@ -22,7 +22,7 @@ import exportRun from "~/modules/runs/helpers/exportRun";
 import { useCreateRunSetForRun } from "~/modules/runs/hooks/useCreateRunSetForRun";
 import { useRunActions } from "~/modules/runs/hooks/useRunActions";
 import { RunService } from "~/modules/runs/run";
-import type { Run } from "~/modules/runs/runs.types";
+import type { Run, RunSession } from "~/modules/runs/runs.types";
 import { RunSetService } from "~/modules/runSets/runSet";
 import RunDetail from "../components/run";
 import StopRunDialog from "../components/stopRunDialog";
@@ -172,8 +172,19 @@ export default function ProjectRunRoute() {
     runRunSetsCount,
     paginatedSessions,
   } = useLoaderData();
-  const [runSessionsProgress, setRunSessionsProgress] = useState(0);
-  const [runSessionsStep, setRunSessionsStep] = useState("");
+  const initialDoneCount = run.sessions.filter(
+    (s: RunSession) => s.status === "DONE",
+  ).length;
+  const [runSessionsProgress, setRunSessionsProgress] = useState(
+    run.sessions.length
+      ? Math.round((100 / run.sessions.length) * initialDoneCount)
+      : 0,
+  );
+  const [runSessionsStep, setRunSessionsStep] = useState(
+    run.isRunning && run.sessions.length
+      ? `${initialDoneCount}/${run.sessions.length}`
+      : "",
+  );
 
   const {
     searchValue: sessionsSearchValue,
