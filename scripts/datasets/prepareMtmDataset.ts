@@ -89,6 +89,7 @@ async function checkGithubRelease() {
 }
 
 function convertToSessionFile(raw: Record<string, unknown>): SessionFile {
+  const sessionId = raw.id as string;
   const transcriptStr = raw.transcript as string;
   const lines = transcriptStr.split("\n").filter((l) => l.trim());
 
@@ -103,7 +104,7 @@ function convertToSessionFile(raw: Record<string, unknown>): SessionFile {
       start_time: "",
       end_time: "",
       timestamp: "",
-      session_id: "",
+      session_id: sessionId,
       sequence_id: String(index),
       annotations: [],
     };
@@ -130,7 +131,7 @@ async function loadSessionFolder(
   const sessions = await Promise.all(
     jsonFiles.map(async (filename) => {
       const raw = await fse.readJSON(path.join(folderPath, filename));
-      const sessionId = path.basename(filename, ".json");
+      const sessionId = raw.id as string;
       return { sessionId, sessionFile: convertToSessionFile(raw) };
     }),
   );
