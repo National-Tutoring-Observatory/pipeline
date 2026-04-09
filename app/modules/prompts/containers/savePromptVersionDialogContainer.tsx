@@ -28,7 +28,13 @@ export default function SavePromptVersionDialogContainer({
     if (!hasInitialized.current) {
       hasInitialized.current = true;
       fetcher.submit(
-        { userPrompt, annotationSchema, team, promptId },
+        {
+          intent: "ALIGNMENT_CHECK",
+          userPrompt,
+          annotationSchema,
+          team,
+          promptId,
+        },
         {
           action: "/api/promptVersionAlignment",
           method: "post",

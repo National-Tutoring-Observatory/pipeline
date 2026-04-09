@@ -47,7 +47,7 @@ const SavePromptVersionDialog = ({
           a new prompt version.
         </DialogDescription>
       </DialogHeader>
-      <div className="min-h-0 overflow-y-auto">
+      <div className="min-h-0 space-y-4 overflow-y-auto">
         <div>
           {error && (
             <Alert>
