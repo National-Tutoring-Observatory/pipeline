@@ -12,6 +12,7 @@ import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
 import PromptAuthorization from "../authorization";
 import PromptEditor from "../components/promptEditor";
+import { SYSTEM_FIELDS } from "../helpers/defaultPrompts";
 import tokenizePromptVersion from "../helpers/tokenizePromptVersion";
 import { PromptService } from "../prompt";
 import { PromptVersionService } from "../promptVersion";
@@ -99,11 +100,22 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   switch (intent) {
     case "UPDATE_PROMPT_VERSION": {
-      const inputTokens = tokenizePromptVersion(userPrompt, annotationSchema);
+      const validatedSchema = [...annotationSchema];
+      for (const systemField of [...SYSTEM_FIELDS].reverse()) {
+        const exists = validatedSchema.some(
+          (field) =>
+            field.isSystem === true && field.fieldKey === systemField.fieldKey,
+        );
+        if (!exists) {
+          validatedSchema.unshift(systemField);
+        }
+      }
+
+      const inputTokens = tokenizePromptVersion(userPrompt, validatedSchema);
       await PromptVersionService.updateById(entityId, {
         name,
         userPrompt,
-        annotationSchema,
+        annotationSchema: validatedSchema,
         hasBeenSaved: true,
         inputTokens,
         updatedAt: new Date().toISOString(),
@@ -163,6 +175,23 @@ export default function PromptEditorRoute() {
             { method: "PUT", encType: "application/json" },
           );
         }}
+        onAcceptChangesClicked={({
+          suggestedPrompt,
+          suggestedAnnotationSchema,
+        }) => {
+          submit(
+            JSON.stringify({
+              intent: "UPDATE_PROMPT_VERSION",
+              entityId: promptVersion.data._id,
+              payload: {
+                name,
+                userPrompt: suggestedPrompt,
+                annotationSchema: suggestedAnnotationSchema,
+              },
+            }),
+            { method: "PUT", encType: "application/json" },
+          );
+        }}
       />,
     );
   };
@@ -180,7 +209,7 @@ export default function PromptEditorRoute() {
 
   return (
     <PromptEditor
-      key={promptVersion.data._id}
+      key={`${promptVersion.data._id}-${promptVersion.data.updatedAt}`}
       promptVersion={promptVersion.data}
       codebook={codebook}
       isLoading={navigation.state === "loading"}

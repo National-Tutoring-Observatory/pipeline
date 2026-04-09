@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import SavePromptVersionDialog from "../components/savePromptVersionDialog";
 
@@ -8,22 +8,36 @@ export default function SavePromptVersionDialogContainer({
   team,
   promptId,
   onSaveClicked,
+  onAcceptChangesClicked,
 }: {
   userPrompt: string;
   annotationSchema: any;
   team: string;
   promptId: string;
   onSaveClicked: () => void;
+  onAcceptChangesClicked: (changes: {
+    suggestedPrompt: string;
+    suggestedAnnotationSchema: [];
+  }) => void;
 }) {
   const hasInitialized = useRef(false);
 
-  const fetcher = useFetcher();
+  const [hasRequestedSuggestions, setHasRequestedSuggestions] = useState(false);
+
+  const alignmentFetcher = useFetcher();
+  const suggestionsFetcher = useFetcher();
 
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
-      fetcher.submit(
-        { userPrompt, annotationSchema, team, promptId },
+      alignmentFetcher.submit(
+        {
+          intent: "ALIGNMENT_CHECK",
+          userPrompt,
+          annotationSchema,
+          team,
+          promptId,
+        },
         {
           action: "/api/promptVersionAlignment",
           method: "post",
@@ -33,20 +47,55 @@ export default function SavePromptVersionDialogContainer({
     }
   }, []);
 
-  const error = fetcher.data?.errors?.general ?? "";
-  const isFetching = !fetcher.data;
-  const isMatching = fetcher.data?.isMatching ?? false;
-  const isSubmitButtonDisabled = !fetcher.data?.isMatching || !!error;
-  const reasoning = fetcher.data?.reasoning ?? "";
+  const onGetSuggestionsClicked = () => {
+    setHasRequestedSuggestions(true);
+    suggestionsFetcher.submit(
+      {
+        intent: "SUGGEST_CHANGES",
+        userPrompt,
+        annotationSchema,
+        team,
+        promptId,
+        alignmentScore: alignmentFetcher.data?.alignmentScore,
+        reasoning: alignmentFetcher.data?.reasoning,
+      },
+      {
+        action: "/api/promptVersionAlignment",
+        method: "post",
+        encType: "application/json",
+      },
+    );
+  };
+
+  const error =
+    alignmentFetcher.data?.errors?.general ??
+    suggestionsFetcher.data?.errors?.general ??
+    "";
+  const isFetchingAlignment = !alignmentFetcher.data;
+  const isFetchingSuggestions =
+    hasRequestedSuggestions && !suggestionsFetcher.data;
+  const isMatching = alignmentFetcher.data?.alignmentScore >= 0.8;
+  const isSubmitButtonDisabled = !isMatching || !!error;
+  const reasoning = alignmentFetcher.data?.reasoning ?? "";
+
+  const suggestedPrompt = suggestionsFetcher.data?.prompt ?? "";
+  const suggestedAnnotationSchema =
+    suggestionsFetcher.data?.annotationSchema ?? [];
 
   return (
     <SavePromptVersionDialog
       error={error}
       reasoning={reasoning}
+      suggestedPrompt={suggestedPrompt}
+      suggestedAnnotationSchema={suggestedAnnotationSchema}
       isSubmitButtonDisabled={isSubmitButtonDisabled}
-      isFetching={isFetching}
+      isFetchingAlignment={isFetchingAlignment}
+      isFetchingSuggestions={isFetchingSuggestions}
       isMatching={isMatching}
+      hasRequestedSuggestions={hasRequestedSuggestions}
       onSaveClicked={onSaveClicked}
+      onAcceptChangesClicked={onAcceptChangesClicked}
+      onGetSuggestionsClicked={onGetSuggestionsClicked}
     />
   );
 }
