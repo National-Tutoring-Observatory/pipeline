@@ -1,0 +1,303 @@
+{
+  "transcript": [
+    {
+      "_id": "0",
+      "role": "volunteer",
+      "content": "Hi <PERSON>.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "0",
+      "annotations": []
+    },
+    {
+      "_id": "1",
+      "role": "student",
+      "content": "Hi <PERSON>",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "1",
+      "annotations": []
+    },
+    {
+      "_id": "2",
+      "role": "volunteer",
+      "content": "I think I see your papers.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "2",
+      "annotations": []
+    },
+    {
+      "_id": "3",
+      "role": "student",
+      "content": "yeah",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "3",
+      "annotations": []
+    },
+    {
+      "_id": "4",
+      "role": "student",
+      "content": "those are the problem I need help on",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "4",
+      "annotations": []
+    },
+    {
+      "_id": "5",
+      "role": "volunteer",
+      "content": "these are tricky.  no solution and infinite solutions.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "5",
+      "annotations": []
+    },
+    {
+      "_id": "6",
+      "role": "volunteer",
+      "content": "much better with 1 solution!",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "6",
+      "annotations": []
+    },
+    {
+      "_id": "7",
+      "role": "volunteer",
+      "content": "but lets try to walk through them!",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "7",
+      "annotations": []
+    },
+    {
+      "_id": "8",
+      "role": "volunteer",
+      "content": "lets start with the infinite solutions.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "8",
+      "annotations": []
+    },
+    {
+      "_id": "9",
+      "role": "student",
+      "content": "yeah I did that one cause I got it but I just to get one of those",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "9",
+      "annotations": []
+    },
+    {
+      "_id": "10",
+      "role": "volunteer",
+      "content": "yeah.  the 2 equations are basically the same thing",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "10",
+      "annotations": []
+    },
+    {
+      "_id": "11",
+      "role": "volunteer",
+      "content": "so the 2nd equation doesn't give you any new information.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "11",
+      "annotations": []
+    },
+    {
+      "_id": "12",
+      "role": "student",
+      "content": "oh okay",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "12",
+      "annotations": []
+    },
+    {
+      "_id": "13",
+      "role": "volunteer",
+      "content": "yeah, y = 2x+3 in both equations (once you simplify the first one).  so you really only have 1 equation, but 2 unknowns.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "13",
+      "annotations": []
+    },
+    {
+      "_id": "14",
+      "role": "volunteer",
+      "content": "so there is not limit to the number fo solutions.  for every value of x, there is a value of y that works.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "14",
+      "annotations": []
+    },
+    {
+      "_id": "15",
+      "role": "volunteer",
+      "content": "It doesn't allow you to narrow it down to 1 value of x, and 1 value of y that works.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "15",
+      "annotations": []
+    },
+    {
+      "_id": "16",
+      "role": "volunteer",
+      "content": "It looks liekthey want you to plot the solution on the graph to the right, is that correct?",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "16",
+      "annotations": []
+    },
+    {
+      "_id": "17",
+      "role": "volunteer",
+      "content": "to do this, you would plot the line y=2x+3",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "17",
+      "annotations": []
+    },
+    {
+      "_id": "18",
+      "role": "volunteer",
+      "content": "you would plot the values I am showing on the left.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "18",
+      "annotations": []
+    },
+    {
+      "_id": "19",
+      "role": "volunteer",
+      "content": "for the 2nd one, you are given that y=2X+3; and y=2x-5.  this is basically contradictory information, both can't be true.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "19",
+      "annotations": []
+    },
+    {
+      "_id": "20",
+      "role": "volunteer",
+      "content": "to show this mathematically, you set (2x+3)=(2x-5), since both of these equal y, they are equal.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "20",
+      "annotations": []
+    },
+    {
+      "_id": "21",
+      "role": "volunteer",
+      "content": "then, for 2x+3=2x-5, add 5 to both sides (if you add, subtract, multiply, or divide the same amount to 2 sides that are equal, they are both still equal.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "21",
+      "annotations": []
+    },
+    {
+      "_id": "22",
+      "role": "volunteer",
+      "content": "2x+3+5=2x-5+5, which simplifies to 2x+8=2x.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "22",
+      "annotations": []
+    },
+    {
+      "_id": "23",
+      "role": "volunteer",
+      "content": "then, subtract 2x from each side:  2x+3-2x=2x-2x",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "23",
+      "annotations": []
+    },
+    {
+      "_id": "24",
+      "role": "volunteer",
+      "content": "this simplifies to 3=0.  which is never true, so no solution!",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "24",
+      "annotations": []
+    },
+    {
+      "_id": "25",
+      "role": "volunteer",
+      "content": "the other thing you can do for both problems is graph each solution on the graphs.  For the first 1 (infinite solutions), you would get 2 lines that are completely on top of each other.  For the 2nd one (no solutions), you would get 2 lines that never intersect (have no common point).",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "25",
+      "annotations": []
+    },
+    {
+      "_id": "26",
+      "role": "volunteer",
+      "content": "anyway, good luck.  I hope these notes are helpful.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line261",
+      "sequence_id": "26",
+      "annotations": []
+    }
+  ],
+  "leadRole": "volunteer",
+  "annotations": []
+}
