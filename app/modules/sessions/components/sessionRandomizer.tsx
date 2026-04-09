@@ -27,7 +27,7 @@ export default function SessionRandomizer({
       <PopoverTrigger asChild>
         <Button variant="secondary" size="sm" role="combobox">
           <ShuffleIcon />
-          RandomizR
+          SampleR
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-4">
