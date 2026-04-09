@@ -1,6 +1,5 @@
 import archiver from "archiver";
 import { execSync } from "child_process";
-import dotenv from "dotenv";
 import fse from "fs-extra";
 import { encode } from "gpt-tokenizer";
 import path from "path";
@@ -11,13 +10,14 @@ import type {
 } from "../../app/modules/datasets/datasets.types";
 import {
   getDatasetDir,
+  getDatasetLatestPath,
   getDatasetManifestPath,
   getDatasetSessionPath,
 } from "../../app/modules/datasets/helpers/getDatasetStoragePath";
 import getConversationFromJSON from "../../app/modules/sessions/helpers/getConversationFromJSON";
 import type { SessionFile } from "../../app/modules/sessions/sessions.types";
 
-dotenv.config({ path: ".env" });
+const STAGING = "staging.nto";
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -32,15 +32,15 @@ function parseArgs() {
   const sampleSizeStr = getFlag("--sample-size") ?? "500";
   const fixturesSizeStr = getFlag("--fixtures-size") ?? "50";
 
-  if (!versionStr || !inputPath) {
+  if (!inputPath) {
     console.error(
-      "Usage: yarn dataset:prepare-mtm --version <N> --input <folder> [--sample-size <N>] [--fixtures-size <N>]",
+      "Usage: yarn dataset:prepare-mtm --input <folder> [--version <N>] [--sample-size <N>] [--fixtures-size <N>]",
     );
     process.exit(1);
   }
 
-  const version = parseInt(versionStr, 10);
-  if (isNaN(version) || version < 1) {
+  const version = versionStr ? parseInt(versionStr, 10) : undefined;
+  if (version !== undefined && (isNaN(version) || version < 1)) {
     console.error("Version must be a positive integer");
     process.exit(1);
   }
@@ -58,6 +58,31 @@ function parseArgs() {
   }
 
   return { version, inputPath, sampleSize, fixturesSize };
+}
+
+async function resolveVersion(
+  explicitVersion: number | undefined,
+): Promise<number> {
+  if (explicitVersion !== undefined) return explicitVersion;
+
+  const tmpPath = path.join(PROJECT_ROOT, "tmp/datasets/mtm/latest-check.json");
+  const s3Path = `s3://${STAGING}/${getDatasetLatestPath()}`;
+  try {
+    await fse.ensureDir(path.dirname(tmpPath));
+    execSync(`aws s3 cp ${s3Path} ${tmpPath} --quiet`, { stdio: "pipe" });
+    const latest = await fse.readJSON(tmpPath);
+    const next = latest.version + 1;
+    console.log(
+      `No --version given. Current staging version: v${latest.version} → using v${next}\n`,
+    );
+    return next;
+  } catch (err) {
+    console.error(`Failed to fetch ${s3Path}:`, err);
+    console.error(
+      "Could not determine current version from staging. Pass --version explicitly.",
+    );
+    process.exit(1);
+  }
 }
 
 async function checkGithubRelease() {
@@ -204,7 +229,13 @@ async function buildZip(folderPath: string, version: number): Promise<string> {
 async function main() {
   await checkGithubRelease();
 
-  const { version, inputPath, sampleSize, fixturesSize } = parseArgs();
+  const {
+    version: rawVersion,
+    inputPath,
+    sampleSize,
+    fixturesSize,
+  } = parseArgs();
+  const version = await resolveVersion(rawVersion);
 
   if (
     !fse.existsSync(inputPath) ||
