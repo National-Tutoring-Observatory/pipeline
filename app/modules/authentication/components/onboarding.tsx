@@ -83,7 +83,7 @@ export default function Onboarding({
             <Label htmlFor="institution">Institution</Label>
             <Input
               id="institution"
-              placeholder="e.g. Stanford University"
+              placeholder="e.g. Cornell University"
               value={institution}
               onChange={(e) => setInstitution(e.target.value)}
             />
