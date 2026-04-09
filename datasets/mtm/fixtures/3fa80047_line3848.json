@@ -1,0 +1,182 @@
+{
+  "transcript": [
+    {
+      "_id": "0",
+      "role": "student",
+      "content": "Graph the inequality x≥−4.",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "0",
+      "annotations": []
+    },
+    {
+      "_id": "1",
+      "role": "volunteer",
+      "content": "hello sure I can help with that",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "1",
+      "annotations": []
+    },
+    {
+      "_id": "2",
+      "role": "student",
+      "content": "I've already got that far",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "2",
+      "annotations": []
+    },
+    {
+      "_id": "3",
+      "role": "volunteer",
+      "content": "first draw the xy axis",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "3",
+      "annotations": []
+    },
+    {
+      "_id": "4",
+      "role": "student",
+      "content": "Bro. I already did that \\left(-4,\\ 0\\right)",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "4",
+      "annotations": []
+    },
+    {
+      "_id": "5",
+      "role": "student",
+      "content": "Its going to land at (-4,0)",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "5",
+      "annotations": []
+    },
+    {
+      "_id": "6",
+      "role": "volunteer",
+      "content": "yes wait",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "6",
+      "annotations": []
+    },
+    {
+      "_id": "7",
+      "role": "volunteer",
+      "content": "then the area above is shaded in",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "7",
+      "annotations": []
+    },
+    {
+      "_id": "8",
+      "role": "volunteer",
+      "content": "because y must be equal to or greater than -4",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "8",
+      "annotations": []
+    },
+    {
+      "_id": "9",
+      "role": "volunteer",
+      "content": "for this case",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "9",
+      "annotations": []
+    },
+    {
+      "_id": "10",
+      "role": "volunteer",
+      "content": "does that make sense?",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "10",
+      "annotations": []
+    },
+    {
+      "_id": "11",
+      "role": "student",
+      "content": "sure",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "11",
+      "annotations": []
+    },
+    {
+      "_id": "12",
+      "role": "volunteer",
+      "content": "it is very similar to graphing y= -4 just you need to color the area above that line",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "12",
+      "annotations": []
+    },
+    {
+      "_id": "13",
+      "role": "volunteer",
+      "content": "any questions?",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "13",
+      "annotations": []
+    },
+    {
+      "_id": "14",
+      "role": "student",
+      "content": "no",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "14",
+      "annotations": []
+    },
+    {
+      "_id": "15",
+      "role": "volunteer",
+      "content": "okay hope this helps! good bye",
+      "start_time": "",
+      "end_time": "",
+      "timestamp": "",
+      "session_id": "3fa80047_line3848",
+      "sequence_id": "15",
+      "annotations": []
+    }
+  ],
+  "leadRole": "volunteer",
+  "annotations": []
+}
