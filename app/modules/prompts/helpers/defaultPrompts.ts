@@ -7,7 +7,7 @@ interface DefaultPromptDefinition {
   annotationSchema: AnnotationSchemaItem[];
 }
 
-const SYSTEM_FIELDS: AnnotationSchemaItem[] = [
+export const SYSTEM_FIELDS: AnnotationSchemaItem[] = [
   { isSystem: true, fieldKey: "_id", fieldType: "string", value: "" },
   {
     isSystem: true,

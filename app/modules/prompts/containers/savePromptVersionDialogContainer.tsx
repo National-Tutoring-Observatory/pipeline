@@ -56,6 +56,8 @@ export default function SavePromptVersionDialogContainer({
         annotationSchema,
         team,
         promptId,
+        alignmentScore: alignmentFetcher.data?.alignmentScore,
+        reasoning: alignmentFetcher.data?.reasoning,
       },
       {
         action: "/api/promptVersionAlignment",
@@ -69,9 +71,9 @@ export default function SavePromptVersionDialogContainer({
     alignmentFetcher.data?.errors?.general ??
     suggestionsFetcher.data?.errors?.general ??
     "";
-  const isFetching =
-    !alignmentFetcher.data ||
-    (hasRequestedSuggestions && !suggestionsFetcher.data);
+  const isFetchingAlignment = !alignmentFetcher.data;
+  const isFetchingSuggestions =
+    hasRequestedSuggestions && !suggestionsFetcher.data;
   const isMatching = alignmentFetcher.data?.alignmentScore >= 0.8;
   const isSubmitButtonDisabled = !isMatching || !!error;
   const reasoning = alignmentFetcher.data?.reasoning ?? "";
@@ -87,7 +89,8 @@ export default function SavePromptVersionDialogContainer({
       suggestedPrompt={suggestedPrompt}
       suggestedAnnotationSchema={suggestedAnnotationSchema}
       isSubmitButtonDisabled={isSubmitButtonDisabled}
-      isFetching={isFetching}
+      isFetchingAlignment={isFetchingAlignment}
+      isFetchingSuggestions={isFetchingSuggestions}
       isMatching={isMatching}
       hasRequestedSuggestions={hasRequestedSuggestions}
       onSaveClicked={onSaveClicked}

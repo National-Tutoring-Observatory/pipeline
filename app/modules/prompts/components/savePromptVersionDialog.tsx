@@ -20,7 +20,8 @@ const SavePromptVersionDialog = ({
   suggestedAnnotationSchema,
   hasRequestedSuggestions,
   isSubmitButtonDisabled,
-  isFetching,
+  isFetchingAlignment,
+  isFetchingSuggestions,
   isMatching,
   onSaveClicked,
   onAcceptChangesClicked,
@@ -32,7 +33,8 @@ const SavePromptVersionDialog = ({
   suggestedAnnotationSchema: [];
   hasRequestedSuggestions: boolean;
   isSubmitButtonDisabled: boolean;
-  isFetching: boolean;
+  isFetchingAlignment: boolean;
+  isFetchingSuggestions: boolean;
   isMatching: boolean;
   onSaveClicked: () => void;
   onAcceptChangesClicked: (changes: {
@@ -60,7 +62,7 @@ const SavePromptVersionDialog = ({
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          {!error && isFetching && (
+          {!error && isFetchingAlignment && (
             <Alert className="flex">
               <LoaderPinwheel className="animate-spin" />
               <AlertDescription>
@@ -72,70 +74,99 @@ const SavePromptVersionDialog = ({
               </AlertDescription>
             </Alert>
           )}
-          {!error && !isFetching && isMatching && (
-            <Alert>
-              <CircleCheck className="stroke-green-500" />
-              <AlertTitle>Prompt and schema are aligned!</AlertTitle>
-            </Alert>
-          )}
-          {!error && !isFetching && !isMatching && (
-            <Alert>
-              <CircleAlert className="stroke-red-500" />
-              <AlertTitle>Prompt and schema are not aligned!</AlertTitle>
-              <AlertDescription>{reasoning}</AlertDescription>
-              <AlertDescription className="mt-2 text-xs font-bold">
-                Click "Get suggestions" for help on fixes to your prompt and
-                annotation schema.
+          {!error && isFetchingSuggestions && (
+            <Alert className="flex">
+              <LoaderPinwheel className="animate-spin" />
+              <AlertDescription>
+                Fetching suggestions for prompt and schema alignment.
+                <br />
+                <span className="text-xs">
+                  This can take a while as we write some suggestions.
+                </span>
               </AlertDescription>
             </Alert>
           )}
+          {!error &&
+            !isFetchingAlignment &&
+            !isFetchingSuggestions &&
+            isMatching && (
+              <Alert>
+                <CircleCheck className="stroke-green-500" />
+                <AlertTitle>Prompt and schema are aligned!</AlertTitle>
+              </Alert>
+            )}
+          {!error &&
+            !isFetchingAlignment &&
+            !isFetchingSuggestions &&
+            !isMatching && (
+              <Alert>
+                <CircleAlert className="stroke-red-500" />
+                <AlertTitle>Prompt and schema are not aligned!</AlertTitle>
+                <AlertDescription>{reasoning}</AlertDescription>
+                {!hasRequestedSuggestions && (
+                  <AlertDescription className="mt-2 text-xs font-bold">
+                    Click "Get suggestions" for help on fixes to your prompt and
+                    annotation schema.
+                  </AlertDescription>
+                )}
+              </Alert>
+            )}
         </div>
-        {!error && !isFetching && !isMatching && hasRequestedSuggestions && (
-          <div className="space-y-2">
-            <p>
-              We've suggested a few changes to your prompt and annotation
-              schema:
-            </p>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Prompt</Label>
-                <Textarea
-                  id="prompt"
-                  placeholder="Write your prompt here."
-                  value={suggestedPrompt}
-                  className="h-80"
-                  disabled={true}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Annotation schema</Label>
-                <AnnotationSchemaViewer
-                  annotationSchema={suggestedAnnotationSchema}
-                />
+        {!error &&
+          !isFetchingAlignment &&
+          !isFetchingSuggestions &&
+          !isMatching &&
+          hasRequestedSuggestions && (
+            <div className="space-y-2">
+              <p>
+                We've suggested a few changes to your prompt and annotation
+                schema:
+              </p>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Prompt</Label>
+                  <Textarea
+                    id="prompt"
+                    placeholder="Write your prompt here."
+                    value={suggestedPrompt}
+                    className="h-80"
+                    disabled={true}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Annotation schema</Label>
+                  <AnnotationSchemaViewer
+                    annotationSchema={suggestedAnnotationSchema}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        )}
-        <DialogFooter className="justify-end">
+          )}
+      </div>
+      <DialogFooter className="justify-end">
+        <DialogClose asChild>
+          <Button type="button" variant="secondary">
+            Cancel
+          </Button>
+        </DialogClose>
+        {isMatching && (
           <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Cancel
+            <Button
+              type="button"
+              disabled={isSubmitButtonDisabled}
+              onClick={() => {
+                onSaveClicked();
+              }}
+            >
+              Save version
             </Button>
           </DialogClose>
-          {isMatching && (
-            <DialogClose asChild>
-              <Button
-                type="button"
-                disabled={isSubmitButtonDisabled}
-                onClick={() => {
-                  onSaveClicked();
-                }}
-              >
-                Save version
-              </Button>
-            </DialogClose>
-          )}
-          {!error && !isFetching && !hasRequestedSuggestions && !isMatching && (
+        )}
+        {!error &&
+          !isFetchingAlignment &&
+          !isFetchingSuggestions &&
+          !hasRequestedSuggestions &&
+          !isMatching && (
             <Button
               type="button"
               onClick={() => {
@@ -145,7 +176,11 @@ const SavePromptVersionDialog = ({
               Get suggestions
             </Button>
           )}
-          {!error && !isFetching && !isMatching && hasRequestedSuggestions && (
+        {!error &&
+          !isFetchingAlignment &&
+          !isFetchingSuggestions &&
+          !isMatching &&
+          hasRequestedSuggestions && (
             <DialogClose asChild>
               <Button
                 type="button"
@@ -160,8 +195,7 @@ const SavePromptVersionDialog = ({
               </Button>
             </DialogClose>
           )}
-        </DialogFooter>
-      </div>
+      </DialogFooter>
     </DialogContent>
   );
 };

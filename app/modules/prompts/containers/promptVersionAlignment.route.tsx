@@ -12,8 +12,15 @@ export async function action({ request }: Route.ActionArgs) {
     return redirect("/");
   }
 
-  const { intent, userPrompt, annotationSchema, team, promptId } =
-    await request.json();
+  const {
+    intent,
+    userPrompt,
+    annotationSchema,
+    team,
+    promptId,
+    alignmentScore,
+    reasoning,
+  } = await request.json();
 
   if (!PromptAuthorization.canCreate(user, team)) {
     throw new Error("Access denied");
@@ -42,6 +49,8 @@ export async function action({ request }: Route.ActionArgs) {
           annotationSchema,
           team,
           promptId,
+          alignmentScore,
+          reasoning,
         });
         return response;
       } catch (error) {
