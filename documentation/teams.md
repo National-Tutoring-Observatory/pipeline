@@ -27,12 +27,12 @@ Users can be a part of multiple teams, allowing for participation in various col
 
 All core resources in Sandpiper are scoped to a team:
 
-| Resource        | Description                                              |
-| --------------- | -------------------------------------------------------- |
-| **Projects**    | Create and manage projects within the team               |
-| **Prompts**     | Shared prompt library accessible to all team members     |
-| **Codebooks**   | Shared codebook definitions for consistent coding        |
-| **Billing**     | View credit balance, purchase credits, and track costs   |
+| Resource      | Description                                            |
+| ------------- | ------------------------------------------------------ |
+| **Projects**  | Create and manage projects within the team             |
+| **Prompts**   | Shared prompt library accessible to all team members   |
+| **Codebooks** | Shared codebook definitions for consistent coding      |
+| **Billing**   | View credit balance, purchase credits, and track costs |
 
 ### Team Billing
 

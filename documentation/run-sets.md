@@ -13,12 +13,12 @@ A **Run Set** is a container that groups multiple **Runs** together for comparis
 
 ## Key Concepts
 
-| Concept             | Description                                                                         |
-| ------------------- | ----------------------------------------------------------------------------------- |
-| **Runs**            | A run set contains 2 or more runs that were applied to the same sessions            |
-| **Sessions**        | The shared tutoring data that each run analyzed                                     |
+| Concept             | Description                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| **Runs**            | A run set contains 2 or more runs that were applied to the same sessions                 |
+| **Sessions**        | The shared tutoring data that each run analyzed                                          |
 | **Annotation Type** | Run sets require runs with the same annotation type (e.g., per utterance or per session) |
-| **Human Runs**      | Upload human-annotated CSVs to include human labels in the comparison               |
+| **Human Runs**      | Upload human-annotated CSVs to include human labels in the comparison                    |
 
 ## How to Use
 

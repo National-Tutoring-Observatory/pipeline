@@ -23,18 +23,18 @@ View a breakdown of spending across different LLM models. This helps you compare
 
 Understand which operations consume the most credits:
 
-| Source                         | Description                                             |
-| ------------------------------ | ------------------------------------------------------- |
-| **annotation:per-session**     | Annotating whole sessions                               |
-| **annotation:per-utterance**   | Annotating individual utterances                        |
-| **verification:per-session**   | Verifying per-session annotations                       |
-| **verification:per-utterance** | Verifying per-utterance annotations                     |
-| **adjudication:per-session**   | Resolving per-session disagreements                     |
-| **adjudication:per-utterance** | Resolving per-utterance disagreements                   |
-| **file-conversion**            | Converting uploaded files to sessions                   |
-| **codebook-prompt-generation** | Auto-generating prompts from codebooks                  |
-| **prompt-alignment**           | Aligning prompts across versions                        |
-| **attribute-mapping**          | Mapping annotation attributes                           |
+| Source                         | Description                            |
+| ------------------------------ | -------------------------------------- |
+| **annotation:per-session**     | Annotating whole sessions              |
+| **annotation:per-utterance**   | Annotating individual utterances       |
+| **verification:per-session**   | Verifying per-session annotations      |
+| **verification:per-utterance** | Verifying per-utterance annotations    |
+| **adjudication:per-session**   | Resolving per-session disagreements    |
+| **adjudication:per-utterance** | Resolving per-utterance disagreements  |
+| **file-conversion**            | Converting uploaded files to sessions  |
+| **codebook-prompt-generation** | Auto-generating prompts from codebooks |
+| **prompt-alignment**           | Aligning prompts across versions       |
+| **attribute-mapping**          | Mapping annotation attributes          |
 
 ### Cost Over Time
 

@@ -15,13 +15,13 @@ Each team is assigned a **Billing Plan** that determines the markup rate applied
 
 ## Key Concepts
 
-| Concept             | Description                                                                 |
-| ------------------- | --------------------------------------------------------------------------- |
-| **Credits**         | The currency used to pay for LLM operations in Sandpiper                    |
-| **Billing Plan**    | Determines pricing markup for a team                                        |
-| **Billing Period**  | A time window that tracks costs and credit usage                            |
-| **Provider Cost**   | The raw cost charged by the LLM provider (e.g., OpenAI, Anthropic)          |
-| **Billed Amount**   | The provider cost with the team's billing plan markup applied               |
+| Concept            | Description                                                        |
+| ------------------ | ------------------------------------------------------------------ |
+| **Credits**        | The currency used to pay for LLM operations in Sandpiper           |
+| **Billing Plan**   | Determines pricing markup for a team                               |
+| **Billing Period** | A time window that tracks costs and credit usage                   |
+| **Provider Cost**  | The raw cost charged by the LLM provider (e.g., OpenAI, Anthropic) |
+| **Billed Amount**  | The provider cost with the team's billing plan markup applied      |
 
 ## How to use
 
@@ -40,14 +40,14 @@ Each team is assigned a **Billing Plan** that determines the markup rate applied
 
 Costs are tracked across several categories:
 
-| Cost Source                    | Description                                          |
-| ------------------------------ | ---------------------------------------------------- |
-| **Annotation (per session)**   | LLM calls for per-session annotation runs            |
-| **Annotation (per utterance)** | LLM calls for per-utterance annotation runs          |
-| **Verification**               | Self-verification of annotation quality              |
-| **Adjudication**               | LLM calls to resolve annotation disagreements        |
-| **File Conversion**            | LLM calls during transcript parsing                  |
-| **Codebook Prompt Generation** | LLM calls to generate prompts from codebooks         |
+| Cost Source                    | Description                                   |
+| ------------------------------ | --------------------------------------------- |
+| **Annotation (per session)**   | LLM calls for per-session annotation runs     |
+| **Annotation (per utterance)** | LLM calls for per-utterance annotation runs   |
+| **Verification**               | Self-verification of annotation quality       |
+| **Adjudication**               | LLM calls to resolve annotation disagreements |
+| **File Conversion**            | LLM calls during transcript parsing           |
+| **Codebook Prompt Generation** | LLM calls to generate prompts from codebooks  |
 
 ### Cost Estimation
 
