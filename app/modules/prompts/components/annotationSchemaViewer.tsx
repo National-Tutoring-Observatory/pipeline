@@ -57,14 +57,13 @@ export default function AnnotationSchemaViewer({
                   />
                 )}
               </div>
-              {annotationField.fieldType === "string" &&
-                !annotationField.isSystem && (
-                  <Flag flag="HAS_CODEBOOKS">
-                    <div className="col-span-3">
-                      <CodesViewer codes={annotationField.codes || []} />
-                    </div>
-                  </Flag>
-                )}
+              {annotationField.fieldType === "string" && (
+                <Flag flag="HAS_CODEBOOKS">
+                  <div className="col-span-3">
+                    <CodesViewer codes={annotationField.codes || []} />
+                  </div>
+                </Flag>
+              )}
             </div>
           );
         })}

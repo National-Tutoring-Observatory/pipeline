@@ -22,6 +22,7 @@ const SavePromptVersionDialog = ({
   isFetching,
   isMatching,
   onSaveClicked,
+  onAcceptChangesClicked,
 }: {
   error: string;
   reasoning: string;
@@ -31,9 +32,13 @@ const SavePromptVersionDialog = ({
   isFetching: boolean;
   isMatching: boolean;
   onSaveClicked: () => void;
+  onAcceptChangesClicked: (changes: {
+    suggestedPrompt: string;
+    suggestedAnnotationSchema: [];
+  }) => void;
 }) => {
   return (
-    <DialogContent className="min-w-3xl">
+    <DialogContent className="flex max-h-[90vh] min-w-3xl flex-col">
       <DialogHeader>
         <DialogTitle>Save prompt version</DialogTitle>
         <DialogDescription>
@@ -42,93 +47,103 @@ const SavePromptVersionDialog = ({
           a new prompt version.
         </DialogDescription>
       </DialogHeader>
-      <div>
-        {error && (
-          <Alert>
-            <CircleAlert className="stroke-red-500" />
-            <AlertTitle>Alignment check failed</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {!error && isFetching && (
-          <Alert className="flex">
-            <LoaderPinwheel className="animate-spin" />
-            <AlertDescription>
-              Checking for prompt and schema alignment
-            </AlertDescription>
-          </Alert>
-        )}
-        {!error && !isFetching && isMatching && (
-          <Alert>
-            <CircleCheck className="stroke-green-500" />
-            <AlertTitle>Prompt and schema are aligned!</AlertTitle>
-          </Alert>
-        )}
+      <div className="min-h-0 overflow-y-auto">
+        <div>
+          {error && (
+            <Alert>
+              <CircleAlert className="stroke-red-500" />
+              <AlertTitle>Alignment check failed</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          {!error && isFetching && (
+            <Alert className="flex">
+              <LoaderPinwheel className="animate-spin" />
+              <AlertDescription>
+                Checking for prompt and schema alignment.
+                <br />
+                <span className="text-xs">
+                  This can take a while as we check your prompt and schema.
+                </span>
+              </AlertDescription>
+            </Alert>
+          )}
+          {!error && !isFetching && isMatching && (
+            <Alert>
+              <CircleCheck className="stroke-green-500" />
+              <AlertTitle>Prompt and schema are aligned!</AlertTitle>
+            </Alert>
+          )}
+          {!error && !isFetching && !isMatching && (
+            <Alert>
+              <CircleAlert className="stroke-red-500" />
+              <AlertTitle>Prompt and schema are not aligned!</AlertTitle>
+              <AlertDescription>{reasoning}</AlertDescription>
+            </Alert>
+          )}
+        </div>
         {!error && !isFetching && !isMatching && (
-          <Alert>
-            <CircleAlert className="stroke-red-500" />
-            <AlertTitle>Prompt and schema are not aligned!</AlertTitle>
-            <AlertDescription>{reasoning}</AlertDescription>
-          </Alert>
-        )}
-      </div>
-      {!error && !isFetching && !isMatching && (
-        <div className="space-y-2">
-          <p>
-            We've suggested a few changes to your prompt and annotation schema:
-          </p>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Prompt</Label>
-              <Textarea
-                id="prompt"
-                placeholder="Write your prompt here."
-                value={suggestedPrompt}
-                className="h-80"
-                disabled={true}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Annotation schema</Label>
-              <AnnotationSchemaViewer
-                annotationSchema={suggestedAnnotationSchema}
-              />
+          <div className="space-y-2">
+            <p>
+              We've suggested a few changes to your prompt and annotation
+              schema:
+            </p>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Prompt</Label>
+                <Textarea
+                  id="prompt"
+                  placeholder="Write your prompt here."
+                  value={suggestedPrompt}
+                  className="h-80"
+                  disabled={true}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Annotation schema</Label>
+                <AnnotationSchemaViewer
+                  annotationSchema={suggestedAnnotationSchema}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      )}
-      <DialogFooter className="justify-end">
-        <DialogClose asChild>
-          <Button type="button" variant="secondary">
-            Cancel
-          </Button>
-        </DialogClose>
-        {isMatching && (
+        )}
+        <DialogFooter className="justify-end">
           <DialogClose asChild>
-            <Button
-              type="button"
-              disabled={isSubmitButtonDisabled}
-              onClick={() => {
-                onSaveClicked();
-              }}
-            >
-              Save version
+            <Button type="button" variant="secondary">
+              Cancel
             </Button>
           </DialogClose>
-        )}
-        {!error && !isFetching && !isMatching && (
-          <DialogClose asChild>
-            <Button
-              type="button"
-              onClick={() => {
-                onSaveClicked();
-              }}
-            >
-              Accept suggestions
-            </Button>
-          </DialogClose>
-        )}
-      </DialogFooter>
+          {isMatching && (
+            <DialogClose asChild>
+              <Button
+                type="button"
+                disabled={isSubmitButtonDisabled}
+                onClick={() => {
+                  onSaveClicked();
+                }}
+              >
+                Save version
+              </Button>
+            </DialogClose>
+          )}
+          {!error && !isFetching && !isMatching && (
+            <DialogClose asChild>
+              <Button
+                type="button"
+                onClick={() => {
+                  onAcceptChangesClicked({
+                    suggestedPrompt,
+                    suggestedAnnotationSchema,
+                  });
+                }}
+              >
+                Accept suggestions
+              </Button>
+            </DialogClose>
+          )}
+        </DialogFooter>
+      </div>
     </DialogContent>
   );
 };

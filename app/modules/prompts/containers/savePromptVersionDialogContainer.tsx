@@ -8,12 +8,17 @@ export default function SavePromptVersionDialogContainer({
   team,
   promptId,
   onSaveClicked,
+  onAcceptChangesClicked,
 }: {
   userPrompt: string;
   annotationSchema: any;
   team: string;
   promptId: string;
   onSaveClicked: () => void;
+  onAcceptChangesClicked: (changes: {
+    suggestedPrompt: string;
+    suggestedAnnotationSchema: [];
+  }) => void;
 }) {
   const hasInitialized = useRef(false);
 
@@ -51,6 +56,7 @@ export default function SavePromptVersionDialogContainer({
       isFetching={isFetching}
       isMatching={isMatching}
       onSaveClicked={onSaveClicked}
+      onAcceptChangesClicked={onAcceptChangesClicked}
     />
   );
 }

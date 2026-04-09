@@ -163,6 +163,23 @@ export default function PromptEditorRoute() {
             { method: "PUT", encType: "application/json" },
           );
         }}
+        onAcceptChangesClicked={({
+          suggestedPrompt,
+          suggestedAnnotationSchema,
+        }) => {
+          submit(
+            JSON.stringify({
+              intent: "UPDATE_PROMPT_VERSION",
+              entityId: promptVersion.data._id,
+              payload: {
+                name,
+                userPrompt: suggestedPrompt,
+                annotationSchema: suggestedAnnotationSchema,
+              },
+            }),
+            { method: "PUT", encType: "application/json" },
+          );
+        }}
       />,
     );
   };
