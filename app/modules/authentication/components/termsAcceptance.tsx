@@ -8,6 +8,7 @@ import {
   XCircleIcon,
 } from "lucide-react";
 import { useState } from "react";
+import sandpiperLogo from "~/assets/sandpiper-logo.svg";
 import FullTermsDialog from "./fullTermsDialog";
 
 interface TermsAcceptanceProps {
@@ -27,7 +28,7 @@ export default function TermsAcceptance({
       <div className="bg-background w-full max-w-lg rounded-lg p-8 shadow-sm">
         <div className="mb-6 flex justify-center">
           <img
-            src="/assets/sandpiper-logo.svg"
+            src={sandpiperLogo}
             alt="Sandpiper"
             className="h-12 object-contain"
           />

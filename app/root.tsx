@@ -13,6 +13,7 @@ import {
 
 import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { Toaster } from "sonner";
+import sandpiperFavicon from "~/assets/sandpiper-favicon.svg";
 import * as ga from "~/modules/analytics/analytics";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { SystemSettingsService } from "~/modules/systemSettings/systemSettings";
@@ -22,7 +23,7 @@ import AuthenticationContainer from "./modules/authentication/containers/authent
 import DialogContainer from "./modules/dialogs/containers/dialog.container";
 
 export const links: Route.LinksFunction = () => [
-  { rel: "icon", href: "/assets/sandpiper-favicon.svg", type: "image/svg+xml" },
+  { rel: "icon", href: sandpiperFavicon, type: "image/svg+xml" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",

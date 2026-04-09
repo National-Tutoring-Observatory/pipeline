@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { useContext, useEffect } from "react";
 import { Link, NavLink, useFetcher } from "react-router";
+import sandpiperLogo from "~/assets/sandpiper-logo.svg";
 import SideBarHelpDropdown from "~/modules/app/components/sidebarHelpDropdown";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
 import Role from "~/modules/authentication/components/role";
@@ -63,7 +64,7 @@ export default function AppSidebar() {
       <SidebarHeader className="p-4">
         <Link to={"/"}>
           <img
-            src="/assets/sandpiper-logo.svg"
+            src={sandpiperLogo}
             alt="Sandpiper"
             className="mx-auto w-full max-w-28"
           />

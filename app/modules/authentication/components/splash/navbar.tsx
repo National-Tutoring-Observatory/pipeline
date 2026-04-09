@@ -1,6 +1,7 @@
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
+import sandpiperLogo from "~/assets/sandpiper-logo.svg";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,7 +25,7 @@ export function Navbar() {
             className="font-display flex items-center gap-2 text-[1.3rem] font-bold text-[#2C241B] no-underline"
           >
             <img
-              src="/assets/sandpiper-logo.svg"
+              src={sandpiperLogo}
               alt="Sandpiper"
               className="h-[50px] w-[50px]"
             />

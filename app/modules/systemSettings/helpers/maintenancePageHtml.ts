@@ -1,3 +1,5 @@
+import sandpiperLogoSvg from "~/assets/sandpiper-logo.svg?raw";
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -32,13 +34,14 @@ export default function maintenancePageHtml(message?: string): string {
       max-width: 480px;
     }
     .logo { width: 120px; margin-bottom: 2rem; }
+    .logo svg { width: 100%; height: auto; display: block; }
     h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.75rem; }
     p { font-size: 1rem; color: #71717a; line-height: 1.6; }
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="/assets/sandpiper-logo.svg" alt="Sandpiper" class="logo" />
+    <div class="logo">${sandpiperLogoSvg}</div>
     <h1>Sandpiper is under maintenance</h1>
     <p>${displayMessage}</p>
   </div>

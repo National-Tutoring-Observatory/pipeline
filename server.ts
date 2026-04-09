@@ -31,6 +31,7 @@ if (DEVELOPMENT) {
     }),
   );
   app.use(viteDevServer.middlewares);
+  app.use("/assets", express.static("app/assets", { maxAge: 0, etag: false }));
   app.use(async (req, res, next) => {
     try {
       const source = await viteDevServer.ssrLoadModule("./app/app.ts");
@@ -54,6 +55,10 @@ if (DEVELOPMENT) {
     ),
   );
   app.use(express.static("build/client", { maxAge: "1h" }));
+  app.use((_req, res, next) => {
+    res.setHeader("Cache-Control", "no-store");
+    next();
+  });
   app.use(await import(BUILD_PATH).then((mod) => mod.app));
 }
 

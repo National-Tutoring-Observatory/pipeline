@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
+import ntoLogoIcon from "~/assets/nto-logo-icon.png";
 
 export default function Invite({
   errorMessage,
@@ -23,7 +24,7 @@ export default function Invite({
     >
       <Card className="w-full max-w-md text-center">
         <div className="mx-auto" style={{ maxWidth: "120px" }}>
-          <img src="/assets/nto-logo-icon.png" />
+          <img src={ntoLogoIcon} />
         </div>
         <CardHeader>
           <CardTitle className="mb-2">

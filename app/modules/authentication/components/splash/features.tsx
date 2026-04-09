@@ -1,4 +1,6 @@
 import { BarChart3, Bot, FileText, Users } from "lucide-react";
+import screenshotRunsetCreator from "~/assets/splash/screenshot-runset-creator.webp";
+import screenshotRunsetOverview from "~/assets/splash/screenshot-runset-overview.webp";
 
 export function Features() {
   const features = [
@@ -87,13 +89,13 @@ export function Features() {
         </div>
         <div className="relative mx-auto mt-16 h-[560px] max-w-5xl">
           <img
-            src="/assets/splash/screenshot-runset-creator.webp"
+            src={screenshotRunsetCreator}
             alt="Run Set Creator"
             className="absolute left-0 w-[62%] -rotate-2 rounded-xl border border-[rgba(0,0,0,0.05)] shadow-xl"
             loading="lazy"
           />
           <img
-            src="/assets/splash/screenshot-runset-overview.webp"
+            src={screenshotRunsetOverview}
             alt="Run Set Overview"
             className="absolute top-[40px] left-[28%] z-10 w-[62%] rotate-[1.5deg] rounded-xl border border-[rgba(0,0,0,0.05)] shadow-2xl"
             loading="lazy"

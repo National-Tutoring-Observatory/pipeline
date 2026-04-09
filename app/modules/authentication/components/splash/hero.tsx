@@ -1,5 +1,6 @@
 import { GraduationCap } from "lucide-react";
 import { Link } from "react-router";
+import heroDemo from "~/assets/splash/hero-demo.mp4";
 
 export function Hero() {
   return (
@@ -70,7 +71,7 @@ export function Hero() {
               playsInline
               className="w-full rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
             >
-              <source src="/assets/splash/hero-demo.mp4" type="video/mp4" />
+              <source src={heroDemo} type="video/mp4" />
             </video>
           </div>
         </div>
