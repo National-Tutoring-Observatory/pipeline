@@ -659,10 +659,10 @@ function Orchestration() {
           ))}
         </div>
 
-        <div className="grid items-center gap-6 lg:grid-cols-12">
+        <div className="grid items-stretch gap-6 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <div
-              className="rounded-2xl border border-[rgba(179,27,27,0.2)] p-8"
+              className="flex h-full flex-col justify-center rounded-2xl border border-[rgba(179,27,27,0.2)] p-8"
               style={{
                 background:
                   "linear-gradient(135deg, rgba(179,27,27,0.15), rgba(179,27,27,0.05))",
@@ -684,40 +684,123 @@ function Orchestration() {
             </div>
           </div>
           <div className="lg:col-span-5">
-            <div className="rounded-xl bg-[#2C241B] p-6 text-center">
-              <div className="mb-0.5 text-[0.78rem] font-bold text-white">
-                Talk Moves Classification Performance
+            <div className="h-full rounded-xl bg-[#2C241B] p-5 text-center">
+              <div className="mb-4 text-[0.78rem] font-bold text-white">
+                Achieving Reliable Results with Sandpiper 1.0
               </div>
-              <div className="mb-4 text-[0.6rem] text-white/40 italic">
-                F1 score averaged across all talk move constructs
-              </div>
-              <div className="mx-auto flex max-w-[320px] items-end justify-center gap-6">
-                <div className="flex flex-col items-center">
-                  <span className="mb-1 text-[0.72rem] font-bold text-[#D4A843]">
-                    Fail
-                  </span>
-                  <div className="h-[2px] w-14 rounded-t bg-[#367181] opacity-30" />
-                  <span className="mt-2 text-[0.53rem] font-semibold text-white/50">
-                    Chat Bot
-                  </span>
+              {/* Chart area: Y-axis + bars */}
+              <div className="flex items-stretch gap-2">
+                {/* Y-axis */}
+                <div className="flex shrink-0 items-stretch gap-1">
+                  <div className="flex w-4 items-center justify-center">
+                    <span
+                      className="text-[0.48rem] font-semibold whitespace-nowrap text-white/50"
+                      style={{
+                        writingMode: "vertical-rl",
+                        transform: "rotate(180deg)",
+                      }}
+                    >
+                      Average Performance (Cohen&apos;s κ)
+                    </span>
+                  </div>
+                  <div className="flex w-6 flex-col justify-between py-0.5 text-right">
+                    {[
+                      "0.8",
+                      "0.7",
+                      "0.6",
+                      "0.5",
+                      "0.4",
+                      "0.3",
+                      "0.2",
+                      "0.1",
+                      "0.0",
+                    ].map((tick) => (
+                      <span key={tick} className="text-[0.48rem] text-white/40">
+                        {tick}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-col items-center">
-                  <span className="mb-1 text-[0.72rem] font-bold text-[#6B9BAD]">
-                    0.10
-                  </span>
-                  <div className="h-[14px] w-14 rounded-t bg-[#6B9BAD]" />
-                  <span className="mt-2 text-[0.53rem] font-semibold text-white/50">
-                    Basic API Call
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="mb-2 rounded-full border border-[#367181] px-2 py-0.5 text-[0.62rem] font-extrabold text-[#367181]">
-                    9.2&times;
-                  </span>
-                  <div className="h-[105px] w-14 rounded-t bg-[#A64B2A]" />
-                  <span className="mt-2 text-[0.53rem] font-bold text-white">
-                    Sandpiper
-                  </span>
+                {/* Grid + bars */}
+                <div className="relative flex flex-1 flex-col">
+                  {/* Horizontal grid lines */}
+                  <div className="pointer-events-none absolute inset-0 flex flex-col justify-between py-0.5">
+                    {Array.from({ length: 9 }).map((_, i) => (
+                      <div key={i} className="h-px w-full bg-white/10" />
+                    ))}
+                  </div>
+                  {/* Bars row — 3 bars; badge is an absolute overlay */}
+                  <div className="relative flex h-[160px] items-end justify-around px-2">
+                    {/* Bar 1: AI Chat Interface */}
+                    <div className="flex flex-col items-center">
+                      <span className="mb-1 text-[0.65rem] font-bold text-[#D4A843]">
+                        Fail
+                      </span>
+                      <div className="h-[2px] w-12 rounded-t bg-[#367181] opacity-30" />
+                    </div>
+                    {/* Bar 2: Basic LLM API Call — 0.32/0.8 × 160px = 64px */}
+                    <div className="flex flex-col items-center">
+                      <span className="mb-1 text-[0.65rem] font-bold text-[#D4A843]">
+                        0.32
+                      </span>
+                      <div className="h-[64px] w-12 rounded-t bg-[#367181]" />
+                    </div>
+                    {/* Bar 3: Sandpiper 1.0 — 0.73/0.8 × 160px = 146px */}
+                    <div className="flex flex-col items-center">
+                      <span className="mb-1 text-[0.65rem] font-extrabold text-[#D4A843]">
+                        0.73
+                      </span>
+                      <div className="h-[146px] w-12 rounded-t bg-[#A64B2A]" />
+                    </div>
+                    {/*
+                      Badge + brace — flex row so badge and bracket lines connect
+                      Bar3 top: 14px from chart top, Bar2 top: 96px → height 82px
+                    */}
+                    <div
+                      className="pointer-events-none absolute flex items-center"
+                      style={{ left: "57%", top: 14, height: 82 }}
+                    >
+                      {/* Badge — shrinks to content width */}
+                      <div className="shrink-0 rounded border border-[#D4A843]/60 bg-[#2C1F0F] px-1.5 py-0.5 text-center">
+                        <div className="text-[0.7rem] font-extrabold text-[#D4A843]">
+                          130%
+                        </div>
+                        <div className="text-[0.44rem] leading-tight font-bold text-[#D4A843]">
+                          Increase in
+                          <br />
+                          Performance
+                        </div>
+                      </div>
+                      {/* Bracket — fills space between badge and bar3 */}
+                      <div className="relative ml-2 flex-1 self-stretch">
+                        {/* Vertical line (bar3 side) */}
+                        <div className="absolute inset-y-0 left-0 w-px bg-[#D4A843]/60" />
+
+                        {/* Top arm at bar3 top level */}
+                        <div className="absolute inset-x-0 top-0 h-px w-2 bg-[#D4A843]/60" />
+
+                        {/* Mid arm — midpoint of 82px bracket, sticks left toward badge */}
+                        <div className="absolute top-[41px] h-px w-2 -translate-x-full bg-[#D4A843]/60" />
+
+                        {/* Bottom arm at bar2 top level */}
+                        <div className="absolute inset-x-0 bottom-0 h-px w-2 bg-[#D4A843]/60" />
+                      </div>
+                    </div>
+                  </div>
+                  {/* X-axis baseline */}
+                  <div className="h-px w-full bg-white/20" />
+                  {/* X-axis labels — 3 items matching justify-around above */}
+                  <div className="mt-2 flex items-start justify-around px-2">
+                    <span className="w-14 text-center text-[0.48rem] leading-tight font-semibold text-white/50">
+                      AI Chat Interface
+                    </span>
+                    <span className="w-14 text-center text-[0.48rem] leading-tight font-semibold text-white/50">
+                      Basic LLM API Call
+                    </span>
+                    <span className="w-14 text-center text-[0.48rem] leading-tight font-bold text-white">
+                      Sandpiper 1.0
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
