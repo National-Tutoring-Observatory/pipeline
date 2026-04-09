@@ -1,4 +1,5 @@
 import { CheckCircle } from "lucide-react";
+import screenshotEvaluation from "~/assets/splash/screenshot-evaluation.webp";
 
 export function Metrics() {
   const checkItems = [
@@ -54,7 +55,7 @@ export function Metrics() {
           </div>
           <div className="lg:w-7/12">
             <img
-              src="/assets/splash/screenshot-evaluation.webp"
+              src={screenshotEvaluation}
               alt="Evaluation metrics dashboard"
               className="w-full rounded-2xl border border-[#E6E2D6] shadow-xl"
               loading="lazy"

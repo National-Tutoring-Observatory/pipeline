@@ -9,6 +9,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
+import ntoLogoHorizontal from "~/assets/nto-logo-horizontal.webp";
+import sandpiperLogo from "~/assets/sandpiper-logo.svg";
 
 const ERROR_MESSAGES: Record<string, { title: string; description: string }> = {
   EXPIRED_INVITE: {
@@ -37,12 +39,12 @@ export default function Signup({
       <Card className="w-full max-w-md text-center">
         <div className="flex items-center justify-center gap-3 pt-2">
           <img
-            src="/assets/nto-logo-horizontal.webp"
+            src={ntoLogoHorizontal}
             alt="National Tutoring Observatory"
             className="h-20 object-contain"
           />
           <img
-            src="/assets/sandpiper-logo.svg"
+            src={sandpiperLogo}
             alt="Sandpiper"
             className="h-20 object-contain"
           />

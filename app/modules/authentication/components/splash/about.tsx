@@ -1,3 +1,7 @@
+import cornellBowersWhite from "~/assets/splash/cornell-bowers-white.svg";
+import freshcognateWhite from "~/assets/splash/freshcognate-white.webp";
+import mitTsl from "~/assets/splash/mit-tsl.webp";
+import ntoLogo from "~/assets/splash/nto-logo.webp";
 import { GithubIcon } from "./githubIcon";
 
 export function About() {
@@ -93,7 +97,7 @@ export function About() {
                 rel="noreferrer"
               >
                 <img
-                  src="/assets/splash/cornell-bowers-white.svg"
+                  src={cornellBowersWhite}
                   alt="Cornell Bowers CIS"
                   className="h-9 opacity-60 transition-opacity hover:opacity-100"
                   loading="lazy"
@@ -105,7 +109,7 @@ export function About() {
                 rel="noreferrer"
               >
                 <img
-                  src="/assets/splash/freshcognate-white.webp"
+                  src={freshcognateWhite}
                   alt="FreshCognate"
                   className="h-9 opacity-60 transition-opacity hover:opacity-100"
                   loading="lazy"
@@ -117,7 +121,7 @@ export function About() {
                 rel="noreferrer"
               >
                 <img
-                  src="/assets/splash/nto-logo.webp"
+                  src={ntoLogo}
                   alt="National Tutoring Observatory"
                   className="h-9 opacity-60 invert transition-opacity hover:opacity-100"
                   loading="lazy"
@@ -125,7 +129,7 @@ export function About() {
               </a>
               <a href="https://tsl.mit.edu/" target="_blank" rel="noreferrer">
                 <img
-                  src="/assets/splash/mit-tsl.webp"
+                  src={mitTsl}
                   alt="MIT Teaching Systems Lab"
                   className="h-9 opacity-60 invert transition-opacity hover:opacity-100"
                   loading="lazy"

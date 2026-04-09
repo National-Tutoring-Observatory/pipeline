@@ -1,20 +1,25 @@
+import cornellBowers from "~/assets/splash/cornell-bowers.svg";
+import freshcognate from "~/assets/splash/freshcognate.webp";
+import mitTsl from "~/assets/splash/mit-tsl.webp";
+import ntoLogo from "~/assets/splash/nto-logo.webp";
+
 export function Partners() {
   const partners = [
     {
       name: "National Tutoring Observatory",
-      src: "/assets/splash/nto-logo.webp",
+      src: ntoLogo,
       href: "https://nationaltutoringobservatory.org",
       className: "h-[54px] max-w-[180px]",
     },
     {
       name: "Cornell Bowers CIS",
-      src: "/assets/splash/cornell-bowers.svg",
+      src: cornellBowers,
       href: "https://bowers.cornell.edu",
       className: "h-[44px] max-w-[200px]",
     },
     {
       name: "MIT Teaching Systems Lab",
-      src: "/assets/splash/mit-tsl.webp",
+      src: mitTsl,
       href: "https://tsl.mit.edu/",
       className: "h-[60px] max-w-[220px]",
     },
@@ -25,7 +30,7 @@ export function Partners() {
     },
     {
       name: "FreshCognate",
-      src: "/assets/splash/freshcognate.webp",
+      src: freshcognate,
       href: "https://freshcognate.com",
       className: "h-[44px] max-w-[180px]",
     },

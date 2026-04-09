@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import sandpiperLogo from "~/assets/sandpiper-logo.svg";
 
 const USER_ROLES = [
   "Researcher",
@@ -66,7 +67,7 @@ export default function Onboarding({
       <div className="bg-background w-full max-w-lg rounded-lg p-8 shadow-sm">
         <div className="mb-6 flex justify-center">
           <img
-            src="/assets/sandpiper-logo.svg"
+            src={sandpiperLogo}
             alt="Sandpiper"
             className="h-12 object-contain"
           />

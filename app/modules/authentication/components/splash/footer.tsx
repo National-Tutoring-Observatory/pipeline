@@ -1,3 +1,5 @@
+import sandpiperLogo from "~/assets/sandpiper-logo.svg";
+
 export function Footer() {
   return (
     <footer className="bg-[#2C241B] py-8 text-[0.82rem] text-[rgba(255,255,255,0.5)]">
@@ -6,7 +8,7 @@ export function Footer() {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <img
-                src="/assets/sandpiper-logo.svg"
+                src={sandpiperLogo}
                 alt="Sandpiper"
                 className="h-5 w-5 rounded-sm opacity-70"
               />
