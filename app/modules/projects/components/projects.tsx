@@ -1,4 +1,5 @@
 import { Collection } from "@/components/ui/collection";
+import type { Filter } from "@/components/ui/filters";
 import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
@@ -7,13 +8,13 @@ import getProjectsEmptyAttributes from "../helpers/getProjectsEmptyAttributes";
 import getProjectsItemActions from "../helpers/getProjectsItemActions";
 import getProjectsItemAttributes from "../helpers/getProjectsItemAttributes";
 import projectsActions from "../helpers/projectsActions";
-import projectsFilters from "../helpers/projectsFilters";
 import projectsSortOptions from "../helpers/projectsSortOptions";
 import type { Project } from "../projects.types";
 
 interface ProjectsProps {
   projects: Project[];
   user: User;
+  filters: Filter[];
   searchValue: string;
   currentPage: number;
   totalPages: number;
@@ -32,6 +33,7 @@ interface ProjectsProps {
 export default function Projects({
   projects,
   user,
+  filters,
   searchValue,
   currentPage,
   totalPages,
@@ -57,7 +59,7 @@ export default function Projects({
         items={projects}
         itemsLayout="list"
         actions={projectsActions}
-        filters={projectsFilters}
+        filters={filters}
         filtersValues={filtersValues}
         sortOptions={projectsSortOptions}
         sortValue={sortValue}
