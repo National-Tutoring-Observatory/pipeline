@@ -13,10 +13,10 @@ The **Annotation Type** is a critical setting for every **Run**. It determines h
 
 Sandpiper supports two annotation types:
 
-| Type                | Code              | Description                                                  |
-| ------------------- | ----------------- | ------------------------------------------------------------ |
-| **Per Utterance**   | `PER_UTTERANCE`   | Line-by-line analysis — the LLM annotates each utterance individually |
-| **Per Session**     | `PER_SESSION`     | Whole-session analysis — the LLM produces a single annotation for the entire session |
+| Type              | Code            | Description                                                                          |
+| ----------------- | --------------- | ------------------------------------------------------------------------------------ |
+| **Per Utterance** | `PER_UTTERANCE` | Line-by-line analysis — the LLM annotates each utterance individually                |
+| **Per Session**   | `PER_SESSION`   | Whole-session analysis — the LLM produces a single annotation for the entire session |
 
 ## How to use
 
