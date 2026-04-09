@@ -1,5 +1,4 @@
 import LLM from "~/modules/llm/llm";
-import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import type { AnnotationSchemaItem } from "../prompts.types";
 
 export default async function checkPromptAndAnnotationSchemaAlignment({
@@ -59,7 +58,7 @@ export default async function checkPromptAndAnnotationSchemaAlignment({
   };
 
   const llm = new LLM({
-    model: getDefaultModelCode(),
+    model: "anthropic.claude-4.6-sonnet",
     user: team,
     source: "prompt-alignment",
     sourceId: promptId,
