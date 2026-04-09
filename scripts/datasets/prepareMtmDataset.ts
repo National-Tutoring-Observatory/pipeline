@@ -156,6 +156,9 @@ async function loadSessionFolder(
   const sessions = await Promise.all(
     jsonFiles.map(async (filename) => {
       const raw = await fse.readJSON(path.join(folderPath, filename));
+      if (!raw.id) throw new Error(`Missing "id" field in ${filename}`);
+      if (!raw.transcript)
+        throw new Error(`Missing "transcript" field in ${filename}`);
       const sessionId = raw.id as string;
       return { sessionId, sessionFile: convertToSessionFile(raw) };
     }),
