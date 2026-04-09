@@ -61,8 +61,8 @@ export default function Home({
           </p>
           <p className="text-muted-foreground mt-2 text-xs leading-snug">
             Enough to annotate{" "}
-            <strong className="text-foreground">~500 sessions</strong> across 3
-            models with self-verification and adjudication.
+            <strong className="text-foreground">~75 sessions</strong> across 3
+            models with self-verification.
           </p>
         </div>
       </div>
