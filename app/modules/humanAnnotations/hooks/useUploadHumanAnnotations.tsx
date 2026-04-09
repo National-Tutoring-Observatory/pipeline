@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
 import addDialog from "~/modules/dialogs/addDialog";
@@ -13,10 +13,16 @@ export function useUploadHumanAnnotations({
   runSetId,
 }: UseUploadHumanAnnotationsOptions) {
   const uploadFetcher = useFetcher();
+  const toastId = useRef<string | number | null>(null);
 
   useEffect(() => {
     if (uploadFetcher.state !== "idle") return;
     if (!uploadFetcher.data) return;
+
+    if (toastId.current) {
+      toast.dismiss(toastId.current);
+      toastId.current = null;
+    }
 
     if (uploadFetcher.data.success) {
       toast.success("Human annotations uploaded. Processing has started.");
@@ -43,6 +49,9 @@ export function useUploadHumanAnnotations({
       }),
     );
     formData.append("file", file);
+
+    toastId.current = toast.loading("Uploading human annotations...");
+
     uploadFetcher.submit(formData, {
       method: "POST",
       encType: "multipart/form-data",

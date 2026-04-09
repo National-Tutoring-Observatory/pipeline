@@ -12,16 +12,23 @@ import type {
 
 registerStorageAdapter({
   name: "LOCAL",
-  download: async ({ sourcePath }: DownloadParams): Promise<string> => {
+  download: async ({
+    sourcePath,
+    destinationPath,
+  }: DownloadParams): Promise<string> => {
     const absolutePath = path.resolve(PROJECT_ROOT, sourcePath);
     const exists = await fse.exists(absolutePath);
     if (!exists) {
       throw new Error(`LOCAL: File not found: ${absolutePath}`);
     }
     try {
-      const destinationPath = path.join(PROJECT_ROOT, "tmp", sourcePath);
-      await fse.copy(absolutePath, destinationPath);
-      return destinationPath;
+      const tmpPath = path.join(
+        PROJECT_ROOT,
+        "tmp",
+        destinationPath || sourcePath,
+      );
+      await fse.copy(absolutePath, tmpPath);
+      return tmpPath;
     } catch (error) {
       throw new Error(`LOCAL: Error copying file to tmp for ${sourcePath}`, {
         cause: error,
