@@ -36,7 +36,11 @@ export default async function processUploadHumanAnnotations(job: any) {
 
     const storage = getStorageAdapter();
 
-    const csvDownloadPath = await storage.download({ sourcePath: csvPath });
+    const jobCsvPath = csvPath.replace(/\.csv$/, `-${job.id}.csv`);
+    const csvDownloadPath = await storage.download({
+      sourcePath: csvPath,
+      destinationPath: jobCsvPath,
+    });
     const csvData = await fse.readFile(csvDownloadPath);
     const rows: Record<string, string>[] = parse(csvData, {
       columns: true,
@@ -96,6 +100,8 @@ export default async function processUploadHumanAnnotations(job: any) {
     });
 
     await fse.remove(`tmp/${outputFolder}/${outputFileName}.json`);
+    await fse.remove(csvDownloadPath);
+    await fse.remove(downloadedPath);
 
     await updateRunSession({
       runId,

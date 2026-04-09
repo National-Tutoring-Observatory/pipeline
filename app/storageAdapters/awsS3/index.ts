@@ -55,7 +55,10 @@ function getAwsBucket() {
 
 registerStorageAdapter({
   name: "AWS_S3",
-  download: async ({ sourcePath }: DownloadParams): Promise<string> => {
+  download: async ({
+    sourcePath,
+    destinationPath,
+  }: DownloadParams): Promise<string> => {
     const s3Client = getS3Client();
 
     const params = {
@@ -66,7 +69,11 @@ registerStorageAdapter({
     try {
       const data = await s3Client.send(new GetObjectCommand(params));
       if (data.Body && data.Body instanceof Readable) {
-        const tmpPath = path.join(PROJECT_ROOT, "tmp", sourcePath);
+        const tmpPath = path.join(
+          PROJECT_ROOT,
+          "tmp",
+          destinationPath || sourcePath,
+        );
         const downloadDirectory = path.dirname(tmpPath);
         await fse.ensureDir(downloadDirectory);
         const fileStream = fse.createWriteStream(tmpPath);

@@ -1,5 +1,6 @@
 export interface DownloadParams {
   sourcePath: string;
+  destinationPath?: string;
 }
 
 export interface UploadParams {
