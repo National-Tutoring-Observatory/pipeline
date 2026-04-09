@@ -26,7 +26,7 @@ export default function MtmDatasetBanner({
         <div className="text-primary mt-1.5 flex gap-3 text-xs font-semibold">
           <span className="flex items-center gap-1">
             <MessageCircleMore className="size-3.5" />
-            46 sessions
+            500 sessions
           </span>
           <span className="flex items-center gap-1">
             <Building className="size-3.5" />
