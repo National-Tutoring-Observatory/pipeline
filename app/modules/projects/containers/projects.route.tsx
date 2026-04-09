@@ -18,6 +18,7 @@ import { AuthenticationContext } from "~/modules/authentication/authentication.c
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import addDialog from "~/modules/dialogs/addDialog";
+import { TeamService } from "~/modules/teams/team";
 import type { User } from "~/modules/users/users.types";
 import ProjectAuthorization from "../authorization";
 import CreateProjectDialog from "../components/createProjectDialog";
@@ -31,6 +32,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, "team");
 
+  const teams = await TeamService.find({ match: { _id: { $in: teamIds } } });
+
   const queryParams = getQueryParamsFromRequest(request, {
     searchValue: "",
     currentPage: 1,
@@ -43,12 +46,14 @@ export async function loader({ request }: Route.LoaderArgs) {
     queryParams,
     searchableFields: ["name"],
     sortableFields: ["name", "createdAt"],
+    filterableFields: ["team"],
   });
 
   const projects = await ProjectService.paginate(query);
 
   return {
     projects,
+    teams,
   };
 }
 
@@ -184,7 +189,7 @@ export function HydrateFallback() {
 }
 
 export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
-  const { projects } = loaderData;
+  const { projects, teams } = loaderData;
   const user = useContext(AuthenticationContext) as User;
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
@@ -281,10 +286,17 @@ export default function ProjectsRoute({ loaderData }: Route.ComponentProps) {
     setSortValue(sortValue);
   };
 
+  const teamFilter = {
+    category: "team",
+    text: "Team",
+    options: teams.map((team) => ({ value: team._id, text: team.name })),
+  };
+
   return (
     <Projects
       projects={projects?.data}
       user={user}
+      filters={[teamFilter]}
       searchValue={searchValue}
       currentPage={currentPage}
       totalPages={projects.totalPages}

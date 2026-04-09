@@ -76,6 +76,76 @@ describe("projects.route loader", () => {
     expect((res as any).projects.data[0]._id).toBe(project1._id);
   });
 
+  it("filters projects by team", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team1 = await TeamService.create({ name: "Team 1" });
+    const team2 = await TeamService.create({ name: "Team 2" });
+
+    await UserService.updateById(user._id, {
+      teams: [
+        { team: team1._id, role: "ADMIN" },
+        { team: team2._id, role: "ADMIN" },
+      ],
+    });
+
+    const project1 = await ProjectService.create({
+      name: "Project in Team 1",
+      team: team1._id,
+      createdBy: user._id,
+    });
+
+    await ProjectService.create({
+      name: "Project in Team 2",
+      team: team2._id,
+      createdBy: user._id,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = await loader({
+      request: new Request(
+        `http://localhost/projects?filter_team=${team1._id}`,
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: {},
+      context: {},
+    } as any);
+
+    expect(res).not.toBeInstanceOf(Response);
+    expect((res as any).projects.data).toHaveLength(1);
+    expect((res as any).projects.data[0]._id).toBe(project1._id);
+  });
+
+  it("ignores team filter for teams the user does not belong to", async () => {
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team1 = await TeamService.create({ name: "Team 1" });
+    const team2 = await TeamService.create({ name: "Team 2" });
+
+    await UserService.updateById(user._id, {
+      teams: [{ team: team1._id, role: "ADMIN" }],
+    });
+
+    await ProjectService.create({
+      name: "My Project",
+      team: team1._id,
+      createdBy: user._id,
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = await loader({
+      request: new Request(
+        `http://localhost/projects?filter_team=${team2._id}`,
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: {},
+      context: {},
+    } as any);
+
+    expect(res).not.toBeInstanceOf(Response);
+    expect((res as any).projects.data).toHaveLength(0);
+  });
+
   it("supports pagination", async () => {
     const user = await UserService.create({ username: "test_user", teams: [] });
     const team = await TeamService.create({ name: "Test Team" });

@@ -21,9 +21,11 @@ import addDialog from "~/modules/dialogs/addDialog";
 import PromptAuthorization from "~/modules/prompts/authorization";
 import { usePromptActions } from "~/modules/prompts/hooks/usePromptActions";
 import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
+import { TeamService } from "~/modules/teams/team";
 import type { User } from "~/modules/users/users.types";
 import CreatePromptDialog from "../components/createPromptDialog";
 import Prompts from "../components/prompts";
+import promptsFilters from "../helpers/promptsFilters";
 import { PromptService } from "../prompt";
 import { PromptVersionService } from "../promptVersion";
 import type { Route } from "./+types/prompts.route";
@@ -31,6 +33,8 @@ import type { Route } from "./+types/prompts.route";
 export async function loader({ request }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, "team");
+
+  const teams = await TeamService.find({ match: { _id: { $in: teamIds } } });
 
   const queryParams = getQueryParamsFromRequest(request, {
     searchValue: "",
@@ -47,7 +51,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     queryParams,
     searchableFields: ["name"],
     sortableFields: ["name", "createdAt"],
-    filterableFields: ["annotationType"],
+    filterableFields: ["annotationType", "team"],
   });
 
   const pagination = getPaginationParams(query.page);
@@ -61,7 +65,10 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const total = await PromptService.count(query.match);
 
-  return { prompts: { data: prompts, totalPages: getTotalPages(total) } };
+  return {
+    prompts: { data: prompts, totalPages: getTotalPages(total) },
+    teams,
+  };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -153,7 +160,7 @@ export function HydrateFallback() {
 }
 
 export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
-  const { prompts } = loaderData;
+  const { prompts, teams } = loaderData;
   const user = useContext(AuthenticationContext) as User;
   const fetcher = useFetcher();
   const navigate = useNavigate();
@@ -272,10 +279,17 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
     setSortValue(sortValue);
   };
 
+  const teamFilter = {
+    category: "team",
+    text: "Team",
+    options: teams.map((team) => ({ value: team._id, text: team.name })),
+  };
+
   return (
     <Prompts
       prompts={prompts?.data}
       user={user}
+      filters={[...promptsFilters, teamFilter]}
       breadcrumbs={breadcrumbs}
       searchValue={searchValue}
       currentPage={currentPage}
