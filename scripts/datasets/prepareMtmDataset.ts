@@ -8,6 +8,7 @@ import type {
   MtmManifest,
   MtmManifestSession,
 } from "../../app/modules/datasets/datasets.types";
+import { convertMtmToSessionFile } from "../../app/modules/datasets/helpers/convertMtmToSessionFile";
 import {
   getDatasetDir,
   getDatasetLatestPath,
@@ -30,11 +31,10 @@ function parseArgs() {
   const versionStr = getFlag("--version");
   const inputPath = getFlag("--input");
   const sampleSizeStr = getFlag("--sample-size") ?? "500";
-  const fixturesSizeStr = getFlag("--fixtures-size") ?? "50";
 
   if (!inputPath) {
     console.error(
-      "Usage: yarn dataset:prepare-mtm --input <folder> [--version <N>] [--sample-size <N>] [--fixtures-size <N>]",
+      "Usage: yarn dataset:prepare-mtm --input <folder> [--version <N>] [--sample-size <N>]",
     );
     process.exit(1);
   }
@@ -51,13 +51,7 @@ function parseArgs() {
     process.exit(1);
   }
 
-  const fixturesSize = parseInt(fixturesSizeStr, 10);
-  if (isNaN(fixturesSize) || fixturesSize < 1) {
-    console.error("Fixtures size must be a positive integer");
-    process.exit(1);
-  }
-
-  return { version, inputPath, sampleSize, fixturesSize };
+  return { version, inputPath, sampleSize };
 }
 
 async function resolveVersion(
@@ -113,35 +107,6 @@ async function checkGithubRelease() {
   }
 }
 
-function convertToSessionFile(raw: Record<string, unknown>): SessionFile {
-  const sessionId = raw.id as string;
-  const transcriptStr = raw.transcript as string;
-  const lines = transcriptStr.split("\n").filter((l) => l.trim());
-
-  const transcript = lines.map((line, index) => {
-    const colonIdx = line.indexOf(":");
-    const role = colonIdx !== -1 ? line.slice(0, colonIdx).trim() : "unknown";
-    const content = colonIdx !== -1 ? line.slice(colonIdx + 1).trim() : line;
-    return {
-      _id: String(index),
-      role,
-      content,
-      start_time: "",
-      end_time: "",
-      timestamp: "",
-      session_id: sessionId,
-      sequence_id: String(index),
-      annotations: [],
-    };
-  });
-
-  const roles = [...new Set(transcript.map((u) => u.role))];
-  const nonStudentRoles = roles.filter((r) => r.toLowerCase() !== "student");
-  const leadRole = nonStudentRoles[0] ?? roles[0] ?? "unknown";
-
-  return { transcript, leadRole, annotations: [] };
-}
-
 async function loadSessionFolder(
   folderPath: string,
 ): Promise<Array<{ sessionId: string; sessionFile: SessionFile }>> {
@@ -160,7 +125,7 @@ async function loadSessionFolder(
       if (!raw.transcript)
         throw new Error(`Missing "transcript" field in ${filename}`);
       const sessionId = raw.id as string;
-      return { sessionId, sessionFile: convertToSessionFile(raw) };
+      return { sessionId, sessionFile: convertMtmToSessionFile(raw) };
     }),
   );
 
@@ -232,12 +197,7 @@ async function buildZip(folderPath: string, version: number): Promise<string> {
 async function main() {
   await checkGithubRelease();
 
-  const {
-    version: rawVersion,
-    inputPath,
-    sampleSize,
-    fixturesSize,
-  } = parseArgs();
+  const { version: rawVersion, inputPath, sampleSize } = parseArgs();
   const version = await resolveVersion(rawVersion);
 
   if (
@@ -251,35 +211,15 @@ async function main() {
   console.log(`Preparing MTM dataset v${version}`);
   console.log(`  Input    : ${inputPath}`);
   console.log(
-    `  Sample   : ${sampleSize} sessions (stratified by utterance count)`,
+    `  Sample   : ${sampleSize} sessions (stratified by utterance count)\n`,
   );
-  console.log(`  Fixtures : ${fixturesSize} sessions\n`);
 
   // 1. Load all sessions from folder
   console.log("Loading sessions...");
   const allSessions = await loadSessionFolder(inputPath);
   console.log(`✓ ${allSessions.length} sessions loaded\n`);
 
-  // 2. Write fixtures for local dev
-  console.log(`Writing fixtures (${fixturesSize} sessions)...`);
-  const fixturesDir = path.join(PROJECT_ROOT, "datasets/mtm/fixtures");
-  await fse.emptyDir(fixturesDir);
-  const fixtureSessions = stratifiedSample(allSessions, fixturesSize);
-  for (const { sessionId, sessionFile } of fixtureSessions) {
-    await fse.writeJSON(
-      path.join(fixturesDir, `${sessionId}.json`),
-      sessionFile,
-      { spaces: 2 },
-    );
-  }
-  await fse.writeJSON(
-    path.join(fixturesDir, "version.json"),
-    { version },
-    { spaces: 2 },
-  );
-  console.log(`✓ Fixtures written → datasets/mtm/fixtures/\n`);
-
-  // 3. Write sample to disk for aws s3 sync
+  // 2. Write sample to disk for aws s3 sync
   const sampledSessions = stratifiedSample(allSessions, sampleSize);
   console.log(
     `Writing sample (${sampledSessions.length} sessions, stratified by utterance count)...`,
@@ -321,7 +261,11 @@ async function main() {
   // 4. Build zip from full folder
   console.log("Building zip from full dataset...");
   const zipPath = await buildZip(inputPath, version);
-  console.log(`✓ Zip ready: ${zipPath}\n`);
+  const localZipPath = path.join(PROJECT_ROOT, "datasets/mtm/dataset.zip");
+  await fse.ensureDir(path.dirname(localZipPath));
+  await fse.copy(zipPath, localZipPath);
+  console.log(`✓ Zip ready: ${zipPath}`);
+  console.log(`✓ Copied to datasets/mtm/dataset.zip for local seeding\n`);
 
   console.log(`✓ Done. Validate locally with:\n`);
   console.log(`    yarn seeds --dataset\n`);
