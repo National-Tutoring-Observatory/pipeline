@@ -31,7 +31,7 @@ export interface SessionFile {
 
 export interface Utterance {
   _id: string;
-  role: string;
+  role?: string;
   content: string;
   start_time: string;
   end_time: string;
