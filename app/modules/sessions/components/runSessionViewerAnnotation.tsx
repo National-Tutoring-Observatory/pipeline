@@ -83,6 +83,8 @@ export default function SessionViewerAnnotation({
             <Button
               variant="outline"
               size="icon"
+              aria-label="Downvote annotation"
+              aria-pressed={annotation.markedAs === "DOWN_VOTED"}
               disabled={isVoting}
               onClick={onDownVoteClicked}
               className={clsx({
@@ -100,6 +102,8 @@ export default function SessionViewerAnnotation({
             <Button
               variant="outline"
               size="icon"
+              aria-label="Upvote annotation"
+              aria-pressed={annotation.markedAs === "UP_VOTED"}
               disabled={isVoting}
               onClick={onUpVoteClicked}
               className={clsx({
@@ -129,6 +133,7 @@ export default function SessionViewerAnnotation({
           <Button
             variant="outline"
             size="icon"
+            aria-label="Save reason"
             disabled={isSavingReason || !hasUnsavedChanges}
             onClick={() => onSaveVotingReason(reason)}
             className="shrink-0"

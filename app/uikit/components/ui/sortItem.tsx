@@ -26,10 +26,16 @@ const SortItem = ({
           }
         }}
       >
-        <ToggleGroupItem value={item.value}>
+        <ToggleGroupItem
+          value={item.value}
+          aria-label={`Sort by ${item.text} ascending`}
+        >
           <ArrowDownWideNarrow />
         </ToggleGroupItem>
-        <ToggleGroupItem value={`-${item.value}`}>
+        <ToggleGroupItem
+          value={`-${item.value}`}
+          aria-label={`Sort by ${item.text} descending`}
+        >
           <ArrowUpWideNarrow />
         </ToggleGroupItem>
       </ToggleGroup>
