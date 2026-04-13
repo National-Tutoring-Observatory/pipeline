@@ -59,7 +59,11 @@ export default function AppSidebar() {
   };
 
   return (
-    <Sidebar variant="inset">
+    <Sidebar
+      variant="inset"
+      role="navigation"
+      aria-label="Application navigation"
+    >
       <SidebarHeader className="p-4">
         <Link to={"/"}>
           <img
@@ -242,6 +246,7 @@ export default function AppSidebar() {
                     <SidebarMenuButton
                       size="lg"
                       className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                      aria-label={`User menu for ${user.name || user.username}`}
                     >
                       <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-medium">

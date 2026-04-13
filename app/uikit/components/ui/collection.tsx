@@ -8,7 +8,9 @@ import type {
   CollectionItemAction,
   CollectionItemAttributes,
 } from "./collectionItemContent";
-import CollectionItemContent from "./collectionItemContent";
+import CollectionItemContent, {
+  CollectionItemActions,
+} from "./collectionItemContent";
 import type { FiltersProps } from "./filters";
 import { Item, ItemGroup, ItemSeparator } from "./item";
 import type { PaginationProps } from "./pagination";
@@ -120,24 +122,38 @@ const Collection = ({
           return (
             <React.Fragment key={id}>
               <Item
-                asChild
                 variant={itemsLayout === "card" ? "outline" : undefined}
-                className={clsx({ "opacity-50": isDisabled })}
+                className={clsx(
+                  { "opacity-50": isDisabled },
+                  "has-[:focus-visible]:border-ring has-[:focus-visible]:ring-ring/50 has-[:focus-visible]:ring-[3px]",
+                )}
               >
                 {to && !isDisabled ? (
-                  <Link to={to} className="rounded-none">
-                    {(renderItem && renderItem(item)) || (
-                      <CollectionItemContent
+                  <>
+                    <Link
+                      to={to}
+                      className="flex min-w-0 flex-1 items-center gap-4 rounded-none outline-none"
+                    >
+                      {(renderItem && renderItem(item)) || (
+                        <CollectionItemContent
+                          id={id}
+                          title={title}
+                          description={description}
+                          meta={meta}
+                          actions={[]}
+                          isDisabled={isDisabled}
+                        />
+                      )}
+                    </Link>
+                    {!renderItem && (
+                      <CollectionItemActions
                         id={id}
-                        title={title}
-                        description={description}
-                        meta={meta}
                         actions={itemActions}
-                        isDisabled={isDisabled}
+                        isDisabled={!!isDisabled}
                         onItemActionClicked={onItemActionClicked}
                       />
                     )}
-                  </Link>
+                  </>
                 ) : (
                   <div
                     className={clsx("rounded-none", {

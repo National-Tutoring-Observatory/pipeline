@@ -33,7 +33,7 @@ export default function SideBarHelpDropdown() {
           <DropdownMenuItem onClick={() => setDocsOpen(true)}>
             Read the Documentation
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <a
               href="https://github.com/orgs/National-Tutoring-Observatory/discussions"
               target="_blank"
@@ -42,7 +42,7 @@ export default function SideBarHelpDropdown() {
               Ask a Question
             </a>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <a
               href="https://github.com/National-Tutoring-Observatory/sandpiper/issues/new/choose"
               target="_blank"
@@ -51,7 +51,7 @@ export default function SideBarHelpDropdown() {
               Report a Bug or Request a Feature
             </a>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <a
               href="https://github.com/National-Tutoring-Observatory/sandpiper/issues"
               target="_blank"

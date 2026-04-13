@@ -50,6 +50,72 @@ type CollectionItemProps = {
   }) => void;
 };
 
+const CollectionItemActions = ({
+  id,
+  actions,
+  isDisabled,
+  onItemActionClicked,
+}: Pick<
+  CollectionItemProps,
+  "id" | "actions" | "isDisabled" | "onItemActionClicked"
+>) => {
+  if (actions.length === 0) return null;
+  return (
+    <ItemActions>
+      {(actions.length > 1 && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild disabled={isDisabled}>
+            <Button
+              variant="ghost"
+              className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+              size="icon"
+            >
+              <EllipsisVertical />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-fit">
+            {map(actions, (action, index) => {
+              return (
+                <React.Fragment key={action.action}>
+                  <DropdownMenuItem
+                    variant={action.variant}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      event.preventDefault();
+                      if (onItemActionClicked) {
+                        onItemActionClicked({ id, action: action.action });
+                      }
+                    }}
+                  >
+                    {action.icon ? action.icon : null}
+                    {action.text}
+                  </DropdownMenuItem>
+                  {index !== actions.length - 1 && <DropdownMenuSeparator />}
+                </React.Fragment>
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )) || (
+        <Button
+          variant="ghost"
+          onClick={(event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            if (onItemActionClicked) {
+              onItemActionClicked({ id, action: actions[0].action });
+            }
+          }}
+        >
+          {actions[0].icon ? actions[0].icon : null}
+          {actions[0].text}
+        </Button>
+      )}
+    </ItemActions>
+  );
+};
+
 const CollectionItemContent = ({
   id,
   title,
@@ -78,61 +144,14 @@ const CollectionItemContent = ({
         })}
       </div>
     </ItemContent>
-    {actions.length > 0 && (
-      <ItemActions>
-        {(actions.length > 1 && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild disabled={isDisabled}>
-              <Button
-                variant="ghost"
-                className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                size="icon"
-              >
-                <EllipsisVertical />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-fit">
-              {map(actions, (action, index) => {
-                return (
-                  <React.Fragment key={action.action}>
-                    <DropdownMenuItem
-                      variant={action.variant}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        event.preventDefault();
-                        if (onItemActionClicked) {
-                          onItemActionClicked({ id, action: action.action });
-                        }
-                      }}
-                    >
-                      {action.icon ? action.icon : null}
-                      {action.text}
-                    </DropdownMenuItem>
-                    {index !== actions.length - 1 && <DropdownMenuSeparator />}
-                  </React.Fragment>
-                );
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )) || (
-          <Button
-            variant="ghost"
-            onClick={(event) => {
-              event.stopPropagation();
-              event.preventDefault();
-              if (onItemActionClicked) {
-                onItemActionClicked({ id, action: actions[0].action });
-              }
-            }}
-          >
-            {actions[0].icon ? actions[0].icon : null}
-            {actions[0].text}
-          </Button>
-        )}
-      </ItemActions>
-    )}
+    <CollectionItemActions
+      id={id}
+      actions={actions}
+      isDisabled={isDisabled}
+      onItemActionClicked={onItemActionClicked}
+    />
   </>
 );
 
+export { CollectionItemActions };
 export default CollectionItemContent;
