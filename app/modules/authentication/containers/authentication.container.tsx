@@ -86,9 +86,7 @@ export default function AuthenticationContainer({
       <MaintenanceBanner />
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
-        <SidebarInset>
-          <main>{children}</main>
-        </SidebarInset>
+        <SidebarInset>{children}</SidebarInset>
       </SidebarProvider>
     </AuthenticationContext>
   );
