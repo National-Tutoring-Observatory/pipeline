@@ -221,7 +221,7 @@ export default function PromptSelector({
         <div className="ml-2">
           <Sheet>
             <SheetTrigger asChild>
-              <Button size="icon" variant="secondary">
+              <Button size="icon" variant="secondary" aria-label="View prompt">
                 <ViewIcon />
               </Button>
             </SheetTrigger>

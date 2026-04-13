@@ -191,6 +191,7 @@ export default function SessionViewer({
                   <Button
                     variant="outline"
                     size="sm"
+                    aria-label="Previous annotation"
                     onClick={onPreviousAnnotationClicked}
                     disabled={
                       !hasSelectedAnnotation || selectedUtteranceIndex == 0
@@ -201,6 +202,7 @@ export default function SessionViewer({
                   <Button
                     variant="outline"
                     size="sm"
+                    aria-label="Next annotation"
                     onClick={onNextAnnotationClicked}
                     disabled={
                       hasSelectedAnnotation &&

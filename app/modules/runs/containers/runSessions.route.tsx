@@ -11,6 +11,10 @@ import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import RunSessions from "../components/runSessions";
 import type { Route } from "./+types/runSessions.route";
 
+export const meta: Route.MetaFunction = () => [
+  { title: "Session - Sandpiper" },
+];
+
 export async function loader({ request, params }: Route.LoaderArgs) {
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, "team");

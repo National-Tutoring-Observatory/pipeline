@@ -24,7 +24,12 @@ const Sort = ({ sortOptions, sortValue, onSortValueChanged }: SortProps) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Sort"
+          className="relative"
+        >
           <ArrowDownUp />
         </Button>
       </PopoverTrigger>
