@@ -59,7 +59,7 @@ function BreadcrumbElement({ breadcrumb }: { breadcrumb: BreadcrumbType }) {
     );
   }
   return (
-    <BreadcrumbPage className="text-xl font-extrabold tracking-tight text-balance">
+    <BreadcrumbPage className="text-primary text-xl tracking-tight text-balance">
       {content}
     </BreadcrumbPage>
   );
