@@ -1,12 +1,12 @@
 import dotenv from "dotenv";
 import fse from "fs-extra";
 import { encode } from "gpt-tokenizer";
-import map from "lodash/map";
 import path from "path";
 import getConversationFromJSON from "../../app/modules/sessions/helpers/getConversationFromJSON";
 import { SessionService } from "../../app/modules/sessions/session";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
 import emitFromJob from "../helpers/emitFromJob";
+import mapFileToTranscript from "../helpers/mapFileToTranscript";
 dotenv.config({ path: ".env" });
 
 export default async function convertFileToSession(job: any) {
@@ -40,19 +40,7 @@ export default async function convertFileToSession(job: any) {
     ) {
       const jsonFile = await fse.readJSON(downloadedPath);
 
-      const transcript = map(jsonFile, (dataItem, index) => {
-        return {
-          _id: `${index}`,
-          role: dataItem.role,
-          content: dataItem.content,
-          start_time: dataItem.start_time,
-          end_time: dataItem.end_time,
-          timestamp: dataItem.timestamp,
-          session_id: dataItem.session_id,
-          sequence_id: dataItem.sequence_id,
-          annotations: [],
-        };
-      });
+      const transcript = mapFileToTranscript(jsonFile, attributesMapping);
       const json = {
         session_id: jsonFile[0]?.session_id,
         transcript,

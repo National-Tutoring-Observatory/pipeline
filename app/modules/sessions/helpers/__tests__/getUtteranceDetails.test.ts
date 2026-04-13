@@ -36,12 +36,6 @@ describe("getUtteranceDetails", () => {
     expect(getUtteranceDetails({ utterance: baseUtterance })).toBe("Tutor");
   });
 
-  it("does not render 'undefined' when role is missing", () => {
-    const utterance: Utterance = { ...baseUtterance, role: undefined };
-    const result = getUtteranceDetails({ utterance });
-    expect(result).not.toContain("undefined");
-  });
-
   it("returns empty string when role is missing and no time fields are present", () => {
     const utterance: Utterance = { ...baseUtterance, role: undefined };
     expect(getUtteranceDetails({ utterance })).toBe("");
