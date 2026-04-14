@@ -115,17 +115,15 @@ const CreatePromptDialog = ({
             Cancel
           </Button>
         </DialogClose>
-        <DialogClose asChild>
-          <Button
-            type="button"
-            disabled={isSubmitButtonDisabled}
-            onClick={() => {
-              onCreateNewPromptClicked({ name, team, annotationType });
-            }}
-          >
-            Create prompt
-          </Button>
-        </DialogClose>
+        <Button
+          type="button"
+          disabled={isSubmitButtonDisabled}
+          onClick={() => {
+            onCreateNewPromptClicked({ name, team, annotationType });
+          }}
+        >
+          Create prompt
+        </Button>
       </DialogFooter>
     </DialogContent>
   );

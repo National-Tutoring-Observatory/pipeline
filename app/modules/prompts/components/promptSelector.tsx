@@ -29,6 +29,7 @@ import {
   ChevronsUpDownIcon,
   ViewIcon,
 } from "lucide-react";
+import { useState } from "react";
 import type { Prompt, PromptVersion } from "../prompts.types";
 
 export default function PromptSelector({
@@ -39,10 +40,7 @@ export default function PromptSelector({
   productionVersion,
   isLoadingPrompts,
   isLoadingPromptVersions,
-  isPromptsOpen,
-  isPromptVersionsOpen,
-  onTogglePromptPopover,
-  onTogglePromptVersionsPopover,
+  onPromptsPopoverOpened,
   onSelectedPromptChange,
   onSelectedPromptVersionChange,
 }: {
@@ -53,13 +51,13 @@ export default function PromptSelector({
   productionVersion: number;
   isLoadingPrompts: boolean;
   isLoadingPromptVersions: boolean;
-  isPromptsOpen: boolean;
-  isPromptVersionsOpen: boolean;
-  onTogglePromptPopover: (isPromptsOpen: boolean) => void;
-  onTogglePromptVersionsPopover: (isPromptVersionsOpen: boolean) => void;
+  onPromptsPopoverOpened: () => void;
   onSelectedPromptChange: (selectedPrompt: string) => void;
   onSelectedPromptVersionChange: (selectedPromptVersion: number) => void;
 }) {
+  const [isPromptsOpen, setIsPromptsOpen] = useState(false);
+  const [isPromptVersionsOpen, setIsPromptVersionsOpen] = useState(false);
+
   let selectedPromptVersionItem = null;
   if (selectedPromptVersion) {
     selectedPromptVersionItem = find(promptVersions, {
@@ -69,7 +67,13 @@ export default function PromptSelector({
 
   return (
     <div className="flex items-center">
-      <Popover open={isPromptsOpen} onOpenChange={onTogglePromptPopover}>
+      <Popover
+        open={isPromptsOpen}
+        onOpenChange={(open) => {
+          setIsPromptsOpen(open);
+          if (open) onPromptsPopoverOpened();
+        }}
+      >
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -105,7 +109,7 @@ export default function PromptSelector({
                     keywords={[prompt._id]}
                     onSelect={() => {
                       onSelectedPromptChange(prompt._id);
-                      onTogglePromptPopover(false);
+                      setIsPromptsOpen(false);
                     }}
                   >
                     <CheckIcon
@@ -128,7 +132,7 @@ export default function PromptSelector({
         <div className="ml-2">
           <Popover
             open={isPromptVersionsOpen}
-            onOpenChange={onTogglePromptVersionsPopover}
+            onOpenChange={setIsPromptVersionsOpen}
           >
             <PopoverTrigger asChild>
               <Button
@@ -181,7 +185,7 @@ export default function PromptSelector({
                         ]}
                         onSelect={() => {
                           onSelectedPromptVersionChange(promptVersion.version);
-                          onTogglePromptVersionsPopover(false);
+                          setIsPromptVersionsOpen(false);
                         }}
                       >
                         <CheckIcon
