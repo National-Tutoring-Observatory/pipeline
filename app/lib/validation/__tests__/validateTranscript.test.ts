@@ -16,6 +16,8 @@ describe("validateTranscript", () => {
             _id: "0",
             role: "Tutor",
             content: "Hello!",
+            session_id: "s1",
+            sequence_id: 1,
           },
         ],
       };
@@ -54,6 +56,8 @@ describe("validateTranscript", () => {
             _id: "0",
             role: "Tutor",
             content: "Great!",
+            session_id: "s1",
+            sequence_id: 1,
             annotations: [
               {
                 _id: "0",
@@ -76,6 +80,8 @@ describe("validateTranscript", () => {
             _id: "0",
             role: "Tutor",
             content: "Hello!",
+            session_id: "s1",
+            sequence_id: 1,
           },
         ],
         annotations: [
@@ -164,6 +170,8 @@ describe("validateTranscript", () => {
             _id: "0",
             role: "Tutor",
             content: "Hello!",
+            session_id: "s1",
+            sequence_id: 1,
             unexpectedField: "value",
           },
         ],
@@ -201,6 +209,8 @@ describe("validateTranscript", () => {
             _id: "0",
             role: "Tutor",
             content: "Hello!",
+            session_id: "s1",
+            sequence_id: 1,
           },
         ],
       };

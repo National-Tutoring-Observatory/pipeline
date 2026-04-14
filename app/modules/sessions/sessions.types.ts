@@ -24,6 +24,7 @@ export type SessionData = Pick<Session, "_id" | "inputTokens">;
 
 export interface SessionFile {
   transcript: Utterance[];
+  session_id?: string;
   leadRole: string;
   annotations: Annotation[];
   preVerificationAnnotations?: Annotation[];
@@ -37,7 +38,9 @@ export interface Utterance {
   start_time: string;
   end_time: string;
   timestamp: string;
-  annotations: any[];
+  session_id: string;
+  sequence_id: string | number;
+  annotations: Annotation[];
 }
 
 export interface Annotation {

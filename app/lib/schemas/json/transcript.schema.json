@@ -11,7 +11,7 @@
       "description": "Array of utterances in the conversation",
       "items": {
         "type": "object",
-        "required": ["_id", "role", "content"],
+        "required": ["_id", "role", "content", "session_id", "sequence_id"],
         "properties": {
           "_id": {
             "type": "string",
@@ -39,11 +39,11 @@
           },
           "session_id": {
             "type": "string",
-            "description": "Session identifier (optional, may be added during processing)"
+            "description": "Session identifier"
           },
           "sequence_id": {
             "type": ["string", "number"],
-            "description": "Sequence number within the session (optional)"
+            "description": "Sequence number within the session"
           },
           "annotations": {
             "type": "array",
