@@ -1,4 +1,5 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SkipLink } from "@/components/ui/skipLink";
 import get from "lodash/get";
 import { LoaderPinwheel } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
@@ -85,8 +86,18 @@ export default function AuthenticationContainer({
     <AuthenticationContext value={authentication}>
       <MaintenanceBanner />
       <SidebarProvider defaultOpen={true}>
+        <SkipLink href="#main-content" className="focus:top-4 focus:left-4">
+          Skip to main content
+        </SkipLink>
         <AppSidebar />
-        <SidebarInset>{children}</SidebarInset>
+        <SidebarInset
+          id="main-content"
+          tabIndex={-1}
+          aria-label="Main content"
+          className="focus-visible:outline-none"
+        >
+          {children}
+        </SidebarInset>
       </SidebarProvider>
     </AuthenticationContext>
   );

@@ -93,7 +93,11 @@ export default function Project({
         </PageHeaderRight>
       </PageHeader>
       <div className="grid grid-cols-4 gap-8">
-        <Link to={`/projects/${project._id}/files`} replace className="h-full">
+        <Link
+          to={`/projects/${project._id}/files`}
+          replace
+          className="focus-visible:ring-ring h-full rounded-xl focus-visible:ring-2 focus-visible:outline-none"
+        >
           <Card
             className={clsx("h-full transition-all", {
               "border-accent-foreground": tabValue === "FILES",
@@ -123,7 +127,7 @@ export default function Project({
         <Link
           to={`/projects/${project._id}/sessions`}
           replace
-          className="h-full"
+          className="focus-visible:ring-ring h-full rounded-xl focus-visible:ring-2 focus-visible:outline-none"
         >
           <Card
             className={clsx("h-full transition-all", {
@@ -156,7 +160,11 @@ export default function Project({
             </CardContent>
           </Card>
         </Link>
-        <Link to={`/projects/${project._id}`} replace className="h-full">
+        <Link
+          to={`/projects/${project._id}`}
+          replace
+          className="focus-visible:ring-ring h-full rounded-xl focus-visible:ring-2 focus-visible:outline-none"
+        >
           <Card
             className={clsx("h-full transition-all", {
               "border-accent-foreground": tabValue === "RUNS",
@@ -185,7 +193,7 @@ export default function Project({
         <Link
           to={`/projects/${project._id}/run-sets`}
           replace
-          className="h-full"
+          className="focus-visible:ring-ring h-full rounded-xl focus-visible:ring-2 focus-visible:outline-none"
         >
           <Card
             className={clsx("h-full transition-all", {

@@ -27,8 +27,6 @@ export default function PromptSelectorContainer({
     inputTokens?: number,
   ) => void;
 }) {
-  const [isPromptsOpen, setIsPromptsOpen] = useState(false);
-  const [isPromptVersionsOpen, setIsPromptVersionsOpen] = useState(false);
   const [fetchedVersionsByPrompt, setFetchedVersionsByPrompt] = useState<
     Record<string, PromptVersion[]>
   >({});
@@ -36,13 +34,10 @@ export default function PromptSelectorContainer({
   const promptsFetcher = useFetcher();
   const promptVersionsFetcher = useFetcher();
 
-  const onTogglePromptPopover = (isPromptsOpen: boolean) => {
-    setIsPromptsOpen(isPromptsOpen);
-    if (isPromptsOpen) {
-      const params = new URLSearchParams();
-      params.set("annotationType", annotationType);
-      promptsFetcher.load(`/api/promptsList?${params.toString()}`);
-    }
+  const onPromptsPopoverOpened = () => {
+    const params = new URLSearchParams();
+    params.set("annotationType", annotationType);
+    promptsFetcher.load(`/api/promptsList?${params.toString()}`);
   };
 
   useEffect(() => {
@@ -58,10 +53,6 @@ export default function PromptSelectorContainer({
       );
     }
   }, [selectedPrompt]);
-
-  const onTogglePromptVersionsPopover = (isPromptsOpen: boolean) => {
-    setIsPromptVersionsOpen(isPromptsOpen);
-  };
 
   const onSelectedPromptChange = (selectedPrompt: string) => {
     const selectedPromptItem = find(promptsFetcher.data.prompts.data, {
@@ -136,10 +127,7 @@ export default function PromptSelectorContainer({
       productionVersion={productionVersion}
       isLoadingPrompts={promptsFetcher.state === "loading"}
       isLoadingPromptVersions={promptVersionsFetcher.state === "loading"}
-      isPromptsOpen={isPromptsOpen}
-      isPromptVersionsOpen={isPromptVersionsOpen}
-      onTogglePromptPopover={onTogglePromptPopover}
-      onTogglePromptVersionsPopover={onTogglePromptVersionsPopover}
+      onPromptsPopoverOpened={onPromptsPopoverOpened}
       onSelectedPromptChange={onSelectedPromptChange}
       onSelectedPromptVersionChange={onSelectedPromptVersionChange}
     />

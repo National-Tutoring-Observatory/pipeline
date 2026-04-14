@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { SkipLink } from "@/components/ui/skipLink";
 import find from "lodash/find";
 import map from "lodash/map";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -77,6 +78,9 @@ export default function SessionViewer({
 
   return (
     <div className="flex h-full flex-1">
+      <SkipLink href="#session-annotations-panel" className="focus:p-2">
+        Skip to annotations
+      </SkipLink>
       <div
         id="session-viewer-scroll-container"
         className="flex h-full w-3/5 min-w-0 flex-col overflow-y-scroll scroll-smooth border-r p-4"
@@ -111,7 +115,11 @@ export default function SessionViewer({
           );
         })}
       </div>
-      <div className="flex h-full w-2/5 min-w-0 flex-col pt-8">
+      <div
+        id="session-annotations-panel"
+        tabIndex={-1}
+        className="flex h-full w-2/5 min-w-0 flex-col pt-8"
+      >
         <div className="border-b px-4 pb-4">
           <SessionViewerDetails
             session={session}
