@@ -38,6 +38,7 @@ export default function TeamsSelector({
           variant="outline"
           role="combobox"
           aria-expanded={isOpen}
+          aria-haspopup="listbox"
           className="w-[200px] justify-between"
         >
           {selectedTeam

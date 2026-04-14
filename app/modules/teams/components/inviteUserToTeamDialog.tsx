@@ -100,6 +100,11 @@ export default function InviteUserToTeamDialog({
                 </div>
                 <Button
                   variant="ghost"
+                  aria-label={
+                    hasCopiedInviteLink
+                      ? "Invite link copied"
+                      : "Copy invite link"
+                  }
                   className="absolute top-0 right-1 z-10 cursor-pointer"
                   disabled={hasCopiedInviteLink}
                   onClick={onCopyInviteClicked}
@@ -108,11 +113,12 @@ export default function InviteUserToTeamDialog({
 
                   {!hasCopiedInviteLink && <CopyIcon />}
                 </Button>
-                {hasCopiedInviteLink && (
-                  <div className="text-sandpiper-success absolute right-4 -bottom-6 text-xs">
-                    Invite link copied!
-                  </div>
-                )}
+                <div
+                  role="status"
+                  className="text-sandpiper-success absolute right-4 -bottom-6 text-xs"
+                >
+                  {hasCopiedInviteLink ? "Invite link copied!" : ""}
+                </div>
                 <div className="text-muted-foreground mt-4 text-xs">
                   {`This invite link will expire in ${INVITE_LINK_TTL_DAYS} days.`}
                 </div>

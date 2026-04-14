@@ -190,11 +190,15 @@ export default function SessionViewer({
                 >
                   First annotation
                 </Button>
-                {hasSelectedAnnotation && (
-                  <div className="text-muted-foreground text-sm">
-                    {selectedUtteranceIndex + 1}/{annotatedUtteranceCount}
-                  </div>
-                )}
+                <div
+                  aria-live="polite"
+                  aria-atomic="true"
+                  className="text-muted-foreground text-sm"
+                >
+                  {hasSelectedAnnotation
+                    ? `${selectedUtteranceIndex + 1}/${annotatedUtteranceCount}`
+                    : ""}
+                </div>
                 <div className="flex gap-1">
                   <Button
                     variant="outline"
