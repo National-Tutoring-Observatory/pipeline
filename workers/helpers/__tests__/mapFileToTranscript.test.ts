@@ -25,27 +25,24 @@ describe("mapFileToTranscript", () => {
 
   it("uses attributesMapping to read alternative field names", () => {
     const jsonFile = [
-      { speaker: "Tutor", text: "Hello", session_id: "s1", sequence_id: 1 },
-      { speaker: "Student", text: "Hi", session_id: "s1", sequence_id: 2 },
+      { speaker: "Tutor", text: "Hello", sid: "s1", seq: 1 },
+      { speaker: "Student", text: "Hi", sid: "s1", seq: 2 },
     ];
-    const mapping = { ...standardMapping, role: "speaker", content: "text" };
+    const mapping = {
+      role: "speaker",
+      content: "text",
+      session_id: "sid",
+      sequence_id: "seq",
+    };
 
     const result = mapFileToTranscript(jsonFile, mapping);
 
     expect(result[0].role).toBe("Tutor");
     expect(result[0].content).toBe("Hello");
+    expect(result[0].session_id).toBe("s1");
+    expect(result[0].sequence_id).toBe(1);
     expect(result[1].role).toBe("Student");
     expect(result[1].content).toBe("Hi");
-  });
-
-  it("does not produce role: undefined when field name differs from 'role'", () => {
-    const jsonFile = [{ speaker: "Tutor", text: "Hello" }];
-    const mapping = { ...standardMapping, role: "speaker", content: "text" };
-
-    const result = mapFileToTranscript(jsonFile, mapping);
-
-    expect(result[0].role).not.toBeUndefined();
-    expect(result[0].role).toBe("Tutor");
   });
 
   it("assigns sequential _id from index", () => {

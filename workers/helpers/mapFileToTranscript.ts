@@ -11,8 +11,8 @@ export default function mapFileToTranscript(
     start_time: dataItem.start_time,
     end_time: dataItem.end_time,
     timestamp: dataItem.timestamp,
-    session_id: dataItem.session_id,
-    sequence_id: dataItem.sequence_id,
+    session_id: dataItem[attributesMapping.session_id],
+    sequence_id: dataItem[attributesMapping.sequence_id],
     annotations: [],
   }));
 }

@@ -6,18 +6,10 @@ import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import leadRolePrompt from "../prompts/leadRole.prompt.json";
 
 const REQUIRED_ATTRIBUTES = {
-  session_id: {
-    alternatives: ["sessionId", "sessionID"],
-  },
-  role: {
-    alternatives: ["speaker"],
-  },
-  content: {
-    alternatives: ["text"],
-  },
-  sequence_id: {
-    alternatives: [],
-  },
+  session_id: { alternatives: ["sessionId", "sessionID"] },
+  role: { alternatives: ["speaker"] },
+  content: { alternatives: ["text"] },
+  sequence_id: { alternatives: ["sequenceId", "sequenceID"] },
 };
 
 export default async function getAttributeMappingFromFile({
@@ -52,9 +44,12 @@ export default async function getAttributeMappingFromFile({
     });
   }
 
+  const roleKey = attributeMapping.role ?? "role";
   const uniqueRoles = [
     ...new Set(
-      fileContentsAsJSON.map((utterance: { role: string }) => utterance.role),
+      fileContentsAsJSON.map(
+        (utterance: Record<string, string>) => utterance[roleKey],
+      ),
     ),
   ];
 
