@@ -5,7 +5,7 @@ import { useFetcher, useLocation, useNavigate } from "react-router";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
 import RunSessionViewer from "../components/runSessionViewer";
 import getSessionVerificationChanges from "../helpers/getSessionVerificationChanges";
-import type { SessionFile } from "../sessions.types";
+import type { Annotation, SessionFile } from "../sessions.types";
 
 export default function RunSessionViewerContainer({
   run,
@@ -140,7 +140,7 @@ export default function RunSessionViewerContainer({
     }
   }, [selectedUtteranceId]);
 
-  let selectedUtteranceAnnotations = [];
+  let selectedUtteranceAnnotations: Annotation[] = [];
 
   if (selectedUtteranceId) {
     const selectedUtterance = find(sessionFile.transcript, {

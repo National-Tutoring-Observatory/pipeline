@@ -48,4 +48,5 @@ export interface Annotation {
   identifiedBy: string;
   markedAs?: "UP_VOTED" | "DOWN_VOTED";
   votingReason?: string;
+  [key: string]: unknown;
 }
