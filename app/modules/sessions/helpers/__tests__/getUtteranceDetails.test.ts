@@ -9,6 +9,8 @@ const baseUtterance: Utterance = {
   start_time: "",
   end_time: "",
   timestamp: "",
+  session_id: "s1",
+  sequence_id: 1,
   annotations: [],
 };
 
@@ -36,18 +38,21 @@ describe("getUtteranceDetails", () => {
     expect(getUtteranceDetails({ utterance: baseUtterance })).toBe("Tutor");
   });
 
-  it("returns empty string when role is missing and no time fields are present", () => {
-    const utterance: Utterance = { ...baseUtterance, role: undefined };
+  it("returns empty string when role is missing and no time fields are present (legacy data)", () => {
+    const utterance = {
+      ...baseUtterance,
+      role: undefined,
+    } as unknown as Utterance;
     expect(getUtteranceDetails({ utterance })).toBe("");
   });
 
-  it("returns only the timestamp without trailing comma when role is missing but timestamps are present", () => {
-    const utterance: Utterance = {
+  it("returns only the timestamp without trailing comma when role is missing but timestamps are present (legacy data)", () => {
+    const utterance = {
       ...baseUtterance,
       role: undefined,
       start_time: "0:00",
       end_time: "0:05",
-    };
+    } as unknown as Utterance;
     expect(getUtteranceDetails({ utterance })).toBe("0:00 - 0:05");
   });
 });

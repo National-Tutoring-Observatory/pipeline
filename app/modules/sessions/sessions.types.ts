@@ -31,7 +31,8 @@ export interface SessionFile {
 
 export interface Utterance {
   _id: string;
-  role?: string;
+  // Required at ingestion; legacy sessions may be missing it at runtime.
+  role: string;
   content: string;
   start_time: string;
   end_time: string;
