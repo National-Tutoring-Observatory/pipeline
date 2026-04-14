@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import fse from "fs-extra";
 import { encode } from "gpt-tokenizer";
 import path from "path";
+import isValidTranscript from "../../app/lib/validation/validateTranscript";
 import getConversationFromJSON from "../../app/modules/sessions/helpers/getConversationFromJSON";
 import { SessionService } from "../../app/modules/sessions/session";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
@@ -41,12 +42,24 @@ export default async function convertFileToSession(job: any) {
       const jsonFile = await fse.readJSON(downloadedPath);
 
       const transcript = mapFileToTranscript(jsonFile, attributesMapping);
+
       const json = {
-        session_id: jsonFile[0]?.session_id,
+        session_id: jsonFile[0]?.[attributesMapping.session_id],
         transcript,
         leadRole: attributesMapping.leadRole,
         annotations: [],
       };
+
+      const validation = isValidTranscript(json);
+      if (!validation.valid) {
+        const messages = validation
+          .errors!.map((e) =>
+            e.field ? `${e.field}: ${e.message}` : e.message,
+          )
+          .join("; ");
+        throw new Error(`Invalid transcript: ${messages}`);
+      }
+
       const inputTokens = encode(getConversationFromJSON(json)).length;
       await fse.outputJSON(`tmp/${outputFolder}/${outputFileName}.json`, json);
 
