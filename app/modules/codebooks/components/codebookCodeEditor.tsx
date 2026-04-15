@@ -70,6 +70,19 @@ export default function CodebookCodeEditor({
         />
       </div>
       <div className="grid gap-3">
+        <Label htmlFor={`definition-${code._id}`}>Description</Label>
+        <p className="text-muted-foreground text-sm">
+          A basic description that is not used when generating a prompt. This
+          should be used as a brief overview.
+        </p>
+        <Textarea
+          id={`definition-${code._id}`}
+          value={code.description}
+          disabled={disabled}
+          onChange={(e) => onChange({ ...code, description: e.target.value })}
+        />
+      </div>
+      <div className="grid gap-3">
         <Label htmlFor={`definition-${code._id}`}>Definition</Label>
         <Textarea
           id={`definition-${code._id}`}

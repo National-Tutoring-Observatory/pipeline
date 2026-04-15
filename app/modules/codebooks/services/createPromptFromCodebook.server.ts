@@ -1,6 +1,5 @@
 import handleLLMError from "~/modules/llm/helpers/handleLLMError";
 import LLM from "~/modules/llm/llm";
-import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import { CodebookService } from "../codebook";
@@ -48,7 +47,7 @@ export default async function createPromptFromCodebook({
 
   try {
     const llm = new LLM({
-      model: getDefaultModelCode(),
+      model: "anthropic.claude-4.6-opus",
       user: teamId,
       source: "codebook-prompt-generation",
       sourceId: codebookId,

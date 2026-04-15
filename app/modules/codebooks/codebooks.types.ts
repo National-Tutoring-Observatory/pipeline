@@ -23,6 +23,7 @@ export interface CodebookExample {
 export interface CodebookCode {
   _id: string;
   code: string;
+  description: string;
   definition: string;
   examples: CodebookExample[];
 }

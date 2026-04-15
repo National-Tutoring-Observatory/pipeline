@@ -18,8 +18,9 @@ const SaveCodebookVersionDialog = ({
       <DialogHeader>
         <DialogTitle>Save codebook version</DialogTitle>
         <DialogDescription>
-          Are you sure you want to save this version? Once saved, it cannot be
-          edited.
+          Are you sure you want to save this codebook version? Saving this
+          version will stop edits from being made to this version. You can
+          always create a new codebook version.
         </DialogDescription>
       </DialogHeader>
       <DialogFooter className="justify-end">
