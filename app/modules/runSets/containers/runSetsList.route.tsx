@@ -92,6 +92,16 @@ export async function action({ request, params }: Route.ActionArgs) {
       if (typeof name !== "string") {
         throw new Error("Run set name is required and must be a string.");
       }
+      const runSetToUpdate = await RunSetService.findOne({
+        _id: entityId,
+        project: params.id,
+      });
+      if (!runSetToUpdate) {
+        return data(
+          { errors: { runSet: "Run set not found" } },
+          { status: 404 },
+        );
+      }
       await RunSetService.updateById(entityId, {
         name,
       });
@@ -101,7 +111,10 @@ export async function action({ request, params }: Route.ActionArgs) {
       if (typeof name !== "string") {
         throw new Error("Run set name is required and must be a string.");
       }
-      const existingRunSet = await RunSetService.findById(entityId);
+      const existingRunSet = await RunSetService.findOne({
+        _id: entityId,
+        project: params.id,
+      });
 
       if (!existingRunSet) {
         throw new Error("Run set not found");
@@ -121,6 +134,16 @@ export async function action({ request, params }: Route.ActionArgs) {
       };
     }
     case "DELETE_RUN_SET": {
+      const runSetToDelete = await RunSetService.findOne({
+        _id: entityId,
+        project: params.id,
+      });
+      if (!runSetToDelete) {
+        return data(
+          { errors: { runSet: "Run set not found" } },
+          { status: 404 },
+        );
+      }
       await RunSetService.deleteWithCleanup(entityId);
 
       return {

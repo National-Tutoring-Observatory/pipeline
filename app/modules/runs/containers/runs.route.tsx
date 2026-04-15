@@ -1,5 +1,7 @@
 import find from "lodash/find";
+import map from "lodash/map";
 import {
+  redirect,
   useLoaderData,
   useNavigate,
   useParams,
@@ -10,6 +12,9 @@ import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
+import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import { ProjectService } from "~/modules/projects/project";
 import { useCreateRunSetForRun } from "~/modules/runs/hooks/useCreateRunSetForRun";
 import { useRunActions } from "~/modules/runs/hooks/useRunActions";
 import { RunService } from "~/modules/runs/run";
@@ -18,6 +23,19 @@ import Runs from "../components/runs";
 import type { Route } from "./+types/runs.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
+  const user = await getSessionUser({ request });
+  if (!user) return redirect("/");
+
+  const authenticationTeams = await getSessionUserTeams({ request });
+  const teamIds = map(authenticationTeams, "team");
+  const project = await ProjectService.findOne({
+    _id: params.id,
+    team: { $in: teamIds },
+  });
+  if (!project) {
+    return redirect("/");
+  }
+
   const queryParams = getQueryParamsFromRequest(request, {
     searchValue: "",
     currentPage: 1,

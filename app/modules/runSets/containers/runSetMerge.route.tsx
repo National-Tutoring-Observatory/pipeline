@@ -41,7 +41,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect("/");
   }
 
-  const runSet = await RunSetService.findById(params.runSetId);
+  const runSet = await RunSetService.findOne({
+    _id: params.runSetId,
+    project: params.projectId,
+  });
   if (!runSet) {
     return redirect(`/projects/${params.projectId}/run-sets`);
   }
@@ -89,6 +92,16 @@ export async function action({ request, params }: Route.ActionArgs) {
   switch (intent) {
     case "MERGE_RUN_SETS": {
       const { sourceRunSetIds } = payload;
+      const targetRunSet = await RunSetService.findOne({
+        _id: params.runSetId,
+        project: params.projectId,
+      });
+      if (!targetRunSet) {
+        return data(
+          { errors: { runSet: "Run set not found" } },
+          { status: 404 },
+        );
+      }
       await RunSetService.mergeRunSets(params.runSetId, sourceRunSetIds);
       return redirect(
         `/projects/${params.projectId}/run-sets/${params.runSetId}`,

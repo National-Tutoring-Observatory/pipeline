@@ -51,6 +51,11 @@ export class EvaluationService {
     return doc ? this.toEvaluation(doc) : null;
   }
 
+  static async findOne(match: Record<string, any>): Promise<Evaluation | null> {
+    const doc = await EvaluationModel.findOne(match);
+    return doc ? this.toEvaluation(doc) : null;
+  }
+
   static async paginate({
     match,
     sort,

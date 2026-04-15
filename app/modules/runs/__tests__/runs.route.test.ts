@@ -8,6 +8,65 @@ import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/runs.route";
 
+describe("runs.route loader - authorization", () => {
+  beforeEach(async () => {
+    await clearDocumentDB();
+  });
+
+  it("redirects unauthenticated users", async () => {
+    const team = await TeamService.create({ name: "Team" });
+    const user = await UserService.create({
+      username: "test_user",
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+    const project = await ProjectService.create({
+      name: "Project",
+      createdBy: user._id,
+      team: team._id,
+    });
+
+    const res = await loader({
+      request: new Request(
+        "http://localhost/projects/" + project._id + "/runs",
+      ),
+      params: { id: project._id },
+    } as any);
+
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).status).toBe(302);
+  });
+
+  it("redirects users who are not members of the project's team", async () => {
+    const team = await TeamService.create({ name: "Team" });
+    const owner = await UserService.create({
+      username: "owner",
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+    const project = await ProjectService.create({
+      name: "Project",
+      createdBy: owner._id,
+      team: team._id,
+    });
+
+    const outsider = await UserService.create({
+      username: "outsider",
+      teams: [],
+    });
+    const cookieHeader = await loginUser(outsider._id);
+
+    const res = await loader({
+      request: new Request(
+        "http://localhost/projects/" + project._id + "/runs",
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: { id: project._id },
+    } as any);
+
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).status).toBe(302);
+  });
+});
+
 describe("runs.route loader", () => {
   beforeEach(async () => {
     await clearDocumentDB();

@@ -156,6 +156,62 @@ describe("runSetAddRuns.route loader", () => {
   });
 });
 
+describe("runSetAddRuns.route loader - IDOR protection", () => {
+  beforeEach(async () => {
+    await clearDocumentDB();
+  });
+
+  it("redirects to run-sets list when runSet belongs to a different project", async () => {
+    const ownerUser = await UserService.create({
+      username: "owner",
+      teams: [],
+    });
+    const teamA = await TeamService.create({ name: "Team A" });
+    await UserService.updateById(ownerUser._id, {
+      teams: [{ team: teamA._id, role: "ADMIN" }],
+    });
+    const projectA = await ProjectService.create({
+      name: "Project A",
+      createdBy: ownerUser._id,
+      team: teamA._id,
+    });
+    const victimRunSet = await RunSetService.create({
+      name: "Victim Run Set",
+      project: projectA._id,
+      sessions: [],
+      runs: [],
+      annotationType: "PER_UTTERANCE",
+    });
+
+    const attacker = await UserService.create({
+      username: "attacker",
+      teams: [],
+    });
+    const teamB = await TeamService.create({ name: "Team B" });
+    await UserService.updateById(attacker._id, {
+      teams: [{ team: teamB._id, role: "ADMIN" }],
+    });
+    const projectB = await ProjectService.create({
+      name: "Project B",
+      createdBy: attacker._id,
+      team: teamB._id,
+    });
+    const cookieHeader = await loginUser(attacker._id);
+
+    const res = await loader({
+      request: new Request("http://localhost/", {
+        headers: { cookie: cookieHeader },
+      }),
+      params: { projectId: projectB._id, runSetId: victimRunSet._id },
+    } as any);
+
+    expect(res).toBeInstanceOf(Response);
+    expect((res as Response).headers.get("Location")).toBe(
+      `/projects/${projectB._id}/run-sets`,
+    );
+  });
+});
+
 describe("runSetAddRuns.route action", () => {
   it("returns 403 when user cannot manage project", async () => {
     const owner = await UserService.create({ username: "owner", teams: [] });
@@ -266,5 +322,55 @@ describe("runSetAddRuns.route action", () => {
 
     const updatedRunSet = await RunSetService.findById(runSet._id);
     expect(updatedRunSet!.runs).toContain(run._id);
+  });
+
+  it("ADD_RUNS returns 404 when runSet belongs to a different project", async () => {
+    const ownerUser = await UserService.create({
+      username: "owner",
+      teams: [],
+    });
+    const teamA = await TeamService.create({ name: "Team A" });
+    await UserService.updateById(ownerUser._id, {
+      teams: [{ team: teamA._id, role: "ADMIN" }],
+    });
+    const projectA = await ProjectService.create({
+      name: "Project A",
+      createdBy: ownerUser._id,
+      team: teamA._id,
+    });
+    const victimRunSet = await RunSetService.create({
+      name: "Victim Run Set",
+      project: projectA._id,
+      sessions: [],
+      runs: [],
+      annotationType: "PER_UTTERANCE",
+    });
+
+    const attacker = await UserService.create({
+      username: "attacker",
+      teams: [],
+    });
+    const teamB = await TeamService.create({ name: "Team B" });
+    await UserService.updateById(attacker._id, {
+      teams: [{ team: teamB._id, role: "ADMIN" }],
+    });
+    const projectB = await ProjectService.create({
+      name: "Project B",
+      createdBy: attacker._id,
+      team: teamB._id,
+    });
+
+    const cookieHeader = await loginUser(attacker._id);
+    const req = new Request("http://localhost/", {
+      method: "POST",
+      headers: { cookie: cookieHeader, "content-type": "application/json" },
+      body: JSON.stringify({ intent: "ADD_RUNS", payload: { runIds: [] } }),
+    });
+
+    const resp = (await action({
+      request: req,
+      params: { projectId: projectB._id, runSetId: victimRunSet._id },
+    } as any)) as any;
+    expect(resp.init?.status).toBe(404);
   });
 });

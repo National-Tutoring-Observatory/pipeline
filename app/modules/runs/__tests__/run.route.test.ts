@@ -435,3 +435,124 @@ describe("run.route action", () => {
     expect(deletedRun).toBeNull();
   });
 });
+
+describe("run.route action - IDOR protection", () => {
+  beforeEach(async () => {
+    await clearDocumentDB();
+  });
+
+  it("UPDATE_RUN throws when run belongs to a different project", async () => {
+    const ownerUser = await UserService.create({
+      username: "owner",
+      teams: [],
+    });
+    const teamA = await TeamService.create({ name: "Team A" });
+    await UserService.updateById(ownerUser._id, {
+      teams: [{ team: teamA._id, role: "ADMIN" }],
+    });
+    const projectA = await ProjectService.create({
+      name: "Project A",
+      createdBy: ownerUser._id,
+      team: teamA._id,
+    });
+    const victimRun = await RunService.create({
+      project: projectA._id,
+      name: "Original Name",
+      sessions: [],
+      annotationType: "PER_UTTERANCE",
+      prompt: new Types.ObjectId().toString(),
+      promptVersion: 1,
+      modelCode: "gpt-4",
+      shouldRunVerification: false,
+    });
+
+    const attacker = await UserService.create({
+      username: "attacker",
+      teams: [],
+    });
+    const teamB = await TeamService.create({ name: "Team B" });
+    await UserService.updateById(attacker._id, {
+      teams: [{ team: teamB._id, role: "ADMIN" }],
+    });
+    const projectB = await ProjectService.create({
+      name: "Project B",
+      createdBy: attacker._id,
+      team: teamB._id,
+    });
+
+    const cookieHeader = await loginUser(attacker._id);
+    const req = new Request("http://localhost/", {
+      method: "POST",
+      headers: { cookie: cookieHeader, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        intent: "UPDATE_RUN",
+        payload: { name: "Hacked Name" },
+      }),
+    });
+
+    await expect(
+      action({
+        request: req,
+        params: { projectId: projectB._id, runId: victimRun._id },
+      } as any),
+    ).rejects.toThrow("Run not found");
+    const unchanged = await RunService.findById(victimRun._id);
+    expect(unchanged?.name).toBe("Original Name");
+  });
+
+  it("DELETE_RUN throws when run belongs to a different project", async () => {
+    const ownerUser = await UserService.create({
+      username: "owner2",
+      teams: [],
+    });
+    const teamA = await TeamService.create({ name: "Team A" });
+    await UserService.updateById(ownerUser._id, {
+      teams: [{ team: teamA._id, role: "ADMIN" }],
+    });
+    const projectA = await ProjectService.create({
+      name: "Project A",
+      createdBy: ownerUser._id,
+      team: teamA._id,
+    });
+    const victimRun = await RunService.create({
+      project: projectA._id,
+      name: "Victim Run",
+      sessions: [],
+      annotationType: "PER_UTTERANCE",
+      prompt: new Types.ObjectId().toString(),
+      promptVersion: 1,
+      modelCode: "gpt-4",
+      shouldRunVerification: false,
+    });
+
+    const attacker = await UserService.create({
+      username: "attacker2",
+      teams: [],
+    });
+    const teamB = await TeamService.create({ name: "Team B" });
+    await UserService.updateById(attacker._id, {
+      teams: [{ team: teamB._id, role: "ADMIN" }],
+    });
+    const projectB = await ProjectService.create({
+      name: "Project B",
+      createdBy: attacker._id,
+      team: teamB._id,
+    });
+
+    const cookieHeader = await loginUser(attacker._id);
+    const req = new Request("http://localhost/", {
+      method: "POST",
+      headers: { cookie: cookieHeader, "Content-Type": "application/json" },
+      body: JSON.stringify({ intent: "DELETE_RUN", payload: {} }),
+    });
+
+    await expect(
+      action({
+        request: req,
+        params: { projectId: projectB._id, runId: victimRun._id },
+      } as any),
+    ).rejects.toThrow("Run not found");
+    const stillExists = await RunService.findById(victimRun._id);
+    expect(stillExists).not.toBeNull();
+  });
+});

@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ProjectService } from "~/modules/projects/project";
+import { RunSetService } from "~/modules/runSets/runSet";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
@@ -269,6 +270,80 @@ describe("runSessions.route loader", () => {
     expect(loaderData.paginatedSessions).toBeDefined();
     expect(loaderData.paginatedSessions.data).toHaveLength(3);
     expect(loaderData.paginatedSessions.totalPages).toBe(1);
+  });
+
+  it("returns null runSet when runSet belongs to a different project", async () => {
+    const ownerUser = await UserService.create({
+      username: "owner",
+      teams: [],
+    });
+    const teamA = await TeamService.create({ name: "Team A" });
+    await UserService.updateById(ownerUser._id, {
+      teams: [{ team: teamA._id, role: "ADMIN" }],
+    });
+    const projectA = await ProjectService.create({
+      name: "Project A",
+      createdBy: ownerUser._id,
+      team: teamA._id,
+    });
+    const victimRunSet = await RunSetService.create({
+      name: "Victim Run Set",
+      project: projectA._id,
+      sessions: [],
+      runs: [],
+      annotationType: "PER_UTTERANCE",
+    });
+
+    const attacker = await UserService.create({
+      username: "attacker",
+      teams: [],
+    });
+    const teamB = await TeamService.create({ name: "Team B" });
+    await UserService.updateById(attacker._id, {
+      teams: [{ team: teamB._id, role: "ADMIN" }],
+    });
+    const projectB = await ProjectService.create({
+      name: "Project B",
+      createdBy: attacker._id,
+      team: teamB._id,
+    });
+
+    const sessionId = new Types.ObjectId().toString();
+    const run = await createTestRun({
+      name: "Attacker Run",
+      project: projectB._id,
+      isRunning: false,
+      isComplete: false,
+      sessions: [
+        {
+          sessionId,
+          name: "session.json",
+          fileType: "json",
+          status: "DONE",
+          startedAt: new Date(),
+          finishedAt: new Date(),
+        },
+      ],
+    });
+
+    const cookieHeader = await loginUser(attacker._id);
+
+    const res = await loader({
+      request: new Request(
+        `http://localhost/projects/${projectB._id}/run-sets/${victimRunSet._id}/runs/${run._id}/sessions/${sessionId}`,
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: {
+        projectId: projectB._id,
+        runSetId: victimRunSet._id,
+        runId: run._id,
+        sessionId,
+      },
+    } as any);
+
+    expect(res).not.toBeInstanceOf(Response);
+    const loaderData = res as any;
+    expect(loaderData.runSet).toBeNull();
   });
 
   it("filters paginatedSessions by sidebar search params", async () => {

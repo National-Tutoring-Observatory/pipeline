@@ -3,7 +3,7 @@ import { redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import type { User } from "~/modules/users/users.types";
-import annotationTypes from "../annotationTypes";
+import isValidAnnotationType from "../helpers/isValidAnnotationType";
 import { PromptService } from "../prompt";
 import type { Route } from "./+types/promptsList.route";
 
@@ -17,8 +17,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const annotationType = url.searchParams.get("annotationType");
 
-  const validAnnotationTypes = annotationTypes.map((a: any) => a.value);
-  if (!annotationType || !validAnnotationTypes.includes(annotationType)) {
+  if (!isValidAnnotationType(annotationType)) {
     throw new Error("Invalid or missing annotationType");
   }
 

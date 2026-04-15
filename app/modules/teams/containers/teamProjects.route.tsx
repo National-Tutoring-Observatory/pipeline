@@ -70,7 +70,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   const { name } = payload;
 
   const user = await getSessionUser({ request });
-  if (!user) return { redirect: "/" };
+  if (!user) return redirect("/");
 
   if (!ProjectAuthorization.canCreate(user, params.id)) {
     throw new Error(

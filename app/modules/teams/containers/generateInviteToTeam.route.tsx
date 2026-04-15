@@ -1,26 +1,32 @@
 import crypto from "crypto";
+import { data, redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { UserService } from "~/modules/users/user";
-import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
+import { isTeamRole } from "../teams.types";
 import type { Route } from "./+types/generateInviteToTeam.route";
 
 export async function action({ request }: Route.ActionArgs) {
-  const { intent, payload = {} } = await request.json();
+  const user = await getSessionUser({ request });
+  if (!user) return redirect("/");
 
+  const { intent, payload = {} } = await request.json();
   const { teamId, role, name } = payload;
 
   if (intent === "GENERATE_INVITE_LINK") {
-    const user = (await getSessionUser({ request })) as User;
-
-    if (!user) {
-      return {};
+    if (!TeamAuthorization.Users.canInvite(user, payload.teamId)) {
+      return data(
+        {
+          errors: {
+            general: "You do not have permission to invite users to this team.",
+          },
+        },
+        { status: 403 },
+      );
     }
 
-    if (!TeamAuthorization.Users.canInvite(user, payload.teamId)) {
-      throw new Error(
-        "You do not have permission to invite users to this team.",
-      );
+    if (!isTeamRole(role)) {
+      return data({ errors: { role: "Invalid role" } }, { status: 400 });
     }
 
     const inviteId = crypto.randomBytes(21).toString("hex").slice(0, 21);
@@ -31,12 +37,7 @@ export async function action({ request }: Route.ActionArgs) {
       isRegistered: false,
       inviteId,
       invitedAt: new Date(),
-      teams: [
-        {
-          team: teamId,
-          role,
-        },
-      ],
+      teams: [{ team: teamId, role }],
       orcidId: "",
       hasOrcidSSO: false,
       githubId: 0,
@@ -48,5 +49,5 @@ export async function action({ request }: Route.ActionArgs) {
     return { data: newUser };
   }
 
-  return {};
+  return data({ errors: { intent: "Invalid intent" } }, { status: 400 });
 }

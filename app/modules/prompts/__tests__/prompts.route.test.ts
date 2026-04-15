@@ -3,7 +3,7 @@ import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
-import { loader } from "../containers/prompts.route";
+import { action, loader } from "../containers/prompts.route";
 import { PromptService } from "../prompt";
 
 describe("prompts.route loader", () => {
@@ -111,5 +111,65 @@ describe("prompts.route loader", () => {
 
     expect(res.prompts.data).toHaveLength(1);
     expect(res.prompts.data[0]._id).toBe(prompt1._id);
+  });
+});
+
+describe("prompts.route action - CREATE_PROMPT", () => {
+  let team: any;
+  let cookieHeader: string;
+
+  beforeEach(async () => {
+    await clearDocumentDB();
+    team = await TeamService.create({ name: "Team" });
+    const user = await UserService.create({
+      username: "test_user",
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+    cookieHeader = await loginUser(user._id);
+  });
+
+  const makeRequest = (payload: object, cookie: string) =>
+    new Request("http://localhost/prompts", {
+      method: "POST",
+      headers: { cookie, "content-type": "application/json" },
+      body: JSON.stringify({ intent: "CREATE_PROMPT", payload }),
+    });
+
+  it("rejects an invalid annotationType", async () => {
+    const res = (await action({
+      request: makeRequest(
+        { name: "My Prompt", annotationType: "INVALID_TYPE", team: team._id },
+        cookieHeader,
+      ),
+      params: {},
+      context: {},
+    } as any)) as any;
+
+    expect(res.data.errors.general).toMatch(/invalid annotation type/i);
+  });
+
+  it("rejects a missing annotationType", async () => {
+    const res = (await action({
+      request: makeRequest({ name: "My Prompt", team: team._id }, cookieHeader),
+      params: {},
+      context: {},
+    } as any)) as any;
+
+    expect(res.data.errors.general).toMatch(/invalid annotation type/i);
+  });
+
+  it("accepts valid annotationTypes", async () => {
+    for (const annotationType of ["PER_UTTERANCE", "PER_SESSION"]) {
+      const res = (await action({
+        request: makeRequest(
+          { name: `Prompt ${annotationType}`, annotationType, team: team._id },
+          cookieHeader,
+        ),
+        params: {},
+        context: {},
+      } as any)) as any;
+
+      expect(res.data.errors).toBeUndefined();
+    }
   });
 });

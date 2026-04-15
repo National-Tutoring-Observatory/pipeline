@@ -294,4 +294,63 @@ describe("runAddToRunSet.route action - CREATE_RUN_SET", () => {
     expect(resp).toBeInstanceOf(Response);
     expect((resp as Response).headers.get("Location")).toBe("/");
   });
+
+  it("ADD_TO_RUN_SETS returns 404 when runSetIds belong to a different project", async () => {
+    const ownerUser = await UserService.create({
+      username: "owner",
+      teams: [],
+    });
+    const teamA = await TeamService.create({ name: "Team A" });
+    await UserService.updateById(ownerUser._id, {
+      teams: [{ team: teamA._id, role: "ADMIN" }],
+    });
+    const projectA = await ProjectService.create({
+      name: "Project A",
+      createdBy: ownerUser._id,
+      team: teamA._id,
+    });
+    const victimRunSet = await RunSetService.create({
+      name: "Victim Run Set",
+      project: projectA._id,
+      sessions: [],
+      runs: [],
+      annotationType: "PER_UTTERANCE",
+    });
+
+    const attacker = await UserService.create({
+      username: "attacker2",
+      teams: [],
+    });
+    const teamB = await TeamService.create({ name: "Team B" });
+    await UserService.updateById(attacker._id, {
+      teams: [{ team: teamB._id, role: "ADMIN" }],
+    });
+    const projectB = await ProjectService.create({
+      name: "Project B",
+      createdBy: attacker._id,
+      team: teamB._id,
+    });
+    const attackerRun = await createTestRun({
+      project: projectB._id,
+      name: "Attacker Run",
+    });
+
+    const cookieHeader = await loginUser(attacker._id);
+    const req = new Request("http://localhost/", {
+      method: "POST",
+      headers: { cookie: cookieHeader, "content-type": "application/json" },
+      body: JSON.stringify({
+        intent: "ADD_TO_RUN_SETS",
+        payload: { runSetIds: [victimRunSet._id] },
+      }),
+    });
+
+    const resp = (await action({
+      request: req,
+      params: { projectId: projectB._id, runId: attackerRun._id },
+    } as any)) as any;
+    expect(resp.init?.status).toBe(404);
+    const victimUnchanged = await RunSetService.findById(victimRunSet._id);
+    expect(victimUnchanged!.runs).toHaveLength(0);
+  });
 });

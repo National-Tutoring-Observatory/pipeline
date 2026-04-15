@@ -40,12 +40,17 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const sessionPath = `storage/${params.projectId}/runs/${params.runId}/${params.sessionId}/${session.name}`;
 
   const storage = getStorageAdapter();
-
-  const downloadedPath = await storage.download({ sourcePath: sessionPath });
-  const sessionFile = await fse.readJSON(downloadedPath);
-
   const runSetId = params.runSetId;
-  const runSet = runSetId ? await RunSetService.findById(runSetId) : null;
+  const runSetPromise = runSetId
+    ? RunSetService.findOne({ _id: runSetId, project: params.projectId })
+    : Promise.resolve(null);
+
+  const [downloadedPath, runSet] = await Promise.all([
+    storage.download({ sourcePath: sessionPath }),
+    runSetPromise,
+  ]);
+
+  const sessionFile = await fse.readJSON(downloadedPath);
 
   const sidebarQueryParams = getQueryParamsFromRequest(
     request,

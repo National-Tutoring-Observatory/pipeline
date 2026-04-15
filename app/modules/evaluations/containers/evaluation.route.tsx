@@ -39,12 +39,18 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect("/");
   }
 
-  const runSet = await RunSetService.findById(params.runSetId);
+  const runSet = await RunSetService.findOne({
+    _id: params.runSetId,
+    project: params.projectId,
+  });
   if (!runSet) {
     return redirect(`/projects/${params.projectId}/run-sets`);
   }
 
-  const evaluation = await EvaluationService.findById(params.evaluationId);
+  const evaluation = await EvaluationService.findOne({
+    _id: params.evaluationId,
+    runSet: params.runSetId,
+  });
   if (!evaluation) {
     return redirect(
       `/projects/${params.projectId}/run-sets/${params.runSetId}/evaluations`,
@@ -84,6 +90,17 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   switch (intent) {
     case "START_ADJUDICATION": {
+      const runSet = await RunSetService.findOne({
+        _id: params.runSetId,
+        project: params.projectId,
+      });
+      if (!runSet) {
+        return data(
+          { errors: { runSet: "Run set not found" } },
+          { status: 404 },
+        );
+      }
+
       const { selectedRuns } = payload;
 
       if (!Array.isArray(selectedRuns) || selectedRuns.length < 2) {
