@@ -1,5 +1,5 @@
 import fse from "fs-extra";
-import { redirect } from "react-router";
+import { data, redirect } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
@@ -34,18 +34,35 @@ export async function action({ request, params }: Route.ActionArgs) {
   const run = await RunService.findById(params.runId);
 
   if (!run) {
-    throw new Error("Run not found.");
+    return data({ errors: { general: "Run not found." } }, { status: 404 });
   }
 
   const projectId = run.project as string;
   const project = await ProjectService.findById(projectId);
   if (!project) {
-    throw new Error("Project not found");
+    return data({ errors: { general: "Project not found" } }, { status: 404 });
   }
 
   if (!ProjectAuthorization.Annotations.canManage(user, project)) {
-    throw new Error(
-      "You do not have permission to update annotations in this project.",
+    return data(
+      {
+        errors: {
+          general:
+            "You do not have permission to update annotations in this project.",
+        },
+      },
+      { status: 403 },
+    );
+  }
+
+  const runSession = run.sessions.find(
+    ({ sessionId }) => sessionId === params.sessionId,
+  );
+
+  if (!runSession) {
+    return data(
+      { errors: { general: "Session not found in this run." } },
+      { status: 404 },
     );
   }
 
@@ -55,7 +72,14 @@ export async function action({ request, params }: Route.ActionArgs) {
   });
 
   if (!session) {
-    throw new Error("Session not found or does not belong to this project.");
+    return data(
+      {
+        errors: {
+          general: "Session not found or does not belong to this project.",
+        },
+      },
+      { status: 404 },
+    );
   }
 
   const sessionPath = `storage/${run.project}/runs/${params.runId}/${params.sessionId}/${session.name}`;
@@ -66,33 +90,35 @@ export async function action({ request, params }: Route.ActionArgs) {
   const sessionFile = await fse.readJSON(downloadedPath);
 
   const annotationIndex = Number(params.annotationIndex);
+  let targetAnnotation: Record<string, unknown> | undefined;
 
   if (run.annotationType === "PER_UTTERANCE") {
     const currentUtterance = sessionFile.transcript.find(
       (utterance: { _id: string }) => utterance._id === params.utteranceId,
     );
 
-    if (
-      currentUtterance?.annotations &&
-      currentUtterance.annotations[annotationIndex]
-    ) {
-      updateAnnotationVote(
-        currentUtterance.annotations[annotationIndex],
-        payload,
-      );
-    }
+    targetAnnotation = currentUtterance?.annotations?.[annotationIndex];
   } else {
-    if (sessionFile.annotations && sessionFile.annotations[annotationIndex]) {
-      updateAnnotationVote(sessionFile.annotations[annotationIndex], payload);
-    }
+    targetAnnotation = sessionFile.annotations?.[annotationIndex];
   }
 
-  await fse.outputJSON(`tmp/${sessionPath}`, sessionFile);
+  if (!targetAnnotation) {
+    return data(
+      { errors: { general: "Annotation not found." } },
+      { status: 404 },
+    );
+  }
 
-  const buffer = await fse.readFile(`tmp/${sessionPath}`);
+  updateAnnotationVote(targetAnnotation, payload);
+
+  await fse.outputJSON(downloadedPath, sessionFile);
+
+  const buffer = await fse.readFile(downloadedPath);
 
   await storage.upload({
     file: { buffer, size: buffer.length, type: "application/json" },
     uploadPath: `${sessionPath}`,
   });
+
+  return data({ success: true });
 }
