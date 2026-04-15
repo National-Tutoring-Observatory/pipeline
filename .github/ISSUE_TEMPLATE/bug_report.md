@@ -10,24 +10,31 @@ assignees:
   - "sushijoe"
 ---
 
-### 1. Steps to Reproduce
+### 1. URL
 
+<!-- The URL where you encountered the problem (e.g., https://sandpiperresearch.org/projects/123/runs) -->
+
+### 2. Environment
+
+<!--
+Fill in what's relevant:
+- Browser/OS: (e.g., Chrome 105, Windows 11)
+- Any other relevant context:
+-->
+
+### 3. Steps to Reproduce
+
+<!--
 Please be as specific as possible.
-
 1. Go to '...'
 2. Run command '...' with data '...'
 3. See error '...'
+-->
 
-### 2. Expected Behavior
+### 4. Actual Behavior
 
-A clear and concise description of what you expected to happen.
+<!-- A clear and concise description of what actually happened. Include error logs and screenshots if possible. -->
 
-### 3. Actual Behavior
+### 5. Expected Behavior
 
-A clear and concise description of what actually happened. (Please include error logs, and screenshots if possible!)
-
-### 4. Environment
-
-- **Sandpiper Version:** (e.g., v1.2.0 or main branch)
-- **Browser/OS (if UI-related):** (e.g., Chrome 105, Windows 11)
-- **Any other relevant context:**
+<!-- A clear and concise description of what you expected to happen. -->
