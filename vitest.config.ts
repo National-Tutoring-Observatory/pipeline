@@ -21,6 +21,12 @@ export default defineConfig({
         "tmp/**",
         "e2e/**",
       ],
+      thresholds: {
+        branches: 15,
+        functions: 20,
+        lines: 20,
+        statements: 20,
+      },
     },
   },
   plugins: [tsconfigPaths()],
