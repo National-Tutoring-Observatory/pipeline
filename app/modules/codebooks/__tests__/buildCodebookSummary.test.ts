@@ -14,6 +14,7 @@ const categories: CodebookCategory[] = [
       {
         _id: "code1",
         code: "high",
+        description: "",
         definition: "Student is fully engaged",
         examples: [
           {
@@ -31,6 +32,7 @@ const categories: CodebookCategory[] = [
       {
         _id: "code2",
         code: "low",
+        description: "",
         definition: "Student shows minimal engagement",
         examples: [],
       },
@@ -44,6 +46,7 @@ const categories: CodebookCategory[] = [
       {
         _id: "code3",
         code: "yes",
+        description: "",
         definition: "Tutor praised the student",
         examples: [
           { _id: "ex3", example: "Great job!", exampleType: "HIT" },
@@ -53,6 +56,7 @@ const categories: CodebookCategory[] = [
       {
         _id: "code4",
         code: "no",
+        description: "",
         definition: "Tutor did not praise",
         examples: [],
       },
@@ -154,6 +158,7 @@ describe("buildCodebookSummary", () => {
           {
             _id: "code5",
             code: "present",
+            description: "",
             definition: "Is present",
             examples: [],
           },

@@ -11,6 +11,7 @@ const exampleSchema = new mongoose.Schema({
 
 const codeSchema = new mongoose.Schema({
   code: { type: String, default: "" },
+  description: { type: String, default: "" },
   definition: { type: String, default: "" },
   examples: [exampleSchema],
 });

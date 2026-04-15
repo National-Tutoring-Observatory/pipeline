@@ -78,7 +78,6 @@ const CreateCodebookDialog = ({
         <Textarea
           id="description-1"
           name="description"
-          placeholder="State what this codebook is trying to achieve."
           defaultValue={description}
           onChange={onDescriptionChanged}
         />
