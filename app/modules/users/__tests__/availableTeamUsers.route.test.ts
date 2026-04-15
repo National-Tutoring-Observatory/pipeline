@@ -58,6 +58,27 @@ describe("availableTeamUsers.route loader", () => {
     ).rejects.toThrow("Access denied");
   });
 
+  it("denies regular team members (non-admin) from enumerating users", async () => {
+    const team = await TeamService.create({ name: "test team" });
+    const member = await UserService.create({
+      username: "member",
+      role: "USER",
+      teams: [{ team: team._id, role: "MEMBER" }],
+    });
+
+    const cookieHeader = await loginUser(member._id);
+
+    await expect(
+      loader({
+        request: new Request(
+          `http://localhost/available-team-users?teamId=${team._id}`,
+          { headers: { cookie: cookieHeader } },
+        ),
+        params: {},
+      } as any),
+    ).rejects.toThrow("Access denied");
+  });
+
   it("returns users not in the team", async () => {
     const team = await TeamService.create({ name: "test team" });
 

@@ -42,6 +42,7 @@ export default async function annotateRunSessions({
 
   emitter.emit("ANNOTATE_RUN_SESSION", {
     runId: runId,
+    projectId: project._id,
     progress: 0,
     status: "STARTED",
     step: `0/${run.sessions.length}`,
@@ -64,6 +65,7 @@ export default async function annotateRunSessions({
       completedSessions++;
       emitter.emit("ANNOTATE_RUN_SESSION", {
         runId: runId,
+        projectId: project._id,
         progress: Math.round((100 / run.sessions.length) * completedSessions),
         status: "RUNNING",
       });
@@ -82,6 +84,7 @@ export default async function annotateRunSessions({
 
     emitter.emit("ANNOTATE_RUN_SESSION", {
       runId: runId,
+      projectId: project._id,
       progress: Math.round((100 / run.sessions.length) * completedSessions),
       status: "RUNNING",
       step: `${completedSessions + 1}/${run.sessions.length}`,
@@ -128,6 +131,7 @@ export default async function annotateRunSessions({
     completedSessions++;
     emitter.emit("ANNOTATE_RUN_SESSION", {
       runId: runId,
+      projectId: project._id,
       progress: Math.round((100 / run.sessions.length) * completedSessions),
       status: "RUNNING",
     });
@@ -142,6 +146,7 @@ export default async function annotateRunSessions({
 
   emitter.emit("ANNOTATE_RUN_SESSION", {
     runId: runId,
+    projectId: project._id,
     progress: 100,
     status: "DONE",
   });
