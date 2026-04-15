@@ -202,6 +202,59 @@ describe("run.route loader", () => {
     expect(res).toBeInstanceOf(Response);
     expect((res as Response).headers.get("Location")).toBe("/");
   });
+
+  it("does not leak a runSet belonging to a different project", async () => {
+    const user = await UserService.create({ username: "user", teams: [] });
+    const team = await TeamService.create({ name: "Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+
+    const projectA = await ProjectService.create({
+      name: "Project A",
+      createdBy: user._id,
+      team: team._id,
+    });
+    const projectB = await ProjectService.create({
+      name: "Project B",
+      createdBy: user._id,
+      team: team._id,
+    });
+
+    const run = await RunService.create({
+      project: projectA._id,
+      name: "Run",
+      sessions: [],
+      annotationType: "PER_UTTERANCE",
+      prompt: new Types.ObjectId().toString(),
+      promptVersion: 1,
+      modelCode: "gpt-4",
+      shouldRunVerification: false,
+    });
+
+    const runSetInProjectB = await RunSetService.create({
+      name: "RunSet in B",
+      project: projectB._id,
+      annotationType: "PER_UTTERANCE",
+    });
+
+    const cookieHeader = await loginUser(user._id);
+
+    const res = await loader({
+      request: new Request(
+        `http://localhost/projects/${projectA._id}/run-sets/${runSetInProjectB._id}/runs/${run._id}`,
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: {
+        projectId: projectA._id,
+        runId: run._id,
+        runSetId: runSetInProjectB._id,
+      },
+    } as any);
+
+    const loaderData = res as any;
+    expect(loaderData.runSet).toBeNull();
+  });
 });
 
 describe("run.route action", () => {

@@ -1,6 +1,7 @@
 import find from "lodash/find";
 import { useContext } from "react";
 import {
+  data,
   redirect,
   useLoaderData,
   useOutletContext,
@@ -54,11 +55,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const { intent, payload = {} } = await request.json();
-  const { userId } = payload;
-
   const user = (await getSessionUser({ request })) as User | null;
   if (!user) return redirect("/");
+
+  const { intent, payload = {} } = await request.json();
+  const { userId } = payload;
 
   switch (intent) {
     case "ADD_SUPERADMIN_TO_TEAM": {
@@ -82,17 +83,17 @@ export async function action({ request, params }: Route.ActionArgs) {
       if (!TeamAuthorization.Users.canUpdate(user, params.id)) {
         throw new Error("You do not have permission to manage team users.");
       }
-      const users: Array<{ userId: string; role: TeamRole }> = (
-        payload.users ?? []
-      ).map((u: any) => ({
-        userId: u.userId,
-        role: isTeamRole(u.role) ? u.role : "MEMBER",
-      }));
-      for (const { userId: id, role } of users) {
+      for (const { userId: id, role } of (payload.users ?? []) as Array<{
+        userId: string;
+        role: string;
+      }>) {
+        if (!isTeamRole(role)) {
+          return data({ errors: { role: "Invalid role" } }, { status: 400 });
+        }
         const userDoc = await UserService.findById(id);
         if (userDoc) {
           if (!userDoc.teams) userDoc.teams = [];
-          userDoc.teams.push({ team: params.id, role });
+          userDoc.teams.push({ team: params.id, role: role as TeamRole });
           await UserService.updateById(id, { teams: userDoc.teams });
         }
       }
@@ -103,7 +104,10 @@ export async function action({ request, params }: Route.ActionArgs) {
         throw new Error("You do not have permission to manage team users.");
       }
       const { userId: targetUserId, role: newRole } = payload;
-      if (!targetUserId || !isTeamRole(newRole)) return {};
+      if (!targetUserId) return {};
+      if (!isTeamRole(newRole)) {
+        return data({ errors: { role: "Invalid role" } }, { status: 400 });
+      }
       const targetUser = await UserService.findById(targetUserId);
       if (!targetUser) return {};
       const updatedTeams = targetUser.teams.map((t: any) =>

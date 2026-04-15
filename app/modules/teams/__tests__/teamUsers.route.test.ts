@@ -151,7 +151,7 @@ describe("teamUsers.route", () => {
       });
     });
 
-    it("falls back to MEMBER when role is invalid", async () => {
+    it("returns 400 when role is invalid", async () => {
       const team = await TeamService.create({ name: "test-team" });
 
       const admin = await UserService.create({
@@ -175,7 +175,7 @@ describe("teamUsers.route", () => {
         },
       });
 
-      await action({
+      const res = await action({
         request: new Request("http://localhost/", {
           method: "PUT",
           headers: { cookie: cookieHeader },
@@ -186,11 +186,12 @@ describe("teamUsers.route", () => {
         context: {},
       } as any);
 
+      expect((res as any).init?.status).toBe(400);
+
       const updatedUser = await UserService.findById(user1._id);
-      expect(updatedUser?.teams).toContainEqual({
-        team: team._id,
-        role: "MEMBER",
-      });
+      expect(updatedUser?.teams ?? []).not.toContainEqual(
+        expect.objectContaining({ team: team._id }),
+      );
     });
 
     it("throws when user is not authorized", async () => {
@@ -267,6 +268,41 @@ describe("teamUsers.route", () => {
       expect(
         updatedUser?.teams?.find((t: any) => t.team === team._id)?.role,
       ).toBe("ADMIN");
+    });
+
+    it("returns 400 when role is invalid", async () => {
+      const team = await TeamService.create({ name: "test-team" });
+
+      const admin = await UserService.create({
+        username: "admin",
+        role: "SUPER_ADMIN",
+        githubId: 1,
+        teams: [{ team: team._id, role: "ADMIN" }],
+      });
+
+      const target = await UserService.create({
+        username: "user1",
+        githubId: 2,
+        teams: [{ team: team._id, role: "MEMBER" }],
+      });
+
+      const cookieHeader = await loginUser(admin._id);
+
+      const res = await action({
+        request: new Request("http://localhost/", {
+          method: "PUT",
+          headers: { cookie: cookieHeader },
+          body: JSON.stringify({
+            intent: "UPDATE_USER_ROLE",
+            payload: { userId: target._id, role: "INVALID_ROLE" },
+          }),
+        }),
+        params: { id: team._id },
+        unstable_pattern: "",
+        context: {},
+      } as any);
+
+      expect((res as any).init?.status).toBe(400);
     });
 
     it("throws when user is not authorized", async () => {

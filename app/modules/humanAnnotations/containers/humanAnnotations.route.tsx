@@ -1,3 +1,4 @@
+import path from "path";
 import { data } from "react-router";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -82,7 +83,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       }
 
       const csvBuffer = Buffer.from(await file.arrayBuffer());
-      const csvPath = `storage/${runSet.project}/uploads/${file.name}`;
+      const csvPath = `storage/${runSet.project}/uploads/${path.basename(file.name)}`;
       const storage = getStorageAdapter();
       await storage.upload({
         file: {

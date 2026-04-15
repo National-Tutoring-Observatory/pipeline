@@ -20,7 +20,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     throw Error("Team id is not defined");
   }
 
-  if (!TeamAuthorization.canView(user, teamId)) {
+  if (!TeamAuthorization.Users.canView(user, teamId)) {
     throw new Error("Access denied");
   }
 

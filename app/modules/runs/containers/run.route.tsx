@@ -57,7 +57,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   };
 
   const runSetId = params.runSetId;
-  const runSet = runSetId ? await RunSetService.findById(runSetId) : null;
+  const runSet = runSetId
+    ? await RunSetService.findOne({ _id: runSetId, project: params.projectId })
+    : null;
 
   const runRunSets = await RunSetService.paginate({
     match: { runs: params.runId },
@@ -140,6 +142,11 @@ export async function action({ request, params }: Route.ActionArgs) {
       return {};
     }
     case "GET_ALL_RUN_SETS": {
+      const run = await RunService.findOne({
+        _id: params.runId,
+        project: params.projectId,
+      });
+      if (!run) return { runSets: [] };
       const allRunSets = await RunSetService.paginate({
         match: { runs: params.runId },
         page: 1,
