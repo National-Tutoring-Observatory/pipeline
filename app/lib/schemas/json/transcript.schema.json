@@ -11,7 +11,7 @@
       "description": "Array of utterances in the conversation",
       "items": {
         "type": "object",
-        "required": ["_id", "role", "content"],
+        "required": ["_id", "role", "content", "session_id", "sequence_id"],
         "properties": {
           "_id": {
             "type": "string",
@@ -33,13 +33,17 @@
             "type": "string",
             "description": "End timestamp of the utterance (optional)"
           },
+          "timestamp": {
+            "type": "string",
+            "description": "Single timestamp of the utterance (optional)"
+          },
           "session_id": {
             "type": "string",
-            "description": "Session identifier (optional, may be added during processing)"
+            "description": "Session identifier"
           },
           "sequence_id": {
-            "type": "string",
-            "description": "Sequence number within the session (optional)"
+            "type": ["string", "number"],
+            "description": "Sequence number within the session"
           },
           "annotations": {
             "type": "array",
@@ -59,6 +63,10 @@
         },
         "additionalProperties": false
       }
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Session identifier (optional top-level metadata)"
     },
     "leadRole": {
       "type": "string",

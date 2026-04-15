@@ -1,7 +1,7 @@
 import Ajv from "ajv";
 import transcriptSchema from "../schemas/json/transcript.schema.json";
 
-const ajv = new Ajv({ allErrors: true, verbose: true });
+const ajv = new Ajv({ allErrors: true, verbose: true, allowUnionTypes: true });
 
 export interface ValidationError {
   field: string;

@@ -24,6 +24,7 @@ export type SessionData = Pick<Session, "_id" | "inputTokens">;
 
 export interface SessionFile {
   transcript: Utterance[];
+  session_id?: string;
   leadRole: string;
   annotations: Annotation[];
   preVerificationAnnotations?: Annotation[];
@@ -31,12 +32,15 @@ export interface SessionFile {
 
 export interface Utterance {
   _id: string;
+  // Required at ingestion; legacy sessions may be missing it at runtime.
   role: string;
   content: string;
   start_time: string;
   end_time: string;
   timestamp: string;
-  annotations: any[];
+  session_id: string;
+  sequence_id: string | number;
+  annotations: Annotation[];
 }
 
 export interface Annotation {
@@ -44,4 +48,5 @@ export interface Annotation {
   identifiedBy: string;
   markedAs?: "UP_VOTED" | "DOWN_VOTED";
   votingReason?: string;
+  [key: string]: unknown;
 }
