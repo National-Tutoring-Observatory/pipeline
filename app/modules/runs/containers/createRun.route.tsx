@@ -41,7 +41,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   let duplicateWarnings: string[] = [];
 
   if (duplicateFrom) {
-    initialRun = await RunService.findById(duplicateFrom);
+    initialRun = await RunService.findOne({
+      _id: duplicateFrom,
+      project: params.projectId,
+    });
     if (initialRun) {
       duplicateWarnings = await validateRunResources(initialRun);
     }

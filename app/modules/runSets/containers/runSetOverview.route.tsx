@@ -1,6 +1,7 @@
 import find from "lodash/find";
 import throttle from "lodash/throttle";
 import {
+  data,
   redirect,
   useLoaderData,
   useNavigate,
@@ -15,6 +16,8 @@ import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import addDialog from "~/modules/dialogs/addDialog";
+import ProjectAuthorization from "~/modules/projects/authorization";
+import { ProjectService } from "~/modules/projects/project";
 import buildRunStatusMatch from "~/modules/runs/helpers/buildRunStatusMatch";
 import { RunService } from "~/modules/runs/run";
 import type { Run } from "~/modules/runs/runs.types";
@@ -33,7 +36,19 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect("/");
   }
 
-  const runSet = await RunSetService.findById(params.runSetId);
+  const project = await ProjectService.findById(params.projectId);
+  if (!project) {
+    return redirect("/");
+  }
+
+  if (!ProjectAuthorization.canView(user, project)) {
+    return redirect("/");
+  }
+
+  const runSet = await RunSetService.findOne({
+    _id: params.runSetId,
+    project: params.projectId,
+  });
   if (!runSet) {
     return redirect(`/projects/${params.projectId}/run-sets`);
   }
@@ -94,19 +109,38 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = await getSessionUser({ request });
+  const user = (await getSessionUser({ request })) as User;
   if (!user) return redirect("/");
+
+  const project = await ProjectService.findById(params.projectId);
+  if (!project) {
+    return data({ errors: { project: "Project not found" } }, { status: 404 });
+  }
+
+  if (!ProjectAuthorization.Runs.canManage(user, project)) {
+    return data({ errors: { project: "Access denied" } }, { status: 403 });
+  }
 
   const { intent, payload = {} } = await request.json();
 
   switch (intent) {
     case "REMOVE_RUN_FROM_RUN_SET": {
       const { runId } = payload;
-      await RunSetService.removeRunFromRunSet(params.runSetId, runId);
+      const runSet = await RunSetService.findOne({
+        _id: params.runSetId,
+        project: params.projectId,
+      });
+      if (!runSet) {
+        return data(
+          { errors: { runSet: "Run set not found" } },
+          { status: 404 },
+        );
+      }
+      await RunSetService.removeRunFromRunSet(runSet._id, runId);
       return { intent: "REMOVE_RUN_FROM_RUN_SET" };
     }
     default: {
-      return {};
+      return data({ errors: { intent: "Invalid intent" } }, { status: 400 });
     }
   }
 }

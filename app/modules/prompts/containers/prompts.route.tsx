@@ -25,12 +25,16 @@ import { TeamService } from "~/modules/teams/team";
 import type { User } from "~/modules/users/users.types";
 import CreatePromptDialog from "../components/createPromptDialog";
 import Prompts from "../components/prompts";
+import isValidAnnotationType from "../helpers/isValidAnnotationType";
 import promptsFilters from "../helpers/promptsFilters";
 import { PromptService } from "../prompt";
 import { PromptVersionService } from "../promptVersion";
 import type { Route } from "./+types/prompts.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
+  const user = await getSessionUser({ request });
+  if (!user) return redirect("/");
+
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, "team");
 
@@ -72,15 +76,15 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const { intent, payload = {} } = await request.json();
-
-  const { name, annotationType, team } = payload;
-
   const user = (await getSessionUser({ request })) as User;
 
   if (!user) {
     return redirect("/");
   }
+
+  const { intent, payload = {} } = await request.json();
+
+  const { name, annotationType, team } = payload;
 
   switch (intent) {
     case "CREATE_PROMPT": {
@@ -91,6 +95,13 @@ export async function action({ request }: Route.ActionArgs) {
               general: "Prompt name is required and must be a string.",
             },
           },
+          { status: 400 },
+        );
+      }
+
+      if (!isValidAnnotationType(annotationType)) {
+        return data(
+          { errors: { general: "Invalid annotation type." } },
           { status: 400 },
         );
       }

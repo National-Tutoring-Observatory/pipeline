@@ -85,6 +85,15 @@ export async function action({ request, params }: Route.ActionArgs) {
   switch (intent) {
     case "ADD_TO_RUN_SETS": {
       const { runSetIds } = payload;
+      const ownedRunSets = await RunSetService.find({
+        match: { _id: { $in: runSetIds }, project: params.projectId },
+      });
+      if (ownedRunSets.length !== runSetIds.length) {
+        return data(
+          { errors: { runSets: "One or more run sets not found" } },
+          { status: 404 },
+        );
+      }
       for (const runSetId of runSetIds) {
         await RunSetService.addRunsToRunSet(runSetId, [params.runId]);
       }

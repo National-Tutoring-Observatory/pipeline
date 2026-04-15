@@ -5,6 +5,7 @@ import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/createRun.route";
 
@@ -227,5 +228,51 @@ describe("createRun.route loader", () => {
     expect(loaderData.project._id).toBe(project._id);
     expect(loaderData.project.name).toBe("Test Project");
     expect(loaderData.project.data).toBeUndefined();
+  });
+
+  it("does not expose run data when duplicateFrom belongs to a different project", async () => {
+    const ownerUser = await UserService.create({
+      username: "owner",
+      teams: [],
+    });
+    const teamA = await TeamService.create({ name: "Team A" });
+    await UserService.updateById(ownerUser._id, {
+      teams: [{ team: teamA._id, role: "ADMIN" }],
+    });
+    const projectA = await ProjectService.create({
+      name: "Project A",
+      createdBy: ownerUser._id,
+      team: teamA._id,
+    });
+    const foreignRun = await createTestRun({
+      project: projectA._id,
+      name: "Foreign Run",
+    });
+
+    const attacker = await UserService.create({
+      username: "attacker",
+      teams: [],
+    });
+    const teamB = await TeamService.create({ name: "Team B" });
+    await UserService.updateById(attacker._id, {
+      teams: [{ team: teamB._id, role: "ADMIN" }],
+    });
+    const projectB = await ProjectService.create({
+      name: "Project B",
+      createdBy: attacker._id,
+      team: teamB._id,
+    });
+
+    const cookieHeader = await loginUser(attacker._id);
+    const res = await loader({
+      request: new Request(
+        `http://localhost/projects/${projectB._id}/create-run?duplicateFrom=${foreignRun._id}`,
+        { headers: { cookie: cookieHeader } },
+      ),
+      params: { projectId: projectB._id },
+    } as any);
+
+    expect(res).not.toBeInstanceOf(Response);
+    expect((res as any).initialRun).toBeNull();
   });
 });

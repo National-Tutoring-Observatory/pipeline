@@ -72,7 +72,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   const { name, annotationType } = payload;
 
   const user = await getSessionUser({ request });
-  if (!user) return { redirect: "/" };
+  if (!user) return redirect("/");
 
   if (!PromptAuthorization.canCreate(user, params.id)) {
     throw new Error(

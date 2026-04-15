@@ -6,9 +6,14 @@ import type { User } from "~/modules/users/users.types";
 import getStorageAdapter from "../helpers/getStorageAdapter";
 
 function extractProjectIdFromUrl(rawUrl: string): string {
-  const parts = rawUrl.split("/");
+  const decoded = decodeURIComponent(decodeURIComponent(rawUrl));
+  const parts = decoded.split("/");
 
   if (parts[0] !== "storage" || !parts[1]) {
+    throw new Error("Invalid request path");
+  }
+
+  if (parts.some((part) => part === ".." || part === ".")) {
     throw new Error("Invalid request path");
   }
 

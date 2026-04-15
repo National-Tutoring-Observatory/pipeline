@@ -38,7 +38,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect("/");
   }
 
-  const runSet = await RunSetService.findById(params.runSetId);
+  const runSet = await RunSetService.findOne({
+    _id: params.runSetId,
+    project: params.projectId,
+  });
   if (!runSet) {
     return redirect(`/projects/${params.projectId}/run-sets`);
   }
@@ -65,7 +68,10 @@ export async function action({ request, params }: Route.ActionArgs) {
     return data({ errors: { project: "Access denied" } }, { status: 403 });
   }
 
-  const runSet = await RunSetService.findById(params.runSetId);
+  const runSet = await RunSetService.findOne({
+    _id: params.runSetId,
+    project: params.projectId,
+  });
   if (!runSet) {
     return data({ errors: { runSet: "Run set not found" } }, { status: 404 });
   }
@@ -114,7 +120,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
       const allRunIds = [baseRun, ...selectedRuns];
       const fetchedRuns = await RunService.find({
-        match: { _id: { $in: allRunIds } },
+        match: { _id: { $in: allRunIds }, project: params.projectId },
       });
 
       if (fetchedRuns.length !== allRunIds.length) {

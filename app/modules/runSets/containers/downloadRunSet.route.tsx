@@ -84,8 +84,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const exportType = searchParams.get("exportType");
   if (!exportType) throw new Error("exportType is required");
 
-  const runSet = await RunSetService.findById(params.runSetId);
-  if (!runSet || runSet.project !== params.projectId) {
+  const runSet = await RunSetService.findOne({
+    _id: params.runSetId,
+    project: params.projectId,
+  });
+  if (!runSet) {
     throw new Error("Run set not found.");
   }
 

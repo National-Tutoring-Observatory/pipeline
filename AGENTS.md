@@ -633,6 +633,54 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 ```
 
+### Resource Scoping (IDOR Prevention)
+
+**CRITICAL: Always scope nested resource fetches to their parent URL param.** When a route URL contains a parent ID (e.g., `:projectId`) and a child ID (e.g., `:runSetId`), fetching the child by ID alone allows any authenticated user to read or modify resources from projects they don't own — even if project auth passes — by substituting the child ID in the URL.
+
+**Rule**: Never use `findById(params.childId)` when the URL also contains a `params.parentId`. Always use `findOne({ _id: params.childId, parentField: params.parentId })`.
+
+```typescript
+// ❌ IDOR vulnerability — runSet could belong to any project
+const runSet = await RunSetService.findById(params.runSetId);
+if (!runSet) return redirect(`/projects/${params.projectId}/run-sets`);
+
+// ✅ Scoped to the project in the URL — cross-project access returns null
+const runSet = await RunSetService.findOne({
+  _id: params.runSetId,
+  project: params.projectId,
+});
+if (!runSet) return redirect(`/projects/${params.projectId}/run-sets`);
+```
+
+This applies in **both loaders and actions**, and to **any resource fetched for display** (breadcrumbs, labels, related data), not just resources being mutated. A resource returned as context leaks information even if it isn't written to.
+
+```typescript
+// ❌ Leaks runSet name from another project in breadcrumbs
+const runSet = runSetId ? await RunSetService.findById(runSetId) : null;
+
+// ✅ Null if the runSet doesn't belong to this project
+const runSet = runSetId
+  ? await RunSetService.findOne({ _id: runSetId, project: params.projectId })
+  : null;
+```
+
+**Also validate enum inputs from user payloads.** Never trust a role, status, or type value sent by the client — reject invalid values explicitly. Do not silently default to a safe value: that masks client bugs and creates confusing outcomes where the user gets a different permission than intended.
+
+```typescript
+// ❌ Arbitrary role written to DB
+teams: [{ team: teamId, role }];
+
+// ❌ Silent default — masks bugs, invitee gets wrong role with no feedback
+teams: [{ team: teamId, role: isTeamRole(role) ? role : "MEMBER" }];
+
+// ✅ Reject invalid input explicitly
+import { isTeamRole } from "../teams.types";
+if (!isTeamRole(role)) {
+  return data({ errors: { role: "Invalid role" } }, { status: 400 });
+}
+teams: [{ team: teamId, role }];
+```
+
 ### Human Runs (`isHuman: true`)
 
 Runs can be either LLM-generated or human-annotated. Human runs have `isHuman: true` and an `annotator: { name }` field instead of a prompt/model.
