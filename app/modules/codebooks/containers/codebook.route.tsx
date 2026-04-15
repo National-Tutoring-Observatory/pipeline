@@ -18,9 +18,9 @@ import { CodebookService } from "../codebook";
 import type { Codebook as CodebookType } from "../codebooks.types";
 import { CodebookVersionService } from "../codebookVersion";
 import Codebook from "../components/codebook";
-import CreatePromptFromCodebookDialog from "../components/createPromptFromCodebookDialog";
 import EditCodebookDialog from "../components/editCodebookDialog";
 import type { Route } from "./+types/codebook.route";
+import CreatePromptFromCodebookDialogContainer from "./createPromptFromCodebookDialog.container";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await getSessionUser({ request });
@@ -211,7 +211,7 @@ export default function CodebookRoute() {
 
   const openCreatePromptFromCodebookDialog = () => {
     addDialog(
-      <CreatePromptFromCodebookDialog
+      <CreatePromptFromCodebookDialogContainer
         codebookVersions={codebookVersions}
         productionVersion={codebook.productionVersion}
         onCreatePromptClicked={submitCreatePromptFromCodebook}
