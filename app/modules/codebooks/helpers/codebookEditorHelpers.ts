@@ -17,7 +17,13 @@ export function createEmptyExample(): CodebookExample {
 }
 
 export function createEmptyCode(): CodebookCode {
-  return { _id: generateId(), code: "", definition: "", examples: [] };
+  return {
+    _id: generateId(),
+    code: "",
+    description: "",
+    definition: "",
+    examples: [],
+  };
 }
 
 export function createEmptyCategory(): CodebookCategory {
