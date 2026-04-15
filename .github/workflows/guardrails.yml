@@ -1,0 +1,49 @@
+name: CI - guardrails report
+
+on:
+  pull_request:
+    paths:
+      - "app/**/*.ts"
+      - "app/**/*.tsx"
+      - ".semgrep/guardrails.yml"
+      - ".github/workflows/guardrails.yml"
+  workflow_dispatch:
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Semgrep
+        run: python -m pip install semgrep
+
+      - name: Fetch base branch
+        if: ${{ github.event_name == 'pull_request' }}
+        run: git fetch origin "${{ github.base_ref }}" --depth=1
+
+      - name: Run Semgrep guardrails report
+        run: |
+          if [ -n "${{ github.base_ref }}" ]; then
+            semgrep scan \
+              --config .semgrep/guardrails.yml \
+              --baseline-commit "origin/${{ github.base_ref }}" \
+              --metrics=off \
+              app
+          else
+            semgrep scan \
+              --config .semgrep/guardrails.yml \
+              --metrics=off \
+              app
+          fi

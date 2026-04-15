@@ -16,13 +16,25 @@ export default defineConfig([
     },
     rules: {
       // TODO: enable these incrementally as violations are fixed
-      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/consistent-type-assertions": "warn",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
           caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
+  {
+    files: ["app/modules/**/*.{ts,tsx}", "app/storageAdapters/**/*.{ts,tsx}"],
+    rules: {
+      "no-console": [
+        "warn",
+        {
+          allow: ["warn", "error"],
         },
       ],
     },

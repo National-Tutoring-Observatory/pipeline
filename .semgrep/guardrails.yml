@@ -1,0 +1,66 @@
+rules:
+  - id: route-no-throw-new-error
+    message: Use structured route responses for expected failures instead of `throw new Error(...)`.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /app/modules/**/*.route.tsx
+    pattern: throw new Error(...)
+
+  - id: route-require-typed-use-loader-data
+    message: Type `useLoaderData` with `<typeof loader>` in route files.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /app/modules/**/*.route.tsx
+    pattern-regex: \buseLoaderData\(\)
+
+  - id: route-no-direct-get-session-user-cast
+    message: Avoid casting the direct `getSessionUser()` result to `User`; narrow it after the null check or tighten the helper type.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /app/modules/**/*.route.tsx
+    pattern-regex: "\\(await getSessionUser\\([^\\n]*\\)\\) as User(?: \\| null)?"
+
+  - id: route-no-unscoped-run-find-by-id
+    message: Nested run routes should scope run lookups with the parent resource instead of `RunService.findById(params.runId)`.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /app/modules/**/*.route.tsx
+    pattern: RunService.findById(params.runId)
+
+  - id: route-no-unscoped-run-set-find-by-id
+    message: Nested run set routes should scope run set lookups with the parent resource instead of `RunSetService.findById(params.runSetId)`.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /app/modules/**/*.route.tsx
+    pattern: RunSetService.findById(params.runSetId)
+
+  - id: route-no-sse-duplication
+    message: Prefer `useHandleSockets` over opening a new `EventSource("/api/events")` in route components.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /app/modules/**/*.route.tsx
+    pattern: new EventSource("/api/events")
+
+  - id: app-no-console-log
+    message: Avoid `console.log(...)` in app code.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /app/modules/**/*.ts
+        - /app/modules/**/*.tsx
+        - /app/storageAdapters/**/*.ts
+        - /app/storageAdapters/**/*.tsx
+    pattern: console.log(...)
