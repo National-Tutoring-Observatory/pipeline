@@ -53,13 +53,14 @@ export class RunService {
     page,
     pageSize,
     select,
+    populate,
   }: PaginateProps): Promise<{
     data: Run[];
     count: number;
     totalPages: number;
   }> {
     const pagination = getPaginationParams(page, pageSize);
-    const data = await this.find({ match, sort, pagination, select });
+    const data = await this.find({ match, sort, pagination, select, populate });
     const count = await this.count(match);
     return {
       data,

@@ -8,7 +8,6 @@ import {
   useOutletContext,
   useSubmit,
 } from "react-router";
-import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
@@ -22,6 +21,7 @@ import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
 import TeamAuthorization from "../authorization";
 import TeamPrompts from "../components/teamPrompts";
+import type { Team } from "../teams.types";
 import type { Route } from "./+types/teamPrompts.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -45,23 +45,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: ["annotationType"],
   });
 
-  const pagination = getPaginationParams(query.page);
+  const prompts = await PromptService.paginate(query);
 
-  const result = await PromptService.find({
-    match: query.match,
-    sort: query.sort,
-    pagination,
-  });
-
-  const total = await PromptService.count(query.match);
-
-  return {
-    prompts: {
-      data: result,
-      totalPages: getTotalPages(total),
-      currentPage: query.page || 1,
-    },
-  };
+  return { prompts };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -127,8 +113,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function TeamPromptsRoute() {
   const data = useLoaderData<typeof loader>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ctx = useOutletContext<any>();
+  const ctx = useOutletContext<{ team: Team }>();
   const actionData = useActionData();
   const submit = useSubmit();
   const navigate = useNavigate();
