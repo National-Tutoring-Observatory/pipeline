@@ -40,6 +40,7 @@ export default async (
       const { WorkerPro } = await import("@taskforcesh/bullmq-pro");
       worker = new WorkerPro(name, processor, {
         ...baseOpts,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         connection: redis as any,
         group: { concurrency: 20 },
       }) as unknown as Worker;

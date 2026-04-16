@@ -1,6 +1,7 @@
 import map from "lodash/map";
 
 export default function mapFileToTranscript(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   jsonFile: Record<string, any>[],
   attributesMapping: Record<string, string>,
 ) {
