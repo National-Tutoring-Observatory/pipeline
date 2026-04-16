@@ -6,9 +6,8 @@ import {
   useParams,
 } from "react-router";
 import usePollingRevalidation from "~/modules/app/hooks/usePollingRevalidation";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
-import type { User } from "~/modules/users/users.types";
 import QueueControls from "../components/queueControls";
 import QueueStateTabs from "../components/queueStateTabs";
 import getQueue from "../helpers/getQueue";
@@ -16,7 +15,7 @@ import isQueuePro from "../helpers/isQueuePro";
 import type { Route } from "./+types/queue.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
+  const user = await requireAuth({ request });
   if (!SystemAdminAuthorization.Queues.canManage(user)) {
     return redirect("/");
   }
@@ -43,7 +42,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
+  const user = await requireAuth({ request });
   if (!SystemAdminAuthorization.Queues.canManage(user)) {
     throw new Error("Access denied");
   }

@@ -5,6 +5,7 @@ import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createTestRun from "../../../../test/helpers/createTestRun";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/runs.route";
 
@@ -25,15 +26,14 @@ describe("runs.route loader - authorization", () => {
       team: team._id,
     });
 
-    const res = await loader({
-      request: new Request(
-        "http://localhost/projects/" + project._id + "/runs",
-      ),
-      params: { id: project._id },
-    } as any);
-
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).status).toBe(302);
+    await expectAuthRequired(() =>
+      loader({
+        request: new Request(
+          "http://localhost/projects/" + project._id + "/runs",
+        ),
+        params: { id: project._id },
+      } as any),
+    );
   });
 
   it("redirects users who are not members of the project's team", async () => {

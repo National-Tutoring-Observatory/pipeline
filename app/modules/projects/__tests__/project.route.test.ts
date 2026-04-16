@@ -4,6 +4,7 @@ import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/project.route";
 import { ProjectService } from "../project";
@@ -16,12 +17,12 @@ describe("project.route loader", () => {
   });
 
   it("redirects to / when there is no session cookie", async () => {
-    const res = await loader({
-      request: new Request("http://localhost/projects/123"),
-      params: { id: "123" },
-    } as any);
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      loader({
+        request: new Request("http://localhost/projects/123"),
+        params: { id: "123" },
+      } as any),
+    );
   });
 
   it("redirects to / when project not found", async () => {

@@ -10,10 +10,9 @@ import { toast } from "sonner";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
 import addDialog from "~/modules/dialogs/addDialog";
-import type { User } from "~/modules/users/users.types";
 import DeleteJobDialog from "../components/deleteJobDialog";
 import JobDetailsDialog from "../components/jobDetailsDialog";
 import JobsList from "../components/jobsList";
@@ -25,7 +24,7 @@ import type { Job } from "../queues.types";
 import type { Route } from "./+types/queueJobs.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
+  const user = await requireAuth({ request });
   if (!SystemAdminAuthorization.Queues.canManage(user)) {
     return redirect("/");
   }
@@ -98,7 +97,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
+  const user = await requireAuth({ request });
   if (!SystemAdminAuthorization.Queues.canManage(user)) {
     return data({ errors: { general: "Access denied" } }, { status: 403 });
   }

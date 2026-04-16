@@ -1,21 +1,18 @@
 import fse from "fs-extra";
 import { json2csv } from "json-2-csv";
-import { redirect } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import type { AnnotationTemplateConfig } from "~/modules/humanAnnotations/humanAnnotations.types";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunSetService } from "~/modules/runSets/runSet";
 import { SessionService } from "~/modules/sessions/session";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
-import type { User } from "~/modules/users/users.types";
 import buildAnnotationTemplateColumns from "../helpers/buildAnnotationTemplateColumns";
 import buildAnnotationTemplateRows from "../helpers/buildAnnotationTemplateRows";
 import type { Route } from "./+types/downloadAnnotationTemplate.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
 
   const runSet = await RunSetService.findById(params.runSetId);
   if (!runSet) throw new Error("Run set not found");

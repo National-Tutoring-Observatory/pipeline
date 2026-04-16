@@ -1,15 +1,12 @@
 import { type LoaderFunctionArgs } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { userIsSuperAdmin } from "~/modules/authorization/helpers/superAdmin";
 import { ProjectService } from "~/modules/projects/project";
 import { emitter } from "../emitter";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) {
-    throw new Response("Unauthorized", { status: 401 });
-  }
+  const user = await requireAuth({ request });
 
   // Project IDs are snapshotted at connection time. If team membership or project
   // assignments change while the SSE stream is open, the filter will be stale

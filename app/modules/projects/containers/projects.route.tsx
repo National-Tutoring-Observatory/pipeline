@@ -2,21 +2,15 @@ import escapeRegExp from "lodash/escapeRegExp";
 import find from "lodash/find";
 import map from "lodash/map";
 import { useContext, useEffect } from "react";
-import {
-  data,
-  redirect,
-  useLocation,
-  useNavigate,
-  useRevalidator,
-} from "react-router";
+import { data, useLocation, useNavigate, useRevalidator } from "react-router";
 import { toast } from "sonner";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import addDialog from "~/modules/dialogs/addDialog";
 import { TeamService } from "~/modules/teams/team";
 import type { User } from "~/modules/users/users.types";
@@ -58,11 +52,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
-
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const { intent, entityId, payload = {} } = await request.json();
   const { name, team } = payload;

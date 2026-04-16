@@ -1,15 +1,15 @@
 import find from "lodash/find";
 import map from "lodash/map";
 import { useContext, useEffect } from "react";
-import { data, redirect, useFetcher, useNavigate } from "react-router";
+import { data, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import CodebookAuthorization from "~/modules/codebooks/authorization";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
@@ -58,15 +58,11 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
+  const user = await requireAuth({ request });
+
   const { intent, entityId, payload = {} } = await request.json();
 
   const { name, description, team } = payload;
-
-  const user = (await getSessionUser({ request })) as User;
-
-  if (!user) {
-    return redirect("/");
-  }
 
   switch (intent) {
     case "CREATE_CODEBOOK": {

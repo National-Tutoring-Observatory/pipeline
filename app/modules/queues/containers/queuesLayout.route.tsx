@@ -1,14 +1,13 @@
 import { redirect, useLoaderData } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
-import type { User } from "~/modules/users/users.types";
 import QueuesLayout from "../components/queuesLayout";
 import getQueue from "../helpers/getQueue";
 import isQueuePro from "../helpers/isQueuePro";
 import type { Route } from "./+types/queuesLayout.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
+  const user = await requireAuth({ request });
   if (!SystemAdminAuthorization.Queues.canManage(user)) {
     return redirect("/");
   }

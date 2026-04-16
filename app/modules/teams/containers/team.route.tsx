@@ -1,11 +1,10 @@
 import { useEffect } from "react";
 import { redirect, useFetcher } from "react-router";
 import { toast } from "sonner";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import BillingAuthorization from "~/modules/billing/authorization";
 import isBillingEnabled from "~/modules/billing/helpers/isBillingEnabled.server";
 import addDialog from "~/modules/dialogs/addDialog";
-import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
 import EditTeamDialog from "../components/editTeamDialog";
 import TeamComponent from "../components/team";
@@ -14,11 +13,7 @@ import type { Team } from "../teams.types";
 import type { Route } from "./+types/team.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const userSession = (await getSessionUser({ request })) as User;
-
-  if (!userSession) {
-    return redirect("/");
-  }
+  const userSession = await requireAuth({ request });
 
   if (!TeamAuthorization.canView(userSession, params.id)) {
     return redirect("/");

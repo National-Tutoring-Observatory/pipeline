@@ -1,6 +1,5 @@
 import fse from "fs-extra";
-import { redirect } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
@@ -26,10 +25,7 @@ function updateAnnotationVote(
 export async function action({ request, params }: Route.ActionArgs) {
   const payload = await request.json();
 
-  const user = await getSessionUser({ request });
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const run = await RunService.findById(params.runId);
 

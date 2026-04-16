@@ -15,6 +15,7 @@ import type { Team } from "~/modules/teams/teams.types";
 import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/runSetCreate.route";
 
@@ -68,15 +69,14 @@ describe("runSetCreate.route", () => {
 
   describe("loader", () => {
     it("redirects to / when there is no session", async () => {
-      const res = await loader({
-        request: new Request("http://localhost/"),
-        params: { projectId: project._id },
-        unstable_pattern: "",
-        context: {},
-      } as any);
-
-      expect(res).toBeInstanceOf(Response);
-      expect((res as Response).headers.get("Location")).toBe("/");
+      await expectAuthRequired(() =>
+        loader({
+          request: new Request("http://localhost/"),
+          params: { projectId: project._id },
+          unstable_pattern: "",
+          context: {},
+        } as any),
+      );
     });
 
     it("redirects to / when project not found", async () => {
@@ -194,17 +194,16 @@ describe("runSetCreate.route", () => {
         },
       });
 
-      const res = await action({
-        request: new Request("http://localhost/", {
-          method: "POST",
-          body,
-        }),
-        params: { projectId: project._id },
-        context: {},
-      } as any);
-
-      expect(res).toBeInstanceOf(Response);
-      expect((res as Response).headers.get("Location")).toBe("/");
+      await expectAuthRequired(() =>
+        action({
+          request: new Request("http://localhost/", {
+            method: "POST",
+            body,
+          }),
+          params: { projectId: project._id },
+          context: {},
+        } as any),
+      );
     });
   });
 });

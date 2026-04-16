@@ -13,7 +13,7 @@ import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.serve
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import addDialog from "~/modules/dialogs/addDialog";
 import PromptAuthorization from "~/modules/prompts/authorization";
 import CreatePromptDialog from "~/modules/prompts/components/createPromptDialog";
@@ -25,10 +25,7 @@ import TeamPrompts from "../components/teamPrompts";
 import type { Route } from "./+types/teamPrompts.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
   if (!TeamAuthorization.canView(user, params.id)) {
     return redirect("/");
   }
@@ -71,8 +68,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   const { intent, payload = {} } = await request.json();
   const { name, annotationType } = payload;
 
-  const user = await getSessionUser({ request });
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
 
   if (!PromptAuthorization.canCreate(user, params.id)) {
     throw new Error(

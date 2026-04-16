@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/teamUsers.route";
 
@@ -14,15 +15,14 @@ describe("teamUsers.route", () => {
     it("redirects to / when there is no session cookie", async () => {
       const team = await TeamService.create({ name: "test-team" });
 
-      const res = await loader({
-        request: new Request("http://localhost/"),
-        params: { id: team._id },
-        unstable_pattern: "",
-        context: {},
-      } as any);
-
-      expect(res).toBeInstanceOf(Response);
-      expect((res as Response).headers.get("Location")).toBe("/");
+      await expectAuthRequired(() =>
+        loader({
+          request: new Request("http://localhost/"),
+          params: { id: team._id },
+          unstable_pattern: "",
+          context: {},
+        } as any),
+      );
     });
 
     it("redirects to / when user is not authorized to view team users", async () => {

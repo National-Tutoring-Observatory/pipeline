@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/promptsList.route";
 import { PromptService } from "../prompt";
@@ -13,12 +14,12 @@ describe("promptsList.route loader", () => {
   });
 
   it("redirects to / when there is no session cookie", async () => {
-    const res = await loader({
-      request: new Request("http://localhost/"),
-      params: {},
-    } as any);
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      loader({
+        request: new Request("http://localhost/"),
+        params: {},
+      } as any),
+    );
   });
 
   it("returns prompts that have at least one saved version, filtered by annotationType + teamId", async () => {

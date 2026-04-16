@@ -3,16 +3,14 @@ import map from "lodash/map";
 import { PassThrough, Readable } from "node:stream";
 import { redirect } from "react-router";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { ProjectService } from "~/modules/projects/project";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
-import type { User } from "~/modules/users/users.types";
 import { RunService } from "../run";
 import type { Route } from "./+types/downloadRun.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
   const teamIds = map(user.teams, "team");
 
   const project = await ProjectService.findOne({

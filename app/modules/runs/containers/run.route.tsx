@@ -13,8 +13,8 @@ import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromR
 import triggerDownload from "~/modules/app/helpers/triggerDownload";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
@@ -97,8 +97,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.projectId);
   if (!project || !ProjectAuthorization.Runs.canManage(user, project)) {

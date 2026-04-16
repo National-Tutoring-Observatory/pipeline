@@ -5,11 +5,10 @@ import {
   useSubmit,
   type ShouldRevalidateFunctionArgs,
 } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { CodebookService } from "~/modules/codebooks/codebook";
 import { CodebookVersionService } from "~/modules/codebooks/codebookVersion";
 import addDialog from "~/modules/dialogs/addDialog";
-import type { User } from "~/modules/users/users.types";
 import PromptAuthorization from "../authorization";
 import PromptEditor from "../components/promptEditor";
 import { SYSTEM_FIELDS } from "../helpers/defaultPrompts";
@@ -20,10 +19,7 @@ import type { Route } from "./+types/promptEditor.route";
 import SavePromptVersionDialogContainer from "./savePromptVersionDialogContainer";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const prompt = await PromptService.findById(params.id);
 
@@ -73,10 +69,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   const { name, userPrompt, annotationSchema } = payload;
 
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const promptVersion = await PromptVersionService.findById(entityId);
 

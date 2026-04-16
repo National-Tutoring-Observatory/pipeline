@@ -11,7 +11,7 @@ import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import addDialog from "~/modules/dialogs/addDialog";
 import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
@@ -27,10 +27,7 @@ import AddUserToTeamDialogContainer from "./addUserToTeamDialog.container";
 import InviteUserToTeamDialogContainer from "./inviteUserToTeamDialogContainer";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
   if (!TeamAuthorization.Users.canView(user, params.id)) {
     return redirect("/");
   }
@@ -55,8 +52,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User | null;
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
 
   const { intent, payload = {} } = await request.json();
   const { userId } = payload;

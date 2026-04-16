@@ -6,6 +6,7 @@ import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/uploadFiles.route";
 
@@ -21,12 +22,12 @@ describe("uploadFiles.route loader", () => {
   });
 
   it("redirects to / when there is no session cookie", async () => {
-    const res = await loader({
-      request: new Request("http://localhost/projects/123/upload-files"),
-      params: { projectId: "123" },
-    } as any);
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      loader({
+        request: new Request("http://localhost/projects/123/upload-files"),
+        params: { projectId: "123" },
+      } as any),
+    );
   });
 
   it("redirects to / when project not found", async () => {
@@ -120,12 +121,12 @@ describe("uploadFiles.route action", () => {
       body: formData,
     });
 
-    const res = await action({
-      request: req,
-      params: { projectId: "123" },
-    } as any);
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      action({
+        request: req,
+        params: { projectId: "123" },
+      } as any),
+    );
   });
 
   it("returns 404 when project not found", async () => {

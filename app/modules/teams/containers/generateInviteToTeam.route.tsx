@@ -1,14 +1,13 @@
 import crypto from "crypto";
-import { data, redirect } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import { data } from "react-router";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { UserService } from "~/modules/users/user";
 import TeamAuthorization from "../authorization";
 import { isTeamRole } from "../teams.types";
 import type { Route } from "./+types/generateInviteToTeam.route";
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
 
   const { intent, payload = {} } = await request.json();
   const { teamId, role, name } = payload;

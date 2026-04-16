@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import { data, redirect, useFetcher } from "react-router";
 import { toast } from "sonner";
 import { AuditService } from "~/modules/audits/audit";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
 import Maintenance from "../components/maintenance";
 import { SystemSettingsService } from "../systemSettings";
 import type { Route } from "./+types/maintenance.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request });
-  if (!user || !SystemAdminAuthorization.Maintenance.canManage(user)) {
+  const user = await requireAuth({ request });
+  if (!SystemAdminAuthorization.Maintenance.canManage(user)) {
     return redirect("/");
   }
 
@@ -20,8 +20,8 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = await getSessionUser({ request });
-  if (!user || !SystemAdminAuthorization.Maintenance.canManage(user)) {
+  const user = await requireAuth({ request });
+  if (!SystemAdminAuthorization.Maintenance.canManage(user)) {
     return data({ errors: { general: "Access denied" } }, { status: 403 });
   }
 

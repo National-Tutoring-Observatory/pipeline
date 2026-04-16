@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { AuditService } from "~/modules/audits/audit";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/adminUsers.route";
 import { UserService } from "../user";
@@ -12,13 +13,12 @@ describe("adminUsers.route", () => {
 
   describe("loader", () => {
     it("redirects to / when there is no session cookie", async () => {
-      const res = await loader({
-        request: new Request("http://localhost/userManagement"),
-        params: {},
-      } as any);
-
-      expect(res).toBeInstanceOf(Response);
-      expect((res as Response).headers.get("Location")).toBe("/");
+      await expectAuthRequired(() =>
+        loader({
+          request: new Request("http://localhost/userManagement"),
+          params: {},
+        } as any),
+      );
     });
 
     it("redirects to / when user is not a super admin", async () => {

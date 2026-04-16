@@ -12,7 +12,7 @@ import {
 import type { Breadcrumb } from "~/modules/app/app.types";
 import triggerDownload from "~/modules/app/helpers/triggerDownload";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import addDialog from "~/modules/dialogs/addDialog";
 import DownloadAnnotationTemplateDialog from "~/modules/humanAnnotations/components/downloadAnnotationTemplateDialog";
 import getAnnotationFieldsFromRuns from "~/modules/humanAnnotations/helpers/getAnnotationFieldsFromRuns";
@@ -26,14 +26,10 @@ import StopRunSetDialog from "~/modules/runSets/components/stopRunSetDialog";
 import exportRunSet from "~/modules/runSets/helpers/exportRunSet";
 import { useRunSetActions } from "~/modules/runSets/hooks/useRunSetActions";
 import { RunSetService } from "~/modules/runSets/runSet";
-import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/runSetDetail.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {
@@ -87,10 +83,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {

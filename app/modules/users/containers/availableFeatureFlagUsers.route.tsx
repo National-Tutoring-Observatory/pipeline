@@ -1,18 +1,13 @@
-import { redirect } from "react-router";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
 import { FeatureFlagService } from "~/modules/featureFlags/featureFlag";
 import { UserService } from "~/modules/users/user";
-import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/availableTeamUsers.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   if (!SystemAdminAuthorization.FeatureFlags.canManage(user)) {
     throw new Error("Access denied");

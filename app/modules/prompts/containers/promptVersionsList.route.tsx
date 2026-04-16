@@ -1,16 +1,12 @@
 import { redirect } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { PromptService } from "~/modules/prompts/prompt";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
-import type { User } from "~/modules/users/users.types";
 import PromptAuthorization from "../authorization";
 import type { Route } from "./+types/promptVersionsList.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const url = new URL(request.url);
   const promptId = url.searchParams.get("prompt");

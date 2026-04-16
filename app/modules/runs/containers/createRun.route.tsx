@@ -10,8 +10,8 @@ import {
 import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import useSubmitGuard from "~/modules/app/hooks/useSubmitGuard";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -71,8 +71,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {

@@ -5,6 +5,7 @@ import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createTestRun from "../../../../test/helpers/createTestRun";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { ProjectService } from "../../projects/project";
 import { action } from "../containers/runAddToRunSet.route";
@@ -286,13 +287,12 @@ describe("runAddToRunSet.route action - CREATE_RUN_SET", () => {
       },
     );
 
-    const resp = await action({
-      request: req,
-      params: { projectId: project._id, runId: run._id },
-    } as any);
-
-    expect(resp).toBeInstanceOf(Response);
-    expect((resp as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      action({
+        request: req,
+        params: { projectId: project._id, runId: run._id },
+      } as any),
+    );
   });
 
   it("ADD_TO_RUN_SETS returns 404 when runSetIds belong to a different project", async () => {

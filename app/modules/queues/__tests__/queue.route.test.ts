@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/queue.route";
 
@@ -10,13 +11,12 @@ describe("queue.route loader", () => {
   });
 
   it("redirects to / when there is no session cookie", async () => {
-    const res = await loader({
-      request: new Request("http://localhost/queue/prompts"),
-      params: { type: "prompts" },
-    } as any);
-
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      loader({
+        request: new Request("http://localhost/queue/prompts"),
+        params: { type: "prompts" },
+      } as any),
+    );
   });
 
   it("requires super admin access", async () => {

@@ -7,6 +7,7 @@ import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createTestRun from "../../../../test/helpers/createTestRun";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/runSetMerge.route";
 
@@ -16,13 +17,12 @@ beforeEach(async () => {
 
 describe("runSetMerge.route loader", () => {
   it("redirects to / when there is no session", async () => {
-    const res = await loader({
-      request: new Request("http://localhost/"),
-      params: { projectId: "any", runSetId: "any" },
-    } as any);
-
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      loader({
+        request: new Request("http://localhost/"),
+        params: { projectId: "any", runSetId: "any" },
+      } as any),
+    );
   });
 
   it("redirects to / when project not found", async () => {

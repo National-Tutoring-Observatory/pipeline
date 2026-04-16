@@ -1,5 +1,5 @@
 import { redirect, useSubmit } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
 import getQueue from "~/modules/queues/helpers/getQueue";
 import Migrations from "../components/migrations";
@@ -7,7 +7,7 @@ import { MigrationService } from "../migration";
 import type { Route } from "./+types/migrations.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request });
+  const user = await requireAuth({ request });
   if (!SystemAdminAuthorization.Migrations.canManage(user)) {
     return redirect("/");
   }
@@ -18,8 +18,8 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = await getSessionUser({ request });
-  if (!user || !SystemAdminAuthorization.Migrations.canManage(user)) {
+  const user = await requireAuth({ request });
+  if (!SystemAdminAuthorization.Migrations.canManage(user)) {
     throw new Error("Access denied");
   }
 
