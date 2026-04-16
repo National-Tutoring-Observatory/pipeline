@@ -1,3 +1,4 @@
+import type { Job } from "bullmq";
 import dotenv from "dotenv";
 import fse from "fs-extra";
 import { encode } from "gpt-tokenizer";
@@ -10,7 +11,7 @@ import emitFromJob from "../helpers/emitFromJob";
 import mapFileToTranscript from "../helpers/mapFileToTranscript";
 dotenv.config({ path: ".env" });
 
-export default async function convertFileToSession(job: any) {
+export default async function convertFileToSession(job: Job) {
   const { projectId, sessionId, inputFile, outputFolder, attributesMapping } =
     job.data;
 
@@ -95,10 +96,10 @@ export default async function convertFileToSession(job: any) {
       },
       "FINISHED",
     );
-  } catch (error: any) {
+  } catch (error) {
     await SessionService.updateById(sessionId, {
       hasErrored: true,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     });
 
     await emitFromJob(
@@ -111,7 +112,7 @@ export default async function convertFileToSession(job: any) {
     );
     return {
       status: "ERRORED",
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }

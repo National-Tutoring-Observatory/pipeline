@@ -1,3 +1,4 @@
+import type { Job } from "bullmq";
 import fse from "fs-extra";
 import filter from "lodash/filter";
 import find from "lodash/find.js";
@@ -12,7 +13,7 @@ import emitFromJob from "../helpers/emitFromJob";
 import updateRunSession from "../helpers/updateRunSession";
 import adjudicatePerUtterancePrompts from "../prompts/adjudicatePerUtterance.prompts.json";
 
-export default async function adjudicatePerUtterance(job: any) {
+export default async function adjudicatePerUtterance(job: Job) {
   const { runId, sessionId, inputFile, outputFolder, prompt, model, team } =
     job.data;
 

@@ -1,3 +1,4 @@
+import type { Job } from "bullmq";
 import fse from "fs-extra";
 import filter from "lodash/filter";
 import map from "lodash/map.js";
@@ -12,7 +13,7 @@ import updateRunSession from "../helpers/updateRunSession";
 import annotationPerSessionPrompts from "../prompts/annotatePerSession.prompts.json";
 import verifyPerSessionPrompts from "../prompts/verifyPerSession.prompts.json";
 
-export default async function annotatePerSession(job: any) {
+export default async function annotatePerSession(job: Job) {
   const {
     runId,
     sessionId,
@@ -121,7 +122,7 @@ export default async function annotatePerSession(job: any) {
 
       originalJSON.preVerificationAnnotations = map(
         preVerificationAnnotations,
-        (annotation: any, index: number) => {
+        (annotation: Record<string, unknown>, index: number) => {
           annotation._id = `${index}`;
           return annotation;
         },
@@ -130,7 +131,7 @@ export default async function annotatePerSession(job: any) {
 
     originalJSON.annotations = map(
       annotations,
-      (annotation: any, index: number) => {
+      (annotation: Record<string, unknown>, index: number) => {
         annotation._id = `${index}`;
         return annotation;
       },

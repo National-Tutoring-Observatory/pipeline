@@ -1,3 +1,4 @@
+import type { Job } from "bullmq";
 import fse from "fs-extra";
 import filter from "lodash/filter";
 import find from "lodash/find.js";
@@ -12,7 +13,7 @@ import updateRunSession from "../helpers/updateRunSession";
 import annotationPerUtterancePrompts from "../prompts/annotatePerUtterance.prompts.json";
 import verifyPerUtterancePrompts from "../prompts/verifyPerUtterance.prompts.json";
 
-export default async function annotatePerUtterance(job: any) {
+export default async function annotatePerUtterance(job: Job) {
   const {
     runId,
     sessionId,

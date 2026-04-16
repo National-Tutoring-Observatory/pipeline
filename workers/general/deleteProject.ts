@@ -10,7 +10,7 @@ export default async function deleteProjectProcess(job: Job) {
 
   await ProjectService.deleteById(projectId);
 
-  await emitFromJob(job as any, { projectId }, "FINISHED");
+  await emitFromJob(job, { projectId }, "FINISHED");
 
   return { status: "DELETED", projectId };
 }

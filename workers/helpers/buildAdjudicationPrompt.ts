@@ -1,27 +1,39 @@
 import fse from "fs-extra";
+import type { AnnotationSchemaItem } from "../../app/modules/prompts/prompts.types";
 import { RunService } from "../../app/modules/runs/run";
 import { SessionService } from "../../app/modules/sessions/session";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
+
+interface SessionUtterance {
+  _id: string;
+  content: string;
+  annotations?: Record<string, unknown>[];
+}
+
+interface SessionJSON {
+  transcript?: SessionUtterance[];
+  annotations?: Record<string, unknown>[];
+}
 
 interface BuildAdjudicationPromptParams {
   sessionId: string;
   sourceRunIds: string[];
   projectId: string;
   annotationType: string;
-  originalJSON: any;
+  originalJSON: SessionJSON;
 }
 
 interface SourceRunSession {
   runId: string;
   runName: string;
-  sessionJSON: any;
+  sessionJSON: SessionJSON;
 }
 
 interface BuildAdjudicationPromptResult {
   hasDisagreements: boolean;
   adjudicationContext: string;
-  firstSourceRunSessionFile: any;
-  agreedAnnotations: Map<string, any>;
+  firstSourceRunSessionFile: SessionJSON;
+  agreedAnnotations: Map<string, unknown>;
 }
 
 export default async function buildAdjudicationPrompt(
@@ -48,8 +60,8 @@ export default async function buildAdjudicationPrompt(
   const annotationSchema =
     sourceRuns[0]?.snapshot?.prompt?.annotationSchema || [];
   const fieldKeys = annotationSchema
-    .filter((field: any) => !field.isSystem)
-    .map((field: any) => field.fieldKey);
+    .filter((field: AnnotationSchemaItem) => !field.isSystem)
+    .map((field: AnnotationSchemaItem) => field.fieldKey);
 
   console.log(
     "[buildAdjudicationPrompt] Annotation fields to compare:",
@@ -103,13 +115,13 @@ export default async function buildAdjudicationPrompt(
 }
 
 function buildPerUtteranceResult(
-  originalJSON: any,
+  originalJSON: SessionJSON,
   sourceRunSessions: SourceRunSession[],
   fieldKeys: string[],
 ): BuildAdjudicationPromptResult {
   const transcript = originalJSON.transcript || [];
   const disagreementLines: string[] = [];
-  const agreedAnnotations = new Map<string, any>();
+  const agreedAnnotations = new Map<string, unknown>();
   let hasDisagreements = false;
   const firstSourceRunSessionFile = sourceRunSessions[0]?.sessionJSON || null;
 
@@ -122,7 +134,8 @@ function buildPerUtteranceResult(
         const srcUtterance = srs.sessionJSON?.transcript?.[i];
         const annotations = srcUtterance?.annotations || [];
         const match = annotations.find(
-          (a: any) => a[fieldKey] !== undefined && a[fieldKey] !== null,
+          (a: Record<string, unknown>) =>
+            a[fieldKey] !== undefined && a[fieldKey] !== null,
         );
         return match ? String(match[fieldKey]) : "";
       });
@@ -195,16 +208,17 @@ function buildPerUtteranceResult(
 function buildPerSessionResult(
   sourceRunSessions: SourceRunSession[],
   fieldKeys: string[],
-  firstSourceRunSessionFile: any,
+  firstSourceRunSessionFile: SessionJSON,
 ): BuildAdjudicationPromptResult {
   let hasDisagreements = false;
-  const agreedAnnotations = new Map<string, any>();
+  const agreedAnnotations = new Map<string, unknown>();
 
   for (const fieldKey of fieldKeys) {
     const values = sourceRunSessions.map((srs) => {
       const annotations = srs.sessionJSON?.annotations || [];
       const match = annotations.find(
-        (a: any) => a[fieldKey] !== undefined && a[fieldKey] !== null,
+        (a: Record<string, unknown>) =>
+          a[fieldKey] !== undefined && a[fieldKey] !== null,
       );
       return match ? String(match[fieldKey]) : "";
     });
