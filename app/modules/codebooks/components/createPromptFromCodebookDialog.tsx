@@ -136,9 +136,9 @@ export default function CreatePromptFromCodebookDialog({
                     <Label htmlFor={checkboxId} className="font-normal">
                       {category.name}
                     </Label>
-                    <p className="text-muted-foreground text-[10px]">
+                    <code className="text-muted-foreground bg-muted inline w-fit rounded px-1 py-0.5 text-[10px]">
                       Code: {codifyName(category.name)}
-                    </p>
+                    </code>
                   </div>
                 </div>
               );

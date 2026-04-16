@@ -127,9 +127,9 @@ export default function CodebookCategoryEditor({
             onChange={(e) => onChange({ ...category, name: e.target.value })}
           />
           {category.name && (
-            <p className="text-muted-foreground text-[10px]">
+            <code className="text-muted-foreground bg-muted inline w-fit rounded px-1 py-0.5 text-[10px]">
               Code: {codifyName(category.name)}
-            </p>
+            </code>
           )}
         </div>
         <div className="grid gap-3">
