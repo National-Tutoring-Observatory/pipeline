@@ -12,7 +12,7 @@ import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import addDialog from "~/modules/dialogs/addDialog";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import CreateProjectDialog from "~/modules/projects/components/createProjectDialog";
@@ -23,10 +23,7 @@ import TeamProjects from "../components/teamProjects";
 import type { Route } from "./+types/teamProjects.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
   if (!TeamAuthorization.canView(user, params.id)) {
     return redirect("/");
   }
@@ -69,8 +66,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   const { intent, payload = {} } = await request.json();
   const { name } = payload;
 
-  const user = await getSessionUser({ request });
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
 
   if (!ProjectAuthorization.canCreate(user, params.id)) {
     throw new Error(

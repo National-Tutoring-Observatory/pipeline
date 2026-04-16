@@ -1,13 +1,13 @@
 import find from "lodash/find";
 import map from "lodash/map";
 import { useContext, useEffect } from "react";
-import { data, redirect, useFetcher, useNavigate } from "react-router";
+import { data, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { User } from "~/modules/users/users.types";
@@ -20,11 +20,7 @@ import type { Team } from "../teams.types";
 import type { Route } from "./+types/teams.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const userSession = (await getSessionUser({ request })) as User;
-
-  if (!userSession) {
-    return redirect("/");
-  }
+  const userSession = await requireAuth({ request });
 
   let match = {};
   if (userSession.role !== "SUPER_ADMIN") {
@@ -73,11 +69,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   const { name } = payload;
 
-  const user = (await getSessionUser({ request })) as User;
-
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   switch (intent) {
     case "CREATE_TEAM": {

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import type { Route } from "../containers/+types/migrations.route";
 import { action, loader } from "../containers/migrations.route";
@@ -22,15 +23,14 @@ describe("migrations.route", () => {
 
   describe("loader", () => {
     it("redirects if user is not authenticated", async () => {
-      const res = (await loader({
-        request: new Request("http://localhost/migrations"),
-        params: {},
-        unstable_pattern: "",
-        context: {},
-      } as any)) as any;
-
-      expect(res.status).toBe(302);
-      expect(res.headers.get("location")).toBe("/");
+      await expectAuthRequired(() =>
+        loader({
+          request: new Request("http://localhost/migrations"),
+          params: {},
+          unstable_pattern: "",
+          context: {},
+        } as any),
+      );
     });
 
     it("redirects if user is not a super admin", async () => {
@@ -103,7 +103,7 @@ describe("migrations.route", () => {
   });
 
   describe("action", () => {
-    it("throws error if user is not authenticated", async () => {
+    it("redirects to / if user is not authenticated", async () => {
       const request = new Request("http://localhost/migrations", {
         method: "POST",
         body: JSON.stringify({
@@ -112,14 +112,14 @@ describe("migrations.route", () => {
         }),
       });
 
-      await expect(
+      await expectAuthRequired(() =>
         action({
           request,
           params: {},
           unstable_pattern: "",
           context: {},
         } as Route.ActionArgs),
-      ).rejects.toThrow("Access denied");
+      );
     });
 
     it("throws error if user is not a super admin", async () => {

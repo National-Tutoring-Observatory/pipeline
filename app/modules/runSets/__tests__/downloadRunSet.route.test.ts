@@ -14,6 +14,7 @@ import type { User } from "~/modules/users/users.types";
 import "~/storageAdapters/local";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createTestRun from "../../../../test/helpers/createTestRun";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/downloadRunSet.route";
 
@@ -115,16 +116,15 @@ describe("downloadRunSet.route loader", () => {
   }
 
   it("redirects to / when there is no session cookie", async () => {
-    const res = await loader({
-      request: new Request(
-        `http://localhost/api/downloads/${project._id}/run-sets/${runSet._id}?exportType=CSV`,
-      ),
-      params: { projectId: project._id, runSetId: runSet._id },
-      context: {},
-    } as any);
-
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      loader({
+        request: new Request(
+          `http://localhost/api/downloads/${project._id}/run-sets/${runSet._id}?exportType=CSV`,
+        ),
+        params: { projectId: project._id, runSetId: runSet._id },
+        context: {},
+      } as any),
+    );
   });
 
   it("redirects to / when project not found", async () => {

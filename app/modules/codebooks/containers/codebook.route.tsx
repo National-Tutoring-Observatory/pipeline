@@ -9,7 +9,7 @@ import {
 } from "react-router";
 import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import CodebookAuthorization from "~/modules/codebooks/authorization";
 import addDialog from "~/modules/dialogs/addDialog";
 import PromptAuthorization from "~/modules/prompts/authorization";
@@ -23,10 +23,7 @@ import EditCodebookDialog from "../components/editCodebookDialog";
 import type { Route } from "./+types/codebook.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
   const codebook = await CodebookService.findById(params.id);
   if (!codebook) {
     return redirect("/codebooks");
@@ -46,10 +43,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   const { version } = payload;
 
-  const user = await getSessionUser({ request });
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
   const codebook = await CodebookService.findById(entityId);
   if (!codebook) {
     throw new Error("Codebook not found");

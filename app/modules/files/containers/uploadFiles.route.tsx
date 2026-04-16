@@ -9,18 +9,16 @@ import { data, Link, redirect, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import insertMtmDataset from "~/modules/datasets/services/insertMtmDataset.server";
 import { FileService } from "~/modules/files/file";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
-import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/uploadFiles.route";
 import UploadFilesContainer from "./uploadFiles.container";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) return redirect("/");
@@ -39,8 +37,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {

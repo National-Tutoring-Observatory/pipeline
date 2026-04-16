@@ -10,7 +10,7 @@ import {
 import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { getAvailableModels } from "~/modules/llm/modelRegistry";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
@@ -28,14 +28,10 @@ import type {
   PromptReference,
 } from "~/modules/runSets/runSets.types";
 import { SessionService } from "~/modules/sessions/session";
-import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/runSetCreate.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {
@@ -217,10 +213,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {

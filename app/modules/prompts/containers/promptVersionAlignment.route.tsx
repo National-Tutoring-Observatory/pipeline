@@ -1,16 +1,12 @@
-import { data, redirect } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import type { User } from "~/modules/users/users.types";
+import { data } from "react-router";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import PromptAuthorization from "../authorization";
 import checkPromptAndAnnotationSchemaAlignment from "../services/checkPromptAndAnnotationSchemaAlignment.server";
 import suggestPromptAndAnnotationSchemaChanges from "../services/suggestPromptAndAnnotationSchemaChanges.server";
 import type { Route } from "./+types/promptVersionAlignment.route";
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const {
     intent,

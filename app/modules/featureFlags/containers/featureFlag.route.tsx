@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { data, redirect, useFetcher } from "react-router";
 import { toast } from "sonner";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
 import addDialog from "~/modules/dialogs/addDialog";
 import getQueue from "~/modules/queues/helpers/getQueue";
@@ -16,7 +16,7 @@ import type { Route } from "./+types/featureFlag.route";
 import AddUsersToFeatureFlagDialogContainer from "./addUsersToFeatureFlagDialog.container";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
+  const user = await requireAuth({ request });
   if (!SystemAdminAuthorization.FeatureFlags.canManage(user)) {
     return redirect("/");
   }
@@ -34,7 +34,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
+  const user = await requireAuth({ request });
   if (!SystemAdminAuthorization.FeatureFlags.canManage(user)) {
     return data({ errors: { general: "Access denied" } }, { status: 403 });
   }

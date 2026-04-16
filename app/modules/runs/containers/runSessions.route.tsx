@@ -3,7 +3,7 @@ import map from "lodash/map";
 import { redirect, useLoaderData, useNavigation } from "react-router";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import { RunSetService } from "~/modules/runSets/runSet";
@@ -16,8 +16,8 @@ export const meta: Route.MetaFunction = () => [
 ];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const authenticationTeams = await getSessionUserTeams({ request });
-  const teamIds = map(authenticationTeams, "team");
+  const user = await requireAuth({ request });
+  const teamIds = map(user.teams, "team");
   const project = await ProjectService.findOne({
     _id: params.projectId,
     team: { $in: teamIds },

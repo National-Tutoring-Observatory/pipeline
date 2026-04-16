@@ -11,12 +11,11 @@ import {
   useRevalidator,
 } from "react-router";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { FileService } from "~/modules/files/file";
 import { RunService } from "~/modules/runs/run";
 import { RunSetService } from "~/modules/runSets/runSet";
 import { SessionService } from "~/modules/sessions/session";
-import type { User } from "~/modules/users/users.types";
 import ProjectAuthorization from "../authorization";
 import Project from "../components/project";
 import { useProjectActions } from "../hooks/useProjectActions";
@@ -24,11 +23,7 @@ import { ProjectService } from "../project";
 import type { Route } from "./+types/project.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.id);
   if (!project) {

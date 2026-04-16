@@ -2,21 +2,17 @@ import { data, redirect, useNavigate } from "react-router";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { useRunSetActions } from "~/modules/runSets/hooks/useRunSetActions";
 import { RunSetService } from "~/modules/runSets/runSet";
 import type { RunSet } from "~/modules/runSets/runSets.types";
-import type { User } from "~/modules/users/users.types";
 import RunSetsList from "../components/runSetsList";
 import type { Route } from "./+types/runSetsList.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.id);
   if (!project) {
@@ -47,10 +43,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.id);
   if (!project) {

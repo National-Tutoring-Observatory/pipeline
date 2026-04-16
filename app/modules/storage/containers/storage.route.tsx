@@ -1,8 +1,7 @@
 import type { ActionFunctionArgs } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
-import type { User } from "~/modules/users/users.types";
 import getStorageAdapter from "../helpers/getStorageAdapter";
 
 function extractProjectIdFromUrl(rawUrl: string): string {
@@ -21,10 +20,7 @@ function extractProjectIdFromUrl(rawUrl: string): string {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    throw new Error("Authentication required");
-  }
+  const user = await requireAuth({ request });
 
   const { intent, payload } = await request.json();
 

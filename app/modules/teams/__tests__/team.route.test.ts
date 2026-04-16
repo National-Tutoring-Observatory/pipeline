@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/team.route";
 import { TeamService } from "../team";
@@ -13,12 +14,12 @@ describe("team.route loader", () => {
   it("redirects to / when there is no session cookie", async () => {
     const team = await TeamService.create({ name: "test team" });
 
-    const res = await loader({
-      request: new Request("http://localhost/teams/" + team._id),
-      params: { id: team._id },
-    } as any);
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      loader({
+        request: new Request("http://localhost/teams/" + team._id),
+        params: { id: team._id },
+      } as any),
+    );
   });
 
   it("returns team when user is super admin", async () => {
@@ -43,12 +44,11 @@ describe("team.route loader", () => {
   });
 
   it("redirects to / when team does not exist and no auth", async () => {
-    const res = await loader({
-      request: new Request("http://localhost/teams/nonexistent"),
-      params: { id: "nonexistent" },
-    } as any);
-
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      loader({
+        request: new Request("http://localhost/teams/nonexistent"),
+        params: { id: "nonexistent" },
+      } as any),
+    );
   });
 });

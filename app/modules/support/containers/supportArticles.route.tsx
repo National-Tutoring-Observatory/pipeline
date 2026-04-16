@@ -2,9 +2,7 @@ import Markdoc from "@markdoc/markdoc";
 import fs from "fs";
 import matter from "gray-matter";
 import path from "path";
-import { redirect } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import type { User } from "~/modules/users/users.types";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import type { Route } from "./+types/supportArticles.route";
 
 interface SupportArticle {
@@ -14,10 +12,7 @@ interface SupportArticle {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  await requireAuth({ request });
 
   const supportArticles: SupportArticle[] = [];
 

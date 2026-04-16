@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import BillingAuthorization from "~/modules/billing/authorization";
 import { BillingPeriodService } from "~/modules/billing/billingPeriod";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
@@ -38,8 +38,7 @@ import { TeamService } from "../team";
 import type { Route } from "./+types/teamBilling.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
 
   if (!TeamAuthorization.canView(user, params.id)) {
     return redirect("/");
@@ -156,8 +155,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) throw new Error("Authentication required");
+  const user = await requireAuth({ request });
 
   const { intent, payload = {} } = await request.json();
 

@@ -4,9 +4,8 @@ import {
   useNavigation,
   useSubmit,
 } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import addDialog from "~/modules/dialogs/addDialog";
-import type { User } from "~/modules/users/users.types";
 import CodebookAuthorization from "../authorization";
 import { CodebookService } from "../codebook";
 import type { CodebookCategory } from "../codebooks.types";
@@ -16,10 +15,7 @@ import SaveCodebookVersionDialog from "../components/saveCodebookVersionDialog";
 import type { Route } from "./+types/codebookEditor.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const codebook = await CodebookService.findById(params.id);
 
@@ -51,10 +47,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   const { name, categories } = payload;
 
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const codebookVersion = await CodebookVersionService.findById(entityId);
 
@@ -96,7 +89,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function CodebookEditorRoute() {
-  const data = useLoaderData();
+  const data = useLoaderData<typeof loader>();
   const navigation = useNavigation();
   const submit = useSubmit();
 

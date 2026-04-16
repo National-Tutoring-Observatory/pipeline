@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action } from "../containers/downloadMtmDataset.route";
 
@@ -22,16 +23,14 @@ describe("downloadMtmDataset.route action", () => {
     await clearDocumentDB();
   });
 
-  it("throws when not authenticated", async () => {
+  it("redirects to / when not authenticated", async () => {
     const request = new Request("http://localhost/api/downloadMtmDataset", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ intent: "REQUEST_MTM_DOWNLOAD" }),
     });
 
-    await expect(action({ request })).rejects.toThrow(
-      "Authentication required",
-    );
+    await expectAuthRequired(() => action({ request }));
   });
 
   it("throws when agreed is not true", async () => {

@@ -9,7 +9,7 @@ import {
 } from "react-router";
 import { toast } from "sonner";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import PromptAuthorization from "~/modules/prompts/authorization";
 import { usePromptActions } from "~/modules/prompts/hooks/usePromptActions";
 import { RunService } from "~/modules/runs/run";
@@ -19,10 +19,7 @@ import { PromptVersionService } from "../promptVersion";
 import type { Route } from "./+types/prompt.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
   const prompt = await PromptService.findById(params.id);
   if (!prompt) {
     return redirect("/prompts");
@@ -42,10 +39,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   const { version } = payload;
 
-  const user = await getSessionUser({ request });
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
   const prompt = await PromptService.findById(entityId);
   if (!prompt) {
     throw new Error("Prompt not found");

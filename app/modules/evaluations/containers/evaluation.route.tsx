@@ -10,7 +10,7 @@ import {
 } from "react-router";
 import { toast } from "sonner";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import addDialog from "~/modules/dialogs/addDialog";
 import Evaluation from "~/modules/evaluations/components/evaluation";
 import AdjudicationDialogContainer from "~/modules/evaluations/containers/adjudicationDialog.container";
@@ -21,14 +21,10 @@ import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunService } from "~/modules/runs/run";
 import { RunSetService } from "~/modules/runSets/runSet";
-import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/evaluation.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {
@@ -72,10 +68,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const project = await ProjectService.findById(params.projectId);
   if (!project) {

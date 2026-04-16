@@ -5,7 +5,7 @@ import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuditService } from "~/modules/audits/audit";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { userIsSuperAdmin } from "~/modules/authorization/helpers/superAdmin";
 import addDialog from "~/modules/dialogs/addDialog";
 import { TeamService } from "~/modules/teams/team";
@@ -21,9 +21,9 @@ import RevokeSuperAdminDialogContainer from "./revokeSuperAdminDialogContainer";
 import type { Route } from "./+types/adminUsers.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request });
+  const user = await requireAuth({ request });
 
-  if (!user || !userIsSuperAdmin(user)) {
+  if (!userIsSuperAdmin(user)) {
     return redirect("/");
   }
 
@@ -84,9 +84,9 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
+  const user = await requireAuth({ request });
 
-  if (!user || !userIsSuperAdmin(user)) {
+  if (!userIsSuperAdmin(user)) {
     return data({ errors: { general: "Access denied" } }, { status: 403 });
   }
 

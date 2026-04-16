@@ -2,10 +2,9 @@ import get from "lodash/get";
 import { useEffect } from "react";
 import { data, redirect, useFetcher, useMatch, useMatches } from "react-router";
 import { toast } from "sonner";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import SystemAdminAuthorization from "~/modules/authorization/systemAdminAuthorization";
 import addDialog from "~/modules/dialogs/addDialog";
-import type { User } from "~/modules/users/users.types";
 import CreateFeatureFlagDialog from "../components/createFeatureFlagDialog";
 import FeatureFlags from "../components/featureFlags";
 import { FeatureFlagService } from "../featureFlag";
@@ -13,7 +12,7 @@ import type { FeatureFlag } from "../featureFlags.types";
 import type { Route } from "./+types/featureFlags.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
+  const user = await requireAuth({ request });
   if (!SystemAdminAuthorization.FeatureFlags.canManage(user)) {
     return redirect("/");
   }
@@ -22,7 +21,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
+  const user = await requireAuth({ request });
   if (!SystemAdminAuthorization.FeatureFlags.canManage(user)) {
     return data({ errors: { general: "Access denied" } }, { status: 403 });
   }

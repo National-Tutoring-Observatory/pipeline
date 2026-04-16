@@ -3,6 +3,7 @@ import { ProjectService } from "~/modules/projects/project";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { loader } from "../containers/events.route";
 import { emitter } from "../emitter";
@@ -34,18 +35,13 @@ describe("events.route loader", () => {
     await clearDocumentDB();
   });
 
-  it("returns 401 when unauthenticated", async () => {
-    let caughtError: unknown;
-    try {
-      await loader({
+  it("redirects to / when unauthenticated", async () => {
+    await expectAuthRequired(() =>
+      loader({
         request: new Request("http://localhost/api/events"),
         params: {},
-      } as any);
-    } catch (e) {
-      caughtError = e;
-    }
-    expect(caughtError).toBeInstanceOf(Response);
-    expect((caughtError as Response).status).toBe(401);
+      } as any),
+    );
   });
 
   it("only forwards UPLOAD_FILES events for the user's own projects", async () => {

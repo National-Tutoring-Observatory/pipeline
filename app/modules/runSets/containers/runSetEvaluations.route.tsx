@@ -1,25 +1,16 @@
-import {
-  redirect,
-  useLoaderData,
-  useNavigate,
-  useOutletContext,
-} from "react-router";
+import { useLoaderData, useNavigate, useOutletContext } from "react-router";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { EvaluationService } from "~/modules/evaluations/evaluation";
 import isAbleToCreateEvaluation from "~/modules/evaluations/helpers/isAbleToCreateEvaluation";
 import RunSetEvaluations from "~/modules/runSets/components/runSetEvaluations";
 import type { RunSet } from "~/modules/runSets/runSets.types";
-import type { User } from "~/modules/users/users.types";
 import type { Route } from "./+types/runSetEvaluations.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    return redirect("/");
-  }
+  await requireAuth({ request });
 
   const queryParams = getQueryParamsFromRequest(request, {
     searchValue: "",

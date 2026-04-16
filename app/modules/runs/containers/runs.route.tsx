@@ -12,8 +12,8 @@ import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { ProjectService } from "~/modules/projects/project";
 import { useCreateRunSetForRun } from "~/modules/runs/hooks/useCreateRunSetForRun";
 import { useRunActions } from "~/modules/runs/hooks/useRunActions";
@@ -23,8 +23,7 @@ import Runs from "../components/runs";
 import type { Route } from "./+types/runs.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) return redirect("/");
+  await requireAuth({ request });
 
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, "team");

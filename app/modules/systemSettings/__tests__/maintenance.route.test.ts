@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { AuditService } from "~/modules/audits/audit";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/maintenance.route";
 import { SystemSettingsService } from "../systemSettings";
@@ -13,15 +14,14 @@ describe("maintenance.route", () => {
 
   describe("loader", () => {
     it("redirects when not authenticated", async () => {
-      const res = (await loader({
-        request: new Request("http://localhost/admin/maintenance"),
-        params: {},
-        unstable_pattern: "",
-        context: {},
-      } as any)) as any;
-
-      expect(res.status).toBe(302);
-      expect(res.headers.get("location")).toBe("/");
+      await expectAuthRequired(() =>
+        loader({
+          request: new Request("http://localhost/admin/maintenance"),
+          params: {},
+          unstable_pattern: "",
+          context: {},
+        } as any),
+      );
     });
 
     it("redirects when user is not a super admin", async () => {
@@ -67,22 +67,21 @@ describe("maintenance.route", () => {
   });
 
   describe("action - TOGGLE_MAINTENANCE", () => {
-    it("returns 403 when not authenticated", async () => {
-      const res = (await action({
-        request: new Request("http://localhost/admin/maintenance", {
-          method: "POST",
-          body: JSON.stringify({
-            intent: "TOGGLE_MAINTENANCE",
-            payload: { maintenanceMode: true, maintenanceMessage: "" },
+    it("redirects to / when not authenticated", async () => {
+      await expectAuthRequired(() =>
+        action({
+          request: new Request("http://localhost/admin/maintenance", {
+            method: "POST",
+            body: JSON.stringify({
+              intent: "TOGGLE_MAINTENANCE",
+              payload: { maintenanceMode: true, maintenanceMessage: "" },
+            }),
           }),
-        }),
-        params: {},
-        unstable_pattern: "",
-        context: {},
-      } as any)) as any;
-
-      expect(res.init?.status).toBe(403);
-      expect(res.data?.errors?.general).toBe("Access denied");
+          params: {},
+          unstable_pattern: "",
+          context: {},
+        } as any),
+      );
     });
 
     it("returns 403 when user is not a super admin", async () => {

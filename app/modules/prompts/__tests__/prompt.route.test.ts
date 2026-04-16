@@ -4,6 +4,7 @@ import { RunService } from "~/modules/runs/run";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action } from "../containers/prompt.route";
 import { PromptService } from "../prompt";
@@ -77,22 +78,21 @@ describe("prompt.route action", () => {
         createdBy: user._id,
       });
 
-      const response = await action({
-        request: new Request("http://localhost/", {
-          method: "POST",
-          body: JSON.stringify({
-            intent: "CREATE_PROMPT_VERSION",
-            entityId: prompt._id,
-            payload: { version: 1 },
+      await expectAuthRequired(() =>
+        action({
+          request: new Request("http://localhost/", {
+            method: "POST",
+            body: JSON.stringify({
+              intent: "CREATE_PROMPT_VERSION",
+              entityId: prompt._id,
+              payload: { version: 1 },
+            }),
           }),
-        }),
-        params: { id: prompt._id },
-        context: {},
-        unstable_pattern: "",
-      } as any);
-
-      expect(response).toBeInstanceOf(Response);
-      expect((response as Response).headers.get("Location")).toBe("/");
+          params: { id: prompt._id },
+          context: {},
+          unstable_pattern: "",
+        } as any),
+      );
     });
 
     it("throws when prompt does not exist", async () => {

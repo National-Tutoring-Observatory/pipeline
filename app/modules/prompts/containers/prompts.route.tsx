@@ -1,13 +1,7 @@
 import find from "lodash/find";
 import map from "lodash/map";
 import { useContext, useEffect } from "react";
-import {
-  data,
-  redirect,
-  useFetcher,
-  useLocation,
-  useNavigate,
-} from "react-router";
+import { data, useFetcher, useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
@@ -15,8 +9,8 @@ import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import addDialog from "~/modules/dialogs/addDialog";
 import PromptAuthorization from "~/modules/prompts/authorization";
 import { usePromptActions } from "~/modules/prompts/hooks/usePromptActions";
@@ -32,8 +26,7 @@ import { PromptVersionService } from "../promptVersion";
 import type { Route } from "./+types/prompts.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) return redirect("/");
+  await requireAuth({ request });
 
   const authenticationTeams = await getSessionUserTeams({ request });
   const teamIds = map(authenticationTeams, "team");
@@ -76,11 +69,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
-
-  if (!user) {
-    return redirect("/");
-  }
+  const user = await requireAuth({ request });
 
   const { intent, payload = {} } = await request.json();
 

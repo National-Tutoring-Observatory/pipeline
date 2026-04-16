@@ -6,7 +6,7 @@ import {
   useLoaderData,
   useNavigate,
 } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { UserService } from "~/modules/users/user";
 import Onboarding from "../components/onboarding";
 import TermsAcceptance from "../components/termsAcceptance";
@@ -28,15 +28,13 @@ const VALID_USE_CASES = [
 ] as const;
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
   if (user.onboardingComplete && user.termsAcceptedAt) return redirect("/");
   return { termsAccepted: Boolean(user.termsAcceptedAt) };
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = await getSessionUser({ request });
-  if (!user) return redirect("/");
+  const user = await requireAuth({ request });
   if (user.onboardingComplete && user.termsAcceptedAt) return redirect("/");
 
   const { intent, payload = {} } = await request.json();

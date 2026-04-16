@@ -7,6 +7,7 @@ import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/run.route";
 
@@ -284,20 +285,19 @@ describe("run.route action", () => {
       shouldRunVerification: false,
     });
 
-    const res = await action({
-      request: new Request(
-        "http://localhost/projects/" + project._id + "/runs/" + run._id,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ intent: "DELETE_RUN", payload: {} }),
-        },
-      ),
-      params: { projectId: project._id, runId: run._id },
-    } as any);
-
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      action({
+        request: new Request(
+          "http://localhost/projects/" + project._id + "/runs/" + run._id,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ intent: "DELETE_RUN", payload: {} }),
+          },
+        ),
+        params: { projectId: project._id, runId: run._id },
+      } as any),
+    );
   });
 
   it("redirects to / when user is not in project team", async () => {

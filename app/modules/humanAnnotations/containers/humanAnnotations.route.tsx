@@ -1,11 +1,10 @@
 import path from "path";
 import { data } from "react-router";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import { RunSetService } from "~/modules/runSets/runSet";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
-import type { User } from "~/modules/users/users.types";
 import buildAnnotationSchemaFromHeaders from "../helpers/buildAnnotationSchemaFromHeaders";
 import analyzeHumanCsv from "../services/analyzeHumanCsv.server";
 import createHumanRun from "../services/createHumanRun.server";
@@ -13,10 +12,7 @@ import uploadHumanAnnotations from "../services/uploadHumanAnnotations.server";
 import type { Route } from "./+types/humanAnnotations.route";
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const user = (await getSessionUser({ request })) as User;
-  if (!user) {
-    throw new Error("Authentication required");
-  }
+  const user = await requireAuth({ request });
 
   const runSet = await RunSetService.findById(params.runSetId);
   if (!runSet) {

@@ -4,6 +4,7 @@ import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import { TeamCreditService } from "~/modules/billing/teamCredit";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/teams.route";
 import { TeamService } from "../team";
@@ -15,12 +16,12 @@ describe("teams.route", () => {
 
   describe("loader", () => {
     it("redirects to / when there is no session cookie", async () => {
-      const res = await loader({
-        request: new Request("http://localhost/teams"),
-        params: {},
-      } as any);
-      expect(res).toBeInstanceOf(Response);
-      expect((res as Response).headers.get("Location")).toBe("/");
+      await expectAuthRequired(() =>
+        loader({
+          request: new Request("http://localhost/teams"),
+          params: {},
+        } as any),
+      );
     });
 
     it("returns all teams for super admin", async () => {

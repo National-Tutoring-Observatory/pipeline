@@ -14,6 +14,7 @@ import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createTestRun from "../../../../test/helpers/createTestRun";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/runSetDetail.route";
 
@@ -70,15 +71,14 @@ describe("runSetDetail.route loader", () => {
   });
 
   it("redirects to / when there is no session", async () => {
-    const res = await loader({
-      request: new Request("http://localhost/"),
-      params: { projectId: project._id, runSetId: runSet._id },
-      unstable_pattern: "",
-      context: {},
-    } as any);
-
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      loader({
+        request: new Request("http://localhost/"),
+        params: { projectId: project._id, runSetId: runSet._id },
+        unstable_pattern: "",
+        context: {},
+      } as any),
+    );
   });
 
   it("redirects to / when project not found", async () => {

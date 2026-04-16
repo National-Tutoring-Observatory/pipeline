@@ -1,6 +1,6 @@
 import fse from "fs-extra";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import type { MtmLatest } from "../datasets.types";
 import {
@@ -9,8 +9,7 @@ import {
 } from "../helpers/getDatasetStoragePath";
 
 export async function action({ request }: { request: Request }) {
-  const user = await getSessionUser({ request });
-  if (!user) throw new Error("Authentication required");
+  const user = await requireAuth({ request });
 
   const { intent, agreed } = await request.json();
 

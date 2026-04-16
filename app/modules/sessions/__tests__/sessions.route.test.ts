@@ -5,6 +5,7 @@ import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/sessions.route";
 
@@ -42,15 +43,14 @@ describe("sessions.route loader", () => {
       team: team._id,
     });
 
-    const res = await loader({
-      request: new Request(
-        "http://localhost/projects/" + project._id + "/sessions",
-      ),
-      params: { id: project._id.toString() },
-    } as any);
-
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      loader({
+        request: new Request(
+          "http://localhost/projects/" + project._id + "/sessions",
+        ),
+        params: { id: project._id.toString() },
+      } as any),
+    );
   });
 
   it("returns sessions for authorized user", async () => {
@@ -99,20 +99,19 @@ describe("sessions.route action", () => {
       team: team._id,
     });
 
-    const res = await action({
-      request: new Request(
-        "http://localhost/projects/" + project._id + "/sessions",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ intent: "RE_RUN" }),
-        },
-      ),
-      params: { id: project._id.toString() },
-    } as any);
-
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      action({
+        request: new Request(
+          "http://localhost/projects/" + project._id + "/sessions",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ intent: "RE_RUN" }),
+          },
+        ),
+        params: { id: project._id.toString() },
+      } as any),
+    );
   });
 
   it("redirects to / when user cannot view project for RE_RUN", async () => {

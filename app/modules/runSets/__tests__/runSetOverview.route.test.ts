@@ -12,6 +12,7 @@ import { UserService } from "~/modules/users/user";
 import type { User } from "~/modules/users/users.types";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createTestRun from "../../../../test/helpers/createTestRun";
+import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/runSetOverview.route";
 
@@ -68,15 +69,14 @@ describe("runSetOverview.route loader", () => {
   });
 
   it("redirects to / when there is no session", async () => {
-    const res = await loader({
-      request: new Request("http://localhost/"),
-      params: { projectId: project._id, runSetId: runSet._id },
-      unstable_pattern: "",
-      context: {},
-    } as any);
-
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+    await expectAuthRequired(() =>
+      loader({
+        request: new Request("http://localhost/"),
+        params: { projectId: project._id, runSetId: runSet._id },
+        unstable_pattern: "",
+        context: {},
+      } as any),
+    );
   });
 
   it("returns empty runs and sessions for empty runSet", async () => {
@@ -398,20 +398,19 @@ describe("runSetOverview.route action", () => {
   });
 
   it("redirects to / when unauthenticated for REMOVE_RUN_FROM_RUN_SET", async () => {
-    const res = await action({
-      request: new Request("http://localhost/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          intent: "REMOVE_RUN_FROM_RUN_SET",
-          payload: { runId: run._id },
+    await expectAuthRequired(() =>
+      action({
+        request: new Request("http://localhost/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            intent: "REMOVE_RUN_FROM_RUN_SET",
+            payload: { runId: run._id },
+          }),
         }),
-      }),
-      params: { projectId: project._id, runSetId: runSet._id },
-    } as any);
-
-    expect(res).toBeInstanceOf(Response);
-    expect((res as Response).headers.get("Location")).toBe("/");
+        params: { projectId: project._id, runSetId: runSet._id },
+      } as any),
+    );
   });
 
   it("removes run from run set when authenticated", async () => {
