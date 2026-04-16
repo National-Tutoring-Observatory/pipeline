@@ -1,4 +1,5 @@
 import { createRequestHandler } from "@react-router/express";
+import type { Request } from "express";
 import express from "express";
 import "react-router";
 import maintenanceMiddleware from "~/modules/systemSettings/maintenanceMiddleware";
@@ -21,7 +22,7 @@ app.use((req, res, next) => {
   }
   return createRequestHandler({
     build: () => import("virtual:react-router/server-build"),
-    getLoadContext(req: any) {
+    getLoadContext(req: Request) {
       return {
         io: req.io,
       };

@@ -9,6 +9,7 @@ import type { UserTeam } from "~/modules/users/users.types";
 import sessionStorage from "../../../../sessionStorage";
 import setupNewUser from "../services/setupNewUser.server";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const githubStrategy = new GitHubStrategy<any>(
   {
     clientId: process.env.GITHUB_CLIENT_ID!,
@@ -50,7 +51,7 @@ const githubStrategy = new GitHubStrategy<any>(
     });
     let user = users.length > 0 ? users[0] : null;
 
-    const update: any = {};
+    const update: Record<string, unknown> = {};
 
     if (!user) {
       // if no user but is invite, update the invitedUser
@@ -82,7 +83,7 @@ const githubStrategy = new GitHubStrategy<any>(
       } else {
         // Direct signup — no invite required
         const primaryEmail = (
-          find(emails, (e: any) => e.primary) ||
+          find(emails, (e: { primary: boolean; email: string }) => e.primary) ||
           emails[0] ||
           {}
         ).email;

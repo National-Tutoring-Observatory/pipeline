@@ -1,5 +1,5 @@
 interface AnnotationSchemaObject {
-  annotations: Array<Record<string, any>>;
+  annotations: Array<Record<string, unknown>>;
 }
 
 interface SchemaItem {
@@ -7,7 +7,7 @@ interface SchemaItem {
   codes?: string[];
 }
 
-function getJsonSchemaType(value: any): string {
+function getJsonSchemaType(value: unknown): string {
   if (typeof value === "boolean") return "boolean";
   if (typeof value === "number") return "number";
   if (Array.isArray(value)) return "array";

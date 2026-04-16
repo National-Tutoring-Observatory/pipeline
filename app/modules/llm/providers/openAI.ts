@@ -16,12 +16,13 @@ registerLLM("OPEN_AI", {
     messages,
     schema,
   }: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     llm: any;
-    options: any;
+    options: unknown;
     messages: Array<{ role: string; content: string }>;
     schema?: object;
   }) => {
-    const requestParams: any = {
+    const requestParams: Record<string, unknown> = {
       model: "gpt-4o",
       messages: messages,
     };

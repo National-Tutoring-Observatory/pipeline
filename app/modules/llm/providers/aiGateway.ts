@@ -29,20 +29,22 @@ registerLLM("AI_GATEWAY", {
     messages,
     schema,
   }: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     llm: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     options: any;
     messages: Array<{ role: string; content: string }>;
     schema?: object;
   }) => {
     const { model, user } = options;
 
-    const metadata: any = {};
+    const metadata: Record<string, unknown> = {};
 
     if (user) {
       metadata.tags = [user];
     }
 
-    const requestParams: any = {
+    const requestParams: Record<string, unknown> = {
       user,
       model: model,
       messages: messages,
@@ -53,7 +55,7 @@ registerLLM("AI_GATEWAY", {
 
     applySchemaToRequest(requestParams, schema);
 
-    const requestOptions: Record<string, any> = {};
+    const requestOptions: Record<string, unknown> = {};
     if (options.timeout) {
       requestOptions.headers = {
         "x-litellm-timeout": String(options.timeout / 1000),

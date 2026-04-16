@@ -17,7 +17,7 @@ interface OrchestratorMessage {
   content: string;
 }
 
-type Variables = Record<string, any>;
+type Variables = Record<string, string>;
 
 interface LLMOptions {
   source: LlmCostSource;
@@ -34,9 +34,11 @@ const DEFAULT_RETRIES = 3;
 class LLM {
   options: LLMOptions & { retries: number };
   messages: Message[];
-  orchestratorMessage: any;
+  orchestratorMessage: OrchestratorMessage | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   methods: any;
   retries: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   llm: any;
   schema: object | undefined;
   private totalUsage: LLMUsage = {
@@ -128,6 +130,7 @@ class LLM {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createChat = async (): Promise<any> => {
     await this.checkBalance();
 
@@ -186,7 +189,7 @@ class LLM {
 
   replaceMessageWithVariables = (
     message: string,
-    variables: Record<string, any> = {},
+    variables: Record<string, string> = {},
   ): string => {
     each(variables, (variableValue, variableKey) => {
       message = message.replaceAll(`{{${variableKey}}}`, variableValue);
