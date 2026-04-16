@@ -69,13 +69,6 @@ export default function CreatePromptFromCodebookDialogContainer({
   };
 
   const handleSubmitClicked = () => {
-    console.log("[CreatePromptFromCodebookDialog] submit", {
-      codebookVersionId,
-      annotationType,
-      categoryIds,
-      hasFlattenedCategories,
-      flattenedAnnotationField,
-    });
     onCreatePromptClicked({
       codebookVersionId,
       annotationType,

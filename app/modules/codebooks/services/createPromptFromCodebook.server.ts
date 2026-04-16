@@ -44,14 +44,6 @@ export default async function createPromptFromCodebook({
       ? codebookVersion.categories.filter((c) => categoryIds.includes(c._id))
       : codebookVersion.categories;
 
-  console.log("[createPromptFromCodebook]", {
-    total: codebookVersion.categories.length,
-    selected: categories.length,
-    categoryIds,
-    hasFlattenedCategories,
-    flattenedAnnotationField,
-  });
-
   const summary = buildCodebookSummary({
     codebookName: codebook.name,
     codebookDescription: codebook.description,
@@ -102,10 +94,7 @@ export default async function createPromptFromCodebook({
       summary,
     });
 
-    console.log(llm.getMessagesAsString());
-
     const response = await llm.createChat();
-    console.log(response);
     userPrompt = response.prompt;
   } catch (error) {
     const errorMessage = handleLLMError(error);
