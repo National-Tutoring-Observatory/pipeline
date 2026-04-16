@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -28,6 +29,7 @@ export default function CreatePromptFromCodebookDialog({
   categoryIds,
   categories,
   hasFlattenedCategories,
+  flattenedAnnotationField,
   hasAllCategoriesSelected,
   isSubmitDisabled,
   onCodebookVersionChanged,
@@ -35,6 +37,7 @@ export default function CreatePromptFromCodebookDialog({
   onCategoryToggled,
   onToggleAllCategoriesClicked,
   onHasFlattenedCategoriesChanged,
+  onFlattenedAnnotationFieldChanged,
   onSubmitClicked,
 }: {
   codebookVersions: CodebookVersion[];
@@ -44,6 +47,7 @@ export default function CreatePromptFromCodebookDialog({
   categoryIds: string[];
   categories: CodebookCategory[];
   hasFlattenedCategories: boolean;
+  flattenedAnnotationField: string;
   hasAllCategoriesSelected: boolean;
   isSubmitDisabled: boolean;
   onCodebookVersionChanged: (id: string) => void;
@@ -51,6 +55,7 @@ export default function CreatePromptFromCodebookDialog({
   onCategoryToggled: (categoryId: string, checked: boolean) => void;
   onToggleAllCategoriesClicked: () => void;
   onHasFlattenedCategoriesChanged: (value: boolean) => void;
+  onFlattenedAnnotationFieldChanged: (value: string) => void;
   onSubmitClicked: () => void;
 }) {
   return (
@@ -149,6 +154,25 @@ export default function CreatePromptFromCodebookDialog({
               Flatten categories
             </Label>
           </div>
+          {hasFlattenedCategories && (
+            <div className="grid gap-1.5">
+              <Label htmlFor="flattened-annotation-field">
+                Annotation field
+              </Label>
+              <Input
+                id="flattened-annotation-field"
+                autoFocus
+                value={flattenedAnnotationField}
+                onChange={(e) =>
+                  onFlattenedAnnotationFieldChanged(e.target.value)
+                }
+              />
+              <p className="text-muted-foreground text-xs">
+                This field will act as the main annotation field for all
+                categories.
+              </p>
+            </div>
+          )}
         </div>
       </div>
       <DialogFooter className="justify-end">

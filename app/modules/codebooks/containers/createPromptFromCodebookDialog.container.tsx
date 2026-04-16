@@ -32,6 +32,7 @@ export default function CreatePromptFromCodebookDialogContainer({
     () => initialVersion?.categories.map((c) => c._id) ?? [],
   );
   const [hasFlattenedCategories, setHasFlattenedCategories] = useState(false);
+  const [flattenedAnnotationField, setFlattenedAnnotationField] = useState("");
 
   const selectedVersion = codebookVersions.find(
     (v) => v._id === codebookVersionId,
@@ -84,6 +85,7 @@ export default function CreatePromptFromCodebookDialogContainer({
       categoryIds={categoryIds}
       categories={categories}
       hasFlattenedCategories={hasFlattenedCategories}
+      flattenedAnnotationField={flattenedAnnotationField}
       hasAllCategoriesSelected={hasAllCategoriesSelected}
       isSubmitDisabled={isSubmitDisabled}
       onCodebookVersionChanged={handleCodebookVersionChanged}
@@ -91,6 +93,7 @@ export default function CreatePromptFromCodebookDialogContainer({
       onCategoryToggled={handleCategoryToggled}
       onToggleAllCategoriesClicked={handleToggleAllCategoriesClicked}
       onHasFlattenedCategoriesChanged={setHasFlattenedCategories}
+      onFlattenedAnnotationFieldChanged={setFlattenedAnnotationField}
       onSubmitClicked={handleSubmitClicked}
     />
   );
