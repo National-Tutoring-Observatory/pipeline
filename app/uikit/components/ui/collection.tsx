@@ -159,28 +159,40 @@ const Collection = ({
                     )}
                   </>
                 ) : (
-                  <div
-                    className={clsx("rounded-none", {
-                      "hover:bg-accent/50 cursor-pointer": onItemClicked,
-                    })}
-                    onClick={() => {
-                      if (onItemClicked) {
-                        onItemClicked(item._id);
-                      }
-                    }}
-                  >
-                    {(renderItem && renderItem(item)) || (
-                      <CollectionItemContent
+                  <>
+                    <div
+                      className={clsx(
+                        "flex min-w-0 flex-1 items-center gap-4 rounded-none",
+                        {
+                          "hover:bg-accent/50 cursor-pointer": onItemClicked,
+                        },
+                      )}
+                      onClick={() => {
+                        if (onItemClicked) {
+                          onItemClicked(item._id);
+                        }
+                      }}
+                    >
+                      {(renderItem && renderItem(item)) || (
+                        <CollectionItemContent
+                          id={id}
+                          title={title}
+                          description={description}
+                          meta={meta}
+                          actions={[]}
+                          isDisabled={isDisabled}
+                        />
+                      )}
+                    </div>
+                    {!renderItem && (
+                      <CollectionItemActions
                         id={id}
-                        title={title}
-                        description={description}
-                        meta={meta}
                         actions={itemActions}
-                        isDisabled={isDisabled}
+                        isDisabled={!!isDisabled}
                         onItemActionClicked={onItemActionClicked}
                       />
                     )}
-                  </div>
+                  </>
                 )}
               </Item>
               {index !== items.length - 1 && itemsLayout === "list" && (
