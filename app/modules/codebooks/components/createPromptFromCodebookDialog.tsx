@@ -20,6 +20,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { annotationTypeOptions } from "~/modules/annotations/helpers/annotationTypes";
 import type { CodebookCategory, CodebookVersion } from "../codebooks.types";
+import codifyName from "../helpers/codifyName";
 
 export default function CreatePromptFromCodebookDialog({
   codebookVersions,
@@ -122,17 +123,23 @@ export default function CreatePromptFromCodebookDialog({
               const checkboxId = `category-${category._id}`;
               const checked = categoryIds.includes(category._id);
               return (
-                <div key={category._id} className="flex items-center gap-2">
+                <div key={category._id} className="flex items-start gap-2">
                   <Checkbox
                     id={checkboxId}
                     checked={checked}
+                    className="mt-0.5"
                     onCheckedChange={(next) =>
                       onCategoryToggled(category._id, next === true)
                     }
                   />
-                  <Label htmlFor={checkboxId} className="font-normal">
-                    {category.name}
-                  </Label>
+                  <div>
+                    <Label htmlFor={checkboxId} className="font-normal">
+                      {category.name}
+                    </Label>
+                    <p className="text-muted-foreground text-[10px]">
+                      Code: {codifyName(category.name)}
+                    </p>
+                  </div>
                 </div>
               );
             })}

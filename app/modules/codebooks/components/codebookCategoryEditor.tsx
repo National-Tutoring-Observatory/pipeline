@@ -27,6 +27,7 @@ import { useMemo } from "react";
 import addDialog from "~/modules/dialogs/addDialog";
 import type { CodebookCategory, CodebookCode } from "../codebooks.types";
 import { createEmptyCode } from "../helpers/codebookEditorHelpers";
+import codifyName from "../helpers/codifyName";
 import CodebookCodeEditor from "./codebookCodeEditor";
 import DeleteCategoryDialog from "./deleteCategoryDialog";
 import DeleteCodeDialog from "./deleteCodeDialog";
@@ -125,6 +126,11 @@ export default function CodebookCategoryEditor({
             autoComplete="off"
             onChange={(e) => onChange({ ...category, name: e.target.value })}
           />
+          {category.name && (
+            <p className="text-muted-foreground text-[10px]">
+              Code: {codifyName(category.name)}
+            </p>
+          )}
         </div>
         <div className="grid gap-3">
           <Label htmlFor={`category-desc-${category._id}`}>Description</Label>

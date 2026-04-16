@@ -29,4 +29,8 @@ describe("codifyName", () => {
   it("handles lowercase input", () => {
     expect(codifyName("already lowercase")).toBe("ALREADY_LOWERCASE");
   });
+
+  it("preserves ampersand characters", () => {
+    expect(codifyName("Questions & Answers")).toBe("QUESTIONS_&_ANSWERS");
+  });
 });
