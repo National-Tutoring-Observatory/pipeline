@@ -10,8 +10,9 @@ export default function useHandleSockets({
   callback,
 }: {
   event: string;
-  matches: any[];
-  callback: (payload: any) => any;
+  matches: Record<string, unknown>[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  callback: (payload: any) => void;
 }) {
   const matchesRef = useRef(matches);
   const callbackRef = useRef(callback);
@@ -24,6 +25,7 @@ export default function useHandleSockets({
   useEffect(() => {
     let sockets: Socket | null;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleSocketsCallback = (payload: any) => {
       each(matchesRef.current, (match) => {
         if (isMatch(payload, match)) {
@@ -33,7 +35,7 @@ export default function useHandleSockets({
     };
 
     const connectSockets = async () => {
-      sockets = (await getSockets()) as any;
+      sockets = await getSockets();
       if (sockets) {
         sockets.on(event, handleSocketsCallback);
       }
