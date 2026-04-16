@@ -18,7 +18,7 @@ export default function ViewSession({
   leadRole,
 }: {
   session: Session;
-  transcript: any;
+  transcript: Utterance[] | null;
   leadRole: string;
 }) {
   return (

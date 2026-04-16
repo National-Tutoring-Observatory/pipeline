@@ -236,7 +236,9 @@ export default function RunSetCreateRunsRoute() {
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isLoading={fetcher.state !== "idle"}
-        errors={(fetcher.data as any)?.errors || {}}
+        errors={
+          (fetcher.data as { errors?: Record<string, string> })?.errors || {}
+        }
       />
     </div>
   );

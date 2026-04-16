@@ -146,7 +146,9 @@ export default function ProjectRunsRoute() {
     setCurrentPage(currentPage);
   };
 
-  const onFiltersValueChanged = (filterValue: any) => {
+  const onFiltersValueChanged = (
+    filterValue: Record<string, string | null>,
+  ) => {
     setFiltersValues({ ...filtersValues, ...filterValue });
   };
 

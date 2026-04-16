@@ -36,8 +36,8 @@ export default function Sessions({
   onItemClicked: (id: string) => void;
   onSearchValueChanged: (searchValue: string) => void;
   onPaginationChanged: (currentPage: number) => void;
-  onFiltersValueChanged: (filterValue: any) => void;
-  onSortValueChanged: (sortValue: any) => void;
+  onFiltersValueChanged: (filterValue: Record<string, string | null>) => void;
+  onSortValueChanged: (sortValue: string) => void;
 }) {
   return (
     <div className="mt-8">

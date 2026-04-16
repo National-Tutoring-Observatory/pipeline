@@ -12,7 +12,7 @@ export default async function createSessionsFromFiles({
 }: {
   projectId: string;
   shouldCreateSessionModels: boolean;
-  attributesMapping?: any;
+  attributesMapping?: Record<string, unknown>;
 }) {
   const projectFiles = await FileService.findByProject(projectId);
 
