@@ -1,21 +1,12 @@
 import map from "lodash/map";
-import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
-import type { User } from "~/modules/users/users.types";
+import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { TeamService } from "../team";
 import type { Route } from "./+types/availableTeams.route";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const userSession = (await getSessionUser({ request })) as User;
+  const user = await requireAuth({ request });
+  const teamIds = map(user.teams, "team");
+  const result = await TeamService.find({ match: { _id: { $in: teamIds } } });
 
-  if (!userSession) {
-    return { teams: [] };
-  }
-
-  const teamIds = map(userSession.teams, "team");
-  const match = { _id: { $in: teamIds } };
-
-  const result = await TeamService.find({ match });
-  const teams = { data: result };
-
-  return { teams };
+  return { teams: { data: result } };
 }
