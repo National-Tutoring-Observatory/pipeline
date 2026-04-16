@@ -19,9 +19,9 @@ export interface Job {
   name: string;
   data: unknown;
   opts: unknown;
-  timestamp: Date;
-  processedOn?: Date;
-  finishedOn?: Date;
+  timestamp: number;
+  processedOn?: number;
+  finishedOn?: number;
   returnvalue: unknown;
   failedReason: string;
   stacktrace: string[];

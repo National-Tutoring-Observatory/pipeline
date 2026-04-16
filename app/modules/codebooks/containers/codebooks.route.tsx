@@ -161,7 +161,7 @@ export async function action({ request }: Route.ActionArgs) {
       }
 
       await CodebookService.updateById(entityId, {
-        deletedAt: new Date() as unknown as string,
+        deletedAt: new Date(),
       });
 
       return data({

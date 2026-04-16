@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import { redis } from "~/modules/queues/helpers/createQueue";
 
-const checkParamsExist = (paramKeys: string[]) => {
-  const missingParams = [];
+const checkParamsExist = (paramKeys: string[]): string[] => {
+  const missingParams: string[] = [];
   for (const paramKey of paramKeys) {
     if (!process.env[paramKey]) {
       missingParams.push(paramKey);

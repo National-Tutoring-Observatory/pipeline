@@ -42,6 +42,7 @@ registerStorageAdapter({
       await fse.outputFile(absoluteUploadPath, buffer);
     } catch (error) {
       console.error(error);
+      throw error;
     }
   },
   remove: async ({ sourcePath }: RemoveParams): Promise<void> => {

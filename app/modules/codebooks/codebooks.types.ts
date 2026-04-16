@@ -11,7 +11,7 @@ export interface Codebook {
   createdBy: User | string;
   updatedAt?: string;
   updatedBy?: User | string;
-  deletedAt?: string;
+  deletedAt?: Date;
 }
 
 export interface CodebookExample {
