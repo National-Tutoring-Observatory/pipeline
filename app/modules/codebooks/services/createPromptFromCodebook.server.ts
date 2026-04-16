@@ -13,12 +13,14 @@ export default async function createPromptFromCodebook({
   codebookId,
   codebookVersionId,
   annotationType,
+  categoryIds,
   userId,
   teamId,
 }: {
   codebookId: string;
   codebookVersionId: string;
   annotationType: string;
+  categoryIds?: string[];
   userId: string;
   teamId: string;
 }) {
@@ -33,15 +35,24 @@ export default async function createPromptFromCodebook({
     throw new Error("Codebook version not found");
   }
 
+  const categories =
+    categoryIds && categoryIds.length > 0
+      ? codebookVersion.categories.filter((c) => categoryIds.includes(c._id))
+      : codebookVersion.categories;
+
+  console.log("[createPromptFromCodebook] filtered categories", {
+    total: codebookVersion.categories.length,
+    selected: categories.length,
+    categoryIds,
+  });
+
   const summary = buildCodebookSummary({
     codebookName: codebook.name,
     codebookDescription: codebook.description,
-    categories: codebookVersion.categories,
+    categories,
   });
 
-  const annotationSchema = buildAnnotationSchemaFromCategories(
-    codebookVersion.categories,
-  );
+  const annotationSchema = buildAnnotationSchemaFromCategories(categories);
 
   let userPrompt: string;
 

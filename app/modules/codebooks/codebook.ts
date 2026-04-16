@@ -72,6 +72,7 @@ export class CodebookService {
     codebookId: string;
     codebookVersionId: string;
     annotationType: string;
+    categoryIds?: string[];
     userId: string;
     teamId: string;
   }) {

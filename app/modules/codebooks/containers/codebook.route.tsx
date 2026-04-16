@@ -102,7 +102,7 @@ export async function action({ request }: Route.ActionArgs) {
       });
     }
     case "CREATE_PROMPT_FROM_CODEBOOK": {
-      const { codebookVersionId, annotationType } = payload;
+      const { codebookVersionId, annotationType, categoryIds } = payload;
 
       if (!PromptAuthorization.canCreate(user, codebook.team as string)) {
         return data(
@@ -122,6 +122,7 @@ export async function action({ request }: Route.ActionArgs) {
           codebookId: entityId,
           codebookVersionId,
           annotationType,
+          categoryIds,
           userId: user._id,
           teamId: codebook.team as string,
         });
