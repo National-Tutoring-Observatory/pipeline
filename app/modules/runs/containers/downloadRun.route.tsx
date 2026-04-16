@@ -29,8 +29,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const exportType = searchParams.get("exportType");
   if (!exportType) throw new Error("exportType is required");
 
-  const run = await RunService.findById(params.runId);
-  if (!run || run.project !== params.projectId) {
+  const run = await RunService.findOne({
+    _id: params.runId,
+    project: params.projectId,
+  });
+  if (!run) {
     throw new Error("Run not found.");
   }
 
