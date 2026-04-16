@@ -21,7 +21,7 @@ async function initPro() {
   }
 }
 
-export const QUEUES: Record<string, Queue | any> = {};
+export const QUEUES: Record<string, Queue> = {};
 
 export const redis = getRedisInstance({ maxRetriesPerRequest: null });
 redis.on("error", (err: Error) =>

@@ -15,7 +15,9 @@ export default function useSubmitGuard(
 
   const isSubmitting = fetcher.state !== "idle" || shouldStayBusy;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const guard = <T extends (...args: any[]) => void>(fn: T): T => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return ((...args: any[]) => {
       if (guardRef.current) return;
       guardRef.current = true;

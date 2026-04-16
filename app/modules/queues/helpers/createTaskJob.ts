@@ -4,7 +4,7 @@ import getQueue from "./getQueue";
 
 interface ChildJob {
   name: string;
-  data: any;
+  data: Record<string, unknown>;
   group?: { id: string };
 }
 
@@ -14,7 +14,7 @@ export default async ({
   children,
 }: {
   name: string;
-  data: any;
+  data: Record<string, unknown>;
   children: ChildJob[];
 }) => {
   const queue = getQueue("tasks");

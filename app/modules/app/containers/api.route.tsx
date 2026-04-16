@@ -12,7 +12,7 @@ const checkParamsExist = (paramKeys: string[]) => {
 };
 
 export async function loader() {
-  let missingParameters: any[] = [];
+  let missingParameters: string[] = [];
 
   const { LLM_PROVIDER, STORAGE_ADAPTER, DOCUMENTS_ADAPTER } = process.env;
 
