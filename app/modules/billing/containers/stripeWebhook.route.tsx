@@ -41,10 +41,10 @@ export async function action({ request }: Route.ActionArgs) {
             note: "Purchased via Stripe",
             stripeSessionId: session.id,
           });
-        } catch (err: any) {
+        } catch (err: unknown) {
           // 11000 is MongoDB's duplicate key error — means another concurrent
           // request already inserted this session, safe to ignore
-          if (err.code !== 11000) throw err;
+          if ((err as { code?: number }).code !== 11000) throw err;
         }
       }
     }
