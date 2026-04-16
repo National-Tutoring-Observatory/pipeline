@@ -20,9 +20,11 @@ export default function AnnotationSchemaBuilder({
   hasBeenSaved,
   onAnnotationSchemaChanged,
 }: {
-  annotationSchema: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  annotationSchema: any[];
   hasBeenSaved: boolean;
-  onAnnotationSchemaChanged: (annotationSchema: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onAnnotationSchemaChanged: (annotationSchema: any[]) => void;
 }) {
   const onCreateNewSchemaField = () => {
     const annotationSchemaCloned = cloneDeep(annotationSchema);

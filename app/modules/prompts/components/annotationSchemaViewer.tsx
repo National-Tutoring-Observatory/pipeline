@@ -15,7 +15,8 @@ import CodesViewer from "./codesViewer";
 export default function AnnotationSchemaViewer({
   annotationSchema,
 }: {
-  annotationSchema: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  annotationSchema: any[];
 }) {
   return (
     <div>

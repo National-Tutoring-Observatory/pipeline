@@ -1,7 +1,8 @@
+import type { AnnotationSchemaItem } from "../../prompts/prompts.types";
 import type { CodebookCategory } from "../codebooks.types";
 import codifyName from "./codifyName";
 
-const SYSTEM_FIELDS = [
+const SYSTEM_FIELDS: AnnotationSchemaItem[] = [
   { isSystem: true, fieldKey: "_id", fieldType: "string", value: "" },
   {
     isSystem: true,
@@ -33,7 +34,7 @@ export function buildAnnotationSchemaFromCategories(
         fieldType: "string",
         value: "",
         codes: allCodes,
-      } as any);
+      });
     }
   } else {
     for (const category of categories) {
@@ -45,7 +46,7 @@ export function buildAnnotationSchemaFromCategories(
         fieldType: "string",
         value: "",
         codes: category.codes.map((c) => c.code),
-      } as any);
+      });
     }
   }
 

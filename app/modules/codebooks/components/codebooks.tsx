@@ -23,7 +23,7 @@ interface CodebooksProps {
   onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
   onSearchValueChanged: (searchValue: string) => void;
   onPaginationChanged: (currentPage: number) => void;
-  onSortValueChanged: (sortValue: any) => void;
+  onSortValueChanged: (sortValue: string) => void;
 }
 
 export default function Codebooks({

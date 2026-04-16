@@ -6,7 +6,7 @@ export default function tokenizePromptVersion(
   userPrompt: string,
   annotationSchema: AnnotationSchemaItem[],
 ): number {
-  const annotationFields: Record<string, any> = {};
+  const annotationFields: Record<string, unknown> = {};
   for (const item of annotationSchema) {
     annotationFields[item.fieldKey] = item.value;
   }

@@ -11,7 +11,8 @@ export default function SavePromptVersionDialogContainer({
   onAcceptChangesClicked,
 }: {
   userPrompt: string;
-  annotationSchema: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  annotationSchema: any[];
   team: string;
   promptId: string;
   onSaveClicked: () => void;
