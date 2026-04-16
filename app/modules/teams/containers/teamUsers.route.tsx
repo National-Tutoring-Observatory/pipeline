@@ -19,7 +19,7 @@ import TeamAuthorization from "../authorization";
 import ConfirmRemoveUserDialog from "../components/confirmRemoveUserDialog";
 import TeamUsers from "../components/teamUsers";
 import { addSuperAdminToTeam } from "../services/teamUsers.server";
-import type { TeamAssignmentOption, TeamRole } from "../teams.types";
+import type { Team, TeamAssignmentOption, TeamRole } from "../teams.types";
 import { isTeamAssignmentOption, isTeamRole } from "../teams.types";
 import type { Route } from "./+types/teamUsers.route";
 import AddSuperAdminToTeamDialogContainer from "./addSuperAdminToTeamDialogContainer";
@@ -126,7 +126,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function TeamUsersRoute() {
   const data = useLoaderData<typeof loader>();
-  const ctx = useOutletContext<any>();
+  const ctx = useOutletContext<{ team: Team }>();
   const submit = useSubmit();
   const user = useContext(AuthenticationContext) as User;
 
