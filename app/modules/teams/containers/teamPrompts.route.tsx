@@ -127,6 +127,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function TeamPromptsRoute() {
   const data = useLoaderData<typeof loader>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ctx = useOutletContext<any>();
   const actionData = useActionData();
   const submit = useSubmit();
@@ -207,7 +208,9 @@ export default function TeamPromptsRoute() {
     setCurrentPage(currentPage);
   };
 
-  const onFiltersValueChanged = (filterValue: any) => {
+  const onFiltersValueChanged = (
+    filterValue: Record<string, string | null>,
+  ) => {
     setFiltersValues({ ...filtersValues, ...filterValue });
   };
 

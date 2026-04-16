@@ -22,14 +22,14 @@ interface AdminUsersProps {
   currentPage: number;
   totalPages: number;
   sortValue: string;
-  filtersValues: Record<string, any>;
+  filtersValues: Record<string, string | null>;
   isSyncing?: boolean;
   isAuditSyncing?: boolean;
   onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
   onSearchValueChanged: (searchValue: string) => void;
   onPaginationChanged: (currentPage: number) => void;
   onSortValueChanged: (sortValue: string) => void;
-  onFiltersValueChanged: (filterValue: any) => void;
+  onFiltersValueChanged: (filterValue: Record<string, string | null>) => void;
   onAuditSearchChanged: (searchValue: string) => void;
   onAuditPageChanged: (page: number) => void;
   onAuditSortChanged: (sortValue: string) => void;

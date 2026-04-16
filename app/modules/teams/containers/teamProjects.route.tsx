@@ -94,6 +94,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 export default function TeamProjectsRoute() {
   const data = useLoaderData<typeof loader>();
   const params = useParams();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ctx = useOutletContext<any>();
   const navigate = useNavigate();
   const user = useContext(AuthenticationContext) as User;
@@ -153,7 +154,9 @@ export default function TeamProjectsRoute() {
     setCurrentPage(currentPage);
   };
 
-  const onFiltersValueChanged = (filterValue: any) => {
+  const onFiltersValueChanged = (
+    filterValue: Record<string, string | null>,
+  ) => {
     setFiltersValues({ ...filtersValues, ...filterValue });
   };
 
