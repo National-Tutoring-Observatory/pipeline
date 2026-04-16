@@ -16,7 +16,7 @@ export default defineConfig([
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
-      "@typescript-eslint/consistent-type-assertions": "warn",
+      "@typescript-eslint/consistent-type-assertions": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
