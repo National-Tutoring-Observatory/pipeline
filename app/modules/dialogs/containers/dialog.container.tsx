@@ -17,8 +17,9 @@ function modalReducer(
     }
     case "REMOVE": {
       return {
-        ...modal,
         isOpen: false,
+        component: null,
+        onCloseModalClicked: () => {},
       };
     }
     default: {

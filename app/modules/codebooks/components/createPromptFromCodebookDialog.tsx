@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Item, ItemContent, ItemGroup, ItemTitle } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -60,7 +61,7 @@ export default function CreatePromptFromCodebookDialog({
   onSubmitClicked: () => void;
 }) {
   return (
-    <DialogContent>
+    <DialogContent className="flex max-h-[80vh] flex-col">
       <DialogHeader>
         <DialogTitle>Create prompt from codebook</DialogTitle>
         <DialogDescription>
@@ -69,7 +70,7 @@ export default function CreatePromptFromCodebookDialog({
           schema.
         </DialogDescription>
       </DialogHeader>
-      <div className="grid gap-3">
+      <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto">
         <Label htmlFor="codebook-version">Codebook version</Label>
         <Select
           value={codebookVersionId}
@@ -118,32 +119,35 @@ export default function CreatePromptFromCodebookDialog({
             This codebook version has no categories.
           </p>
         ) : (
-          <div className="flex flex-col gap-2">
+          <ItemGroup className="gap-2">
             {categories.map((category) => {
               const checkboxId = `category-${category._id}`;
               const checked = categoryIds.includes(category._id);
               return (
-                <div key={category._id} className="flex items-start gap-2">
+                <Item
+                  key={category._id}
+                  variant="outline"
+                  size="sm"
+                  className="hover:bg-accent cursor-pointer"
+                  onClick={() => onCategoryToggled(category._id, !checked)}
+                >
                   <Checkbox
                     id={checkboxId}
                     checked={checked}
-                    className="mt-0.5"
                     onCheckedChange={(next) =>
                       onCategoryToggled(category._id, next === true)
                     }
                   />
-                  <div>
-                    <Label htmlFor={checkboxId} className="font-normal">
-                      {category.name}
-                    </Label>
+                  <ItemContent>
+                    <ItemTitle>{category.name}</ItemTitle>
                     <code className="text-muted-foreground bg-muted inline w-fit rounded px-1 py-0.5 text-[10px]">
                       Code: {codifyName(category.name)}
                     </code>
-                  </div>
-                </div>
+                  </ItemContent>
+                </Item>
               );
             })}
-          </div>
+          </ItemGroup>
         )}
         <div className="flex flex-col gap-2">
           <Label>Flatten categories</Label>
