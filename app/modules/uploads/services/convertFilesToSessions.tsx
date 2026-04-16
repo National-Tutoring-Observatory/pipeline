@@ -50,7 +50,8 @@ export default async function convertFilesToSessions({
         body: {
           inputFile: `${inputDirectory}/${projectFile.file}/${file.name}`,
           outputFolder: `${outputDirectory}/${projectFile._id}`,
-          team: project.team,
+          team:
+            typeof project.team === "string" ? project.team : project.team._id,
           sessionId: projectFile._id,
         },
       });
