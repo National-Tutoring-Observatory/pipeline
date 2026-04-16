@@ -3,6 +3,7 @@ import {
   DeleteObjectsCommand,
   GetObjectCommand,
   S3Client,
+  type S3ClientConfig,
   paginateListObjectsV2,
 } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
@@ -30,7 +31,7 @@ function getS3Client() {
       "Missing AWS configuration: AWS_REGION, AWS_KEY, or AWS_SECRET",
     );
   }
-  const config: any = {
+  const config: S3ClientConfig = {
     region: AWS_REGION,
     credentials: {
       accessKeyId: AWS_KEY,
