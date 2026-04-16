@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { BookCheck, BookOpen, ExternalLink, Save } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
-import type { PromptVersion } from "../prompts.types";
+import type { AnnotationSchemaItem, PromptVersion } from "../prompts.types";
 import AnnotationSchemaBuilder from "./annotationSchemaBuilder";
 
 export default function PromptEditor({
@@ -27,16 +27,16 @@ export default function PromptEditor({
   }: {
     name: string;
     userPrompt: string;
-    annotationSchema: any[];
+    annotationSchema: AnnotationSchemaItem[];
   }) => void;
   onMakePromptVersionProduction: () => void;
 }) {
   const [hasChanges, setHasChanges] = useState(!!promptVersion.userPrompt);
   const [name, setName] = useState(promptVersion.name);
   const [userPrompt, setUserPrompt] = useState(promptVersion.userPrompt || "");
-  const [annotationSchema, setAnnotationSchema] = useState<any[]>(
-    promptVersion.annotationSchema,
-  );
+  const [annotationSchema, setAnnotationSchema] = useState<
+    AnnotationSchemaItem[]
+  >(promptVersion.annotationSchema);
 
   const onNameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     setHasChanges(true);
@@ -50,7 +50,9 @@ export default function PromptEditor({
     setUserPrompt(event.target.value);
   };
 
-  const onAnnotationSchemaChanged = (annotationSchema: any) => {
+  const onAnnotationSchemaChanged = (
+    annotationSchema: AnnotationSchemaItem[],
+  ) => {
     setHasChanges(true);
     setAnnotationSchema(annotationSchema);
   };

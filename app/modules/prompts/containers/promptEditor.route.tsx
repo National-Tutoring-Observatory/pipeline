@@ -14,6 +14,7 @@ import PromptEditor from "../components/promptEditor";
 import { SYSTEM_FIELDS } from "../helpers/defaultPrompts";
 import tokenizePromptVersion from "../helpers/tokenizePromptVersion";
 import { PromptService } from "../prompt";
+import type { AnnotationSchemaItem } from "../prompts.types";
 import { PromptVersionService } from "../promptVersion";
 import type { Route } from "./+types/promptEditor.route";
 import SavePromptVersionDialogContainer from "./savePromptVersionDialogContainer";
@@ -150,7 +151,7 @@ export default function PromptEditorRoute() {
   }: {
     name: string;
     userPrompt: string;
-    annotationSchema: any[];
+    annotationSchema: AnnotationSchemaItem[];
   }) => {
     addDialog(
       <SavePromptVersionDialogContainer

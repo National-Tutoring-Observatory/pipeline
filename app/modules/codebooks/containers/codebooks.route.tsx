@@ -103,6 +103,7 @@ export async function action({ request }: Route.ActionArgs) {
         version: 1,
         categories: [
           { name: "New category", description: "", codes: [] },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ] as any,
       });
 
@@ -160,7 +161,7 @@ export async function action({ request }: Route.ActionArgs) {
       }
 
       await CodebookService.updateById(entityId, {
-        deletedAt: new Date() as any,
+        deletedAt: new Date() as unknown as string,
       });
 
       return data({

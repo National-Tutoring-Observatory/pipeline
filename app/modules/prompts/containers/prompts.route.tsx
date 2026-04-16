@@ -271,7 +271,9 @@ export default function PromptsRoute({ loaderData }: Route.ComponentProps) {
     setCurrentPage(currentPage);
   };
 
-  const onFiltersValueChanged = (filterValue: any) => {
+  const onFiltersValueChanged = (
+    filterValue: Record<string, string | null>,
+  ) => {
     setFiltersValues({ ...filtersValues, ...filterValue });
   };
 
