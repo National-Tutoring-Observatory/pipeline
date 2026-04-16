@@ -8,8 +8,8 @@ import type { Team } from "./teams.types";
 const TeamModel = mongoose.models.Team || mongoose.model("Team", teamSchema);
 
 export class TeamService {
-  private static toTeam(doc: any): Team {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toTeam(doc: mongoose.Document): Team {
+    return doc.toJSON({ flattenObjectIds: true }) as Team;
   }
 
   static async find(options?: FindOptions): Promise<Team[]> {
@@ -38,7 +38,7 @@ export class TeamService {
     return docs.map((doc) => this.toTeam(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return TeamModel.countDocuments(match);
   }
 
@@ -109,7 +109,7 @@ export class TeamService {
 
   static async findAllIds(): Promise<string[]> {
     const ids = await TeamModel.distinct("_id");
-    return ids.map((id: any) => id.toString());
+    return ids.map((id: mongoose.Types.ObjectId) => id.toString());
   }
 
   static async createForUser(

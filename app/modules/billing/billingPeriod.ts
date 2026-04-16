@@ -28,7 +28,7 @@ const LlmCostModel =
 
 export class BillingPeriodService {
   private static toBillingPeriod(doc: any): BillingPeriod {
-    return doc.toJSON({ flattenObjectIds: true });
+    return doc.toJSON({ flattenObjectIds: true }) as BillingPeriod;
   }
 
   static async openPeriod(

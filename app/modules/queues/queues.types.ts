@@ -17,12 +17,12 @@ export interface Job {
   };
   // Core properties
   name: string;
-  data: any;
-  opts: any;
+  data: unknown;
+  opts: unknown;
   timestamp: Date;
   processedOn?: Date;
   finishedOn?: Date;
-  returnvalue: any;
+  returnvalue: unknown;
   failedReason: string;
   stacktrace: string[];
   attemptsMade: number;

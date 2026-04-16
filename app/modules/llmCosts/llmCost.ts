@@ -15,8 +15,8 @@ export const LlmCostModel =
   mongoose.models.LlmCost || mongoose.model("LlmCost", llmCostSchema);
 
 export class LlmCostService {
-  private static toLlmCost(doc: any): LlmCost {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toLlmCost(doc: mongoose.Document): LlmCost {
+    return doc.toJSON({ flattenObjectIds: true }) as LlmCost;
   }
 
   static async create(

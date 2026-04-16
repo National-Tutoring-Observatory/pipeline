@@ -8,8 +8,8 @@ import type { User } from "./users.types";
 const UserModel = mongoose.models.User || mongoose.model("User", userSchema);
 
 export class UserService {
-  private static toUser(doc: any): User {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toUser(doc: mongoose.Document): User {
+    return doc.toJSON({ flattenObjectIds: true }) as User;
   }
 
   static async find(options?: FindOptions): Promise<User[]> {
@@ -38,7 +38,7 @@ export class UserService {
     return docs.map((doc) => this.toUser(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return UserModel.countDocuments(match);
   }
 
@@ -92,7 +92,7 @@ export class UserService {
     return doc ? this.toUser(doc) : null;
   }
 
-  static async findOne(match: Record<string, any>): Promise<User | null> {
+  static async findOne(match: Record<string, unknown>): Promise<User | null> {
     const docs = await this.find({ match });
     return docs[0] || null;
   }

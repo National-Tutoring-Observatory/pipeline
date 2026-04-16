@@ -11,8 +11,8 @@ const EvaluationModel =
   mongoose.models.Evaluation || mongoose.model("Evaluation", evaluationSchema);
 
 export class EvaluationService {
-  private static toEvaluation(doc: any): Evaluation {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toEvaluation(doc: mongoose.Document): Evaluation {
+    return doc.toJSON({ flattenObjectIds: true }) as Evaluation;
   }
 
   static async find(options?: FindOptions): Promise<Evaluation[]> {
@@ -41,7 +41,7 @@ export class EvaluationService {
     return docs.map((doc) => this.toEvaluation(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return EvaluationModel.countDocuments(match);
   }
 
@@ -51,7 +51,9 @@ export class EvaluationService {
     return doc ? this.toEvaluation(doc) : null;
   }
 
-  static async findOne(match: Record<string, any>): Promise<Evaluation | null> {
+  static async findOne(
+    match: Record<string, unknown>,
+  ): Promise<Evaluation | null> {
     const doc = await EvaluationModel.findOne(match);
     return doc ? this.toEvaluation(doc) : null;
   }

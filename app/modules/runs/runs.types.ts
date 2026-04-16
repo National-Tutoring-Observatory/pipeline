@@ -18,7 +18,7 @@ export interface Run {
   isAdjudication?: boolean;
   adjudication?: {
     sourceRuns: string[];
-    disagreements?: Record<string, any[]>;
+    disagreements?: Record<string, unknown[]>;
   };
   sessions: RunSession[];
   snapshot: RunSnapshot;

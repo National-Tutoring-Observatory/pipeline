@@ -31,7 +31,7 @@ async function getDatabaseConnection(): Promise<DatabaseConnection> {
   const connectionString = `mongodb://${encodeURIComponent(DOCUMENT_DB_USERNAME)}:${encodeURIComponent(DOCUMENT_DB_PASSWORD)}@${DOCUMENT_DB_CONNECTION_STRING}`;
 
   if (!CONNECTION) {
-    const connectionOptions: any = {
+    const connectionOptions: mongoose.ConnectOptions = {
       connectTimeoutMS: 10000,
     };
 

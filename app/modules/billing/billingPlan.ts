@@ -7,8 +7,8 @@ const BillingPlanModel =
   mongoose.model("BillingPlan", billingPlanSchema);
 
 export class BillingPlanService {
-  private static toBillingPlan(doc: any): BillingPlan {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toBillingPlan(doc: mongoose.Document): BillingPlan {
+    return doc.toJSON({ flattenObjectIds: true }) as BillingPlan;
   }
 
   static async findById(id: string): Promise<BillingPlan | null> {

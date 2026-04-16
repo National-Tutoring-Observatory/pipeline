@@ -56,7 +56,7 @@ describe("promptVersionsList.route loader", () => {
       version: 1,
       name: "v1",
       userPrompt: "Do something",
-      annotationSchema: [{ name: "label" }],
+      annotationSchema: [{ fieldKey: "label", value: "", isSystem: false }],
       hasBeenSaved: true,
     });
     const unsavedVersion = await PromptVersionService.create({

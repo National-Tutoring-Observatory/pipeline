@@ -8,8 +8,8 @@ const ProjectModel =
   mongoose.models.Project || mongoose.model("Project", projectSchema);
 
 export class ProjectService {
-  private static toProject(doc: any): Project {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toProject(doc: mongoose.Document): Project {
+    return doc.toJSON({ flattenObjectIds: true }) as Project;
   }
 
   static async find(options?: FindOptions): Promise<Project[]> {
@@ -38,7 +38,7 @@ export class ProjectService {
     return docs.map((doc) => this.toProject(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return ProjectModel.countDocuments(match);
   }
 
@@ -68,7 +68,9 @@ export class ProjectService {
     return doc ? this.toProject(doc) : null;
   }
 
-  static async findOne(match: Record<string, any>): Promise<Project | null> {
+  static async findOne(
+    match: Record<string, unknown>,
+  ): Promise<Project | null> {
     const docs = await this.find({ match });
     return docs[0] || null;
   }

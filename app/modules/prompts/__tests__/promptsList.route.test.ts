@@ -40,7 +40,7 @@ describe("promptsList.route loader", () => {
       version: 1,
       name: "v1",
       userPrompt: "Do something",
-      annotationSchema: [{ name: "label" }],
+      annotationSchema: [{ fieldKey: "label", value: "", isSystem: false }],
       hasBeenSaved: true,
     });
     const promptOther = await PromptService.create({
@@ -85,7 +85,7 @@ describe("promptsList.route loader", () => {
       version: 1,
       name: "v1",
       userPrompt: "Do something",
-      annotationSchema: [{ name: "label" }],
+      annotationSchema: [{ fieldKey: "label", value: "", isSystem: false }],
       hasBeenSaved: true,
     });
 
