@@ -1,3 +1,4 @@
+import type { JobType } from "bullmq";
 import { useEffect } from "react";
 import {
   data,
@@ -45,16 +46,16 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     const total = await queue.getGroupsJobsCount();
     const groups = await queue.getGroups(0, -1);
 
-    const allJobs = [];
+    const allJobs: Job[] = [];
     for (const group of groups) {
-      const groupJobs = await queue.getGroupJobs(group.id, 0, -1);
+      const groupJobs = (await queue.getGroupJobs(group.id, 0, -1)) as Job[];
       allJobs.push(...groupJobs);
     }
 
     // Sort by timestamp descending by default
-    allJobs.sort((a: { timestamp?: number }, b: { timestamp?: number }) => {
-      const timeA = a.timestamp || 0;
-      const timeB = b.timestamp || 0;
+    allJobs.sort((a, b) => {
+      const timeA = Number(a.timestamp) || 0;
+      const timeB = Number(b.timestamp) || 0;
       return asc ? timeA - timeB : timeB - timeA;
     });
 
@@ -77,14 +78,16 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     };
   }
 
-  const jobs = await queue.getJobs(
-    state,
+  const jobState = state as JobType;
+
+  const jobs = (await queue.getJobs(
+    jobState,
     pagination.skip,
     pagination.skip + pagination.limit - 1,
     asc,
-  );
+  )) as unknown as Job[];
 
-  const total = await queue.getJobCountByTypes(state);
+  const total = await queue.getJobCountByTypes(jobState);
 
   return {
     queueType: type,
@@ -132,7 +135,8 @@ export async function action({ request, params }: Route.ActionArgs) {
           );
         }
 
-        if (job.state === "failed" || job.state === undefined) {
+        const jobState = await job.getState();
+        if (jobState === "failed" || jobState === "unknown") {
           await job.retry();
         } else {
           return data(

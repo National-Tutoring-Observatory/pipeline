@@ -67,7 +67,7 @@ export default function SessionViewer({
       verificationChanges?.changed,
       (c: { after: Annotation; before: Annotation }) =>
         c.after._id === annotation._id,
-    )?.before ?? null;
+    )?.before ?? undefined;
 
   const isAddedAnnotation = (annotation: Annotation) =>
     verificationChanges?.added.some((a) => a._id === annotation._id) ?? false;
