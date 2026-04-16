@@ -14,7 +14,7 @@ import { AuthenticationContext } from "~/modules/authentication/authentication.c
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import addDialog from "~/modules/dialogs/addDialog";
 import { UserService } from "~/modules/users/user";
-import type { User } from "~/modules/users/users.types";
+import type { User, UserTeam } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
 import ConfirmRemoveUserDialog from "../components/confirmRemoveUserDialog";
 import TeamUsers from "../components/teamUsers";
@@ -106,7 +106,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       }
       const targetUser = await UserService.findById(targetUserId);
       if (!targetUser) return {};
-      const updatedTeams = targetUser.teams.map((t: any) =>
+      const updatedTeams = targetUser.teams.map((t: UserTeam) =>
         t.team === params.id ? { ...t, role: newRole } : t,
       );
       await UserService.updateById(targetUserId, { teams: updatedTeams });
@@ -260,7 +260,9 @@ export default function TeamUsersRoute() {
     setCurrentPage(currentPage);
   };
 
-  const onFiltersValueChanged = (filterValue: any) => {
+  const onFiltersValueChanged = (
+    filterValue: Record<string, string | null>,
+  ) => {
     setFiltersValues({ ...filtersValues, ...filterValue });
   };
 

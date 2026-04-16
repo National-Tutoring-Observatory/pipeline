@@ -23,8 +23,8 @@ interface TeamProjectsProps {
   onItemActionClicked: ({ id, action }: { id: string; action: string }) => void;
   onSearchValueChanged: (searchValue: string) => void;
   onPaginationChanged: (currentPage: number) => void;
-  onFiltersValueChanged: (filterValue: any) => void;
-  onSortValueChanged: (sortValue: any) => void;
+  onFiltersValueChanged: (filterValue: Record<string, string | null>) => void;
+  onSortValueChanged: (sortValue: string) => void;
 }
 
 export default function TeamProjects({
