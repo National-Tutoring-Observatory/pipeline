@@ -77,6 +77,7 @@ export async function action({ request }: Route.ActionArgs) {
     }
     session.flash("inviteId", data.inviteId);
   }
+
   try {
     await authenticator.authenticate(data.provider, request);
   } catch (error) {

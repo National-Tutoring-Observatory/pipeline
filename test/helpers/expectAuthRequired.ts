@@ -9,5 +9,5 @@ export default async function expectAuthRequired(fn: () => Promise<unknown>) {
   }
   expect(thrown).toBeInstanceOf(Response);
   expect((thrown as Response).status).toBe(302);
-  expect((thrown as Response).headers.get("Location")).toBe("/");
+  expect((thrown as Response).headers.get("Location")).toBe("/signup");
 }
