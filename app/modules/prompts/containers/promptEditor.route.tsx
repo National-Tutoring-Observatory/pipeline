@@ -144,7 +144,7 @@ export function shouldRevalidate({
 }
 
 export default function PromptEditorRoute() {
-  const data = useLoaderData();
+  const data = useLoaderData<typeof loader>();
   const navigation = useNavigation();
   const submit = useSubmit();
 
@@ -163,7 +163,7 @@ export default function PromptEditorRoute() {
       <SavePromptVersionDialogContainer
         userPrompt={userPrompt}
         annotationSchema={annotationSchema}
-        team={prompt.data.team}
+        team={prompt.data.team as string}
         promptId={prompt.data._id}
         onSaveClicked={() => {
           submit(
