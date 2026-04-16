@@ -66,7 +66,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export default function ProjectRunsRoute() {
-  const { runs } = useLoaderData();
+  const { runs } = useLoaderData<typeof loader>();
   const { id: projectId } = useParams();
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();

@@ -78,7 +78,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function ProjectSessionsRoute() {
-  const { sessions, project } = useLoaderData();
+  const { sessions, project } = useLoaderData<typeof loader>();
   const submit = useSubmit();
 
   const {

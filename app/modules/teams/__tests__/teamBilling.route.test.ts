@@ -3,10 +3,10 @@ import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
-import { action } from "../../teams/containers/teamBilling.route";
-import { BillingPlanService } from "../billingPlan";
-import { TeamBillingPlanService } from "../teamBillingPlan";
-import { TeamCreditService } from "../teamCredit";
+import { BillingPlanService } from "../../billing/billingPlan";
+import { TeamBillingPlanService } from "../../billing/teamBillingPlan";
+import { TeamCreditService } from "../../billing/teamCredit";
+import { action } from "../containers/teamBilling.route";
 
 function buildActionRequest(
   cookieHeader: string,
@@ -53,8 +53,7 @@ describe("teamBilling.route action", () => {
         }),
       );
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("not a member");
+      expect(result.data.errors.general).toContain("not a member");
     });
 
     it("allows setting a team member as billing user", async () => {
@@ -72,14 +71,14 @@ describe("teamBilling.route action", () => {
 
       const cookie = await loginUser(admin._id);
 
-      const result = await action(
+      const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "SET_BILLING_USER",
           payload: { userId: member._id },
         }),
       );
 
-      expect(result.success).toBe(true);
+      expect(result.data.success).toBe(true);
 
       const updated = await TeamService.findById(team._id);
       expect(updated?.billingUser).toBe(member._id);
@@ -101,8 +100,7 @@ describe("teamBilling.route action", () => {
         }),
       );
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("permission");
+      expect(result.data.errors.general).toContain("permission");
     });
   });
 
@@ -121,14 +119,14 @@ describe("teamBilling.route action", () => {
       });
       const cookie = await loginUser(admin._id);
 
-      const result = await action(
+      const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "ASSIGN_PLAN",
           payload: { planId: plan._id },
         }),
       );
 
-      expect(result.success).toBe(true);
+      expect(result.data.success).toBe(true);
 
       const assignment = await TeamBillingPlanService.findByTeam(team._id);
       expect(assignment).not.toBeNull();
@@ -155,14 +153,14 @@ describe("teamBilling.route action", () => {
       await TeamBillingPlanService.assignPlan(team._id, plan1._id);
       const cookie = await loginUser(admin._id);
 
-      const result = await action(
+      const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "ASSIGN_PLAN",
           payload: { planId: plan2._id },
         }),
       );
 
-      expect(result.success).toBe(true);
+      expect(result.data.success).toBe(true);
 
       // Reassignment is scheduled for next month — current plan stays plan1
       const current = await TeamBillingPlanService.findByTeam(team._id);
@@ -190,8 +188,7 @@ describe("teamBilling.route action", () => {
         }),
       );
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("super admins");
+      expect(result.data.errors.general).toContain("super admins");
     });
   });
 
@@ -212,14 +209,14 @@ describe("teamBilling.route action", () => {
 
       const cookie = await loginUser(billingUser._id);
 
-      const result = await action(
+      const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "ADD_CREDITS",
           payload: { amount: 50, note: "Test top-up" },
         }),
       );
 
-      expect(result.success).toBe(true);
+      expect(result.data.success).toBe(true);
 
       const credits = await TeamCreditService.findByTeam(team._id);
       expect(credits).toHaveLength(1);
@@ -236,14 +233,14 @@ describe("teamBilling.route action", () => {
       const team = await TeamService.create({ name: "Test Team" });
       const cookie = await loginUser(admin._id);
 
-      const result = await action(
+      const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "ADD_CREDITS",
           payload: { amount: 100 },
         }),
       );
 
-      expect(result.success).toBe(true);
+      expect(result.data.success).toBe(true);
     });
 
     it("denies regular members from adding credits", async () => {
@@ -262,8 +259,7 @@ describe("teamBilling.route action", () => {
         }),
       );
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("permission");
+      expect(result.data.errors.general).toContain("permission");
     });
 
     it("rejects invalid amount", async () => {
@@ -282,8 +278,7 @@ describe("teamBilling.route action", () => {
         }),
       );
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("Invalid");
+      expect(result.data.errors.general).toContain("Invalid");
     });
 
     it("rejects amount below minimum", async () => {
@@ -302,8 +297,7 @@ describe("teamBilling.route action", () => {
         }),
       );
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("Minimum");
+      expect(result.data.errors.general).toContain("Minimum");
     });
   });
 });

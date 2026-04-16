@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import {
+  data,
   redirect,
   useFetcher,
   useLoaderData,
@@ -167,70 +168,103 @@ export async function action({ request, params }: Route.ActionArgs) {
   switch (intent) {
     case "ADD_CREDITS": {
       if (!BillingAuthorization.canAddCredits(user, team)) {
-        return {
-          success: false,
-          error: "You do not have permission to add credits",
-        };
+        return data(
+          { errors: { general: "You do not have permission to add credits" } },
+          { status: 403 },
+        );
       }
-      return await addCredits({
+      const result = await addCredits({
         teamId: params.id,
         amount: payload.amount,
         note: payload.note,
         addedBy: user._id,
       });
+      if (!result.success) {
+        return data(
+          { errors: { general: result.error ?? "Failed to add credits" } },
+          { status: 400 },
+        );
+      }
+      return data({ success: true, intent: "ADD_CREDITS" });
     }
 
     case "SET_BILLING_USER": {
       if (!BillingAuthorization.canSetBillingUser(user, params.id)) {
-        return {
-          success: false,
-          error: "You do not have permission to set the billing user",
-        };
+        return data(
+          {
+            errors: {
+              general: "You do not have permission to set the billing user",
+            },
+          },
+          { status: 403 },
+        );
       }
-      const targetUser = await UserService.findById(payload.userId);
-      if (
-        !targetUser ||
-        !targetUser.teams.some((t: any) => t.team === params.id)
-      ) {
-        return { success: false, error: "User is not a member of this team" };
+      if (typeof payload.userId !== "string" || !payload.userId) {
+        return data(
+          { errors: { general: "Invalid user ID" } },
+          { status: 400 },
+        );
+      }
+      const isMember = await UserService.findOne({
+        _id: payload.userId,
+        "teams.team": params.id,
+      });
+      if (!isMember) {
+        return data(
+          { errors: { general: "User is not a member of this team" } },
+          { status: 400 },
+        );
       }
       await TeamService.updateById(params.id, {
-        billingUser: payload.userId,
+        billingUser: isMember._id,
       });
-      return { success: true, intent: "SET_BILLING_USER" };
+      return data({ success: true, intent: "SET_BILLING_USER" });
     }
 
     case "ASSIGN_PLAN": {
       if (!BillingAuthorization.canAssignPlan(user)) {
-        return {
-          success: false,
-          error: "Only super admins can assign billing plans",
-        };
+        return data(
+          { errors: { general: "Only super admins can assign billing plans" } },
+          { status: 403 },
+        );
       }
       if (!payload.planId) {
-        return { success: false, error: "Plan ID is required" };
+        return data(
+          { errors: { general: "Plan ID is required" } },
+          { status: 400 },
+        );
       }
       const plan = await BillingPlanService.findById(payload.planId);
       if (!plan) {
-        return { success: false, error: "Billing plan not found" };
+        return data(
+          { errors: { general: "Billing plan not found" } },
+          { status: 404 },
+        );
       }
       await TeamBillingPlanService.assignPlan(params.id, plan._id);
-      return { success: true, intent: "ASSIGN_PLAN" };
+      return data({ success: true, intent: "ASSIGN_PLAN" });
     }
 
     case "INITIATE_TOPUP": {
       if (!isBillingEnabled()) {
-        return { success: false, error: "Billing is not enabled" };
+        return data(
+          { errors: { general: "Billing is not enabled" } },
+          { status: 400 },
+        );
       }
       if (!BillingAuthorization.canAddCredits(user, team)) {
-        return {
-          success: false,
-          error: "You do not have permission to top up credits",
-        };
+        return data(
+          {
+            errors: {
+              general: "You do not have permission to top up credits",
+            },
+          },
+          { status: 403 },
+        );
       }
       const amount = payload.amount;
       if (!Number.isInteger(amount) || amount < 1 || amount > 10000) {
-        return { success: false, error: "Invalid amount" };
+        return data({ errors: { general: "Invalid amount" } }, { status: 400 });
       }
       let session;
       try {
@@ -244,20 +278,26 @@ export async function action({ request, params }: Route.ActionArgs) {
           metadata: { teamId: params.id, userId: user._id.toString() },
         });
       } catch {
-        return { success: false, error: "Failed to initiate checkout" };
+        return data(
+          { errors: { general: "Failed to initiate checkout" } },
+          { status: 500 },
+        );
       }
       if (!session.url) {
-        return { success: false, error: "Failed to create checkout session" };
+        return data(
+          { errors: { general: "Failed to create checkout session" } },
+          { status: 500 },
+        );
       }
-      return {
+      return data({
         success: true,
         intent: "INITIATE_TOPUP",
         checkoutUrl: session.url,
-      };
+      });
     }
 
     default:
-      return { success: false, error: "Invalid intent" };
+      return data({ errors: { general: "Invalid intent" } }, { status: 400 });
   }
 }
 
@@ -337,15 +377,20 @@ export default function TeamBillingRoute() {
       return;
     }
 
+    if ("errors" in fetcher.data) {
+      closeDialog();
+      toast.error(
+        (fetcher.data as { errors: { general: string } }).errors.general,
+      );
+      return;
+    }
+
     if (fetcher.data.success) {
       toast.success(
         successMessages[(fetcher.data as { intent: string }).intent] ??
           "Billing updated",
       );
       revalidate();
-    } else {
-      closeDialog();
-      toast.error((fetcher.data as { error: string }).error);
     }
   }, [fetcher.state, fetcher.data, revalidate]);
 
