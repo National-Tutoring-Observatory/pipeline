@@ -15,8 +15,7 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
-      // TODO: enable these incrementally as violations are fixed
-      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/consistent-type-assertions": "warn",
       "@typescript-eslint/no-unused-vars": [
         "error",
