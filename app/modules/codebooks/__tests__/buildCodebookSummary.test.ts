@@ -91,7 +91,7 @@ describe("buildAnnotationSchemaFromCategories", () => {
 
     expect(result[3]).toEqual({
       isSystem: false,
-      fieldKey: "engagement",
+      fieldKey: "ENGAGEMENT",
       fieldType: "string",
       value: "",
       codes: ["high", "low"],
@@ -99,7 +99,7 @@ describe("buildAnnotationSchemaFromCategories", () => {
 
     expect(result[4]).toEqual({
       isSystem: false,
-      fieldKey: "praise_given",
+      fieldKey: "PRAISE_GIVEN",
       fieldType: "string",
       value: "",
       codes: ["yes", "no"],

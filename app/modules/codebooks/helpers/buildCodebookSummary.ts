@@ -1,4 +1,5 @@
 import type { CodebookCategory } from "../codebooks.types";
+import codifyName from "./codifyName";
 
 const SYSTEM_FIELDS = [
   { isSystem: true, fieldKey: "_id", fieldType: "string", value: "" },
@@ -11,10 +12,6 @@ const SYSTEM_FIELDS = [
   { isSystem: true, fieldKey: "reasoning", fieldType: "string", value: "" },
 ];
 
-function slugify(name: string): string {
-  return name.toLowerCase().replace(/\s+/g, "_");
-}
-
 export function buildAnnotationSchemaFromCategories(
   categories: CodebookCategory[],
 ) {
@@ -25,7 +22,7 @@ export function buildAnnotationSchemaFromCategories(
 
     fields.push({
       isSystem: false,
-      fieldKey: slugify(category.name),
+      fieldKey: codifyName(category.name),
       fieldType: "string",
       value: "",
       codes: category.codes.map((c) => c.code),
