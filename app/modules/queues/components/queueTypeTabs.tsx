@@ -2,7 +2,7 @@ import { ToggleGroup } from "@/components/ui/toggle-group";
 import { useLocation, useNavigate } from "react-router";
 import { QueueTab } from "./queueTab";
 
-interface Queue {
+export interface Queue {
   key: string;
   label: string;
   count: number;

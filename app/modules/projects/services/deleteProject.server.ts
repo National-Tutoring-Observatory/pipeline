@@ -1,3 +1,4 @@
+import type { FlowJob } from "bullmq";
 import { ProjectService } from "~/modules/projects/project";
 import { getFlowProducer } from "~/modules/queues/helpers/createQueue";
 
@@ -38,7 +39,7 @@ export default async function deleteProject({
           },
         },
       ],
-    } as any;
+    } satisfies FlowJob;
 
     await getFlowProducer().add(flow);
   } catch (error) {

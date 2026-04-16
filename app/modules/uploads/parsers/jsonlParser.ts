@@ -1,5 +1,6 @@
 interface SessionData {
-  [key: string]: any;
+  session_id?: string;
+  [key: string]: unknown;
 }
 
 interface SessionDataMap {

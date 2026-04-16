@@ -5,10 +5,10 @@ export default async function uploadFile({
   file,
   uploadPath,
 }: {
-  file: any;
+  file: Blob;
   uploadPath: string;
 }): Promise<void> {
   const storage = getStorageAdapter();
-  const { buffer, contentType, size } = await getFileInfo(file);
-  await storage.upload({ file: { buffer, contentType, size }, uploadPath });
+  const { buffer, type, size } = await getFileInfo(file);
+  await storage.upload({ file: { buffer, type, size }, uploadPath });
 }

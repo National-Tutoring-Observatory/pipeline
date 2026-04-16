@@ -9,7 +9,7 @@ export default async function uploadFiles({
   files,
   entityId,
 }: {
-  files: any;
+  files: File[];
   entityId: string;
 }) {
   let completedFiles = 0;

@@ -2,13 +2,13 @@ import { PageHeader, PageHeaderLeft } from "@/components/ui/pageHeader";
 import { Outlet } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
-import QueueTypeTabs from "./queueTypeTabs";
+import QueueTypeTabs, { type Queue } from "./queueTypeTabs";
 
 const QueuesLayout = ({
   queues,
   breadcrumbs,
 }: {
-  queues: any;
+  queues: Queue[];
   breadcrumbs: Breadcrumb[];
 }) => {
   return (

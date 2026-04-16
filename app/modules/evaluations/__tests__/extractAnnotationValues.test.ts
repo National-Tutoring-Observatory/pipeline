@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { SessionFile } from "~/modules/sessions/sessions.types";
 import extractAnnotationValues from "../helpers/extractAnnotationValues";
 
-const s = (data: Partial<SessionFile>) => data as SessionFile;
+const s = (data: object) => data as unknown as SessionFile;
 
 describe("extractAnnotationValues", () => {
   describe("PER_SESSION", () => {
@@ -110,26 +110,12 @@ describe("extractAnnotationValues", () => {
         transcript: [
           {
             _id: "utt-1",
-            role: "TEACHER",
-            content: "Hello",
-            start_time: "",
-            end_time: "",
-            timestamp: "",
-            session_id: "s1",
-            sequence_id: 1,
             annotations: [
               { _id: "utt-1", identifiedBy: "LLM", engagement: "HIGH" },
             ],
           },
           {
             _id: "utt-2",
-            role: "STUDENT",
-            content: "Hi",
-            start_time: "",
-            end_time: "",
-            timestamp: "",
-            session_id: "s1",
-            sequence_id: 2,
             annotations: [
               { _id: "utt-2", identifiedBy: "LLM", engagement: "MEDIUM" },
             ],
@@ -151,35 +137,11 @@ describe("extractAnnotationValues", () => {
         transcript: [
           {
             _id: "utt-1",
-            role: "",
-            content: "",
-            start_time: "",
-            end_time: "",
-            timestamp: "",
-            session_id: "s1",
-            sequence_id: 1,
             annotations: [{ _id: "utt-1", identifiedBy: "LLM", field: "A" }],
           },
-          {
-            _id: "utt-2",
-            role: "",
-            content: "",
-            start_time: "",
-            end_time: "",
-            timestamp: "",
-            session_id: "s1",
-            sequence_id: 2,
-            annotations: [],
-          },
+          { _id: "utt-2", annotations: [] },
           {
             _id: "utt-3",
-            role: "",
-            content: "",
-            start_time: "",
-            end_time: "",
-            timestamp: "",
-            session_id: "s1",
-            sequence_id: 3,
             annotations: [{ _id: "utt-3", identifiedBy: "LLM", field: "B" }],
           },
         ],
@@ -199,13 +161,6 @@ describe("extractAnnotationValues", () => {
         transcript: [
           {
             _id: "utt-1",
-            role: "",
-            content: "",
-            start_time: "",
-            end_time: "",
-            timestamp: "",
-            session_id: "s1",
-            sequence_id: 1,
             annotations: [
               { _id: "utt-1", identifiedBy: "HUMAN", field_a: "X" },
               { _id: "utt-1", identifiedBy: "HUMAN", field_b: "Y" },
@@ -239,13 +194,6 @@ describe("extractAnnotationValues", () => {
         transcript: [
           {
             _id: "utt-1",
-            role: "",
-            content: "",
-            start_time: "",
-            end_time: "",
-            timestamp: "",
-            session_id: "s1",
-            sequence_id: 1,
             annotations: [
               { _id: "utt-1", identifiedBy: "LLM", field: "A", other: null },
             ],

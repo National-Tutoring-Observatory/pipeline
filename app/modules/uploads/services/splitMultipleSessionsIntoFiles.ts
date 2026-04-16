@@ -25,7 +25,7 @@ export default async function splitMultipleSessionsIntoFiles({
     }
 
     const fileContents = await file.text();
-    let sessionDataMap: Record<string, any[]>;
+    let sessionDataMap: ReturnType<typeof parseJSONL>;
 
     try {
       if (detectedType === "JSONL") {
