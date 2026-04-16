@@ -19,4 +19,5 @@ export interface PaginateProps {
   page?: string | number;
   pageSize?: number;
   select?: string | string[];
+  populate?: string[];
 }

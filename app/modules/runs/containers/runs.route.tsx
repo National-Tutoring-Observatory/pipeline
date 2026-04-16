@@ -7,7 +7,6 @@ import {
   useParams,
   useRevalidator,
 } from "react-router";
-import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import useHandleSockets from "~/modules/app/hooks/useHandleSockets";
@@ -50,18 +49,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: ["annotationType"],
   });
 
-  const pagination = getPaginationParams(query.page);
+  const runs = await RunService.paginate({ ...query, populate: ["prompt"] });
 
-  const runs = await RunService.find({
-    match: query.match,
-    populate: ["prompt"],
-    sort: query.sort,
-    pagination,
-  });
-
-  const total = await RunService.count(query.match);
-
-  return { runs: { data: runs, totalPages: getTotalPages(total) } };
+  return { runs };
 }
 
 export default function ProjectRunsRoute() {

@@ -3,7 +3,6 @@ import map from "lodash/map";
 import { useContext, useEffect } from "react";
 import { data, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
-import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
@@ -43,18 +42,12 @@ export async function loader({ request }: Route.LoaderArgs) {
     sortableFields: ["name", "createdAt"],
   });
 
-  const pagination = getPaginationParams(query.page);
-
-  const codebooks = await CodebookService.find({
-    match: query.match,
+  const codebooks = await CodebookService.paginate({
+    ...query,
     populate: ["team"],
-    sort: query.sort,
-    pagination,
   });
 
-  const total = await CodebookService.count(query.match);
-
-  return { codebooks: { data: codebooks, totalPages: getTotalPages(total) } };
+  return { codebooks };
 }
 
 export async function action({ request }: Route.ActionArgs) {

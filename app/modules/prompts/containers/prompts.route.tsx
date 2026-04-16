@@ -3,7 +3,6 @@ import map from "lodash/map";
 import { useContext, useEffect } from "react";
 import { data, useFetcher, useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
-import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
@@ -51,21 +50,12 @@ export async function loader({ request }: Route.LoaderArgs) {
     filterableFields: ["annotationType", "team"],
   });
 
-  const pagination = getPaginationParams(query.page);
-
-  const prompts = await PromptService.find({
-    match: query.match,
+  const prompts = await PromptService.paginate({
+    ...query,
     populate: ["team"],
-    sort: query.sort,
-    pagination,
   });
 
-  const total = await PromptService.count(query.match);
-
-  return {
-    prompts: { data: prompts, totalPages: getTotalPages(total) },
-    teams,
-  };
+  return { prompts, teams };
 }
 
 export async function action({ request }: Route.ActionArgs) {

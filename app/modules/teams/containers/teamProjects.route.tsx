@@ -7,7 +7,6 @@ import {
   useOutletContext,
   useParams,
 } from "react-router";
-import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
@@ -20,6 +19,7 @@ import { ProjectService } from "~/modules/projects/project";
 import type { User } from "~/modules/users/users.types";
 import TeamAuthorization from "../authorization";
 import TeamProjects from "../components/teamProjects";
+import type { Team } from "../teams.types";
 import type { Route } from "./+types/teamProjects.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -43,23 +43,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     filterableFields: [],
   });
 
-  const pagination = getPaginationParams(query.page);
+  const projects = await ProjectService.paginate(query);
 
-  const result = await ProjectService.find({
-    match: query.match,
-    sort: query.sort,
-    pagination,
-  });
-
-  const total = await ProjectService.count(query.match);
-
-  return {
-    projects: {
-      data: result,
-      totalPages: getTotalPages(total),
-      currentPage: query.page || 1,
-    },
-  };
+  return { projects };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -94,8 +80,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 export default function TeamProjectsRoute() {
   const data = useLoaderData<typeof loader>();
   const params = useParams();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ctx = useOutletContext<any>();
+  const ctx = useOutletContext<{ team: Team }>();
   const navigate = useNavigate();
   const user = useContext(AuthenticationContext) as User;
   const teamId = params.id;

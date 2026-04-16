@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import promptSchema from "~/lib/schemas/prompt.schema";
-import type { FindOptions } from "~/modules/common/types";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { Prompt } from "./prompts.types";
 import { PromptVersionService } from "./promptVersion";
 import createDefaultPrompts from "./services/createDefaultPrompts.server";
@@ -41,6 +42,24 @@ export class PromptService {
 
   static async count(match: Record<string, unknown> = {}): Promise<number> {
     return PromptModel.countDocuments(match);
+  }
+
+  static async paginate({
+    match,
+    sort,
+    page,
+    pageSize,
+    select,
+    populate,
+  }: PaginateProps): Promise<{
+    data: Prompt[];
+    count: number;
+    totalPages: number;
+  }> {
+    const pagination = getPaginationParams(page, pageSize);
+    const data = await this.find({ match, sort, pagination, select, populate });
+    const count = await this.count(match);
+    return { data, count, totalPages: getTotalPages(count, pageSize) };
   }
 
   static async findById(id: string | undefined): Promise<Prompt | null> {
