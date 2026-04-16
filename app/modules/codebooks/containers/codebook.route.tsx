@@ -102,7 +102,13 @@ export async function action({ request }: Route.ActionArgs) {
       });
     }
     case "CREATE_PROMPT_FROM_CODEBOOK": {
-      const { codebookVersionId, annotationType, categoryIds } = payload;
+      const {
+        codebookVersionId,
+        annotationType,
+        categoryIds,
+        hasFlattenedCategories,
+        flattenedAnnotationField,
+      } = payload;
 
       if (!PromptAuthorization.canCreate(user, codebook.team as string)) {
         return data(
@@ -123,6 +129,8 @@ export async function action({ request }: Route.ActionArgs) {
           codebookVersionId,
           annotationType,
           categoryIds,
+          hasFlattenedCategories,
+          flattenedAnnotationField,
           userId: user._id,
           teamId: codebook.team as string,
         });

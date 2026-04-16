@@ -14,6 +14,8 @@ export default function CreatePromptFromCodebookDialogContainer({
     codebookVersionId: string;
     annotationType: string;
     categoryIds: string[];
+    hasFlattenedCategories: boolean;
+    flattenedAnnotationField: string;
   }) => void;
   isSubmitting: boolean;
 }) {
@@ -40,7 +42,10 @@ export default function CreatePromptFromCodebookDialogContainer({
   const categories = selectedVersion?.categories ?? [];
 
   const isSubmitDisabled =
-    !codebookVersionId || categoryIds.length === 0 || isSubmitting;
+    !codebookVersionId ||
+    categoryIds.length === 0 ||
+    (hasFlattenedCategories && !flattenedAnnotationField.trim()) ||
+    isSubmitting;
 
   const hasAllCategoriesSelected =
     categories.length > 0 && categoryIds.length === categories.length;
@@ -68,11 +73,15 @@ export default function CreatePromptFromCodebookDialogContainer({
       codebookVersionId,
       annotationType,
       categoryIds,
+      hasFlattenedCategories,
+      flattenedAnnotationField,
     });
     onCreatePromptClicked({
       codebookVersionId,
       annotationType,
       categoryIds,
+      hasFlattenedCategories,
+      flattenedAnnotationField,
     });
   };
 

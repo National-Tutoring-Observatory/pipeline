@@ -73,6 +73,8 @@ export class CodebookService {
     codebookVersionId: string;
     annotationType: string;
     categoryIds?: string[];
+    hasFlattenedCategories?: boolean;
+    flattenedAnnotationField?: string;
     userId: string;
     teamId: string;
   }) {

@@ -14,6 +14,8 @@ export default async function createPromptFromCodebook({
   codebookVersionId,
   annotationType,
   categoryIds,
+  hasFlattenedCategories,
+  flattenedAnnotationField,
   userId,
   teamId,
 }: {
@@ -21,6 +23,8 @@ export default async function createPromptFromCodebook({
   codebookVersionId: string;
   annotationType: string;
   categoryIds?: string[];
+  hasFlattenedCategories?: boolean;
+  flattenedAnnotationField?: string;
   userId: string;
   teamId: string;
 }) {
@@ -40,10 +44,12 @@ export default async function createPromptFromCodebook({
       ? codebookVersion.categories.filter((c) => categoryIds.includes(c._id))
       : codebookVersion.categories;
 
-  console.log("[createPromptFromCodebook] filtered categories", {
+  console.log("[createPromptFromCodebook]", {
     total: codebookVersion.categories.length,
     selected: categories.length,
     categoryIds,
+    hasFlattenedCategories,
+    flattenedAnnotationField,
   });
 
   const summary = buildCodebookSummary({
