@@ -51,7 +51,7 @@ export const handler = async (event: {
     });
 
     // OUTPUT META
-    const runObject: any = {
+    const runObject = {
       teamId,
       projectId: run.project,
       runId: run._id,

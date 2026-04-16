@@ -38,8 +38,8 @@ export const handler = async (event: {
     "end_time",
   ];
   const annotationColumnKeys = new Set<string>();
-  let utterancesArray: any[] = [];
-  const sessionsArray: any[] = [];
+  let utterancesArray: Record<string, unknown>[] = [];
+  const sessionsArray: Record<string, unknown>[] = [];
   let isBaseRun = true;
   let aiIndex = 0;
 
@@ -82,6 +82,7 @@ export const handler = async (event: {
           );
 
           if (baseUtterance) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             annotations.forEach((annotation: any, index: number) => {
               for (const field of annotationFields) {
                 const columnKey = `annotator[${annotatorName}][${index}]${field}`;
@@ -101,6 +102,7 @@ export const handler = async (event: {
           );
 
           if (baseSession) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             annotations.forEach((annotation: any, index: number) => {
               for (const field of annotationFields) {
                 const columnKey = `annotator[${annotatorName}][${index}]${field}`;

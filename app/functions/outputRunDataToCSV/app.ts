@@ -28,8 +28,8 @@ export const handler = async (event: {
       "end_time",
     ];
     const annotationColumnKeys = new Set<string>();
-    let utterancesArray: any[] = [];
-    const sessionsArray: any[] = [];
+    let utterancesArray: Record<string, unknown>[] = [];
+    const sessionsArray: Record<string, unknown>[] = [];
 
     const storage = getStorageAdapter();
 
@@ -47,9 +47,13 @@ export const handler = async (event: {
       const transcript = map(json.transcript, (utterance) => {
         const { annotations, ...rest } = utterance;
 
-        const row: any = { ...rest, sessionId: session.sessionId };
+        const row: Record<string, unknown> = {
+          ...rest,
+          sessionId: session.sessionId,
+        };
 
         if (annotations) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           annotations.forEach((annotation: any, index: number) => {
             for (const field of annotationFields) {
               const columnKey = `annotator[${annotatorName}][${index}]${field}`;
@@ -64,12 +68,13 @@ export const handler = async (event: {
 
       utterancesArray = utterancesArray.concat(transcript);
 
-      const sessionObject: any = {
+      const sessionObject: Record<string, unknown> = {
         _id: session.sessionId,
         session_id: json.session_id || json.transcript[0]?.session_id,
       };
 
       if (json.annotations) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         json.annotations.forEach((annotation: any, index: number) => {
           for (const field of annotationFields) {
             const columnKey = `annotator[${annotatorName}][${index}]${field}`;
@@ -123,7 +128,7 @@ export const handler = async (event: {
     }
 
     // OUTPUT META
-    const metaObject: any = {
+    const metaObject = {
       teamId,
       projectId: run.project,
       runId: run._id,

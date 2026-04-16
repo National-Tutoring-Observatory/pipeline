@@ -7,6 +7,21 @@ import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import type { Run } from "~/modules/runs/runs.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 
+interface UtteranceExport {
+  _id?: string;
+  annotations?: Record<string, unknown>[];
+  [key: string]: unknown;
+}
+
+interface SessionExport {
+  _id: string;
+  session_id: string;
+  transcript: UtteranceExport[];
+  metadata?: unknown;
+  annotations: Record<string, unknown>[];
+  [key: string]: unknown;
+}
+
 export const handler = async (event: {
   body: {
     runSet: RunSet;
@@ -26,7 +41,7 @@ export const handler = async (event: {
 
   const { annotationType } = runSet;
 
-  const sessionsArray: any[] = [];
+  const sessionsArray: SessionExport[] = [];
   let isBaseRun = true;
 
   for (const run of runs) {
@@ -38,13 +53,14 @@ export const handler = async (event: {
       const json = await fse.readJSON(downloadedPath);
 
       if (isBaseRun) {
-        const sessionObject: any = {
+        const sessionObject: SessionExport = {
           _id: session.sessionId,
           session_id: json.session_id || json.transcript[0]?.session_id,
           transcript: map(json.transcript, (utterance) => {
             const { annotations: _annotations, ...cleanUtterance } = utterance;
             return cleanUtterance;
           }),
+          annotations: [],
         };
 
         if (json.metadata) {
@@ -79,7 +95,7 @@ export const handler = async (event: {
             }
 
             each(utterance.annotations, (annotation) => {
-              baseUtterance.annotations.push({
+              baseUtterance.annotations!.push({
                 ...annotation,
                 _metadata: {
                   runId: run._id,

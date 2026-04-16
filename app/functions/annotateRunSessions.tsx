@@ -48,7 +48,7 @@ export default async function annotateRunSessions({
     step: `0/${run.sessions.length}`,
   });
 
-  const annotationFields: Record<string, any> = {};
+  const annotationFields: Record<string, unknown> = {};
 
   for (const annotationSchemaItem of promptVersion.annotationSchema as AnnotationSchemaItem[]) {
     annotationFields[annotationSchemaItem.fieldKey] =
@@ -99,8 +99,8 @@ export default async function annotateRunSessions({
             inputFile: `${inputDirectory}/${sessionModel._id}/${sessionModel.name}`,
             outputFolder: `${outputDirectory}/${sessionModel._id}`,
             prompt: { prompt: promptVersion.userPrompt, annotationSchema },
-            model: getRunModelCode(run),
-            team: project.team,
+            model: getRunModelCode(run) ?? "",
+            team: String(project.team),
             sessionId: session.sessionId,
           },
         });
@@ -110,8 +110,8 @@ export default async function annotateRunSessions({
             inputFile: `${inputDirectory}/${sessionModel._id}/${sessionModel.name}`,
             outputFolder: `${outputDirectory}/${sessionModel._id}`,
             prompt: { prompt: promptVersion.userPrompt, annotationSchema },
-            model: getRunModelCode(run),
-            team: project.team,
+            model: getRunModelCode(run) ?? "",
+            team: String(project.team),
             sessionId: session.sessionId,
           },
         });
