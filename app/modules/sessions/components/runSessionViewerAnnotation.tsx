@@ -28,8 +28,8 @@ export default function SessionViewerAnnotation({
   onUpVoteClicked,
   onSaveVotingReason,
 }: {
-  annotation: Annotation & any;
-  preAnnotation?: Annotation & any;
+  annotation: Annotation;
+  preAnnotation?: Annotation;
   isRemovedByVerification?: boolean;
   isAddedByVerification?: boolean;
   isChangedByVerification?: boolean;

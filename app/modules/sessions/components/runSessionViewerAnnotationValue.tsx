@@ -5,7 +5,7 @@ import isString from "lodash/isString";
 export default function RunSessionViewerAnnotationValue({
   value,
 }: {
-  value: any;
+  value: unknown;
 }) {
   if (isString(value) || isNumber(value)) {
     return <div>{value}</div>;
@@ -13,9 +13,7 @@ export default function RunSessionViewerAnnotationValue({
 
   return (
     <div>
-      <Checkbox checked={value} />
+      <Checkbox checked={value as boolean} />
     </div>
   );
-
-  return null;
 }

@@ -1,6 +1,6 @@
 import type { StatusKey } from "~/modules/runs/helpers/statusMeta";
 
-const STATUS_MATCH: Record<StatusKey, Record<string, any>> = {
+const STATUS_MATCH: Record<StatusKey, Record<string, unknown>> = {
   RUNNING: { isRunning: true },
   STOPPED: { stoppedAt: { $exists: true } },
   FAILED: { hasErrored: true },
@@ -16,7 +16,7 @@ const STATUS_MATCH: Record<StatusKey, Record<string, any>> = {
 
 export default function buildRunStatusMatch(
   statusKey: string,
-): Record<string, any> | null {
+): Record<string, unknown> | null {
   if (statusKey in STATUS_MATCH) {
     return STATUS_MATCH[statusKey as StatusKey];
   }

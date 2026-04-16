@@ -348,7 +348,9 @@ export default function RunSetCreateRoute() {
         balance={balance}
         onSubmit={handleSubmit}
         isLoading={fetcher.state !== "idle"}
-        errors={(fetcher.data as any)?.errors || {}}
+        errors={
+          (fetcher.data as { errors?: Record<string, string> })?.errors || {}
+        }
       />
     </div>
   );
