@@ -19,8 +19,8 @@ const RunSetModel =
   mongoose.models.RunSet || mongoose.model("RunSet", runSetSchema);
 
 export class RunSetService {
-  private static toRunSet(doc: any): RunSet {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toRunSet(doc: mongoose.Document): RunSet {
+    return doc.toJSON({ flattenObjectIds: true }) as RunSet;
   }
 
   static async find(options?: FindOptions): Promise<RunSet[]> {
@@ -49,7 +49,7 @@ export class RunSetService {
     return docs.map((doc) => this.toRunSet(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return RunSetModel.countDocuments(match);
   }
 
@@ -59,7 +59,7 @@ export class RunSetService {
     return doc ? this.toRunSet(doc) : null;
   }
 
-  static async findOne(match: Record<string, any>): Promise<RunSet | null> {
+  static async findOne(match: Record<string, unknown>): Promise<RunSet | null> {
     const doc = await RunSetModel.findOne(match);
     return doc ? this.toRunSet(doc) : null;
   }

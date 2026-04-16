@@ -9,8 +9,8 @@ const CodebookVersionModel =
   mongoose.model("CodebookVersion", codebookVersionSchema);
 
 export class CodebookVersionService {
-  private static toCodebookVersion(doc: any): CodebookVersion {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toCodebookVersion(doc: mongoose.Document): CodebookVersion {
+    return doc.toJSON({ flattenObjectIds: true }) as CodebookVersion;
   }
 
   static async find(options?: FindOptions): Promise<CodebookVersion[]> {
@@ -39,7 +39,7 @@ export class CodebookVersionService {
     return docs.map((doc) => this.toCodebookVersion(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return CodebookVersionModel.countDocuments(match);
   }
 
@@ -74,7 +74,7 @@ export class CodebookVersionService {
   }
 
   static async findOne(
-    match: Record<string, any>,
+    match: Record<string, unknown>,
   ): Promise<CodebookVersion | null> {
     const docs = await this.find({ match });
     return docs[0] || null;

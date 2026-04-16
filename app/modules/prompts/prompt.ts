@@ -9,8 +9,8 @@ const PromptModel =
   mongoose.models.Prompt || mongoose.model("Prompt", promptSchema);
 
 export class PromptService {
-  private static toPrompt(doc: any): Prompt {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toPrompt(doc: mongoose.Document): Prompt {
+    return doc.toJSON({ flattenObjectIds: true }) as Prompt;
   }
 
   static async find(options?: FindOptions): Promise<Prompt[]> {
@@ -39,7 +39,7 @@ export class PromptService {
     return docs.map((doc) => this.toPrompt(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return PromptModel.countDocuments(match);
   }
 

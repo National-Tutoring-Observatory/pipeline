@@ -8,8 +8,8 @@ const FeatureFlagModel =
   mongoose.model("FeatureFlag", featureFlagSchema);
 
 export class FeatureFlagService {
-  private static toFeatureFlag(doc: any): FeatureFlag {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toFeatureFlag(doc: mongoose.Document): FeatureFlag {
+    return doc.toJSON({ flattenObjectIds: true }) as FeatureFlag;
   }
 
   static async find(options?: FindOptions): Promise<FeatureFlag[]> {
@@ -38,7 +38,7 @@ export class FeatureFlagService {
     return docs.map((doc) => this.toFeatureFlag(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return FeatureFlagModel.countDocuments(match);
   }
 

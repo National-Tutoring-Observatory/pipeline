@@ -8,8 +8,8 @@ const CodebookModel =
   mongoose.models.Codebook || mongoose.model("Codebook", codebookSchema);
 
 export class CodebookService {
-  private static toCodebook(doc: any): Codebook {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toCodebook(doc: mongoose.Document): Codebook {
+    return doc.toJSON({ flattenObjectIds: true }) as Codebook;
   }
 
   static async find(options?: FindOptions): Promise<Codebook[]> {
@@ -38,7 +38,7 @@ export class CodebookService {
     return docs.map((doc) => this.toCodebook(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return CodebookModel.countDocuments(match);
   }
 

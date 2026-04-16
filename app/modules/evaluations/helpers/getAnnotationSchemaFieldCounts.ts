@@ -30,7 +30,7 @@ export default function getAnnotationSchemaFieldCounts(
 
     return {
       fieldKey: field.fieldKey,
-      fieldType: field.fieldType,
+      fieldType: field.fieldType ?? "",
       matchCount,
       total: compatibleRuns.length,
     };

@@ -9,8 +9,8 @@ const PromptVersionModel =
   mongoose.model("PromptVersion", promptVersionSchema);
 
 export class PromptVersionService {
-  private static toPromptVersion(doc: any): PromptVersion {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toPromptVersion(doc: mongoose.Document): PromptVersion {
+    return doc.toJSON({ flattenObjectIds: true }) as PromptVersion;
   }
 
   static async find(options?: FindOptions): Promise<PromptVersion[]> {
@@ -39,7 +39,7 @@ export class PromptVersionService {
     return docs.map((doc) => this.toPromptVersion(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return PromptVersionModel.countDocuments(match);
   }
 
@@ -70,7 +70,7 @@ export class PromptVersionService {
   }
 
   static async findOne(
-    match: Record<string, any>,
+    match: Record<string, unknown>,
   ): Promise<PromptVersion | null> {
     const docs = await this.find({ match });
     return docs[0] || null;

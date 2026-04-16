@@ -8,8 +8,8 @@ const TeamCreditModel =
   mongoose.models.TeamCredit || mongoose.model("TeamCredit", teamCreditSchema);
 
 export class TeamCreditService {
-  private static toTeamCredit(doc: any): TeamCredit {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toTeamCredit(doc: mongoose.Document): TeamCredit {
+    return doc.toJSON({ flattenObjectIds: true }) as TeamCredit;
   }
 
   static async find(options?: FindOptions): Promise<TeamCredit[]> {
@@ -34,7 +34,7 @@ export class TeamCreditService {
     return docs.map((doc) => this.toTeamCredit(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return TeamCreditModel.countDocuments(match);
   }
 

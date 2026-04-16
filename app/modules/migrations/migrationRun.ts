@@ -7,8 +7,8 @@ const MigrationModel =
   mongoose.models.Migration || mongoose.model("Migration", migrationSchema);
 
 export class MigrationRunService {
-  private static toMigrationRun(doc: any): Migration {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toMigrationRun(doc: mongoose.Document): Migration {
+    return doc.toJSON({ flattenObjectIds: true }) as Migration;
   }
 
   static async find(options?: FindOptions): Promise<Migration[]> {
@@ -37,7 +37,7 @@ export class MigrationRunService {
     return docs.map((doc) => this.toMigrationRun(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return MigrationModel.countDocuments(match);
   }
 

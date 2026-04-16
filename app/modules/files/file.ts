@@ -8,8 +8,8 @@ import type { File } from "./files.types";
 const FileModel = mongoose.models.File || mongoose.model("File", fileSchema);
 
 export class FileService {
-  private static toFile(doc: any): File {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toFile(doc: mongoose.Document): File {
+    return doc.toJSON({ flattenObjectIds: true }) as File;
   }
 
   static async find(options?: FindOptions): Promise<File[]> {
@@ -38,7 +38,7 @@ export class FileService {
     return docs.map((doc) => this.toFile(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return FileModel.countDocuments(match);
   }
 

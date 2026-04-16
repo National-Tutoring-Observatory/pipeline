@@ -8,8 +8,8 @@ const SessionModel =
   mongoose.models.Session || mongoose.model("Session", sessionSchema);
 
 export class SessionService {
-  private static toSession(doc: any): Session {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toSession(doc: mongoose.Document): Session {
+    return doc.toJSON({ flattenObjectIds: true }) as Session;
   }
 
   static async find(options?: FindOptions): Promise<Session[]> {
@@ -38,7 +38,7 @@ export class SessionService {
     return docs.map((doc) => this.toSession(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return SessionModel.countDocuments(match);
   }
 
@@ -48,7 +48,9 @@ export class SessionService {
     return doc ? this.toSession(doc) : null;
   }
 
-  static async findOne(match: Record<string, any>): Promise<Session | null> {
+  static async findOne(
+    match: Record<string, unknown>,
+  ): Promise<Session | null> {
     const doc = await SessionModel.findOne(match);
     return doc ? this.toSession(doc) : null;
   }

@@ -13,8 +13,8 @@ import paginateSessionsService from "./services/paginateSessions.server";
 export const RunModel = mongoose.models.Run || mongoose.model("Run", runSchema);
 
 export class RunService {
-  private static toRun(doc: any): Run {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toRun(doc: mongoose.Document): Run {
+    return doc.toJSON({ flattenObjectIds: true }) as Run;
   }
 
   static async find(options?: FindOptions): Promise<Run[]> {
@@ -43,7 +43,7 @@ export class RunService {
     return docs.map((doc) => this.toRun(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return RunModel.countDocuments(match);
   }
 
@@ -156,7 +156,7 @@ export class RunService {
     return result.deletedCount || 0;
   }
 
-  static async findOne(match: Record<string, any>): Promise<Run | null> {
+  static async findOne(match: Record<string, unknown>): Promise<Run | null> {
     const docs = await this.find({ match });
     return docs[0] || null;
   }

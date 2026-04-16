@@ -3,6 +3,6 @@ export interface AuditRecord {
   action: string;
   performedBy: string | null;
   performedByUsername: string;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
   createdAt: Date;
 }

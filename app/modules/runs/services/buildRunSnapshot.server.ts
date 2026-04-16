@@ -1,4 +1,5 @@
 import { PromptService } from "~/modules/prompts/prompt";
+import type { AnnotationSchemaItem } from "~/modules/prompts/prompts.types";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 
 /**
@@ -10,7 +11,7 @@ export interface RunSnapshot {
   prompt: {
     name: string;
     userPrompt: string;
-    annotationSchema: any[];
+    annotationSchema: AnnotationSchemaItem[];
     annotationType: string;
     version: number;
   };

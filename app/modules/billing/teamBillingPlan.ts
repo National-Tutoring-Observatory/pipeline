@@ -13,8 +13,8 @@ const TeamBillingPlanModel =
   mongoose.model("TeamBillingPlan", teamBillingPlanSchema);
 
 export class TeamBillingPlanService {
-  private static toTeamBillingPlan(doc: any): TeamBillingPlan {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toTeamBillingPlan(doc: mongoose.Document): TeamBillingPlan {
+    return doc.toJSON({ flattenObjectIds: true }) as TeamBillingPlan;
   }
 
   private static async resolvePlan(
