@@ -9,7 +9,7 @@ type TaskOptions = {
 
 type Task = {
   action: Action;
-  data: any;
+  data: Record<string, unknown>;
   group?: { id: string };
 };
 
@@ -21,7 +21,11 @@ export default class TaskSequencer {
     this.name = name;
   }
 
-  addTask = (action: Action, data: any, options?: TaskOptions) => {
+  addTask = (
+    action: Action,
+    data: Record<string, unknown>,
+    options?: TaskOptions,
+  ) => {
     if (action === "START") {
       const hasStartJob = !!find(this.tasks, { action: "START" });
       if (hasStartJob) {

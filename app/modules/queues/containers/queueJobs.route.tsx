@@ -52,7 +52,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }
 
     // Sort by timestamp descending by default
-    allJobs.sort((a: any, b: any) => {
+    allJobs.sort((a: { timestamp?: number }, b: { timestamp?: number }) => {
       const timeA = a.timestamp || 0;
       const timeB = b.timestamp || 0;
       return asc ? timeA - timeB : timeB - timeA;

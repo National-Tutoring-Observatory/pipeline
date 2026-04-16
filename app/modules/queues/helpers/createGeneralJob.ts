@@ -3,7 +3,7 @@ import getQueue from "./getQueue";
 
 export default async (
   name: string,
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   opts?: JobsOptions,
 ) => {
   const queue = getQueue("general");
