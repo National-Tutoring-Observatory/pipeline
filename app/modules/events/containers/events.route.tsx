@@ -3,7 +3,13 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { userIsSuperAdmin } from "~/modules/authorization/helpers/superAdmin";
 import { ProjectService } from "~/modules/projects/project";
+import type { UserTeam } from "~/modules/users/users.types";
 import { emitter } from "../emitter";
+
+interface SSEMessage {
+  projectId: string;
+  [key: string]: unknown;
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await requireAuth({ request });
@@ -15,7 +21,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   if (!userIsSuperAdmin(user)) {
     const teams = (await getSessionUserTeams({ request })) ?? [];
-    const teamIds = teams.map((t: any) => t.team);
+    const teamIds = teams.map((t: UserTeam) => t.team);
     const projects = await ProjectService.find({
       match: { team: { $in: teamIds } },
     });
@@ -29,23 +35,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const stream = new ReadableStream({
     start(controller) {
-      console.log("SSE: Client connected");
-
-      const handleUploadFiles = (message: any) => {
+      const handleUploadFiles = (message: SSEMessage) => {
         if (!isAllowed(message.projectId)) return;
         controller.enqueue(
           `data: ${JSON.stringify({ ...message, event: "UPLOAD_FILES" })}\n\n`,
         );
       };
 
-      const handleConvertFiles = (message: any) => {
+      const handleConvertFiles = (message: SSEMessage) => {
         if (!isAllowed(message.projectId)) return;
         controller.enqueue(
           `data: ${JSON.stringify({ ...message, event: "CONVERT_FILES" })}\n\n`,
         );
       };
 
-      const handleAnnotateRunSession = (message: any) => {
+      const handleAnnotateRunSession = (message: SSEMessage) => {
         if (!isAllowed(message.projectId)) return;
         controller.enqueue(
           `data: ${JSON.stringify({ ...message, event: "ANNOTATE_RUN_SESSION" })}\n\n`,
@@ -57,7 +61,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       emitter.on("ANNOTATE_RUN_SESSION", handleAnnotateRunSession);
 
       request.signal.addEventListener("abort", () => {
-        console.log("SSE: Client disconnected");
         controller.close();
         emitter.off("UPLOAD_FILES", handleUploadFiles);
         emitter.off("CONVERT_FILES", handleConvertFiles);
