@@ -7,22 +7,29 @@ export type QueryParams = {
   filters?: Record<string, string>;
   sort?: string;
 };
-type FilterMatchBuilder = (value: string) => Record<string, any> | null;
+type FilterMatchBuilder = (value: string) => Record<string, unknown> | null;
 type FilterableField = string | Record<string, FilterMatchBuilder>;
 type BuildQueryProps = {
-  match: any;
+  match: Record<string, unknown>;
   queryParams: QueryParams;
   searchableFields: string[];
   sortableFields: string[];
   filterableFields?: FilterableField[];
 };
-export type Query = { match: any; sort?: any; page?: number };
+export type Query = {
+  match: Record<string, unknown>;
+  sort?: string | null;
+  page?: number;
+};
 
 function regexMatch(field: string, value: string) {
   return { [field]: { $regex: new RegExp(escapeRegExp(value), "i") } };
 }
 
-function addConditionToMatch(currentMatch: any, newCondition: any) {
+function addConditionToMatch(
+  currentMatch: Record<string, unknown>,
+  newCondition: Record<string, unknown>,
+) {
   if (Object.keys(currentMatch).length === 0) {
     return newCondition;
   }
@@ -47,7 +54,7 @@ export function buildQueryFromParams({
         "Search value provided but no searchable fields are configured.",
       );
     }
-    const conditions: any[] = [];
+    const conditions: Record<string, unknown>[] = [];
     for (const field of searchableFields) {
       conditions.push(regexMatch(field, searchValue));
     }
@@ -66,7 +73,7 @@ export function buildQueryFromParams({
       );
     }
 
-    const filterConditions: any = {};
+    const filterConditions: Record<string, unknown> = {};
     for (const entry of filterableFields) {
       if (typeof entry === "string") {
         if (has(filters, entry)) {
