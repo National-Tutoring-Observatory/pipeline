@@ -18,9 +18,9 @@ import { CodebookService } from "../codebook";
 import type { Codebook as CodebookType } from "../codebooks.types";
 import { CodebookVersionService } from "../codebookVersion";
 import Codebook from "../components/codebook";
-import CreatePromptFromCodebookDialog from "../components/createPromptFromCodebookDialog";
 import EditCodebookDialog from "../components/editCodebookDialog";
 import type { Route } from "./+types/codebook.route";
+import CreatePromptFromCodebookDialogContainer from "./createPromptFromCodebookDialog.container";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const user = await requireAuth({ request });
@@ -96,7 +96,13 @@ export async function action({ request }: Route.ActionArgs) {
       });
     }
     case "CREATE_PROMPT_FROM_CODEBOOK": {
-      const { codebookVersionId, annotationType } = payload;
+      const {
+        codebookVersionId,
+        annotationType,
+        categoryIds,
+        hasFlattenedCategories,
+        flattenedAnnotationField,
+      } = payload;
 
       if (!PromptAuthorization.canCreate(user, codebook.team as string)) {
         return data(
@@ -116,6 +122,9 @@ export async function action({ request }: Route.ActionArgs) {
           codebookId: entityId,
           codebookVersionId,
           annotationType,
+          categoryIds,
+          hasFlattenedCategories,
+          flattenedAnnotationField,
           userId: user._id,
           teamId: codebook.team as string,
         });
@@ -205,7 +214,7 @@ export default function CodebookRoute() {
 
   const openCreatePromptFromCodebookDialog = () => {
     addDialog(
-      <CreatePromptFromCodebookDialog
+      <CreatePromptFromCodebookDialogContainer
         codebookVersions={codebookVersions}
         productionVersion={codebook.productionVersion}
         onCreatePromptClicked={submitCreatePromptFromCodebook}

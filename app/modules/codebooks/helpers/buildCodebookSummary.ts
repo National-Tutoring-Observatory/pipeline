@@ -1,4 +1,5 @@
 import type { CodebookCategory } from "../codebooks.types";
+import codifyName from "./codifyName";
 
 const SYSTEM_FIELDS = [
   { isSystem: true, fieldKey: "_id", fieldType: "string", value: "" },
@@ -11,25 +12,41 @@ const SYSTEM_FIELDS = [
   { isSystem: true, fieldKey: "reasoning", fieldType: "string", value: "" },
 ];
 
-function slugify(name: string): string {
-  return name.toLowerCase().replace(/\s+/g, "_");
-}
-
 export function buildAnnotationSchemaFromCategories(
   categories: CodebookCategory[],
+  options?: { flattenedFieldKey?: string },
 ) {
   const fields = [...SYSTEM_FIELDS];
 
-  for (const category of categories) {
-    if (category.codes.length === 0) continue;
+  if (options?.flattenedFieldKey) {
+    const allCodes: string[] = [];
+    for (const category of categories) {
+      for (const code of category.codes) {
+        allCodes.push(code.code);
+      }
+    }
 
-    fields.push({
-      isSystem: false,
-      fieldKey: slugify(category.name),
-      fieldType: "string",
-      value: "",
-      codes: category.codes.map((c) => c.code),
-    } as any);
+    if (allCodes.length > 0) {
+      fields.push({
+        isSystem: false,
+        fieldKey: options.flattenedFieldKey,
+        fieldType: "string",
+        value: "",
+        codes: allCodes,
+      } as any);
+    }
+  } else {
+    for (const category of categories) {
+      if (category.codes.length === 0) continue;
+
+      fields.push({
+        isSystem: false,
+        fieldKey: codifyName(category.name),
+        fieldType: "string",
+        value: "",
+        codes: category.codes.map((c) => c.code),
+      } as any);
+    }
   }
 
   return fields;

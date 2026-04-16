@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DialogClose,
   DialogContent,
@@ -7,6 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Item, ItemContent, ItemGroup, ItemTitle } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -15,37 +18,50 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
 import { annotationTypeOptions } from "~/modules/annotations/helpers/annotationTypes";
-import type { CodebookVersion } from "../codebooks.types";
+import type { CodebookCategory, CodebookVersion } from "../codebooks.types";
+import codifyName from "../helpers/codifyName";
 
 export default function CreatePromptFromCodebookDialog({
   codebookVersions,
   productionVersion,
-  onCreatePromptClicked,
-  isSubmitting = false,
+  codebookVersionId,
+  annotationType,
+  categoryIds,
+  categories,
+  hasFlattenedCategories,
+  flattenedAnnotationField,
+  hasAllCategoriesSelected,
+  isSubmitDisabled,
+  onCodebookVersionChanged,
+  onAnnotationTypeChanged,
+  onCategoryToggled,
+  onToggleAllCategoriesClicked,
+  onHasFlattenedCategoriesChanged,
+  onFlattenedAnnotationFieldChanged,
+  onSubmitClicked,
 }: {
   codebookVersions: CodebookVersion[];
   productionVersion: number;
-  onCreatePromptClicked: (options: {
-    codebookVersionId: string;
-    annotationType: string;
-  }) => void;
-  isSubmitting: boolean;
+  codebookVersionId: string;
+  annotationType: string;
+  categoryIds: string[];
+  categories: CodebookCategory[];
+  hasFlattenedCategories: boolean;
+  flattenedAnnotationField: string;
+  hasAllCategoriesSelected: boolean;
+  isSubmitDisabled: boolean;
+  onCodebookVersionChanged: (id: string) => void;
+  onAnnotationTypeChanged: (type: string) => void;
+  onCategoryToggled: (categoryId: string, checked: boolean) => void;
+  onToggleAllCategoriesClicked: () => void;
+  onHasFlattenedCategoriesChanged: (value: boolean) => void;
+  onFlattenedAnnotationFieldChanged: (value: string) => void;
+  onSubmitClicked: () => void;
 }) {
-  const defaultVersion = codebookVersions.find(
-    (v) => v.version === productionVersion,
-  );
-
-  const [codebookVersionId, setCodebookVersionId] = useState(
-    defaultVersion?._id ?? codebookVersions[0]?._id ?? "",
-  );
-  const [annotationType, setAnnotationType] = useState("PER_UTTERANCE");
-
-  const isSubmitButtonDisabled = !codebookVersionId || isSubmitting;
-
   return (
-    <DialogContent>
+    <DialogContent className="flex max-h-[80vh] flex-col">
       <DialogHeader>
         <DialogTitle>Create prompt from codebook</DialogTitle>
         <DialogDescription>
@@ -54,9 +70,12 @@ export default function CreatePromptFromCodebookDialog({
           schema.
         </DialogDescription>
       </DialogHeader>
-      <div className="grid gap-3">
+      <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto">
         <Label htmlFor="codebook-version">Codebook version</Label>
-        <Select value={codebookVersionId} onValueChange={setCodebookVersionId}>
+        <Select
+          value={codebookVersionId}
+          onValueChange={onCodebookVersionChanged}
+        >
           <SelectTrigger id="codebook-version" className="w-[240px]">
             <SelectValue placeholder="Select a version" />
           </SelectTrigger>
@@ -70,7 +89,7 @@ export default function CreatePromptFromCodebookDialog({
           </SelectContent>
         </Select>
         <Label htmlFor="annotation-type">Annotation type</Label>
-        <Select value={annotationType} onValueChange={setAnnotationType}>
+        <Select value={annotationType} onValueChange={onAnnotationTypeChanged}>
           <SelectTrigger id="annotation-type" className="w-[240px]">
             <SelectValue placeholder="Select an annotation type" />
           </SelectTrigger>
@@ -82,6 +101,90 @@ export default function CreatePromptFromCodebookDialog({
             ))}
           </SelectContent>
         </Select>
+        <div className="flex items-center justify-between gap-2">
+          <Label>Categories to include</Label>
+          {categories.length > 0 && (
+            <Button
+              variant="link"
+              size="sm"
+              className="p-0 text-xs"
+              onClick={onToggleAllCategoriesClicked}
+            >
+              {hasAllCategoriesSelected ? "Deselect all" : "Select all"}
+            </Button>
+          )}
+        </div>
+        {categories.length === 0 ? (
+          <p className="text-muted-foreground text-sm">
+            This codebook version has no categories.
+          </p>
+        ) : (
+          <ItemGroup className="gap-2">
+            {categories.map((category) => {
+              const checkboxId = `category-${category._id}`;
+              const checked = categoryIds.includes(category._id);
+              return (
+                <Item
+                  key={category._id}
+                  variant="outline"
+                  size="sm"
+                  className="hover:bg-accent cursor-pointer"
+                  onClick={() => onCategoryToggled(category._id, !checked)}
+                >
+                  <Checkbox
+                    id={checkboxId}
+                    checked={checked}
+                    onCheckedChange={(next) =>
+                      onCategoryToggled(category._id, next === true)
+                    }
+                  />
+                  <ItemContent>
+                    <ItemTitle>{category.name}</ItemTitle>
+                    <code className="text-muted-foreground bg-muted inline w-fit rounded px-1 py-0.5 text-[10px]">
+                      Code: {codifyName(category.name)}
+                    </code>
+                  </ItemContent>
+                </Item>
+              );
+            })}
+          </ItemGroup>
+        )}
+        <div className="flex flex-col gap-2">
+          <Label>Flatten categories</Label>
+          <p className="text-muted-foreground text-sm">
+            Flattening categories will mean that all the categories will be put
+            into the prompt as one annotation field key and not multiple.
+          </p>
+          <div className="flex items-center gap-3">
+            <Switch
+              id="has-flattened-categories"
+              checked={hasFlattenedCategories}
+              onCheckedChange={onHasFlattenedCategoriesChanged}
+            />
+            <Label htmlFor="has-flattened-categories" className="font-normal">
+              Flatten categories
+            </Label>
+          </div>
+          {hasFlattenedCategories && (
+            <div className="grid gap-1.5">
+              <Label htmlFor="flattened-annotation-field">
+                Annotation field
+              </Label>
+              <Input
+                id="flattened-annotation-field"
+                autoFocus
+                value={flattenedAnnotationField}
+                onChange={(e) =>
+                  onFlattenedAnnotationFieldChanged(e.target.value)
+                }
+              />
+              <p className="text-muted-foreground text-xs">
+                This field will act as the main annotation field for all
+                categories.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
       <DialogFooter className="justify-end">
         <DialogClose asChild>
@@ -92,10 +195,8 @@ export default function CreatePromptFromCodebookDialog({
         <DialogClose asChild>
           <Button
             type="button"
-            disabled={isSubmitButtonDisabled}
-            onClick={() => {
-              onCreatePromptClicked({ codebookVersionId, annotationType });
-            }}
+            disabled={isSubmitDisabled}
+            onClick={onSubmitClicked}
           >
             Create prompt
           </Button>
