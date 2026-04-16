@@ -58,17 +58,35 @@ export default async function createPromptFromCodebook({
     categories,
   });
 
-  const annotationSchema = buildAnnotationSchemaFromCategories(categories);
+  const annotationSchema = buildAnnotationSchemaFromCategories(
+    categories,
+    hasFlattenedCategories
+      ? { flattenedFieldKey: flattenedAnnotationField }
+      : undefined,
+  );
 
   let userPrompt: string;
 
   try {
+    const schema = {
+      type: "object",
+      properties: {
+        prompt: { type: "string" },
+      },
+      required: ["prompt"],
+    };
+
     const llm = new LLM({
       model: "anthropic.claude-4.6-opus",
       user: teamId,
       source: "codebook-prompt-generation",
       sourceId: codebookId,
+      schema,
     });
+
+    const flatteningInstruction = hasFlattenedCategories
+      ? `\n    - IMPORTANT: All categories have been flattened into a single annotation field called "${flattenedAnnotationField}". The prompt should instruct the LLM to use this single field for its annotation, choosing from the combined codes of all categories. Do not reference individual category field names.`
+      : "";
 
     llm.addSystemMessage(
       `You are an expert at writing LLM annotation prompts for analysing tutoring transcripts.
@@ -76,18 +94,18 @@ export default async function createPromptFromCodebook({
     - Your task is to write a clear, detailed prompt that an LLM can use to annotate transcripts according to the codebook.
     - The prompt should instruct the LLM to classify each annotation field using the codes defined in the codebook.
     - Include the code definitions and examples from the codebook so the LLM understands each code.
-    - Do not include any JSON schema or output format instructions — those are handled separately.
-    - Always return your result as the following JSON: {{output}}.`,
-      {
-        output: JSON.stringify({ prompt: "" }),
-      },
+    - Do not include any JSON schema or output format instructions — those are handled separately.${flatteningInstruction}`,
+      {},
     );
 
     llm.addUserMessage(`Codebook summary:\n{{summary}}`, {
       summary,
     });
 
+    console.log(llm.getMessagesAsString());
+
     const response = await llm.createChat();
+    console.log(response);
     userPrompt = response.prompt;
   } catch (error) {
     const errorMessage = handleLLMError(error);

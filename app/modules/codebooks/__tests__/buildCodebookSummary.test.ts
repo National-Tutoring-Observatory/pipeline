@@ -117,6 +117,82 @@ describe("buildAnnotationSchemaFromCategories", () => {
     const result = buildAnnotationSchemaFromCategories([emptyCategory]);
     expect(result).toHaveLength(3);
   });
+
+  describe("with flattenedFieldKey", () => {
+    it("merges all codes into a single field", () => {
+      const result = buildAnnotationSchemaFromCategories(categories, {
+        flattenedFieldKey: "annotation",
+      });
+
+      expect(result).toHaveLength(4);
+
+      expect(result[3]).toEqual({
+        isSystem: false,
+        fieldKey: "annotation",
+        fieldType: "string",
+        value: "",
+        codes: ["high", "low", "yes", "no"],
+      });
+    });
+
+    it("keeps duplicate codes across categories", () => {
+      const categoriesWithDuplicates: CodebookCategory[] = [
+        {
+          _id: "cat1",
+          name: "Category A",
+          description: "",
+          codes: [
+            {
+              _id: "c1",
+              code: "yes",
+              description: "",
+              definition: "",
+              examples: [],
+            },
+          ],
+        },
+        {
+          _id: "cat2",
+          name: "Category B",
+          description: "",
+          codes: [
+            {
+              _id: "c2",
+              code: "yes",
+              description: "",
+              definition: "",
+              examples: [],
+            },
+          ],
+        },
+      ];
+
+      const result = buildAnnotationSchemaFromCategories(
+        categoriesWithDuplicates,
+        { flattenedFieldKey: "combined" },
+      );
+
+      expect(result[3]).toEqual({
+        isSystem: false,
+        fieldKey: "combined",
+        fieldType: "string",
+        value: "",
+        codes: ["yes", "yes"],
+      });
+    });
+
+    it("returns only system fields when all categories have no codes", () => {
+      const emptyCategories: CodebookCategory[] = [
+        { _id: "cat1", name: "Empty", description: "", codes: [] },
+      ];
+
+      const result = buildAnnotationSchemaFromCategories(emptyCategories, {
+        flattenedFieldKey: "annotation",
+      });
+
+      expect(result).toHaveLength(3);
+    });
+  });
 });
 
 describe("buildCodebookSummary", () => {
