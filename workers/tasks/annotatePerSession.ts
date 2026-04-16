@@ -122,20 +122,17 @@ export default async function annotatePerSession(job: Job) {
 
       originalJSON.preVerificationAnnotations = map(
         preVerificationAnnotations,
-        (annotation: Record<string, unknown>, index: number) => {
-          annotation._id = `${index}`;
-          return annotation;
-        },
+        (annotation, index) => ({
+          ...annotation,
+          _id: `${index}`,
+        }),
       );
     }
 
-    originalJSON.annotations = map(
-      annotations,
-      (annotation: Record<string, unknown>, index: number) => {
-        annotation._id = `${index}`;
-        return annotation;
-      },
-    );
+    originalJSON.annotations = map(annotations, (annotation, index) => ({
+      ...annotation,
+      _id: `${index}`,
+    }));
 
     await fse.outputJSON(
       `tmp/${outputFolder}/${outputFileName}.json`,

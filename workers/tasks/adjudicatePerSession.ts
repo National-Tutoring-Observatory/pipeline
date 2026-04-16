@@ -66,13 +66,10 @@ export default async function adjudicatePerSession(job: Job) {
       );
 
       const srcAnnotations = firstSourceRunSessionFile?.annotations || [];
-      originalJSON.annotations = map(
-        srcAnnotations,
-        (annotation: Record<string, unknown>, index: number) => {
-          annotation._id = `${index}`;
-          return annotation;
-        },
-      );
+      originalJSON.annotations = map(srcAnnotations, (annotation, index) => ({
+        ...annotation,
+        _id: `${index}`,
+      }));
     } else {
       console.log("[adjudicatePerSession] Calling LLM for adjudication");
 
@@ -115,13 +112,10 @@ export default async function adjudicatePerSession(job: Job) {
         ...adjudicatedAnnotations,
       ];
 
-      originalJSON.annotations = map(
-        allAnnotations,
-        (annotation: Record<string, unknown>, index: number) => {
-          annotation._id = `${index}`;
-          return annotation;
-        },
-      );
+      originalJSON.annotations = map(allAnnotations, (annotation, index) => ({
+        ...annotation,
+        _id: `${index}`,
+      }));
     }
 
     // Write output
