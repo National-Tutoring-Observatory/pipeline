@@ -1,4 +1,4 @@
-import Ajv from "ajv";
+import Ajv, { type AnySchema } from "ajv";
 import transcriptSchema from "../schemas/json/transcript.schema.json";
 
 const ajv = new Ajv({ allErrors: true, verbose: true, allowUnionTypes: true });
@@ -6,7 +6,7 @@ const ajv = new Ajv({ allErrors: true, verbose: true, allowUnionTypes: true });
 export interface ValidationError {
   field: string;
   message: string;
-  value?: any;
+  value?: unknown;
 }
 
 export interface ValidationResult {
@@ -22,8 +22,8 @@ export interface ValidationResult {
  * @returns ValidationResult with valid status and formatted errors if any
  */
 export function validateAgainstSchema(
-  data: any,
-  schema: any,
+  data: unknown,
+  schema: AnySchema,
 ): ValidationResult {
   const validate = ajv.compile(schema);
   const valid = validate(data);
@@ -72,7 +72,7 @@ export function validateAgainstSchema(
  * }
  * ```
  */
-export function isValidTranscript(transcript: any): ValidationResult {
+export function isValidTranscript(transcript: unknown): ValidationResult {
   return validateAgainstSchema(transcript, transcriptSchema);
 }
 

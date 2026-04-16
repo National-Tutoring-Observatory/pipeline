@@ -1,12 +1,26 @@
 import { createAdapter } from "@socket.io/redis-adapter";
+import type { Application, NextFunction, Request, Response } from "express";
+import type { Server as HttpServer } from "http";
 import type { Socket } from "socket.io";
 import { Server } from "socket.io";
 import { getRedisInstance } from "./app/helpers/getRedisInstance";
 import sessionStorage from "./sessionStorage";
 
+declare module "express-serve-static-core" {
+  interface Request {
+    io: Server;
+  }
+}
+
 type AuthenticatedSocket = Socket & { user: { username: string } };
 
-export function setupSockets({ server, app }: { server: any; app: any }) {
+export function setupSockets({
+  server,
+  app,
+}: {
+  server: HttpServer;
+  app: Application;
+}) {
   const redis = getRedisInstance();
 
   const io = new Server(server);
@@ -20,7 +34,7 @@ export function setupSockets({ server, app }: { server: any; app: any }) {
   pubClient.on("error", onRedisError);
   subClient.on("error", onRedisError);
 
-  app.use((req: any, res: any, next: any) => {
+  app.use((req: Request, _res: Response, next: NextFunction) => {
     req.io = io; // Attach the main 'io' server instance to every HTTP request
     next();
   });

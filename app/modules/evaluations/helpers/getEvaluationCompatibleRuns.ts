@@ -1,7 +1,8 @@
+import type { AnnotationSchemaItem } from "~/modules/prompts/prompts.types";
 import { sessionsMatch } from "~/modules/runSets/helpers/sessionsMatch";
 import type { Run } from "~/modules/runs/runs.types";
 
-function getNonSystemFieldKeys(schema: any[]): string[] {
+function getNonSystemFieldKeys(schema: AnnotationSchemaItem[]): string[] {
   return schema
     .filter((field) => !field.isSystem)
     .map((field) => field.fieldKey);

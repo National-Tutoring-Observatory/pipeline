@@ -27,7 +27,7 @@ const LlmCostModel =
   mongoose.models.LlmCost || mongoose.model("LlmCost", llmCostSchema);
 
 export class BillingPeriodService {
-  private static toBillingPeriod(doc: any): BillingPeriod {
+  private static toBillingPeriod(doc: mongoose.Document): BillingPeriod {
     return doc.toJSON({ flattenObjectIds: true }) as BillingPeriod;
   }
 
@@ -188,7 +188,7 @@ export class BillingPeriodService {
     } catch (err) {
       if (err instanceof NoPlanError) return null;
       // Another process opened the period concurrently — return whatever is there now
-      if (err instanceof Error && (err as any).code === 11000) {
+      if (err instanceof Error && (err as { code?: number }).code === 11000) {
         return this.getCurrentPeriod(teamId);
       }
       throw err;

@@ -77,12 +77,12 @@ export class TeamBillingPlanService {
     const ids = await TeamBillingPlanModel.distinct("team", {
       effectiveFrom: { $lte: asOf },
     });
-    return ids.map((id: any) => id.toString());
+    return ids.map((id: mongoose.Types.ObjectId) => id.toString());
   }
 
   static async findTeamsWithAnyPlan(): Promise<string[]> {
     const ids = await TeamBillingPlanModel.distinct("team");
-    return ids.map((id: any) => id.toString());
+    return ids.map((id: mongoose.Types.ObjectId) => id.toString());
   }
 
   static async getPendingPlanChange(
