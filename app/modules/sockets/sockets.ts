@@ -1,8 +1,8 @@
-import { io } from "socket.io-client";
-let SOCKETS: any = null;
+import { io, type Socket } from "socket.io-client";
+let SOCKETS: Socket | null = null;
 
-export async function getSockets() {
-  const promise = new Promise((resolve) => {
+export async function getSockets(): Promise<Socket> {
+  const promise = new Promise<Socket>((resolve) => {
     const checkSockets = () => {
       if (SOCKETS) {
         resolve(SOCKETS);
