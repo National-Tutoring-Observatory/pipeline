@@ -1,3 +1,4 @@
+import type { Job } from "bullmq";
 import fse from "fs-extra";
 import filter from "lodash/filter";
 import map from "lodash/map.js";
@@ -12,7 +13,7 @@ import emitFromJob from "../helpers/emitFromJob";
 import updateRunSession from "../helpers/updateRunSession";
 import adjudicatePerSessionPrompts from "../prompts/adjudicatePerSession.prompts.json";
 
-export default async function adjudicatePerSession(job: any) {
+export default async function adjudicatePerSession(job: Job) {
   const { runId, sessionId, inputFile, outputFolder, prompt, model, team } =
     job.data;
 
@@ -67,7 +68,7 @@ export default async function adjudicatePerSession(job: any) {
       const srcAnnotations = firstSourceRunSessionFile?.annotations || [];
       originalJSON.annotations = map(
         srcAnnotations,
-        (annotation: any, index: number) => {
+        (annotation: Record<string, unknown>, index: number) => {
           annotation._id = `${index}`;
           return annotation;
         },
@@ -116,7 +117,7 @@ export default async function adjudicatePerSession(job: any) {
 
       originalJSON.annotations = map(
         allAnnotations,
-        (annotation: any, index: number) => {
+        (annotation: Record<string, unknown>, index: number) => {
           annotation._id = `${index}`;
           return annotation;
         },

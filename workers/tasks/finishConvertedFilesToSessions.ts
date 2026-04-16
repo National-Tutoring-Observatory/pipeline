@@ -1,8 +1,9 @@
+import type { Job } from "bullmq";
 import find from "lodash/find.js";
 import { ProjectService } from "../../app/modules/projects/project";
 import emitFromJob from "../helpers/emitFromJob";
 
-export default async function finishConvertedFilesToSessions(job: any) {
+export default async function finishConvertedFilesToSessions(job: Job) {
   const { projectId } = job.data;
 
   const jobResults = await job.getChildrenValues();

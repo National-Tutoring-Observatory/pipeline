@@ -1,3 +1,4 @@
+import type { Job } from "bullmq";
 import { parse } from "csv-parse/sync";
 import fse from "fs-extra";
 import filter from "lodash/filter";
@@ -8,7 +9,7 @@ import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapt
 import emitFromJob from "../helpers/emitFromJob";
 import updateRunSession from "../helpers/updateRunSession";
 
-export default async function processUploadHumanAnnotations(job: any) {
+export default async function processUploadHumanAnnotations(job: Job) {
   const {
     runId,
     sessionId,
@@ -127,8 +128,9 @@ export default async function processUploadHumanAnnotations(job: any) {
       },
       "FINISHED",
     );
-  } catch (error: any) {
-    const errorMessage = error?.message || "Unknown error";
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
     await updateRunSession({
       runId,

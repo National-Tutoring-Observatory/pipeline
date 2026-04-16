@@ -1,3 +1,4 @@
+import type { Job } from "bullmq";
 import fse from "fs-extra";
 import { getDatasetSessionPath } from "../../app/modules/datasets/helpers/getDatasetStoragePath";
 import { FileService } from "../../app/modules/files/file";
@@ -7,7 +8,7 @@ import { getProjectFileStoragePath } from "../../app/modules/uploads/helpers/pro
 import { getProjectSessionStoragePath } from "../../app/modules/uploads/helpers/projectSessionStorage";
 import emitFromJob from "../helpers/emitFromJob";
 
-export default async function processInsertMtmSession(job: any) {
+export default async function processInsertMtmSession(job: Job) {
   const {
     projectId,
     sessionId,
@@ -83,8 +84,11 @@ export default async function processInsertMtmSession(job: any) {
     );
 
     return { status: "SUCCESS" };
-  } catch (error: any) {
+  } catch (error) {
     await emitFromJob(job, { projectId, sessionId }, "ERRORED");
-    return { status: "ERRORED", error: error.message };
+    return {
+      status: "ERRORED",
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
 }

@@ -12,7 +12,7 @@ export default async function removeFeatureFlagFromUsers(job: Job) {
     await UserService.removeFeatureFlag(featureFlagName);
 
     try {
-      await emitFromJob(job as any, { featureFlagId }, "FINISHED");
+      await emitFromJob(job, { featureFlagId }, "FINISHED");
     } catch (err) {
       console.warn("[removeFeatureFlagFromUsers] failed to emit FINISHED", err);
     }

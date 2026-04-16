@@ -3,7 +3,7 @@ import getSockets from "./getSockets";
 
 export default async (
   job: Job,
-  data: any,
+  data: Record<string, unknown>,
   status: "STARTED" | "FINISHED" | "UPDATED" | "ERRORED",
 ) => {
   const sockets = await getSockets();
