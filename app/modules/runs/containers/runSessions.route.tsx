@@ -79,7 +79,7 @@ export default function ProjectRunSessionsRoute({
   params,
 }: Route.ComponentProps) {
   const { project, run, sessionFile, session, runSet, paginatedSessions } =
-    useLoaderData();
+    useLoaderData<typeof loader>();
 
   const parentBreadcrumbs = runSet
     ? [

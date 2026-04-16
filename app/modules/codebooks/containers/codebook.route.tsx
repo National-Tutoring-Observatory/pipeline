@@ -149,7 +149,7 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export default function CodebookRoute() {
-  const loaderData = useLoaderData();
+  const loaderData = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const { id, version } = useParams();

@@ -192,7 +192,7 @@ export default function ProjectRunRoute() {
     runRunSets,
     runRunSetsCount,
     paginatedSessions,
-  } = useLoaderData();
+  } = useLoaderData<typeof loader>();
   const initialDoneCount = run.sessions.filter(
     (s: RunSession) => s.status === "DONE",
   ).length;
