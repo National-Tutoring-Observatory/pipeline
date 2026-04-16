@@ -9,7 +9,7 @@ export interface Prompt {
   annotationType: string;
   productionVersion: number;
   createdBy: User | string;
-  deletedAt?: string;
+  deletedAt?: Date;
 }
 
 export interface PromptVersion {
