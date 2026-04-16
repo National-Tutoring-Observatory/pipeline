@@ -1,6 +1,7 @@
 import fse from "fs-extra";
 import type { Run, RunSession } from "~/modules/runs/runs.types";
 import { SessionService } from "~/modules/sessions/session";
+import type { SessionFile } from "~/modules/sessions/sessions.types";
 import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import type {
   Evaluation,
@@ -15,7 +16,7 @@ import extractAnnotationValues from "./extractAnnotationValues";
 
 export interface SessionFileCache {
   [runId: string]: {
-    [sessionId: string]: any;
+    [sessionId: string]: SessionFile;
   };
 }
 
@@ -24,7 +25,7 @@ async function downloadSessionFile(
   runId: string,
   sessionId: string,
   sessionName: string,
-): Promise<any> {
+): Promise<SessionFile> {
   const storage = getStorageAdapter();
   const sourcePath = `storage/${projectId}/runs/${runId}/${sessionId}/${sessionName}`;
   const downloadedPath = await storage.download({ sourcePath });
@@ -177,14 +178,12 @@ export default async function buildEvaluationReport(
       const runNameB = runNameMap.get(runIdB) || runIdB;
       for (let i = 0; i < minLength; i++) {
         if (alignedA[i] !== alignedB[i]) {
-          console.log(
+          console.warn(
             `[${runNameA} vs ${runNameB}] Mismatch at ${i}: "${alignedA[i]}" vs "${alignedB[i]}"`,
           );
         }
       }
       const kappa = calculateCohensKappa(alignedA, alignedB);
-
-      console.log(kappa);
 
       let precision: number | undefined;
       let recall: number | undefined;

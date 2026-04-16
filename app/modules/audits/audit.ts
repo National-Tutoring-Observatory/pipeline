@@ -9,8 +9,8 @@ const AuditModel =
   mongoose.models.Audit || mongoose.model("Audit", auditSchema);
 
 export class AuditService {
-  private static toAudit(doc: any): AuditRecord {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toAudit(doc: mongoose.Document): AuditRecord {
+    return doc.toJSON({ flattenObjectIds: true }) as AuditRecord;
   }
 
   static async create(
@@ -74,7 +74,7 @@ export class AuditService {
     return docs.map((doc) => this.toAudit(doc));
   }
 
-  static async count(match: Record<string, any> = {}): Promise<number> {
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
     return AuditModel.countDocuments(match);
   }
 

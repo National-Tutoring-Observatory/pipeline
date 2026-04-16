@@ -10,8 +10,8 @@ let cache: { value: SystemSettings; expiresAt: number } | null = null;
 const CACHE_TTL_MS = 5000;
 
 export class SystemSettingsService {
-  private static toSystemSettings(doc: any): SystemSettings {
-    return doc.toJSON({ flattenObjectIds: true });
+  private static toSystemSettings(doc: mongoose.Document): SystemSettings {
+    return doc.toJSON({ flattenObjectIds: true }) as SystemSettings;
   }
 
   static async getSettings(): Promise<SystemSettings> {

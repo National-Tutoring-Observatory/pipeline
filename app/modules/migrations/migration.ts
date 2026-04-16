@@ -10,7 +10,7 @@ export class MigrationService {
 
     const dataByMigrationId = new Map(runsData.map((r) => [r.migrationId, r]));
 
-    return migrations.map((migration: any) => {
+    return migrations.map((migration) => {
       const data = dataByMigrationId.get(migration.id);
       return {
         ...migration,
