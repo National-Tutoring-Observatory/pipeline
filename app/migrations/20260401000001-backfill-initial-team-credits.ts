@@ -43,7 +43,7 @@ export default {
       .distinct("team");
 
     const teamsWithCreditsSet = new Set(
-      teamsWithCredits.map((id: any) => id.toString()),
+      teamsWithCredits.map((id: unknown) => String(id)),
     );
 
     const teamsWithoutCredits = teams.filter(

@@ -3,8 +3,14 @@ export interface DownloadParams {
   destinationPath?: string;
 }
 
+export interface UploadFile {
+  buffer: Buffer;
+  type?: string;
+  size?: number;
+}
+
 export interface UploadParams {
-  file: any;
+  file: UploadFile;
   uploadPath: string;
 }
 
@@ -18,7 +24,7 @@ export interface RemoveDirParams {
 
 export interface RequestParams {
   url: string;
-  options?: any;
+  options?: Record<string, unknown>;
 }
 
 /**

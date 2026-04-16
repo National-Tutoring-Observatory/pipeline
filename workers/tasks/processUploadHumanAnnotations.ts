@@ -63,7 +63,8 @@ export default async function processUploadHumanAnnotations(job: Job) {
     for (const row of sessionRows) {
       const utterance = find(
         originalJSON.transcript,
-        (u: any) => String(u.sequence_id) === String(row.sequence_id),
+        (u: Record<string, unknown>) =>
+          String(u.sequence_id) === String(row.sequence_id),
       );
       if (!utterance) continue;
 

@@ -62,7 +62,7 @@ export default async function sumCostOverTime(
     },
     { $sort: { _id: 1 } },
   ]);
-  return result.map((r: any) => ({
+  return result.map((r: { _id: string; totalCost: number }) => ({
     period: r._id,
     totalCost: r.totalCost,
   }));

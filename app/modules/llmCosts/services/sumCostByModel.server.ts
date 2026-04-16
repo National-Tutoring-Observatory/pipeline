@@ -17,10 +17,17 @@ export default async function sumCostByModel(
     },
     { $sort: { totalCost: -1 } },
   ]);
-  return result.map((r: any) => ({
-    model: r._id,
-    totalCost: r.totalCost,
-    totalInputTokens: r.totalInputTokens,
-    totalOutputTokens: r.totalOutputTokens,
-  }));
+  return result.map(
+    (r: {
+      _id: string;
+      totalCost: number;
+      totalInputTokens: number;
+      totalOutputTokens: number;
+    }) => ({
+      model: r._id,
+      totalCost: r.totalCost,
+      totalInputTokens: r.totalInputTokens,
+      totalOutputTokens: r.totalOutputTokens,
+    }),
+  );
 }

@@ -3,7 +3,7 @@ import parseAnnotationColumn from "./parseAnnotationColumns";
 interface AnnotationObject {
   _id: string;
   identifiedBy: "HUMAN";
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export default function buildAnnotationsForUtterance(

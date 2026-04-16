@@ -16,8 +16,8 @@ export default {
     try {
       await db.renameCollection("collections", "runsets");
       console.log("Renamed MongoDB collection: collections → runsets");
-    } catch (err: any) {
-      if (err.codeName === "NamespaceNotFound") {
+    } catch (err: unknown) {
+      if ((err as { codeName?: string }).codeName === "NamespaceNotFound") {
         console.log(
           "Collection 'collections' not found — may already be renamed",
         );

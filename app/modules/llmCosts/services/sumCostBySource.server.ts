@@ -15,7 +15,7 @@ export default async function sumCostBySource(
     },
     { $sort: { totalCost: -1 } },
   ]);
-  return result.map((r: any) => ({
+  return result.map((r: { _id: string; totalCost: number }) => ({
     source: r._id,
     totalCost: r.totalCost,
   }));

@@ -93,7 +93,7 @@ registerStorageAdapter({
     }
   },
   upload: async ({ file, uploadPath }: UploadParams): Promise<void> => {
-    const { buffer, contentType } = file;
+    const { buffer, type } = file;
 
     const s3Client = getS3Client();
 
@@ -105,7 +105,7 @@ registerStorageAdapter({
         Key: uploadPath,
         Body: buffer,
         ACL,
-        ContentType: contentType,
+        ContentType: type,
       };
 
       const upload = new Upload({
