@@ -20,7 +20,7 @@ export type FilterOption = {
 
 export type FiltersProps = {
   filters: Filter[];
-  filtersValues: any;
+  filtersValues: Record<string, string | null>;
   onFiltersValueChanged?: (filtersValue: Record<string, string | null>) => void;
 };
 
@@ -56,7 +56,7 @@ const Filters = ({
                 <FiltersItem
                   key={filter.category}
                   filter={filter}
-                  value={filtersValues[filter.category]}
+                  value={filtersValues[filter.category] ?? undefined}
                   onFiltersValueChanged={onFiltersValueChanged}
                 />
               );
