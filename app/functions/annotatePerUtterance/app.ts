@@ -6,7 +6,16 @@ import getStorageAdapter from "~/modules/storage/helpers/getStorageAdapter";
 import systemPrompt from "./system.prompt.json";
 dotenv.config({ path: ".env" });
 
-export const handler = async (event: { body: any }) => {
+interface LambdaBody {
+  inputFile: string;
+  outputFolder: string;
+  prompt: { prompt: string; annotationSchema: unknown };
+  model: string;
+  team: string;
+  sessionId: string;
+}
+
+export const handler = async (event: { body: LambdaBody }) => {
   const { body } = event;
   const { inputFile, outputFolder, prompt, model, team, sessionId } = body;
 
@@ -35,7 +44,7 @@ export const handler = async (event: { body: any }) => {
   });
 
   llm.addUserMessage(`${prompt.prompt}\n\nConversation: {{conversation}}`, {
-    conversation: data,
+    conversation: String(data),
   });
 
   const response = await llm.createChat();

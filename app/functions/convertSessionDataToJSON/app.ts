@@ -10,8 +10,15 @@ import systemPrompt from "./system.prompt.json";
 import userPrompt from "./user.prompt.json";
 dotenv.config({ path: ".env" });
 
+interface LambdaBody {
+  inputFile: string;
+  outputFolder: string;
+  team: string;
+  sessionId: string;
+}
+
 interface LambdaEvent {
-  body: any;
+  body: LambdaBody;
 }
 
 export const handler = async (event: LambdaEvent) => {
@@ -44,7 +51,7 @@ export const handler = async (event: LambdaEvent) => {
 
   llm.addUserMessage(userPrompt.prompt, {
     schema: JSON.stringify(schema),
-    data,
+    data: String(data),
   });
 
   const response = await llm.createChat();

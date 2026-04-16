@@ -70,7 +70,7 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResponse> => {
         }
 
         try {
-          const jsonObject: any = JSON.parse(trimmedLine);
+          const jsonObject = JSON.parse(trimmedLine) as Record<string, unknown>;
           const outputFileName = get(
             jsonObject,
             outputFileKey,
@@ -82,10 +82,12 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResponse> => {
           );
 
           await fse.outputJSON(outputFilePath, jsonObject);
-        } catch (parseError: any) {
+        } catch (parseError) {
           console.error(
             `Skipping line ${lineNumber} due to JSON parsing error:`,
-            parseError.message,
+            parseError instanceof Error
+              ? parseError.message
+              : String(parseError),
           );
         }
       }
@@ -94,12 +96,12 @@ export const handler = async (event: LambdaEvent): Promise<LambdaResponse> => {
     return {
       statusCode: 200,
     };
-  } catch (err: any) {
+  } catch (err) {
     console.error(err);
     return {
       statusCode: 500,
       body: JSON.stringify({
-        message: err.message,
+        message: err instanceof Error ? err.message : String(err),
       }),
     };
   }
