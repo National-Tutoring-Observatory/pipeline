@@ -2,6 +2,7 @@ import { redirect } from "react-router";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import sessionStorage from "../../../../sessionStorage";
 import { authenticator } from "../authentication.server";
+import sanitizeReturnTo from "../helpers/sanitizeReturnTo";
 import type { Route } from "./+types/authCallback.route";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -10,6 +11,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await sessionStorage.getSession(
     request.headers.get("cookie"),
   );
+
+  const returnTo = sanitizeReturnTo(session.get("returnTo"));
 
   session.set("user", user);
 
@@ -23,5 +26,5 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect("/onboarding", { headers });
   }
 
-  return redirect("/", { headers });
+  return redirect(returnTo, { headers });
 }
