@@ -1,5 +1,5 @@
 export default function applySchemaToRequest(
-  requestParams: any,
+  requestParams: Record<string, unknown>,
   schema?: object,
 ) {
   if (schema) {

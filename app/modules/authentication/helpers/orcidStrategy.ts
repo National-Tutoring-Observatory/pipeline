@@ -1,6 +1,7 @@
 import { redirect } from "react-router";
 import { Strategy } from "remix-auth/strategy";
 import { UserService } from "~/modules/users/user";
+import type { User } from "~/modules/users/users.types";
 
 /**
  * The user profile returned by ORCID.
@@ -191,7 +192,13 @@ export class OrcidStrategy<User> extends Strategy<
         );
       }
 
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as {
+        access_token: string;
+        refresh_token: string;
+        token_type: "bearer";
+        name: string;
+        orcid: string;
+      };
 
       return {
         accessToken: data.access_token,
@@ -229,7 +236,11 @@ export class OrcidStrategy<User> extends Strategy<
         );
       }
 
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as {
+        path: string;
+        name: OrcidProfile["name"];
+        emails: OrcidProfile["emails"];
+      };
 
       // Map the ORCID response to a more standardized profile format
       return {
@@ -245,7 +256,7 @@ export class OrcidStrategy<User> extends Strategy<
   }
 }
 
-const orcidStrategy = new OrcidStrategy<any>(
+const orcidStrategy = new OrcidStrategy<User>(
   {
     clientID: process.env.ORCID_CLIENT_ID!,
     clientSecret: process.env.ORCID_CLIENT_SECRET!,
@@ -260,7 +271,7 @@ const orcidStrategy = new OrcidStrategy<any>(
       throw redirect("/signup?error=UNREGISTERED");
     }
 
-    return users[0] as any;
+    return users[0] as User;
   },
 );
 
