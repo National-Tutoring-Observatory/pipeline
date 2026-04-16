@@ -16,8 +16,8 @@ export type FilterOption = {
 
 export type SortProps = {
   sortOptions?: SortOption[];
-  sortValue?: any;
-  onSortValueChanged: (sortValue: string) => any;
+  sortValue?: string;
+  onSortValueChanged: (sortValue: string) => void;
 };
 
 const Sort = ({ sortOptions, sortValue, onSortValueChanged }: SortProps) => {
@@ -47,7 +47,7 @@ const Sort = ({ sortOptions, sortValue, onSortValueChanged }: SortProps) => {
                 <SortItem
                   key={sortOption.value}
                   item={sortOption}
-                  value={sortValue}
+                  value={sortValue ?? ""}
                   onValueChange={onSortValueChanged}
                 />
               );

@@ -18,6 +18,7 @@ import type { SearchProps } from "./search";
 import type { SortProps } from "./sort";
 
 export type CollectionProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   items: any[];
   itemsLayout: "list" | "card";
   actions?: Action[];
@@ -30,8 +31,11 @@ export type CollectionProps = {
     icon?: ReactElement;
     actions?: Action[];
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderItem?: (item: any) => ReactElement;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getItemAttributes: (item: any) => CollectionItemAttributes;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getItemActions: (item: any) => CollectionItemAction[];
   onItemClicked?: (id: string) => void;
   onActionClicked: (action: string) => void;
