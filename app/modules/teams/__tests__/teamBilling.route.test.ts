@@ -281,7 +281,7 @@ describe("teamBilling.route action", () => {
       expect(result.data.errors.general).toContain("Invalid");
     });
 
-    it("rejects amount below minimum", async () => {
+    it("rejects non-integer amount", async () => {
       const admin = await UserService.create({
         username: "admin",
         role: "SUPER_ADMIN",
@@ -293,11 +293,30 @@ describe("teamBilling.route action", () => {
       const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "ADD_CREDITS",
-          payload: { amount: 5 },
+          payload: { amount: 10.5 },
         }),
       );
 
-      expect(result.data.errors.general).toContain("Minimum");
+      expect(result.data.errors.general).toContain("whole dollar");
+    });
+
+    it("rejects null amount", async () => {
+      const admin = await UserService.create({
+        username: "admin",
+        role: "SUPER_ADMIN",
+        teams: [],
+      });
+      const team = await TeamService.create({ name: "Test Team" });
+      const cookie = await loginUser(admin._id);
+
+      const result: any = await action(
+        buildActionRequest(cookie, team._id, {
+          intent: "ADD_CREDITS",
+          payload: { amount: null },
+        }),
+      );
+
+      expect(result.data.errors.general).toContain("Invalid");
     });
   });
 });
