@@ -134,6 +134,9 @@ export default [
   ...prefix("invite", [
     route(":id", "modules/teams/containers/invite.route.tsx", { id: "invite" }),
   ]),
+  ...prefix("join", [
+    route(":slug", "modules/teams/containers/join.route.tsx", { id: "join" }),
+  ]),
   route("signup", "modules/authentication/containers/signup.route.tsx"),
   route("onboarding", "modules/authentication/containers/onboarding.route.tsx"),
   ...prefix("featureFlags", [
