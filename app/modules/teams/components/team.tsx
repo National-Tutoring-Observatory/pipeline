@@ -36,7 +36,13 @@ export default function Team({
   const parts = location.pathname.split("/").filter(Boolean);
   // Expect path like /teams/:id(/projects|prompts|users)
   const last = parts[parts.length - 1];
-  const active = ["projects", "prompts", "users", "billing"].includes(last)
+  const active = [
+    "projects",
+    "prompts",
+    "users",
+    "invite-links",
+    "billing",
+  ].includes(last)
     ? last
     : "users";
 
@@ -67,6 +73,7 @@ export default function Team({
       <Tabs value={active} onValueChange={handleTabChange} className="mb-2">
         <TabsList>
           <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="invite-links">Invite links</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="prompts">Prompts</TabsTrigger>
           {canViewBilling && <TabsTrigger value="billing">Billing</TabsTrigger>}
