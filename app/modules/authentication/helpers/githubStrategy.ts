@@ -42,6 +42,14 @@ const githubStrategy = new GitHubStrategy<any>(
       request.headers.get("cookie"),
     );
 
+    const teamInviteId = session.get("teamInviteId");
+    if (teamInviteId) {
+      const handleTeamInviteSignup = (
+        await import("./handleTeamInviteSignup.server")
+      ).default;
+      return handleTeamInviteSignup({ teamInviteId, githubUser, emails });
+    }
+
     const inviteId = session.get("inviteId");
 
     const isInvitedUser = !!inviteId;
