@@ -5,7 +5,6 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { BillingPlanService } from "../../billing/billingPlan";
 import { TeamBillingPlanService } from "../../billing/teamBillingPlan";
-import { TeamCreditService } from "../../billing/teamCredit";
 import { action } from "../containers/teamBilling.route";
 
 function buildActionRequest(
@@ -193,7 +192,7 @@ describe("teamBilling.route action", () => {
   });
 
   describe("ADD_CREDITS", () => {
-    it("allows billing user to add credits", async () => {
+    it("denies billing user from adding credits", async () => {
       const team = await TeamService.create({ name: "Test Team" });
       const billingUser = await UserService.create({
         username: "billing",
@@ -201,11 +200,6 @@ describe("teamBilling.route action", () => {
         teams: [{ team: team._id, role: "ADMIN" }],
       });
       await TeamService.updateById(team._id, { billingUser: billingUser._id });
-      await BillingPlanService.create({
-        name: "Standard",
-        markupRate: 1.5,
-        isDefault: true,
-      });
 
       const cookie = await loginUser(billingUser._id);
 
@@ -216,12 +210,8 @@ describe("teamBilling.route action", () => {
         }),
       );
 
-      expect(result.data.success).toBe(true);
-
-      const credits = await TeamCreditService.findByTeam(team._id);
-      expect(credits).toHaveLength(1);
-      expect(credits[0].amount).toBe(50);
-      expect(credits[0].note).toBe("Test top-up");
+      expect(result.init?.status).toBe(403);
+      expect(result.data.errors.general).toContain("permission");
     });
 
     it("allows super admin to add credits", async () => {
@@ -317,6 +307,87 @@ describe("teamBilling.route action", () => {
       );
 
       expect(result.data.errors.general).toContain("Invalid");
+    });
+  });
+
+  describe("INITIATE_TOPUP", () => {
+    it("allows billing user to initiate top up", async () => {
+      const team = await TeamService.create({ name: "Test Team" });
+      const billingUser = await UserService.create({
+        username: "billing",
+        role: "USER",
+        teams: [{ team: team._id, role: "MEMBER" }],
+      });
+      await TeamService.updateById(team._id, { billingUser: billingUser._id });
+      const cookie = await loginUser(billingUser._id);
+
+      const result: any = await action(
+        buildActionRequest(cookie, team._id, {
+          intent: "INITIATE_TOPUP",
+          payload: { amount: 50 },
+        }),
+      );
+
+      expect(result.data.errors.general).toContain("Billing is not enabled");
+    });
+
+    it("allows team admins to initiate top up", async () => {
+      const team = await TeamService.create({ name: "Test Team" });
+      const admin = await UserService.create({
+        username: "teamadmin",
+        role: "USER",
+        teams: [{ team: team._id, role: "ADMIN" }],
+      });
+      const cookie = await loginUser(admin._id);
+
+      const result: any = await action(
+        buildActionRequest(cookie, team._id, {
+          intent: "INITIATE_TOPUP",
+          payload: { amount: 50 },
+        }),
+      );
+
+      expect(result.data.errors.general).toContain("Billing is not enabled");
+    });
+
+    it("denies regular members from initiating top up", async () => {
+      const team = await TeamService.create({ name: "Test Team" });
+      const member = await UserService.create({
+        username: "member",
+        role: "USER",
+        teams: [{ team: team._id, role: "MEMBER" }],
+      });
+      const cookie = await loginUser(member._id);
+
+      const result: any = await action(
+        buildActionRequest(cookie, team._id, {
+          intent: "INITIATE_TOPUP",
+          payload: { amount: 50 },
+        }),
+      );
+
+      expect(result.init?.status).toBe(403);
+      expect(result.data.errors.general).toContain("permission");
+    });
+
+    it("denies non-team users from initiating top up", async () => {
+      const team = await TeamService.create({ name: "Test Team" });
+      const outsider = await UserService.create({
+        username: "outsider",
+        role: "USER",
+        teams: [],
+      });
+      const cookie = await loginUser(outsider._id);
+
+      const result: any = await action(
+        buildActionRequest(cookie, team._id, {
+          intent: "INITIATE_TOPUP",
+          payload: { amount: 50 },
+        }),
+      );
+
+      expect(result.init?.status).toBe(403);
+      expect(result.data.errors.general).toContain("permission");
     });
   });
 });
