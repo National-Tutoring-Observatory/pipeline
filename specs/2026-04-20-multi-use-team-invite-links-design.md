@@ -30,16 +30,20 @@ New Mongoose schema in `app/lib/schemas/teamInvite.schema.ts`:
   _id: ObjectId,
   team: ObjectId,         // ref: Team
   name: string,           // admin-facing label, e.g. "Learning Conference Norway", max 100 chars
+  slug: string,           // URL-friendly, unique, used in /join/:slug — e.g. "learning-conference-norway-a1b2c3d4"
   role: "MEMBER",         // enum; hard-coded MEMBER in v1
   maxUses: number,        // integer 1..500
   usedCount: number,      // default 0, incremented atomically on successful signup
   revokedAt?: Date,       // soft-revoke marker; absent = not revoked
+  revokedBy?: ObjectId,   // ref: User — who revoked it; set alongside revokedAt
   createdAt: Date,        // source of truth for expiry (createdAt + INVITE_LINK_TTL_DAYS)
   createdBy: ObjectId,    // ref: User
   updatedAt?: Date,
   updatedBy?: ObjectId
 }
 ```
+
+**Slug generation** — on create: `slugify(name)` concatenated with `-` and a 4-byte random hex suffix (8 chars), giving ~4B random combinations per name. Example: `"Learning Conference Norway"` → `learning-conference-norway-a1b2c3d4`. Mongoose schema has a **unique index on `slug`**. On the extremely unlikely collision, retry once with a fresh suffix. The random suffix prevents URL-guessing brute-force (combined with 7-day TTL + max 500 uses, this is strong enough without rate limiting in v1). A dependency-light slugifier is fine; if one isn't already in the project, add `slugify` from npm during implementation.
 
 TTL reuses the existing `INVITE_LINK_TTL_DAYS` constant from `app/modules/teams/helpers/inviteLink.ts`. Expiry is computed at read time (`dayjs(invite.createdAt).add(INVITE_LINK_TTL_DAYS, "day")`), identical to the single-use flow's use of `user.invitedAt`. A single TTL change affects both flows consistently.
 
@@ -78,22 +82,22 @@ Why embedded on the membership (not top-level on `User`): a user might attend mu
 
 Unused by the existing single-use flow. No migration needed — new optional field, new collection, existing users untouched.
 
-**Collection naming note:** the spec uses `TeamInvite` as a placeholder name. Decide `TeamInvite` vs plain `Invite` during implementation.
-
 ## URL scheme
 
 Two disjoint URL paths — separation is important for analytics (GA can filter traffic by route pattern without further instrumentation).
 
-- **Single-use (existing, unchanged):** `/invite/:id`
-- **Multi-use (new):** `/join/:id`
+- **Single-use (existing, unchanged):** `/invite/:id` (where `:id` is the user's `inviteId`)
+- **Multi-use (new):** `/join/:slug` (where `:slug` is the readable TeamInvite slug)
 
 Each has its own route file, loader, landing page, and auth-action branch. No runtime type detection. No shared session key.
 
+**Why slug over `_id`** — conference URLs get shared verbally, printed, and projected on screens. `/join/learning-conference-norway-a1b2c3d4` is readable and recognisable; `/join/661f0a...` isn't. The slug is only the external URL handle — the auth action resolves slug → `_id` once and stores the `_id` in the session, so all downstream consume logic is slug-agnostic.
+
 ## Signup flow (multi-use)
 
-1. Invitee visits `/join/:id`. Loader in `join.route.tsx` looks up the `TeamInvite` by `_id`. Returns `{ status: "active" | "revoked" | "full" | "expired" | "not_found" }`. If not active, redirects to `/signup?error=...` with the matching code below.
+1. Invitee visits `/join/:slug`. Loader in `join.route.tsx` looks up the `TeamInvite` via `TeamInviteService.findOne({ slug })`. Returns `{ status: "active" | "revoked" | "full" | "expired" | "not_found" }`. If not active, redirects to `/signup?error=...` with the matching code below.
 2. Landing page (reuses the existing `Invite` component) shows "You've been invited … log in with GitHub". No invite-specific content shown to the invitee — the link `name` is admin-only.
-3. Invitee clicks "Login with GitHub" → POST to `/api/authentication` with `inviteId: params.id` in the body (reusing existing pattern). The auth action's referer check is extended: if referer is `/join/:id`, the action flashes `teamInviteId` (not `inviteId`) into session, after re-validating the `TeamInvite` is `active`. The existing `/invite/:id` branch is unchanged.
+3. Invitee clicks "Login with GitHub" → POST to `/api/authentication` with `inviteSlug: params.slug` in the body. The auth action's referer check is extended: if referer path starts `/join/`, the action looks up the invite by slug, verifies it is `active`, then flashes `teamInviteId: invite._id` into session (resolved to `_id` so downstream logic is slug-agnostic). The existing `/invite/:id` branch (flashing `inviteId`) is unchanged.
 4. GitHub strategy (`app/modules/authentication/helpers/githubStrategy.ts`) reads both `inviteId` and `teamInviteId` from session. If `teamInviteId` is present, it delegates to a new helper `handleTeamInviteSignup.server.ts`, which calls `TeamInviteService.consume(teamInviteId, githubUser)`.
 
 ### `consumeTeamInvite.server.ts` — the core
@@ -162,7 +166,7 @@ Uses the standard `Collection` pattern with search, pagination, sort. Loader cal
 Per-link row:
 
 - **Title:** link name
-- **Description:** full `/join/:id` URL (copy-on-click)
+- **Description:** full `/join/:slug` URL (copy-on-click)
 - **Meta:** `"12 of 20 used"`, `"Expires in 3 days"` / `"Expired"` / `"Revoked"` / `"Full"` (inactive states shown in red), `"Created by Jane Doe"`
 - **Actions:** Copy link (if active), Revoke (if active, confirmation dialog), View signups
 
@@ -204,7 +208,7 @@ app/modules/teams/
 │   ├── teamInviteLinks.route.tsx                      # tab list route (loader + action)
 │   ├── teamInviteLink.route.tsx                       # detail view route (loader + revoke action)
 │   ├── createTeamInviteLinkDialog.container.tsx       # dialog container
-│   └── join.route.tsx                                 # public /join/:id landing
+│   └── join.route.tsx                                 # public /join/:slug landing
 ├── components/
 │   ├── teamInviteLinks.tsx                            # list UI
 │   ├── teamInviteLink.tsx                             # detail UI
@@ -232,15 +236,15 @@ app/modules/authentication/helpers/
 class TeamInviteService {
   static find(options): Promise<TeamInvite[]>;
   static findById(id): Promise<TeamInvite | null>;
-  static findOne(query): Promise<TeamInvite | null>;
+  static findOne(query): Promise<TeamInvite | null>; // used for slug lookup: findOne({ slug })
   static paginate(options): Promise<{ data; count; totalPages }>;
-  static create(data): Promise<TeamInvite>;
-  static revokeById(id, userId): Promise<TeamInvite | null>;
+  static create(data): Promise<TeamInvite>; // generates slug internally
+  static revokeById(id, userId): Promise<TeamInvite | null>; // sets revokedAt + revokedBy
   static consume(inviteId, githubUser): Promise<ConsumeResult>; // delegates
 }
 ```
 
-CRUD methods are inline (~5–10 lines each). `consume` delegates to `consumeTeamInvite.server.ts`.
+CRUD methods are inline (~5–10 lines each). `create` encapsulates slug generation + collision retry. `revokeById` sets both `revokedAt` (now) and `revokedBy` (the acting user). `consume` delegates to `consumeTeamInvite.server.ts`.
 
 ## Authorization
 
@@ -317,7 +321,7 @@ app/modules/teams/__tests__/
 
 - **DocumentDB compatibility:** no aggregation pipelines needed in v1. Signups list = `User.find({ "teams.viaTeamInvite": inviteId })`. Invite list = `TeamInviteService.paginate()`. The race-safe consume uses `findOneAndUpdate` with `$expr` (DocumentDB-supported). If future analytics need per-invite aggregates, use `Promise.all` with separate queries (no `$facet`).
 - **Debug logging:** `console.log` statements in `consumeTeamInvite.server.ts` at each decision point (invite loaded, atomic update result, scenario chosen, user created/updated) during development, per team preference for verifiable data-shape tracing.
-- **Analytics:** the disjoint `/join/:id` URL means existing GA / server-event wiring starts reporting it under a new route pattern automatically. No extra instrumentation beyond the three events listed above.
+- **Analytics:** the disjoint `/join/:slug` URL means existing GA / server-event wiring starts reporting it under a new route pattern automatically. No extra instrumentation beyond the three events listed above.
 
 ## Out of scope / deferred
 
