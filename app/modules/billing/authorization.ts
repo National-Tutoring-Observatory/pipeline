@@ -32,8 +32,15 @@ const BillingAuthorization = {
     return userIsSuperAdmin(user) || userIsTeamAdmin(user, teamId);
   },
 
-  canAddCredits(user: User | null, team: Team | null): boolean {
-    return userIsSuperAdmin(user) || userIsTeamBillingUser(user, team);
+  canAddCredits(user: User | null): boolean {
+    return userIsSuperAdmin(user);
+  },
+
+  canTopUp(user: User | null, team: Team | null): boolean {
+    return (
+      userIsTeamBillingUser(user, team) ||
+      userIsTeamAdmin(user, team?._id ?? "")
+    );
   },
 };
 

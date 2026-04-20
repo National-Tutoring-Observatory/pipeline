@@ -164,7 +164,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   switch (intent) {
     case "ADD_CREDITS": {
-      if (!BillingAuthorization.canAddCredits(user, team)) {
+      if (!BillingAuthorization.canAddCredits(user)) {
         return data(
           { errors: { general: "You do not have permission to add credits" } },
           { status: 403 },
@@ -251,13 +251,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     }
 
     case "INITIATE_TOPUP": {
-      if (!isBillingEnabled()) {
-        return data(
-          { errors: { general: "Billing is not enabled" } },
-          { status: 400 },
-        );
-      }
-      if (!BillingAuthorization.canAddCredits(user, team)) {
+      if (!BillingAuthorization.canTopUp(user, team)) {
         return data(
           {
             errors: {
@@ -265,6 +259,12 @@ export async function action({ request, params }: Route.ActionArgs) {
             },
           },
           { status: 403 },
+        );
+      }
+      if (!isBillingEnabled()) {
+        return data(
+          { errors: { general: "Billing is not enabled" } },
+          { status: 400 },
         );
       }
       const amount = payload.amount;
