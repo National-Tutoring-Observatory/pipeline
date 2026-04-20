@@ -7,6 +7,7 @@ import {
   useOutletContext,
 } from "react-router";
 import { toast } from "sonner";
+import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import buildQueryFromParams from "~/modules/app/helpers/buildQueryFromParams";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
@@ -87,9 +88,6 @@ export async function action({ request, params }: Route.ActionArgs) {
       maxUses,
       createdBy: user._id,
     });
-    const trackServerEvent = (
-      await import("~/modules/analytics/helpers/trackServerEvent.server")
-    ).default;
     trackServerEvent({
       name: "team_invite_link_created",
       userId: user._id,
