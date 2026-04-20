@@ -126,6 +126,13 @@ export default [
       route("users", "modules/teams/containers/teamUsers.route.tsx", {
         id: "teamUsers",
       }),
+      route(
+        "invite-links",
+        "modules/teams/containers/teamInviteLinks.route.tsx",
+        {
+          id: "teamInviteLinks",
+        },
+      ),
       route("billing", "modules/teams/containers/teamBilling.route.tsx", {
         id: "teamBilling",
       }),
