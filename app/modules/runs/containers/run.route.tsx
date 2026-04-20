@@ -112,28 +112,25 @@ export async function action({ request, params }: Route.ActionArgs) {
     _id: params.runId,
     project: params.projectId,
   });
+  if (!run) throw new Error("Run not found");
 
   switch (intent) {
     case "STOP_RUN": {
-      if (!run) throw new Error("Run not found");
       if (run.isComplete || run.stoppedAt) throw new Error("Run is not active");
       await RunService.stop(run._id);
       return {};
     }
     case "RE_RUN": {
-      if (!run) throw new Error("Run not found");
       await RunService.start(run);
       return {};
     }
     case "EXPORT_RUN": {
-      if (!run) throw new Error("Run not found");
       if (run.hasErrored)
         throw new Error("Cannot export a run that has errors");
       await exportRun({ runId: params.runId, exportType });
       return {};
     }
     case "GET_ALL_RUN_SETS": {
-      if (!run) return { runSets: [] };
       const allRunSets = await RunSetService.paginate({
         match: { runs: params.runId },
         page: 1,
@@ -142,7 +139,6 @@ export async function action({ request, params }: Route.ActionArgs) {
       return { runSets: allRunSets.data };
     }
     case "UPDATE_RUN": {
-      if (!run) throw new Error("Run not found");
       if (typeof payload.name !== "string") {
         throw new Error("Run name is required and must be a string.");
       }
@@ -150,7 +146,6 @@ export async function action({ request, params }: Route.ActionArgs) {
       return { success: true, intent: "UPDATE_RUN" };
     }
     case "DELETE_RUN": {
-      if (!run) throw new Error("Run not found");
       await RunService.deleteById(run._id);
       return { success: true, intent: "DELETE_RUN" };
     }
