@@ -11,7 +11,6 @@ import RunSetCreatorVerificationToggle from "../components/runSetCreatorVerifica
 import RunSetRunPreview from "../components/runSetRunPreview";
 import buildDefinitionsFromSelection from "../helpers/buildDefinitionsFromSelection";
 import { calculateEstimates } from "../helpers/calculateEstimates";
-import useCreditAcknowledgment from "../hooks/useCreditAcknowledgment";
 import type { PrefillData, PromptReference } from "../runSets.types";
 
 function getDefaultName(prefillData?: PrefillData | null): string {
@@ -74,10 +73,7 @@ export default function RunSetCreatorContainer({
     outputToInputRatio,
   });
 
-  const creditAcknowledgment = useCreditAcknowledgment(
-    estimation.estimatedCost,
-    balance,
-  );
+  const exceedsBalance = estimation.estimatedCost > balance;
 
   const handleAnnotationTypeChange = (type: string) => {
     setAnnotationType(type);
@@ -116,7 +112,6 @@ export default function RunSetCreatorContainer({
         definitions: runDefinitions,
         sessions: selectedSessions.map((s) => s._id),
         shouldRunVerification,
-        acknowledgedInsufficientCredits: creditAcknowledgment.acknowledged,
       },
     });
     onSubmit(requestBody);
@@ -173,7 +168,7 @@ export default function RunSetCreatorContainer({
         selectedSessions={selectedSessions.map((s) => s._id)}
         estimation={estimation}
         balance={balance}
-        creditAcknowledgment={creditAcknowledgment}
+        exceedsBalance={exceedsBalance}
         isLoading={isLoading}
         onCreateClicked={handleSubmit}
       />

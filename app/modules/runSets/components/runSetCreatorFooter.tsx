@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import type { CreditAcknowledgment } from "~/modules/runSets/hooks/useCreditAcknowledgment";
 import type { EstimationResult } from "~/modules/runSets/runSets.types";
 import EstimateInfoBox from "./estimateInfoBox";
 import EstimateSummary from "./estimateSummary";
@@ -12,7 +11,7 @@ export default function RunSetCreatorFooter({
   selectedSessions,
   estimation,
   balance,
-  creditAcknowledgment,
+  exceedsBalance,
   isLoading,
   onCreateClicked,
 }: {
@@ -21,16 +20,13 @@ export default function RunSetCreatorFooter({
   selectedSessions: string[];
   estimation: EstimationResult;
   balance: number;
-  creditAcknowledgment: CreditAcknowledgment;
+  exceedsBalance: boolean;
   isLoading: boolean;
   onCreateClicked: () => void;
 }) {
   const hasValidationErrors =
     !name.trim() || runsCount === 0 || selectedSessions.length === 0;
-  const isSubmitDisabled =
-    isLoading ||
-    hasValidationErrors ||
-    (creditAcknowledgment.exceedsBalance && !creditAcknowledgment.acknowledged);
+  const isSubmitDisabled = isLoading || hasValidationErrors || exceedsBalance;
 
   return (
     <div className="bg-background sticky bottom-0 z-10 space-y-3 rounded-b-4xl border-t px-8 py-4">
@@ -53,11 +49,7 @@ export default function RunSetCreatorFooter({
       )}
 
       {!hasValidationErrors && (
-        <InsufficientCreditsAlert
-          exceedsBalance={creditAcknowledgment.exceedsBalance}
-          acknowledged={creditAcknowledgment.acknowledged}
-          onAcknowledgedChanged={creditAcknowledgment.setAcknowledged}
-        />
+        <InsufficientCreditsAlert exceedsBalance={exceedsBalance} />
       )}
 
       <div className="flex justify-end">

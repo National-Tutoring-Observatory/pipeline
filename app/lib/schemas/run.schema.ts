@@ -54,7 +54,6 @@ export default new mongoose.Schema({
   hasErrored: { type: Boolean, default: false },
   isExporting: { type: Boolean, default: false },
   shouldRunVerification: { type: Boolean, default: false },
-  acknowledgedInsufficientCredits: { type: Boolean, default: false },
   startedAt: { type: Date },
   finishedAt: { type: Date },
   createdAt: { type: Date, default: Date.now },

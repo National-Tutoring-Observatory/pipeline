@@ -5,7 +5,11 @@ const AVG_TOKENS_PER_SESSION = 500;
 const DEFAULT_SECONDS_PER_CALL = 10;
 const DEFAULT_PARALLELISM_FACTOR = 5;
 const DEFAULT_RATIO = 1.0;
-const COST_BUFFER_MULTIPLIER = 1.5;
+export function getCostBufferMultiplier(rawCost: number): number {
+  if (rawCost <= 1) return 1.2;
+  if (rawCost <= 10) return 1.5;
+  return 1.8;
+}
 
 interface CalculateEstimatesOptions {
   shouldRunVerification?: boolean;
@@ -61,7 +65,7 @@ export function calculateEstimates(
   }
 
   return {
-    estimatedCost: totalCost * COST_BUFFER_MULTIPLIER,
+    estimatedCost: totalCost * getCostBufferMultiplier(totalCost),
     estimatedTimeSeconds,
   };
 }
