@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import getTeamInviteStatus from "../helpers/getTeamInviteStatus";
 import type { TeamInvite } from "../teamInvites.types";
 
@@ -43,6 +43,22 @@ describe("getTeamInviteStatus", () => {
         createdAt: dayjs().subtract(8, "day").toISOString(),
       }),
     ).toBe("expired");
+  });
+
+  it("returns 'active' at exactly TTL_DAYS old (deterministic boundary)", () => {
+    const now = new Date("2026-01-15T12:00:00.000Z");
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    try {
+      expect(
+        getTeamInviteStatus({
+          ...baseInvite,
+          createdAt: dayjs(now).subtract(7, "day").toISOString(),
+        }),
+      ).toBe("active");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("returns 'active' at TTL boundary (just inside)", () => {
