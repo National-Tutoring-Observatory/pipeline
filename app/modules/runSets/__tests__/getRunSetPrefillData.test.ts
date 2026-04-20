@@ -111,6 +111,34 @@ describe("getRunSetPrefillData", () => {
       expect(result.prefillSessionIds).toEqual([]);
     });
 
+    it("returns null when run is human-annotated", async () => {
+      const humanRun = await RunService.createFromData({
+        project: projectId,
+        name: "Human Run",
+        annotationType: "PER_UTTERANCE",
+        isHuman: true,
+        annotator: { name: "Alice" },
+        sessions: [],
+        snapshot: {
+          prompt: {
+            name: "Human Annotation",
+            userPrompt: "",
+            annotationSchema: [],
+            annotationType: "PER_UTTERANCE",
+            version: 1,
+          },
+        },
+      });
+
+      const result = await RunSetService.getPrefillDataFromRun(
+        humanRun._id,
+        projectId,
+      );
+
+      expect(result.prefillData).toBeNull();
+      expect(result.prefillSessionIds).toEqual([]);
+    });
+
     it("returns prefill data from an existing run", async () => {
       const sessionId = new Types.ObjectId().toString();
       const run = await RunService.create({
@@ -367,6 +395,46 @@ describe("getRunSetPrefillData", () => {
       expect(result.prefillData!.selectedPrompts[0].promptId).toBe(promptId);
       expect(result.prefillData!.selectedModels).toContain(testModel);
       expect(result.prefillData!.validationErrors).toBeUndefined();
+    });
+
+    it("includes validation error when all runs are human-annotated", async () => {
+      const humanRun = await RunService.createFromData({
+        project: projectId,
+        name: "Human Run",
+        annotationType: "PER_UTTERANCE",
+        isHuman: true,
+        annotator: { name: "Alice" },
+        sessions: [],
+        snapshot: {
+          prompt: {
+            name: "Human Annotation",
+            userPrompt: "",
+            annotationSchema: [],
+            annotationType: "PER_UTTERANCE",
+            version: 1,
+          },
+        },
+      });
+      const runSet = await RunSetService.create({
+        name: "Human-only RunSet",
+        project: projectId,
+        runs: [humanRun._id],
+        annotationType: "PER_UTTERANCE",
+      });
+
+      const result = await RunSetService.getPrefillDataFromRunSet(
+        runSet._id,
+        projectId,
+      );
+
+      expect(result.prefillData).not.toBeNull();
+      expect(result.prefillData!.validationErrors).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining("all runs are human-annotated"),
+        ]),
+      );
+      expect(result.prefillData!.selectedPrompts).toHaveLength(0);
+      expect(result.prefillData!.selectedModels).toHaveLength(0);
     });
 
     it("includes validation error when a model is no longer available", async () => {

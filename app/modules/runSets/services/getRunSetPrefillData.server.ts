@@ -19,7 +19,7 @@ export async function getPrefillDataFromRun(
 ): Promise<PrefillResult> {
   const run = await RunService.findOne({ _id: runId, project: projectId });
 
-  if (!run) {
+  if (!run || run.isHuman) {
     return { prefillData: null, prefillSessionIds: [] };
   }
 
@@ -89,6 +89,12 @@ export async function getPrefillDataFromRunSet(
     if (modelCode) {
       modelSet.add(modelCode);
     }
+  }
+
+  if (runs.length > 0 && promptMap.size === 0) {
+    validationErrors.push(
+      "Source runSet has no LLM runs to use as template; all runs are human-annotated",
+    );
   }
 
   const promptIds = Array.from(promptMap.values()).map((p) => p.promptId);
