@@ -122,4 +122,30 @@ describe("consumeTeamInvite", () => {
     });
     expect(result.status).toBe("full");
   });
+
+  it("handles concurrent calls atomically (cap not exceeded)", async () => {
+    const narrowInvite = await TeamInviteService.create({
+      team: team._id,
+      name: "Narrow",
+      maxUses: 1,
+      createdBy: admin._id,
+    });
+    const [r1, r2] = await Promise.all([
+      consumeTeamInvite({
+        inviteId: narrowInvite._id,
+        githubUser: { id: 1001, login: "u1", name: "U1" },
+        primaryEmail: "u1@example.com",
+      }),
+      consumeTeamInvite({
+        inviteId: narrowInvite._id,
+        githubUser: { id: 1002, login: "u2", name: "U2" },
+        primaryEmail: "u2@example.com",
+      }),
+    ]);
+    const statuses = [r1.status, r2.status].sort();
+    expect(statuses).toEqual(["full", "success"]);
+
+    const finalInvite = await TeamInviteService.findById(narrowInvite._id);
+    expect(finalInvite?.usedCount).toBe(1);
+  });
 });
