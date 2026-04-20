@@ -16,6 +16,7 @@ import { Toaster } from "sonner";
 import sandpiperFavicon from "~/assets/sandpiper-favicon.svg";
 import * as ga from "~/modules/analytics/analytics";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
+import getInitialCreditsAmount from "~/modules/billing/helpers/getInitialCreditsAmount.server";
 import { SystemSettingsService } from "~/modules/systemSettings/systemSettings";
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -68,6 +69,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   return {
     googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID || null,
     maintenanceMode,
+    initialCredits: getInitialCreditsAmount(),
   };
 }
 

@@ -18,9 +18,11 @@ import { Link } from "react-router";
 export default function Home({
   onDownloadClicked,
   isDownloading,
+  initialCredits,
 }: {
   onDownloadClicked: () => void;
   isDownloading: boolean;
+  initialCredits: number;
 }) {
   const [agreed, setAgreed] = useState(false);
   return (
@@ -54,7 +56,7 @@ export default function Home({
         </div>
         <div className="border-primary flex w-48 shrink-0 flex-col items-center rounded-lg border-2 bg-gradient-to-br from-[#e8f4f7] to-[#f0f7f4] p-4 text-center">
           <p className="text-primary text-4xl leading-none font-extrabold">
-            $20
+            ${initialCredits}
           </p>
           <p className="text-primary mt-1 text-xs font-semibold">
             free credit included
