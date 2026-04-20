@@ -39,17 +39,40 @@ const TeamAuthorization = {
       return userIsSuperAdmin(user) && !userIsTeamMember(user, teamId);
     },
   },
+
+  Invites: {
+    canView(user: User | null, teamId: string): boolean {
+      return userIsSuperAdmin(user) || userIsTeamAdmin(user, teamId);
+    },
+
+    canCreate(user: User | null, teamId: string): boolean {
+      return userIsSuperAdmin(user) || userIsTeamAdmin(user, teamId);
+    },
+
+    canRevoke(user: User | null, teamId: string): boolean {
+      return userIsSuperAdmin(user) || userIsTeamAdmin(user, teamId);
+    },
+  },
 };
 
 type UsersAuthorizationShape = {
   [K in keyof typeof TeamAuthorization.Users]: boolean;
 };
 
+type InvitesAuthorizationShape = {
+  [K in keyof typeof TeamAuthorization.Invites]: boolean;
+};
+
 type TeamAuthorizationShape = {
-  [K in Exclude<keyof typeof TeamAuthorization, "Users">]: boolean;
+  [K in Exclude<keyof typeof TeamAuthorization, "Users" | "Invites">]: boolean;
 } & {
   users: UsersAuthorizationShape;
+  invites: InvitesAuthorizationShape;
 };
 
 export default TeamAuthorization;
-export type { TeamAuthorizationShape, UsersAuthorizationShape };
+export type {
+  InvitesAuthorizationShape,
+  TeamAuthorizationShape,
+  UsersAuthorizationShape,
+};

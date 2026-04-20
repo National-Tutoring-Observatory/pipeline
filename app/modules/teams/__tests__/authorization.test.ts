@@ -280,4 +280,57 @@ describe("TeamAuthorization", () => {
       });
     });
   });
+
+  describe("Invites", () => {
+    it("allows team admins to view, create, and revoke invite links", () => {
+      expect(TeamAuthorization.Invites.canView(teamAdminUser, "team-1")).toBe(
+        true,
+      );
+      expect(TeamAuthorization.Invites.canCreate(teamAdminUser, "team-1")).toBe(
+        true,
+      );
+      expect(TeamAuthorization.Invites.canRevoke(teamAdminUser, "team-1")).toBe(
+        true,
+      );
+    });
+
+    it("denies team members from creating or revoking invite links", () => {
+      expect(
+        TeamAuthorization.Invites.canCreate(teamMemberUser, "team-1"),
+      ).toBe(false);
+      expect(
+        TeamAuthorization.Invites.canRevoke(teamMemberUser, "team-1"),
+      ).toBe(false);
+    });
+
+    it("denies non-team users", () => {
+      expect(TeamAuthorization.Invites.canView(nonTeamUser, "team-1")).toBe(
+        false,
+      );
+      expect(TeamAuthorization.Invites.canCreate(nonTeamUser, "team-1")).toBe(
+        false,
+      );
+      expect(TeamAuthorization.Invites.canRevoke(nonTeamUser, "team-1")).toBe(
+        false,
+      );
+    });
+
+    it("allows super admins", () => {
+      expect(
+        TeamAuthorization.Invites.canView(superAdminUser, "any-team"),
+      ).toBe(true);
+      expect(
+        TeamAuthorization.Invites.canCreate(superAdminUser, "any-team"),
+      ).toBe(true);
+      expect(
+        TeamAuthorization.Invites.canRevoke(superAdminUser, "any-team"),
+      ).toBe(true);
+    });
+
+    it("denies null users", () => {
+      expect(TeamAuthorization.Invites.canView(null, "team-1")).toBe(false);
+      expect(TeamAuthorization.Invites.canCreate(null, "team-1")).toBe(false);
+      expect(TeamAuthorization.Invites.canRevoke(null, "team-1")).toBe(false);
+    });
+  });
 });
