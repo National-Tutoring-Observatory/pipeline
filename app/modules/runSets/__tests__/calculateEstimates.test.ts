@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import calculateCost from "~/modules/llm/helpers/calculateCost";
 import { getAvailableModels } from "~/modules/llm/modelRegistry";
-import { calculateEstimates } from "../helpers/calculateEstimates";
+import {
+  calculateEstimates,
+  getCostBufferMultiplier,
+} from "../helpers/calculateEstimates";
 import { buildUsedPromptModelKey } from "../helpers/getUsedPromptModels";
 import type { RunDefinition } from "../runSets.types";
 
@@ -25,7 +28,9 @@ function makeDefinition(
   };
 }
 
-const COST_BUFFER_MULTIPLIER = 1.5;
+function withBuffer(rawCost: number): number {
+  return rawCost * getCostBufferMultiplier(rawCost);
+}
 
 function expectedCost(
   numPrompts: number,
@@ -47,7 +52,7 @@ function expectedCost(
         })
     );
   }, 0);
-  return raw * COST_BUFFER_MULTIPLIER;
+  return raw * getCostBufferMultiplier(raw);
 }
 
 function expectedTime(numDefinitions: number, numSessions: number) {
@@ -136,12 +141,13 @@ describe("calculateEstimates", () => {
     const result = calculateEstimates(definitions, sessions);
 
     const totalInputTokens = 10 * 1000;
-    const expected =
+    const expected = withBuffer(
       calculateCost({
         modelCode: allModels[0],
         inputTokens: totalInputTokens,
         outputTokens: totalInputTokens,
-      }) * COST_BUFFER_MULTIPLIER;
+      }),
+    );
     expect(result.estimatedCost).toBe(expected);
   });
 
@@ -162,12 +168,13 @@ describe("calculateEstimates", () => {
     const result = calculateEstimates(definitions, sessions);
 
     const totalInputTokens = 1000 + 2000 + 250;
-    const expected =
+    const expected = withBuffer(
       calculateCost({
         modelCode: allModels[0],
         inputTokens: totalInputTokens,
         outputTokens: totalInputTokens,
-      }) * COST_BUFFER_MULTIPLIER;
+      }),
+    );
     expect(result.estimatedCost).toBe(expected);
   });
 
@@ -180,12 +187,13 @@ describe("calculateEstimates", () => {
     });
 
     const totalInputTokens = 10 * 1000;
-    const expected =
+    const expected = withBuffer(
       calculateCost({
         modelCode: allModels[0],
         inputTokens: totalInputTokens,
         outputTokens: totalInputTokens * outputToInputRatio,
-      }) * COST_BUFFER_MULTIPLIER;
+      }),
+    );
     expect(result.estimatedCost).toBe(expected);
   });
 
@@ -220,12 +228,13 @@ describe("calculateEstimates", () => {
     const result = calculateEstimates(definitions, sessions);
 
     const totalInputTokens = 10 * (1000 + promptInputTokens);
-    const expected =
+    const expected = withBuffer(
       calculateCost({
         modelCode: allModels[0],
         inputTokens: totalInputTokens,
         outputTokens: totalInputTokens,
-      }) * COST_BUFFER_MULTIPLIER;
+      }),
+    );
     expect(result.estimatedCost).toBe(expected);
   });
 
@@ -237,12 +246,13 @@ describe("calculateEstimates", () => {
     const result = calculateEstimates(definitions, Array(5).fill({}));
 
     const totalInputTokens = 5 * (250 + promptInputTokens);
-    const expected =
+    const expected = withBuffer(
       calculateCost({
         modelCode: allModels[0],
         inputTokens: totalInputTokens,
         outputTokens: totalInputTokens,
-      }) * COST_BUFFER_MULTIPLIER;
+      }),
+    );
     expect(result.estimatedCost).toBe(expected);
   });
 
@@ -256,8 +266,8 @@ describe("calculateEstimates", () => {
 
     const inputA = 10 * (1000 + 300);
     const inputB = 10 * (1000 + 700);
-    const expected =
-      (calculateCost({
+    const expected = withBuffer(
+      calculateCost({
         modelCode: allModels[0],
         inputTokens: inputA,
         outputTokens: inputA,
@@ -266,8 +276,8 @@ describe("calculateEstimates", () => {
           modelCode: allModels[0],
           inputTokens: inputB,
           outputTokens: inputB,
-        })) *
-      COST_BUFFER_MULTIPLIER;
+        }),
+    );
     expect(result.estimatedCost).toBe(expected);
   });
 
@@ -282,5 +292,26 @@ describe("calculateEstimates", () => {
     );
 
     expect(withTokens.estimatedCost).toBe(withoutTokens.estimatedCost);
+  });
+
+  describe("cost buffer scaling", () => {
+    it("applies 1.2x buffer for small costs (raw ≤ $1)", () => {
+      const definitions = [makeDefinition("promptA", 1, allModels[0])];
+      const sessions = Array(1).fill({});
+      const result = calculateEstimates(definitions, sessions);
+      const rawCost = calculateCost({
+        modelCode: allModels[0],
+        inputTokens: 250,
+        outputTokens: 250,
+      });
+
+      expect(rawCost).toBeLessThanOrEqual(1);
+      expect(result.estimatedCost).toBe(rawCost * 1.2);
+    });
+
+    it("returns zero cost and zero buffer for empty inputs", () => {
+      const result = calculateEstimates([], []);
+      expect(result.estimatedCost).toBe(0);
+    });
   });
 });

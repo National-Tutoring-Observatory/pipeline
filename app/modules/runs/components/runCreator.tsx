@@ -18,7 +18,6 @@ import PromptSelectorContainer from "~/modules/prompts/containers/promptSelector
 import EstimateInfoBox from "~/modules/runSets/components/estimateInfoBox";
 import EstimateSummary from "~/modules/runSets/components/estimateSummary";
 import InsufficientCreditsAlert from "~/modules/runSets/components/insufficientCreditsAlert";
-import type { CreditAcknowledgment } from "~/modules/runSets/hooks/useCreditAcknowledgment";
 import type { EstimationResult } from "~/modules/runSets/runSets.types";
 import SessionSelectorContainer from "~/modules/sessions/containers/sessionSelectorContainer";
 import type { SessionData } from "~/modules/sessions/sessions.types";
@@ -34,7 +33,7 @@ export default function RunCreator({
   selectedSessions,
   estimation,
   balance,
-  creditAcknowledgment,
+  exceedsBalance,
   isSubmitting,
   isRunButtonDisabled,
   onRunNameChanged,
@@ -56,7 +55,7 @@ export default function RunCreator({
   selectedSessions: string[];
   estimation: EstimationResult;
   balance: number;
-  creditAcknowledgment: CreditAcknowledgment;
+  exceedsBalance: boolean;
   isSubmitting: boolean;
   isRunButtonDisabled: boolean;
   onRunNameChanged: (name: string) => void;
@@ -210,11 +209,7 @@ export default function RunCreator({
                 </div>
               </EstimateInfoBox>
             )}
-            <InsufficientCreditsAlert
-              exceedsBalance={creditAcknowledgment.exceedsBalance}
-              acknowledged={creditAcknowledgment.acknowledged}
-              onAcknowledgedChanged={creditAcknowledgment.setAcknowledged}
-            />
+            <InsufficientCreditsAlert exceedsBalance={exceedsBalance} />
             <div className="flex justify-end">
               <Button
                 disabled={isRunButtonDisabled}

@@ -1,5 +1,7 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { BillingPlanService } from "~/modules/billing/billingPlan";
+import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { getAvailableProviders } from "~/modules/llm/modelRegistry";
 import { ProjectService } from "~/modules/projects/project";
 import type { Project } from "~/modules/projects/projects.types";
@@ -63,6 +65,14 @@ describe("runSetCreate.route", () => {
       userPrompt: "Test prompt content",
       annotationSchema: [],
     });
+
+    await BillingPlanService.create({
+      name: "Default",
+      markupRate: 1.5,
+      isDefault: true,
+    });
+    await TeamBillingService.setupTeamBilling(team._id);
+    await TeamBillingService.assignInitialCredits(team._id, user._id);
 
     cookieHeader = await loginUser(user._id);
   });

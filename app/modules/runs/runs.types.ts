@@ -31,7 +31,6 @@ export interface Run {
   finishedAt: Date | string;
   isExporting: boolean;
   shouldRunVerification: boolean;
-  acknowledgedInsufficientCredits?: boolean;
 }
 
 export interface RunSession {
@@ -52,7 +51,6 @@ export interface CreateRun {
   selectedModel: string;
   selectedSessions: string[];
   shouldRunVerification: boolean;
-  acknowledgedInsufficientCredits?: boolean;
 }
 
 export interface CreateRunProps {
@@ -64,7 +62,6 @@ export interface CreateRunProps {
   promptVersion: number;
   modelCode: string;
   shouldRunVerification: boolean;
-  acknowledgedInsufficientCredits?: boolean;
   isAdjudication?: boolean;
   adjudication?: {
     sourceRuns: string[];

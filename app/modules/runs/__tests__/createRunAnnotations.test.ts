@@ -20,8 +20,7 @@ describe("createRunAnnotations", () => {
       team: team._id,
     });
 
-    // Create a run with a non-existent project ID
-    const invalidProjectId = "507f1f77bcf86cd799439011"; // Valid ObjectId format but doesn't exist
+    const invalidProjectId = "507f1f77bcf86cd799439011";
     const run = await createTestRun({
       name: "Test Run",
       project: invalidProjectId as any,
@@ -97,7 +96,6 @@ describe("createRunAnnotations", () => {
       isExporting: false,
     });
 
-    // Should not throw, should return early
     await expect(createRunAnnotations(run)).resolves.toBeUndefined();
   });
 
@@ -142,10 +140,8 @@ describe("createRunAnnotations", () => {
       isExporting: false,
     });
 
-    // Mock TaskSequencer to avoid actual task queueing
     vi.doMock("~/modules/queues/helpers/taskSequencer");
 
-    // Should process without error
     await expect(createRunAnnotations(run)).resolves.toBeUndefined();
   });
 });

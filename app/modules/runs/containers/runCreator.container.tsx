@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
 import { calculateEstimates } from "~/modules/runSets/helpers/calculateEstimates";
-import useCreditAcknowledgment from "~/modules/runSets/hooks/useCreditAcknowledgment";
 import type { SessionData } from "~/modules/sessions/sessions.types";
 import RunCreator from "../components/runCreator";
 
@@ -104,10 +103,7 @@ export default function ProjectRunCreatorContainer({
     ],
   );
 
-  const creditAcknowledgment = useCreditAcknowledgment(
-    estimation.estimatedCost,
-    balance,
-  );
+  const exceedsBalance = estimation.estimatedCost > balance;
 
   const onStartRunButtonClicked = () => {
     onStartRunClicked({
@@ -118,7 +114,6 @@ export default function ProjectRunCreatorContainer({
       selectedModel,
       selectedSessions: selectedSessionIds,
       shouldRunVerification,
-      acknowledgedInsufficientCredits: creditAcknowledgment.acknowledged,
     });
   };
 
@@ -128,8 +123,7 @@ export default function ProjectRunCreatorContainer({
       selectedPrompt &&
       selectedPromptVersion &&
       selectedSessionIds.length > 0
-    ) ||
-    (creditAcknowledgment.exceedsBalance && !creditAcknowledgment.acknowledged);
+    ) || exceedsBalance;
 
   return (
     <RunCreator
@@ -142,7 +136,7 @@ export default function ProjectRunCreatorContainer({
       selectedSessions={selectedSessionIds}
       estimation={estimation}
       balance={balance}
-      creditAcknowledgment={creditAcknowledgment}
+      exceedsBalance={exceedsBalance}
       isSubmitting={isSubmitting}
       isRunButtonDisabled={isRunButtonDisabled || isSubmitting}
       onRunNameChanged={setRunName}

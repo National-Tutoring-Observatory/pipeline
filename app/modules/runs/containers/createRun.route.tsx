@@ -115,6 +115,16 @@ export async function action({ request, params }: Route.ActionArgs) {
         return data({ errors }, { status: 400 });
       }
 
+      const teamId =
+        typeof project.team === "string" ? project.team : project.team._id;
+      const balance = await TeamBillingService.getBalance(teamId);
+      if (balance <= 0) {
+        return data(
+          { errors: { credits: "Insufficient credits to start a run" } },
+          { status: 402 },
+        );
+      }
+
       const run = await RunService.create({
         project: params.projectId,
         name,
@@ -124,8 +134,6 @@ export async function action({ request, params }: Route.ActionArgs) {
         promptVersion: Number(promptVersion),
         modelCode: model,
         shouldRunVerification: !!payload.shouldRunVerification,
-        acknowledgedInsufficientCredits:
-          !!payload.acknowledgedInsufficientCredits,
       });
 
       await RunService.start(run);
@@ -164,7 +172,6 @@ export default function ProjectCreateRunRoute() {
     selectedModel,
     selectedSessions,
     shouldRunVerification,
-    acknowledgedInsufficientCredits,
   }: CreateRunPayload) => {
     fetcher.submit(
       JSON.stringify({
@@ -177,7 +184,6 @@ export default function ProjectCreateRunRoute() {
           model: selectedModel,
           sessions: selectedSessions,
           shouldRunVerification,
-          acknowledgedInsufficientCredits,
         },
       }),
       { method: "POST", encType: "application/json" },

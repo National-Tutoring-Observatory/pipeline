@@ -2,7 +2,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertTriangle, Info } from "lucide-react";
-import type { CreditAcknowledgment } from "../hooks/useCreditAcknowledgment";
 import type { EstimationResult, RunSet } from "../runSets.types";
 import EstimateSummary from "./estimateSummary";
 import InsufficientCreditsAlert from "./insufficientCreditsAlert";
@@ -17,7 +16,7 @@ interface RunSetCreateRunsFooterProps {
   duplicateCount: number;
   estimation: EstimationResult;
   balance: number;
-  creditAcknowledgment: CreditAcknowledgment;
+  exceedsBalance: boolean;
   isLoading: boolean;
   isSubmitDisabled: boolean;
   onCancel: () => void;
@@ -32,7 +31,7 @@ export default function RunSetCreateRunsFooter({
   duplicateCount,
   estimation,
   balance,
-  creditAcknowledgment,
+  exceedsBalance,
   isLoading,
   isSubmitDisabled,
   onCancel,
@@ -92,11 +91,7 @@ export default function RunSetCreateRunsFooter({
       )}
 
       {footerState === "ready" && (
-        <InsufficientCreditsAlert
-          exceedsBalance={creditAcknowledgment.exceedsBalance}
-          acknowledged={creditAcknowledgment.acknowledged}
-          onAcknowledgedChanged={creditAcknowledgment.setAcknowledged}
-        />
+        <InsufficientCreditsAlert exceedsBalance={exceedsBalance} />
       )}
 
       <div className="flex justify-end gap-2">

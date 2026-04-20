@@ -12,7 +12,6 @@ import {
   buildUsedPromptModelSet,
   type PromptModelPair,
 } from "../helpers/getUsedPromptModels";
-import useCreditAcknowledgment from "../hooks/useCreditAcknowledgment";
 import type { PromptReference, RunSet } from "../runSets.types";
 
 interface RunSetCreateRunsContainerProps {
@@ -67,10 +66,7 @@ export default function RunSetCreateRunsContainer({
     outputToInputRatio,
   });
 
-  const creditAcknowledgment = useCreditAcknowledgment(
-    estimation.estimatedCost,
-    balance,
-  );
+  const exceedsBalance = estimation.estimatedCost > balance;
 
   const handleRemoveCard = (key: string) => {
     setRemovedKeys((prev) => new Set(prev).add(key));
@@ -99,7 +95,7 @@ export default function RunSetCreateRunsContainer({
     selectedPrompts.length === 0 ||
     selectedModels.length === 0 ||
     runDefinitions.length === 0 ||
-    (creditAcknowledgment.exceedsBalance && !creditAcknowledgment.acknowledged);
+    exceedsBalance;
 
   const handleCreateRuns = () => {
     const requestBody = JSON.stringify({
@@ -107,7 +103,6 @@ export default function RunSetCreateRunsContainer({
       payload: {
         definitions: runDefinitions,
         shouldRunVerification,
-        acknowledgedInsufficientCredits: creditAcknowledgment.acknowledged,
       },
     });
     onSubmit(requestBody);
@@ -157,7 +152,7 @@ export default function RunSetCreateRunsContainer({
         duplicateCount={duplicateDefinitions.length}
         estimation={estimation}
         balance={balance}
-        creditAcknowledgment={creditAcknowledgment}
+        exceedsBalance={exceedsBalance}
         isLoading={isLoading}
         isSubmitDisabled={isSubmitDisabled}
         onCancel={onCancel}

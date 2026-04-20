@@ -94,7 +94,6 @@ export class RunService {
       isRunning: false,
       isComplete: false,
       shouldRunVerification: !!props.shouldRunVerification,
-      acknowledgedInsufficientCredits: !!props.acknowledgedInsufficientCredits,
       isAdjudication: !!props.isAdjudication,
       adjudication: props.adjudication,
     });

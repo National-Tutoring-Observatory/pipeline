@@ -114,12 +114,20 @@ export async function action({ request, params }: Route.ActionArgs) {
         return data({ errors }, { status: 400 });
       }
 
+      const teamId =
+        typeof project.team === "string" ? project.team : project.team._id;
+      const balance = await TeamBillingService.getBalance(teamId);
+      if (balance <= 0) {
+        return data(
+          { errors: { credits: "Insufficient credits to start runs" } },
+          { status: 402 },
+        );
+      }
+
       const result = await RunSetService.createRunsForRunSet({
         runSetId: params.runSetId,
         definitions,
         shouldRunVerification: !!payload.shouldRunVerification,
-        acknowledgedInsufficientCredits:
-          !!payload.acknowledgedInsufficientCredits,
       });
 
       if (!result.runSet) {
