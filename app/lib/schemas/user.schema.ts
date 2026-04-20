@@ -9,6 +9,7 @@ export default new mongoose.Schema({
     {
       team: { type: mongoose.Types.ObjectId, ref: "Team" },
       role: { type: String, enum: ["ADMIN", "MEMBER"] },
+      viaTeamInvite: { type: mongoose.Types.ObjectId, ref: "TeamInvite" },
       _id: false,
     },
   ],

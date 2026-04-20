@@ -1,6 +1,7 @@
 export interface UserTeam {
   team: string;
   role: string;
+  viaTeamInvite?: string;
 }
 
 export interface User {
