@@ -102,6 +102,7 @@ export default async function annotateRunSessions({
             model: getRunModelCode(run) ?? "",
             team: String(project.team),
             sessionId: session.sessionId,
+            billingEventId: `annotate-run:${runId}:${session.sessionId}:per-utterance`,
           },
         });
       } else {
@@ -113,6 +114,7 @@ export default async function annotateRunSessions({
             model: getRunModelCode(run) ?? "",
             team: String(project.team),
             sessionId: session.sessionId,
+            billingEventId: `annotate-run:${runId}:${session.sessionId}:per-session`,
           },
         });
       }

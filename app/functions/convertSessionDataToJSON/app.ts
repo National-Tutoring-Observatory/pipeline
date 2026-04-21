@@ -15,6 +15,7 @@ interface LambdaBody {
   outputFolder: string;
   team: string;
   sessionId: string;
+  billingEventId: string;
 }
 
 interface LambdaEvent {
@@ -23,7 +24,7 @@ interface LambdaEvent {
 
 export const handler = async (event: LambdaEvent) => {
   const { body } = event;
-  const { inputFile, outputFolder, team, sessionId } = body;
+  const { inputFile, outputFolder, team, sessionId, billingEventId } = body;
 
   const storage = getStorageAdapter();
 
@@ -41,6 +42,7 @@ export const handler = async (event: LambdaEvent) => {
     user: team,
     source: "file-conversion",
     sourceId: sessionId,
+    billingEventId,
   });
 
   llm.setOrchestratorMessage(orchestratorPrompt.prompt, {

@@ -36,36 +36,44 @@ export default async function applyBillingCredit({
 }: ApplyBillingCreditInput): Promise<void> {
   await TeamBillingBalanceService.ensureInitialized(teamId);
 
-  await withTransaction(async (session) => {
-    await BillingLedgerEntryModel.create(
-      [
-        {
-          team: teamId,
-          direction: "credit",
-          amount,
-          currency: "USD",
-          source,
-          sourceId,
-          idempotencyKey,
-          metadata,
-        },
-      ],
-      { session },
-    );
+  try {
+    await withTransaction(async (session) => {
+      await BillingLedgerEntryModel.create(
+        [
+          {
+            team: teamId,
+            direction: "credit",
+            amount,
+            currency: "USD",
+            source,
+            sourceId,
+            idempotencyKey,
+            metadata,
+          },
+        ],
+        { session },
+      );
 
-    await TeamCreditModel.create(
-      [
-        {
-          team: teamId,
-          amount,
-          addedBy,
-          note,
-          stripeSessionId,
-        },
-      ],
-      { session },
-    );
+      await TeamCreditModel.create(
+        [
+          {
+            team: teamId,
+            amount,
+            addedBy,
+            note,
+            stripeSessionId,
+          },
+        ],
+        { session },
+      );
 
-    await TeamBillingBalanceService.applyDelta(teamId, amount, session);
-  });
+      await TeamBillingBalanceService.applyDelta(teamId, amount, session);
+    });
+  } catch (error) {
+    if ((error as { code?: number }).code === 11000) {
+      return;
+    }
+
+    throw error;
+  }
 }

@@ -1,6 +1,5 @@
 import each from "lodash/each.js";
 import mongoose from "mongoose";
-import { randomUUID } from "node:crypto";
 import type { LlmCostSource } from "~/modules/llmCosts/llmCosts.types";
 import calculateCost from "./helpers/calculateCost";
 import getLLM from "./helpers/getLLM";
@@ -24,6 +23,7 @@ interface LLMOptions {
   source: LlmCostSource;
   model: string;
   sourceId?: string;
+  billingEventId: string;
   user?: string;
   schema?: object;
   retries?: number;
@@ -54,9 +54,11 @@ class LLM {
     providerCost: 0,
   };
 
-  private billingEventPrefix = randomUUID();
-
   constructor(options: LLMOptions) {
+    if (!options.billingEventId.trim()) {
+      throw new Error("billingEventId is required");
+    }
+
     this.options = { retries: DEFAULT_RETRIES, ...options };
     this.messages = [];
     this.schema = options.schema;
@@ -115,7 +117,7 @@ class LLM {
         providerCost: delta.providerCost,
         idempotencyKey: [
           "llm-cost",
-          this.billingEventPrefix,
+          this.options.billingEventId,
           this.options.user,
           this.options.source,
           this.options.sourceId ?? "none",

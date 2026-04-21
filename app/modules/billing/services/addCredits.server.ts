@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import applyBillingCredit from "./applyBillingCredit.server";
 
 const MINIMUM_TOPUP_AMOUNT = 10;
@@ -8,6 +7,7 @@ interface AddCreditsInput {
   amount: number;
   note?: string;
   addedBy: string;
+  idempotencyKey: string;
 }
 
 export interface AddCreditsResult {
@@ -20,7 +20,12 @@ export default async function addCredits({
   amount,
   note,
   addedBy,
+  idempotencyKey,
 }: AddCreditsInput): Promise<AddCreditsResult> {
+  if (!idempotencyKey.trim()) {
+    return { success: false, error: "Idempotency key is required" };
+  }
+
   if (typeof amount !== "number" || !Number.isFinite(amount)) {
     return { success: false, error: "Invalid amount" };
   }
@@ -42,7 +47,8 @@ export default async function addCredits({
     addedBy,
     note: note?.trim() || "Added by System Admin",
     source: "admin-credit",
-    idempotencyKey: `admin-credit:${randomUUID()}`,
+    sourceId: idempotencyKey,
+    idempotencyKey,
   });
 
   return { success: true };
