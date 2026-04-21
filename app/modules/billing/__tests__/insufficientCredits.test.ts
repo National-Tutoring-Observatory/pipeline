@@ -1,11 +1,14 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import { BillingPlanService } from "../billingPlan";
 import { InsufficientCreditsError } from "../errors/insufficientCreditsError";
 import { TeamBillingService } from "../teamBilling";
-import { TeamBillingPlanService } from "../teamBillingPlan";
+import {
+  TeamBillingBalanceModel,
+  TeamBillingBalanceService,
+} from "../teamBillingBalance";
 import { TeamCreditService } from "../teamCredit";
 
 describe("InsufficientCreditsError", () => {
@@ -32,7 +35,12 @@ describe("Balance check logic", () => {
       markupRate: 1.5,
       isDefault: true,
     });
-    await TeamBillingPlanService.assignPlan(teamId, plan._id);
+    const TeamBillingPlanModel = mongoose.model("TeamBillingPlan");
+    await TeamBillingPlanModel.create({
+      team: new Types.ObjectId(teamId),
+      plan: plan._id,
+      effectiveFrom: new Date(0),
+    });
 
     if (creditAmount > 0) {
       await TeamCreditService.create({
@@ -53,6 +61,13 @@ describe("Balance check logic", () => {
         providerCost: costAmount * 0.8,
       });
     }
+
+    const markedUpCost = costAmount * 1.5;
+    await TeamBillingBalanceService.ensureInitialized(teamId, 0);
+    await TeamBillingBalanceModel.updateOne(
+      { team: teamId },
+      { $set: { availableBalance: creditAmount - markedUpCost } },
+    );
   }
 
   it("returns positive balance when credits exceed marked-up costs", async () => {

@@ -92,6 +92,16 @@ const setupQueues = async () => {
   );
 
   await QUEUES["cron"].upsertJobScheduler(
+    "billing-reconcile-balances",
+    { pattern: "*/15 * * * *" },
+    {
+      name: "BILLING:RECONCILE_BALANCES",
+      data: {},
+      opts: { attempts: 3, backoff: { type: "exponential", delay: 5000 } },
+    },
+  );
+
+  await QUEUES["cron"].upsertJobScheduler(
     "notify-low-credits-report",
     { pattern: "0 8 * * *" },
     {

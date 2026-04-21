@@ -10,28 +10,26 @@ export class TeamBillingService {
   static async getBalanceSummary(
     teamId: string,
   ): Promise<BalanceSummary | null> {
-    const [legacySummary, billingBalance] = await Promise.all([
+    const [plan, legacySummary, billingBalance] = await Promise.all([
+      TeamBillingPlanService.getEffectivePlan(teamId),
       getLegacyBalanceSummary(teamId),
       TeamBillingBalanceService.findByTeam(teamId),
     ]);
 
-    if (!legacySummary) return null;
-    if (!billingBalance) return legacySummary;
+    if (!plan) return null;
 
     return {
-      ...legacySummary,
-      balance: billingBalance.availableBalance,
+      balance: billingBalance?.availableBalance ?? 0,
+      credits: legacySummary?.credits ?? 0,
+      costs: legacySummary?.costs ?? 0,
+      markedUpCosts: legacySummary?.markedUpCosts ?? 0,
+      plan,
     };
   }
 
   static async getBalance(teamId: string): Promise<number> {
     const billingBalance = await TeamBillingBalanceService.findByTeam(teamId);
-    if (billingBalance) {
-      return billingBalance.availableBalance;
-    }
-
-    const summary = await getLegacyBalanceSummary(teamId);
-    return summary?.balance ?? 0;
+    return billingBalance?.availableBalance ?? 0;
   }
 
   static async setupTeamBilling(teamId: string): Promise<void> {
