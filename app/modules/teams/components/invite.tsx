@@ -18,10 +18,7 @@ export default function Invite({
   onLoginWithGithubClicked: () => void;
 }) {
   return (
-    <div
-      className="flex h-screen w-screen items-center justify-center"
-      style={{ backgroundColor: "#f7f7f7" }}
-    >
+    <div className="flex h-screen w-screen items-center justify-center">
       <Card className="w-full max-w-md text-center">
         <div className="mx-auto" style={{ maxWidth: "120px" }}>
           <img src={ntoLogoIcon} />

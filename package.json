@@ -113,6 +113,7 @@
     "recharts": "3.8.0",
     "remix-auth": "^4.2.0",
     "remix-auth-github": "^3.0.2",
+    "slugify": "^1.6.9",
     "socket.io": "^4.8.3",
     "socket.io-adapter": "^2.5.4",
     "socket.io-client": "^4.8.1",

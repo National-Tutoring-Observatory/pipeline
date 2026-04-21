@@ -126,6 +126,18 @@ export default [
       route("users", "modules/teams/containers/teamUsers.route.tsx", {
         id: "teamUsers",
       }),
+      route(
+        "invite-links",
+        "modules/teams/containers/teamInviteLinks.route.tsx",
+        {
+          id: "teamInviteLinks",
+        },
+      ),
+      route(
+        "invite-links/:inviteLinkId",
+        "modules/teams/containers/teamInviteLink.route.tsx",
+        { id: "teamInviteLink" },
+      ),
       route("billing", "modules/teams/containers/teamBilling.route.tsx", {
         id: "teamBilling",
       }),
@@ -133,6 +145,9 @@ export default [
   ]),
   ...prefix("invite", [
     route(":id", "modules/teams/containers/invite.route.tsx", { id: "invite" }),
+  ]),
+  ...prefix("join", [
+    route(":slug", "modules/teams/containers/join.route.tsx", { id: "join" }),
   ]),
   route("signup", "modules/authentication/containers/signup.route.tsx"),
   route("onboarding", "modules/authentication/containers/onboarding.route.tsx"),

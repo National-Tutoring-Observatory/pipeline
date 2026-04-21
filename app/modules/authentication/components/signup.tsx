@@ -17,6 +17,14 @@ const ERROR_MESSAGES: Record<string, { title: string; description: string }> = {
     title: "Your invite link has expired",
     description: "Please reach out to your NTO contact.",
   },
+  INVITE_FULL: {
+    title: "This invite link has reached its capacity",
+    description: "Please reach out to your NTO contact for a new link.",
+  },
+  INVITE_REVOKED: {
+    title: "This invite link is no longer active",
+    description: "Please reach out to your NTO contact for a new link.",
+  },
   UNREGISTERED: {
     title: "You have not been registered",
     description: "Use the Sign up button below to create an account.",
@@ -35,7 +43,7 @@ export default function Signup({
   const error = errorType ? ERROR_MESSAGES[errorType] : null;
 
   return (
-    <div className="bg-sandpiper-canvas flex h-screen w-screen items-center justify-center">
+    <div className="flex h-screen w-screen items-center justify-center">
       <Card className="w-full max-w-md text-center">
         <div className="flex items-center justify-center gap-3 pt-2">
           <img

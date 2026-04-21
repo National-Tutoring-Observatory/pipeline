@@ -78,6 +78,28 @@ export async function action({ request }: Route.ActionArgs) {
     session.flash("inviteId", data.inviteId);
   }
 
+  if (
+    referrerSplit[referrerSplit.length - 1] === data.inviteSlug &&
+    referrerSplit[referrerSplit.length - 2] === "join"
+  ) {
+    const { TeamInviteService } = await import("~/modules/teams/teamInvites");
+    const getTeamInviteStatus = (
+      await import("~/modules/teams/helpers/getTeamInviteStatus")
+    ).default;
+    const invite = await TeamInviteService.findOne({ slug: data.inviteSlug });
+    if (!invite) {
+      return Response.json(
+        { ok: false, error: "Invalid invite" },
+        { status: 404 },
+      );
+    }
+    const status = getTeamInviteStatus(invite);
+    if (status !== "active") {
+      return Response.json({ ok: false, error: status }, { status: 410 });
+    }
+    session.flash("teamInviteId", invite._id);
+  }
+
   try {
     await authenticator.authenticate(data.provider, request);
   } catch (error) {
