@@ -1,5 +1,6 @@
 import each from "lodash/each.js";
 import mongoose from "mongoose";
+import { randomUUID } from "node:crypto";
 import type { LlmCostSource } from "~/modules/llmCosts/llmCosts.types";
 import calculateCost from "./helpers/calculateCost";
 import getLLM from "./helpers/getLLM";
@@ -53,6 +54,8 @@ class LLM {
     providerCost: 0,
   };
 
+  private billingEventPrefix = randomUUID();
+
   constructor(options: LLMOptions) {
     this.options = { retries: DEFAULT_RETRIES, ...options };
     this.messages = [];
@@ -93,21 +96,32 @@ class LLM {
     if (!this.options.user) return;
 
     try {
-      const { LlmCostService } = await import("~/modules/llmCosts/llmCost");
-      await LlmCostService.create({
-        // LLMOptions.user is the team ID (named "user" to match OpenAI's API convention)
-        team: this.options.user,
+      const applyBillingDebit = (
+        await import("~/modules/billing/services/applyBillingDebit.server")
+      ).default;
+      const rawAmount = calculateCost({
+        modelCode: this.options.model,
+        inputTokens: delta.inputTokens,
+        outputTokens: delta.outputTokens,
+      });
+      await applyBillingDebit({
+        teamId: this.options.user,
         model: this.options.model,
         source: this.options.source,
         sourceId: this.options.sourceId,
         inputTokens: delta.inputTokens,
         outputTokens: delta.outputTokens,
-        cost: calculateCost({
-          modelCode: this.options.model,
-          inputTokens: delta.inputTokens,
-          outputTokens: delta.outputTokens,
-        }),
+        rawAmount,
         providerCost: delta.providerCost,
+        idempotencyKey: [
+          "llm-cost",
+          this.billingEventPrefix,
+          this.options.user,
+          this.options.source,
+          this.options.sourceId ?? "none",
+          this.totalUsage.inputTokens,
+          this.totalUsage.outputTokens,
+        ].join(":"),
       });
       this.lastFlushedUsage = { ...this.totalUsage };
     } catch (error) {

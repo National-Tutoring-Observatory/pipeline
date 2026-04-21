@@ -3,9 +3,11 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import makeDate from "../../../../test/helpers/makeDate";
+import { BillingLedgerEntryService } from "../billingLedgerEntry";
 import { BillingPeriodService } from "../billingPeriod";
 import { BillingPlanService } from "../billingPlan";
 import { TeamBillingService } from "../teamBilling";
+import { TeamBillingBalanceService } from "../teamBillingBalance";
 import { TeamBillingPlanService } from "../teamBillingPlan";
 import { TeamCreditService } from "../teamCredit";
 
@@ -308,6 +310,13 @@ describe("Billing", () => {
         expect(all).toHaveLength(1);
         expect(all[0].note).toBe("Initial credits");
         expect(all[0].addedBy).toBe(userId);
+
+        const ledger = await BillingLedgerEntryService.findByTeam(teamId);
+        expect(ledger).toHaveLength(1);
+        expect(ledger[0].source).toBe("initial-credit");
+
+        const balance = await TeamBillingBalanceService.findByTeam(teamId);
+        expect(balance?.availableBalance).toBeGreaterThan(0);
       });
     });
   });

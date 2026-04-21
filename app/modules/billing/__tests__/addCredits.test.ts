@@ -1,7 +1,9 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
+import { BillingLedgerEntryService } from "../billingLedgerEntry";
 import addCredits from "../services/addCredits.server";
+import { TeamBillingBalanceService } from "../teamBillingBalance";
 import { TeamCreditService } from "../teamCredit";
 
 describe("addCredits", () => {
@@ -80,6 +82,13 @@ describe("addCredits", () => {
     expect(credits).toHaveLength(1);
     expect(credits[0].amount).toBe(50);
     expect(credits[0].addedBy).toBe(userId);
+
+    const ledger = await BillingLedgerEntryService.findByTeam(teamId);
+    expect(ledger).toHaveLength(1);
+    expect(ledger[0].direction).toBe("credit");
+
+    const balance = await TeamBillingBalanceService.findByTeam(teamId);
+    expect(balance?.availableBalance).toBe(50);
   });
 
   it("defaults note to 'Added by System Admin' when not provided", async () => {

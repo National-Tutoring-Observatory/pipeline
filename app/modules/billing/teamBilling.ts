@@ -1,57 +1,36 @@
-import Decimal from "decimal.js";
-import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import type { BalanceSummary } from "./billing.types";
-import { BillingPeriodService } from "./billingPeriod";
 import { BillingPlanService } from "./billingPlan";
 import getInitialCreditsAmount from "./helpers/getInitialCreditsAmount.server";
+import getLegacyBalanceSummary from "./helpers/getLegacyBalanceSummary.server";
+import applyBillingCredit from "./services/applyBillingCredit.server";
+import { TeamBillingBalanceService } from "./teamBillingBalance";
 import { TeamBillingPlanService } from "./teamBillingPlan";
-import { TeamCreditService } from "./teamCredit";
 
 export class TeamBillingService {
   static async getBalanceSummary(
     teamId: string,
   ): Promise<BalanceSummary | null> {
-    const [plan, lastClosed] = await Promise.all([
-      TeamBillingPlanService.getEffectivePlan(teamId),
-      BillingPeriodService.getLastClosedPeriod(teamId),
-    ]);
-    if (!plan) return null;
-
-    let credits: number;
-    let costs: number;
-
-    if (lastClosed) {
-      const since = new Date(lastClosed.endAt);
-      [credits, costs] = await Promise.all([
-        TeamCreditService.sumByTeamSince(teamId, since),
-        LlmCostService.sumCostByTeamSince(teamId, since),
-      ]);
-      const base = lastClosed.closingBalance ?? 0;
-      const markedUpCosts = new Decimal(costs)
-        .times(plan.markupRate)
-        .toNumber();
-      const balance = new Decimal(base)
-        .plus(credits)
-        .minus(markedUpCosts)
-        .toNumber();
-
-      return { balance, credits: base + credits, costs, markedUpCosts, plan };
-    }
-
-    // No closed periods yet — fall back to all-time aggregation
-    [credits, costs] = await Promise.all([
-      TeamCreditService.sumByTeam(teamId),
-      LlmCostService.sumCostByTeam(teamId),
+    const [legacySummary, billingBalance] = await Promise.all([
+      getLegacyBalanceSummary(teamId),
+      TeamBillingBalanceService.findByTeam(teamId),
     ]);
 
-    const markedUpCosts = new Decimal(costs).times(plan.markupRate).toNumber();
-    const balance = new Decimal(credits).minus(markedUpCosts).toNumber();
+    if (!legacySummary) return null;
+    if (!billingBalance) return legacySummary;
 
-    return { balance, credits, costs, markedUpCosts, plan };
+    return {
+      ...legacySummary,
+      balance: billingBalance.availableBalance,
+    };
   }
 
   static async getBalance(teamId: string): Promise<number> {
-    const summary = await this.getBalanceSummary(teamId);
+    const billingBalance = await TeamBillingBalanceService.findByTeam(teamId);
+    if (billingBalance) {
+      return billingBalance.availableBalance;
+    }
+
+    const summary = await getLegacyBalanceSummary(teamId);
     return summary?.balance ?? 0;
   }
 
@@ -64,6 +43,7 @@ export class TeamBillingService {
       return;
     }
     await TeamBillingPlanService.assignPlan(teamId, defaultPlan._id);
+    await TeamBillingBalanceService.ensureInitialized(teamId, 0);
   }
 
   static async assignInitialCredits(
@@ -71,11 +51,13 @@ export class TeamBillingService {
     userId: string,
   ): Promise<void> {
     const initialCredits = getInitialCreditsAmount();
-    await TeamCreditService.create({
-      team: teamId,
+    await applyBillingCredit({
+      teamId,
       amount: initialCredits,
       addedBy: userId,
       note: "Initial credits",
+      source: "initial-credit",
+      idempotencyKey: `initial-credit:${teamId}`,
     });
   }
 }
