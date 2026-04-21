@@ -126,8 +126,10 @@ export async function action({ request, params }: Route.ActionArgs) {
           definitions: [
             {
               modelCode: model,
-              promptId: prompt,
-              promptVersion: Number(promptVersion),
+              prompt: {
+                promptId: prompt,
+                version: Number(promptVersion),
+              },
             },
           ],
           shouldRunVerification: !!payload.shouldRunVerification,
