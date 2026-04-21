@@ -132,16 +132,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         estimateServerSideCost({
           teamId,
           sessionIds: sessions,
-          definitions: definitions.map(
-            (d: {
-              modelCode: string;
-              prompt: { promptId: string; version: number };
-            }) => ({
-              modelCode: d.modelCode,
-              promptId: d.prompt.promptId,
-              promptVersion: d.prompt.version,
-            }),
-          ),
+          definitions,
           shouldRunVerification: !!payload.shouldRunVerification,
         }),
       ]);
