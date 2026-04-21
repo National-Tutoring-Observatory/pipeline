@@ -187,6 +187,43 @@ describe("runSetCreate.route", () => {
       expect(runSet?.sessions).toEqual([session._id]);
     });
 
+    it("returns 402 when estimated cost exceeds balance", async () => {
+      vi.spyOn(TeamBillingService, "getBalance").mockResolvedValueOnce(0);
+
+      const body = JSON.stringify({
+        intent: "CREATE_RUN_SET",
+        payload: {
+          name: "Test Run Set",
+          annotationType: "PER_UTTERANCE",
+          definitions: [
+            {
+              key: buildUsedPromptModelKey(prompt._id, 1, testModel),
+              prompt: {
+                promptId: prompt._id,
+                promptName: "Prompt 1",
+                version: 1,
+              },
+              modelCode: testModel,
+            },
+          ],
+          sessions: [session._id],
+        },
+      });
+
+      const res = await action({
+        request: new Request("http://localhost/", {
+          method: "POST",
+          headers: { cookie: cookieHeader },
+          body,
+        }),
+        params: { projectId: project._id },
+        context: {},
+      } as any);
+
+      expect((res as any).init?.status).toBe(402);
+      expect((res as any).data.errors.credits).toBeDefined();
+    });
+
     it("returns unauthenticated when no user session", async () => {
       const body = JSON.stringify({
         intent: "CREATE_RUN_SET",

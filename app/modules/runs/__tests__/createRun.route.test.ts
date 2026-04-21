@@ -1,6 +1,12 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
+import { BillingPlanService } from "~/modules/billing/billingPlan";
+import { TeamBillingService } from "~/modules/billing/teamBilling";
+import { getAvailableProviders } from "~/modules/llm/modelRegistry";
 import { ProjectService } from "~/modules/projects/project";
+import { PromptService } from "~/modules/prompts/prompt";
+import { PromptVersionService } from "~/modules/prompts/promptVersion";
+import { SessionService } from "~/modules/sessions/session";
 import "~/modules/teams/team";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
@@ -8,6 +14,8 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import createTestRun from "../../../../test/helpers/createTestRun";
 import loginUser from "../../../../test/helpers/loginUser";
 import { action, loader } from "../containers/createRun.route";
+
+const testModel = getAvailableProviders()[0].models[0].code;
 
 describe("createRun.route action - CREATE_AND_START_RUN validation", () => {
   let cookieHeader: string;
@@ -274,5 +282,79 @@ describe("createRun.route loader", () => {
 
     expect(res).not.toBeInstanceOf(Response);
     expect((res as any).initialRun).toBeNull();
+  });
+});
+
+describe("createRun.route action - insufficient credits", () => {
+  let cookieHeader: string;
+  let projectId: string;
+  let sessionId: string;
+  let promptId: string;
+
+  beforeEach(async () => {
+    await clearDocumentDB();
+
+    const user = await UserService.create({ username: "test_user", teams: [] });
+    const team = await TeamService.create({ name: "Test Team" });
+    await UserService.updateById(user._id, {
+      teams: [{ team: team._id, role: "ADMIN" }],
+    });
+    const project = await ProjectService.create({
+      name: "Test Project",
+      createdBy: user._id,
+      team: team._id,
+    });
+    projectId = project._id;
+
+    const session = await SessionService.create({
+      name: "Test Session",
+      project: project._id,
+    });
+    sessionId = session._id;
+
+    const prompt = await PromptService.create({
+      name: "Test Prompt",
+      annotationType: "PER_UTTERANCE",
+    });
+    promptId = prompt._id;
+    await PromptVersionService.create({
+      prompt: prompt._id,
+      version: 1,
+      userPrompt: "Test content",
+      annotationSchema: [],
+    });
+
+    await BillingPlanService.create({
+      name: "Default",
+      markupRate: 1.5,
+      isDefault: true,
+    });
+    await TeamBillingService.setupTeamBilling(team._id);
+
+    cookieHeader = await loginUser(user._id);
+  });
+
+  it("returns 402 when estimated cost exceeds balance", async () => {
+    const res = await action({
+      request: new Request("http://localhost/", {
+        method: "POST",
+        headers: { cookie: cookieHeader, "content-type": "application/json" },
+        body: JSON.stringify({
+          intent: "CREATE_AND_START_RUN",
+          payload: {
+            name: "Valid Run Name",
+            annotationType: "PER_UTTERANCE",
+            prompt: promptId,
+            promptVersion: 1,
+            model: testModel,
+            sessions: [sessionId],
+          },
+        }),
+      }),
+      params: { projectId },
+    } as any);
+
+    expect((res as any).init?.status).toBe(402);
+    expect((res as any).data.errors.credits).toBeDefined();
   });
 });

@@ -12,6 +12,7 @@ import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.serve
 import useSubmitGuard from "~/modules/app/hooks/useSubmitGuard";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
+import { estimateServerSideCost } from "~/modules/billing/helpers/estimateServerSideCost.server";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -117,8 +118,22 @@ export async function action({ request, params }: Route.ActionArgs) {
 
       const teamId =
         typeof project.team === "string" ? project.team : project.team._id;
-      const balance = await TeamBillingService.getBalance(teamId);
-      if (balance <= 0) {
+      const [balance, estimatedCost] = await Promise.all([
+        TeamBillingService.getBalance(teamId),
+        estimateServerSideCost({
+          teamId,
+          sessionIds: sessions,
+          definitions: [
+            {
+              modelCode: model,
+              promptId: prompt,
+              promptVersion: Number(promptVersion),
+            },
+          ],
+          shouldRunVerification: !!payload.shouldRunVerification,
+        }),
+      ]);
+      if (estimatedCost > balance) {
         return data(
           { errors: { credits: "Insufficient credits to start a run" } },
           { status: 402 },
