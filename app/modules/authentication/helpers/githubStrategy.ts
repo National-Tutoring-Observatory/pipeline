@@ -47,7 +47,12 @@ const githubStrategy = new GitHubStrategy<any>(
       const handleTeamInviteSignup = (
         await import("./handleTeamInviteSignup.server")
       ).default;
-      return handleTeamInviteSignup({ teamInviteId, githubUser, emails });
+      return handleTeamInviteSignup({
+        teamInviteId,
+        githubUser,
+        emails,
+        request,
+      });
     }
 
     const inviteId = session.get("inviteId");
