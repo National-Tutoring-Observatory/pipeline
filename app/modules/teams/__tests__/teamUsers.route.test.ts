@@ -141,14 +141,16 @@ describe("teamUsers.route", () => {
       const updatedUser1 = await UserService.findById(user1._id);
       const updatedUser2 = await UserService.findById(user2._id);
 
-      expect(updatedUser1?.teams).toContainEqual({
-        team: team._id,
-        role: "MEMBER",
-      });
-      expect(updatedUser2?.teams).toContainEqual({
-        team: team._id,
-        role: "MEMBER",
-      });
+      expect(
+        updatedUser1?.teams.some(
+          (t) => t.team === team._id && t.role === "MEMBER",
+        ),
+      ).toBe(true);
+      expect(
+        updatedUser2?.teams.some(
+          (t) => t.team === team._id && t.role === "MEMBER",
+        ),
+      ).toBe(true);
     });
 
     it("returns 400 when role is invalid", async () => {

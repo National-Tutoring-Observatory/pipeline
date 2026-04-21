@@ -42,6 +42,7 @@ describe("consumeTeamInvite", () => {
     expect(inviteTeam).toBeDefined();
     expect(inviteTeam!.role).toBe("MEMBER");
     expect(inviteTeam!.viaTeamInvite).toBe(invite._id);
+    expect(inviteTeam!.joinedAt).toBeDefined();
 
     const updatedInvite = await TeamInviteService.findById(invite._id);
     expect(updatedInvite?.usedCount).toBe(1);
@@ -67,6 +68,7 @@ describe("consumeTeamInvite", () => {
     const inviteTeam = result.user!.teams.find((t) => t.team === team._id);
     expect(inviteTeam).toBeDefined();
     expect(inviteTeam!.viaTeamInvite).toBe(invite._id);
+    expect(inviteTeam!.joinedAt).toBeDefined();
 
     const updatedInvite = await TeamInviteService.findById(invite._id);
     expect(updatedInvite?.usedCount).toBe(1);

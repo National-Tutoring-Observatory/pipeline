@@ -52,14 +52,16 @@ describe("removeExpiredTeamAssignment worker", () => {
     expect(result.status).toBe("OK");
 
     const updatedUser = await UserService.findById(user._id);
-    expect(updatedUser?.teams).not.toContainEqual({
-      team: team1._id,
-      role: "ADMIN",
-    });
-    expect(updatedUser?.teams).toContainEqual({
-      team: team2._id,
-      role: "ADMIN",
-    });
+    expect(
+      updatedUser?.teams.some(
+        (t) => t.team === team1._id && t.role === "ADMIN",
+      ),
+    ).toBe(false);
+    expect(
+      updatedUser?.teams.some(
+        (t) => t.team === team2._id && t.role === "ADMIN",
+      ),
+    ).toBe(true);
   });
 
   it("returns ERRORED when userId is missing", async () => {

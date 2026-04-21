@@ -75,7 +75,9 @@ export default function TeamInviteLink({
           title: "No signups yet",
           description: "Nobody has joined via this invite link yet.",
         }}
-        getItemAttributes={getTeamInviteLinkSignupsItemAttributes}
+        getItemAttributes={(item) =>
+          getTeamInviteLinkSignupsItemAttributes(item, invite._id)
+        }
         getItemActions={() => []}
         onActionClicked={() => {}}
         onPaginationChanged={() => {}}

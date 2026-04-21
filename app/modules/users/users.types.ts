@@ -2,6 +2,7 @@ export interface UserTeam {
   team: string;
   role: string;
   viaTeamInvite?: string;
+  joinedAt?: string;
 }
 
 export interface User {
