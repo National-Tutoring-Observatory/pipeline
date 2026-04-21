@@ -12,21 +12,15 @@ import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.serve
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
-import { getAvailableModels } from "~/modules/llm/modelRegistry";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
-import { PromptService } from "~/modules/prompts/prompt";
 import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
-import { getRunModelCode } from "~/modules/runs/helpers/runModel";
 import { RunService } from "~/modules/runs/run";
 import type { RunAnnotationType } from "~/modules/runs/runs.types";
 import RunSetCreatorContainer from "~/modules/runSets/containers/runSetCreator.container";
 import { RunSetService } from "~/modules/runSets/runSet";
-import type {
-  PrefillData,
-  PromptReference,
-} from "~/modules/runSets/runSets.types";
+import type { PrefillData } from "~/modules/runSets/runSets.types";
 import { SessionService } from "~/modules/sessions/session";
 import type { Route } from "./+types/runSetCreate.route";
 
@@ -42,7 +36,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return redirect("/");
   }
 
-  // Check for fromRun or fromRunSet query parameter
   const url = new URL(request.url);
   const fromRunId = url.searchParams.get("fromRun");
   const fromRunSetId = url.searchParams.get("fromRunSet");
@@ -51,135 +44,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   let prefillSessionIds: string[] = [];
 
   if (fromRunId) {
-    try {
-      const run = await RunService.findOne({
-        _id: fromRunId,
-        project: params.projectId,
-      });
-
-      // Validate run exists and belongs to this project
-      if (run) {
-        // Extract session IDs
-        const sessionIds = run.sessions.map((s) => s.sessionId);
-
-        // Fetch prompt details for display
-        const prompt = await PromptService.findById(run.prompt as string);
-
-        const modelCode = getRunModelCode(run);
-        prefillSessionIds = sessionIds;
-        prefillData = {
-          sourceRunId: run._id,
-          sourceRunName: run.name,
-          annotationType: run.annotationType,
-          selectedPrompts: [
-            {
-              promptId: run.prompt as string,
-              promptName: prompt?.name || "",
-              version: run.promptVersion ?? 0,
-            },
-          ],
-          selectedModels: modelCode ? [modelCode] : [],
-          selectedSessions: [],
-        };
-      }
-    } catch (error) {
-      // If there's an error fetching run data, just continue with empty form
-      console.error("Error fetching run for prefill:", error);
-    }
+    ({ prefillData, prefillSessionIds } =
+      await RunSetService.getPrefillDataFromRun(fromRunId, params.projectId));
   } else if (fromRunSetId) {
-    try {
-      const runSet = await RunSetService.findById(fromRunSetId);
-
-      if (runSet && runSet.project === params.projectId) {
-        const validationErrors: string[] = [];
-
-        // Fetch all runs in the runSet
-        const runs = runSet.runs?.length
-          ? await RunService.find({ match: { _id: { $in: runSet.runs } } })
-          : [];
-
-        if (runs.length === 0) {
-          validationErrors.push("Source runSet has no runs to use as template");
-        }
-
-        // Get annotation type from first run (all runs should have same type)
-        const annotationType = runs[0]?.annotationType || "PER_UTTERANCE";
-
-        // Collect unique prompts and models from all runs
-        const promptMap = new Map<
-          string,
-          { promptId: string; version: number }
-        >();
-        const modelSet = new Set<string>();
-
-        for (const run of runs) {
-          const key = `${run.prompt}-${run.promptVersion}`;
-          if (!promptMap.has(key)) {
-            promptMap.set(key, {
-              promptId: run.prompt as string,
-              version: run.promptVersion ?? 0,
-            });
-          }
-          const modelCode = getRunModelCode(run);
-          if (modelCode) {
-            modelSet.add(modelCode);
-          }
-        }
-
-        // Fetch all prompts in a single query
-        const promptIds = Array.from(promptMap.values()).map((p) => p.promptId);
-        const prompts = await PromptService.find({
-          match: { _id: { $in: promptIds } },
-        });
-        const promptsById = new Map(prompts.map((p) => [p._id, p]));
-
-        // Validate prompts still exist and build selected prompts
-        const selectedPrompts: PromptReference[] = [];
-        for (const [, promptRef] of promptMap) {
-          const prompt = promptsById.get(promptRef.promptId);
-          if (prompt) {
-            selectedPrompts.push({
-              promptId: promptRef.promptId,
-              promptName: prompt.name,
-              version: promptRef.version,
-            });
-          } else {
-            validationErrors.push(
-              `Prompt "${promptRef.promptId}" no longer exists`,
-            );
-          }
-        }
-
-        // Validate models exist in config
-        const availableModelCodes = new Set(
-          getAvailableModels().map((m) => m.code),
-        );
-        const selectedModels: string[] = [];
-        for (const modelCode of modelSet) {
-          if (availableModelCodes.has(modelCode)) {
-            selectedModels.push(modelCode);
-          } else {
-            validationErrors.push(
-              `Model "${modelCode}" is no longer available`,
-            );
-          }
-        }
-
-        prefillSessionIds = runSet.sessions || [];
-        prefillData = {
-          sourceRunSetId: runSet._id,
-          sourceRunSetName: runSet.name,
-          annotationType,
-          selectedPrompts,
-          selectedModels,
-          selectedSessions: [],
-          validationErrors:
-            validationErrors.length > 0 ? validationErrors : undefined,
-        };
-      }
-    } catch (error) {
-      console.error("Error fetching runSet for prefill:", error);
-    }
+    ({ prefillData, prefillSessionIds } =
+      await RunSetService.getPrefillDataFromRunSet(
+        fromRunSetId,
+        params.projectId,
+      ));
   }
 
   const [avgSecondsPerSession, outputToInputRatio, prefillSessions, balance] =

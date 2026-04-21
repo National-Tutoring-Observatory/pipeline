@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useFetcher } from "react-router";
+import { useFetcher, useRouteLoaderData } from "react-router";
 import Home from "../components/home";
 
 export function loader() {
@@ -11,6 +11,9 @@ export function HydrateFallback() {
 }
 
 export default function HomeRoute() {
+  const rootData = useRouteLoaderData("root") as
+    | { initialCredits: number }
+    | undefined;
   const fetcher = useFetcher();
   const isDownloading = fetcher.state !== "idle";
 
@@ -33,6 +36,10 @@ export default function HomeRoute() {
   };
 
   return (
-    <Home onDownloadClicked={onDownloadClicked} isDownloading={isDownloading} />
+    <Home
+      onDownloadClicked={onDownloadClicked}
+      isDownloading={isDownloading}
+      initialCredits={rootData?.initialCredits ?? 20}
+    />
   );
 }

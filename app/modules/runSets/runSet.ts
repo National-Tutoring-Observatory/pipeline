@@ -12,6 +12,10 @@ import deleteRunSetService from "./services/deleteRunSet.server";
 import findEligibleRunSetsForRunService from "./services/findEligibleRunSetsForRun.server";
 import findEligibleRunsService from "./services/findEligibleRuns.server";
 import findMergeableRunSetsService from "./services/findMergeableRunSets.server";
+import {
+  getPrefillDataFromRun,
+  getPrefillDataFromRunSet,
+} from "./services/getRunSetPrefillData.server";
 import mergeRunSetsService from "./services/mergeRunSets.server";
 import stopAllRunsService from "./services/stopAllRuns.server";
 
@@ -206,6 +210,14 @@ export class RunSetService {
     acknowledgedInsufficientCredits?: boolean;
   }) {
     return createRunsForRunSetService(payload);
+  }
+
+  static async getPrefillDataFromRun(runId: string, projectId: string) {
+    return getPrefillDataFromRun(runId, projectId);
+  }
+
+  static async getPrefillDataFromRunSet(runSetId: string, projectId: string) {
+    return getPrefillDataFromRunSet(runSetId, projectId);
   }
 
   static async stopAllRuns(runSetId: string): Promise<number> {

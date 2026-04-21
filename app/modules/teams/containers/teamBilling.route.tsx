@@ -23,7 +23,6 @@ import SetBillingUserDialogContainer from "~/modules/billing/containers/setBilli
 import applyMarkup from "~/modules/billing/helpers/applyMarkup";
 import isBillingEnabled from "~/modules/billing/helpers/isBillingEnabled.server";
 import { groupCostsBySource } from "~/modules/billing/helpers/sourceLabels";
-import addCredits from "~/modules/billing/services/addCredits.server";
 import { StripeService } from "~/modules/billing/stripe";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
@@ -165,24 +164,34 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   switch (intent) {
     case "ADD_CREDITS": {
-      if (!BillingAuthorization.canAddCredits(user, team)) {
+      if (!BillingAuthorization.canAddCredits(user)) {
         return data(
           { errors: { general: "You do not have permission to add credits" } },
           { status: 403 },
         );
       }
-      const result = await addCredits({
-        teamId: params.id,
-        amount: payload.amount,
-        note: payload.note,
-        addedBy: user._id,
-      });
-      if (!result.success) {
+      if (
+        typeof payload.amount !== "number" ||
+        !Number.isFinite(payload.amount)
+      ) {
+        return data({ errors: { general: "Invalid amount" } }, { status: 400 });
+      }
+      if (!Number.isInteger(payload.amount)) {
         return data(
-          { errors: { general: result.error ?? "Failed to add credits" } },
+          { errors: { general: "Amount must be a whole dollar value" } },
           { status: 400 },
         );
       }
+      const note =
+        typeof payload.note === "string" && payload.note.trim()
+          ? payload.note.trim()
+          : "Added by System Admin";
+      await TeamCreditService.create({
+        team: params.id,
+        amount: payload.amount,
+        addedBy: user._id,
+        note,
+      });
       return data({ success: true, intent: "ADD_CREDITS" });
     }
 
@@ -213,9 +222,7 @@ export async function action({ request, params }: Route.ActionArgs) {
           { status: 400 },
         );
       }
-      await TeamService.updateById(params.id, {
-        billingUser: isMember._id,
-      });
+      await TeamService.updateById(params.id, { billingUser: isMember._id });
       return data({ success: true, intent: "SET_BILLING_USER" });
     }
 
@@ -244,13 +251,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     }
 
     case "INITIATE_TOPUP": {
-      if (!isBillingEnabled()) {
-        return data(
-          { errors: { general: "Billing is not enabled" } },
-          { status: 400 },
-        );
-      }
-      if (!BillingAuthorization.canAddCredits(user, team)) {
+      if (!BillingAuthorization.canTopUp(user, team)) {
         return data(
           {
             errors: {
@@ -258,6 +259,12 @@ export async function action({ request, params }: Route.ActionArgs) {
             },
           },
           { status: 403 },
+        );
+      }
+      if (!isBillingEnabled()) {
+        return data(
+          { errors: { general: "Billing is not enabled" } },
+          { status: 400 },
         );
       }
       const amount = payload.amount;

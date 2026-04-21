@@ -40,7 +40,8 @@ export default function BillingOverview({
   onAssignPlanClicked,
 }: BillingOverviewProps) {
   const user = useContext(AuthenticationContext) as User | null;
-  const canAddCredits = BillingAuthorization.canAddCredits(user, team);
+  const canAddCredits = BillingAuthorization.canAddCredits(user);
+  const canTopUp = BillingAuthorization.canTopUp(user, team);
   const canAssignPlan = BillingAuthorization.canAssignPlan(user);
   const isLowBalance = balanceSummary.balance < 1 && balanceSummary.balance > 0;
   const isNegativeBalance = balanceSummary.balance < 0;
@@ -129,22 +130,24 @@ export default function BillingOverview({
         </Card>
       </div>
 
-      {canAddCredits && (
+      {(canAddCredits || canTopUp) && (
         <div className="flex gap-2">
-          {isBillingEnabled && (
+          {isBillingEnabled && canTopUp && (
             <Button onClick={onTopUpClicked} disabled={isSubmitting}>
               <Plus className="mr-1 h-4 w-4" />
               Top up
             </Button>
           )}
-          <Button
-            variant="outline"
-            onClick={onAddCreditsClicked}
-            disabled={isSubmitting}
-          >
-            <Plus className="mr-1 h-4 w-4" />
-            Add credits
-          </Button>
+          {canAddCredits && (
+            <Button
+              variant="outline"
+              onClick={onAddCreditsClicked}
+              disabled={isSubmitting}
+            >
+              <Plus className="mr-1 h-4 w-4" />
+              Add credits
+            </Button>
+          )}
         </div>
       )}
     </>

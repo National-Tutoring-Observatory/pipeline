@@ -15,7 +15,7 @@ describe("BillingAuthorization", () => {
     _id: "billing-user-1",
     username: "billing_user",
     role: "USER",
-    teams: [{ team: "team-1", role: "ADMIN" }],
+    teams: [{ team: "team-1", role: "MEMBER" }],
   } as User;
 
   const teamAdminUser = {
@@ -219,29 +219,49 @@ describe("BillingAuthorization", () => {
 
   describe("canAddCredits", () => {
     it("allows super admins", () => {
-      expect(BillingAuthorization.canAddCredits(superAdminUser, team)).toBe(
-        true,
-      );
+      expect(BillingAuthorization.canAddCredits(superAdminUser)).toBe(true);
     });
 
-    it("allows the billing user", () => {
-      expect(BillingAuthorization.canAddCredits(billingUser, team)).toBe(true);
+    it("denies the billing user", () => {
+      expect(BillingAuthorization.canAddCredits(billingUser)).toBe(false);
     });
 
     it("denies team admins", () => {
-      expect(BillingAuthorization.canAddCredits(teamAdminUser, team)).toBe(
-        false,
-      );
+      expect(BillingAuthorization.canAddCredits(teamAdminUser)).toBe(false);
     });
 
     it("denies team members", () => {
-      expect(BillingAuthorization.canAddCredits(teamMemberUser, team)).toBe(
-        false,
-      );
+      expect(BillingAuthorization.canAddCredits(teamMemberUser)).toBe(false);
     });
 
     it("denies null users", () => {
-      expect(BillingAuthorization.canAddCredits(null, team)).toBe(false);
+      expect(BillingAuthorization.canAddCredits(null)).toBe(false);
+    });
+  });
+
+  describe("canTopUp", () => {
+    it("denies super admins", () => {
+      expect(BillingAuthorization.canTopUp(superAdminUser, team)).toBe(false);
+    });
+
+    it("allows the billing user", () => {
+      expect(BillingAuthorization.canTopUp(billingUser, team)).toBe(true);
+    });
+
+    it("allows team admins", () => {
+      expect(BillingAuthorization.canTopUp(teamAdminUser, team)).toBe(true);
+    });
+
+    it("denies team members", () => {
+      expect(BillingAuthorization.canTopUp(teamMemberUser, team)).toBe(false);
+    });
+
+    it("denies non-team users", () => {
+      expect(BillingAuthorization.canTopUp(nonTeamUser, team)).toBe(false);
+    });
+
+    it("denies null users", () => {
+      expect(BillingAuthorization.canTopUp(null, team)).toBe(false);
     });
   });
 });
