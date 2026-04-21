@@ -12,11 +12,12 @@ import {
 } from "react-router";
 
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 import sandpiperFavicon from "~/assets/sandpiper-favicon.svg";
 import * as ga from "~/modules/analytics/analytics";
 import getSessionUser from "~/modules/authentication/helpers/getSessionUser";
 import { SystemSettingsService } from "~/modules/systemSettings/systemSettings";
+import sessionStorage from "../sessionStorage";
 import type { Route } from "./+types/root";
 import "./app.css";
 import AuthenticationContainer from "./modules/authentication/containers/authentication.container";
@@ -65,10 +66,26 @@ export async function loader({ request }: Route.LoaderArgs) {
     }
   }
 
-  return {
-    googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID || null,
-    maintenanceMode,
-  };
+  // Read and consume one-shot flash toast from session
+  const session = await sessionStorage.getSession(
+    request.headers.get("cookie"),
+  );
+  const flashToast = session.get("flashToast") as string | undefined;
+
+  return Response.json(
+    {
+      googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID || null,
+      maintenanceMode,
+      flashToast: flashToast ?? null,
+    },
+    flashToast
+      ? {
+          headers: {
+            "Set-Cookie": await sessionStorage.commitSession(session),
+          },
+        }
+      : undefined,
+  );
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -105,8 +122,13 @@ function useGoogleAnalytics(gaId: string | null) {
 }
 
 export default function App() {
-  const { googleAnalyticsId } = useLoaderData<typeof loader>();
+  const { googleAnalyticsId, flashToast } = useLoaderData<typeof loader>();
   useGoogleAnalytics(googleAnalyticsId);
+
+  useEffect(() => {
+    if (flashToast) toast(flashToast);
+  }, [flashToast]);
+
   return <Outlet />;
 }
 
