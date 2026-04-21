@@ -11,11 +11,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CopyCheckIcon, CopyIcon, Loader2Icon } from "lucide-react";
+import slugify from "slugify";
 import INVITE_LINK_TTL_DAYS from "../helpers/inviteLink";
 
 export const NAME_MAX = 100;
 export const USES_MIN = 1;
 export const USES_MAX = 500;
+
+function slugifyName(name: string): string {
+  return slugify(name, { lower: true, strict: true, trim: true }) || "invite";
+}
 
 interface Props {
   name: string;
@@ -40,6 +45,16 @@ export default function CreateTeamInviteLinkDialog({
   onCreateClicked,
   onCopyClicked,
 }: Props) {
+  const trimmedName = name.trim();
+  const nameError =
+    name.length > 0 && trimmedName.length === 0 ? "Name is required" : null;
+  const maxUsesError =
+    !Number.isInteger(maxUses) || maxUses < USES_MIN || maxUses > USES_MAX
+      ? `Must be between ${USES_MIN} and ${USES_MAX}`
+      : null;
+  const slugPreview = slugifyName(name);
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : "yourdomain.com";
   return (
     <DialogContent>
       <DialogHeader>
@@ -47,8 +62,8 @@ export default function CreateTeamInviteLinkDialog({
         <DialogDescription>
           {!isCreating && !inviteLink && (
             <span>
-              Create a shareable link for events like conferences. Anyone with
-              the link can join the team up to the limit you set.
+              Create a shareable link for adding multiple users into this team.
+              Anyone with the link can join the team up to the limit you set.
             </span>
           )}
         </DialogDescription>
@@ -58,16 +73,31 @@ export default function CreateTeamInviteLinkDialog({
           <div className="flex flex-col gap-3">
             <div>
               <Label className="mb-1 text-xs">Name</Label>
+              <p className="text-muted-foreground mb-2 text-xs">
+                This name is used to generate an easier to remember shareable
+                URL. It can also be used to help find out which users were added
+                during an event. A random code is appended to keep each link
+                unique.
+              </p>
               <Input
                 value={name}
                 maxLength={NAME_MAX}
                 onChange={(e) => onNameChanged(e.target.value)}
-                placeholder="e.g. Learning Conference Norway"
+                placeholder="Give your invite a name"
                 autoComplete="off"
+                autoFocus
               />
               <div className="text-muted-foreground mt-1 text-right text-xs">
                 {name.length} / {NAME_MAX}
               </div>
+              <Label className="mt-2 mb-1 text-xs">Invite link preview</Label>
+              <div className="bg-muted rounded px-2 py-1 font-mono text-xs break-all">
+                {origin}/join/{slugPreview}-
+                <span className="text-muted-foreground">xxxxxxxx</span>
+              </div>
+              {nameError && (
+                <p className="text-destructive mt-1 text-xs">{nameError}</p>
+              )}
             </div>
             <div>
               <Label className="mb-1 text-xs">Maximum uses</Label>
@@ -78,11 +108,14 @@ export default function CreateTeamInviteLinkDialog({
                 value={maxUses}
                 onChange={(e) => onMaxUsesChanged(Number(e.target.value))}
               />
+              {maxUsesError && (
+                <p className="text-destructive mt-1 text-xs">{maxUsesError}</p>
+              )}
             </div>
           </div>
         )}
         {isCreating && !inviteLink && (
-          <Skeleton className="h-[20px] w-full rounded-full" />
+          <Skeleton className="h-5 w-full rounded-full" />
         )}
         {inviteLink && (
           <div className="relative">
