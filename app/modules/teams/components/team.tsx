@@ -7,7 +7,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Pencil } from "lucide-react";
 import { useContext } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { Link, Outlet, useLocation } from "react-router";
 import type { Breadcrumb } from "~/modules/app/app.types";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import { AuthenticationContext } from "~/modules/authentication/authentication.context";
@@ -28,27 +28,13 @@ export default function Team({
   canViewBilling,
   onEditTeamButtonClicked,
 }: TeamProps) {
-  const navigate = useNavigate();
   const location = useLocation();
   const user = useContext(AuthenticationContext) as User | null;
   const canUpdate = TeamAuthorization.canUpdate(user, team._id);
 
   const parts = location.pathname.split("/").filter(Boolean);
-  // Expect path like /teams/:id(/projects|prompts|users)
-  const last = parts[parts.length - 1];
-  const active = [
-    "projects",
-    "prompts",
-    "users",
-    "invite-links",
-    "billing",
-  ].includes(last)
-    ? last
-    : "users";
-
-  const handleTabChange = (value: string) => {
-    navigate(`/teams/${team._id}/${value}`);
-  };
+  const tabs = ["projects", "prompts", "users", "invite-links", "billing"];
+  const active = parts.find((part) => tabs.includes(part)) ?? "users";
 
   return (
     <div className="max-w-7xl p-8">
@@ -70,13 +56,25 @@ export default function Team({
           )}
         </PageHeaderRight>
       </PageHeader>
-      <Tabs value={active} onValueChange={handleTabChange} className="mb-2">
+      <Tabs value={active} className="mb-2">
         <TabsList>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="invite-links">Invite links</TabsTrigger>
-          <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="prompts">Prompts</TabsTrigger>
-          {canViewBilling && <TabsTrigger value="billing">Billing</TabsTrigger>}
+          <TabsTrigger value="users" asChild>
+            <Link to={`/teams/${team._id}/users`}>Users</Link>
+          </TabsTrigger>
+          <TabsTrigger value="invite-links" asChild>
+            <Link to={`/teams/${team._id}/invite-links`}>Invite links</Link>
+          </TabsTrigger>
+          <TabsTrigger value="projects" asChild>
+            <Link to={`/teams/${team._id}/projects`}>Projects</Link>
+          </TabsTrigger>
+          <TabsTrigger value="prompts" asChild>
+            <Link to={`/teams/${team._id}/prompts`}>Prompts</Link>
+          </TabsTrigger>
+          {canViewBilling && (
+            <TabsTrigger value="billing" asChild>
+              <Link to={`/teams/${team._id}/billing`}>Billing</Link>
+            </TabsTrigger>
+          )}
         </TabsList>
       </Tabs>
 
