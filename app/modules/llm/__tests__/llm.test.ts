@@ -31,10 +31,8 @@ vi.mock("../helpers/calculateCost", () => ({
     (inputTokens + outputTokens) * 0.00001,
 }));
 
-vi.mock("~/modules/llmCosts/llmCost", () => ({
-  LlmCostService: {
-    create: (...args: any[]) => mockCostCreate(...args),
-  },
+vi.mock("~/modules/billing/services/applyBillingDebit.server", () => ({
+  default: (...args: any[]) => mockCostCreate(...args),
 }));
 
 vi.mock("mongoose", () => ({
@@ -130,13 +128,14 @@ describe("LLM", () => {
 
       expect(mockCostCreate).toHaveBeenCalledOnce();
       const record = mockCostCreate.mock.calls[0][0];
-      expect(record.team).toBe("team-456");
+      expect(record.teamId).toBe("team-456");
       expect(record.source).toBe("annotation:per-session");
       expect(record.sourceId).toBe("session-123");
       expect(record.inputTokens).toBe(100);
       expect(record.outputTokens).toBe(50);
-      expect(record.cost).toBeGreaterThan(0);
+      expect(record.rawAmount).toBeGreaterThan(0);
       expect(record.providerCost).toBe(0.005);
+      expect(record.idempotencyKey).toContain("llm-cost:");
     });
 
     it("writes one record per orchestrator attempt", async () => {

@@ -1,4 +1,5 @@
-import { TeamCreditService } from "../teamCredit";
+import { randomUUID } from "node:crypto";
+import applyBillingCredit from "./applyBillingCredit.server";
 
 const MINIMUM_TOPUP_AMOUNT = 10;
 
@@ -35,11 +36,13 @@ export default async function addCredits({
     };
   }
 
-  await TeamCreditService.create({
-    team: teamId,
+  await applyBillingCredit({
+    teamId,
     amount,
     addedBy,
     note: note?.trim() || "Added by System Admin",
+    source: "admin-credit",
+    idempotencyKey: `admin-credit:${randomUUID()}`,
   });
 
   return { success: true };
