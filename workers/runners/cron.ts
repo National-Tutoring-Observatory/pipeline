@@ -1,5 +1,6 @@
 import type { Job } from "bullmq";
 import closeBillingPeriods from "../general/closeBillingPeriods";
+import reconcileBillingBalances from "../general/reconcileBillingBalances";
 import reportLowCredits from "../general/reportLowCredits";
 
 export default async (job: Job) => {
@@ -7,6 +8,9 @@ export default async (job: Job) => {
     switch (job.name) {
       case "BILLING:CLOSE_PERIODS": {
         return closeBillingPeriods(job);
+      }
+      case "BILLING:RECONCILE_BALANCES": {
+        return reconcileBillingBalances(job);
       }
       case "NOTIFY:LOW_CREDITS_REPORT": {
         return reportLowCredits(job);

@@ -19,6 +19,11 @@ export class TeamBillingBalanceService {
     return doc ? this.toTeamBillingBalance(doc) : null;
   }
 
+  static async findAllTeamIds(): Promise<string[]> {
+    const ids = await TeamBillingBalanceModel.distinct("team");
+    return ids.map((id: mongoose.Types.ObjectId) => id.toString());
+  }
+
   static async ensureInitialized(
     teamId: string,
     legacyBalance?: number,
@@ -58,5 +63,50 @@ export class TeamBillingBalanceService {
       },
       { session, upsert: true },
     );
+  }
+
+  static async reconcileToSnapshot({
+    teamId,
+    expectedBalance,
+    lastLedgerEntryAt,
+    currentVersion,
+  }: {
+    teamId: string;
+    expectedBalance: number;
+    lastLedgerEntryAt: Date | null;
+    currentVersion?: number;
+  }): Promise<"updated" | "stale"> {
+    const now = new Date();
+
+    if (currentVersion === undefined) {
+      const result = await TeamBillingBalanceModel.updateOne(
+        { team: teamId },
+        {
+          $setOnInsert: {
+            availableBalance: expectedBalance,
+            lastLedgerEntryAt: lastLedgerEntryAt ?? undefined,
+            updatedAt: now,
+            version: 0,
+          },
+        },
+        { upsert: true },
+      );
+
+      return result.upsertedCount > 0 ? "updated" : "stale";
+    }
+
+    const result = await TeamBillingBalanceModel.updateOne(
+      { team: teamId, version: currentVersion },
+      {
+        $set: {
+          availableBalance: expectedBalance,
+          lastLedgerEntryAt: lastLedgerEntryAt ?? undefined,
+          updatedAt: now,
+        },
+        $inc: { version: 1 },
+      },
+    );
+
+    return result.modifiedCount > 0 ? "updated" : "stale";
   }
 }
