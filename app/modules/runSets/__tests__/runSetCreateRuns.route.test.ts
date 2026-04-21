@@ -274,6 +274,39 @@ describe("runSetCreateRuns.route", () => {
       expect(updatedRunSet!.runs!.length).toBe(1);
     });
 
+    it("returns 402 when estimated cost exceeds balance", async () => {
+      vi.spyOn(TeamBillingService, "getBalance").mockResolvedValueOnce(0);
+
+      const req = new Request("http://localhost/", {
+        method: "POST",
+        headers: { cookie: cookieHeader, "content-type": "application/json" },
+        body: JSON.stringify({
+          intent: "CREATE_RUNS",
+          payload: {
+            definitions: [
+              {
+                key: buildUsedPromptModelKey(prompt._id, 1, testModel),
+                prompt: {
+                  promptId: prompt._id,
+                  promptName: "Test Prompt",
+                  version: 1,
+                },
+                modelCode: testModel,
+              },
+            ],
+          },
+        }),
+      });
+
+      const res = await action({
+        request: req,
+        params: { projectId: project._id, runSetId: runSet._id },
+      } as any);
+
+      expect((res as any).init?.status).toBe(402);
+      expect((res as any).data.errors.credits).toBeDefined();
+    });
+
     it("returns 404 when runSet belongs to a different project", async () => {
       const ownerUser = await UserService.create({
         username: "owner2",

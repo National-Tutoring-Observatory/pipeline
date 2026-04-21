@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
+import { estimateServerSideCost } from "~/modules/billing/helpers/estimateServerSideCost.server";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -126,8 +127,25 @@ export async function action({ request, params }: Route.ActionArgs) {
 
       const teamId =
         typeof project.team === "string" ? project.team : project.team._id;
-      const balance = await TeamBillingService.getBalance(teamId);
-      if (balance <= 0) {
+      const [balance, estimatedCost] = await Promise.all([
+        TeamBillingService.getBalance(teamId),
+        estimateServerSideCost({
+          teamId,
+          sessionIds: sessions,
+          definitions: definitions.map(
+            (d: {
+              modelCode: string;
+              prompt: { promptId: string; version: number };
+            }) => ({
+              modelCode: d.modelCode,
+              promptId: d.prompt.promptId,
+              promptVersion: d.prompt.version,
+            }),
+          ),
+          shouldRunVerification: !!payload.shouldRunVerification,
+        }),
+      ]);
+      if (estimatedCost > balance) {
         return data(
           { errors: { credits: "Insufficient credits to start runs" } },
           { status: 402 },
