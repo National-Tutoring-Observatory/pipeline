@@ -1,0 +1,38 @@
+name: Start MongoDB Replica Set
+description: Start a MongoDB 5 container with replica set support and create a CI user
+
+runs:
+  using: composite
+  steps:
+    - name: Start MongoDB replica set
+      shell: bash
+      run: |
+        docker run -d --name mongo -p 27017:27017 \
+          mongo:5 mongod --replSet rs0 --bind_ip_all
+        for i in {1..30}; do
+          if docker exec mongo mongosh --quiet --eval 'db.runCommand("ping").ok' 2>/dev/null; then
+            echo "mongo is up"
+            break
+          fi
+          echo "waiting for mongo... ($i/30)"
+          sleep 2
+        done
+        docker exec mongo mongosh --quiet --eval '
+          rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "localhost:27017" }] })
+        '
+        for i in {1..15}; do
+          PRIMARY=$(docker exec mongo mongosh --quiet --eval 'rs.status().myState' 2>/dev/null)
+          if [ "$PRIMARY" = "1" ]; then
+            echo "replica set primary ready"
+            break
+          fi
+          echo "waiting for primary... ($i/15)"
+          sleep 2
+        done
+        docker exec mongo mongosh --quiet --eval '
+          db.getSiblingDB("admin").createUser({
+            user: "ci_user",
+            pwd: "ci_password",
+            roles: ["root"]
+          })
+        '

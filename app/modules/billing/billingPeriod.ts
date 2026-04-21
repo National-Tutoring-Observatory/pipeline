@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import billingPeriodSchema from "~/lib/schemas/billingPeriod.schema";
 import llmCostSchema from "~/lib/schemas/llmCost.schema";
 import teamCreditSchema from "~/lib/schemas/teamCredit.schema";
+import withTransaction from "~/lib/withTransaction";
 import type { BillingPeriod } from "./billing.types";
 import { startOfMonth, startOfNextMonth } from "./helpers/periodDates";
 import { TeamBillingPlanService } from "./teamBillingPlan";
@@ -65,74 +66,87 @@ export class BillingPeriodService {
   }
 
   static async closePeriod(period: BillingPeriod): Promise<BillingPeriod> {
-    const teamObjId = new mongoose.Types.ObjectId(period.team);
-    const startAt = new Date(period.startAt);
-    const endAt = new Date(period.endAt);
+    return withTransaction(async (session) => {
+      const teamObjId = new mongoose.Types.ObjectId(period.team);
+      const startAt = new Date(period.startAt);
+      const endAt = new Date(period.endAt);
 
-    const prevClosed = await BillingPeriodModel.findOne({
-      team: teamObjId,
-      status: "closed",
-      endAt: { $lte: startAt },
-    }).sort({ endAt: -1 });
+      const prevClosed = await BillingPeriodModel.findOne({
+        team: teamObjId,
+        status: "closed",
+        endAt: { $lte: startAt },
+      })
+        .sort({ endAt: -1 })
+        .session(session);
 
-    const creditLowerBound = prevClosed
-      ? new Date(prevClosed.endAt)
-      : new Date(0);
+      const creditLowerBound = prevClosed
+        ? new Date(prevClosed.endAt)
+        : new Date(0);
 
-    const [costResult, creditResult] = await Promise.all([
-      LlmCostModel.aggregate([
+      const [costResult, creditResult] = await Promise.all([
+        LlmCostModel.aggregate([
+          {
+            $match: {
+              team: teamObjId,
+              createdAt: { $gte: startAt, $lt: endAt },
+            },
+          },
+          { $group: { _id: null, total: { $sum: "$cost" } } },
+        ]).session(session),
+        TeamCreditModel.aggregate([
+          {
+            $match: {
+              team: teamObjId,
+              createdAt: { $gte: creditLowerBound, $lt: endAt },
+            },
+          },
+          { $group: { _id: null, total: { $sum: "$amount" } } },
+        ]).session(session),
+      ]);
+
+      const rawCost = costResult[0]?.total ?? 0;
+      const newCredits = creditResult[0]?.total ?? 0;
+      const prevClosingBalance = prevClosed?.closingBalance ?? 0;
+
+      const billedAmount = new Decimal(rawCost)
+        .times(period.markupRate)
+        .toNumber();
+      const closingBalance = new Decimal(prevClosingBalance)
+        .plus(newCredits)
+        .minus(billedAmount)
+        .toNumber();
+
+      const updated = await BillingPeriodModel.findOneAndUpdate(
+        { _id: period._id, status: "open" },
         {
-          $match: {
-            team: teamObjId,
-            createdAt: { $gte: startAt, $lt: endAt },
+          $set: {
+            status: "closed",
+            rawCost,
+            billedAmount,
+            closingBalance,
+            closedAt: new Date(),
           },
         },
-        { $group: { _id: null, total: { $sum: "$cost" } } },
-      ]),
-      TeamCreditModel.aggregate([
-        {
-          $match: {
-            team: teamObjId,
-            createdAt: { $gte: creditLowerBound, $lt: endAt },
-          },
-        },
-        { $group: { _id: null, total: { $sum: "$amount" } } },
-      ]),
-    ]);
-
-    const rawCost = costResult[0]?.total ?? 0;
-    const newCredits = creditResult[0]?.total ?? 0;
-    const prevClosingBalance = prevClosed?.closingBalance ?? 0;
-
-    const billedAmount = new Decimal(rawCost)
-      .times(period.markupRate)
-      .toNumber();
-    const closingBalance = new Decimal(prevClosingBalance)
-      .plus(newCredits)
-      .minus(billedAmount)
-      .toNumber();
-
-    const updated = await BillingPeriodModel.findOneAndUpdate(
-      { _id: period._id, status: "open" },
-      {
-        $set: {
-          status: "closed",
-          rawCost,
-          billedAmount,
-          closingBalance,
-          closedAt: new Date(),
-        },
-      },
-      { new: true },
-    );
-
-    if (!updated) {
-      throw new Error(
-        `Period ${period._id} is already closed or does not exist`,
+        { new: true, session },
       );
-    }
 
-    return this.toBillingPeriod(updated);
+      if (!updated) {
+        const existing = await BillingPeriodModel.findById(period._id).session(
+          session,
+        );
+        if (existing?.status === "closed") {
+          return this.toBillingPeriod(existing);
+        }
+        if (!existing) {
+          throw new Error(`Period ${period._id} does not exist`);
+        }
+        throw new Error(
+          `Period ${period._id} has unexpected status "${existing.status}"`,
+        );
+      }
+
+      return this.toBillingPeriod(updated);
+    });
   }
 
   static async getCurrentPeriod(teamId: string): Promise<BillingPeriod | null> {

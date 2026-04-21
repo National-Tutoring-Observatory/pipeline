@@ -323,12 +323,16 @@ describe("BillingPeriodService", () => {
       expect(closedAtMs).not.toBe(new Date(period.endAt).getTime());
     });
 
-    it("throws when trying to close an already-closed period", async () => {
+    it("is idempotent when closing an already-closed period", async () => {
       await seedPlan();
       const period = await BillingPeriodService.openPeriod(teamId, new Date());
-      await BillingPeriodService.closePeriod(period);
+      const first = await BillingPeriodService.closePeriod(period);
+      const second = await BillingPeriodService.closePeriod(period);
 
-      await expect(BillingPeriodService.closePeriod(period)).rejects.toThrow();
+      expect(second.status).toBe("closed");
+      expect(second._id).toBe(first._id);
+      expect(second.closingBalance).toBe(first.closingBalance);
+      expect(second.closedAt).toEqual(first.closedAt);
     });
 
     it("excludes costs from other teams", async () => {
