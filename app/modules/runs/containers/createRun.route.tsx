@@ -14,6 +14,7 @@ import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUser
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import { estimateServerSideCost } from "~/modules/billing/helpers/estimateServerSideCost.server";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
+import { findModelByCode } from "~/modules/llm/modelRegistry";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
@@ -106,6 +107,10 @@ export async function action({ request, params }: Route.ActionArgs) {
 
       if (!promptVersion) {
         errors.promptVersion = "A prompt version is required";
+      }
+
+      if (!findModelByCode(model)) {
+        errors.model = "Invalid model";
       }
 
       if (!Array.isArray(sessions) || sessions.length === 0) {
