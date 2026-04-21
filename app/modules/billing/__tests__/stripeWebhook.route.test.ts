@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { BillingLedgerEntryService } from "~/modules/billing/billingLedgerEntry";
+import { TeamBillingBalanceService } from "~/modules/billing/teamBillingBalance";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
@@ -74,6 +76,13 @@ describe("stripeWebhook.route action", () => {
     expect(credits[0].note).toBe("Purchased via Stripe");
     expect(credits[0].addedBy).toBe(user._id.toString());
     expect(credits[0].stripeSessionId).toBe("cs_test_123");
+
+    const ledger = await BillingLedgerEntryService.findByTeam(team._id);
+    expect(ledger).toHaveLength(1);
+    expect(ledger[0].idempotencyKey).toBe("stripe-checkout:cs_test_123");
+
+    const balance = await TeamBillingBalanceService.findByTeam(team._id);
+    expect(balance?.availableBalance).toBe(25);
   });
 
   it("does not create a TeamCredit for other event types", async () => {

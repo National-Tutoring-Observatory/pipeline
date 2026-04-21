@@ -28,6 +28,34 @@ export interface BillingPeriod {
   closedAt?: Date | string;
 }
 
+export interface BillingLedgerEntry {
+  _id: string;
+  team: string;
+  direction: "credit" | "debit";
+  amount: number;
+  currency: string;
+  rawAmount?: number;
+  markupRateApplied?: number;
+  billedAmount?: number;
+  source: string;
+  sourceId?: string;
+  idempotencyKey: string;
+  metadata?: Record<string, unknown>;
+  isLegacy: boolean;
+  legacyNotes?: string;
+  createdAt: Date | string;
+}
+
+export interface TeamBillingBalance {
+  _id: string;
+  team: string;
+  availableBalance: number;
+  lastLedgerEntryAt?: Date | string;
+  lastReconciledAt?: Date | string;
+  version?: number;
+  updatedAt: Date | string;
+}
+
 export interface TeamCredit {
   _id: string;
   team: string;

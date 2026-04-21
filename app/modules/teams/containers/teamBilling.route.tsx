@@ -23,6 +23,7 @@ import SetBillingUserDialogContainer from "~/modules/billing/containers/setBilli
 import applyMarkup from "~/modules/billing/helpers/applyMarkup";
 import isBillingEnabled from "~/modules/billing/helpers/isBillingEnabled.server";
 import { groupCostsBySource } from "~/modules/billing/helpers/sourceLabels";
+import addCredits from "~/modules/billing/services/addCredits.server";
 import { StripeService } from "~/modules/billing/stripe";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
@@ -186,8 +187,8 @@ export async function action({ request, params }: Route.ActionArgs) {
         typeof payload.note === "string" && payload.note.trim()
           ? payload.note.trim()
           : "Added by System Admin";
-      await TeamCreditService.create({
-        team: params.id,
+      await addCredits({
+        teamId: params.id,
         amount: payload.amount,
         addedBy: user._id,
         note,

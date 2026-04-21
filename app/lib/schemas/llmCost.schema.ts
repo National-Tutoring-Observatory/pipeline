@@ -9,6 +9,8 @@ const llmCostSchema = new mongoose.Schema({
   outputTokens: { type: Number, required: true },
   cost: { type: Number, required: true },
   providerCost: { type: Number, required: true },
+  isLegacy: { type: Boolean, default: false },
+  legacyNotes: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 
