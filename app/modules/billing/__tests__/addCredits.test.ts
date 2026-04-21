@@ -19,6 +19,7 @@ describe("addCredits", () => {
       teamId,
       amount: 5,
       addedBy: userId,
+      idempotencyKey: "admin-credit:test-below-minimum",
     });
 
     expect(result.success).toBe(false);
@@ -30,6 +31,7 @@ describe("addCredits", () => {
       teamId,
       amount: "abc" as any,
       addedBy: userId,
+      idempotencyKey: "admin-credit:test-invalid-number",
     });
 
     expect(result.success).toBe(false);
@@ -41,6 +43,7 @@ describe("addCredits", () => {
       teamId,
       amount: NaN,
       addedBy: userId,
+      idempotencyKey: "admin-credit:test-nan",
     });
 
     expect(result.success).toBe(false);
@@ -52,6 +55,7 @@ describe("addCredits", () => {
       teamId,
       amount: Infinity,
       addedBy: userId,
+      idempotencyKey: "admin-credit:test-infinity",
     });
 
     expect(result.success).toBe(false);
@@ -63,6 +67,7 @@ describe("addCredits", () => {
       teamId,
       amount: 10.5,
       addedBy: userId,
+      idempotencyKey: "admin-credit:test-non-integer",
     });
 
     expect(result.success).toBe(false);
@@ -74,6 +79,7 @@ describe("addCredits", () => {
       teamId,
       amount: 50,
       addedBy: userId,
+      idempotencyKey: "admin-credit:test-valid",
     });
 
     expect(result.success).toBe(true);
@@ -86,6 +92,7 @@ describe("addCredits", () => {
     const ledger = await BillingLedgerEntryService.findByTeam(teamId);
     expect(ledger).toHaveLength(1);
     expect(ledger[0].direction).toBe("credit");
+    expect(ledger[0].idempotencyKey).toBe("admin-credit:test-valid");
 
     const balance = await TeamBillingBalanceService.findByTeam(teamId);
     expect(balance?.availableBalance).toBe(50);
@@ -96,6 +103,7 @@ describe("addCredits", () => {
       teamId,
       amount: 25,
       addedBy: userId,
+      idempotencyKey: "admin-credit:test-default-note",
     });
 
     const credits = await TeamCreditService.findByTeam(teamId);
@@ -108,11 +116,45 @@ describe("addCredits", () => {
       amount: 25,
       note: "Monthly top-up",
       addedBy: userId,
+      idempotencyKey: "admin-credit:test-custom-note",
     });
 
     expect(result.success).toBe(true);
 
     const credits = await TeamCreditService.findByTeam(teamId);
     expect(credits[0].note).toBe("Monthly top-up");
+  });
+
+  it("rejects missing idempotency key", async () => {
+    const result = await addCredits({
+      teamId,
+      amount: 25,
+      addedBy: userId,
+      idempotencyKey: "   ",
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Idempotency key");
+  });
+
+  it("does not double-apply the same admin credit request", async () => {
+    const input = {
+      teamId,
+      amount: 25,
+      addedBy: userId,
+      idempotencyKey: "admin-credit:test-duplicate",
+    };
+
+    await addCredits(input);
+    await addCredits(input);
+
+    const credits = await TeamCreditService.findByTeam(teamId);
+    expect(credits).toHaveLength(1);
+
+    const ledger = await BillingLedgerEntryService.findByTeam(teamId);
+    expect(ledger).toHaveLength(1);
+
+    const balance = await TeamBillingBalanceService.findByTeam(teamId);
+    expect(balance?.availableBalance).toBe(25);
   });
 });

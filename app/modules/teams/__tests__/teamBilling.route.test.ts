@@ -206,7 +206,11 @@ describe("teamBilling.route action", () => {
       const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "ADD_CREDITS",
-          payload: { amount: 50, note: "Test top-up" },
+          payload: {
+            amount: 50,
+            note: "Test top-up",
+            idempotencyKey: "admin-credit:denied-billing-user",
+          },
         }),
       );
 
@@ -226,7 +230,10 @@ describe("teamBilling.route action", () => {
       const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "ADD_CREDITS",
-          payload: { amount: 100 },
+          payload: {
+            amount: 100,
+            idempotencyKey: "admin-credit:super-admin-success",
+          },
         }),
       );
 
@@ -245,7 +252,10 @@ describe("teamBilling.route action", () => {
       const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "ADD_CREDITS",
-          payload: { amount: 50 },
+          payload: {
+            amount: 50,
+            idempotencyKey: "admin-credit:member-denied",
+          },
         }),
       );
 
@@ -264,7 +274,10 @@ describe("teamBilling.route action", () => {
       const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "ADD_CREDITS",
-          payload: { amount: "not-a-number" },
+          payload: {
+            amount: "not-a-number",
+            idempotencyKey: "admin-credit:invalid-amount",
+          },
         }),
       );
 
@@ -283,7 +296,10 @@ describe("teamBilling.route action", () => {
       const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "ADD_CREDITS",
-          payload: { amount: 10.5 },
+          payload: {
+            amount: 10.5,
+            idempotencyKey: "admin-credit:non-integer",
+          },
         }),
       );
 
@@ -302,11 +318,34 @@ describe("teamBilling.route action", () => {
       const result: any = await action(
         buildActionRequest(cookie, team._id, {
           intent: "ADD_CREDITS",
-          payload: { amount: null },
+          payload: {
+            amount: null,
+            idempotencyKey: "admin-credit:null-amount",
+          },
         }),
       );
 
       expect(result.data.errors.general).toContain("Invalid");
+    });
+
+    it("rejects missing idempotency key", async () => {
+      const admin = await UserService.create({
+        username: "admin",
+        role: "SUPER_ADMIN",
+        teams: [],
+      });
+      const team = await TeamService.create({ name: "Test Team" });
+      const cookie = await loginUser(admin._id);
+
+      const result: any = await action(
+        buildActionRequest(cookie, team._id, {
+          intent: "ADD_CREDITS",
+          payload: { amount: 50 },
+        }),
+      );
+
+      expect(result.init?.status).toBe(400);
+      expect(result.data.errors.general).toContain("request key");
     });
   });
 

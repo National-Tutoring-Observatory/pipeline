@@ -53,6 +53,7 @@ export default async function convertFilesToSessions({
           team:
             typeof project.team === "string" ? project.team : project.team._id,
           sessionId: projectFile._id,
+          billingEventId: `file-conversion:${projectFile._id}`,
         },
       });
       hasErrored = false;

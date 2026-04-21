@@ -73,6 +73,7 @@ export default async function createPromptFromCodebook({
       user: teamId,
       source: "codebook-prompt-generation",
       sourceId: codebookId,
+      billingEventId: `codebook-prompt-generation:${codebookVersionId}`,
       schema,
     });
 

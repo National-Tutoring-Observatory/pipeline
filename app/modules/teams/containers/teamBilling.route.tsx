@@ -187,11 +187,21 @@ export async function action({ request, params }: Route.ActionArgs) {
         typeof payload.note === "string" && payload.note.trim()
           ? payload.note.trim()
           : "Added by System Admin";
+      if (
+        typeof payload.idempotencyKey !== "string" ||
+        !payload.idempotencyKey.trim()
+      ) {
+        return data(
+          { errors: { general: "Missing credit request key" } },
+          { status: 400 },
+        );
+      }
       await addCredits({
         teamId: params.id,
         amount: payload.amount,
         addedBy: user._id,
         note,
+        idempotencyKey: payload.idempotencyKey,
       });
       return data({ success: true, intent: "ADD_CREDITS" });
     }
@@ -402,7 +412,14 @@ export default function TeamBillingRoute() {
 
   const submitAddCredits = (amount: number, note: string) => {
     fetcher.submit(
-      JSON.stringify({ intent: "ADD_CREDITS", payload: { amount, note } }),
+      JSON.stringify({
+        intent: "ADD_CREDITS",
+        payload: {
+          amount,
+          note,
+          idempotencyKey: `admin-credit:${globalThis.crypto.randomUUID()}`,
+        },
+      }),
       { method: "POST", encType: "application/json" },
     );
   };
