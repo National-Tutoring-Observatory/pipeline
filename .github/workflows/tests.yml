@@ -21,22 +21,13 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      mongo:
-        image: mongo:5
-        ports:
-          - 27017:27017
-        env:
-          MONGO_INITDB_ROOT_USERNAME: ci_user
-          MONGO_INITDB_ROOT_PASSWORD: ci_password
-        options: >-
-          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+
+      - name: Start MongoDB replica set
+        uses: ./.github/actions/start-mongodb
 
       - name: Setup Node.js
         uses: actions/setup-node@v6

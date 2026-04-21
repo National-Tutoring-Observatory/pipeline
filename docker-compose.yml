@@ -22,16 +22,49 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+      - ./docker/mongodb-keyfile:/data/keyfile-src:ro
     environment:
       MONGO_INITDB_ROOT_USERNAME: sandpiper
       MONGO_INITDB_ROOT_PASSWORD: sandpiper123
+    entrypoint: >
+      bash -c '
+        cp /data/keyfile-src /data/keyfile &&
+        chmod 400 /data/keyfile &&
+        chown mongodb:mongodb /data/keyfile &&
+        exec docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --keyFile /data/keyfile
+      '
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "-u",
+          "sandpiper",
+          "-p",
+          "sandpiper123",
+          "--authenticationDatabase",
+          "admin",
+          "--eval",
+          "db.runCommand('ping').ok",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  mongodb-init:
+    image: mongo:5.0
+    container_name: sandpiper-mongodb-init
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    entrypoint: >
+      mongosh --host sandpiper-mongodb -u sandpiper -p sandpiper123 --authenticationDatabase admin --eval '
+        try { rs.status() }
+        catch(e) { rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "localhost:27017" }] }) }
+      '
+    restart: "no"
 
   ministack:
     image: nahuelnucera/ministack:1.1.51
