@@ -1,8 +1,11 @@
 import mongoose, { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
+import seedLegacyBillingBaselinesMigration from "~/migrations/20260421172000-seed-legacy-billing-baselines";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import makeDate from "../../../../test/helpers/makeDate";
+import markLegacyBillingRowsMigration from "../../../migrations/20260421171000-mark-legacy-billing-rows";
+import { TeamService } from "../../teams/team";
 import { BillingLedgerEntryService } from "../billingLedgerEntry";
 import { BillingPeriodService } from "../billingPeriod";
 import { BillingPlanService } from "../billingPlan";
@@ -572,6 +575,113 @@ describe("Billing", () => {
       const balance = await TeamBillingService.getBalance(teamId);
       // 100 (closingBalance) - (10 * 2.0) = 80
       expect(balance).toBe(80);
+    });
+  });
+
+  describe("legacy baseline migration", () => {
+    async function createTeam() {
+      return TeamService.create({ name: "Billing Migration Team" });
+    }
+
+    async function getDb() {
+      if (!mongoose.connection.db) {
+        throw new Error("Database connection not available");
+      }
+
+      return mongoose.connection.db;
+    }
+
+    it("seeds one baseline ledger entry and balance from legacy rows", async () => {
+      const team = await createTeam();
+      await TeamBillingPlanService.assignPlan(
+        team._id,
+        (
+          await BillingPlanService.create({
+            name: "Standard",
+            markupRate: 1.5,
+            isDefault: true,
+          })
+        )._id,
+      );
+
+      await TeamCreditService.create({
+        team: team._id,
+        amount: 100,
+        addedBy: userId,
+      });
+      await LlmCostService.create({
+        team: team._id,
+        model: "claude-opus",
+        source: "annotation:per-session",
+        inputTokens: 100,
+        outputTokens: 50,
+        cost: 10,
+        providerCost: 8,
+      });
+
+      const db = await getDb();
+      await markLegacyBillingRowsMigration.up(db);
+      await seedLegacyBillingBaselinesMigration.up(db);
+      await seedLegacyBillingBaselinesMigration.up(db);
+
+      const ledger = await BillingLedgerEntryService.findByTeam(team._id);
+      expect(ledger).toHaveLength(1);
+      expect(ledger[0].source).toBe("legacy-migration");
+      expect(ledger[0].idempotencyKey).toBe(`legacy-balance:${team._id}`);
+      expect(ledger[0].amount).toBe(85);
+
+      const balance = await TeamBillingBalanceService.findByTeam(team._id);
+      expect(balance?.availableBalance).toBe(85);
+    });
+
+    it("preserves existing ledger deltas when the balance is seeded late", async () => {
+      const team = await createTeam();
+      await TeamBillingPlanService.assignPlan(
+        team._id,
+        (
+          await BillingPlanService.create({
+            name: "Standard",
+            markupRate: 1.5,
+            isDefault: true,
+          })
+        )._id,
+      );
+
+      await TeamCreditService.create({
+        team: team._id,
+        amount: 100,
+        addedBy: userId,
+      });
+      await LlmCostService.create({
+        team: team._id,
+        model: "claude-opus",
+        source: "annotation:per-session",
+        inputTokens: 100,
+        outputTokens: 50,
+        cost: 10,
+        providerCost: 8,
+      });
+
+      const db = await getDb();
+      await markLegacyBillingRowsMigration.up(db);
+      await db.collection("billingledgerentries").insertOne({
+        team: new Types.ObjectId(team._id),
+        direction: "credit",
+        amount: 20,
+        currency: "USD",
+        source: "admin-credit",
+        sourceId: "manual-topup-1",
+        idempotencyKey: "admin-credit:manual-topup-1",
+        createdAt: new Date(),
+      });
+
+      await seedLegacyBillingBaselinesMigration.up(db);
+
+      const ledger = await BillingLedgerEntryService.findByTeam(team._id);
+      expect(ledger).toHaveLength(2);
+
+      const balance = await TeamBillingBalanceService.findByTeam(team._id);
+      expect(balance?.availableBalance).toBe(105);
     });
   });
 });

@@ -75,6 +75,7 @@ export default async function annotatePerUtterance(job: Job) {
       schema: responseSchema,
       source: "annotation:per-utterance",
       sourceId: runId,
+      billingEventId: `${job.id}:annotation`,
       timeout: 600_000,
     });
 
@@ -100,6 +101,7 @@ export default async function annotatePerUtterance(job: Job) {
         schema: responseSchema,
         source: "verification:per-utterance",
         sourceId: runId,
+        billingEventId: `${job.id}:verification`,
         timeout: 600_000,
       });
 

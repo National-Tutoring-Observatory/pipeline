@@ -13,11 +13,20 @@ interface LambdaBody {
   model: string;
   team: string;
   sessionId: string;
+  billingEventId: string;
 }
 
 export const handler = async (event: { body: LambdaBody }) => {
   const { body } = event;
-  const { inputFile, outputFolder, prompt, model, team, sessionId } = body;
+  const {
+    inputFile,
+    outputFolder,
+    prompt,
+    model,
+    team,
+    sessionId,
+    billingEventId,
+  } = body;
 
   const storage = getStorageAdapter();
 
@@ -37,6 +46,7 @@ export const handler = async (event: { body: LambdaBody }) => {
     user: team,
     source: "annotation:per-utterance",
     sourceId: sessionId,
+    billingEventId,
   });
 
   llm.addSystemMessage(systemPrompt.prompt, {

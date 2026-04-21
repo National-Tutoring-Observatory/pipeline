@@ -62,6 +62,7 @@ export default async function checkPromptAndAnnotationSchemaAlignment({
     user: team,
     source: "prompt-alignment",
     sourceId: promptId,
+    billingEventId: `prompt-alignment:suggest:${promptId}`,
     schema,
   });
 

@@ -75,6 +75,7 @@ export default async function annotatePerSession(job: Job) {
       schema: responseSchema,
       source: "annotation:per-session",
       sourceId: runId,
+      billingEventId: `${job.id}:annotation`,
       timeout: 600_000,
     });
 
@@ -100,6 +101,7 @@ export default async function annotatePerSession(job: Job) {
         schema: responseSchema,
         source: "verification:per-session",
         sourceId: runId,
+        billingEventId: `${job.id}:verification`,
         timeout: 600_000,
       });
 

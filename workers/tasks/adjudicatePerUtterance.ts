@@ -90,6 +90,7 @@ export default async function adjudicatePerUtterance(job: Job) {
         schema: responseSchema,
         source: "adjudication:per-utterance",
         sourceId: sessionId,
+        billingEventId: `${job.id}:adjudication`,
         timeout: 600_000,
       });
 

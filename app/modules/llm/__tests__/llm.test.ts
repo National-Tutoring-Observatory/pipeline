@@ -58,10 +58,18 @@ beforeEach(async () => {
 const SOURCE = "annotation:per-session" as const;
 const MODEL = "test-model";
 
+function makeBillingEventId(testName: string) {
+  return `test:${testName}`;
+}
+
 describe("LLM", () => {
   describe("getUsage", () => {
     it("returns zero usage before any calls", () => {
-      const llm = new LLM({ source: SOURCE, model: MODEL });
+      const llm = new LLM({
+        source: SOURCE,
+        model: MODEL,
+        billingEventId: makeBillingEventId("zero-usage"),
+      });
       expect(llm.getUsage()).toEqual(ZERO_USAGE);
     });
 
@@ -71,7 +79,11 @@ describe("LLM", () => {
         usage: mockUsage,
       });
 
-      const llm = new LLM({ source: SOURCE, model: MODEL });
+      const llm = new LLM({
+        source: SOURCE,
+        model: MODEL,
+        billingEventId: makeBillingEventId("accumulated-usage"),
+      });
       llm.addUserMessage("test", {});
       await llm.createChat();
 
@@ -84,7 +96,11 @@ describe("LLM", () => {
         usage: mockUsage,
       });
 
-      const llm = new LLM({ source: SOURCE, model: MODEL });
+      const llm = new LLM({
+        source: SOURCE,
+        model: MODEL,
+        billingEventId: makeBillingEventId("usage-copy"),
+      });
       llm.addUserMessage("test", {});
       await llm.createChat();
 
@@ -102,7 +118,11 @@ describe("LLM", () => {
         usage: mockUsage,
       });
 
-      const llm = new LLM({ source: SOURCE, model: MODEL });
+      const llm = new LLM({
+        source: SOURCE,
+        model: MODEL,
+        billingEventId: makeBillingEventId("content-only"),
+      });
       llm.addUserMessage("test", {});
       const result = await llm.createChat();
 
@@ -121,6 +141,7 @@ describe("LLM", () => {
         source: "annotation:per-session",
         model: MODEL,
         sourceId: "session-123",
+        billingEventId: "event-123",
         user: "team-456",
       });
       llm.addUserMessage("test", {});
@@ -135,7 +156,9 @@ describe("LLM", () => {
       expect(record.outputTokens).toBe(50);
       expect(record.rawAmount).toBeGreaterThan(0);
       expect(record.providerCost).toBe(0.005);
-      expect(record.idempotencyKey).toContain("llm-cost:");
+      expect(record.idempotencyKey).toBe(
+        "llm-cost:event-123:team-456:annotation:per-session:session-123:100:50",
+      );
     });
 
     it("writes one record per orchestrator attempt", async () => {
@@ -172,6 +195,7 @@ describe("LLM", () => {
         source: SOURCE,
         model: MODEL,
         retries: 3,
+        billingEventId: makeBillingEventId("orchestrator-attempts"),
         user: "team-1",
       });
       llm.setOrchestratorMessage("Check this", {});
@@ -194,7 +218,12 @@ describe("LLM", () => {
         usage: mockUsage,
       });
 
-      const llm = new LLM({ source: SOURCE, model: MODEL, user: "team-1" });
+      const llm = new LLM({
+        source: SOURCE,
+        model: MODEL,
+        billingEventId: makeBillingEventId("ledger-write-fails"),
+        user: "team-1",
+      });
       llm.addUserMessage("test", {});
 
       await expect(llm.createChat()).resolves.toEqual({ result: "ok" });
@@ -224,7 +253,11 @@ describe("LLM", () => {
           usage: scoreUsage,
         });
 
-      const llm = new LLM({ source: SOURCE, model: MODEL });
+      const llm = new LLM({
+        source: SOURCE,
+        model: MODEL,
+        billingEventId: makeBillingEventId("orchestrator-usage"),
+      });
       llm.setOrchestratorMessage("Check this", {});
       llm.addUserMessage("test", {});
       await llm.createChat();
@@ -266,7 +299,12 @@ describe("LLM", () => {
           usage: scoreUsage,
         });
 
-      const llm = new LLM({ source: SOURCE, model: MODEL, retries: 3 });
+      const llm = new LLM({
+        source: SOURCE,
+        model: MODEL,
+        billingEventId: makeBillingEventId("retry-usage"),
+        retries: 3,
+      });
       llm.setOrchestratorMessage("Check this", {});
       llm.addUserMessage("test", {});
       await llm.createChat();

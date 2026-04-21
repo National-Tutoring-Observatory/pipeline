@@ -59,6 +59,7 @@ export default async function getAttributeMappingFromFile({
       user: team,
       source: "attribute-mapping",
       sourceId: projectId,
+      billingEventId: `attribute-mapping:${projectId ?? "no-project"}`,
     });
 
     llm.addSystemMessage(leadRolePrompt.system, {});

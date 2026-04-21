@@ -46,42 +46,54 @@ export default async function applyBillingDebit({
     .times(markupRateApplied)
     .toNumber();
 
-  await withTransaction(async (session) => {
-    await BillingLedgerEntryModel.create(
-      [
-        {
-          team: teamId,
-          direction: "debit",
-          amount: billedAmount,
-          currency: "USD",
-          rawAmount,
-          markupRateApplied,
-          billedAmount,
-          source,
-          sourceId,
-          idempotencyKey,
-          metadata,
-        },
-      ],
-      { session },
-    );
+  try {
+    await withTransaction(async (session) => {
+      await BillingLedgerEntryModel.create(
+        [
+          {
+            team: teamId,
+            direction: "debit",
+            amount: billedAmount,
+            currency: "USD",
+            rawAmount,
+            markupRateApplied,
+            billedAmount,
+            source,
+            sourceId,
+            idempotencyKey,
+            metadata,
+          },
+        ],
+        { session },
+      );
 
-    await LlmCostModel.create(
-      [
-        {
-          team: teamId,
-          model,
-          source,
-          sourceId,
-          inputTokens,
-          outputTokens,
-          cost: rawAmount,
-          providerCost,
-        },
-      ],
-      { session },
-    );
+      await LlmCostModel.create(
+        [
+          {
+            team: teamId,
+            model,
+            source,
+            sourceId,
+            inputTokens,
+            outputTokens,
+            cost: rawAmount,
+            providerCost,
+          },
+        ],
+        { session },
+      );
 
-    await TeamBillingBalanceService.applyDelta(teamId, -billedAmount, session);
-  });
+      await TeamBillingBalanceService.applyDelta(
+        teamId,
+        -billedAmount,
+        session,
+      );
+    });
+  } catch (error) {
+    if ((error as { code?: number }).code === 11000) {
+      return;
+    }
+
+    throw error;
+  }
 }

@@ -84,6 +84,7 @@ export default async function adjudicatePerSession(job: Job) {
         schema: responseSchema,
         source: "adjudication:per-session",
         sourceId: sessionId,
+        billingEventId: `${job.id}:adjudication`,
         timeout: 600_000,
       });
 
