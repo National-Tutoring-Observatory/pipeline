@@ -43,7 +43,7 @@ export default function Signup({
   const error = errorType ? ERROR_MESSAGES[errorType] : null;
 
   return (
-    <div className="bg-sandpiper-canvas flex h-screen w-screen items-center justify-center">
+    <div className="flex h-screen w-screen items-center justify-center">
       <Card className="w-full max-w-md text-center">
         <div className="flex items-center justify-center gap-3 pt-2">
           <img
