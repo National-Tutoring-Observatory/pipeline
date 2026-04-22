@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { getRedisInstance } from "../../app/helpers/getRedisInstance.js";
 import { ProjectService } from "../../app/modules/projects/project.js";
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter.js";
 import { TeamService } from "../../app/modules/teams/team.js";
@@ -9,6 +10,7 @@ import { UserService } from "../../app/modules/users/user.js";
  */
 export async function cleanAll() {
   const storage = getStorageAdapter();
+  let redis;
 
   try {
     // Get all projects to clean their storage
@@ -33,9 +35,19 @@ export async function cleanAll() {
     // Drop database
     await mongoose.connection.dropDatabase();
     console.log(`  ✓ Cleaned all documents from database`);
+
+    try {
+      redis = getRedisInstance();
+      await redis.flushdb();
+      console.log(`  ✓ Cleaned Redis database`);
+    } catch (error) {
+      console.warn(`  ⚠️  Skipped Redis cleanup: ${(error as Error).message}`);
+    }
   } catch (error) {
     console.error("  ✗ Error during cleanup:", error);
     throw error;
+  } finally {
+    await redis?.quit();
   }
 }
 
