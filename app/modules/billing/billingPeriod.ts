@@ -197,7 +197,8 @@ export class BillingPeriodService {
       return await this.openPeriod(teamId, date);
     } catch (err) {
       if (err instanceof NoPlanError) return null;
-      // Another process opened the period concurrently — return whatever is there now
+      // Duplicate key here means another process won the race to create this
+      // period, so return the now-existing current period instead of failing.
       if (err instanceof Error && (err as { code?: number }).code === 11000) {
         return this.getCurrentPeriod(teamId);
       }

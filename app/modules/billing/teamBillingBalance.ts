@@ -2,6 +2,9 @@ import mongoose, { type ClientSession } from "mongoose";
 import teamBillingBalanceSchema from "~/lib/schemas/teamBillingBalance.schema";
 import type { TeamBillingBalance } from "./billing.types";
 import getLegacyBalanceSummary from "./helpers/getLegacyBalanceSummary.server";
+import reconcileTeamBillingBalance, {
+  type ReconcileTeamBillingBalanceResult,
+} from "./services/reconcileTeamBillingBalance.server";
 
 export const TeamBillingBalanceModel =
   mongoose.models.TeamBillingBalance ||
@@ -22,6 +25,10 @@ export class TeamBillingBalanceService {
   static async findAllTeamIds(): Promise<string[]> {
     const ids = await TeamBillingBalanceModel.distinct("team");
     return ids.map((id: mongoose.Types.ObjectId) => id.toString());
+  }
+
+  static async deleteByTeam(teamId: string): Promise<void> {
+    await TeamBillingBalanceModel.deleteOne({ team: teamId });
   }
 
   static async ensureInitialized(
@@ -108,5 +115,11 @@ export class TeamBillingBalanceService {
     );
 
     return result.modifiedCount > 0 ? "updated" : "stale";
+  }
+
+  static async reconcile(
+    teamId: string,
+  ): Promise<ReconcileTeamBillingBalanceResult> {
+    return reconcileTeamBillingBalance(teamId);
   }
 }

@@ -36,6 +36,13 @@ export class TeamBillingPlanService {
     return doc ? this.toTeamBillingPlan(doc) : null;
   }
 
+  static async findAllByTeam(teamId: string): Promise<TeamBillingPlan[]> {
+    const docs = await TeamBillingPlanModel.find({ team: teamId }).sort({
+      effectiveFrom: 1,
+    });
+    return docs.map((doc) => this.toTeamBillingPlan(doc));
+  }
+
   static async assignPlan(
     teamId: string,
     planId: string,
