@@ -1,4 +1,5 @@
 import DEFAULT_PROMPTS from "../../app/modules/prompts/helpers/defaultPrompts.js";
+import tokenizePromptVersion from "../../app/modules/prompts/helpers/tokenizePromptVersion.js";
 import { PromptService } from "../../app/modules/prompts/prompt.js";
 import { PromptVersionService } from "../../app/modules/prompts/promptVersion.js";
 import { TeamService } from "../../app/modules/teams/team.js";
@@ -37,6 +38,11 @@ export async function seedPrompts() {
 
       console.log(`  ✓ Created prompt: ${promptData.name} (ID: ${prompt._id})`);
 
+      const inputTokens = tokenizePromptVersion(
+        promptData.userPrompt,
+        promptData.annotationSchema,
+      );
+
       await PromptVersionService.create({
         name: "initial",
         prompt: prompt._id,
@@ -44,6 +50,7 @@ export async function seedPrompts() {
         userPrompt: promptData.userPrompt,
         annotationSchema: promptData.annotationSchema,
         hasBeenSaved: true,
+        inputTokens,
       });
 
       console.log(`    ✓ Created version 1 for prompt: ${promptData.name}`);
