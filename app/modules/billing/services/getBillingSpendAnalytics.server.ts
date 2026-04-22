@@ -4,7 +4,7 @@ import type {
   CostBySource,
   CostOverTime,
   SpendGranularity,
-} from "~/modules/llmCosts/llmCosts.types";
+} from "~/modules/billing/billingAnalytics.types";
 import { BillingLedgerEntryModel } from "../billingLedgerEntry";
 import {
   getStartDate,

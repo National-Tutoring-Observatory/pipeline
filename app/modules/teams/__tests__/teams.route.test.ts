@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { BillingLedgerEntryService } from "~/modules/billing/billingLedgerEntry";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
 import { TeamBillingBalanceService } from "~/modules/billing/teamBillingBalance";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
-import { TeamCreditService } from "~/modules/billing/teamCredit";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import expectAuthRequired from "../../../../test/helpers/expectAuthRequired";
@@ -68,11 +68,6 @@ describe("teams.route", () => {
       await TeamBillingPlanService.assignPlan(team1._id, plan._id);
       await TeamBillingPlanService.assignPlan(team2._id, plan._id);
       await TeamBillingBalanceService.ensureInitialized(team1._id, 50);
-      await TeamCreditService.create({
-        team: team1._id,
-        amount: 50,
-        addedBy: admin._id,
-      });
 
       const cookieHeader = await loginUser(admin._id);
 
@@ -232,8 +227,8 @@ describe("teams.route", () => {
       } as any)) as any;
 
       const teamId = response.data.data._id;
-      const credits = await TeamCreditService.sumByTeam(teamId);
-      expect(credits).toBe(0);
+      const ledgerEntries = await BillingLedgerEntryService.findByTeam(teamId);
+      expect(ledgerEntries).toHaveLength(0);
     });
 
     it("creates a team without a plan if no default plan exists", async () => {

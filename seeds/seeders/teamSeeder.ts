@@ -1,5 +1,4 @@
 import { TeamBillingService } from "../../app/modules/billing/teamBilling.js";
-import { TeamCreditService } from "../../app/modules/billing/teamCredit.js";
 import { TeamService } from "../../app/modules/teams/team.js";
 import { UserService } from "../../app/modules/users/user.js";
 import { getSeededUsers } from "./userSeeder.js";
@@ -14,6 +13,17 @@ const SEED_TEAMS = [
     name: "Education Lab Beta",
   },
 ];
+
+async function ensureSeedBillingCredits(teamId: string, adminId: string) {
+  await TeamBillingService.setupTeamBilling(teamId);
+  await TeamBillingService.addCredits({
+    teamId,
+    amount: SEED_CREDITS,
+    addedBy: adminId,
+    note: "Seed credits",
+    idempotencyKey: `seed-credit:${teamId}`,
+  });
+}
 
 export async function seedTeams() {
   const users = await getSeededUsers();
@@ -41,8 +51,9 @@ export async function seedTeams() {
   });
 
   if (existingPersonal.length > 0) {
+    await ensureSeedBillingCredits(existingPersonal[0]._id, admin._id);
     console.log(
-      `  ⏭️  Personal workspace for '${admin.username}' already exists, skipping...`,
+      `  ⏭️  Personal workspace for '${admin.username}' already exists, ensured billing and seed credits...`,
     );
   } else {
     const personalTeam = await TeamService.createForUser(
@@ -50,13 +61,7 @@ export async function seedTeams() {
       admin._id,
       { isPersonal: true },
     );
-    await TeamBillingService.setupTeamBilling(personalTeam._id);
-    await TeamCreditService.create({
-      team: personalTeam._id,
-      amount: SEED_CREDITS,
-      addedBy: admin._id,
-      note: "Seed credits",
-    });
+    await ensureSeedBillingCredits(personalTeam._id, admin._id);
     console.log(
       `  ✓ Created personal workspace: ${personalTeam.name} (ID: ${personalTeam._id})`,
     );
@@ -70,8 +75,9 @@ export async function seedTeams() {
       });
 
       if (existing.length > 0) {
+        await ensureSeedBillingCredits(existing[0]._id, admin._id);
         console.log(
-          `  ⏭️  Team '${teamData.name}' already exists, skipping...`,
+          `  ⏭️  Team '${teamData.name}' already exists, ensured billing and seed credits...`,
         );
         continue;
       }
@@ -79,13 +85,7 @@ export async function seedTeams() {
       const result = await TeamService.create(teamData);
       console.log(`  ✓ Created team: ${teamData.name} (ID: ${result._id})`);
 
-      await TeamBillingService.setupTeamBilling(result._id);
-      await TeamCreditService.create({
-        team: result._id,
-        amount: SEED_CREDITS,
-        addedBy: admin._id,
-        note: "Seed credits",
-      });
+      await ensureSeedBillingCredits(result._id, admin._id);
       console.log(`  ✓ Assigned billing plan and $${SEED_CREDITS} credits`);
     } catch (error) {
       console.error(`  ✗ Error creating team ${teamData.name}:`, error);
