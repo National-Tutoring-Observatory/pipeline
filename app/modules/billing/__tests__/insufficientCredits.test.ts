@@ -1,13 +1,10 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
-import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import { BillingPlanService } from "../billingPlan";
 import { InsufficientCreditsError } from "../errors/insufficientCreditsError";
 import { TeamBillingService } from "../teamBilling";
-import { TeamBillingBalanceService } from "../teamBillingBalance";
 import { TeamBillingPlanService } from "../teamBillingPlan";
-import { TeamCreditService } from "../teamCredit";
 
 describe("InsufficientCreditsError", () => {
   it("has the correct name and message", () => {
@@ -36,36 +33,29 @@ describe("Balance check logic", () => {
     await TeamBillingPlanService.assignPlanAt(teamId, plan._id, new Date(0));
 
     if (creditAmount > 0) {
-      await TeamCreditService.create({
-        team: teamId,
+      await TeamBillingService.applyCredit({
+        teamId,
         amount: creditAmount,
         addedBy: userId,
+        source: "admin-credit",
+        sourceId: `admin-credit:${creditAmount}`,
+        idempotencyKey: `admin-credit:test:${teamId}:${creditAmount}`,
       });
     }
 
     if (costAmount > 0) {
-      await LlmCostService.create({
-        team: teamId,
+      await TeamBillingService.applyDebit({
+        teamId,
         model: "claude-opus",
         source: "annotation:per-session",
+        sourceId: `session:${costAmount}`,
         inputTokens: 500,
         outputTokens: 100,
-        cost: costAmount,
+        rawAmount: costAmount,
         providerCost: costAmount * 0.8,
+        idempotencyKey: `llm-cost:test:${teamId}:${costAmount}`,
       });
     }
-
-    const markedUpCost = costAmount * 1.5;
-    const balance = await TeamBillingBalanceService.ensureInitialized(
-      teamId,
-      0,
-    );
-    await TeamBillingBalanceService.reconcileToSnapshot({
-      teamId,
-      expectedBalance: creditAmount - markedUpCost,
-      lastLedgerEntryAt: balance.lastLedgerEntryAt ?? null,
-      currentVersion: balance.version,
-    });
   }
 
   it("returns positive balance when credits exceed marked-up costs", async () => {

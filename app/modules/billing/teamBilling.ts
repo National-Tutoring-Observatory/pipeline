@@ -1,7 +1,7 @@
 import type { BalanceSummary } from "./billing.types";
+import { BillingLedgerEntryService } from "./billingLedgerEntry";
 import { BillingPlanService } from "./billingPlan";
 import getInitialCreditsAmount from "./helpers/getInitialCreditsAmount.server";
-import getLegacyBalanceSummary from "./helpers/getLegacyBalanceSummary.server";
 import addCredits, {
   type AddCreditsResult,
 } from "./services/addCredits.server";
@@ -17,19 +17,34 @@ export class TeamBillingService {
   static async getBalanceSummary(
     teamId: string,
   ): Promise<BalanceSummary | null> {
-    const [plan, legacySummary, billingBalance] = await Promise.all([
+    const [plan, billingBalance, ledgerEntries] = await Promise.all([
       TeamBillingPlanService.getEffectivePlan(teamId),
-      getLegacyBalanceSummary(teamId),
       TeamBillingBalanceService.findByTeam(teamId),
+      BillingLedgerEntryService.findByTeam(teamId),
     ]);
 
     if (!plan) return null;
 
+    const credits = ledgerEntries
+      .filter((entry) => entry.direction === "credit")
+      .reduce((sum, entry) => sum + entry.amount, 0);
+    const debitEntries = ledgerEntries.filter(
+      (entry) => entry.direction === "debit",
+    );
+    const costs = debitEntries.reduce(
+      (sum, entry) => sum + (entry.rawAmount ?? 0),
+      0,
+    );
+    const markedUpCosts = debitEntries.reduce(
+      (sum, entry) => sum + (entry.billedAmount ?? entry.amount),
+      0,
+    );
+
     return {
       balance: billingBalance?.availableBalance ?? 0,
-      credits: legacySummary?.credits ?? 0,
-      costs: legacySummary?.costs ?? 0,
-      markedUpCosts: legacySummary?.markedUpCosts ?? 0,
+      credits,
+      costs,
+      markedUpCosts,
       plan,
     };
   }

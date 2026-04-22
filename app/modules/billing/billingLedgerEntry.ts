@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import billingLedgerEntrySchema from "~/lib/schemas/billingLedgerEntry.schema";
+import type { FindOptions, PaginateProps } from "~/modules/common/types";
 import type { BillingLedgerEntry } from "./billing.types";
 
 export const BillingLedgerEntryModel =
@@ -25,6 +27,61 @@ export class BillingLedgerEntryService {
       createdAt: -1,
     });
     return docs.map((doc) => this.toBillingLedgerEntry(doc));
+  }
+
+  static async find(options?: FindOptions): Promise<BillingLedgerEntry[]> {
+    const match = options?.match || {};
+    let query = BillingLedgerEntryModel.find(match);
+
+    if (options?.sort) {
+      query = query.sort(options.sort);
+    }
+
+    const docs = await query;
+    return docs.map((doc) => this.toBillingLedgerEntry(doc));
+  }
+
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
+    return BillingLedgerEntryModel.countDocuments(match);
+  }
+
+  static async findCreditByStripeSession(
+    stripeSessionId: string,
+  ): Promise<BillingLedgerEntry | null> {
+    const doc = await BillingLedgerEntryModel.findOne({
+      direction: "credit",
+      source: "stripe-topup",
+      sourceId: stripeSessionId,
+    });
+
+    return doc ? this.toBillingLedgerEntry(doc) : null;
+  }
+
+  static async paginate({
+    match,
+    sort,
+    page,
+    pageSize,
+  }: PaginateProps): Promise<{
+    data: BillingLedgerEntry[];
+    count: number;
+    totalPages: number;
+  }> {
+    const pagination = getPaginationParams(page, pageSize);
+
+    const results = await this.find({
+      match,
+      sort,
+      pagination,
+    });
+
+    const count = await this.count(match);
+
+    return {
+      data: results,
+      count,
+      totalPages: getTotalPages(count, pageSize),
+    };
   }
 
   static async findAllTeamIds(): Promise<string[]> {

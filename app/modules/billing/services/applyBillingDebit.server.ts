@@ -1,7 +1,6 @@
 import Decimal from "decimal.js";
 import mongoose from "mongoose";
 import billingLedgerEntrySchema from "~/lib/schemas/billingLedgerEntry.schema";
-import llmCostSchema from "~/lib/schemas/llmCost.schema";
 import withTransaction from "~/lib/withTransaction";
 import { TeamBillingBalanceService } from "../teamBillingBalance";
 import { TeamBillingPlanService } from "../teamBillingPlan";
@@ -9,9 +8,6 @@ import { TeamBillingPlanService } from "../teamBillingPlan";
 const BillingLedgerEntryModel =
   mongoose.models.BillingLedgerEntry ||
   mongoose.model("BillingLedgerEntry", billingLedgerEntrySchema);
-
-const LlmCostModel =
-  mongoose.models.LlmCost || mongoose.model("LlmCost", llmCostSchema);
 
 interface ApplyBillingDebitInput {
   teamId: string;
@@ -69,23 +65,6 @@ export default async function applyBillingDebit({
             sourceId,
             idempotencyKey,
             metadata,
-            createdAt: entryCreatedAt,
-          },
-        ],
-        { session },
-      );
-
-      await LlmCostModel.create(
-        [
-          {
-            team: teamId,
-            model,
-            source,
-            sourceId,
-            inputTokens,
-            outputTokens,
-            cost: rawAmount,
-            providerCost,
             createdAt: entryCreatedAt,
           },
         ],
