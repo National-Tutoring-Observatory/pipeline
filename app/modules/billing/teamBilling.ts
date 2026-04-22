@@ -16,7 +16,10 @@ import { TeamBillingPlanService } from "./teamBillingPlan";
 
 export class TeamBillingService {
   static async getOutputToInputRatio(teamId: string): Promise<number | null> {
-    const [result] = await BillingLedgerEntryService.aggregate([
+    const [result] = await BillingLedgerEntryService.aggregate<{
+      totalInput: number;
+      totalOutput: number;
+    }>([
       {
         $match: {
           team: new mongoose.Types.ObjectId(teamId),
@@ -43,34 +46,19 @@ export class TeamBillingService {
   static async getBalanceSummary(
     teamId: string,
   ): Promise<BalanceSummary | null> {
-    const [plan, billingBalance, ledgerEntries] = await Promise.all([
+    const [plan, billingBalance, ledgerTotals] = await Promise.all([
       TeamBillingPlanService.getEffectivePlan(teamId),
       TeamBillingBalanceService.findByTeam(teamId),
-      BillingLedgerEntryService.findByTeam(teamId),
+      BillingLedgerEntryService.sumLedgerTotalsByTeam(teamId),
     ]);
 
     if (!plan) return null;
 
-    const credits = ledgerEntries
-      .filter((entry) => entry.direction === "credit")
-      .reduce((sum, entry) => sum + entry.amount, 0);
-    const debitEntries = ledgerEntries.filter(
-      (entry) => entry.direction === "debit",
-    );
-    const costs = debitEntries.reduce(
-      (sum, entry) => sum + (entry.rawAmount ?? 0),
-      0,
-    );
-    const markedUpCosts = debitEntries.reduce(
-      (sum, entry) => sum + (entry.billedAmount ?? entry.amount),
-      0,
-    );
-
     return {
       balance: billingBalance?.availableBalance ?? 0,
-      credits,
-      costs,
-      markedUpCosts,
+      credits: ledgerTotals.credits,
+      costs: ledgerTotals.rawCosts,
+      markedUpCosts: ledgerTotals.billedCosts,
       plan,
     };
   }

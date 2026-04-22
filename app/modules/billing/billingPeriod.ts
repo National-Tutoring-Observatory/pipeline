@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import billingLedgerEntrySchema from "~/lib/schemas/billingLedgerEntry.schema";
 import billingPeriodSchema from "~/lib/schemas/billingPeriod.schema";
 import withTransaction from "~/lib/withTransaction";
 import type { BillingPeriod } from "./billing.types";
+import { BillingLedgerEntryModel } from "./billingLedgerEntry";
 import { startOfMonth, startOfNextMonth } from "./helpers/periodDates";
 import { TeamBillingPlanService } from "./teamBillingPlan";
 
@@ -18,10 +18,6 @@ class NoPlanError extends Error {
 const BillingPeriodModel =
   mongoose.models.BillingPeriod ||
   mongoose.model("BillingPeriod", billingPeriodSchema);
-
-const BillingLedgerEntryModel =
-  mongoose.models.BillingLedgerEntry ||
-  mongoose.model("BillingLedgerEntry", billingLedgerEntrySchema);
 
 export class BillingPeriodService {
   private static toBillingPeriod(doc: mongoose.Document): BillingPeriod {

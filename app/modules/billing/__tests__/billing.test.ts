@@ -233,10 +233,14 @@ describe("Billing", () => {
       });
 
       const balance = await TeamBillingBalanceService.findByTeam(teamId);
+      const lastLedgerEntryAt = balance?.lastLedgerEntryAt
+        ? new Date(balance.lastLedgerEntryAt)
+        : null;
+
       await TeamBillingBalanceService.reconcileToSnapshot({
         teamId,
         expectedBalance: 42,
-        lastLedgerEntryAt: balance?.lastLedgerEntryAt ?? null,
+        lastLedgerEntryAt,
         currentVersion: balance?.version,
       });
 

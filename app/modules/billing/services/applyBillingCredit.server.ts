@@ -1,11 +1,6 @@
-import mongoose from "mongoose";
-import billingLedgerEntrySchema from "~/lib/schemas/billingLedgerEntry.schema";
 import withTransaction from "~/lib/withTransaction";
+import { BillingLedgerEntryModel } from "../billingLedgerEntry";
 import { TeamBillingBalanceService } from "../teamBillingBalance";
-
-const BillingLedgerEntryModel =
-  mongoose.models.BillingLedgerEntry ||
-  mongoose.model("BillingLedgerEntry", billingLedgerEntrySchema);
 
 interface ApplyBillingCreditInput {
   teamId: string;

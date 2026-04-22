@@ -201,13 +201,16 @@ export async function action({ request, params }: Route.ActionArgs) {
           { status: 400 },
         );
       }
-      await addCredits({
+      const result = await addCredits({
         teamId: params.id,
         amount: payload.amount,
         addedBy: user._id,
         note,
         idempotencyKey: payload.idempotencyKey,
       });
+      if (!result.success) {
+        return data({ errors: { general: result.error } }, { status: 400 });
+      }
       return data({ success: true, intent: "ADD_CREDITS" });
     }
 
