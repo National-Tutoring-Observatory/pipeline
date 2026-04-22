@@ -1,7 +1,7 @@
 import each from "lodash/each.js";
 import mongoose from "mongoose";
 import type { LlmCostSource } from "~/modules/billing/billingAnalytics.types";
-import calculateCost from "./helpers/calculateCost";
+import calculateLlmCost from "./helpers/calculateLlmCost";
 import getLLM from "./helpers/getLLM";
 import type { LLMUsage } from "./llm.types";
 import "./providers/aiGateway.js";
@@ -101,7 +101,7 @@ class LLM {
       const applyBillingDebit = (
         await import("~/modules/billing/services/applyBillingDebit.server")
       ).default;
-      const rawAmount = calculateCost({
+      const rawAmount = calculateLlmCost({
         modelCode: this.options.model,
         inputTokens: delta.inputTokens,
         outputTokens: delta.outputTokens,

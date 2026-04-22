@@ -8,6 +8,7 @@ import addCredits, {
 } from "./services/addCredits.server";
 import applyBillingCredit from "./services/applyBillingCredit.server";
 import applyBillingDebit from "./services/applyBillingDebit.server";
+import estimateCost from "./services/estimateCost.server";
 import getBillingReportingSummary, {
   type BillingReportingSummary,
 } from "./services/getBillingReportingSummary.server";
@@ -141,6 +142,8 @@ export class TeamBillingService {
   }): Promise<void> {
     await applyBillingDebit(input);
   }
+
+  static estimateCost = estimateCost;
 
   static async applyStripeTopUp({
     teamId,

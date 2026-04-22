@@ -11,12 +11,10 @@ import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
-import { estimateServerSideCost } from "~/modules/billing/services/estimateServerSideCost.server";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
-import { RunService } from "~/modules/runs/run";
 import type { RunAnnotationType } from "~/modules/runs/runs.types";
 import RunSetCreatorContainer from "~/modules/runSets/containers/runSetCreator.container";
 import { RunSetService } from "~/modules/runSets/runSet";
@@ -54,18 +52,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       ));
   }
 
-  const [avgSecondsPerSession, outputToInputRatio, prefillSessions, balance] =
-    await Promise.all([
-      RunService.getAverageSecondsPerSession(params.projectId),
-      TeamBillingService.getOutputToInputRatio(project.team as string),
-      prefillSessionIds.length
-        ? SessionService.find({
-            match: { _id: { $in: prefillSessionIds } },
-            select: "_id inputTokens",
-          })
-        : Promise.resolve([]),
-      TeamBillingService.getBalance(project.team as string),
-    ]);
+  const prefillSessions = prefillSessionIds.length
+    ? await SessionService.find({
+        match: { _id: { $in: prefillSessionIds } },
+        select: "_id inputTokens",
+      })
+    : [];
 
   if (prefillData) {
     const byId = new Map(prefillSessions.map((s) => [s._id, s.inputTokens]));
@@ -75,13 +67,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }));
   }
 
-  return {
-    project,
-    prefillData,
-    avgSecondsPerSession,
-    outputToInputRatio,
-    balance,
-  };
+  return { project, prefillData };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -126,16 +112,17 @@ export async function action({ request, params }: Route.ActionArgs) {
 
       const teamId =
         typeof project.team === "string" ? project.team : project.team._id;
-      const [balance, estimatedCost] = await Promise.all([
+      const [balance, estimate] = await Promise.all([
         TeamBillingService.getBalance(teamId),
-        estimateServerSideCost({
+        TeamBillingService.estimateCost({
           teamId,
+          projectId: params.projectId,
           sessionIds: sessions,
           definitions,
           shouldRunVerification: !!payload.shouldRunVerification,
         }),
       ]);
-      if (estimatedCost > balance) {
+      if (estimate.estimatedCost > balance) {
         return data(
           { errors: { credits: "Insufficient credits to start runs" } },
           { status: 402 },
@@ -172,13 +159,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function RunSetCreateRoute() {
-  const {
-    project,
-    prefillData,
-    avgSecondsPerSession,
-    outputToInputRatio,
-    balance,
-  } = useLoaderData<typeof loader>();
+  const { project, prefillData } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
 
@@ -231,9 +212,7 @@ export default function RunSetCreateRoute() {
 
       <RunSetCreatorContainer
         prefillData={prefillData}
-        avgSecondsPerSession={avgSecondsPerSession}
-        outputToInputRatio={outputToInputRatio}
-        balance={balance}
+        projectId={project._id}
         onSubmit={handleSubmit}
         isLoading={fetcher.state !== "idle"}
         errors={

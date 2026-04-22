@@ -197,6 +197,10 @@ export default [
     "modules/runSets/containers/downloadRunSet.route.tsx",
   ),
   route(
+    "api/estimateCost",
+    "modules/billing/containers/estimateCost.route.tsx",
+  ),
+  route(
     "api/webhooks/stripe",
     "modules/billing/containers/stripeWebhook.route.tsx",
   ),

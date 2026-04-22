@@ -26,7 +26,7 @@ vi.mock("../helpers/getLLM", () => ({
   }),
 }));
 
-vi.mock("../helpers/calculateCost", () => ({
+vi.mock("../helpers/calculateLlmCost", () => ({
   default: ({ inputTokens, outputTokens }: any) =>
     (inputTokens + outputTokens) * 0.00001,
 }));

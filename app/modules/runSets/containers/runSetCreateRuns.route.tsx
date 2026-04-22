@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
-import { estimateServerSideCost } from "~/modules/billing/services/estimateServerSideCost.server";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
@@ -21,7 +20,6 @@ import getUsedPromptModels, {
   type PromptModelPair,
 } from "~/modules/runSets/helpers/getUsedPromptModels";
 import { RunSetService } from "~/modules/runSets/runSet";
-import { SessionService } from "~/modules/sessions/session";
 import type { Route } from "./+types/runSetCreateRuns.route";
 import RunSetCreateRunsContainer from "./runSetCreateRuns.container";
 
@@ -51,28 +49,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const usedPromptModels = getUsedPromptModels(existingRuns);
 
-  const [avgSecondsPerSession, outputToInputRatio, sessions, balance] =
-    await Promise.all([
-      RunService.getAverageSecondsPerSession(params.projectId),
-      TeamBillingService.getOutputToInputRatio(project.team as string),
-      runSet.sessions?.length
-        ? SessionService.find({
-            match: { _id: { $in: runSet.sessions } },
-            select: "_id inputTokens",
-          })
-        : Promise.resolve([]),
-      TeamBillingService.getBalance(project.team as string),
-    ]);
-
-  return {
-    runSet,
-    project,
-    usedPromptModels,
-    avgSecondsPerSession,
-    outputToInputRatio,
-    sessions,
-    balance,
-  };
+  return { runSet, project, usedPromptModels };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -116,16 +93,17 @@ export async function action({ request, params }: Route.ActionArgs) {
 
       const teamId =
         typeof project.team === "string" ? project.team : project.team._id;
-      const [balance, estimatedCost] = await Promise.all([
+      const [balance, estimate] = await Promise.all([
         TeamBillingService.getBalance(teamId),
-        estimateServerSideCost({
+        TeamBillingService.estimateCost({
           teamId,
+          projectId: params.projectId,
           sessionIds: runSet.sessions ?? [],
           definitions,
           shouldRunVerification: !!payload.shouldRunVerification,
         }),
       ]);
-      if (estimatedCost > balance) {
+      if (estimate.estimatedCost > balance) {
         return data(
           { errors: { credits: "Insufficient credits to start runs" } },
           { status: 402 },
@@ -175,15 +153,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function RunSetCreateRunsRoute() {
-  const {
-    runSet,
-    project,
-    usedPromptModels,
-    avgSecondsPerSession,
-    outputToInputRatio,
-    sessions,
-    balance,
-  } = useLoaderData<typeof loader>();
+  const { runSet, project, usedPromptModels } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
 
@@ -245,10 +215,7 @@ export default function RunSetCreateRunsRoute() {
       <RunSetCreateRunsContainer
         runSet={runSet}
         usedPromptModels={usedPromptModels as PromptModelPair[]}
-        avgSecondsPerSession={avgSecondsPerSession}
-        outputToInputRatio={outputToInputRatio}
-        sessions={sessions}
-        balance={balance}
+        projectId={project._id}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isLoading={fetcher.state !== "idle"}
