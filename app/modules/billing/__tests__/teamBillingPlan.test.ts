@@ -1,4 +1,4 @@
-import mongoose, { Types } from "mongoose";
+import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import { BillingPlanService } from "../billingPlan";
@@ -71,11 +71,8 @@ describe("TeamBillingPlanService", () => {
       // Assign plan2 again to the same next-month slot — should upsert, not insert
       await TeamBillingPlanService.assignPlan(teamId, plan2._id);
 
-      const TeamBillingPlanModel = mongoose.model("TeamBillingPlan");
-      const count = await TeamBillingPlanModel.countDocuments({
-        team: new Types.ObjectId(teamId),
-      });
-      expect(count).toBe(2);
+      const assignments = await TeamBillingPlanService.findAllByTeam(teamId);
+      expect(assignments).toHaveLength(2);
     });
 
     it("replaces an existing pending change scheduled for the same month", async () => {

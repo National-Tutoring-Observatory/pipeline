@@ -75,6 +75,8 @@ export default async function applyBillingCredit({
       await TeamBillingBalanceService.applyDelta(teamId, amount, session);
     });
   } catch (error) {
+    // Duplicate key means this idempotency key was already applied, so treat the
+    // retry as a no-op instead of failing the request.
     if ((error as { code?: number }).code === 11000) {
       return;
     }

@@ -99,6 +99,8 @@ export default async function applyBillingDebit({
       );
     });
   } catch (error) {
+    // Duplicate key means this idempotency key was already applied, so treat the
+    // retry as a no-op instead of failing the request.
     if ((error as { code?: number }).code === 11000) {
       return;
     }
