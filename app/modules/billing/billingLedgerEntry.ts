@@ -155,4 +155,10 @@ export class BillingLedgerEntryService {
       lastLedgerEntryAt: result[0]?.lastLedgerEntryAt ?? null,
     };
   }
+
+  static async aggregate<T = Record<string, unknown>>(
+    pipeline: Record<string, unknown>[],
+  ): Promise<T[]> {
+    return BillingLedgerEntryModel.aggregate(pipeline) as Promise<T[]>;
+  }
 }
