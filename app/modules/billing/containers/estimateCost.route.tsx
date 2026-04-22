@@ -23,6 +23,13 @@ export async function action({ request }: Route.ActionArgs) {
     );
   }
 
+  if (!Array.isArray(sessionIds) || !Array.isArray(definitions)) {
+    return data(
+      { errors: { general: "sessionIds and definitions must be arrays" } },
+      { status: 400 },
+    );
+  }
+
   const project = await ProjectService.findById(projectId);
   if (!project) {
     return data({ errors: { general: "Project not found" } }, { status: 404 });
