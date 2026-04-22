@@ -1,7 +1,7 @@
 import type {
   CostOverTime,
   SpendGranularity,
-} from "~/modules/llmCosts/llmCosts.types";
+} from "~/modules/billing/billingAnalytics.types";
 
 export function getStartDate(granularity: SpendGranularity): Date {
   const now = new Date();

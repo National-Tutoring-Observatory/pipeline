@@ -1,6 +1,6 @@
 import each from "lodash/each.js";
 import mongoose from "mongoose";
-import type { LlmCostSource } from "~/modules/llmCosts/llmCosts.types";
+import type { LlmCostSource } from "~/modules/billing/billingAnalytics.types";
 import calculateCost from "./helpers/calculateCost";
 import getLLM from "./helpers/getLLM";
 import type { LLMUsage } from "./llm.types";

@@ -3,17 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BillingPeriodService } from "~/modules/billing/billingPeriod";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
-import { TeamCreditService } from "~/modules/billing/teamCredit";
-import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import { TeamService } from "~/modules/teams/team";
 import clearDocumentDB from "../../../test/helpers/clearDocumentDB";
 import makeDate from "../../../test/helpers/makeDate";
 import closeBillingPeriods from "../closeBillingPeriods";
-
-// Importing these services registers their Mongoose schemas as a side effect,
-// which is required because the worker imports them indirectly via billing modules.
-void LlmCostService;
-void TeamCreditService;
 
 describe("closeBillingPeriods worker", () => {
   beforeEach(async () => {

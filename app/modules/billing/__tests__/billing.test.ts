@@ -1,7 +1,6 @@
 import mongoose, { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import seedLegacyBillingBaselinesMigration from "~/migrations/20260421172000-seed-legacy-billing-baselines";
-import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import markLegacyBillingRowsMigration from "../../../migrations/20260421171000-mark-legacy-billing-rows";
 import { TeamService } from "../../teams/team";
@@ -10,7 +9,6 @@ import { BillingPlanService } from "../billingPlan";
 import { TeamBillingService } from "../teamBilling";
 import { TeamBillingBalanceService } from "../teamBillingBalance";
 import { TeamBillingPlanService } from "../teamBillingPlan";
-import { TeamCreditService } from "../teamCredit";
 
 describe("Billing", () => {
   beforeEach(async () => {
@@ -49,6 +47,14 @@ describe("Billing", () => {
     return createBackdatedPlanAssignment(teamId, { isDefault: true });
   }
 
+  async function getDb() {
+    if (!mongoose.connection.db) {
+      throw new Error("Database connection not available");
+    }
+
+    return mongoose.connection.db;
+  }
+
   describe("BillingPlanService", () => {
     it("creates and finds a billing plan", async () => {
       const plan = await BillingPlanService.create({
@@ -81,95 +87,6 @@ describe("Billing", () => {
     });
   });
 
-  describe("TeamCreditService", () => {
-    it("creates a credit record", async () => {
-      const credit = await TeamCreditService.create({
-        team: teamId,
-        amount: 50,
-        addedBy: userId,
-        note: "Initial top-up",
-      });
-
-      expect(credit._id).toBeDefined();
-      expect(credit.team).toBe(teamId);
-      expect(credit.amount).toBe(50);
-      expect(credit.addedBy).toBe(userId);
-      expect(credit.note).toBe("Initial top-up");
-    });
-
-    it("sums credits by team", async () => {
-      const otherTeam = new Types.ObjectId().toString();
-
-      await TeamCreditService.create({
-        team: teamId,
-        amount: 50,
-        addedBy: userId,
-      });
-      await TeamCreditService.create({
-        team: teamId,
-        amount: 25,
-        addedBy: userId,
-      });
-      await TeamCreditService.create({
-        team: otherTeam,
-        amount: 100,
-        addedBy: userId,
-      });
-
-      const docs = await TeamCreditService.findByTeam(teamId);
-      expect(docs).toHaveLength(2);
-      const total = await TeamCreditService.sumByTeam(teamId);
-      expect(total).toBe(75);
-    });
-
-    it("returns 0 when no credits exist", async () => {
-      const total = await TeamCreditService.sumByTeam(teamId);
-      expect(total).toBe(0);
-    });
-  });
-
-  describe("LlmCostService.sumCostByTeam", () => {
-    it("sums costs by team", async () => {
-      const otherTeam = new Types.ObjectId().toString();
-
-      await LlmCostService.create({
-        team: teamId,
-        model: "claude-opus",
-        source: "annotation:per-session",
-        inputTokens: 500,
-        outputTokens: 100,
-        cost: 0.01,
-        providerCost: 0.008,
-      });
-      await LlmCostService.create({
-        team: teamId,
-        model: "claude-opus",
-        source: "annotation:per-session",
-        inputTokens: 300,
-        outputTokens: 50,
-        cost: 0.005,
-        providerCost: 0.004,
-      });
-      await LlmCostService.create({
-        team: otherTeam,
-        model: "claude-opus",
-        source: "annotation:per-session",
-        inputTokens: 1000,
-        outputTokens: 200,
-        cost: 1.0,
-        providerCost: 0.8,
-      });
-
-      const total = await LlmCostService.sumCostByTeam(teamId);
-      expect(total).toBeCloseTo(0.015);
-    });
-
-    it("returns 0 when no costs exist", async () => {
-      const total = await LlmCostService.sumCostByTeam(teamId);
-      expect(total).toBe(0);
-    });
-  });
-
   describe("TeamBillingService", () => {
     it("reads current balance from TeamBillingBalance", async () => {
       await seedDefaultPlan();
@@ -189,20 +106,22 @@ describe("Billing", () => {
       await seedDefaultPlan();
       await TeamBillingBalanceService.ensureInitialized(teamId, -7);
 
-      await TeamCreditService.create({
-        team: teamId,
+      const db = await getDb();
+      await db.collection("teamcredits").insertOne({
+        team: new Types.ObjectId(teamId),
         amount: 10,
-        addedBy: userId,
+        addedBy: new Types.ObjectId(userId),
+        createdAt: new Date(),
       });
-
-      await LlmCostService.create({
-        team: teamId,
+      await db.collection("llmcosts").insertOne({
+        team: new Types.ObjectId(teamId),
         model: "claude-opus",
         source: "annotation:per-session",
         inputTokens: 500,
         outputTokens: 100,
         cost: 20,
         providerCost: 16,
+        createdAt: new Date(),
       });
 
       const balance = await TeamBillingService.getBalance(teamId);
@@ -367,32 +286,36 @@ describe("Billing", () => {
       return TeamService.create({ name: "Billing Migration Team" });
     }
 
-    async function getDb() {
-      if (!mongoose.connection.db) {
-        throw new Error("Database connection not available");
-      }
+    async function insertLegacyCredit(teamId: string, amount: number) {
+      const db = await getDb();
+      await db.collection("teamcredits").insertOne({
+        team: new Types.ObjectId(teamId),
+        amount,
+        addedBy: new Types.ObjectId(userId),
+        createdAt: new Date(),
+      });
+    }
 
-      return mongoose.connection.db;
+    async function insertLegacyCost(teamId: string, cost: number) {
+      const db = await getDb();
+      await db.collection("llmcosts").insertOne({
+        team: new Types.ObjectId(teamId),
+        model: "claude-opus",
+        source: "annotation:per-session",
+        inputTokens: 100,
+        outputTokens: 50,
+        cost,
+        providerCost: 8,
+        createdAt: new Date(),
+      });
     }
 
     it("seeds one baseline ledger entry and balance from legacy rows", async () => {
       const team = await createTeam();
       await createBackdatedPlanAssignment(team._id, { markupRate: 1.5 });
 
-      await TeamCreditService.create({
-        team: team._id,
-        amount: 100,
-        addedBy: userId,
-      });
-      await LlmCostService.create({
-        team: team._id,
-        model: "claude-opus",
-        source: "annotation:per-session",
-        inputTokens: 100,
-        outputTokens: 50,
-        cost: 10,
-        providerCost: 8,
-      });
+      await insertLegacyCredit(team._id, 100);
+      await insertLegacyCost(team._id, 10);
 
       const db = await getDb();
       await markLegacyBillingRowsMigration.up(db);
@@ -413,20 +336,8 @@ describe("Billing", () => {
       const team = await createTeam();
       await createBackdatedPlanAssignment(team._id, { markupRate: 1.5 });
 
-      await TeamCreditService.create({
-        team: team._id,
-        amount: 100,
-        addedBy: userId,
-      });
-      await LlmCostService.create({
-        team: team._id,
-        model: "claude-opus",
-        source: "annotation:per-session",
-        inputTokens: 100,
-        outputTokens: 50,
-        cost: 10,
-        providerCost: 8,
-      });
+      await insertLegacyCredit(team._id, 100);
+      await insertLegacyCost(team._id, 10);
 
       const db = await getDb();
       await markLegacyBillingRowsMigration.up(db);

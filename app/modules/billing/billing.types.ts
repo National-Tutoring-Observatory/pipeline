@@ -62,16 +62,6 @@ export interface TeamBillingBalance {
   updatedAt: Date | string;
 }
 
-export interface TeamCredit {
-  _id: string;
-  team: string;
-  amount: number;
-  addedBy: string;
-  note?: string;
-  stripeSessionId?: string;
-  createdAt: Date | string;
-}
-
 export interface PendingPlanChange {
   plan: BillingPlan;
   effectiveFrom: Date | string;

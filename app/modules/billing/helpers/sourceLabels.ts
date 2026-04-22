@@ -1,7 +1,7 @@
 import type {
   CostBySource,
   LlmCostSource,
-} from "~/modules/llmCosts/llmCosts.types";
+} from "~/modules/billing/billingAnalytics.types";
 
 const SOURCE_LABELS: Record<LlmCostSource, string> = {
   "annotation:per-session": "Annotation",
