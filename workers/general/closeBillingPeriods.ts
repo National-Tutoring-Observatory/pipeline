@@ -23,27 +23,18 @@ export default async function closeBillingPeriods(_job: Job) {
     }
   }
 
-  const closeResults = await Promise.allSettled(
-    stale.map(async (period) => {
-      const closed = await BillingPeriodService.closePeriod(period);
+  let closed = 0;
+  let closeFailed = 0;
+  for (const period of stale) {
+    try {
+      await BillingPeriodService.closePeriod(period);
       console.log(
         `[closeBillingPeriods] Closed period ${period._id} for team ${period.team} (endAt: ${new Date(period.endAt).toISOString()})`,
       );
-      return closed;
-    }),
-  );
-
-  let closed = 0;
-  let closeFailed = 0;
-  for (const result of closeResults) {
-    if (result.status === "fulfilled") {
       closed++;
-    } else {
+    } catch (error) {
       closeFailed++;
-      console.error(
-        `[closeBillingPeriods] Failed to close a period:`,
-        result.reason,
-      );
+      console.error(`[closeBillingPeriods] Failed to close a period:`, error);
     }
   }
 

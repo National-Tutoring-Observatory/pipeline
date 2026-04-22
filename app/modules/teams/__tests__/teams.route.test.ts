@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
+import { TeamBillingBalanceService } from "~/modules/billing/teamBillingBalance";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import { TeamCreditService } from "~/modules/billing/teamCredit";
 import { UserService } from "~/modules/users/user";
@@ -66,6 +67,7 @@ describe("teams.route", () => {
 
       await TeamBillingPlanService.assignPlan(team1._id, plan._id);
       await TeamBillingPlanService.assignPlan(team2._id, plan._id);
+      await TeamBillingBalanceService.ensureInitialized(team1._id, 50);
       await TeamCreditService.create({
         team: team1._id,
         amount: 50,

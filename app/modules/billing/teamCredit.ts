@@ -7,6 +7,8 @@ import type { TeamCredit } from "./billing.types";
 const TeamCreditModel =
   mongoose.models.TeamCredit || mongoose.model("TeamCredit", teamCreditSchema);
 
+export { TeamCreditModel };
+
 export class TeamCreditService {
   private static toTeamCredit(doc: mongoose.Document): TeamCredit {
     return doc.toJSON({ flattenObjectIds: true }) as TeamCredit;
@@ -39,7 +41,8 @@ export class TeamCreditService {
   }
 
   static async create(
-    data: Omit<TeamCredit, "_id" | "createdAt">,
+    data: Omit<TeamCredit, "_id" | "createdAt"> &
+      Partial<Pick<TeamCredit, "createdAt">>,
   ): Promise<TeamCredit> {
     const doc = await TeamCreditModel.create(data);
     return this.toTeamCredit(doc);

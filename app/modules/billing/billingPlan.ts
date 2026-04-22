@@ -6,6 +6,8 @@ const BillingPlanModel =
   mongoose.models.BillingPlan ||
   mongoose.model("BillingPlan", billingPlanSchema);
 
+export { BillingPlanModel };
+
 export class BillingPlanService {
   private static toBillingPlan(doc: mongoose.Document): BillingPlan {
     return doc.toJSON({ flattenObjectIds: true }) as BillingPlan;

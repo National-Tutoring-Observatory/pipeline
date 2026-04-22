@@ -22,6 +22,8 @@ export interface BillingPeriod {
   startAt: Date | string;
   endAt: Date | string;
   status: "open" | "closed";
+  openingBalance?: number;
+  creditsAdded?: number;
   rawCost?: number;
   billedAmount?: number;
   closingBalance?: number;
@@ -37,6 +39,10 @@ export interface BillingLedgerEntry {
   rawAmount?: number;
   markupRateApplied?: number;
   billedAmount?: number;
+  model?: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  providerCost?: number;
   source: string;
   sourceId?: string;
   idempotencyKey: string;
@@ -84,6 +90,8 @@ export interface BillingPeriodReport {
   team: string;
   startAt: Date | string;
   endAt: Date | string;
+  openingBalance: number;
+  creditsAdded: number;
   rawCost: number;
   billedAmount: number;
   closingBalance: number;

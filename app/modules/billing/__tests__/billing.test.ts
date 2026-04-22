@@ -8,11 +8,11 @@ import markLegacyBillingRowsMigration from "../../../migrations/20260421171000-m
 import { TeamService } from "../../teams/team";
 import { BillingLedgerEntryService } from "../billingLedgerEntry";
 import { BillingPeriodService } from "../billingPeriod";
-import { BillingPlanService } from "../billingPlan";
+import { BillingPlanModel, BillingPlanService } from "../billingPlan";
 import { TeamBillingService } from "../teamBilling";
 import { TeamBillingBalanceService } from "../teamBillingBalance";
 import { TeamBillingPlanService } from "../teamBillingPlan";
-import { TeamCreditService } from "../teamCredit";
+import { TeamCreditModel, TeamCreditService } from "../teamCredit";
 
 describe("Billing", () => {
   beforeEach(async () => {
@@ -39,12 +39,11 @@ describe("Billing", () => {
       markupRate,
       isDefault,
     });
-    const TeamBillingPlanModel = mongoose.model("TeamBillingPlan");
-    await TeamBillingPlanModel.create({
-      team: new Types.ObjectId(assignedTeamId),
-      plan: plan._id,
-      effectiveFrom: new Date(0),
-    });
+    await TeamBillingPlanService.assignPlanAt(
+      assignedTeamId,
+      plan._id,
+      new Date(0),
+    );
     return plan;
   }
 
@@ -79,6 +78,8 @@ describe("Billing", () => {
       });
 
       const defaultPlan = await BillingPlanService.findDefault();
+      const direct = await BillingPlanModel.findOne({ isDefault: true });
+      expect(direct).not.toBeNull();
       expect(defaultPlan?.name).toBe("Standard");
       expect(defaultPlan?.isDefault).toBe(true);
     });
@@ -119,6 +120,8 @@ describe("Billing", () => {
         addedBy: userId,
       });
 
+      const docs = await TeamCreditModel.find({ team: teamId });
+      expect(docs).toHaveLength(2);
       const total = await TeamCreditService.sumByTeam(teamId);
       expect(total).toBe(75);
     });
@@ -360,11 +363,10 @@ describe("Billing", () => {
       amount: number,
       createdAt: Date,
     ) {
-      const TeamCreditModel = mongoose.model("TeamCredit");
-      await TeamCreditModel.create({
-        team: new Types.ObjectId(summaryTeamId),
+      await TeamCreditService.create({
+        team: summaryTeamId,
         amount,
-        addedBy: new Types.ObjectId(userId),
+        addedBy: userId,
         createdAt,
       });
     }
@@ -374,9 +376,8 @@ describe("Billing", () => {
       cost: number,
       createdAt: Date,
     ) {
-      const LlmCostModel = mongoose.model("LlmCost");
-      await LlmCostModel.create({
-        team: new Types.ObjectId(summaryTeamId),
+      await LlmCostService.create({
+        team: summaryTeamId,
         model: "claude-opus",
         source: "annotation:per-session",
         inputTokens: 100,
@@ -422,7 +423,7 @@ describe("Billing", () => {
 
       expect(summary).not.toBeNull();
       expect(summary!.balance).toBe(700);
-      expect(summary!.credits).toBe(125);
+      expect(summary!.credits).toBe(40);
       expect(summary!.costs).toBe(0);
       expect(summary!.markedUpCosts).toBe(0);
     });

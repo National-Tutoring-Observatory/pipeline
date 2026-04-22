@@ -1,8 +1,6 @@
-import Decimal from "decimal.js";
 import mongoose from "mongoose";
+import billingLedgerEntrySchema from "~/lib/schemas/billingLedgerEntry.schema";
 import billingPeriodSchema from "~/lib/schemas/billingPeriod.schema";
-import llmCostSchema from "~/lib/schemas/llmCost.schema";
-import teamCreditSchema from "~/lib/schemas/teamCredit.schema";
 import withTransaction from "~/lib/withTransaction";
 import type { BillingPeriod } from "./billing.types";
 import { startOfMonth, startOfNextMonth } from "./helpers/periodDates";
@@ -21,11 +19,9 @@ const BillingPeriodModel =
   mongoose.models.BillingPeriod ||
   mongoose.model("BillingPeriod", billingPeriodSchema);
 
-const TeamCreditModel =
-  mongoose.models.TeamCredit || mongoose.model("TeamCredit", teamCreditSchema);
-
-const LlmCostModel =
-  mongoose.models.LlmCost || mongoose.model("LlmCost", llmCostSchema);
+const BillingLedgerEntryModel =
+  mongoose.models.BillingLedgerEntry ||
+  mongoose.model("BillingLedgerEntry", billingLedgerEntrySchema);
 
 export class BillingPeriodService {
   private static toBillingPeriod(doc: mongoose.Document): BillingPeriod {
@@ -79,48 +75,48 @@ export class BillingPeriodService {
         .sort({ endAt: -1 })
         .session(session);
 
-      const creditLowerBound = prevClosed
-        ? new Date(prevClosed.endAt)
-        : new Date(0);
-
-      const [costResult, creditResult] = await Promise.all([
-        LlmCostModel.aggregate([
-          {
-            $match: {
-              team: teamObjId,
-              createdAt: { $gte: startAt, $lt: endAt },
+      const [periodTotals] = await BillingLedgerEntryModel.aggregate([
+        {
+          $match: {
+            team: teamObjId,
+            createdAt: { $gte: startAt, $lt: endAt },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            creditsAdded: {
+              $sum: {
+                $cond: [{ $eq: ["$direction", "credit"] }, "$amount", 0],
+              },
+            },
+            rawCost: {
+              $sum: {
+                $cond: [{ $eq: ["$direction", "debit"] }, "$rawAmount", 0],
+              },
+            },
+            billedAmount: {
+              $sum: {
+                $cond: [{ $eq: ["$direction", "debit"] }, "$amount", 0],
+              },
             },
           },
-          { $group: { _id: null, total: { $sum: "$cost" } } },
-        ]).session(session),
-        TeamCreditModel.aggregate([
-          {
-            $match: {
-              team: teamObjId,
-              createdAt: { $gte: creditLowerBound, $lt: endAt },
-            },
-          },
-          { $group: { _id: null, total: { $sum: "$amount" } } },
-        ]).session(session),
-      ]);
+        },
+      ]).session(session);
 
-      const rawCost = costResult[0]?.total ?? 0;
-      const newCredits = creditResult[0]?.total ?? 0;
-      const prevClosingBalance = prevClosed?.closingBalance ?? 0;
-
-      const billedAmount = new Decimal(rawCost)
-        .times(period.markupRate)
-        .toNumber();
-      const closingBalance = new Decimal(prevClosingBalance)
-        .plus(newCredits)
-        .minus(billedAmount)
-        .toNumber();
+      const openingBalance = prevClosed?.closingBalance ?? 0;
+      const creditsAdded = periodTotals?.creditsAdded ?? 0;
+      const rawCost = periodTotals?.rawCost ?? 0;
+      const billedAmount = periodTotals?.billedAmount ?? 0;
+      const closingBalance = openingBalance + creditsAdded - billedAmount;
 
       const updated = await BillingPeriodModel.findOneAndUpdate(
         { _id: period._id, status: "open" },
         {
           $set: {
             status: "closed",
+            openingBalance,
+            creditsAdded,
             rawCost,
             billedAmount,
             closingBalance,

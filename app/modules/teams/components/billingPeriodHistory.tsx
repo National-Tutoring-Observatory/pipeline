@@ -39,6 +39,8 @@ export default function BillingPeriodHistory({
           <TableHeader>
             <TableRow>
               <TableHead>Period</TableHead>
+              <TableHead className="text-right">Opening</TableHead>
+              <TableHead className="text-right">Credits</TableHead>
               <TableHead className="text-right">Usage</TableHead>
               <TableHead className="text-right">Billed</TableHead>
               <TableHead className="text-right">Closing Balance</TableHead>
@@ -50,6 +52,12 @@ export default function BillingPeriodHistory({
               <TableRow key={period._id}>
                 <TableCell className="font-medium">
                   {getMonthYearString(period.startAt)}
+                </TableCell>
+                <TableCell className="text-right">
+                  ${(period.openingBalance ?? 0).toFixed(2)}
+                </TableCell>
+                <TableCell className="text-right">
+                  ${(period.creditsAdded ?? 0).toFixed(2)}
                 </TableCell>
                 <TableCell className="text-right">
                   ${(period.rawCost ?? 0).toFixed(2)}

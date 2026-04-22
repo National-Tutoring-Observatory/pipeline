@@ -15,6 +15,7 @@ interface ApplyBillingCreditInput {
   teamId: string;
   amount: number;
   addedBy: string;
+  createdAt?: Date;
   note?: string;
   source: string;
   sourceId?: string;
@@ -27,6 +28,7 @@ export default async function applyBillingCredit({
   teamId,
   amount,
   addedBy,
+  createdAt,
   note,
   source,
   sourceId,
@@ -35,6 +37,7 @@ export default async function applyBillingCredit({
   metadata,
 }: ApplyBillingCreditInput): Promise<void> {
   await TeamBillingBalanceService.ensureInitialized(teamId);
+  const entryCreatedAt = createdAt ?? new Date();
 
   try {
     await withTransaction(async (session) => {
@@ -49,6 +52,7 @@ export default async function applyBillingCredit({
             sourceId,
             idempotencyKey,
             metadata,
+            createdAt: entryCreatedAt,
           },
         ],
         { session },
@@ -62,6 +66,7 @@ export default async function applyBillingCredit({
             addedBy,
             note,
             stripeSessionId,
+            createdAt: entryCreatedAt,
           },
         ],
         { session },
