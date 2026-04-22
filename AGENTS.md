@@ -67,6 +67,13 @@ yarn test app/modules/runSets/__tests__/authorization.test.ts
 yarn test:coverage
 ```
 
+**Testing guardrails:**
+
+- Treat `yarn test` as the source of truth for test failures. The repo already handles worker-split DB setup; do not invent a different parallel repro model and then debug against that.
+- Avoid running multiple ad hoc `vitest` commands in parallel against the same local test DB. That can create false failures that look like transaction or data-consistency bugs.
+- In shared test DB helpers, prefer clearing collection contents over `dropDatabase()` unless you have a very specific reason. `dropDatabase()` can introduce cross-worker races during test runs.
+- When architecture changes move the source of truth (for example, current billing balance now comes from `TeamBillingBalance`), update test fixtures to seed the new authoritative source instead of preserving stale expectations.
+
 ### Data Migrations
 
 ```bash

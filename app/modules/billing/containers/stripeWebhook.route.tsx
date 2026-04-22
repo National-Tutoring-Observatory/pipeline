@@ -1,6 +1,6 @@
 import { data } from "react-router";
-import applyBillingCredit from "../services/applyBillingCredit.server";
 import { StripeService } from "../stripe";
+import { TeamBillingService } from "../teamBilling";
 import { TeamCreditService } from "../teamCredit";
 import type { Route } from "./+types/stripeWebhook.route";
 
@@ -35,18 +35,12 @@ export async function action({ request }: Route.ActionArgs) {
       );
       if (!alreadyProcessed) {
         try {
-          await applyBillingCredit({
+          await TeamBillingService.applyStripeTopUp({
             teamId,
             amount: amountTotal / 100,
-            addedBy: userId,
-            note: "Purchased via Stripe",
+            userId,
             stripeSessionId: session.id,
-            source: "stripe-topup",
-            sourceId: session.id,
-            idempotencyKey: `stripe-checkout:${session.id}`,
-            metadata: {
-              paymentStatus: session.payment_status,
-            },
+            paymentStatus: session.payment_status,
           });
         } catch (err: unknown) {
           // 11000 is MongoDB's duplicate key error — means another concurrent

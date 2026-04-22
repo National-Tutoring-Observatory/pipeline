@@ -58,6 +58,19 @@ export class TeamBillingPlanService {
     return this.toTeamBillingPlan(doc);
   }
 
+  static async assignPlanAt(
+    teamId: string,
+    planId: string,
+    effectiveFrom: Date,
+  ): Promise<TeamBillingPlan> {
+    const doc = await TeamBillingPlanModel.findOneAndUpdate(
+      { team: teamId, effectiveFrom },
+      { $set: { plan: planId } },
+      { upsert: true, new: true },
+    );
+    return this.toTeamBillingPlan(doc);
+  }
+
   static async getEffectivePlan(
     teamId: string,
     asOf: Date = new Date(),

@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
-import { BillingLedgerEntryModel } from "../billingLedgerEntry";
+import { BillingPeriodService } from "../billingPeriod";
 import { BillingPlanService } from "../billingPlan";
 import applyBillingCredit from "../services/applyBillingCredit.server";
 import applyBillingDebit from "../services/applyBillingDebit.server";
@@ -19,7 +19,7 @@ describe("getBillingReportingSummary", () => {
       markupRate: 1.5,
       isDefault: false,
     });
-    await TeamBillingPlanService.assignPlan(teamId, plan._id);
+    await TeamBillingPlanService.assignPlanAt(teamId, plan._id, new Date(0));
     return plan;
   }
 
@@ -67,6 +67,7 @@ describe("getBillingReportingSummary", () => {
       teamId,
       amount: 200,
       addedBy: userId,
+      createdAt: new Date("2025-01-05T00:00:00.000Z"),
       source: "admin-credit",
       sourceId: "admin-credit:test-periods",
       idempotencyKey: "admin-credit:test-periods",
@@ -77,37 +78,47 @@ describe("getBillingReportingSummary", () => {
       model: "claude-opus",
       source: "annotation:per-session",
       sourceId: "session-jan",
+      createdAt: new Date("2025-01-15T00:00:00.000Z"),
       inputTokens: 100,
       outputTokens: 50,
       rawAmount: 10,
       providerCost: 8,
       idempotencyKey: "llm-cost:test-periods-jan",
     });
-    await BillingLedgerEntryModel.updateOne(
-      { idempotencyKey: "llm-cost:test-periods-jan" },
-      { $set: { createdAt: new Date("2025-01-15T00:00:00.000Z") } },
-    );
 
     await applyBillingDebit({
       teamId,
       model: "claude-opus",
       source: "annotation:per-session",
       sourceId: "session-feb",
+      createdAt: new Date("2025-02-15T00:00:00.000Z"),
       inputTokens: 100,
       outputTokens: 50,
       rawAmount: 20,
       providerCost: 16,
       idempotencyKey: "llm-cost:test-periods-feb",
     });
-    await BillingLedgerEntryModel.updateOne(
-      { idempotencyKey: "llm-cost:test-periods-feb" },
-      { $set: { createdAt: new Date("2025-02-15T00:00:00.000Z") } },
+
+    const januaryPeriod = await BillingPeriodService.openPeriod(
+      teamId,
+      new Date("2025-01-01T00:00:00.000Z"),
     );
+    await BillingPeriodService.closePeriod(januaryPeriod);
+
+    const februaryPeriod = await BillingPeriodService.openPeriod(
+      teamId,
+      new Date("2025-02-01T00:00:00.000Z"),
+    );
+    await BillingPeriodService.closePeriod(februaryPeriod);
 
     const summary = await getBillingReportingSummary(teamId);
 
     expect(summary.closedPeriods).toHaveLength(2);
     expect(summary.closedPeriods[0].billedAmount).toBe(30);
     expect(summary.closedPeriods[1].billedAmount).toBe(15);
+    expect(summary.closedPeriods[0].openingBalance).toBe(185);
+    expect(summary.closedPeriods[0].creditsAdded).toBe(0);
+    expect(summary.closedPeriods[1].openingBalance).toBe(0);
+    expect(summary.closedPeriods[1].creditsAdded).toBe(200);
   });
 });

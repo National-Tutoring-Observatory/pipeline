@@ -1,12 +1,12 @@
-import mongoose, { Types } from "mongoose";
+import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import makeDate from "../../../../test/helpers/makeDate";
-import { LlmCostService } from "../../llmCosts/llmCost";
 import { BillingPeriodService } from "../billingPeriod";
 import { BillingPlanService } from "../billingPlan";
+import applyBillingCredit from "../services/applyBillingCredit.server";
+import applyBillingDebit from "../services/applyBillingDebit.server";
 import { TeamBillingPlanService } from "../teamBillingPlan";
-import { TeamCreditService } from "../teamCredit";
 
 describe("BillingPeriodService", () => {
   beforeEach(async () => {
@@ -21,39 +21,38 @@ describe("BillingPeriodService", () => {
     const plan = await BillingPlanService.create({
       name: "Standard",
       markupRate,
-      isDefault: true,
+      isDefault: false,
     });
-    // Backdate to epoch so the plan is effective for any historical period
-    const TeamBillingPlanModel = mongoose.model("TeamBillingPlan");
-    await TeamBillingPlanModel.create({
-      team: new Types.ObjectId(teamId),
-      plan: plan._id,
-      effectiveFrom: new Date(0),
-    });
+    await TeamBillingPlanService.assignPlanAt(teamId, plan._id, new Date(0));
     return plan;
   }
 
   async function insertCredit(amount: number, createdAt: Date) {
-    const TeamCreditModel = mongoose.model("TeamCredit");
-    await TeamCreditModel.create({
-      team: new Types.ObjectId(teamId),
+    const idempotencyKey = `test-credit:${teamId}:${createdAt.toISOString()}:${amount}`;
+    await applyBillingCredit({
+      teamId,
       amount,
-      addedBy: new Types.ObjectId(userId),
+      addedBy: userId,
       createdAt,
+      source: "admin-credit",
+      sourceId: idempotencyKey,
+      idempotencyKey,
     });
   }
 
   async function insertCost(cost: number, createdAt: Date, forTeam = teamId) {
-    const LlmCostModel = mongoose.model("LlmCost");
-    await LlmCostModel.create({
-      team: new Types.ObjectId(forTeam),
+    const idempotencyKey = `test-debit:${forTeam}:${createdAt.toISOString()}:${cost}`;
+    await applyBillingDebit({
+      teamId: forTeam,
       model: "claude-opus",
       source: "annotation:per-session",
+      sourceId: idempotencyKey,
+      createdAt,
       inputTokens: 100,
       outputTokens: 50,
-      cost,
+      rawAmount: cost,
       providerCost: cost * 0.8,
-      createdAt,
+      idempotencyKey,
     });
   }
 
@@ -120,24 +119,31 @@ describe("BillingPeriodService", () => {
       await seedPlan(1.5);
       const period = await BillingPeriodService.openPeriod(teamId, new Date());
 
-      await TeamCreditService.create({
-        team: teamId,
+      await applyBillingCredit({
+        teamId,
         amount: 100,
         addedBy: userId,
+        source: "admin-credit",
+        sourceId: "test-locks-credit",
+        idempotencyKey: "test-locks-credit",
       });
-      await LlmCostService.create({
-        team: teamId,
+      await applyBillingDebit({
+        teamId,
         model: "claude-opus",
         source: "annotation:per-session",
+        sourceId: "test-locks-debit",
         inputTokens: 100,
         outputTokens: 50,
-        cost: 10,
+        rawAmount: 10,
         providerCost: 8,
+        idempotencyKey: "test-locks-debit",
       });
 
       const closed = await BillingPeriodService.closePeriod(period);
 
       expect(closed.status).toBe("closed");
+      expect(closed.openingBalance).toBe(0);
+      expect(closed.creditsAdded).toBe(100);
       expect(closed.rawCost).toBe(10);
       expect(closed.billedAmount).toBe(15);
       expect(closed.closingBalance).toBe(85);
@@ -148,19 +154,26 @@ describe("BillingPeriodService", () => {
       await seedPlan(1.5);
       const period = await BillingPeriodService.openPeriod(teamId, new Date());
 
-      await TeamCreditService.create({
-        team: teamId,
+      await applyBillingCredit({
+        teamId,
         amount: 50,
         addedBy: userId,
+        source: "admin-credit",
+        sourceId: "test-no-cost-1",
+        idempotencyKey: "test-no-cost-1",
       });
-      await TeamCreditService.create({
-        team: teamId,
+      await applyBillingCredit({
+        teamId,
         amount: 30,
         addedBy: userId,
+        source: "admin-credit",
+        sourceId: "test-no-cost-2",
+        idempotencyKey: "test-no-cost-2",
       });
 
       const closed = await BillingPeriodService.closePeriod(period);
 
+      expect(closed.creditsAdded).toBe(80);
       expect(closed.rawCost).toBe(0);
       expect(closed.billedAmount).toBe(0);
       expect(closed.closingBalance).toBe(80);
@@ -177,10 +190,13 @@ describe("BillingPeriodService", () => {
       // In-window credit (Jan 15) — included
       await insertCredit(50, makeDate(2025, 1, 15));
       // Post-endAt credit (March, created with default Date.now()) — excluded
-      await TeamCreditService.create({
-        team: teamId,
+      await applyBillingCredit({
+        teamId,
         amount: 200,
         addedBy: userId,
+        source: "admin-credit",
+        sourceId: "test-after-end",
+        idempotencyKey: "test-after-end",
       });
 
       const closed = await BillingPeriodService.closePeriod(period);
@@ -242,14 +258,16 @@ describe("BillingPeriodService", () => {
       });
       await TeamBillingPlanService.assignPlan(teamId, plan2._id);
 
-      await LlmCostService.create({
-        team: teamId,
+      await applyBillingDebit({
+        teamId,
         model: "claude-opus",
         source: "annotation:per-session",
+        sourceId: "test-locked-markup",
         inputTokens: 100,
         outputTokens: 50,
-        cost: 10,
+        rawAmount: 10,
         providerCost: 8,
+        idempotencyKey: "test-locked-markup",
       });
 
       const closed = await BillingPeriodService.closePeriod(period);
@@ -339,19 +357,24 @@ describe("BillingPeriodService", () => {
       await seedPlan(1.5);
       const period = await BillingPeriodService.openPeriod(teamId, new Date());
 
-      await TeamCreditService.create({
-        team: teamId,
+      await applyBillingCredit({
+        teamId,
         amount: 100,
         addedBy: userId,
+        source: "admin-credit",
+        sourceId: "test-other-team-credit",
+        idempotencyKey: "test-other-team-credit",
       });
-      await LlmCostService.create({
-        team: otherTeamId,
+      await applyBillingDebit({
+        teamId: otherTeamId,
         model: "claude-opus",
         source: "annotation:per-session",
+        sourceId: "test-other-team-debit",
         inputTokens: 100,
         outputTokens: 50,
-        cost: 999,
+        rawAmount: 999,
         providerCost: 800,
+        idempotencyKey: "test-other-team-debit",
       });
 
       const closed = await BillingPeriodService.closePeriod(period);

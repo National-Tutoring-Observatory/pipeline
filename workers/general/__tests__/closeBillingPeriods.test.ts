@@ -1,4 +1,4 @@
-import mongoose, { Types } from "mongoose";
+import { Types } from "mongoose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BillingPeriodService } from "~/modules/billing/billingPeriod";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
@@ -33,12 +33,7 @@ describe("closeBillingPeriods worker", () => {
       markupRate,
       isDefault,
     });
-    const TeamBillingPlanModel = mongoose.model("TeamBillingPlan");
-    await TeamBillingPlanModel.create({
-      team: new Types.ObjectId(team),
-      plan: plan._id,
-      effectiveFrom: new Date(0),
-    });
+    await TeamBillingPlanService.assignPlanAt(team, plan._id, new Date(0));
     return plan;
   }
 
@@ -107,18 +102,13 @@ describe("closeBillingPeriods worker", () => {
     await seedPlan(teamId);
 
     // Open current month manually before the job runs
-    await BillingPeriodService.openPeriod(teamId, new Date());
+    const existing = await BillingPeriodService.openPeriod(teamId, new Date());
 
     const result = await closeBillingPeriods({ data: {} } as any);
     expect(result.status).toBe("OK");
 
-    // Should not throw or create a duplicate
-    const BillingPeriodModel = mongoose.model("BillingPeriod");
-    const count = await BillingPeriodModel.countDocuments({
-      team: new Types.ObjectId(teamId),
-      status: "open",
-    });
-    expect(count).toBe(1);
+    const current = await BillingPeriodService.getCurrentPeriod(teamId);
+    expect(current?._id).toBe(existing._id);
   });
 
   it("is idempotent: running twice produces the same state", async () => {
@@ -161,19 +151,7 @@ describe("closeBillingPeriods worker", () => {
     const p2 = await BillingPeriodService.openPeriod(teamId, makeDate(2025, 2));
     await BillingPeriodService.closePeriod(p2);
 
-    // Manually create a stale open period bypassing service validation
-    const BillingPeriodModel = mongoose.model("BillingPeriod");
-    const plan = await mongoose
-      .model("BillingPlan")
-      .findOne({ name: "Standard" });
-    await BillingPeriodModel.create({
-      team: new Types.ObjectId(teamId),
-      plan: plan!._id,
-      markupRate: 1.5,
-      startAt: makeDate(2025, 3),
-      endAt: makeDate(2025, 4),
-      status: "open",
-    });
+    await BillingPeriodService.openPeriod(teamId, makeDate(2025, 3));
 
     const result = await closeBillingPeriods({ data: {} } as any);
     expect(result.stats.closed).toBe(1);
