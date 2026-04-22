@@ -1,28 +1,24 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import useEstimateCost from "~/modules/billing/hooks/useEstimateCost";
 import { getDefaultModelCode } from "~/modules/llm/modelRegistry";
 import type { CreateRun, Run } from "~/modules/runs/runs.types";
-import { calculateEstimates } from "~/modules/runSets/helpers/calculateEstimates";
 import type { SessionData } from "~/modules/sessions/sessions.types";
 import RunCreator from "../components/runCreator";
 
 interface RunCreatorContainerProps {
+  projectId: string;
   onStartRunClicked: (createRun: CreateRun) => void;
   isSubmitting: boolean;
   initialRun?: Run | null;
   duplicateWarnings?: string[];
-  avgSecondsPerSession: number | null;
-  outputToInputRatio: number | null;
-  balance: number;
 }
 
 export default function ProjectRunCreatorContainer({
+  projectId,
   onStartRunClicked,
   isSubmitting,
   initialRun,
   duplicateWarnings = [],
-  avgSecondsPerSession,
-  outputToInputRatio,
-  balance,
 }: RunCreatorContainerProps) {
   const [runName, setRunName] = useState(
     initialRun ? `${initialRun.name} (copy)` : "",
@@ -36,9 +32,6 @@ export default function ProjectRunCreatorContainer({
   const [selectedPromptVersion, setSelectedPromptVersion] = useState<
     number | null
   >(initialRun?.promptVersion || null);
-  const [selectedPromptInputTokens, setSelectedPromptInputTokens] = useState<
-    number | undefined
-  >(undefined);
   const [selectedModel, setSelectedModel] = useState(
     initialRun?.snapshot?.model?.code || getDefaultModelCode(),
   );
@@ -56,15 +49,10 @@ export default function ProjectRunCreatorContainer({
 
   const onSelectedPromptChanged = (selectedPrompt: string) => {
     setSelectedPrompt(selectedPrompt);
-    setSelectedPromptInputTokens(undefined);
   };
 
-  const onSelectedPromptVersionChanged = (
-    selectedPromptVersion: number,
-    inputTokens?: number,
-  ) => {
+  const onSelectedPromptVersionChanged = (selectedPromptVersion: number) => {
     setSelectedPromptVersion(selectedPromptVersion);
-    setSelectedPromptInputTokens(inputTokens);
   };
 
   const onSelectedModelChanged = (selectedModel: string) => {
@@ -77,31 +65,25 @@ export default function ProjectRunCreatorContainer({
     setSelectedSessions(sessions);
   };
 
-  const estimation = useMemo(
-    () =>
-      calculateEstimates(
-        [
-          {
-            modelCode: selectedModel,
-            prompt: { inputTokens: selectedPromptInputTokens },
-          },
-        ],
-        selectedSessions,
-        {
-          shouldRunVerification,
-          avgSecondsPerSession,
-          outputToInputRatio,
-        },
-      ),
-    [
-      selectedModel,
-      selectedSessions,
-      shouldRunVerification,
-      avgSecondsPerSession,
-      outputToInputRatio,
-      selectedPromptInputTokens,
-    ],
-  );
+  const { estimation, balance, isEstimating } = useEstimateCost({
+    projectId,
+    definitions:
+      selectedPrompt && selectedPromptVersion
+        ? [
+            {
+              key: `${selectedPrompt}:${selectedPromptVersion}:${selectedModel}`,
+              modelCode: selectedModel,
+              prompt: {
+                promptId: selectedPrompt,
+                promptName: "",
+                version: selectedPromptVersion,
+              },
+            },
+          ]
+        : [],
+    sessionIds: selectedSessions.map((s) => s._id),
+    shouldRunVerification,
+  });
 
   const exceedsBalance = estimation.estimatedCost > balance;
 
@@ -123,7 +105,9 @@ export default function ProjectRunCreatorContainer({
       selectedPrompt &&
       selectedPromptVersion &&
       selectedSessionIds.length > 0
-    ) || exceedsBalance;
+    ) ||
+    exceedsBalance ||
+    isEstimating;
 
   return (
     <RunCreator

@@ -14,7 +14,7 @@ function selectTier(
   return null;
 }
 
-export default function calculateCost({
+export default function calculateLlmCost({
   modelCode,
   inputTokens,
   outputTokens,

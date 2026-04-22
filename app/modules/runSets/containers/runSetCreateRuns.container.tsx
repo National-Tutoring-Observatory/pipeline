@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import useEstimateCost from "~/modules/billing/hooks/useEstimateCost";
 import RunSetCreateRunsFooter from "../components/runSetCreateRunsFooter";
 import RunSetCreateRunsInfo from "../components/runSetCreateRunsInfo";
 import RunSetCreatorFormAlerts from "../components/runSetCreatorFormAlerts";
@@ -7,7 +8,6 @@ import RunSetCreatorPrompts from "../components/runSetCreatorPrompts";
 import RunSetCreatorVerificationToggle from "../components/runSetCreatorVerificationToggle";
 import RunSetRunPreview from "../components/runSetRunPreview";
 import buildDefinitionsFromSelection from "../helpers/buildDefinitionsFromSelection";
-import { calculateEstimates } from "../helpers/calculateEstimates";
 import {
   buildUsedPromptModelSet,
   type PromptModelPair,
@@ -15,12 +15,9 @@ import {
 import type { PromptReference, RunSet } from "../runSets.types";
 
 interface RunSetCreateRunsContainerProps {
+  projectId: string;
   runSet: RunSet;
   usedPromptModels: PromptModelPair[];
-  avgSecondsPerSession: number | null;
-  outputToInputRatio: number | null;
-  sessions: Array<{ inputTokens?: number }>;
-  balance: number;
   onSubmit: (requestBody: string) => void;
   onCancel: () => void;
   isLoading: boolean;
@@ -28,12 +25,9 @@ interface RunSetCreateRunsContainerProps {
 }
 
 export default function RunSetCreateRunsContainer({
+  projectId,
   runSet,
   usedPromptModels,
-  avgSecondsPerSession,
-  outputToInputRatio,
-  sessions,
-  balance,
   onSubmit,
   onCancel,
   isLoading,
@@ -60,10 +54,11 @@ export default function RunSetCreateRunsContainer({
     usedKeys.has(d.key),
   );
 
-  const estimation = calculateEstimates(runDefinitions, sessions, {
+  const { estimation, balance, isEstimating } = useEstimateCost({
+    projectId,
+    definitions: runDefinitions,
+    sessionIds: runSet.sessions ?? [],
     shouldRunVerification,
-    avgSecondsPerSession,
-    outputToInputRatio,
   });
 
   const exceedsBalance = estimation.estimatedCost > balance;
@@ -95,7 +90,8 @@ export default function RunSetCreateRunsContainer({
     selectedPrompts.length === 0 ||
     selectedModels.length === 0 ||
     runDefinitions.length === 0 ||
-    exceedsBalance;
+    exceedsBalance ||
+    isEstimating;
 
   const handleCreateRuns = () => {
     const requestBody = JSON.stringify({

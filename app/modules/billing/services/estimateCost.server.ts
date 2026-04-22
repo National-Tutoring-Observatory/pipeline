@@ -1,15 +1,16 @@
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
-import { calculateEstimates } from "~/modules/runSets/helpers/calculateEstimates";
+import { calculateEstimate } from "~/modules/runSets/helpers/calculateEstimate";
+import type {
+  EstimationResult,
+  RunDefinition,
+} from "~/modules/runSets/runSets.types";
+import { RunService } from "~/modules/runs/run";
 import { SessionService } from "~/modules/sessions/session";
 import { TeamBillingService } from "../teamBilling";
-
-interface CostDefinition {
-  modelCode: string;
-  prompt: { promptId: string; version: number };
-}
+import { TeamBillingPlanService } from "../teamBillingPlan";
 
 async function fetchPromptTokens(
-  definitions: CostDefinition[],
+  definitions: RunDefinition[],
 ): Promise<Map<string, number | undefined>> {
   const unique = new Map<string, { promptId: string; version: number }>();
   for (const def of definitions) {
@@ -39,39 +40,61 @@ async function fetchPromptTokens(
   return result;
 }
 
-export async function estimateServerSideCost({
+export default async function estimateCost({
   teamId,
+  projectId,
   sessionIds,
   definitions,
   shouldRunVerification,
 }: {
   teamId: string;
+  projectId: string;
   sessionIds: string[];
-  definitions: CostDefinition[];
+  definitions: RunDefinition[];
   shouldRunVerification: boolean;
-}): Promise<number> {
-  const [sessions, outputToInputRatio, promptTokens] = await Promise.all([
+}): Promise<EstimationResult> {
+  const [
+    sessions,
+    outputToInputRatio,
+    promptTokens,
+    plan,
+    avgSecondsPerSession,
+  ] = await Promise.all([
     SessionService.find({
-      match: { _id: { $in: sessionIds } },
+      match: { _id: { $in: sessionIds }, project: projectId },
       select: "_id inputTokens",
     }),
     TeamBillingService.getOutputToInputRatio(teamId),
     fetchPromptTokens(definitions),
+    TeamBillingPlanService.getEffectivePlan(teamId),
+    RunService.getAverageSecondsPerSession(projectId),
   ]);
+
+  if (!plan) {
+    throw new Error(`No billing plan found for team ${teamId}`);
+  }
 
   const runDefinitions = definitions.map((def) => ({
     modelCode: def.modelCode,
     prompt: {
-      inputTokens: promptTokens.get(
-        `${def.prompt.promptId}:${def.prompt.version}`,
-      ),
+      inputTokens:
+        def.prompt.inputTokens ??
+        promptTokens.get(`${def.prompt.promptId}:${def.prompt.version}`),
     },
   }));
 
-  const { estimatedCost } = calculateEstimates(runDefinitions, sessions, {
-    shouldRunVerification,
-    outputToInputRatio,
-  });
+  const { estimatedCost, estimatedTimeSeconds } = calculateEstimate(
+    runDefinitions,
+    sessions,
+    {
+      shouldRunVerification,
+      outputToInputRatio,
+      avgSecondsPerSession,
+    },
+  );
 
-  return estimatedCost;
+  return {
+    estimatedCost: estimatedCost * plan.markupRate,
+    estimatedTimeSeconds,
+  };
 }

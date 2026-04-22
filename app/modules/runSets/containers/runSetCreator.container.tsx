@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import useEstimateCost from "~/modules/billing/hooks/useEstimateCost";
 import type { SessionData } from "~/modules/sessions/sessions.types";
 import RunSetCreatorAnnotationType from "../components/runSetCreatorAnnotationType";
 import RunSetCreatorFooter from "../components/runSetCreatorFooter";
@@ -10,7 +11,6 @@ import RunSetCreatorSessions from "../components/runSetCreatorSessions";
 import RunSetCreatorVerificationToggle from "../components/runSetCreatorVerificationToggle";
 import RunSetRunPreview from "../components/runSetRunPreview";
 import buildDefinitionsFromSelection from "../helpers/buildDefinitionsFromSelection";
-import { calculateEstimates } from "../helpers/calculateEstimates";
 import type { PrefillData, PromptReference } from "../runSets.types";
 
 function getDefaultName(prefillData?: PrefillData | null): string {
@@ -25,18 +25,14 @@ function getDefaultName(prefillData?: PrefillData | null): string {
 }
 
 export default function RunSetCreatorContainer({
+  projectId,
   prefillData,
-  avgSecondsPerSession,
-  outputToInputRatio,
-  balance,
   onSubmit,
   isLoading,
   errors,
 }: {
+  projectId: string;
   prefillData?: PrefillData | null;
-  avgSecondsPerSession: number | null;
-  outputToInputRatio: number | null;
-  balance: number;
   onSubmit: (requestBody: string) => void;
   isLoading: boolean;
   errors: Record<string, string>;
@@ -67,10 +63,11 @@ export default function RunSetCreatorContainer({
     removedKeys.has(d.key),
   );
 
-  const estimation = calculateEstimates(runDefinitions, selectedSessions, {
+  const { estimation, balance, isEstimating } = useEstimateCost({
+    projectId,
+    definitions: runDefinitions,
+    sessionIds: selectedSessions.map((s) => s._id),
     shouldRunVerification,
-    avgSecondsPerSession,
-    outputToInputRatio,
   });
 
   const exceedsBalance = estimation.estimatedCost > balance;
@@ -169,7 +166,7 @@ export default function RunSetCreatorContainer({
         estimation={estimation}
         balance={balance}
         exceedsBalance={exceedsBalance}
-        isLoading={isLoading}
+        isLoading={isLoading || isEstimating}
         onCreateClicked={handleSubmit}
       />
     </div>
