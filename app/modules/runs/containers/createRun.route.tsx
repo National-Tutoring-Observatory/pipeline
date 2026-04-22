@@ -12,10 +12,9 @@ import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.serve
 import useSubmitGuard from "~/modules/app/hooks/useSubmitGuard";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
-import { estimateServerSideCost } from "~/modules/billing/helpers/estimateServerSideCost.server";
+import { estimateServerSideCost } from "~/modules/billing/services/estimateServerSideCost.server";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { findModelByCode } from "~/modules/llm/modelRegistry";
-import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
@@ -57,7 +56,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const [avgSecondsPerSession, outputToInputRatio, balance] = await Promise.all(
     [
       RunService.getAverageSecondsPerSession(params.projectId),
-      LlmCostService.getOutputToInputRatio(teamId),
+      TeamBillingService.getOutputToInputRatio(teamId),
       TeamBillingService.getBalance(teamId),
     ],
   );

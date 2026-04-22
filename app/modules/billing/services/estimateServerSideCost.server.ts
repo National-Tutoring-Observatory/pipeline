@@ -1,7 +1,7 @@
-import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import { PromptVersionService } from "~/modules/prompts/promptVersion";
 import { calculateEstimates } from "~/modules/runSets/helpers/calculateEstimates";
 import { SessionService } from "~/modules/sessions/session";
+import { TeamBillingService } from "../teamBilling";
 
 interface CostDefinition {
   modelCode: string;
@@ -55,7 +55,7 @@ export async function estimateServerSideCost({
       match: { _id: { $in: sessionIds } },
       select: "_id inputTokens",
     }),
-    LlmCostService.getOutputToInputRatio(teamId),
+    TeamBillingService.getOutputToInputRatio(teamId),
     fetchPromptTokens(definitions),
   ]);
 

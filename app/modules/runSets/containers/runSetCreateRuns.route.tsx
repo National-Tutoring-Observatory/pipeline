@@ -11,9 +11,8 @@ import { toast } from "sonner";
 import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.server";
 import Breadcrumbs from "~/modules/app/components/breadcrumbs";
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
-import { estimateServerSideCost } from "~/modules/billing/helpers/estimateServerSideCost.server";
+import { estimateServerSideCost } from "~/modules/billing/services/estimateServerSideCost.server";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
-import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import ProjectAuthorization from "~/modules/projects/authorization";
 import { ProjectService } from "~/modules/projects/project";
 import createGeneralJob from "~/modules/queues/helpers/createGeneralJob";
@@ -55,7 +54,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const [avgSecondsPerSession, outputToInputRatio, sessions, balance] =
     await Promise.all([
       RunService.getAverageSecondsPerSession(params.projectId),
-      LlmCostService.getOutputToInputRatio(project.team as string),
+      TeamBillingService.getOutputToInputRatio(project.team as string),
       runSet.sessions?.length
         ? SessionService.find({
             match: { _id: { $in: runSet.sessions } },

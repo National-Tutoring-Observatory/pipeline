@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import type { BalanceSummary } from "./billing.types";
 import { BillingLedgerEntryService } from "./billingLedgerEntry";
 import { BillingPlanService } from "./billingPlan";
@@ -14,6 +15,31 @@ import { TeamBillingBalanceService } from "./teamBillingBalance";
 import { TeamBillingPlanService } from "./teamBillingPlan";
 
 export class TeamBillingService {
+  static async getOutputToInputRatio(teamId: string): Promise<number | null> {
+    const [result] = await BillingLedgerEntryService.aggregate([
+      {
+        $match: {
+          team: new mongoose.Types.ObjectId(teamId),
+          direction: "debit",
+          source: { $regex: "^annotation:" },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalInput: { $sum: "$inputTokens" },
+          totalOutput: { $sum: "$outputTokens" },
+        },
+      },
+    ]);
+
+    if (!result || result.totalInput === 0) {
+      return null;
+    }
+
+    return result.totalOutput / result.totalInput;
+  }
+
   static async getBalanceSummary(
     teamId: string,
   ): Promise<BalanceSummary | null> {
