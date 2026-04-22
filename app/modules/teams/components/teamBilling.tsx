@@ -13,7 +13,7 @@ import type {
   CostByModel,
   CostOverTime,
   SpendGranularity,
-} from "~/modules/llmCosts/llmCosts.types";
+} from "~/modules/billing/billingAnalytics.types";
 import type { Team } from "~/modules/teams/teams.types";
 import type { User } from "~/modules/users/users.types";
 import BillingOverview from "./billingOverview";

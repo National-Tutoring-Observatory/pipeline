@@ -24,7 +24,7 @@ import type {
   CostByModel,
   CostOverTime,
   SpendGranularity,
-} from "~/modules/llmCosts/llmCosts.types";
+} from "~/modules/billing/billingAnalytics.types";
 
 interface SpendAnalyticsProps {
   byModel: Array<CostByModel & { modelName: string }>;

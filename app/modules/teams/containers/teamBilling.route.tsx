@@ -14,6 +14,7 @@ import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromR
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import BillingAuthorization from "~/modules/billing/authorization";
+import type { SpendGranularity } from "~/modules/billing/billingAnalytics.types";
 import { BillingLedgerEntryService } from "~/modules/billing/billingLedgerEntry";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
 import AddCreditsDialog from "~/modules/billing/components/addCreditsDialog";
@@ -29,7 +30,6 @@ import { StripeService } from "~/modules/billing/stripe";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import addDialog, { closeDialog } from "~/modules/dialogs/addDialog";
 import { findModelByCode } from "~/modules/llm/modelRegistry";
-import type { SpendGranularity } from "~/modules/llmCosts/llmCosts.types";
 import { UserService } from "~/modules/users/user";
 import TeamAuthorization from "../authorization";
 import TeamBilling from "../components/teamBilling";
