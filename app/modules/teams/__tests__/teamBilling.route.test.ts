@@ -1,11 +1,19 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TeamService } from "~/modules/teams/team";
 import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import loginUser from "../../../../test/helpers/loginUser";
 import { BillingPlanService } from "../../billing/billingPlan";
+import { StripeService } from "../../billing/stripe";
 import { TeamBillingPlanService } from "../../billing/teamBillingPlan";
 import { action } from "../containers/teamBilling.route";
+
+vi.mock("../../billing/stripe", () => ({
+  StripeService: {
+    ensureCustomer: vi.fn(),
+    createCheckoutSession: vi.fn(),
+  },
+}));
 
 function buildActionRequest(
   cookieHeader: string,
@@ -28,6 +36,7 @@ function buildActionRequest(
 describe("teamBilling.route action", () => {
   beforeEach(async () => {
     await clearDocumentDB();
+    vi.clearAllMocks();
   });
 
   describe("SET_BILLING_USER", () => {
@@ -350,7 +359,10 @@ describe("teamBilling.route action", () => {
   });
 
   describe("INITIATE_TOPUP", () => {
-    it("allows billing user to initiate top up", async () => {
+    it("returns an error when billing is disabled", async () => {
+      const original = process.env.BILLING_ENABLED;
+      delete process.env.BILLING_ENABLED;
+
       const team = await TeamService.create({ name: "Test Team" });
       const billingUser = await UserService.create({
         username: "billing",
@@ -368,9 +380,63 @@ describe("teamBilling.route action", () => {
       );
 
       expect(result.data.errors.general).toContain("Billing is not enabled");
+
+      process.env.BILLING_ENABLED = original;
+    });
+
+    it("allows billing user to initiate top up", async () => {
+      const original = process.env.BILLING_ENABLED;
+      process.env.BILLING_ENABLED = "true";
+
+      vi.mocked(StripeService.ensureCustomer).mockResolvedValue("cus_test_123");
+      vi.mocked(StripeService.createCheckoutSession).mockResolvedValue({
+        url: "https://checkout.stripe.com/test-session",
+      } as any);
+
+      const team = await TeamService.create({ name: "Test Team" });
+      const billingUser = await UserService.create({
+        username: "billing",
+        role: "USER",
+        teams: [{ team: team._id, role: "MEMBER" }],
+      });
+      await TeamService.updateById(team._id, { billingUser: billingUser._id });
+      const cookie = await loginUser(billingUser._id);
+
+      const result: any = await action(
+        buildActionRequest(cookie, team._id, {
+          intent: "INITIATE_TOPUP",
+          payload: { amount: 50 },
+        }),
+      );
+
+      expect(result.data.success).toBe(true);
+      expect(result.data.intent).toBe("INITIATE_TOPUP");
+      expect(result.data.checkoutUrl).toBe(
+        "https://checkout.stripe.com/test-session",
+      );
+      expect(StripeService.ensureCustomer).toHaveBeenCalledWith(
+        expect.objectContaining({ _id: team._id }),
+      );
+      expect(StripeService.createCheckoutSession).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customerId: "cus_test_123",
+          amount: 50,
+          metadata: { teamId: team._id, userId: billingUser._id.toString() },
+        }),
+      );
+
+      process.env.BILLING_ENABLED = original;
     });
 
     it("allows team admins to initiate top up", async () => {
+      const original = process.env.BILLING_ENABLED;
+      process.env.BILLING_ENABLED = "true";
+
+      vi.mocked(StripeService.ensureCustomer).mockResolvedValue("cus_test_456");
+      vi.mocked(StripeService.createCheckoutSession).mockResolvedValue({
+        url: "https://checkout.stripe.com/admin-session",
+      } as any);
+
       const team = await TeamService.create({ name: "Test Team" });
       const admin = await UserService.create({
         username: "teamadmin",
@@ -386,7 +452,23 @@ describe("teamBilling.route action", () => {
         }),
       );
 
-      expect(result.data.errors.general).toContain("Billing is not enabled");
+      expect(result.data.success).toBe(true);
+      expect(result.data.intent).toBe("INITIATE_TOPUP");
+      expect(result.data.checkoutUrl).toBe(
+        "https://checkout.stripe.com/admin-session",
+      );
+      expect(StripeService.ensureCustomer).toHaveBeenCalledWith(
+        expect.objectContaining({ _id: team._id }),
+      );
+      expect(StripeService.createCheckoutSession).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customerId: "cus_test_456",
+          amount: 50,
+          metadata: { teamId: team._id, userId: admin._id.toString() },
+        }),
+      );
+
+      process.env.BILLING_ENABLED = original;
     });
 
     it("denies regular members from initiating top up", async () => {
