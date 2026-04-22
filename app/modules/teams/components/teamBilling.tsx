@@ -5,7 +5,7 @@ import { AuthenticationContext } from "~/modules/authentication/authentication.c
 import BillingAuthorization from "~/modules/billing/authorization";
 import type {
   BalanceSummary,
-  BillingPeriod,
+  BillingPeriodReport,
   PendingPlanChange,
   TeamCredit,
 } from "~/modules/billing/billing.types";
@@ -42,7 +42,7 @@ interface SpendAnalyticsData {
 interface TeamBillingProps {
   balanceSummary: BalanceSummary | null;
   pendingPlanChange: PendingPlanChange | null;
-  closedPeriods: BillingPeriod[];
+  closedPeriods: BillingPeriodReport[];
   team: Team;
   credits: PaginatedCredits;
   billingUserInfo: BillingUserInfo | null;

@@ -14,7 +14,6 @@ import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromR
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import BillingAuthorization from "~/modules/billing/authorization";
-import { BillingPeriodService } from "~/modules/billing/billingPeriod";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
 import AddCreditsDialog from "~/modules/billing/components/addCreditsDialog";
 import AssignBillingPlanDialog from "~/modules/billing/components/assignBillingPlanDialog";
@@ -24,8 +23,8 @@ import applyMarkup from "~/modules/billing/helpers/applyMarkup";
 import isBillingEnabled from "~/modules/billing/helpers/isBillingEnabled.server";
 import { groupCostsBySource } from "~/modules/billing/helpers/sourceLabels";
 import addCredits from "~/modules/billing/services/addCredits.server";
+import getBillingReportingSummary from "~/modules/billing/services/getBillingReportingSummary.server";
 import { StripeService } from "~/modules/billing/stripe";
-import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import { TeamCreditService } from "~/modules/billing/teamCredit";
 import addDialog, { closeDialog } from "~/modules/dialogs/addDialog";
@@ -73,14 +72,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const isSuperAdmin = BillingAuthorization.canAssignPlan(user);
 
   const [
-    balanceSummary,
+    billingReportingSummary,
     credits,
     billingUserInfo,
     billingPlans,
     pendingPlanChange,
-    closedPeriods,
   ] = await Promise.all([
-    TeamBillingService.getBalanceSummary(params.id),
+    getBillingReportingSummary(params.id),
     TeamCreditService.paginate(creditsQuery),
     team.billingUser
       ? UserService.findById(team.billingUser).then((u) =>
@@ -89,8 +87,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       : Promise.resolve(null),
     isSuperAdmin ? BillingPlanService.find() : Promise.resolve([]),
     TeamBillingPlanService.getPendingPlanChange(params.id),
-    BillingPeriodService.findClosedByTeam(params.id),
   ]);
+
+  const { balanceSummary, closedPeriods } = billingReportingSummary;
 
   const emptySpendAnalytics = {
     byModel: [],
