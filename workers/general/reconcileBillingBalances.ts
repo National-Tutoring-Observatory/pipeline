@@ -3,24 +3,7 @@ import { BillingLedgerEntryService } from "~/modules/billing/billingLedgerEntry"
 import reconcileTeamBillingBalance from "~/modules/billing/services/reconcileTeamBillingBalance.server";
 import { TeamBillingBalanceService } from "~/modules/billing/teamBillingBalance";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
-
-const CONCURRENCY = 10;
-
-async function mapWithConcurrency<T, R>(
-  items: T[],
-  fn: (item: T) => Promise<R>,
-): Promise<R[]> {
-  const results: R[] = [];
-
-  for (let index = 0; index < items.length; index += CONCURRENCY) {
-    const batch = await Promise.all(
-      items.slice(index, index + CONCURRENCY).map(fn),
-    );
-    results.push(...batch);
-  }
-
-  return results;
-}
+import mapWithConcurrency from "../helpers/mapWithConcurrency";
 
 export default async function reconcileBillingBalances(_job: Job) {
   const [teamsWithPlan, ledgerTeamIds, balanceTeamIds] = await Promise.all([

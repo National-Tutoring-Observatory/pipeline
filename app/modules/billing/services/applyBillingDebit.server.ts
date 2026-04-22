@@ -1,13 +1,8 @@
 import Decimal from "decimal.js";
-import mongoose from "mongoose";
-import billingLedgerEntrySchema from "~/lib/schemas/billingLedgerEntry.schema";
 import withTransaction from "~/lib/withTransaction";
+import { BillingLedgerEntryModel } from "../billingLedgerEntry";
 import { TeamBillingBalanceService } from "../teamBillingBalance";
 import { TeamBillingPlanService } from "../teamBillingPlan";
-
-const BillingLedgerEntryModel =
-  mongoose.models.BillingLedgerEntry ||
-  mongoose.model("BillingLedgerEntry", billingLedgerEntrySchema);
 
 interface ApplyBillingDebitInput {
   teamId: string;
