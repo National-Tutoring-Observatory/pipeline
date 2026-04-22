@@ -6,7 +6,6 @@ import { UserService } from "~/modules/users/user";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import { action } from "../containers/stripeWebhook.route";
 import { StripeService } from "../stripe";
-import { TeamCreditService } from "../teamCredit";
 
 vi.mock("~/modules/billing/stripe", () => ({
   StripeService: {
@@ -47,7 +46,7 @@ describe("stripeWebhook.route action", () => {
     expect((result.data as any).error).toBe("Invalid signature");
   });
 
-  it("creates a TeamCredit on checkout.session.completed", async () => {
+  it("creates a ledger credit on checkout.session.completed", async () => {
     const team = await TeamService.create({ name: "Test Team" });
     const user = await UserService.create({
       username: "user",
@@ -70,22 +69,22 @@ describe("stripeWebhook.route action", () => {
     const result = await action(buildRequest("{}", "valid-sig"));
     expect(result.data).toEqual({ received: true });
 
-    const credits = await TeamCreditService.findByTeam(team._id);
-    expect(credits).toHaveLength(1);
-    expect(credits[0].amount).toBe(25);
-    expect(credits[0].note).toBe("Purchased via Stripe");
-    expect(credits[0].addedBy).toBe(user._id.toString());
-    expect(credits[0].stripeSessionId).toBe("cs_test_123");
-
     const ledger = await BillingLedgerEntryService.findByTeam(team._id);
     expect(ledger).toHaveLength(1);
     expect(ledger[0].idempotencyKey).toBe("stripe-checkout:cs_test_123");
+    expect(ledger[0].amount).toBe(25);
+    expect(ledger[0].source).toBe("stripe-topup");
+    expect(ledger[0].metadata).toMatchObject({
+      addedBy: user._id.toString(),
+      note: "Purchased via Stripe",
+      stripeSessionId: "cs_test_123",
+    });
 
     const balance = await TeamBillingBalanceService.findByTeam(team._id);
     expect(balance?.availableBalance).toBe(25);
   });
 
-  it("does not create a TeamCredit for other event types", async () => {
+  it("does not create a ledger credit for other event types", async () => {
     const team = await TeamService.create({ name: "Test Team" });
 
     vi.mocked(StripeService.constructWebhookEvent).mockReturnValue({
@@ -96,11 +95,11 @@ describe("stripeWebhook.route action", () => {
     const result = await action(buildRequest("{}", "valid-sig"));
     expect(result.data).toEqual({ received: true });
 
-    const credits = await TeamCreditService.findByTeam(team._id);
-    expect(credits).toHaveLength(0);
+    const ledger = await BillingLedgerEntryService.findByTeam(team._id);
+    expect(ledger).toHaveLength(0);
   });
 
-  it("does not create a TeamCredit when payment_status is not paid", async () => {
+  it("does not create a ledger credit when payment_status is not paid", async () => {
     const team = await TeamService.create({ name: "Test Team" });
     const user = await UserService.create({
       username: "user2",
@@ -122,8 +121,8 @@ describe("stripeWebhook.route action", () => {
 
     await action(buildRequest("{}", "valid-sig"));
 
-    const credits = await TeamCreditService.findByTeam(team._id);
-    expect(credits).toHaveLength(0);
+    const ledger = await BillingLedgerEntryService.findByTeam(team._id);
+    expect(ledger).toHaveLength(0);
   });
 
   it("does not create duplicate credits when webhook fires twice", async () => {
@@ -150,8 +149,8 @@ describe("stripeWebhook.route action", () => {
     await action(buildRequest("{}", "sig1"));
     await action(buildRequest("{}", "sig2"));
 
-    const credits = await TeamCreditService.findByTeam(team._id);
-    expect(credits).toHaveLength(1);
+    const ledger = await BillingLedgerEntryService.findByTeam(team._id);
+    expect(ledger).toHaveLength(1);
   });
 
   it("handles concurrent duplicate inserts via unique index (E11000)", async () => {
@@ -176,19 +175,22 @@ describe("stripeWebhook.route action", () => {
 
     vi.mocked(StripeService.constructWebhookEvent).mockReturnValue(event);
 
-    // Simulate the race: both requests pass the app-level check simultaneously
-    vi.spyOn(TeamCreditService, "findByStripeSession").mockResolvedValue(null);
+    // Simulate the race: both requests pass the app-level check simultaneously.
+    vi.spyOn(
+      BillingLedgerEntryService,
+      "findCreditByStripeSession",
+    ).mockResolvedValue(null);
 
     await Promise.all([
       action(buildRequest("{}", "sig1")),
       action(buildRequest("{}", "sig2")),
     ]);
 
-    const credits = await TeamCreditService.findByTeam(team._id);
-    expect(credits).toHaveLength(1);
+    const ledger = await BillingLedgerEntryService.findByTeam(team._id);
+    expect(ledger).toHaveLength(1);
   });
 
-  it("does not create a TeamCredit when metadata is incomplete", async () => {
+  it("does not create a ledger credit when metadata is incomplete", async () => {
     const team = await TeamService.create({ name: "Test Team" });
 
     vi.mocked(StripeService.constructWebhookEvent).mockReturnValue({
@@ -205,7 +207,7 @@ describe("stripeWebhook.route action", () => {
 
     await action(buildRequest("{}", "valid-sig"));
 
-    const credits = await TeamCreditService.findByTeam(team._id);
-    expect(credits).toHaveLength(0);
+    const ledger = await BillingLedgerEntryService.findByTeam(team._id);
+    expect(ledger).toHaveLength(0);
   });
 });

@@ -1,7 +1,7 @@
 import { data } from "react-router";
+import { BillingLedgerEntryService } from "../billingLedgerEntry";
 import { StripeService } from "../stripe";
 import { TeamBillingService } from "../teamBilling";
-import { TeamCreditService } from "../teamCredit";
 import type { Route } from "./+types/stripeWebhook.route";
 
 export async function action({ request }: Route.ActionArgs) {
@@ -30,9 +30,8 @@ export async function action({ request }: Route.ActionArgs) {
       typeof amountTotal === "number" &&
       session.payment_status === "paid"
     ) {
-      const alreadyProcessed = await TeamCreditService.findByStripeSession(
-        session.id,
-      );
+      const alreadyProcessed =
+        await BillingLedgerEntryService.findCreditByStripeSession(session.id);
       if (!alreadyProcessed) {
         try {
           await TeamBillingService.applyStripeTopUp({
