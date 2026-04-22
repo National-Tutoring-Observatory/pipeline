@@ -26,11 +26,14 @@ describe("reconcileTeamBillingBalance", () => {
     const balanceBeforeDrift =
       await TeamBillingBalanceService.findByTeam(teamId);
     expect(balanceBeforeDrift).not.toBeNull();
+    const lastLedgerEntryAt = balanceBeforeDrift?.lastLedgerEntryAt
+      ? new Date(balanceBeforeDrift.lastLedgerEntryAt)
+      : null;
 
     await TeamBillingBalanceService.reconcileToSnapshot({
       teamId,
       expectedBalance: 10,
-      lastLedgerEntryAt: balanceBeforeDrift!.lastLedgerEntryAt ?? null,
+      lastLedgerEntryAt,
       currentVersion: balanceBeforeDrift!.version,
     });
 

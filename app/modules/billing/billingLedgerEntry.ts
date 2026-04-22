@@ -69,13 +69,18 @@ export class BillingLedgerEntryService {
   }> {
     const pagination = getPaginationParams(page, pageSize);
 
-    const results = await this.find({
-      match,
-      sort,
-      pagination,
-    });
+    let query = BillingLedgerEntryModel.find(match)
+      .skip(pagination.skip)
+      .limit(pagination.limit);
 
-    const count = await this.count(match);
+    if (sort) {
+      query = query.sort(sort);
+    }
+
+    const [results, count] = await Promise.all([
+      query.then((docs) => docs.map((doc) => this.toBillingLedgerEntry(doc))),
+      this.count(match),
+    ]);
 
     return {
       data: results,
@@ -113,6 +118,42 @@ export class BillingLedgerEntryService {
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]);
     return result[0]?.total ?? 0;
+  }
+
+  static async sumLedgerTotalsByTeam(teamId: string): Promise<{
+    credits: number;
+    rawCosts: number;
+    billedCosts: number;
+  }> {
+    const result = await BillingLedgerEntryModel.aggregate([
+      { $match: { team: new mongoose.Types.ObjectId(teamId) } },
+      {
+        $group: {
+          _id: null,
+          credits: {
+            $sum: {
+              $cond: [{ $eq: ["$direction", "credit"] }, "$amount", 0],
+            },
+          },
+          rawCosts: {
+            $sum: {
+              $cond: [{ $eq: ["$direction", "debit"] }, "$rawAmount", 0],
+            },
+          },
+          billedCosts: {
+            $sum: {
+              $cond: [{ $eq: ["$direction", "debit"] }, "$amount", 0],
+            },
+          },
+        },
+      },
+    ]);
+
+    return {
+      credits: result[0]?.credits ?? 0,
+      rawCosts: result[0]?.rawCosts ?? 0,
+      billedCosts: result[0]?.billedCosts ?? 0,
+    };
   }
 
   static async getBalanceSnapshotByTeam(teamId: string): Promise<{
@@ -157,7 +198,7 @@ export class BillingLedgerEntryService {
   }
 
   static async aggregate<T = Record<string, unknown>>(
-    pipeline: Record<string, unknown>[],
+    pipeline: mongoose.PipelineStage[],
   ): Promise<T[]> {
     return BillingLedgerEntryModel.aggregate(pipeline) as Promise<T[]>;
   }
