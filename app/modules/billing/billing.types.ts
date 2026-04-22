@@ -78,3 +78,14 @@ export interface BalanceSummary {
   markedUpCosts: number;
   plan: BillingPlan;
 }
+
+export interface BillingPeriodReport {
+  _id: string;
+  team: string;
+  startAt: Date | string;
+  endAt: Date | string;
+  rawCost: number;
+  billedAmount: number;
+  closingBalance: number;
+  closedAt: Date | string;
+}
