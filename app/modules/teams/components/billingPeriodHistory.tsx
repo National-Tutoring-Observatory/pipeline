@@ -15,10 +15,10 @@ import {
 } from "@/components/ui/table";
 import getDateString from "~/modules/app/helpers/getDateString";
 import getMonthYearString from "~/modules/app/helpers/getMonthYearString";
-import type { BillingPeriod } from "~/modules/billing/billing.types";
+import type { BillingPeriodReport } from "~/modules/billing/billing.types";
 
 interface BillingPeriodHistoryProps {
-  periods: BillingPeriod[];
+  periods: BillingPeriodReport[];
 }
 
 export default function BillingPeriodHistory({
