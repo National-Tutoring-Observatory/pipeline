@@ -75,7 +75,7 @@ export default function useEstimateCost(
     if (!serialized) return;
     submitEstimate(serialized, fetcher.submit);
     return () => submitEstimate.cancel();
-  }, [serialized]);
+  }, [serialized, submitEstimate, fetcher.submit]);
 
   const estimation = useMemo(
     () =>

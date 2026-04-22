@@ -77,9 +77,9 @@ export default async function estimateCost({
   const runDefinitions = definitions.map((def) => ({
     modelCode: def.modelCode,
     prompt: {
-      inputTokens:
-        def.prompt.inputTokens ??
-        promptTokens.get(`${def.prompt.promptId}:${def.prompt.version}`),
+      inputTokens: promptTokens.get(
+        `${def.prompt.promptId}:${def.prompt.version}`,
+      ),
     },
   }));
 
