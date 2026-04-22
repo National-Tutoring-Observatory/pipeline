@@ -58,4 +58,32 @@ export class TeamBillingService {
       idempotencyKey: `initial-credit:${teamId}`,
     });
   }
+
+  static async applyStripeTopUp({
+    teamId,
+    userId,
+    amount,
+    stripeSessionId,
+    paymentStatus,
+  }: {
+    teamId: string;
+    userId: string;
+    amount: number;
+    stripeSessionId: string;
+    paymentStatus: string;
+  }): Promise<void> {
+    await applyBillingCredit({
+      teamId,
+      amount,
+      addedBy: userId,
+      note: "Purchased via Stripe",
+      stripeSessionId,
+      source: "stripe-topup",
+      sourceId: stripeSessionId,
+      idempotencyKey: `stripe-checkout:${stripeSessionId}`,
+      metadata: {
+        paymentStatus,
+      },
+    });
+  }
 }

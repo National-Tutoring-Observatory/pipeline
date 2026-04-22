@@ -18,6 +18,7 @@ interface ApplyBillingDebitInput {
   model: string;
   source: string;
   sourceId?: string;
+  createdAt?: Date;
   inputTokens: number;
   outputTokens: number;
   rawAmount: number;
@@ -31,6 +32,7 @@ export default async function applyBillingDebit({
   model,
   source,
   sourceId,
+  createdAt,
   inputTokens,
   outputTokens,
   rawAmount,
@@ -39,6 +41,7 @@ export default async function applyBillingDebit({
   metadata,
 }: ApplyBillingDebitInput): Promise<void> {
   await TeamBillingBalanceService.ensureInitialized(teamId);
+  const entryCreatedAt = createdAt ?? new Date();
 
   const plan = await TeamBillingPlanService.getEffectivePlan(teamId);
   const markupRateApplied = plan?.markupRate ?? 1;
@@ -58,10 +61,15 @@ export default async function applyBillingDebit({
             rawAmount,
             markupRateApplied,
             billedAmount,
+            model,
+            inputTokens,
+            outputTokens,
+            providerCost,
             source,
             sourceId,
             idempotencyKey,
             metadata,
+            createdAt: entryCreatedAt,
           },
         ],
         { session },
@@ -78,6 +86,7 @@ export default async function applyBillingDebit({
             outputTokens,
             cost: rawAmount,
             providerCost,
+            createdAt: entryCreatedAt,
           },
         ],
         { session },

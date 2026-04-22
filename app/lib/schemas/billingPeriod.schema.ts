@@ -7,6 +7,8 @@ const billingPeriodSchema = new mongoose.Schema({
   startAt: { type: Date, required: true },
   endAt: { type: Date, required: true },
   status: { type: String, enum: ["open", "closed"], default: "open" },
+  openingBalance: { type: Number },
+  creditsAdded: { type: Number },
   rawCost: { type: Number },
   billedAmount: { type: Number },
   closingBalance: { type: Number },

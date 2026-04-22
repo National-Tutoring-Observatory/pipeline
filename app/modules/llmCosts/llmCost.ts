@@ -20,7 +20,8 @@ export class LlmCostService {
   }
 
   static async create(
-    data: Omit<LlmCost, "_id" | "createdAt">,
+    data: Omit<LlmCost, "_id" | "createdAt"> &
+      Partial<Pick<LlmCost, "createdAt">>,
   ): Promise<LlmCost> {
     const doc = await LlmCostModel.create(data);
     return this.toLlmCost(doc);

@@ -19,17 +19,16 @@ import AddCreditsDialog from "~/modules/billing/components/addCreditsDialog";
 import AssignBillingPlanDialog from "~/modules/billing/components/assignBillingPlanDialog";
 import TopUpDialog from "~/modules/billing/components/topUpDialog";
 import SetBillingUserDialogContainer from "~/modules/billing/containers/setBillingUserDialog.container";
-import applyMarkup from "~/modules/billing/helpers/applyMarkup";
 import isBillingEnabled from "~/modules/billing/helpers/isBillingEnabled.server";
 import { groupCostsBySource } from "~/modules/billing/helpers/sourceLabels";
 import addCredits from "~/modules/billing/services/addCredits.server";
 import getBillingReportingSummary from "~/modules/billing/services/getBillingReportingSummary.server";
+import getBillingSpendAnalytics from "~/modules/billing/services/getBillingSpendAnalytics.server";
 import { StripeService } from "~/modules/billing/stripe";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
 import { TeamCreditService } from "~/modules/billing/teamCredit";
 import addDialog, { closeDialog } from "~/modules/dialogs/addDialog";
 import { findModelByCode } from "~/modules/llm/modelRegistry";
-import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import type { SpendGranularity } from "~/modules/llmCosts/llmCosts.types";
 import { UserService } from "~/modules/users/user";
 import TeamAuthorization from "../authorization";
@@ -122,11 +121,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     ? (rawGranularity as SpendGranularity)
     : "month";
 
-  const [rawCostsByModel, costsBySource, costsOverTime] = await Promise.all([
-    LlmCostService.sumCostByModel(params.id),
-    LlmCostService.sumCostBySource(params.id),
-    LlmCostService.sumCostOverTime(params.id, spendGranularity),
-  ]);
+  const {
+    byModel: rawCostsByModel,
+    bySource: costsBySource,
+    overTime: costsOverTime,
+  } = await getBillingSpendAnalytics(params.id, spendGranularity);
 
   const costsByModel = rawCostsByModel.map((c) => ({
     ...c,
@@ -134,11 +133,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       findModelByCode(c.model, { includeDeprecated: true })?.name ?? c.model,
   }));
 
-  const markupRate = balanceSummary.plan.markupRate;
   const spendAnalytics = {
-    byModel: applyMarkup(costsByModel, markupRate),
-    bySource: groupCostsBySource(applyMarkup(costsBySource, markupRate)),
-    overTime: applyMarkup(costsOverTime, markupRate),
+    byModel: costsByModel,
+    bySource: groupCostsBySource(costsBySource),
+    overTime: costsOverTime,
   };
 
   return {
