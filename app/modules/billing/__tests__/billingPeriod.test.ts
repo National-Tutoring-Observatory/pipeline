@@ -4,8 +4,7 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import makeDate from "../../../../test/helpers/makeDate";
 import { BillingPeriodService } from "../billingPeriod";
 import { BillingPlanService } from "../billingPlan";
-import applyBillingCredit from "../services/applyBillingCredit.server";
-import applyBillingDebit from "../services/applyBillingDebit.server";
+import { TeamBillingService } from "../teamBilling";
 import { TeamBillingPlanService } from "../teamBillingPlan";
 
 describe("BillingPeriodService", () => {
@@ -29,7 +28,7 @@ describe("BillingPeriodService", () => {
 
   async function insertCredit(amount: number, createdAt: Date) {
     const idempotencyKey = `test-credit:${teamId}:${createdAt.toISOString()}:${amount}`;
-    await applyBillingCredit({
+    await TeamBillingService.applyCredit({
       teamId,
       amount,
       addedBy: userId,
@@ -42,7 +41,7 @@ describe("BillingPeriodService", () => {
 
   async function insertCost(cost: number, createdAt: Date, forTeam = teamId) {
     const idempotencyKey = `test-debit:${forTeam}:${createdAt.toISOString()}:${cost}`;
-    await applyBillingDebit({
+    await TeamBillingService.applyDebit({
       teamId: forTeam,
       model: "claude-opus",
       source: "annotation:per-session",
@@ -119,7 +118,7 @@ describe("BillingPeriodService", () => {
       await seedPlan(1.5);
       const period = await BillingPeriodService.openPeriod(teamId, new Date());
 
-      await applyBillingCredit({
+      await TeamBillingService.applyCredit({
         teamId,
         amount: 100,
         addedBy: userId,
@@ -127,7 +126,7 @@ describe("BillingPeriodService", () => {
         sourceId: "test-locks-credit",
         idempotencyKey: "test-locks-credit",
       });
-      await applyBillingDebit({
+      await TeamBillingService.applyDebit({
         teamId,
         model: "claude-opus",
         source: "annotation:per-session",
@@ -154,7 +153,7 @@ describe("BillingPeriodService", () => {
       await seedPlan(1.5);
       const period = await BillingPeriodService.openPeriod(teamId, new Date());
 
-      await applyBillingCredit({
+      await TeamBillingService.applyCredit({
         teamId,
         amount: 50,
         addedBy: userId,
@@ -162,7 +161,7 @@ describe("BillingPeriodService", () => {
         sourceId: "test-no-cost-1",
         idempotencyKey: "test-no-cost-1",
       });
-      await applyBillingCredit({
+      await TeamBillingService.applyCredit({
         teamId,
         amount: 30,
         addedBy: userId,
@@ -190,7 +189,7 @@ describe("BillingPeriodService", () => {
       // In-window credit (Jan 15) — included
       await insertCredit(50, makeDate(2025, 1, 15));
       // Post-endAt credit (March, created with default Date.now()) — excluded
-      await applyBillingCredit({
+      await TeamBillingService.applyCredit({
         teamId,
         amount: 200,
         addedBy: userId,
@@ -258,7 +257,7 @@ describe("BillingPeriodService", () => {
       });
       await TeamBillingPlanService.assignPlan(teamId, plan2._id);
 
-      await applyBillingDebit({
+      await TeamBillingService.applyDebit({
         teamId,
         model: "claude-opus",
         source: "annotation:per-session",
@@ -357,7 +356,7 @@ describe("BillingPeriodService", () => {
       await seedPlan(1.5);
       const period = await BillingPeriodService.openPeriod(teamId, new Date());
 
-      await applyBillingCredit({
+      await TeamBillingService.applyCredit({
         teamId,
         amount: 100,
         addedBy: userId,
@@ -365,7 +364,7 @@ describe("BillingPeriodService", () => {
         sourceId: "test-other-team-credit",
         idempotencyKey: "test-other-team-credit",
       });
-      await applyBillingDebit({
+      await TeamBillingService.applyDebit({
         teamId: otherTeamId,
         model: "claude-opus",
         source: "annotation:per-session",

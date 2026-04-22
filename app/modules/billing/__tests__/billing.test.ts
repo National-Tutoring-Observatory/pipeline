@@ -8,11 +8,11 @@ import markLegacyBillingRowsMigration from "../../../migrations/20260421171000-m
 import { TeamService } from "../../teams/team";
 import { BillingLedgerEntryService } from "../billingLedgerEntry";
 import { BillingPeriodService } from "../billingPeriod";
-import { BillingPlanModel, BillingPlanService } from "../billingPlan";
+import { BillingPlanService } from "../billingPlan";
 import { TeamBillingService } from "../teamBilling";
 import { TeamBillingBalanceService } from "../teamBillingBalance";
 import { TeamBillingPlanService } from "../teamBillingPlan";
-import { TeamCreditModel, TeamCreditService } from "../teamCredit";
+import { TeamCreditService } from "../teamCredit";
 
 describe("Billing", () => {
   beforeEach(async () => {
@@ -78,8 +78,6 @@ describe("Billing", () => {
       });
 
       const defaultPlan = await BillingPlanService.findDefault();
-      const direct = await BillingPlanModel.findOne({ isDefault: true });
-      expect(direct).not.toBeNull();
       expect(defaultPlan?.name).toBe("Standard");
       expect(defaultPlan?.isDefault).toBe(true);
     });
@@ -120,7 +118,7 @@ describe("Billing", () => {
         addedBy: userId,
       });
 
-      const docs = await TeamCreditModel.find({ team: teamId });
+      const docs = await TeamCreditService.findByTeam(teamId);
       expect(docs).toHaveLength(2);
       const total = await TeamCreditService.sumByTeam(teamId);
       expect(total).toBe(75);
@@ -497,16 +495,15 @@ describe("Billing", () => {
 
       const db = await getDb();
       await markLegacyBillingRowsMigration.up(db);
-      await db.collection("billingledgerentries").insertOne({
-        team: new Types.ObjectId(team._id),
-        direction: "credit",
+      await TeamBillingService.applyCredit({
+        teamId: team._id,
         amount: 20,
-        currency: "USD",
+        addedBy: userId,
         source: "admin-credit",
         sourceId: "manual-topup-1",
         idempotencyKey: "admin-credit:manual-topup-1",
-        createdAt: new Date(),
       });
+      await TeamBillingBalanceService.deleteByTeam(team._id);
 
       await seedLegacyBillingBaselinesMigration.up(db);
 

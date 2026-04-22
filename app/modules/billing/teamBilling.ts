@@ -2,7 +2,14 @@ import type { BalanceSummary } from "./billing.types";
 import { BillingPlanService } from "./billingPlan";
 import getInitialCreditsAmount from "./helpers/getInitialCreditsAmount.server";
 import getLegacyBalanceSummary from "./helpers/getLegacyBalanceSummary.server";
+import addCredits, {
+  type AddCreditsResult,
+} from "./services/addCredits.server";
 import applyBillingCredit from "./services/applyBillingCredit.server";
+import applyBillingDebit from "./services/applyBillingDebit.server";
+import getBillingReportingSummary, {
+  type BillingReportingSummary,
+} from "./services/getBillingReportingSummary.server";
 import { TeamBillingBalanceService } from "./teamBillingBalance";
 import { TeamBillingPlanService } from "./teamBillingPlan";
 
@@ -32,6 +39,12 @@ export class TeamBillingService {
     return billingBalance?.availableBalance ?? 0;
   }
 
+  static async getReportingSummary(
+    teamId: string,
+  ): Promise<BillingReportingSummary> {
+    return getBillingReportingSummary(teamId);
+  }
+
   static async setupTeamBilling(teamId: string): Promise<void> {
     const defaultPlan = await BillingPlanService.findDefault();
     if (!defaultPlan) {
@@ -57,6 +70,47 @@ export class TeamBillingService {
       source: "initial-credit",
       idempotencyKey: `initial-credit:${teamId}`,
     });
+  }
+
+  static async addCredits(input: {
+    teamId: string;
+    amount: number;
+    note?: string;
+    addedBy: string;
+    idempotencyKey: string;
+  }): Promise<AddCreditsResult> {
+    return addCredits(input);
+  }
+
+  static async applyCredit(input: {
+    teamId: string;
+    amount: number;
+    addedBy: string;
+    createdAt?: Date;
+    note?: string;
+    source: string;
+    sourceId?: string;
+    idempotencyKey: string;
+    stripeSessionId?: string;
+    metadata?: Record<string, unknown>;
+  }): Promise<void> {
+    await applyBillingCredit(input);
+  }
+
+  static async applyDebit(input: {
+    teamId: string;
+    model: string;
+    source: string;
+    sourceId?: string;
+    createdAt?: Date;
+    inputTokens: number;
+    outputTokens: number;
+    rawAmount: number;
+    providerCost: number;
+    idempotencyKey: string;
+    metadata?: Record<string, unknown>;
+  }): Promise<void> {
+    await applyBillingDebit(input);
   }
 
   static async applyStripeTopUp({

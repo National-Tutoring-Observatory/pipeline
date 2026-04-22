@@ -2,12 +2,8 @@ import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import { AuditService } from "~/modules/audits/audit";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
-import applyBillingCredit from "../services/applyBillingCredit.server";
-import reconcileTeamBillingBalance from "../services/reconcileTeamBillingBalance.server";
-import {
-  TeamBillingBalanceModel,
-  TeamBillingBalanceService,
-} from "../teamBillingBalance";
+import { TeamBillingService } from "../teamBilling";
+import { TeamBillingBalanceService } from "../teamBillingBalance";
 
 describe("reconcileTeamBillingBalance", () => {
   beforeEach(async () => {
@@ -18,7 +14,7 @@ describe("reconcileTeamBillingBalance", () => {
     const teamId = new Types.ObjectId().toString();
     const userId = new Types.ObjectId().toString();
 
-    await applyBillingCredit({
+    await TeamBillingService.applyCredit({
       teamId,
       amount: 25,
       addedBy: userId,
@@ -27,12 +23,18 @@ describe("reconcileTeamBillingBalance", () => {
       idempotencyKey: "admin-credit:test-repair",
     });
 
-    await TeamBillingBalanceModel.updateOne(
-      { team: teamId },
-      { $set: { availableBalance: 10 } },
-    );
+    const balanceBeforeDrift =
+      await TeamBillingBalanceService.findByTeam(teamId);
+    expect(balanceBeforeDrift).not.toBeNull();
 
-    const result = await reconcileTeamBillingBalance(teamId);
+    await TeamBillingBalanceService.reconcileToSnapshot({
+      teamId,
+      expectedBalance: 10,
+      lastLedgerEntryAt: balanceBeforeDrift!.lastLedgerEntryAt ?? null,
+      currentVersion: balanceBeforeDrift!.version,
+    });
+
+    const result = await TeamBillingBalanceService.reconcile(teamId);
 
     expect(result.status).toBe("repaired");
     expect(result.expectedBalance).toBe(25);
@@ -53,7 +55,7 @@ describe("reconcileTeamBillingBalance", () => {
     const teamId = new Types.ObjectId().toString();
     const userId = new Types.ObjectId().toString();
 
-    await applyBillingCredit({
+    await TeamBillingService.applyCredit({
       teamId,
       amount: 25,
       addedBy: userId,
@@ -62,7 +64,7 @@ describe("reconcileTeamBillingBalance", () => {
       idempotencyKey: "admin-credit:test-aligned",
     });
 
-    const result = await reconcileTeamBillingBalance(teamId);
+    const result = await TeamBillingBalanceService.reconcile(teamId);
 
     expect(result.status).toBe("already-aligned");
     expect(result.expectedBalance).toBe(25);
@@ -78,7 +80,7 @@ describe("reconcileTeamBillingBalance", () => {
     const teamId = new Types.ObjectId().toString();
     const userId = new Types.ObjectId().toString();
 
-    await applyBillingCredit({
+    await TeamBillingService.applyCredit({
       teamId,
       amount: 40,
       addedBy: userId,
@@ -87,9 +89,9 @@ describe("reconcileTeamBillingBalance", () => {
       idempotencyKey: "admin-credit:test-missing-balance",
     });
 
-    await TeamBillingBalanceModel.deleteOne({ team: teamId });
+    await TeamBillingBalanceService.deleteByTeam(teamId);
 
-    const result = await reconcileTeamBillingBalance(teamId);
+    const result = await TeamBillingBalanceService.reconcile(teamId);
 
     expect(result.status).toBe("repaired");
     expect(result.expectedBalance).toBe(40);

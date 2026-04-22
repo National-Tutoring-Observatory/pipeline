@@ -3,9 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import { BillingPeriodService } from "../billingPeriod";
 import { BillingPlanService } from "../billingPlan";
-import applyBillingCredit from "../services/applyBillingCredit.server";
-import applyBillingDebit from "../services/applyBillingDebit.server";
-import getBillingReportingSummary from "../services/getBillingReportingSummary.server";
+import { TeamBillingService } from "../teamBilling";
 import { TeamBillingPlanService } from "../teamBillingPlan";
 
 describe("getBillingReportingSummary", () => {
@@ -28,7 +26,7 @@ describe("getBillingReportingSummary", () => {
     const userId = new Types.ObjectId().toString();
     await seedPlan(teamId);
 
-    await applyBillingCredit({
+    await TeamBillingService.applyCredit({
       teamId,
       amount: 100,
       addedBy: userId,
@@ -37,7 +35,7 @@ describe("getBillingReportingSummary", () => {
       idempotencyKey: "admin-credit:test-summary",
     });
 
-    await applyBillingDebit({
+    await TeamBillingService.applyDebit({
       teamId,
       model: "claude-opus",
       source: "annotation:per-session",
@@ -49,7 +47,7 @@ describe("getBillingReportingSummary", () => {
       idempotencyKey: "llm-cost:test-summary",
     });
 
-    const summary = await getBillingReportingSummary(teamId);
+    const summary = await TeamBillingService.getReportingSummary(teamId);
 
     expect(summary.balanceSummary).not.toBeNull();
     expect(summary.balanceSummary?.balance).toBe(85);
@@ -63,7 +61,7 @@ describe("getBillingReportingSummary", () => {
     const userId = new Types.ObjectId().toString();
     await seedPlan(teamId);
 
-    await applyBillingCredit({
+    await TeamBillingService.applyCredit({
       teamId,
       amount: 200,
       addedBy: userId,
@@ -73,7 +71,7 @@ describe("getBillingReportingSummary", () => {
       idempotencyKey: "admin-credit:test-periods",
     });
 
-    await applyBillingDebit({
+    await TeamBillingService.applyDebit({
       teamId,
       model: "claude-opus",
       source: "annotation:per-session",
@@ -86,7 +84,7 @@ describe("getBillingReportingSummary", () => {
       idempotencyKey: "llm-cost:test-periods-jan",
     });
 
-    await applyBillingDebit({
+    await TeamBillingService.applyDebit({
       teamId,
       model: "claude-opus",
       source: "annotation:per-session",
@@ -111,7 +109,7 @@ describe("getBillingReportingSummary", () => {
     );
     await BillingPeriodService.closePeriod(februaryPeriod);
 
-    const summary = await getBillingReportingSummary(teamId);
+    const summary = await TeamBillingService.getReportingSummary(teamId);
 
     expect(summary.closedPeriods).toHaveLength(2);
     expect(summary.closedPeriods[0].billedAmount).toBe(30);

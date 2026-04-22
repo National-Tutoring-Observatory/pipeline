@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { beforeEach, describe, expect, it } from "vitest";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import { BillingLedgerEntryService } from "../billingLedgerEntry";
-import addCredits from "../services/addCredits.server";
+import { TeamBillingService } from "../teamBilling";
 import { TeamBillingBalanceService } from "../teamBillingBalance";
 import { TeamCreditService } from "../teamCredit";
 
@@ -15,7 +15,7 @@ describe("addCredits", () => {
   const userId = new Types.ObjectId().toString();
 
   it("rejects amounts below $10", async () => {
-    const result = await addCredits({
+    const result = await TeamBillingService.addCredits({
       teamId,
       amount: 5,
       addedBy: userId,
@@ -27,7 +27,7 @@ describe("addCredits", () => {
   });
 
   it("rejects non-number amounts", async () => {
-    const result = await addCredits({
+    const result = await TeamBillingService.addCredits({
       teamId,
       amount: "abc" as any,
       addedBy: userId,
@@ -39,7 +39,7 @@ describe("addCredits", () => {
   });
 
   it("rejects NaN amounts", async () => {
-    const result = await addCredits({
+    const result = await TeamBillingService.addCredits({
       teamId,
       amount: NaN,
       addedBy: userId,
@@ -51,7 +51,7 @@ describe("addCredits", () => {
   });
 
   it("rejects Infinity", async () => {
-    const result = await addCredits({
+    const result = await TeamBillingService.addCredits({
       teamId,
       amount: Infinity,
       addedBy: userId,
@@ -63,7 +63,7 @@ describe("addCredits", () => {
   });
 
   it("rejects non-integer amounts", async () => {
-    const result = await addCredits({
+    const result = await TeamBillingService.addCredits({
       teamId,
       amount: 10.5,
       addedBy: userId,
@@ -75,7 +75,7 @@ describe("addCredits", () => {
   });
 
   it("creates credit record for valid amount", async () => {
-    const result = await addCredits({
+    const result = await TeamBillingService.addCredits({
       teamId,
       amount: 50,
       addedBy: userId,
@@ -99,7 +99,7 @@ describe("addCredits", () => {
   });
 
   it("defaults note to 'Added by System Admin' when not provided", async () => {
-    await addCredits({
+    await TeamBillingService.addCredits({
       teamId,
       amount: 25,
       addedBy: userId,
@@ -111,7 +111,7 @@ describe("addCredits", () => {
   });
 
   it("stores optional note with credit", async () => {
-    const result = await addCredits({
+    const result = await TeamBillingService.addCredits({
       teamId,
       amount: 25,
       note: "Monthly top-up",
@@ -126,7 +126,7 @@ describe("addCredits", () => {
   });
 
   it("rejects missing idempotency key", async () => {
-    const result = await addCredits({
+    const result = await TeamBillingService.addCredits({
       teamId,
       amount: 25,
       addedBy: userId,
@@ -145,8 +145,8 @@ describe("addCredits", () => {
       idempotencyKey: "admin-credit:test-duplicate",
     };
 
-    await addCredits(input);
-    await addCredits(input);
+    await TeamBillingService.addCredits(input);
+    await TeamBillingService.addCredits(input);
 
     const credits = await TeamCreditService.findByTeam(teamId);
     expect(credits).toHaveLength(1);
