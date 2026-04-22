@@ -4,7 +4,6 @@ import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
 import { BillingLedgerEntryService } from "../billingLedgerEntry";
 import { TeamBillingService } from "../teamBilling";
 import { TeamBillingBalanceService } from "../teamBillingBalance";
-import { TeamCreditService } from "../teamCredit";
 
 describe("addCredits", () => {
   beforeEach(async () => {
@@ -74,7 +73,7 @@ describe("addCredits", () => {
     expect(result.error).toContain("whole dollar");
   });
 
-  it("creates credit record for valid amount", async () => {
+  it("creates a ledger credit for valid amount", async () => {
     const result = await TeamBillingService.addCredits({
       teamId,
       amount: 50,
@@ -84,15 +83,15 @@ describe("addCredits", () => {
 
     expect(result.success).toBe(true);
 
-    const credits = await TeamCreditService.findByTeam(teamId);
-    expect(credits).toHaveLength(1);
-    expect(credits[0].amount).toBe(50);
-    expect(credits[0].addedBy).toBe(userId);
-
     const ledger = await BillingLedgerEntryService.findByTeam(teamId);
     expect(ledger).toHaveLength(1);
     expect(ledger[0].direction).toBe("credit");
     expect(ledger[0].idempotencyKey).toBe("admin-credit:test-valid");
+    expect(ledger[0].amount).toBe(50);
+    expect(ledger[0].metadata).toMatchObject({
+      addedBy: userId,
+      note: "Added by System Admin",
+    });
 
     const balance = await TeamBillingBalanceService.findByTeam(teamId);
     expect(balance?.availableBalance).toBe(50);
@@ -106,8 +105,10 @@ describe("addCredits", () => {
       idempotencyKey: "admin-credit:test-default-note",
     });
 
-    const credits = await TeamCreditService.findByTeam(teamId);
-    expect(credits[0].note).toBe("Added by System Admin");
+    const ledger = await BillingLedgerEntryService.findByTeam(teamId);
+    expect(ledger[0].metadata).toMatchObject({
+      note: "Added by System Admin",
+    });
   });
 
   it("stores optional note with credit", async () => {
@@ -121,8 +122,8 @@ describe("addCredits", () => {
 
     expect(result.success).toBe(true);
 
-    const credits = await TeamCreditService.findByTeam(teamId);
-    expect(credits[0].note).toBe("Monthly top-up");
+    const ledger = await BillingLedgerEntryService.findByTeam(teamId);
+    expect(ledger[0].metadata).toMatchObject({ note: "Monthly top-up" });
   });
 
   it("rejects missing idempotency key", async () => {
@@ -147,9 +148,6 @@ describe("addCredits", () => {
 
     await TeamBillingService.addCredits(input);
     await TeamBillingService.addCredits(input);
-
-    const credits = await TeamCreditService.findByTeam(teamId);
-    expect(credits).toHaveLength(1);
 
     const ledger = await BillingLedgerEntryService.findByTeam(teamId);
     expect(ledger).toHaveLength(1);

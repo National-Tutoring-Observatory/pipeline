@@ -1,7 +1,6 @@
 import mongoose, { type ClientSession } from "mongoose";
 import teamBillingBalanceSchema from "~/lib/schemas/teamBillingBalance.schema";
 import type { TeamBillingBalance } from "./billing.types";
-import getLegacyBalanceSummary from "./helpers/getLegacyBalanceSummary.server";
 import reconcileTeamBillingBalance, {
   type ReconcileTeamBillingBalanceResult,
 } from "./services/reconcileTeamBillingBalance.server";
@@ -33,18 +32,13 @@ export class TeamBillingBalanceService {
 
   static async ensureInitialized(
     teamId: string,
-    legacyBalance?: number,
+    initialBalance?: number,
   ): Promise<TeamBillingBalance> {
-    const summary =
-      legacyBalance === undefined
-        ? await getLegacyBalanceSummary(teamId)
-        : { balance: legacyBalance };
-
     const doc = await TeamBillingBalanceModel.findOneAndUpdate(
       { team: teamId },
       {
         $setOnInsert: {
-          availableBalance: summary?.balance ?? 0,
+          availableBalance: initialBalance ?? 0,
           updatedAt: new Date(),
         },
       },

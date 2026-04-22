@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collection } from "@/components/ui/collection";
 import getDateString from "~/modules/app/helpers/getDateString";
-import type { TeamCredit } from "~/modules/billing/billing.types";
+import type { BillingLedgerEntry } from "~/modules/billing/billing.types";
 
 interface PaginatedCredits {
-  data: TeamCredit[];
+  data: BillingLedgerEntry[];
   count: number;
   totalPages: number;
 }
@@ -18,11 +18,32 @@ interface CreditHistoryProps {
   onPaginationChanged: (page: number) => void;
 }
 
-function getCreditItemAttributes(credit: TeamCredit) {
+function getCreditDescription(credit: BillingLedgerEntry) {
+  const metadata = credit.metadata ?? {};
+  let note: string | undefined;
+
+  if (typeof metadata.note === "string") {
+    note = metadata.note;
+  } else if (typeof metadata.legacyNote === "string") {
+    note = metadata.legacyNote;
+  }
+
+  if (credit.source === "stripe-topup") {
+    return "Purchased via Stripe";
+  }
+
+  if (credit.source === "initial-credit") {
+    return note ?? "Initial credits";
+  }
+
+  return note;
+}
+
+function getCreditItemAttributes(credit: BillingLedgerEntry) {
   return {
     id: credit._id,
     title: `$${credit.amount.toFixed(2)}`,
-    description: credit.note || undefined,
+    description: getCreditDescription(credit),
     meta: [{ text: getDateString(credit.createdAt) }],
   };
 }

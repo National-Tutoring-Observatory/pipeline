@@ -5,9 +5,9 @@ import { AuthenticationContext } from "~/modules/authentication/authentication.c
 import BillingAuthorization from "~/modules/billing/authorization";
 import type {
   BalanceSummary,
+  BillingLedgerEntry,
   BillingPeriodReport,
   PendingPlanChange,
-  TeamCredit,
 } from "~/modules/billing/billing.types";
 import type {
   CostByModel,
@@ -28,7 +28,7 @@ interface BillingUserInfo {
 }
 
 interface PaginatedCredits {
-  data: TeamCredit[];
+  data: BillingLedgerEntry[];
   count: number;
   totalPages: number;
 }

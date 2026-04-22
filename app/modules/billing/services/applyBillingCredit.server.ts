@@ -1,15 +1,11 @@
 import mongoose from "mongoose";
 import billingLedgerEntrySchema from "~/lib/schemas/billingLedgerEntry.schema";
-import teamCreditSchema from "~/lib/schemas/teamCredit.schema";
 import withTransaction from "~/lib/withTransaction";
 import { TeamBillingBalanceService } from "../teamBillingBalance";
 
 const BillingLedgerEntryModel =
   mongoose.models.BillingLedgerEntry ||
   mongoose.model("BillingLedgerEntry", billingLedgerEntrySchema);
-
-const TeamCreditModel =
-  mongoose.models.TeamCredit || mongoose.model("TeamCredit", teamCreditSchema);
 
 interface ApplyBillingCreditInput {
   teamId: string;
@@ -51,21 +47,12 @@ export default async function applyBillingCredit({
             source,
             sourceId,
             idempotencyKey,
-            metadata,
-            createdAt: entryCreatedAt,
-          },
-        ],
-        { session },
-      );
-
-      await TeamCreditModel.create(
-        [
-          {
-            team: teamId,
-            amount,
-            addedBy,
-            note,
-            stripeSessionId,
+            metadata: {
+              ...metadata,
+              addedBy,
+              note,
+              stripeSessionId,
+            },
             createdAt: entryCreatedAt,
           },
         ],

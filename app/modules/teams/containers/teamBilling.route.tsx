@@ -14,6 +14,7 @@ import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromR
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
 import BillingAuthorization from "~/modules/billing/authorization";
+import { BillingLedgerEntryService } from "~/modules/billing/billingLedgerEntry";
 import { BillingPlanService } from "~/modules/billing/billingPlan";
 import AddCreditsDialog from "~/modules/billing/components/addCreditsDialog";
 import AssignBillingPlanDialog from "~/modules/billing/components/assignBillingPlanDialog";
@@ -26,7 +27,6 @@ import getBillingReportingSummary from "~/modules/billing/services/getBillingRep
 import getBillingSpendAnalytics from "~/modules/billing/services/getBillingSpendAnalytics.server";
 import { StripeService } from "~/modules/billing/stripe";
 import { TeamBillingPlanService } from "~/modules/billing/teamBillingPlan";
-import { TeamCreditService } from "~/modules/billing/teamCredit";
 import addDialog, { closeDialog } from "~/modules/dialogs/addDialog";
 import { findModelByCode } from "~/modules/llm/modelRegistry";
 import type { SpendGranularity } from "~/modules/llmCosts/llmCosts.types";
@@ -64,7 +64,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const creditsQuery = buildQueryFromParams({
     match: { team: params.id },
     queryParams: creditsQueryParams,
-    searchableFields: ["note"],
+    searchableFields: ["metadata.note"],
     sortableFields: ["createdAt", "amount"],
   });
 
@@ -78,7 +78,15 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     pendingPlanChange,
   ] = await Promise.all([
     getBillingReportingSummary(params.id),
-    TeamCreditService.paginate(creditsQuery),
+    BillingLedgerEntryService.paginate({
+      match: {
+        ...creditsQuery.match,
+        direction: "credit",
+      },
+      sort: creditsQuery.sort,
+      page: creditsQuery.page,
+      pageSize: 20,
+    }),
     team.billingUser
       ? UserService.findById(team.billingUser).then((u) =>
           u ? { _id: u._id, username: u.username } : null,

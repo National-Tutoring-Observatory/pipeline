@@ -3,11 +3,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 import seedLegacyBillingBaselinesMigration from "~/migrations/20260421172000-seed-legacy-billing-baselines";
 import { LlmCostService } from "~/modules/llmCosts/llmCost";
 import clearDocumentDB from "../../../../test/helpers/clearDocumentDB";
-import makeDate from "../../../../test/helpers/makeDate";
 import markLegacyBillingRowsMigration from "../../../migrations/20260421171000-mark-legacy-billing-rows";
 import { TeamService } from "../../teams/team";
 import { BillingLedgerEntryService } from "../billingLedgerEntry";
-import { BillingPeriodService } from "../billingPeriod";
 import { BillingPlanService } from "../billingPlan";
 import { TeamBillingService } from "../teamBilling";
 import { TeamBillingBalanceService } from "../teamBillingBalance";
@@ -178,23 +176,11 @@ describe("Billing", () => {
 
       await TeamBillingBalanceService.ensureInitialized(teamId, 42);
 
-      await TeamCreditService.create({
-        team: teamId,
-        amount: 100,
-        addedBy: userId,
-      });
-
       const balance = await TeamBillingService.getBalance(teamId);
       expect(balance).toBe(42);
     });
 
     it("returns 0 when no TeamBillingBalance exists", async () => {
-      await TeamCreditService.create({
-        team: teamId,
-        amount: 100,
-        addedBy: userId,
-      });
-
       const balance = await TeamBillingService.getBalance(teamId);
       expect(balance).toBe(0);
     });
@@ -225,22 +211,33 @@ describe("Billing", () => {
 
     it("returns full balance summary with TeamBillingBalance as the balance field", async () => {
       await seedDefaultPlan();
-      await TeamBillingBalanceService.ensureInitialized(teamId, 42);
-
-      await TeamCreditService.create({
-        team: teamId,
+      await TeamBillingService.applyCredit({
+        teamId,
         amount: 100,
         addedBy: userId,
+        source: "admin-credit",
+        sourceId: "admin-credit:test-summary-balance",
+        idempotencyKey: "admin-credit:test-summary-balance",
       });
 
-      await LlmCostService.create({
-        team: teamId,
+      await TeamBillingService.applyDebit({
+        teamId,
         model: "claude-opus",
         source: "annotation:per-session",
+        sourceId: "session:test-summary-balance",
         inputTokens: 500,
         outputTokens: 100,
-        cost: 10,
+        rawAmount: 10,
         providerCost: 8,
+        idempotencyKey: "llm-cost:test-summary-balance",
+      });
+
+      const balance = await TeamBillingBalanceService.findByTeam(teamId);
+      await TeamBillingBalanceService.reconcileToSnapshot({
+        teamId,
+        expectedBalance: 42,
+        lastLedgerEntryAt: balance?.lastLedgerEntryAt ?? null,
+        currentVersion: balance?.version,
       });
 
       const summary = await TeamBillingService.getBalanceSummary(teamId);
@@ -260,11 +257,16 @@ describe("Billing", () => {
     it("returns summary with zero balance when no TeamBillingBalance exists", async () => {
       await seedDefaultPlan();
 
-      await TeamCreditService.create({
-        team: teamId,
+      await TeamBillingService.applyCredit({
+        teamId,
         amount: 100,
         addedBy: userId,
+        source: "admin-credit",
+        sourceId: "admin-credit:test-missing-balance-summary",
+        idempotencyKey: "admin-credit:test-missing-balance-summary",
       });
+
+      await TeamBillingBalanceService.deleteByTeam(teamId);
 
       const summary = await TeamBillingService.getBalanceSummary(teamId);
 
@@ -298,8 +300,8 @@ describe("Billing", () => {
 
         await TeamBillingService.setupTeamBilling(teamId);
 
-        const credits = await TeamCreditService.sumByTeam(teamId);
-        expect(credits).toBe(0);
+        const ledger = await BillingLedgerEntryService.findByTeam(teamId);
+        expect(ledger).toHaveLength(0);
       });
 
       it("does nothing when no default plan exists", async () => {
@@ -317,8 +319,9 @@ describe("Billing", () => {
 
         await TeamBillingService.assignInitialCredits(teamId, userId);
 
-        const credits = await TeamCreditService.sumByTeam(teamId);
-        expect(credits).toBe(20);
+        const ledger = await BillingLedgerEntryService.findByTeam(teamId);
+        expect(ledger).toHaveLength(1);
+        expect(ledger[0].amount).toBe(20);
 
         process.env.BILLING_ENABLED = original;
       });
@@ -329,8 +332,9 @@ describe("Billing", () => {
 
         await TeamBillingService.assignInitialCredits(teamId, userId);
 
-        const credits = await TeamCreditService.sumByTeam(teamId);
-        expect(credits).toBe(10);
+        const ledger = await BillingLedgerEntryService.findByTeam(teamId);
+        expect(ledger).toHaveLength(1);
+        expect(ledger[0].amount).toBe(10);
 
         process.env.BILLING_ENABLED = original;
       });
@@ -340,90 +344,17 @@ describe("Billing", () => {
 
         await TeamBillingService.assignInitialCredits(teamId, userId);
 
-        const all = await TeamCreditService.findByTeam(teamId);
-        expect(all).toHaveLength(1);
-        expect(all[0].note).toBe("Initial credits");
-        expect(all[0].addedBy).toBe(userId);
-
         const ledger = await BillingLedgerEntryService.findByTeam(teamId);
         expect(ledger).toHaveLength(1);
         expect(ledger[0].source).toBe("initial-credit");
+        expect(ledger[0].metadata).toMatchObject({
+          note: "Initial credits",
+          addedBy: userId,
+        });
 
         const balance = await TeamBillingBalanceService.findByTeam(teamId);
         expect(balance?.availableBalance).toBeGreaterThan(0);
       });
-    });
-  });
-
-  describe("TeamBillingService — reporting-only legacy summary", () => {
-    async function insertCredit(
-      summaryTeamId: string,
-      amount: number,
-      createdAt: Date,
-    ) {
-      await TeamCreditService.create({
-        team: summaryTeamId,
-        amount,
-        addedBy: userId,
-        createdAt,
-      });
-    }
-
-    async function insertCost(
-      summaryTeamId: string,
-      cost: number,
-      createdAt: Date,
-    ) {
-      await LlmCostService.create({
-        team: summaryTeamId,
-        model: "claude-opus",
-        source: "annotation:per-session",
-        inputTokens: 100,
-        outputTokens: 50,
-        cost,
-        providerCost: cost * 0.8,
-        createdAt,
-      });
-    }
-
-    it("uses TeamBillingBalance for current balance even when legacy summary differs", async () => {
-      const summaryTeamId = new Types.ObjectId().toString();
-      await createBackdatedPlanAssignment(summaryTeamId, { markupRate: 1.5 });
-      await TeamBillingBalanceService.ensureInitialized(summaryTeamId, 999);
-
-      await insertCredit(summaryTeamId, 100, makeDate(2025, 1, 15));
-      await insertCost(summaryTeamId, 10, makeDate(2025, 1, 20));
-
-      const summary = await TeamBillingService.getBalanceSummary(summaryTeamId);
-
-      expect(summary).not.toBeNull();
-      expect(summary!.balance).toBe(999);
-      expect(summary!.credits).toBe(100);
-      expect(summary!.costs).toBe(10);
-      expect(summary!.markedUpCosts).toBe(15);
-    });
-
-    it("keeps legacy credit reporting fields after a closed period", async () => {
-      const summaryTeamId = new Types.ObjectId().toString();
-      await createBackdatedPlanAssignment(summaryTeamId, { markupRate: 1.5 });
-      await TeamBillingBalanceService.ensureInitialized(summaryTeamId, 700);
-
-      const period = await BillingPeriodService.openPeriod(
-        summaryTeamId,
-        makeDate(2025, 1),
-      );
-      await insertCredit(summaryTeamId, 100, makeDate(2025, 1, 15));
-      await insertCost(summaryTeamId, 10, makeDate(2025, 1, 20));
-      await BillingPeriodService.closePeriod(period);
-      await insertCredit(summaryTeamId, 40, makeDate(2025, 2, 5));
-
-      const summary = await TeamBillingService.getBalanceSummary(summaryTeamId);
-
-      expect(summary).not.toBeNull();
-      expect(summary!.balance).toBe(700);
-      expect(summary!.credits).toBe(40);
-      expect(summary!.costs).toBe(0);
-      expect(summary!.markedUpCosts).toBe(0);
     });
   });
 
