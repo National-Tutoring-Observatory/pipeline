@@ -1,4 +1,4 @@
-import calculateCost from "~/modules/llm/helpers/calculateCost";
+import calculateLlmCost from "~/modules/llm/helpers/calculateLlmCost";
 import type { EstimationResult } from "~/modules/runSets/runSets.types";
 
 const AVG_TOKENS_PER_SESSION = 500;
@@ -11,19 +11,19 @@ export function getCostBufferMultiplier(rawCost: number): number {
   return 1.8;
 }
 
-interface CalculateEstimatesOptions {
+interface CalculateEstimateOptions {
   shouldRunVerification?: boolean;
   avgSecondsPerSession?: number | null;
   outputToInputRatio?: number | null;
 }
 
-export function calculateEstimates(
+export function calculateEstimate(
   runDefinitions: Array<{
     modelCode: string;
     prompt?: { inputTokens?: number };
   }>,
   selectedSessions: Array<{ inputTokens?: number }>,
-  options?: CalculateEstimatesOptions,
+  options?: CalculateEstimateOptions,
 ): EstimationResult {
   const numSessions = selectedSessions.length;
   const verificationMultiplier = options?.shouldRunVerification ? 2 : 1;
@@ -42,7 +42,7 @@ export function calculateEstimates(
     const defOutputTokens = defInputTokens * ratio;
     totalCost +=
       verificationMultiplier *
-      calculateCost({
+      calculateLlmCost({
         modelCode: definition.modelCode,
         inputTokens: defInputTokens,
         outputTokens: defOutputTokens,

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import calculateCost from "~/modules/llm/helpers/calculateCost";
+import calculateLlmCost from "~/modules/llm/helpers/calculateLlmCost";
 import { getAvailableModels } from "~/modules/llm/modelRegistry";
 import {
-  calculateEstimates,
+  calculateEstimate,
   getCostBufferMultiplier,
-} from "../helpers/calculateEstimates";
+} from "../helpers/calculateEstimate";
 import { buildUsedPromptModelKey } from "../helpers/getUsedPromptModels";
 import type { RunDefinition } from "../runSets.types";
 
@@ -45,7 +45,7 @@ function expectedCost(
       sum +
       numPrompts *
         verificationMultiplier *
-        calculateCost({
+        calculateLlmCost({
           modelCode: allModels[i],
           inputTokens: totalInputTokens,
           outputTokens: totalOutputTokens,
@@ -59,10 +59,10 @@ function expectedTime(numDefinitions: number, numSessions: number) {
   return (numDefinitions * numSessions * 10) / 5;
 }
 
-describe("calculateEstimates", () => {
+describe("calculateEstimate", () => {
   it("calculates cost and time for single model", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
-    const result = calculateEstimates(definitions, Array(10).fill({}));
+    const result = calculateEstimate(definitions, Array(10).fill({}));
 
     expect(result.estimatedCost).toBe(expectedCost(1, [0], 10));
     expect(result.estimatedTimeSeconds).toBe(expectedTime(1, 10));
@@ -75,14 +75,14 @@ describe("calculateEstimates", () => {
       makeDefinition("promptB", 3, allModels[0]),
       makeDefinition("promptB", 3, allModels[2]),
     ];
-    const result = calculateEstimates(definitions, Array(10).fill({}));
+    const result = calculateEstimate(definitions, Array(10).fill({}));
 
     expect(result.estimatedCost).toBe(expectedCost(2, [0, 2], 10));
     expect(result.estimatedTimeSeconds).toBe(expectedTime(4, 10));
   });
 
   it("returns zero when no selections", () => {
-    const result = calculateEstimates([], []);
+    const result = calculateEstimate([], []);
 
     expect(result.estimatedCost).toBe(0);
     expect(result.estimatedTimeSeconds).toBe(0);
@@ -90,7 +90,7 @@ describe("calculateEstimates", () => {
 
   it("doubles time and cost when verification is enabled", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
-    const result = calculateEstimates(definitions, Array(10).fill({}), {
+    const result = calculateEstimate(definitions, Array(10).fill({}), {
       shouldRunVerification: true,
     });
 
@@ -100,7 +100,7 @@ describe("calculateEstimates", () => {
 
   it("uses historical avgSecondsPerSession when provided", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
-    const result = calculateEstimates(definitions, Array(10).fill({}), {
+    const result = calculateEstimate(definitions, Array(10).fill({}), {
       avgSecondsPerSession: 8,
     });
 
@@ -109,7 +109,7 @@ describe("calculateEstimates", () => {
 
   it("uses historical avgSecondsPerSession with verification", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
-    const result = calculateEstimates(definitions, Array(10).fill({}), {
+    const result = calculateEstimate(definitions, Array(10).fill({}), {
       avgSecondsPerSession: 8,
       shouldRunVerification: true,
     });
@@ -119,7 +119,7 @@ describe("calculateEstimates", () => {
 
   it("falls back to default when avgSecondsPerSession is null", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
-    const result = calculateEstimates(definitions, Array(10).fill({}), {
+    const result = calculateEstimate(definitions, Array(10).fill({}), {
       avgSecondsPerSession: null,
     });
 
@@ -128,7 +128,7 @@ describe("calculateEstimates", () => {
 
   it("falls back to default when avgSecondsPerSession is 0", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
-    const result = calculateEstimates(definitions, Array(10).fill({}), {
+    const result = calculateEstimate(definitions, Array(10).fill({}), {
       avgSecondsPerSession: 0,
     });
 
@@ -138,11 +138,11 @@ describe("calculateEstimates", () => {
   it("uses real session inputTokens for cost", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
     const sessions = Array(10).fill({ inputTokens: 1000 });
-    const result = calculateEstimates(definitions, sessions);
+    const result = calculateEstimate(definitions, sessions);
 
     const totalInputTokens = 10 * 1000;
     const expected = withBuffer(
-      calculateCost({
+      calculateLlmCost({
         modelCode: allModels[0],
         inputTokens: totalInputTokens,
         outputTokens: totalInputTokens,
@@ -153,8 +153,8 @@ describe("calculateEstimates", () => {
 
   it("uses per-session fallback for sessions without inputTokens", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
-    const withDefault = calculateEstimates(definitions, Array(10).fill({}));
-    const withUndefined = calculateEstimates(
+    const withDefault = calculateEstimate(definitions, Array(10).fill({}));
+    const withUndefined = calculateEstimate(
       definitions,
       Array(10).fill({ inputTokens: undefined }),
     );
@@ -165,11 +165,11 @@ describe("calculateEstimates", () => {
   it("mixes real tokens and fallback for sessions without inputTokens", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
     const sessions = [{ inputTokens: 1000 }, { inputTokens: 2000 }, {}];
-    const result = calculateEstimates(definitions, sessions);
+    const result = calculateEstimate(definitions, sessions);
 
     const totalInputTokens = 1000 + 2000 + 250;
     const expected = withBuffer(
-      calculateCost({
+      calculateLlmCost({
         modelCode: allModels[0],
         inputTokens: totalInputTokens,
         outputTokens: totalInputTokens,
@@ -182,13 +182,13 @@ describe("calculateEstimates", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
     const sessions = Array(10).fill({ inputTokens: 1000 });
     const outputToInputRatio = 2.5;
-    const result = calculateEstimates(definitions, sessions, {
+    const result = calculateEstimate(definitions, sessions, {
       outputToInputRatio,
     });
 
     const totalInputTokens = 10 * 1000;
     const expected = withBuffer(
-      calculateCost({
+      calculateLlmCost({
         modelCode: allModels[0],
         inputTokens: totalInputTokens,
         outputTokens: totalInputTokens * outputToInputRatio,
@@ -200,10 +200,10 @@ describe("calculateEstimates", () => {
   it("falls back to default ratio when outputToInputRatio is null", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
     const sessions = Array(10).fill({ inputTokens: 1000 });
-    const withNull = calculateEstimates(definitions, sessions, {
+    const withNull = calculateEstimate(definitions, sessions, {
       outputToInputRatio: null,
     });
-    const withDefault = calculateEstimates(definitions, sessions);
+    const withDefault = calculateEstimate(definitions, sessions);
 
     expect(withNull.estimatedCost).toBe(withDefault.estimatedCost);
   });
@@ -211,10 +211,10 @@ describe("calculateEstimates", () => {
   it("falls back to default ratio when outputToInputRatio is 0", () => {
     const definitions = [makeDefinition("promptA", 1, allModels[0])];
     const sessions = Array(10).fill({ inputTokens: 1000 });
-    const withZero = calculateEstimates(definitions, sessions, {
+    const withZero = calculateEstimate(definitions, sessions, {
       outputToInputRatio: 0,
     });
-    const withDefault = calculateEstimates(definitions, sessions);
+    const withDefault = calculateEstimate(definitions, sessions);
 
     expect(withZero.estimatedCost).toBe(withDefault.estimatedCost);
   });
@@ -225,11 +225,11 @@ describe("calculateEstimates", () => {
       makeDefinition("promptA", 1, allModels[0], promptInputTokens),
     ];
     const sessions = Array(10).fill({ inputTokens: 1000 });
-    const result = calculateEstimates(definitions, sessions);
+    const result = calculateEstimate(definitions, sessions);
 
     const totalInputTokens = 10 * (1000 + promptInputTokens);
     const expected = withBuffer(
-      calculateCost({
+      calculateLlmCost({
         modelCode: allModels[0],
         inputTokens: totalInputTokens,
         outputTokens: totalInputTokens,
@@ -243,11 +243,11 @@ describe("calculateEstimates", () => {
     const definitions = [
       makeDefinition("promptA", 1, allModels[0], promptInputTokens),
     ];
-    const result = calculateEstimates(definitions, Array(5).fill({}));
+    const result = calculateEstimate(definitions, Array(5).fill({}));
 
     const totalInputTokens = 5 * (250 + promptInputTokens);
     const expected = withBuffer(
-      calculateCost({
+      calculateLlmCost({
         modelCode: allModels[0],
         inputTokens: totalInputTokens,
         outputTokens: totalInputTokens,
@@ -262,17 +262,17 @@ describe("calculateEstimates", () => {
       makeDefinition("promptB", 1, allModels[0], 700),
     ];
     const sessions = Array(10).fill({ inputTokens: 1000 });
-    const result = calculateEstimates(definitions, sessions);
+    const result = calculateEstimate(definitions, sessions);
 
     const inputA = 10 * (1000 + 300);
     const inputB = 10 * (1000 + 700);
     const expected = withBuffer(
-      calculateCost({
+      calculateLlmCost({
         modelCode: allModels[0],
         inputTokens: inputA,
         outputTokens: inputA,
       }) +
-        calculateCost({
+        calculateLlmCost({
           modelCode: allModels[0],
           inputTokens: inputB,
           outputTokens: inputB,
@@ -282,11 +282,11 @@ describe("calculateEstimates", () => {
   });
 
   it("treats missing promptInputTokens as zero", () => {
-    const withTokens = calculateEstimates(
+    const withTokens = calculateEstimate(
       [makeDefinition("promptA", 1, allModels[0], 0)],
       Array(10).fill({ inputTokens: 1000 }),
     );
-    const withoutTokens = calculateEstimates(
+    const withoutTokens = calculateEstimate(
       [makeDefinition("promptA", 1, allModels[0])],
       Array(10).fill({ inputTokens: 1000 }),
     );
@@ -298,8 +298,8 @@ describe("calculateEstimates", () => {
     it("applies 1.2x buffer for small costs (raw ≤ $1)", () => {
       const definitions = [makeDefinition("promptA", 1, allModels[0])];
       const sessions = Array(1).fill({});
-      const result = calculateEstimates(definitions, sessions);
-      const rawCost = calculateCost({
+      const result = calculateEstimate(definitions, sessions);
+      const rawCost = calculateLlmCost({
         modelCode: allModels[0],
         inputTokens: 250,
         outputTokens: 250,
@@ -310,7 +310,7 @@ describe("calculateEstimates", () => {
     });
 
     it("returns zero cost and zero buffer for empty inputs", () => {
-      const result = calculateEstimates([], []);
+      const result = calculateEstimate([], []);
       expect(result.estimatedCost).toBe(0);
     });
   });

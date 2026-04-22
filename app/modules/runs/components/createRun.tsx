@@ -10,18 +10,14 @@ export default function CreateRunComponent({
   isSubmitting,
   initialRun,
   duplicateWarnings = [],
-  avgSecondsPerSession,
-  outputToInputRatio,
-  balance,
+  projectId,
 }: {
   breadcrumbs: Breadcrumb[];
   onStartRunClicked: (createRun: CreateRun) => void;
   isSubmitting: boolean;
   initialRun?: Run | null;
   duplicateWarnings?: string[];
-  avgSecondsPerSession: number | null;
-  outputToInputRatio: number | null;
-  balance: number;
+  projectId: string;
 }) {
   return (
     <div className="max-w-7xl p-8">
@@ -35,9 +31,7 @@ export default function CreateRunComponent({
         isSubmitting={isSubmitting}
         initialRun={initialRun}
         duplicateWarnings={duplicateWarnings}
-        avgSecondsPerSession={avgSecondsPerSession}
-        outputToInputRatio={outputToInputRatio}
-        balance={balance}
+        projectId={projectId}
       />
     </div>
   );

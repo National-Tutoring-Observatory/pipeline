@@ -12,7 +12,6 @@ import trackServerEvent from "~/modules/analytics/helpers/trackServerEvent.serve
 import useSubmitGuard from "~/modules/app/hooks/useSubmitGuard";
 import getSessionUserTeams from "~/modules/authentication/helpers/getSessionUserTeams";
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
-import { estimateServerSideCost } from "~/modules/billing/services/estimateServerSideCost.server";
 import { TeamBillingService } from "~/modules/billing/teamBilling";
 import { findModelByCode } from "~/modules/llm/modelRegistry";
 import ProjectAuthorization from "~/modules/projects/authorization";
@@ -51,24 +50,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }
   }
 
-  const teamId =
-    typeof project.team === "string" ? project.team : project.team._id;
-  const [avgSecondsPerSession, outputToInputRatio, balance] = await Promise.all(
-    [
-      RunService.getAverageSecondsPerSession(params.projectId),
-      TeamBillingService.getOutputToInputRatio(teamId),
-      TeamBillingService.getBalance(teamId),
-    ],
-  );
-
-  return {
-    project,
-    initialRun,
-    duplicateWarnings,
-    avgSecondsPerSession,
-    outputToInputRatio,
-    balance,
-  };
+  return { project, initialRun, duplicateWarnings };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -122,16 +104,19 @@ export async function action({ request, params }: Route.ActionArgs) {
 
       const teamId =
         typeof project.team === "string" ? project.team : project.team._id;
-      const [balance, estimatedCost] = await Promise.all([
+      const [balance, estimate] = await Promise.all([
         TeamBillingService.getBalance(teamId),
-        estimateServerSideCost({
+        TeamBillingService.estimateCost({
           teamId,
+          projectId: params.projectId,
           sessionIds: sessions,
           definitions: [
             {
+              key: `${prompt}:${promptVersion}:${model}`,
               modelCode: model,
               prompt: {
                 promptId: prompt,
+                promptName: "",
                 version: Number(promptVersion),
               },
             },
@@ -139,7 +124,7 @@ export async function action({ request, params }: Route.ActionArgs) {
           shouldRunVerification: !!payload.shouldRunVerification,
         }),
       ]);
-      if (estimatedCost > balance) {
+      if (estimate.estimatedCost > balance) {
         return data(
           { errors: { credits: "Insufficient credits to start a run" } },
           { status: 402 },
@@ -170,14 +155,8 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 export default function ProjectCreateRunRoute() {
-  const {
-    project,
-    initialRun,
-    duplicateWarnings,
-    avgSecondsPerSession,
-    outputToInputRatio,
-    balance,
-  } = useLoaderData<typeof loader>();
+  const { project, initialRun, duplicateWarnings } =
+    useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const { isSubmitting, guard } = useSubmitGuard(
@@ -242,9 +221,7 @@ export default function ProjectCreateRunRoute() {
       isSubmitting={isSubmitting}
       initialRun={initialRun}
       duplicateWarnings={duplicateWarnings}
-      avgSecondsPerSession={avgSecondsPerSession}
-      outputToInputRatio={outputToInputRatio}
-      balance={balance}
+      projectId={project._id}
     />
   );
 }
