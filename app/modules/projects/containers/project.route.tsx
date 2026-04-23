@@ -179,7 +179,6 @@ export default function ProjectRoute({ loaderData }: Route.ComponentProps) {
     };
 
     eventSource.onerror = () => {
-      console.log("error");
       eventSource.close();
     };
     return () => {
