@@ -1,6 +1,6 @@
 import applyBillingCredit from "./applyBillingCredit.server";
 
-const MINIMUM_TOPUP_AMOUNT = 10;
+const MINIMUM_TOPUP_AMOUNT = 1;
 
 interface AddCreditsInput {
   teamId: string;
