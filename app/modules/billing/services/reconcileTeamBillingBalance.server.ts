@@ -25,8 +25,14 @@ export default async function reconcileTeamBillingBalance(
     const actualBalance = currentBalance?.availableBalance ?? 0;
     const driftAmount = snapshot.expectedBalance - actualBalance;
 
+    const totalsAligned =
+      (currentBalance?.totalCredits ?? 0) === snapshot.creditTotal &&
+      (currentBalance?.totalRawCosts ?? 0) === snapshot.rawCostTotal &&
+      (currentBalance?.totalBilledCosts ?? 0) === snapshot.debitTotal;
+
     const isAligned =
       driftAmount === 0 &&
+      totalsAligned &&
       (currentBalance !== null || snapshot.lastLedgerEntryAt === null);
 
     if (isAligned) {
@@ -45,6 +51,11 @@ export default async function reconcileTeamBillingBalance(
       expectedBalance: snapshot.expectedBalance,
       lastLedgerEntryAt: snapshot.lastLedgerEntryAt,
       currentVersion: currentBalance?.version,
+      runningTotals: {
+        totalCredits: snapshot.creditTotal,
+        totalRawCosts: snapshot.rawCostTotal,
+        totalBilledCosts: snapshot.debitTotal,
+      },
     });
 
     if (repairStatus === "updated") {
@@ -75,13 +86,19 @@ export default async function reconcileTeamBillingBalance(
     TeamBillingBalanceService.findByTeam(teamId),
   ]);
 
+  const actualBalance = currentBalance?.availableBalance ?? 0;
+  const driftAmount = snapshot.expectedBalance - actualBalance;
+
+  console.error(
+    `[reconcileTeamBillingBalance] Retry exhausted for team ${teamId}: expected=${snapshot.expectedBalance}, actual=${actualBalance}, drift=${driftAmount}`,
+  );
+
   return {
     teamId,
     status: "retry-exhausted",
     expectedBalance: snapshot.expectedBalance,
-    actualBalance: currentBalance?.availableBalance ?? 0,
-    driftAmount:
-      snapshot.expectedBalance - (currentBalance?.availableBalance ?? 0),
+    actualBalance,
+    driftAmount,
     lastLedgerEntryAt: snapshot.lastLedgerEntryAt,
   };
 }

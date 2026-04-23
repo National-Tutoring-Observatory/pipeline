@@ -31,7 +31,7 @@ export default async function applyBillingDebit({
   idempotencyKey,
   metadata,
 }: ApplyBillingDebitInput): Promise<void> {
-  await TeamBillingBalanceService.ensureInitialized(teamId);
+  if (rawAmount <= 0) throw new Error("Debit rawAmount must be positive");
   const entryCreatedAt = createdAt ?? new Date();
 
   const plan = await TeamBillingPlanService.getEffectivePlan(teamId);
@@ -70,6 +70,10 @@ export default async function applyBillingDebit({
         teamId,
         -billedAmount,
         session,
+        {
+          totalRawCosts: rawAmount,
+          totalBilledCosts: billedAmount,
+        },
       );
     });
   } catch (error) {

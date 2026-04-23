@@ -47,19 +47,18 @@ export class TeamBillingService {
   static async getBalanceSummary(
     teamId: string,
   ): Promise<BalanceSummary | null> {
-    const [plan, billingBalance, ledgerTotals] = await Promise.all([
+    const [plan, billingBalance] = await Promise.all([
       TeamBillingPlanService.getEffectivePlan(teamId),
       TeamBillingBalanceService.findByTeam(teamId),
-      BillingLedgerEntryService.sumLedgerTotalsByTeam(teamId),
     ]);
 
     if (!plan) return null;
 
     return {
       balance: billingBalance?.availableBalance ?? 0,
-      credits: ledgerTotals.credits,
-      costs: ledgerTotals.rawCosts,
-      markedUpCosts: ledgerTotals.billedCosts,
+      credits: billingBalance?.totalCredits ?? 0,
+      costs: billingBalance?.totalRawCosts ?? 0,
+      markedUpCosts: billingBalance?.totalBilledCosts ?? 0,
       plan,
     };
   }
