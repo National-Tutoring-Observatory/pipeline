@@ -3,6 +3,7 @@ import { RunModel } from "../run";
 
 export interface AggregateProgressResult {
   completedRuns: number;
+  erroredRuns: number;
   totalSessions: number;
   completedSessions: number;
   processing: number;
@@ -23,6 +24,9 @@ export default async function aggregateProgress(
           _id: null,
           completedRuns: {
             $sum: { $cond: ["$isComplete", 1, 0] },
+          },
+          erroredRuns: {
+            $sum: { $cond: ["$hasErrored", 1, 0] },
           },
           processing: {
             $sum: {
@@ -75,6 +79,7 @@ export default async function aggregateProgress(
 
   return {
     completedRuns: progress?.completedRuns ?? 0,
+    erroredRuns: progress?.erroredRuns ?? 0,
     totalSessions: progress?.totalSessions ?? 0,
     completedSessions: progress?.completedSessions ?? 0,
     processing: progress?.processing ?? 0,

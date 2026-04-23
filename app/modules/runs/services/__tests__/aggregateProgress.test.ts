@@ -27,6 +27,7 @@ describe("aggregateProgress", () => {
     const result = await aggregateProgress([]);
     expect(result).toEqual({
       completedRuns: 0,
+      erroredRuns: 0,
       totalSessions: 0,
       completedSessions: 0,
       processing: 0,
@@ -92,6 +93,28 @@ describe("aggregateProgress", () => {
 
     expect(result.completedRuns).toBe(1);
     expect(result.processing).toBe(2);
+  });
+
+  it("counts runs with hasErrored set", async () => {
+    const run1 = await createTestRun({
+      name: "Errored",
+      project: projectId as any,
+      isComplete: true,
+      hasErrored: true,
+      sessions: buildSessions(["DONE"]),
+    });
+    const run2 = await createTestRun({
+      name: "Clean",
+      project: projectId as any,
+      isComplete: true,
+      hasErrored: false,
+      sessions: buildSessions(["DONE"]),
+    });
+
+    const result = await aggregateProgress([run1._id, run2._id]);
+
+    expect(result.erroredRuns).toBe(1);
+    expect(result.completedRuns).toBe(2);
   });
 
   it("returns the earliest startedAt", async () => {

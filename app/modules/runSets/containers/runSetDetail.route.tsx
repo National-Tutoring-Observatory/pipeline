@@ -52,6 +52,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   let annotationProgress = {
     totalRuns: runIds.length,
     completedRuns: 0,
+    erroredRuns: 0,
     totalSessions: 0,
     completedSessions: 0,
     processing: 0,
