@@ -125,6 +125,8 @@ export async function action({ request, params }: Route.ActionArgs) {
       return {};
     }
     case "EXPORT_RUN": {
+      if (!run.isComplete)
+        throw new Error("Cannot export a run that is not complete");
       if (run.hasErrored)
         throw new Error("Cannot export a run that has errors");
       await exportRun({ runId: params.runId, exportType });

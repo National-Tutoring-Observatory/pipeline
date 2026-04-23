@@ -58,6 +58,7 @@ export default function RunSetDetail({
   annotationProgress: {
     totalRuns: number;
     completedRuns: number;
+    erroredRuns: number;
     totalSessions: number;
     completedSessions: number;
     processing: number;
@@ -86,7 +87,8 @@ export default function RunSetDetail({
           <div className="text-muted-foreground flex gap-1">
             {annotationProgress.totalRuns > 0 &&
               annotationProgress.completedRuns ===
-                annotationProgress.totalRuns && (
+                annotationProgress.totalRuns &&
+              annotationProgress.erroredRuns === 0 && (
                 <DownloadDropdown
                   isExporting={isExporting}
                   onExportButtonClicked={onExportRunSetButtonClicked}
