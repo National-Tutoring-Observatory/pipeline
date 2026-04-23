@@ -13,10 +13,10 @@ describe("addCredits", () => {
   const teamId = new Types.ObjectId().toString();
   const userId = new Types.ObjectId().toString();
 
-  it("rejects amounts below $10", async () => {
+  it("rejects amounts below $1", async () => {
     const result = await TeamBillingService.addCredits({
       teamId,
-      amount: 5,
+      amount: 0,
       addedBy: userId,
       idempotencyKey: "admin-credit:test-below-minimum",
     });

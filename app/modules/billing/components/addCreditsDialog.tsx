@@ -20,14 +20,15 @@ const AddCreditsDialog = ({ onAddCreditsClicked }: AddCreditsDialogProps) => {
   const [note, setNote] = useState("");
 
   const numericAmount = parseInt(amount, 10);
-  const isValid = !isNaN(numericAmount) && numericAmount >= 10;
+  const isValid = !isNaN(numericAmount) && numericAmount >= 1;
+  const showMinimumError = amount !== "" && !isValid;
 
   return (
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Add credits</DialogTitle>
         <DialogDescription>
-          Add credits to your team balance. Minimum top-up is $10.
+          Add credits to this team&apos;s balance. Minimum amount is $1.
         </DialogDescription>
       </DialogHeader>
       <div className="grid gap-3">
@@ -35,13 +36,16 @@ const AddCreditsDialog = ({ onAddCreditsClicked }: AddCreditsDialogProps) => {
         <Input
           id="credit-amount"
           type="number"
-          min="10"
+          min="1"
           step="1"
-          placeholder="10"
+          placeholder="1"
           autoComplete="off"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
+        {showMinimumError && (
+          <p className="text-destructive text-sm">Minimum amount is $1.</p>
+        )}
         <Label htmlFor="credit-note">Note (optional)</Label>
         <Input
           id="credit-note"
