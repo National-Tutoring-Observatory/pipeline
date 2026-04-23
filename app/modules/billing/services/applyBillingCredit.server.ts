@@ -27,7 +27,7 @@ export default async function applyBillingCredit({
   stripeSessionId,
   metadata,
 }: ApplyBillingCreditInput): Promise<void> {
-  await TeamBillingBalanceService.ensureInitialized(teamId);
+  if (amount <= 0) throw new Error("Credit amount must be positive");
   const entryCreatedAt = createdAt ?? new Date();
 
   try {
@@ -54,7 +54,9 @@ export default async function applyBillingCredit({
         { session },
       );
 
-      await TeamBillingBalanceService.applyDelta(teamId, amount, session);
+      await TeamBillingBalanceService.applyDelta(teamId, amount, session, {
+        totalCredits: amount,
+      });
     });
   } catch (error) {
     // Duplicate key means this idempotency key was already applied, so treat the

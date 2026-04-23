@@ -56,6 +56,9 @@ export interface TeamBillingBalance {
   _id: string;
   team: string;
   availableBalance: number;
+  totalCredits: number;
+  totalRawCosts: number;
+  totalBilledCosts: number;
   lastLedgerEntryAt?: Date | string;
   lastReconciledAt?: Date | string;
   version?: number;
@@ -65,6 +68,12 @@ export interface TeamBillingBalance {
 export interface PendingPlanChange {
   plan: BillingPlan;
   effectiveFrom: Date | string;
+}
+
+export interface RunningTotals {
+  totalCredits?: number;
+  totalRawCosts?: number;
+  totalBilledCosts?: number;
 }
 
 export interface BalanceSummary {

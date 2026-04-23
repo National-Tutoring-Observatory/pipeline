@@ -94,72 +94,11 @@ export class BillingLedgerEntryService {
     return ids.map((id: mongoose.Types.ObjectId) => id.toString());
   }
 
-  static async sumCreditsByTeam(teamId: string): Promise<number> {
-    const result = await BillingLedgerEntryModel.aggregate([
-      {
-        $match: {
-          team: new mongoose.Types.ObjectId(teamId),
-          direction: "credit",
-        },
-      },
-      { $group: { _id: null, total: { $sum: "$amount" } } },
-    ]);
-    return result[0]?.total ?? 0;
-  }
-
-  static async sumDebitsByTeam(teamId: string): Promise<number> {
-    const result = await BillingLedgerEntryModel.aggregate([
-      {
-        $match: {
-          team: new mongoose.Types.ObjectId(teamId),
-          direction: "debit",
-        },
-      },
-      { $group: { _id: null, total: { $sum: "$amount" } } },
-    ]);
-    return result[0]?.total ?? 0;
-  }
-
-  static async sumLedgerTotalsByTeam(teamId: string): Promise<{
-    credits: number;
-    rawCosts: number;
-    billedCosts: number;
-  }> {
-    const result = await BillingLedgerEntryModel.aggregate([
-      { $match: { team: new mongoose.Types.ObjectId(teamId) } },
-      {
-        $group: {
-          _id: null,
-          credits: {
-            $sum: {
-              $cond: [{ $eq: ["$direction", "credit"] }, "$amount", 0],
-            },
-          },
-          rawCosts: {
-            $sum: {
-              $cond: [{ $eq: ["$direction", "debit"] }, "$rawAmount", 0],
-            },
-          },
-          billedCosts: {
-            $sum: {
-              $cond: [{ $eq: ["$direction", "debit"] }, "$amount", 0],
-            },
-          },
-        },
-      },
-    ]);
-
-    return {
-      credits: result[0]?.credits ?? 0,
-      rawCosts: result[0]?.rawCosts ?? 0,
-      billedCosts: result[0]?.billedCosts ?? 0,
-    };
-  }
-
   static async getBalanceSnapshotByTeam(teamId: string): Promise<{
     expectedBalance: number;
     creditTotal: number;
     debitTotal: number;
+    rawCostTotal: number;
     lastLedgerEntryAt: Date | null;
   }> {
     const result = await BillingLedgerEntryModel.aggregate([
@@ -181,6 +120,11 @@ export class BillingLedgerEntryService {
               $cond: [{ $eq: ["$direction", "debit"] }, "$amount", 0],
             },
           },
+          rawCostTotal: {
+            $sum: {
+              $cond: [{ $eq: ["$direction", "debit"] }, "$rawAmount", 0],
+            },
+          },
           lastLedgerEntryAt: { $max: "$createdAt" },
         },
       },
@@ -193,6 +137,7 @@ export class BillingLedgerEntryService {
       expectedBalance: creditTotal - debitTotal,
       creditTotal,
       debitTotal,
+      rawCostTotal: result[0]?.rawCostTotal ?? 0,
       lastLedgerEntryAt: result[0]?.lastLedgerEntryAt ?? null,
     };
   }

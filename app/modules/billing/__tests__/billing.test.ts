@@ -177,7 +177,7 @@ describe("Billing", () => {
       expect(summary).toBeNull();
     });
 
-    it("returns summary with zero balance when no TeamBillingBalance exists", async () => {
+    it("returns summary with zero totals when no TeamBillingBalance exists", async () => {
       await seedDefaultPlan();
 
       await TeamBillingService.applyCredit({
@@ -195,7 +195,7 @@ describe("Billing", () => {
 
       expect(summary).not.toBeNull();
       expect(summary!.balance).toBe(0);
-      expect(summary!.credits).toBe(100);
+      expect(summary!.credits).toBe(0);
       expect(summary!.costs).toBe(0);
       expect(summary!.markedUpCosts).toBe(0);
     });
