@@ -1,9 +1,20 @@
 import mongoose, { type ClientSession } from "mongoose";
 import teamBillingBalanceSchema from "~/lib/schemas/teamBillingBalance.schema";
-import type { TeamBillingBalance } from "./billing.types";
+import type { RunningTotals, TeamBillingBalance } from "./billing.types";
 import reconcileTeamBillingBalance, {
   type ReconcileTeamBillingBalanceResult,
 } from "./services/reconcileTeamBillingBalance.server";
+
+function definedTotals(totals?: RunningTotals): Record<string, number> {
+  const out: Record<string, number> = {};
+  if (totals?.totalCredits !== undefined)
+    out.totalCredits = totals.totalCredits;
+  if (totals?.totalRawCosts !== undefined)
+    out.totalRawCosts = totals.totalRawCosts;
+  if (totals?.totalBilledCosts !== undefined)
+    out.totalBilledCosts = totals.totalBilledCosts;
+  return out;
+}
 
 export const TeamBillingBalanceModel =
   mongoose.models.TeamBillingBalance ||
@@ -39,6 +50,9 @@ export class TeamBillingBalanceService {
       {
         $setOnInsert: {
           availableBalance: initialBalance ?? 0,
+          totalCredits: 0,
+          totalRawCosts: 0,
+          totalBilledCosts: 0,
           updatedAt: new Date(),
         },
       },
@@ -52,11 +66,20 @@ export class TeamBillingBalanceService {
     teamId: string,
     delta: number,
     session: ClientSession,
+    runningTotals?: RunningTotals,
   ): Promise<void> {
+    const inc: Record<string, number> = {
+      availableBalance: delta,
+      version: 1,
+      totalCredits: runningTotals?.totalCredits ?? 0,
+      totalRawCosts: runningTotals?.totalRawCosts ?? 0,
+      totalBilledCosts: runningTotals?.totalBilledCosts ?? 0,
+    };
+
     await TeamBillingBalanceModel.findOneAndUpdate(
       { team: teamId },
       {
-        $inc: { availableBalance: delta, version: 1 },
+        $inc: inc,
         $set: {
           updatedAt: new Date(),
           lastLedgerEntryAt: new Date(),
@@ -71,13 +94,16 @@ export class TeamBillingBalanceService {
     expectedBalance,
     lastLedgerEntryAt,
     currentVersion,
+    runningTotals,
   }: {
     teamId: string;
     expectedBalance: number;
     lastLedgerEntryAt: Date | null;
     currentVersion?: number;
+    runningTotals?: RunningTotals;
   }): Promise<"updated" | "stale"> {
     const now = new Date();
+    const totalsSet = definedTotals(runningTotals);
 
     if (currentVersion === undefined) {
       const result = await TeamBillingBalanceModel.updateOne(
@@ -85,6 +111,7 @@ export class TeamBillingBalanceService {
         {
           $setOnInsert: {
             availableBalance: expectedBalance,
+            ...totalsSet,
             lastLedgerEntryAt: lastLedgerEntryAt ?? undefined,
             updatedAt: now,
             version: 0,
@@ -101,6 +128,7 @@ export class TeamBillingBalanceService {
       {
         $set: {
           availableBalance: expectedBalance,
+          ...totalsSet,
           lastLedgerEntryAt: lastLedgerEntryAt ?? undefined,
           updatedAt: now,
         },
