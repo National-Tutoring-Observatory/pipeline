@@ -42,7 +42,6 @@ export default function BillingPeriodHistory({
               <TableHead className="text-right">Opening</TableHead>
               <TableHead className="text-right">Credits</TableHead>
               <TableHead className="text-right">Usage</TableHead>
-              <TableHead className="text-right">Billed</TableHead>
               <TableHead className="text-right">Closing Balance</TableHead>
               <TableHead className="text-right">Closed On</TableHead>
             </TableRow>
@@ -58,9 +57,6 @@ export default function BillingPeriodHistory({
                 </TableCell>
                 <TableCell className="text-right">
                   ${(period.creditsAdded ?? 0).toFixed(2)}
-                </TableCell>
-                <TableCell className="text-right">
-                  ${(period.rawCost ?? 0).toFixed(2)}
                 </TableCell>
                 <TableCell className="text-right">
                   ${(period.billedAmount ?? 0).toFixed(2)}

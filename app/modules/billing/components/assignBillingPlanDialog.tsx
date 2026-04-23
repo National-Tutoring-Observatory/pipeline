@@ -49,7 +49,8 @@ const AssignBillingPlanDialog = ({
           <SelectContent>
             {plans.map((plan) => (
               <SelectItem key={plan._id} value={plan._id}>
-                {plan.name} ({((plan.markupRate - 1) * 100).toFixed(0)}% markup)
+                {plan.name} ({(((plan.markupRate ?? 1) - 1) * 100).toFixed(0)}%
+                markup)
               </SelectItem>
             ))}
           </SelectContent>

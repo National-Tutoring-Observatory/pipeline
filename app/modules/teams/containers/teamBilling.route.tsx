@@ -68,7 +68,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     sortableFields: ["createdAt", "amount"],
   });
 
-  const isSuperAdmin = BillingAuthorization.canAssignPlan(user);
+  const canAssignPlan = BillingAuthorization.canAssignPlan(user);
 
   const [
     billingReportingSummary,
@@ -92,7 +92,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           u ? { _id: u._id, username: u.username } : null,
         )
       : Promise.resolve(null),
-    isSuperAdmin ? BillingPlanService.find() : Promise.resolve([]),
+    canAssignPlan ? BillingPlanService.find() : Promise.resolve([]),
     TeamBillingPlanService.getPendingPlanChange(params.id),
   ]);
 
@@ -118,6 +118,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       spendAnalytics: emptySpendAnalytics,
       isBillingEnabled: billingEnabled,
     };
+  }
+
+  if (!canAssignPlan) {
+    delete balanceSummary.plan.markupRate;
+    delete balanceSummary.costs;
+    for (const period of closedPeriods) {
+      delete period.rawCost;
+    }
   }
 
   const url = new URL(request.url);
