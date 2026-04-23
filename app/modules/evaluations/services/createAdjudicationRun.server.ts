@@ -27,21 +27,13 @@ export default async function createAdjudicationRun(
     promptVersion,
   } = params;
 
-  console.log("[createAdjudicationRun] Starting", {
-    evaluationId,
-    selectedRunIds,
-    modelCode,
-  });
-
   const runSet = await RunSetService.findById(runSetId);
   if (!runSet) {
-    console.log("[createAdjudicationRun] RunSet not found:", runSetId);
     return;
   }
 
   const annotationType = runSet.annotationType || "PER_UTTERANCE";
 
-  // Create the run
   const modelInfo = findModelByCode(modelCode);
   const runName = `Adjudication - ${modelInfo?.name || modelCode}`;
 
@@ -60,27 +52,16 @@ export default async function createAdjudicationRun(
     },
   });
 
-  console.log("[createAdjudicationRun] Run created:", run._id, run.name);
-
-  // Add the run to the RunSet
   await RunSetService.updateById(runSetId, {
     runs: [...(runSet.runs || []), run._id],
   });
 
-  console.log("[createAdjudicationRun] Run added to RunSet");
-
-  // Add the run to the Evaluation so the UI can track it
   const evaluation = await EvaluationService.findById(evaluationId);
   if (evaluation) {
     await EvaluationService.updateById(evaluationId, {
       runs: [...evaluation.runs, run._id],
     });
-    console.log("[createAdjudicationRun] Run added to Evaluation");
   }
 
-  // Start the run — reuses the standard ANNOTATE_RUN worker pipeline.
-  // The worker will detect isAdjudication and adjust behaviour.
   RunService.start(run, evaluationId);
-
-  console.log("[createAdjudicationRun] Run started");
 }

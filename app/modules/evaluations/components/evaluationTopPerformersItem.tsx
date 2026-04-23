@@ -10,7 +10,6 @@ export default function EvaluationTopPerformersItem({
 }: {
   performer: TopPerformer;
 }) {
-  console.log(performer.isAdjudication);
   return (
     <Card>
       <CardContent className="space-y-3">

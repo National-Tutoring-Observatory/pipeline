@@ -39,15 +39,11 @@ export default async function consumeTeamInvite({
   primaryEmail: string;
 }): Promise<ConsumeResult> {
   const invite = await TeamInviteService.findById(inviteId);
-  console.log("[consumeTeamInvite] invite loaded", {
-    inviteId,
-    found: !!invite,
-  });
+
   if (!invite) return { status: "not_found" };
 
   const status = getTeamInviteStatus(invite);
   if (status !== "active") {
-    console.log("[consumeTeamInvite] invite not active", { status });
     return { status };
   }
 
@@ -55,9 +51,6 @@ export default async function consumeTeamInvite({
     match: { githubId: githubUser.id, hasGithubSSO: true },
   });
   const existingUser = existingUsers[0] ?? null;
-  console.log("[consumeTeamInvite] existing user lookup", {
-    found: !!existingUser,
-  });
 
   if (existingUser) {
     const alreadyInTeam = find(
@@ -65,7 +58,6 @@ export default async function consumeTeamInvite({
       (t) => t.team === invite.team,
     );
     if (alreadyInTeam) {
-      console.log("[consumeTeamInvite] already a team member — no-op");
       return { status: "already_member", user: existingUser, invite };
     }
   }
@@ -81,9 +73,7 @@ export default async function consumeTeamInvite({
     { $inc: { usedCount: 1 } },
     { new: true },
   );
-  console.log("[consumeTeamInvite] atomic increment", {
-    succeeded: !!atomicallyUpdated,
-  });
+
   if (!atomicallyUpdated) {
     const current = await TeamInviteService.findById(inviteId);
     if (!current) return { status: "not_found" };
@@ -138,6 +128,5 @@ export default async function consumeTeamInvite({
     },
   });
 
-  console.log("[consumeTeamInvite] success", { userId: user._id, isNewUser });
   return { status: "success", user, invite, isNewUser };
 }
