@@ -22,7 +22,7 @@ test.describe("Billing", () => {
     await navigateToBilling(page);
     await expect(page.getByText("Balance").first()).toBeVisible();
     await expect(page.getByText("Credits Added")).toBeVisible();
-    await expect(page.getByText("Usage (with markup)")).toBeVisible();
+    await expect(page.getByText("Usage").first()).toBeVisible();
     await expect(page.getByText("Plan").first()).toBeVisible();
   });
 

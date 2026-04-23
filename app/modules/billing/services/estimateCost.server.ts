@@ -94,7 +94,7 @@ export default async function estimateCost({
   );
 
   return {
-    estimatedCost: estimatedCost * plan.markupRate,
+    estimatedCost: estimatedCost * (plan.markupRate ?? 1),
     estimatedTimeSeconds,
   };
 }

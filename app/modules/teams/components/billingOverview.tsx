@@ -93,7 +93,7 @@ export default function BillingOverview({
 
         <Card>
           <CardHeader>
-            <CardDescription>Usage (with markup)</CardDescription>
+            <CardDescription>Usage</CardDescription>
             <CardTitle className="text-2xl">
               ${balanceSummary.markedUpCosts.toFixed(2)}
             </CardTitle>
@@ -106,9 +106,12 @@ export default function BillingOverview({
             <CardTitle className="text-2xl">
               {balanceSummary.plan.name}
             </CardTitle>
-            <CardDescription>
-              {((balanceSummary.plan.markupRate - 1) * 100).toFixed(0)}% markup
-            </CardDescription>
+            {canAssignPlan && balanceSummary.plan.markupRate != null && (
+              <CardDescription>
+                {((balanceSummary.plan.markupRate - 1) * 100).toFixed(0)}%
+                markup
+              </CardDescription>
+            )}
             {pendingPlanChange && (
               <CardDescription className="flex items-center gap-1 text-yellow-600">
                 <Clock className="h-3 w-3" />

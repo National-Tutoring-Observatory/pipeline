@@ -1,7 +1,7 @@
 export interface BillingPlan {
   _id: string;
   name: string;
-  markupRate: number;
+  markupRate?: number;
   isDefault: boolean;
   createdAt: Date | string;
 }
@@ -70,7 +70,7 @@ export interface PendingPlanChange {
 export interface BalanceSummary {
   balance: number;
   credits: number;
-  costs: number;
+  costs?: number;
   markedUpCosts: number;
   plan: BillingPlan;
 }
@@ -82,7 +82,7 @@ export interface BillingPeriodReport {
   endAt: Date | string;
   openingBalance: number;
   creditsAdded: number;
-  rawCost: number;
+  rawCost?: number;
   billedAmount: number;
   closingBalance: number;
   closedAt: Date | string;
