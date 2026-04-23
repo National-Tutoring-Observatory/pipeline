@@ -172,6 +172,26 @@ describe("getRunSetPrefillData", () => {
       expect(result.prefillSessionIds).toContain(sessionId);
     });
 
+    it("copies shouldRunVerification from source run", async () => {
+      const run = await RunService.create({
+        project: projectId,
+        name: "Verified Run",
+        sessions: [],
+        annotationType: "PER_UTTERANCE",
+        prompt: promptId,
+        promptVersion: 1,
+        modelCode: testModel,
+        shouldRunVerification: true,
+      });
+
+      const result = await RunSetService.getPrefillDataFromRun(
+        run._id,
+        projectId,
+      );
+
+      expect(result.prefillData!.shouldRunVerification).toBe(true);
+    });
+
     it("uses empty string for prompt name when prompt no longer exists", async () => {
       const deletedId = new Types.ObjectId().toString();
       const run = await RunService.create({
@@ -435,6 +455,68 @@ describe("getRunSetPrefillData", () => {
       );
       expect(result.prefillData!.selectedPrompts).toHaveLength(0);
       expect(result.prefillData!.selectedModels).toHaveLength(0);
+    });
+
+    it("copies shouldRunVerification when any run has it enabled", async () => {
+      const runWithout = await RunService.create({
+        project: projectId,
+        name: "Run Without Verification",
+        sessions: [],
+        annotationType: "PER_UTTERANCE",
+        prompt: promptId,
+        promptVersion: 1,
+        modelCode: testModel,
+        shouldRunVerification: false,
+      });
+      const runWith = await RunService.create({
+        project: projectId,
+        name: "Run With Verification",
+        sessions: [],
+        annotationType: "PER_UTTERANCE",
+        prompt: promptId,
+        promptVersion: 1,
+        modelCode: testModel,
+        shouldRunVerification: true,
+      });
+      const runSet = await RunSetService.create({
+        name: "Mixed Verification RunSet",
+        project: projectId,
+        runs: [runWithout._id, runWith._id],
+        annotationType: "PER_UTTERANCE",
+      });
+
+      const result = await RunSetService.getPrefillDataFromRunSet(
+        runSet._id,
+        projectId,
+      );
+
+      expect(result.prefillData!.shouldRunVerification).toBe(true);
+    });
+
+    it("keeps shouldRunVerification false when no runs have it enabled", async () => {
+      const run = await RunService.create({
+        project: projectId,
+        name: "Run Without Verification",
+        sessions: [],
+        annotationType: "PER_UTTERANCE",
+        prompt: promptId,
+        promptVersion: 1,
+        modelCode: testModel,
+        shouldRunVerification: false,
+      });
+      const runSet = await RunSetService.create({
+        name: "No Verification RunSet",
+        project: projectId,
+        runs: [run._id],
+        annotationType: "PER_UTTERANCE",
+      });
+
+      const result = await RunSetService.getPrefillDataFromRunSet(
+        runSet._id,
+        projectId,
+      );
+
+      expect(result.prefillData!.shouldRunVerification).toBe(false);
     });
 
     it("includes validation error when a model is no longer available", async () => {
