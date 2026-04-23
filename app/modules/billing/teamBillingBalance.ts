@@ -1,6 +1,7 @@
 import mongoose, { type ClientSession } from "mongoose";
 import teamBillingBalanceSchema from "~/lib/schemas/teamBillingBalance.schema";
 import type { RunningTotals, TeamBillingBalance } from "./billing.types";
+import { balanceGauge } from "./helpers/billingMetrics";
 import reconcileTeamBillingBalance, {
   type ReconcileTeamBillingBalanceResult,
 } from "./services/reconcileTeamBillingBalance.server";
@@ -76,7 +77,7 @@ export class TeamBillingBalanceService {
       totalBilledCosts: runningTotals?.totalBilledCosts ?? 0,
     };
 
-    await TeamBillingBalanceModel.findOneAndUpdate(
+    const doc = await TeamBillingBalanceModel.findOneAndUpdate(
       { team: teamId },
       {
         $inc: inc,
@@ -85,8 +86,12 @@ export class TeamBillingBalanceService {
           lastLedgerEntryAt: new Date(),
         },
       },
-      { session, upsert: true },
+      { session, upsert: true, new: true },
     );
+
+    if (doc) {
+      balanceGauge.record(doc.availableBalance, { team: teamId });
+    }
   }
 
   static async reconcileToSnapshot({
