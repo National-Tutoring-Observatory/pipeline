@@ -1,6 +1,10 @@
 import Decimal from "decimal.js";
 import withTransaction from "~/lib/withTransaction";
 import { BillingLedgerEntryModel } from "../billingLedgerEntry";
+import {
+  debitsAppliedCounter,
+  idempotentSkipsCounter,
+} from "../helpers/billingMetrics";
 import { TeamBillingBalanceService } from "../teamBillingBalance";
 import { TeamBillingPlanService } from "../teamBillingPlan";
 
@@ -76,10 +80,13 @@ export default async function applyBillingDebit({
         },
       );
     });
+
+    debitsAppliedCounter.add(billedAmount, { team: teamId, model });
   } catch (error) {
     // Duplicate key means this idempotency key was already applied, so treat the
     // retry as a no-op instead of failing the request.
     if ((error as { code?: number }).code === 11000) {
+      idempotentSkipsCounter.add(1, { direction: "debit", team: teamId });
       return;
     }
 

@@ -140,6 +140,10 @@ class LLM {
     const balance = await TeamBillingService.getBalance(this.options.user);
 
     if (balance <= 0) {
+      const { insufficientBalanceCounter } =
+        await import("~/modules/billing/helpers/billingMetrics");
+      insufficientBalanceCounter.add(1, { team: this.options.user });
+
       const { InsufficientCreditsError } =
         await import("~/modules/billing/errors/insufficientCreditsError");
       throw new InsufficientCreditsError(this.options.user);
