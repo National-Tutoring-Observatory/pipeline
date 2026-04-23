@@ -33,6 +33,7 @@ export interface PrefillData {
   selectedPrompts: PromptReference[];
   selectedModels: string[];
   selectedSessions: SessionData[];
+  shouldRunVerification?: boolean;
   validationErrors?: string[];
 }
 

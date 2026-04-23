@@ -40,6 +40,7 @@ export async function getPrefillDataFromRun(
         },
       ],
       selectedModels: modelCode ? [modelCode] : [],
+      shouldRunVerification: run.shouldRunVerification ?? false,
       selectedSessions: [],
     },
     prefillSessionIds: sessionIds,
@@ -75,9 +76,11 @@ export async function getPrefillDataFromRunSet(
 
   const promptMap = new Map<string, { promptId: string; version: number }>();
   const modelSet = new Set<string>();
+  let shouldRunVerification = false;
 
   for (const run of runs) {
     if (run.isHuman) continue;
+    if (run.shouldRunVerification) shouldRunVerification = true;
     const key = `${run.prompt}-${run.promptVersion}`;
     if (!promptMap.has(key)) {
       promptMap.set(key, {
@@ -133,6 +136,7 @@ export async function getPrefillDataFromRunSet(
       annotationType,
       selectedPrompts,
       selectedModels,
+      shouldRunVerification,
       selectedSessions: [],
       validationErrors:
         validationErrors.length > 0 ? validationErrors : undefined,

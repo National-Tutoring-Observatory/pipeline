@@ -54,7 +54,9 @@ export default function RunSetCreatorContainer({
   const [selectedSessions, setSelectedSessions] = useState<SessionData[]>(
     prefillData?.selectedSessions || [],
   );
-  const [shouldRunVerification, setShouldRunVerification] = useState(false);
+  const [shouldRunVerification, setShouldRunVerification] = useState(
+    prefillData?.shouldRunVerification ?? false,
+  );
   const [removedKeys, setRemovedKeys] = useState<Set<string>>(new Set());
 
   const allDefinitions = useMemo(
