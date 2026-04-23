@@ -1,3 +1,4 @@
+import { metrics } from "@opentelemetry/api";
 import type { Job } from "bullmq";
 import { BillingLedgerEntryService } from "~/modules/billing/billingLedgerEntry";
 import type { ReconcileTeamBillingBalanceResult } from "~/modules/billing/services/reconcileTeamBillingBalance.server";
@@ -8,6 +9,34 @@ import { NotificationService } from "~/modules/notifications/notification";
 import mapWithConcurrency from "../helpers/mapWithConcurrency";
 
 const DRIFT_ALERT_THRESHOLD = 0.01;
+
+const meter = metrics.getMeter("billing.reconciliation");
+
+const teamsProcessedCounter = meter.createCounter(
+  "billing.reconciliation.teams_processed",
+  { description: "Total teams processed per reconciliation run" },
+);
+
+const repairedCounter = meter.createCounter("billing.reconciliation.repaired", {
+  description: "Teams with balance drift repaired",
+});
+
+const retryExhaustedCounter = meter.createCounter(
+  "billing.reconciliation.retry_exhausted",
+  { description: "Teams where reconciliation retries were exhausted" },
+);
+
+const failedCounter = meter.createCounter("billing.reconciliation.failed", {
+  description: "Teams where reconciliation failed with an error",
+});
+
+const driftAmountHistogram = meter.createHistogram(
+  "billing.reconciliation.drift_amount",
+  {
+    description: "Absolute drift amount between expected and actual balance",
+    unit: "usd",
+  },
+);
 
 type ReconcileResult =
   | ReconcileTeamBillingBalanceResult
@@ -88,6 +117,18 @@ export default async function reconcileBillingBalances(_job: Job) {
     (result) => result.status === "retry-exhausted",
   ).length;
   const failed = results.filter((result) => result.status === "failed").length;
+
+  teamsProcessedCounter.add(teamIds.length);
+  repairedCounter.add(repaired);
+  retryExhaustedCounter.add(retryExhausted);
+  failedCounter.add(failed);
+
+  for (const result of results) {
+    if (result.status === "repaired" || result.status === "retry-exhausted") {
+      const r = result as ReconcileTeamBillingBalanceResult;
+      driftAmountHistogram.record(Math.abs(r.driftAmount));
+    }
+  }
 
   const alertMessage = buildAlertMessage(results);
   if (alertMessage) {
