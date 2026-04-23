@@ -1,16 +1,13 @@
 import clsx from "clsx";
 import map from "lodash/map";
-import React, { type ReactElement } from "react";
+import { type ReactElement } from "react";
 import { Link } from "react-router";
 import { ActionBar, type Action } from "./actionBar";
 import { CollectionEmpty } from "./collectionEmpty";
-import type {
-  CollectionItemAction,
-  CollectionItemAttributes,
-} from "./collectionItemContent";
-import CollectionItemContent, {
-  CollectionItemActions,
-} from "./collectionItemContent";
+import type { CollectionItemAction } from "./collectionItemActions";
+import CollectionItemActions from "./collectionItemActions";
+import type { CollectionItemAttributes } from "./collectionItemContent";
+import CollectionItemContent from "./collectionItemContent";
 import type { FiltersProps } from "./filters";
 import { Item, ItemGroup, ItemSeparator } from "./item";
 import type { PaginationProps } from "./pagination";
@@ -124,81 +121,72 @@ const Collection = ({
           const itemActions = getItemActions(item);
 
           return (
-            <React.Fragment key={id}>
+            <div key={id}>
               <Item
                 variant={itemsLayout === "card" ? "outline" : undefined}
                 className={clsx(
                   { "opacity-50": isDisabled },
-                  "has-[:focus-visible]:border-ring has-[:focus-visible]:ring-ring/50 has-[:focus-visible]:ring-[3px]",
+                  {
+                    "hover:bg-accent/50 cursor-pointer":
+                      !isDisabled && (onItemClicked || to),
+                  },
+                  "has-focus-visible:border-ring has-focus-visible:ring-ring/50 relative rounded-none p-0 transition-colors duration-300 has-focus-visible:ring-[3px]",
                 )}
               >
                 {to && !isDisabled ? (
-                  <>
-                    <Link
-                      to={to}
-                      className="flex min-w-0 flex-1 items-center gap-4 rounded-none outline-none"
-                    >
-                      {(renderItem && renderItem(item)) || (
-                        <CollectionItemContent
-                          id={id}
-                          title={title}
-                          description={description}
-                          meta={meta}
-                          actions={[]}
-                          isDisabled={isDisabled}
-                        />
-                      )}
-                    </Link>
-                    {!renderItem && (
-                      <CollectionItemActions
-                        id={id}
-                        actions={itemActions}
-                        isDisabled={!!isDisabled}
-                        onItemActionClicked={onItemActionClicked}
+                  <Link
+                    to={to}
+                    className={clsx(
+                      {
+                        "pr-[140px]": itemActions.length > 0,
+                      },
+                      "flex w-full min-w-0 items-center gap-4 rounded-none p-4 outline-none",
+                    )}
+                  >
+                    {(renderItem && renderItem(item)) || (
+                      <CollectionItemContent
+                        title={title}
+                        description={description}
+                        meta={meta}
                       />
                     )}
-                  </>
+                  </Link>
                 ) : (
-                  <>
-                    <div
-                      className={clsx(
-                        "flex min-w-0 flex-1 items-center gap-4 rounded-none",
-                        {
-                          "hover:bg-accent/50 cursor-pointer": onItemClicked,
-                        },
-                      )}
-                      onClick={() => {
-                        if (onItemClicked) {
-                          onItemClicked(item._id);
-                        }
-                      }}
-                    >
-                      {(renderItem && renderItem(item)) || (
-                        <CollectionItemContent
-                          id={id}
-                          title={title}
-                          description={description}
-                          meta={meta}
-                          actions={[]}
-                          isDisabled={isDisabled}
-                        />
-                      )}
-                    </div>
-                    {!renderItem && (
-                      <CollectionItemActions
-                        id={id}
-                        actions={itemActions}
-                        isDisabled={!!isDisabled}
-                        onItemActionClicked={onItemActionClicked}
+                  <div
+                    className={clsx(
+                      {
+                        "pr-[140px]": itemActions.length > 0,
+                      },
+                      "flex w-full min-w-0 items-center gap-4 rounded-none p-4",
+                    )}
+                    onClick={() => {
+                      if (onItemClicked) {
+                        onItemClicked(item._id);
+                      }
+                    }}
+                  >
+                    {(renderItem && renderItem(item)) || (
+                      <CollectionItemContent
+                        title={title}
+                        description={description}
+                        meta={meta}
                       />
                     )}
-                  </>
+                  </div>
+                )}
+                {!renderItem && (
+                  <CollectionItemActions
+                    id={id}
+                    actions={itemActions}
+                    isDisabled={!!isDisabled}
+                    onItemActionClicked={onItemActionClicked}
+                  />
                 )}
               </Item>
               {index !== items.length - 1 && itemsLayout === "list" && (
                 <ItemSeparator />
               )}
-            </React.Fragment>
+            </div>
           );
         })}
       </ItemGroup>

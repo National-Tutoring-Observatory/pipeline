@@ -1,4 +1,4 @@
-import type { CollectionItemAction } from "@/components/ui/collectionItemContent";
+import type { CollectionItemAction } from "@/components/ui/collectionItemActions";
 import { Copy, Edit, FolderPlus, ListPlus, Stamp, Trash2 } from "lucide-react";
 
 export default function useRunsItemActions(): () => CollectionItemAction[] {

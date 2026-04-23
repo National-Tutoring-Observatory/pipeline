@@ -82,7 +82,7 @@ function ActionBar({
 
       <div
         className={clsx(
-          `bg-background sticky top-4 mb-2 flex justify-between rounded-2xl border p-2 transition-all`,
+          `bg-background sticky top-4 z-10 mb-2 flex justify-between rounded-2xl border p-2 transition-all`,
           {
             "-mx-2 shadow": isStuck,
           },
