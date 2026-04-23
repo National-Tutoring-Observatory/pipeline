@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Collection } from "@/components/ui/collection";
-import type { CollectionItemAction } from "@/components/ui/collectionItemContent";
+import type { CollectionItemAction } from "@/components/ui/collectionItemActions";
 import { Trash, Users } from "lucide-react";
 import type { User } from "~/modules/users/users.types";
 import type { FeatureFlag } from "../featureFlags.types";
