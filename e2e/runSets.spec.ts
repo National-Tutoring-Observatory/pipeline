@@ -5,7 +5,7 @@ test.describe("Run Sets", () => {
     const timestamp = Date.now();
     const runSetName = `E2E Test Run Set ${timestamp}`;
 
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -61,7 +61,7 @@ test.describe("Run Sets", () => {
   });
 
   test("should display run sets list for a project", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -78,7 +78,7 @@ test.describe("Run Sets", () => {
   });
 
   test("should navigate to run set detail page", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -101,7 +101,7 @@ test.describe("Run Sets", () => {
   });
 
   test("should display run set sessions and runs", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -118,11 +118,13 @@ test.describe("Run Sets", () => {
     await runSetLink.click();
 
     await expect(page.getByText("session_001.json")).toBeVisible();
-    await expect(page.getByText("Praise classification").first()).toBeVisible();
+    await expect(
+      page.getByText("Talk Moves (sample prompt)").first(),
+    ).toBeVisible();
   });
 
   test("should navigate back using breadcrumbs", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -143,7 +145,7 @@ test.describe("Run Sets", () => {
   });
 
   test("should show export menu options", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")

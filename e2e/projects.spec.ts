@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Projects", () => {
   test("should display projects list", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     await expect(
       page.getByRole("link", { name: "Projects", exact: true }).first(),
@@ -13,7 +13,7 @@ test.describe("Projects", () => {
   });
 
   test("should navigate to project detail page", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -28,7 +28,7 @@ test.describe("Projects", () => {
   });
 
   test("should show project edit and delete buttons", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -40,7 +40,7 @@ test.describe("Projects", () => {
   });
 
   test("should open create project dialog", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     await page.getByRole("button", { name: "Create project" }).click();
 
@@ -56,7 +56,7 @@ test.describe("Projects", () => {
   });
 
   test("should validate project name in create dialog", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     await page.getByRole("button", { name: "Create project" }).click();
 
@@ -69,7 +69,7 @@ test.describe("Projects", () => {
   });
 
   test("should navigate using breadcrumbs", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -81,6 +81,6 @@ test.describe("Projects", () => {
       .first()
       .click();
 
-    await expect(page).toHaveURL("/");
+    await expect(page).toHaveURL("/projects");
   });
 });

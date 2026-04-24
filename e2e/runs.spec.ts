@@ -5,7 +5,7 @@ test.describe("Runs", () => {
     const timestamp = Date.now();
     const runName = `E2E Test Run ${timestamp}`;
 
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -44,7 +44,7 @@ test.describe("Runs", () => {
   });
 
   test("should display runs list for a project", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -58,7 +58,7 @@ test.describe("Runs", () => {
   });
 
   test("should navigate to run detail page", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -79,7 +79,7 @@ test.describe("Runs", () => {
   });
 
   test("should show run edit button", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -96,7 +96,7 @@ test.describe("Runs", () => {
   });
 
   test("should display sessions list", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")
@@ -109,11 +109,11 @@ test.describe("Runs", () => {
       .first();
     await runLink.click();
 
-    await expect(page.getByText("session_001.json")).toBeVisible();
+    await expect(page.getByText("session_001.json").first()).toBeVisible();
   });
 
   test("should show export menu options", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects");
 
     const projectLink = page
       .getByRole("link")

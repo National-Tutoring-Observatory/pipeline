@@ -7,10 +7,10 @@ test.describe("Prompts", () => {
     await expect(
       page.getByRole("button", { name: "Create prompt" }),
     ).toBeVisible();
-    await expect(page.getByText("Praise classification")).toBeVisible();
-    await expect(page.getByText("Student Engagement Analysis")).toBeVisible();
+    await expect(page.getByText("Talk Moves (sample prompt)")).toBeVisible();
+    await expect(page.getByText("Tutor Moves (sample prompt)")).toBeVisible();
     await expect(
-      page.getByText("Teacher Feedback Classification"),
+      page.getByText("Tutoring Quality Rubric (sample prompt)"),
     ).toBeVisible();
   });
 
@@ -33,7 +33,7 @@ test.describe("Prompts", () => {
 
     const promptLink = page
       .getByRole("link")
-      .filter({ hasText: "Praise classification" });
+      .filter({ hasText: "Talk Moves (sample prompt)" });
     await promptLink.click();
 
     await expect(page).toHaveURL(/\/prompts\/[a-f0-9]+\/\d+$/);
@@ -47,7 +47,7 @@ test.describe("Prompts", () => {
 
     const promptLink = page
       .getByRole("link")
-      .filter({ hasText: "Praise classification" });
+      .filter({ hasText: "Talk Moves (sample prompt)" });
     await promptLink.click();
 
     await expect(page.getByRole("button", { name: "Edit" })).toBeVisible();
@@ -58,7 +58,7 @@ test.describe("Prompts", () => {
 
     const promptLink = page
       .getByRole("link")
-      .filter({ hasText: "Praise classification" });
+      .filter({ hasText: "Talk Moves (sample prompt)" });
     await promptLink.click();
 
     await expect(page.getByText("Versions")).toBeVisible();
@@ -71,7 +71,7 @@ test.describe("Prompts", () => {
 
     const promptLink = page
       .getByRole("link")
-      .filter({ hasText: "Praise classification" });
+      .filter({ hasText: "Talk Moves (sample prompt)" });
     await promptLink.click();
 
     await expect(page.getByText("Name", { exact: true })).toBeVisible();
@@ -84,10 +84,10 @@ test.describe("Prompts", () => {
 
     const promptLink = page
       .getByRole("link")
-      .filter({ hasText: "Praise classification" });
+      .filter({ hasText: "Talk Moves (sample prompt)" });
     await promptLink.click();
 
-    await expect(page.locator('input[value="given_praise"]')).toBeVisible();
+    await expect(page.locator('input[value="TalkMove"]')).toBeVisible();
     await expect(page.locator('input[value="identifiedBy"]')).toBeVisible();
   });
 
@@ -97,7 +97,7 @@ test.describe("Prompts", () => {
     await page.getByRole("link", { name: "Prompts", exact: true }).click();
 
     await expect(page).toHaveURL("/prompts");
-    await expect(page.getByText("Praise classification")).toBeVisible();
+    await expect(page.getByText("Talk Moves (sample prompt)")).toBeVisible();
   });
 
   test("should create a new prompt", async ({ page }) => {

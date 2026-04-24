@@ -68,7 +68,7 @@ test.describe("Billing", () => {
   }) => {
     await navigateToBilling(page);
     await expect(page.getByText("Credit history")).toBeVisible();
-    await expect(page.getByText("E2E Test Credit")).toBeVisible();
+    await expect(page.getByText("E2E Test Credit").first()).toBeVisible();
   });
 
   test("should display spend analytics section", async ({ page }) => {
