@@ -37,7 +37,7 @@ export default function SessionViewerUtterance({
       <div className="flex max-w-7/8 flex-col">
         <div
           id={`session-viewer-utterance-${utterance._id}`}
-          className={clsx("scroll-mt-4 rounded-4xl border p-4", {
+          className={clsx("scroll-mt-4 rounded-4xl border p-4 break-all", {
             "border-sandpiper-accent/30 bg-sandpiper-accent/10": isSelected,
             "bg-sandpiper-elevated rounded-bl-none":
               !isSelected && utterance.role === leadRole,
