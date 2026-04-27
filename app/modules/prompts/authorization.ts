@@ -34,7 +34,7 @@ const canUserManagePrompt = (user: User | null, prompt: Prompt): boolean => {
 
 const PromptAuthorization = {
   canCreate(user: User | null, teamId: string): boolean {
-    return userIsTeamAdmin(user, teamId);
+    return userIsTeamMember(user, teamId);
   },
 
   canView(user: User | null, prompt: Prompt): boolean {
