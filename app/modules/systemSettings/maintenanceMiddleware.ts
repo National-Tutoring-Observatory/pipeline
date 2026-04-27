@@ -5,15 +5,15 @@ import sessionStorage from "../../../sessionStorage";
 import maintenancePageHtml from "./helpers/maintenancePageHtml";
 import { SystemSettingsService } from "./systemSettings";
 
-const EXEMPT_PATHS = [
-  "/assets/",
-  "/socket.io/",
-  "/api/sockets",
-  "/api/webhooks/stripe",
-];
+const EXEMPT_PREFIXES = ["/assets/", "/socket.io/", "/api/sockets"];
+
+const EXEMPT_EXACT = ["/api", "/api/webhooks/stripe"];
 
 function isExempt(path: string): boolean {
-  return EXEMPT_PATHS.some((exempt) => path.startsWith(exempt));
+  return (
+    EXEMPT_EXACT.includes(path) ||
+    EXEMPT_PREFIXES.some((prefix) => path.startsWith(prefix))
+  );
 }
 
 export default async function maintenanceMiddleware(
