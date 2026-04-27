@@ -89,6 +89,7 @@ describe("maintenanceMiddleware", () => {
       "/socket.io/connect",
       "/api/sockets",
       "/api/webhooks/stripe",
+      "/api",
     ])("allows %s through during maintenance", async (path) => {
       await SystemSettingsService.update({ maintenanceMode: true });
 
