@@ -39,7 +39,7 @@ export const handler = async (event: LambdaEvent) => {
   const llm = new LLM({
     retries: 3,
     model: getDefaultModelCode(),
-    user: team,
+    team,
     source: "file-conversion",
     sourceId: sessionId,
     billingEventId,

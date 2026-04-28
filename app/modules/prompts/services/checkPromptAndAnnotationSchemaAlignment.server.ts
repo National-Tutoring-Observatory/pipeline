@@ -39,7 +39,7 @@ export default async function checkPromptAndAnnotationSchemaAlignment({
 
   const llm = new LLM({
     model: "anthropic.claude-4.6-sonnet",
-    user: team,
+    team,
     source: "prompt-alignment",
     sourceId: promptId,
     billingEventId: `prompt-alignment:check:${promptId}`,

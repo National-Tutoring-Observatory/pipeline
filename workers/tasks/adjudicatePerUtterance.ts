@@ -86,7 +86,7 @@ export default async function adjudicatePerUtterance(job: Job) {
 
       const llm = new LLM({
         model,
-        user: team,
+        team,
         schema: responseSchema,
         source: "adjudication:per-utterance",
         sourceId: sessionId,

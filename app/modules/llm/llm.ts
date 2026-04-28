@@ -24,7 +24,7 @@ interface LLMOptions {
   model: string;
   sourceId?: string;
   billingEventId: string;
-  user?: string;
+  team?: string;
   schema?: object;
   retries?: number;
   timeout?: number;
@@ -95,7 +95,7 @@ class LLM {
     };
 
     if (delta.inputTokens === 0 && delta.outputTokens === 0) return;
-    if (!this.options.user) return;
+    if (!this.options.team) return;
 
     try {
       const applyBillingDebit = (
@@ -107,7 +107,7 @@ class LLM {
         outputTokens: delta.outputTokens,
       });
       await applyBillingDebit({
-        teamId: this.options.user,
+        teamId: this.options.team,
         model: this.options.model,
         source: this.options.source,
         sourceId: this.options.sourceId,
@@ -118,7 +118,7 @@ class LLM {
         idempotencyKey: [
           "llm-cost",
           this.options.billingEventId,
-          this.options.user,
+          this.options.team,
           this.options.source,
           this.options.sourceId ?? "none",
           this.totalUsage.inputTokens,
@@ -132,21 +132,21 @@ class LLM {
   }
 
   private async checkBalance() {
-    if (!this.options.user) return;
+    if (!this.options.team) return;
     if (mongoose.connection.readyState !== 1) return;
 
     const { TeamBillingService } =
       await import("~/modules/billing/teamBilling");
-    const balance = await TeamBillingService.getBalance(this.options.user);
+    const balance = await TeamBillingService.getBalance(this.options.team);
 
     if (balance <= 0) {
       const { insufficientBalanceCounter } =
         await import("~/modules/billing/helpers/billingMetrics");
-      insufficientBalanceCounter.add(1, { team: this.options.user });
+      insufficientBalanceCounter.add(1, { team: this.options.team });
 
       const { InsufficientCreditsError } =
         await import("~/modules/billing/errors/insufficientCreditsError");
-      throw new InsufficientCreditsError(this.options.user);
+      throw new InsufficientCreditsError(this.options.team);
     }
   }
 

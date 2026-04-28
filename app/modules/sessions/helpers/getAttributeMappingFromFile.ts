@@ -56,7 +56,7 @@ export default async function getAttributeMappingFromFile({
   try {
     const llm = new LLM({
       model: getDefaultModelCode(),
-      user: team,
+      team,
       source: "attribute-mapping",
       sourceId: projectId,
       billingEventId: `attribute-mapping:${projectId ?? "no-project"}`,

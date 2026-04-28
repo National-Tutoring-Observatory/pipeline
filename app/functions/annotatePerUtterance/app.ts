@@ -43,7 +43,7 @@ export const handler = async (event: { body: LambdaBody }) => {
 
   const llm = new LLM({
     model,
-    user: team,
+    team,
     source: "annotation:per-utterance",
     sourceId: sessionId,
     billingEventId,

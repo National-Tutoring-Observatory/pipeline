@@ -70,7 +70,7 @@ export default async function createPromptFromCodebook({
 
     const llm = new LLM({
       model: "anthropic.claude-4.6-opus",
-      user: teamId,
+      team: teamId,
       source: "codebook-prompt-generation",
       sourceId: codebookId,
       billingEventId: `codebook-prompt-generation:${codebookVersionId}`,

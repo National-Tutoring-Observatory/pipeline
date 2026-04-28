@@ -80,7 +80,7 @@ export default async function adjudicatePerSession(job: Job) {
 
       const llm = new LLM({
         model,
-        user: team,
+        team,
         schema: responseSchema,
         source: "adjudication:per-session",
         sourceId: sessionId,
