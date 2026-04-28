@@ -71,7 +71,7 @@ export default async function annotatePerUtterance(job: Job) {
 
     const llm = new LLM({
       model,
-      user: team,
+      team,
       schema: responseSchema,
       source: "annotation:per-utterance",
       sourceId: runId,
@@ -97,7 +97,7 @@ export default async function annotatePerUtterance(job: Job) {
 
       const verifyLlm = new LLM({
         model,
-        user: team,
+        team,
         schema: responseSchema,
         source: "verification:per-utterance",
         sourceId: runId,

@@ -142,7 +142,7 @@ describe("LLM", () => {
         model: MODEL,
         sourceId: "session-123",
         billingEventId: "event-123",
-        user: "team-456",
+        team: "team-456",
       });
       llm.addUserMessage("test", {});
       await llm.createChat();
@@ -196,7 +196,7 @@ describe("LLM", () => {
         model: MODEL,
         retries: 3,
         billingEventId: makeBillingEventId("orchestrator-attempts"),
-        user: "team-1",
+        team: "team-1",
       });
       llm.setOrchestratorMessage("Check this", {});
       llm.addUserMessage("test", {});
@@ -222,7 +222,7 @@ describe("LLM", () => {
         source: SOURCE,
         model: MODEL,
         billingEventId: makeBillingEventId("ledger-write-fails"),
-        user: "team-1",
+        team: "team-1",
       });
       llm.addUserMessage("test", {});
 

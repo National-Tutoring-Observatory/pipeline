@@ -71,7 +71,7 @@ export default async function annotatePerSession(job: Job) {
 
     const llm = new LLM({
       model,
-      user: team,
+      team,
       schema: responseSchema,
       source: "annotation:per-session",
       sourceId: runId,
@@ -97,7 +97,7 @@ export default async function annotatePerSession(job: Job) {
 
       const verifyLlm = new LLM({
         model,
-        user: team,
+        team,
         schema: responseSchema,
         source: "verification:per-session",
         sourceId: runId,

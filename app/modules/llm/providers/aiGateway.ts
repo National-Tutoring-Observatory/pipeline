@@ -36,16 +36,19 @@ registerLLM("AI_GATEWAY", {
     messages: Array<{ role: string; content: string }>;
     schema?: object;
   }) => {
-    const { model, user } = options;
+    const { model, team, billingEventId } = options;
+    const env = process.env.DEPLOY_ENV || process.env.NODE_ENV || "development";
+
+    const prefix = `sandpiper.${env}`;
+    const tags: string[] = [];
+    if (team) tags.push(`${prefix}.team.${team}`);
+    if (billingEventId) tags.push(`${prefix}.billing.${billingEventId}`);
 
     const metadata: Record<string, unknown> = {};
-
-    if (user) {
-      metadata.tags = [user];
-    }
+    if (tags.length > 0) metadata.tags = tags;
 
     const requestParams: Record<string, unknown> = {
-      user,
+      user: team,
       model: model,
       messages: messages,
       metadata,
