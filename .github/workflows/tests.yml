@@ -69,8 +69,15 @@ jobs:
       - name: Check formatting
         run: yarn prettier --check --cache --cache-location .prettiercache .
 
+      - name: Restore ESLint cache
+        uses: actions/cache@v4
+        with:
+          path: .eslintcache
+          key: eslint-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: eslint-${{ runner.os }}-
+
       - name: Lint
-        run: yarn lint
+        run: yarn eslint --cache --cache-location .eslintcache .
 
       - name: Run tests with coverage
         run: yarn test:coverage
