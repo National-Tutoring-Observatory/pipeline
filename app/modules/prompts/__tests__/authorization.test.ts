@@ -76,9 +76,9 @@ describe("PromptAuthorization", () => {
       );
     });
 
-    it("denies team members from creating prompts", () => {
+    it("allows team members to create prompts in their team", () => {
       expect(PromptAuthorization.canCreate(teamMemberUser, "team-1")).toBe(
-        false,
+        true,
       );
     });
 
