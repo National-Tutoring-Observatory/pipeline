@@ -48,7 +48,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .prettiercache
-          key: prettier-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          key: prettier-${{ runner.os }}-${{ github.run_id }}
           restore-keys: prettier-${{ runner.os }}-
 
       - name: Check formatting
@@ -58,7 +58,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .eslintcache
-          key: eslint-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          key: eslint-${{ runner.os }}-${{ github.run_id }}
           restore-keys: eslint-${{ runner.os }}-
 
       - name: Lint
