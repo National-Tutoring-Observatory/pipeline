@@ -30,9 +30,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Start MongoDB replica set
-        uses: ./.github/actions/start-mongodb
-
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -43,18 +40,6 @@ jobs:
         run: yarn install --frozen-lockfile
         env:
           BULLMQ_PRO_TOKEN: ${{ secrets.BULLMQ_PRO_TOKEN }}
-
-      - name: Wait for services
-        run: |
-          for i in {1..30}; do
-            if nc -z localhost 6379 && nc -z localhost 27017; then
-              echo "redis and mongo are up"
-              exit 0
-            fi
-            echo "waiting for services... ($i/30)"
-            sleep 2
-          done
-          echo "services failed to start" && exit 1
 
       - name: TypeScript type check
         run: yarn typecheck
@@ -78,6 +63,21 @@ jobs:
 
       - name: Lint
         run: yarn eslint --cache --cache-location .eslintcache .
+
+      - name: Start MongoDB replica set
+        uses: ./.github/actions/start-mongodb
+
+      - name: Wait for services
+        run: |
+          for i in {1..30}; do
+            if nc -z localhost 6379 && nc -z localhost 27017; then
+              echo "redis and mongo are up"
+              exit 0
+            fi
+            echo "waiting for services... ($i/30)"
+            sleep 2
+          done
+          echo "services failed to start" && exit 1
 
       - name: Run tests with coverage
         run: yarn test:coverage
