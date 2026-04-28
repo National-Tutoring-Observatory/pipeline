@@ -18,6 +18,7 @@ export default function RunSessions({
   sidebarSearchValue,
   sidebarCurrentPage,
   sidebarIsSyncing,
+  sidebarSearch,
   isLoadingSession,
   onSidebarSearchValueChanged,
   onSidebarPaginationChanged,
@@ -32,6 +33,7 @@ export default function RunSessions({
   sidebarSearchValue: string;
   sidebarCurrentPage: number;
   sidebarIsSyncing: boolean;
+  sidebarSearch: string;
   isLoadingSession: boolean;
   onSidebarSearchValueChanged: (value: string) => void;
   onSidebarPaginationChanged: (value: number) => void;
@@ -50,6 +52,7 @@ export default function RunSessions({
           count={paginatedSessions.count}
           currentSessionId={currentSessionId}
           runLink={runLink}
+          search={sidebarSearch}
           searchValue={sidebarSearchValue}
           currentPage={sidebarCurrentPage}
           isSyncing={sidebarIsSyncing}
