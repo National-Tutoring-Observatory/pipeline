@@ -17,6 +17,7 @@ export default function SessionListSidebar({
   count,
   currentSessionId,
   runLink,
+  search,
   searchValue,
   currentPage,
   isSyncing,
@@ -28,6 +29,7 @@ export default function SessionListSidebar({
   count: number;
   currentSessionId: string;
   runLink: string;
+  search: string;
   searchValue: string;
   currentPage: number;
   isSyncing: boolean;
@@ -95,7 +97,10 @@ export default function SessionListSidebar({
             <Link
               key={session.sessionId}
               ref={isCurrent ? activeRef : undefined}
-              to={`${runLink}/sessions/${session.sessionId}`}
+              to={{
+                pathname: `${runLink}/sessions/${session.sessionId}`,
+                search,
+              }}
               className={clsx("block border-b px-3 py-2", {
                 "bg-accent": isCurrent,
                 "hover:bg-muted": !isCurrent,

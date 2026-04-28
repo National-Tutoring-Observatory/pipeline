@@ -1,6 +1,11 @@
 import fse from "fs-extra";
 import map from "lodash/map";
-import { redirect, useLoaderData, useNavigation } from "react-router";
+import {
+  redirect,
+  useLoaderData,
+  useLocation,
+  useNavigation,
+} from "react-router";
 import getQueryParamsFromRequest from "~/modules/app/helpers/getQueryParamsFromRequest.server";
 import { useSearchQueryParams } from "~/modules/app/hooks/useSearchQueryParams";
 import requireAuth from "~/modules/authentication/helpers/requireAuth";
@@ -133,6 +138,7 @@ export default function ProjectRunSessionsRoute({
     { paramPrefix: "sidebar" },
   );
 
+  const location = useLocation();
   const navigation = useNavigation();
   const isLoadingSession =
     navigation.state === "loading" &&
@@ -151,6 +157,7 @@ export default function ProjectRunSessionsRoute({
       sidebarSearchValue={sidebarSearchValue}
       sidebarCurrentPage={sidebarCurrentPage}
       sidebarIsSyncing={sidebarIsSyncing}
+      sidebarSearch={location.search}
       isLoadingSession={isLoadingSession}
       onSidebarSearchValueChanged={setSidebarSearchValue}
       onSidebarPaginationChanged={setSidebarCurrentPage}
