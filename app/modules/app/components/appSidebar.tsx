@@ -19,6 +19,7 @@ import {
 import {
   ChartNoAxesGantt,
   ChevronsUpDown,
+  CircleDollarSign,
   ClipboardList,
   Construction,
   Database,
@@ -201,6 +202,22 @@ export default function AppSidebar() {
                           <Users />
                           <span className={isActive ? "underline" : ""}>
                             Users
+                          </span>
+                        </>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </Role>
+              <Role roles={["SUPER_ADMIN"]}>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={"/admin/billing/active-users"}>
+                      {({ isActive }) => (
+                        <>
+                          <CircleDollarSign />
+                          <span className={isActive ? "underline" : ""}>
+                            Billing
                           </span>
                         </>
                       )}

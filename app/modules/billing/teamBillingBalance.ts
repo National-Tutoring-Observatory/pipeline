@@ -1,5 +1,7 @@
 import mongoose, { type ClientSession } from "mongoose";
+import { getPaginationParams, getTotalPages } from "~/helpers/pagination";
 import teamBillingBalanceSchema from "~/lib/schemas/teamBillingBalance.schema";
+import type { PaginateProps } from "~/modules/common/types";
 import type { RunningTotals, TeamBillingBalance } from "./billing.types";
 import { balanceGauge } from "./helpers/billingMetrics";
 import reconcileTeamBillingBalance, {
@@ -36,6 +38,38 @@ export class TeamBillingBalanceService {
   static async findAllTeamIds(): Promise<string[]> {
     const ids = await TeamBillingBalanceModel.distinct("team");
     return ids.map((id: mongoose.Types.ObjectId) => id.toString());
+  }
+
+  static async count(match: Record<string, unknown> = {}): Promise<number> {
+    return TeamBillingBalanceModel.countDocuments(match);
+  }
+
+  static async paginate({
+    match,
+    sort,
+    page,
+    pageSize,
+  }: PaginateProps): Promise<{
+    data: TeamBillingBalance[];
+    count: number;
+    totalPages: number;
+  }> {
+    const pagination = getPaginationParams(page, pageSize);
+
+    let query = TeamBillingBalanceModel.find(match);
+    if (sort) query = query.sort(sort);
+    query = query.skip(pagination.skip).limit(pagination.limit);
+
+    const [docs, count] = await Promise.all([
+      query.exec(),
+      TeamBillingBalanceModel.countDocuments(match),
+    ]);
+
+    return {
+      data: docs.map((doc) => this.toTeamBillingBalance(doc)),
+      count,
+      totalPages: getTotalPages(count, pageSize),
+    };
   }
 
   static async deleteByTeam(teamId: string): Promise<void> {

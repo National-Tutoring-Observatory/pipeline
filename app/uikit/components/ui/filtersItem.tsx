@@ -142,7 +142,11 @@ const FiltersItem = ({
             }}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="--" aria-label={value} />
+              {value ? (
+                (filter.options.find((o) => o.value === value)?.text ?? "--")
+              ) : (
+                <SelectValue placeholder="--" />
+              )}
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
