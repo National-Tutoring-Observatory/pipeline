@@ -205,6 +205,10 @@ export default [
     "modules/billing/containers/stripeWebhook.route.tsx",
   ),
   route(
+    "api/exportActiveUsers",
+    "modules/billing/containers/exportActiveUsers.route.tsx",
+  ),
+  route(
     "api/downloadMtmDataset",
     "modules/datasets/containers/downloadMtmDataset.route.tsx",
   ),
@@ -254,6 +258,14 @@ export default [
   ]),
   ...prefix("admin", [
     route("users", "modules/users/containers/adminUsers.route.tsx"),
+    ...prefix("billing", [
+      layout("modules/billing/containers/billingLayout.route.tsx", [
+        route(
+          "active-users",
+          "modules/billing/containers/activeUsers.route.tsx",
+        ),
+      ]),
+    ]),
     route(
       "maintenance",
       "modules/systemSettings/containers/maintenance.route.tsx",

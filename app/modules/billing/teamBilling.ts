@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import type { Query } from "~/modules/app/helpers/buildQueryFromParams";
 import type { BalanceSummary } from "./billing.types";
 import { BillingLedgerEntryService } from "./billingLedgerEntry";
 import { BillingPlanService } from "./billingPlan";
@@ -9,6 +10,11 @@ import addCredits, {
 import applyBillingCredit from "./services/applyBillingCredit.server";
 import applyBillingDebit from "./services/applyBillingDebit.server";
 import estimateCost from "./services/estimateCost.server";
+import {
+  activeTeamsToCSV,
+  paginateActiveTeams,
+  type ActiveTeamRow,
+} from "./services/getActiveTeams.server";
 import getBillingReportingSummary, {
   type BillingReportingSummary,
 } from "./services/getBillingReportingSummary.server";
@@ -143,6 +149,14 @@ export class TeamBillingService {
   }
 
   static estimateCost = estimateCost;
+
+  static async paginateActiveTeams(query: Query, pageSize?: number) {
+    return paginateActiveTeams(query, pageSize);
+  }
+
+  static activeTeamsToCSV(rows: ActiveTeamRow[]) {
+    return activeTeamsToCSV(rows);
+  }
 
   static async applyStripeTopUp({
     teamId,
