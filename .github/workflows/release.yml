@@ -1,24 +1,8 @@
 name: Production Release
 
-# Developer workflow
-#   1. Merge PR
-#   2. Tag main branch with vX.Y.Z
-#   3. CI builds vX.Y.Z
-#   4. Update ECS service vX.Y.Z
-
-# After PR is merged. Run the following to trigger.
-#   git checkout main
-#   git pull
-#   git tag v1.2.3
-#   git push origin v1.2.3
-
-# Or create a GitHub Release
-#   - https://github.com/National-Tutoring-Observatory/sandpiper/releases/new
-
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  release:
+    types: [published]
 
 permissions:
   id-token: write
