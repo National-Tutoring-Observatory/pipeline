@@ -2,6 +2,7 @@ import type { Job } from "bullmq";
 import fse from "fs-extra";
 import filter from "lodash/filter";
 import find from "lodash/find.js";
+import getPromptText from "workers/helpers/getPromptText";
 import buildAnnotationSchema from "../../app/modules/llm/helpers/buildAnnotationSchema";
 import handleLLMError from "../../app/modules/llm/helpers/handleLLMError";
 import LLM from "../../app/modules/llm/llm";
@@ -10,8 +11,9 @@ import getConversationFromJSON from "../../app/modules/sessions/helpers/getConve
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
 import emitFromJob from "../helpers/emitFromJob";
 import updateRunSession from "../helpers/updateRunSession";
-import annotationPerUtterancePrompts from "../prompts/annotatePerUtterance.prompts.json";
-import verifyPerUtterancePrompts from "../prompts/verifyPerUtterance.prompts.json";
+
+const annotatePerUtterancePrompt = getPromptText("annotatePerUtterance");
+const verifyPerUtterancePrompt = getPromptText("verifyPerUtterance");
 
 export default async function annotatePerUtterance(job: Job) {
   const {
@@ -79,7 +81,7 @@ export default async function annotatePerUtterance(job: Job) {
       timeout: 600_000,
     });
 
-    llm.addSystemMessage(annotationPerUtterancePrompts.system, {
+    llm.addSystemMessage(annotatePerUtterancePrompt, {
       annotationSchema: JSON.stringify(prompt.annotationSchema),
       leadRole: originalJSON.leadRole || "TEACHER",
     });
@@ -105,7 +107,7 @@ export default async function annotatePerUtterance(job: Job) {
         timeout: 600_000,
       });
 
-      verifyLlm.addSystemMessage(verifyPerUtterancePrompts.system, {
+      verifyLlm.addSystemMessage(verifyPerUtterancePrompt, {
         annotationSchema: JSON.stringify(prompt.annotationSchema),
         leadRole: originalJSON.leadRole || "TEACHER",
       });

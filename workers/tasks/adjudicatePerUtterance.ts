@@ -2,6 +2,7 @@ import type { Job } from "bullmq";
 import fse from "fs-extra";
 import filter from "lodash/filter";
 import find from "lodash/find.js";
+import getPromptText from "workers/helpers/getPromptText";
 import buildAnnotationSchema from "../../app/modules/llm/helpers/buildAnnotationSchema";
 import handleLLMError from "../../app/modules/llm/helpers/handleLLMError";
 import LLM from "../../app/modules/llm/llm";
@@ -11,7 +12,8 @@ import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapt
 import buildAdjudicationPrompt from "../helpers/buildAdjudicationPrompt";
 import emitFromJob from "../helpers/emitFromJob";
 import updateRunSession from "../helpers/updateRunSession";
-import adjudicatePerUtterancePrompts from "../prompts/adjudicatePerUtterance.prompts.json";
+
+const adjudicatePerUtterancePrompt = getPromptText("adjudicatePerUtterance");
 
 export default async function adjudicatePerUtterance(job: Job) {
   const { runId, sessionId, inputFile, outputFolder, prompt, model, team } =
@@ -94,7 +96,7 @@ export default async function adjudicatePerUtterance(job: Job) {
         timeout: 600_000,
       });
 
-      llm.addSystemMessage(adjudicatePerUtterancePrompts.system, {
+      llm.addSystemMessage(adjudicatePerUtterancePrompt, {
         annotationSchema: JSON.stringify(prompt.annotationSchema),
         leadRole: originalJSON.leadRole || "TEACHER",
       });
