@@ -2,6 +2,7 @@ import type { Job } from "bullmq";
 import fse from "fs-extra";
 import filter from "lodash/filter";
 import map from "lodash/map.js";
+import getPromptText from "workers/helpers/getPromptText";
 import buildAnnotationSchema from "../../app/modules/llm/helpers/buildAnnotationSchema";
 import handleLLMError from "../../app/modules/llm/helpers/handleLLMError";
 import LLM from "../../app/modules/llm/llm";
@@ -10,8 +11,9 @@ import getConversationFromJSON from "../../app/modules/sessions/helpers/getConve
 import getStorageAdapter from "../../app/modules/storage/helpers/getStorageAdapter";
 import emitFromJob from "../helpers/emitFromJob";
 import updateRunSession from "../helpers/updateRunSession";
-import annotationPerSessionPrompts from "../prompts/annotatePerSession.prompts.json";
-import verifyPerSessionPrompts from "../prompts/verifyPerSession.prompts.json";
+
+const annotationPerSessionPrompt = getPromptText("annotatePerSession");
+const verifyPerSessionPrompt = getPromptText("verifyPerSession");
 
 export default async function annotatePerSession(job: Job) {
   const {
@@ -79,7 +81,7 @@ export default async function annotatePerSession(job: Job) {
       timeout: 600_000,
     });
 
-    llm.addSystemMessage(annotationPerSessionPrompts.system, {
+    llm.addSystemMessage(annotationPerSessionPrompt, {
       annotationSchema: JSON.stringify(prompt.annotationSchema),
       leadRole: originalJSON.leadRole || "TEACHER",
     });
@@ -105,7 +107,7 @@ export default async function annotatePerSession(job: Job) {
         timeout: 600_000,
       });
 
-      verifyLlm.addSystemMessage(verifyPerSessionPrompts.system, {
+      verifyLlm.addSystemMessage(verifyPerSessionPrompt, {
         annotationSchema: JSON.stringify(prompt.annotationSchema),
         leadRole: originalJSON.leadRole || "TEACHER",
       });
